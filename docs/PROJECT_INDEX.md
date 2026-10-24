@@ -155,6 +155,8 @@ NETWORK_DEGRADED，push0/PR0/Actions0，不逐Gate重推或触发付费CI。仅�
 
 [当前交期覆盖证明](tasks/completed/2026-10-24-delivery-coverage-current-engineering.md)：source558实际47相关/type/Node/import/相关lint通过，proof5e366，清单458/62保留455/61/runtime21routes。无新811/134/Vite/browser/PythonPASS声明；精确main守卫另核，最终累计PR两发布命令仍重跑。
 
-覆盖后台3042最终守卫111057ms PASS，source55847相关通过、new134/new811均0范围复用，完整证据在[下一输入](tasks/completed/2026-10-24-delivery-coverage-client-input-state/)。当前[严格覆盖客户端V0](tasks/active/server-delivery-coverage-client-current-2026-10-24.md)五路径预核4同/1三方，尚无新产品/QA，可见面板未批准不实施。
+覆盖后台3042最终守卫111057ms PASS，source55847相关通过、new134/new811均0范围复用，完整证据在[下一输入](tasks/completed/2026-10-24-delivery-coverage-client-input-state/)。当前[严格覆盖客户端V0](tasks/active/server-delivery-coverage-client-current-2026-10-24.md)五路径4同/1三方已受控前移，当前62和37built排单UI/双构建通过，可见面板未批准不实施。
 
-[严格交期覆盖客户端V0](features/SERVER_DELIVERY_COVERAGE_UI.md)沿同一GET/原1MiB边界验证完整coverage；当前已受控前移，实际新QA待跑，面板未实施。
+[严格交期覆盖客户端V0](features/SERVER_DELIVERY_COVERAGE_UI.md)沿同一GET/原1MiB边界验证完整coverage；source fc103实际62/类型/Node/相关lint/双构建与37built排单UI通过；proof9a31冻结，面板未实施。
+
+[严格客户端当前证明](tasks/completed/2026-10-24-delivery-coverage-client-current-engineering.md)：本轮62与37built排单UI及双构建通过，初次runner smoke失败保留；清单461/63，精确main守卫另核，无新134/811/139或HostedCI声明。

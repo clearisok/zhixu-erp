@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
-  "verifiedAt": "2026-10-24T14:09:09.468Z",
+  "verifiedAt": "2026-10-24T14:21:53.707Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -4100,6 +4100,32 @@
       "sha256": "e651b47208e65d416f6fe8e90e9fefa3dca1b4fcbc01176be1982db4f08f544c",
       "supersedes": "decisions-delivery-plan-ui-current-20261024",
       "changeReason": "Forward-bind D155 current registered-fact read projection, retaining D151 execution identity, D100 demand ownership, all historical decisions and explicit unassessed scope."
+    },
+    {
+      "id": "delivery-coverage-client-current-engineering-20261024",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-24-delivery-coverage-client-current-engineering.md",
+      "recordedAtSha": "9a31d555c900bd1eebf20bc484f886f7b99a790a",
+      "renderedSourceSha": "fc103fb87ed3df294922189b4954c1764903ef22",
+      "sha256": "64c068998d508616d9ab9cc288143a64f710c5d182b51715058d625664e46894"
+    },
+    {
+      "id": "server-delivery-coverage-client-current-20261024",
+      "kind": "document",
+      "path": "docs/features/SERVER_DELIVERY_COVERAGE_UI.md",
+      "recordedAtSha": "9a31d555c900bd1eebf20bc484f886f7b99a790a",
+      "renderedSourceSha": "fc103fb87ed3df294922189b4954c1764903ef22",
+      "sha256": "a61f3c062808e3efac79af4d7e0f2167d547de3aa87fe8c35695652cc9a43f0a"
+    },
+    {
+      "id": "decisions-delivery-coverage-client-current-20261024",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "9a31d555c900bd1eebf20bc484f886f7b99a790a",
+      "renderedSourceSha": "fc103fb87ed3df294922189b4954c1764903ef22",
+      "sha256": "89f7c3d55276d114a7ebb47e42f994f82f5992c853224ce0e8c6ca2c3d221667",
+      "supersedes": "decisions-delivery-coverage-current-20261024",
+      "changeReason": "Forward-bind strict same-response client validation for existing D155 read, preserving historical decisions, owner/session/size limits and requiring separate approval for any visible coverage panel."
     }
   ],
   "pages": [
@@ -10120,6 +10146,91 @@
           "scope": "Current delivery read projection not deployed; historical runtime facts retained without querying those environments.",
           "evidence": [
             "delivery-coverage-current-engineering-20261024"
+          ]
+        }
+      }
+    },
+    {
+      "id": "delivery-coverage-client-current",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "V0 existing production-order session GET validates same-response deliveryCoverage with existing pure D155; missing/null unavailable, exact decimals/plan coverage/summary/lease and original 1MiB+4096 envelope preserved. No DOM/style/navigation/new panel, Source call, SQL, write, money or role change. Actual source fc103:62 related checks,type,relatedlint,Node compile/import,dual Vite/artifacts and37 real built planning UI. Initial ignored runner emit-path smoke error preserved; corrected smoke only. 707134 tool/fixture scoped reuse, NOT current134PASS/all dynamic inputs unchanged/full945; final cumulativePR both release commands mandatory.",
+      "evidence": [
+        "delivery-coverage-client-current-engineering-20261024"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "fc103fb87ed3df294922189b4954c1764903ef22",
+          "scope": "V0 existing production-order session GET validates same-response deliveryCoverage with existing pure D155; missing/null unavailable, exact decimals/plan coverage/summary/lease and original 1MiB+4096 envelope preserved. No DOM/style/navigation/new panel, Source call, SQL, write, money or role change. Actual source fc103:62 related checks,type,relatedlint,Node compile/import,dual Vite/artifacts and37 real built planning UI. Initial ignored runner emit-path smoke error preserved; corrected smoke only. 707134 tool/fixture scoped reuse, NOT current134PASS/all dynamic inputs unchanged/full945; final cumulativePR both release commands mandatory.",
+          "evidence": [
+            "delivery-coverage-client-current-engineering-20261024"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-24",
+          "sourceSha": "fc103fb87ed3df294922189b4954c1764903ef22",
+          "scope": "V0 existing production-order session GET validates same-response deliveryCoverage with existing pure D155; missing/null unavailable, exact decimals/plan coverage/summary/lease and original 1MiB+4096 envelope preserved. No DOM/style/navigation/new panel, Source call, SQL, write, money or role change. Actual source fc103:62 related checks,type,relatedlint,Node compile/import,dual Vite/artifacts and37 real built planning UI. Initial ignored runner emit-path smoke error preserved; corrected smoke only. 707134 tool/fixture scoped reuse, NOT current134PASS/all dynamic inputs unchanged/full945; final cumulativePR both release commands mandatory.",
+          "evidence": [
+            "delivery-coverage-client-current-engineering-20261024"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "fc103fb87ed3df294922189b4954c1764903ef22",
+          "scope": "V0 existing production-order session GET validates same-response deliveryCoverage with existing pure D155; missing/null unavailable, exact decimals/plan coverage/summary/lease and original 1MiB+4096 envelope preserved. No DOM/style/navigation/new panel, Source call, SQL, write, money or role change. Actual source fc103:62 related checks,type,relatedlint,Node compile/import,dual Vite/artifacts and37 real built planning UI. Initial ignored runner emit-path smoke error preserved; corrected smoke only. 707134 tool/fixture scoped reuse, NOT current134PASS/all dynamic inputs unchanged/full945; final cumulativePR both release commands mandatory.",
+          "evidence": [
+            "delivery-coverage-client-current-engineering-20261024"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "fc103fb87ed3df294922189b4954c1764903ef22",
+          "scope": "V0 existing production-order session GET validates same-response deliveryCoverage with existing pure D155; missing/null unavailable, exact decimals/plan coverage/summary/lease and original 1MiB+4096 envelope preserved. No DOM/style/navigation/new panel, Source call, SQL, write, money or role change. Actual source fc103:62 related checks,type,relatedlint,Node compile/import,dual Vite/artifacts and37 real built planning UI. Initial ignored runner emit-path smoke error preserved; corrected smoke only. 707134 tool/fixture scoped reuse, NOT current134PASS/all dynamic inputs unchanged/full945; final cumulativePR both release commands mandatory.",
+          "evidence": [
+            "delivery-coverage-client-current-engineering-20261024"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "fc103fb87ed3df294922189b4954c1764903ef22",
+          "scope": "V0 existing production-order session GET validates same-response deliveryCoverage with existing pure D155; missing/null unavailable, exact decimals/plan coverage/summary/lease and original 1MiB+4096 envelope preserved. No DOM/style/navigation/new panel, Source call, SQL, write, money or role change. Actual source fc103:62 related checks,type,relatedlint,Node compile/import,dual Vite/artifacts and37 real built planning UI. Initial ignored runner emit-path smoke error preserved; corrected smoke only. 707134 tool/fixture scoped reuse, NOT current134PASS/all dynamic inputs unchanged/full945; final cumulativePR both release commands mandatory.",
+          "evidence": [
+            "delivery-coverage-client-current-engineering-20261024"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "Strict coverage client not deployed; original runtime facts retained, no runtime query or cutover.",
+          "evidence": [
+            "delivery-coverage-client-current-engineering-20261024"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "Strict coverage client not deployed; original runtime facts retained, no runtime query or cutover.",
+          "evidence": [
+            "delivery-coverage-client-current-engineering-20261024"
           ]
         }
       }
