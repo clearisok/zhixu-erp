@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "d1dd4f0fcf9992d5c055c7b67b6832b635485680",
-  "verifiedAt": "2026-10-23",
+  "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
+  "verifiedAt": "2026-10-24",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -1841,6 +1841,57 @@
         "decisions-pr120-main-be9-import-20261023"
       ],
       "changeReason": "PR123 retains its approved role/user/log decisions and forward-integrates approved PR120 main through actual two-parent merge 642d5f12; no original decision record or approval is rewritten."
+    },
+    {
+      "id": "decisions-server-convergence-20261020",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "04f3af29022cdee5fe3f603a744112e462e497d9",
+      "sha256": "19d80a35bea637bebd140356491e40412d5fadad1449c2e927fa3d142a9f7578",
+      "supersedes": "decisions-price-processing-20261017",
+      "changeReason": "Record user-approved D-147: empty persistent Server target without historical migration, CNY garment sales output and USD labor, preserving prior decisions and runtime boundaries."
+    },
+    {
+      "id": "closing-server-target-20261020",
+      "kind": "document",
+      "path": "docs/features/CLOSING_CENTER.md",
+      "recordedAtSha": "04f3af29022cdee5fe3f603a744112e462e497d9",
+      "sha256": "960321f523c0b3983e6a47f89c0d60e6c5da993e1c47af12d75b26ac2f2b19d0",
+      "supersedes": "closing",
+      "changeReason": "Distinguish approved D-147 future Server CNY sales and USD labor from existing Browser implementation; retain original closing evidence and capability status."
+    },
+    {
+      "id": "decisions-convergence-stabilization-merge-20261020",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "eb3a2833eaa9fe93f7ef8d3ab3014607fa548327",
+      "sha256": "5fba7e3f30f9e86dae20db972a570fdf4aea45510e4fa25490f08dc068c9230b",
+      "mergeOf": [
+        "decisions-server-convergence-20261020",
+        "decisions-stabilization-20261019"
+      ],
+      "changeReason": "Preserve both immutable parent-branch decision histories in the actual PR120/Server-convergence merge checkpoint; D-145 cleanup and approved D-147 target both remain."
+    },
+    {
+      "id": "decisions-convergence-system-management-merge-20261020",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "7eb63602cdb51c043414deabe4d3afed59a1e72d",
+      "sha256": "98cf8909feaa2900d7b2ab151f61a1d4e2a9cf173b05c9b9f385fe65449d17ad",
+      "mergeOf": [
+        "decisions-convergence-stabilization-merge-20261020",
+        "decisions-price-processing-20261017-roles-20261019"
+      ],
+      "changeReason": "Actual fixed PR123 merge retains D-146 administration together with D-145 stabilization and D-147 Server target, preserving both original parent manifests and histories."
+    },
+    {
+      "id": "decisions-server-navigation-continuity-20261020",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "b278602fc670f13bb4df29691d2b98b7ffa86fbc",
+      "sha256": "cdeb67c55a4c50a35c34079949969a68c3bc776f933d4b982e7f6739efd68aa3",
+      "supersedes": "decisions-convergence-system-management-merge-20261020",
+      "changeReason": "Approved Gate3 restores persistent Server navigation and feature-owned exit protection without changing layout, business ownership, permissions or source activation; preserve both merged decision histories."
     }
   ],
   "pages": [

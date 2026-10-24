@@ -1,4 +1,5 @@
 "use client";
+import {useServerNavigationProtection} from '@/components/foundation/server-navigation-protection';
 import {useCallback,useEffect,useRef,useState} from 'react';
 import {Button,FormItem,Modal} from '@/components/foundation';
 import {useServerSession} from '@/features/server-auth';
@@ -27,6 +28,7 @@ export function QuoteOrderPricingDialog({open,onClose,quoteId,historyOnly=false}
  const [rule,setRule]=useState<SaleRule>({kind:'amount',value:'0'}),[reason,setReason]=useState(''),[preview,setPreview]=useState<Preview|null>(null),[previewDirty,setPreviewDirty]=useState(false),[overrides,setOverrides]=useState<Record<string,Record<string,string>>>({}),[pendingId,setPendingId]=useState<string|null>(null),[receipt,setReceipt]=useState<Receipt|null>(null),[historyRefresh,setHistoryRefresh]=useState(0);
  const allowed=['quote.order_price.adjust','commercial.sale.view','commercial.sale.edit','quote.view','order.view'].every(p=>session.permissions.includes(p as typeof session.permissions[number]));
  const pendingKey=`zhixu.server.order-price.pending.v1.${session.user?.id??'anonymous'}`;
+ useServerNavigationProtection({blocked:open&&(busy||Boolean(pendingId)||sourceGuard),message:sourceGuard?'来源维护尚未完成，请先保存或核对原来源请求。':'订单调价正在处理或结果尚未确认，请先核对原调价回执。'});
  useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;};},[]);
  useEffect(()=>{if(!open)return;let active=true;void Promise.resolve().then(()=>{if(!active)return;try{const saved=window.sessionStorage.getItem(pendingKey);if(saved){const v=JSON.parse(saved);if(typeof v.requestId==='string'){setPendingId(v.requestId);setMessage('存在待核对的调价请求，请先读取原回执。');}}}catch{setMessage('本机请求恢复记录不可读取，请先核对历史。');}});return()=>{active=false;};},[open,pendingKey]);
  useEffect(()=>{if(!pendingId)return;const protect=(e:BeforeUnloadEvent)=>{e.preventDefault();e.returnValue='';};window.addEventListener('beforeunload',protect);return()=>window.removeEventListener('beforeunload',protect);},[pendingId]);

@@ -1,8 +1,8 @@
 # 项目知识索引
 
-2026-10-23；实际main=d1dd4f0fcf9992d5c055c7b67b6832b635485680，#126/#127/#120已分别获准保留原历史合并。完整G1–G5继续；#123本阶段只工程整合，不自动合并或关闭其他PR，不部署、不改真实业务数据。
+2026-10-24；实际main e01a11952b648024c0bd6bf4259de429374981e2，#123已获准合并，#121/#122随祖先自动收口、原分支保留。当前优先：[导航前向整合](tasks/active/server-navigation-main-forward-2026-10-24.md)、[PR125前向](tasks/active/pr125-main-forward-2026-10-23.md)、[交付诊断](tasks/active/git-delivery-diagnostics-main-2026-10-24.md)。先读CURRENT_STATE与AI_HANDOFF恢复精确状态。
 
-[PR123前向任务](tasks/active/pr123-main-forward-2026-10-23.md)：642d真实双父保留221原证据，222/46合流见证；9ea的804源码/68API/112前端/134发布、类型lint两构建通过，14报价加工与修复后8角色日志built场景分别保留真实结果。新精确提交交付/CI及最终复审待收口；旧环境/报价/账号不变，不把候选或CI当部署。
+原Gate3仅本地向当前基线前移；旧成果/证据保留，组合检查待执行，不新增累计PR或付费CI。#125仍CA草稿；4f远端exact与actual push exit1/STOP并存，精确API快进例外尚待答复。其余不自动merge/close、部署、账号/业务库操作、Source读取或旧入口替换。
 
 ## 系统简介
 
@@ -133,4 +133,4 @@ Gate3本地加工批次实现恢复入口：[加工下单批次](features/PROCES
 
 历史资料可用于理解原因，但发生冲突时以当前代码、测试、CURRENT_STATE 和 Active 决策为准。
 
-当前共享CI整合证据见[原输入](tasks/completed/2026-10-23-pr123-ci-context-inputs/)，baseline仍为be9aaa3f4efa232e1451075a355f0ce42e35a69e。
+历史共享CI输入见[PR123原摘要](tasks/completed/2026-10-23-pr123-ci-context-inputs/)与[PR125原摘要](tasks/completed/2026-10-23-pr125-ci-context-inputs/)；旧be9日期/结果仍仅属于其原阶段，当前比较锚点为上述e01a。

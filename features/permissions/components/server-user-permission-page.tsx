@@ -1,6 +1,7 @@
 "use client";
+import {useServerNavigationProtection} from '@/components/foundation/server-navigation-protection';
 import {useEffect,useRef,useState} from "react";
-import {useRouter} from "next/navigation";
+import {useProtectedRouter as useRouter} from '@/components/foundation/server-navigation-protection';
 import {AppShell,Button,Card,DataTable,ErrorState,LoadingState,Modal,PageContainer,PageHeader,SearchField,type DataColumn} from "@/components/foundation";
 import {useServerSession} from "@/features/server-auth";
 import {ServerAuthError} from "@/features/server-auth/server-auth-client";
@@ -27,6 +28,7 @@ function UserManagement(){
   void client.read(p).then(d=>{if(alive.current&&ticket===serial.current){setDirectory(d);setError("");}},()=>{if(alive.current&&ticket===serial.current)setError("用户列表暂时不可用，请重新读取。");});
  },[permitted,query,refreshId]);
  const dirty=Boolean(dialog&&(dialog.kind==="create"&&(name||account||password)||dialog.kind==="edit"&&(name!==dialog.user.name||roleId!==(dialog.user.roleIds.length===1?dialog.user.roleIds[0]:"")||status!==dialog.user.status)||dialog.kind==="reset"&&password));
+ useServerNavigationProtection({dirty,blocked:busy||Boolean(pending),message:'用户操作尚未确认，请先核对提交结果。'});
  useEffect(()=>{if(!dirty&&!pending)return;const f=(e:BeforeUnloadEvent)=>e.preventDefault();window.addEventListener("beforeunload",f);return()=>window.removeEventListener("beforeunload",f);},[dirty,pending]);
  function leave(){return !pending&&(!dirty||window.confirm("有未保存的用户资料，是否放弃？"));}
  function close(){if(!busy&&leave()){setDialog(null);setPassword("");setFeedback("");}}

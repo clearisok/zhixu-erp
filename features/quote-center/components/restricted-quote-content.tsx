@@ -4,11 +4,13 @@ import { useState } from "react";
 import { AppShell, Button, Card, DescriptionList, FormItem, PageContainer, PageHeader } from "@/components/foundation";
 import type { CostRestrictedRecord } from "../../../server/quotes/quote-response";
 import { quoteServerClient } from "../server/quote-server-client";
+import { useServerNavigationProtection } from "@/components/foundation/server-navigation-protection";
 
 /** Metadata-only consumer: no calculator, full Editor, Estimate or cost cache. */
 export function RestrictedQuoteContent({ initial, editable=false }: {initial:CostRestrictedRecord;editable?:boolean}) {
  const [record,setRecord]=useState(initial);const [draft,setDraft]=useState(()=>structuredClone(initial.quote));
  const [busy,setBusy]=useState(false);const [blocked,setBlocked]=useState(false);const [message,setMessage]=useState("");
+ useServerNavigationProtection({dirty:JSON.stringify(draft)!==JSON.stringify(record.quote),blocked:busy||blocked,message:"基础信息保存尚未确认，请先重新读取核对版本。"});
  const revision=draft.revisions.find(r=>r.revisionId===draft.defaultRevisionId)!;
  const save=async()=>{setBusy(true);setMessage("");try{
   const next=await quoteServerClient.save(draft,record.version);

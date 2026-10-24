@@ -64,6 +64,7 @@ jobs:
           npx --no-install tsx --test server/integration/fresh-start.integration.test.ts
       - name: Quality, quantity and owned fixture boundaries
         run: |
+          node --test scripts/__tests__/quote-trial-config.test.mjs scripts/__tests__/quote-trial-readiness.test.mjs scripts/__tests__/quote-trial-local-objects.test.mjs
           npx --no-install tsx --test server/integration/ainuoke-quality-diagnostic.test.ts server/integration/ainuoke-quantity-facts.test.ts server/integration/isolated-demo.test.ts
           node --test scripts/__tests__/isolated-source-window.test.mjs scripts/__tests__/isolated-demo-safety.test.mjs scripts/__tests__/isolated-demo-verification.test.mjs
       - name: Explicit source candidate build
@@ -77,6 +78,8 @@ jobs:
         run: npm run build
       - name: Existing P6 pages, six roles and persisted refresh in private Chromium
         run: |
+          node --test tests/server-navigation-history.test.mjs
+          npx --no-install tsx --test server/integration/server-navigation-continuity.integration.test.mjs
           npm run test:ainuoke-continuous-ui
           npm run test:processing-batches-ui
           npm run test:processing-quote-push-ui

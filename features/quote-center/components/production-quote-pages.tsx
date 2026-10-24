@@ -2,11 +2,12 @@
 import {QuoteOrderPricingDialog} from "./quote-order-pricing";
 import {ProcessingQuotePushDialog} from "./processing-quote-push";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useProtectedRouter as useRouter } from "@/components/foundation/server-navigation-protection";
 import { AppShell, Button, Card, DataTable, ErrorState, FloatingMenu, FormItem, LoadingState, PageContainer, PageHeader, Toolbar, type DataColumn } from "@/components/foundation";
 import { useServerSession } from "@/features/server-auth";
 import { quoteAuthority } from "../authority/quote-authority";
-import { quoteServerClient, type QuoteServerListItem, type QuoteServerPage } from "../server/quote-server-client";
+import { quoteServerClient, QuoteServerError, type QuoteServerListItem, type QuoteServerPage } from "../server/quote-server-client";
 import { editableRecord, type EditableServerQuoteRecord } from "../server/quote-server-editor-adapter";
 import type { CostRestrictedRecord } from "../../../server/quotes/quote-response";
 import { RestrictedQuoteContent } from "./restricted-quote-content";
@@ -101,7 +102,7 @@ function ServerList() {
       if (!active) return;
       if (result.page.total === undefined || result.quotes.some((row) => !row.summary)) throw new Error("Incomplete Server summary");
       setRows(result.quotes); setPage(result.page);
-    }).catch((cause) => { if (active) setError(safeError(cause)); }).finally(() => { if (active) setLoading(false); });
+    }).catch((cause) => { if (active) { if (cause instanceof QuoteServerError && cause.status === 401) session.invalidate(); setError(safeError(cause)); } }).finally(() => { if (active) setLoading(false); });
     return () => { active = false; };
   }, [query, retry, session, columnSignature]);
   const fittedTable=fittedPresentedTablePreference(preferences,containerWidth,selectionMode?160:104);
@@ -175,9 +176,9 @@ function ServerDetail() {
   useEffect(() => {
     let active = true;
     if (!id) { void Promise.resolve().then(() => setError({ id, message: "Server HTTP 404 · 缺少报价 ID" })); return; }
-    void quoteServerClient.getById(id).then((result) => { if (active) { setLoadedScope(scope);setRestricted(result.costVisibility==="restricted"?result:null);setRecord(result.costVisibility==="restricted"?null:editableRecord(result));setError({ id, message: "" }); } }).catch((cause) => { if (active) {setLoadedScope(scope);setError({ id, message: safeError(cause) });} });
+    void quoteServerClient.getById(id).then((result) => { if (active) { setLoadedScope(scope);setRestricted(result.costVisibility==="restricted"?result:null);setRecord(result.costVisibility==="restricted"?null:editableRecord(result));setError({ id, message: "" }); } }).catch((cause) => { if (active) {if(cause instanceof QuoteServerError&&cause.status===401)session.invalidate();setLoadedScope(scope);setError({ id, message: safeError(cause) });} });
     return () => { active = false; };
-  }, [id,scope]);
+  }, [id,scope,session]);
   const persistence = useMemo(() => record ? createQuoteEditorPersistence(record) : undefined, [record]);
   if (!session.hasPermission("quote.view")) return <ErrorState permission title="Server HTTP 403 · 需要 quote.view" />;
   if (loadedScope!==scope) return <LoadingState label="读取 Server 报价" />;
