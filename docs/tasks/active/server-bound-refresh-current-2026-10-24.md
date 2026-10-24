@@ -1,0 +1,17 @@
+# 当前已绑定合同离线刷新
+
+2026-10-24；root唯一writer、既有server_convergence_review独立只读。main e01a11952b648024c0bd6bf4259de429374981e2（2026-10-24T12:03:51.719Z独立API，复用同一已核基线）；从main新建codex/server-bound-refresh-current后仅FF到cleanaad673099da0221312a70e88bd8e2f33bfa06244。原三摘要/hash及前阶段完整终态在completed/2026-10-24-bound-refresh-input-state/。
+
+## 前置与范围
+
+前阶段0040最终aad/main守卫PASS96831ms（11/57/64/errors[]），4e发布134/134（406504ms）；产品d1930相关174总/173通过/1既有Linux CLI Windows跳过、根811/Python139/类型NodeLint通过，proof696，清单390/57。旧Linux缺口不称PASS，无新Vite/browser；独立终审无新增P1/P2，不借#125 CI。
+
+当前只前移a296→81a的0041已绑定合同离线刷新：12非文档路径8相同/4手工（workflow/package/README/live-preflight）。不引旧garment诊断、UI、0042/43；保留已证明绑定UPDATE、原来源owner、手工DeliveryPlan、商业/执行历史及完整物理组锁。沿既有migrationFilesAfter(40)做升级期望，防止未来迁移破坏旧断言。
+
+## 规则与验收
+
+使用已完整采集的正式Discovery/6087105证据，可信profile/合同/source link/DB目标/有效归属/物理owner/当前镜像/计划进入预览指纹；先预览后精确UUID命令。没有网络、凭据loader、迁移执行或公开HTTP writer，不能创建SO或改不可变身份。缺失/非法/空颜色拒绝，不清旧颜色，不搬计划/价格/完成。原actor/request回执在fresh权限后优先核对，不重跑当前CAS；提交未知核对原请求，不自动重采集或重发。
+
+新source冻结后运行原并发/撤权/跨DB/颜色失败/人工计划介入/历史owner/审计回滚/报告落盘失败后删证据读回执、受影响DeliveryPlan/归一引用与升级；类型Node实际载入/lint、范围充分根测试、发布与精确main守卫及独立复审。原升级夹具未预置非空0040观察，不称其已覆盖；原丢回复用例不是COMMIT确认丢失模拟。不借旧81a结果，无前端变化不新称UI验收。
+
+NETWORK_DEGRADED继续，push0/PR0/Actions0，不重试失败Git通道；仅自有合成一次性PG/私密合成夹具/loopback。不新增真实Source/凭据读取、真实账号/业务DB/现有卷、绑定/激活/调度、安装、自动merge/close/deploy或50426切换退役。保护3001/50426/59069/62426、Browser、备份和现有结果。Goal active；后续出货UI/0042交期/0043collector及关账三问不默认。
