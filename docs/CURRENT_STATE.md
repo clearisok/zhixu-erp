@@ -7,3 +7,5 @@
 当前仅coverage六非doc路径只读预核：四输入相同，两package/workflow手工增量；原144f→0e546投影及独立feature/D155不引UI/schema/写入。basis=current_registered_facts按当前已登记累计产出+截点前剩余比较有效交期；不是历史准时率/库存/出货/关账，不分配生产量到某日。未知日期未评估、原物理订单/执行方/集合版本保持。保留当前repository PG容量保护和中文提示；483be后续客户端断言依赖新客户端，不窄取到本阶段。当前尚无本轮产品改动或新QA，不借旧ff8b。见[当前任务](tasks/active/server-delivery-coverage-current-2026-10-24.md)。
 
 NETWORK_DEGRADED，push0/PR0/Actions0，不逐Gate重推或触发付费CI。仅自有合成一次性PG/loopback，0真实凭据/Source、真实账号/业务DB/卷、绑定/激活/调度、安装、自动merge/close/deploy或50426切换退役；保护3001/50426/59069/62426、Browser、备份和旧结果。Goal active；0043/关账三问不默认。
+
+六路径已受控前移，四核心原blob、两配置只增本轮脚本；D155及独立feature已同步。无前端/SQL/金额或写接口变化，当前新source/QA尚待，不借原ff8b；当前目录索引资源链接改指实际OPERATIONS_FOUNDATION，原完整输入已归档。

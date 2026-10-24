@@ -13,3 +13,5 @@
 新source后仅受影响纯projection/执行数量/原客户端与真实PG/HTTP/RR覆盖，类型/Node编译实际import及相关lint。当前无UI/SQL变化，不重建前端或重跑浏览器/139Python/未变811，保留作用域复用限制，不冒称新945。原1MiB/500排单/1000计划/精确十进制容量与fresh权限保持；新metadata必须新精确main守卫，最终累计PR两发布命令和必要CI不能省略。
 
 NETWORK_DEGRADED，push0/PR0/Actions0，不逐Gate重推或触发付费CI。仅自有合成一次性PG/loopback，0真实凭据/Source、真实账号/业务DB/卷、绑定/激活/调度、安装、自动merge/close/deploy或50426切换退役；保护3001/50426/59069/62426、Browser、备份和旧结果。Goal active；0043/关账三问不默认。
+
+六路径已受控前移，四核心原blob、两配置只增本轮脚本；D155及独立feature已同步。无前端/SQL/金额或写接口变化，当前新source/QA尚待，不借原ff8b；当前目录索引资源链接改指实际OPERATIONS_FOUNDATION，原完整输入已归档。

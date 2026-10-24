@@ -141,7 +141,7 @@ Gate3本地加工批次实现恢复入口：[加工下单批次](features/PROCES
 
 | 领域 | 当前契约 |
 | --- | --- |
-| 生产资源/排单/完成 | [资源](features/SERVER_PRODUCTION_RESOURCES.md)、[排单](features/SERVER_PRODUCTION_PLANNING.md)、[执行](features/SERVER_PRODUCTION_EXECUTION.md) |
+| 生产资源/排单/完成 | [资源](features/OPERATIONS_FOUNDATION.md)、[排单](features/SERVER_PRODUCTION_PLANNING.md)、[执行](features/SERVER_PRODUCTION_EXECUTION.md) |
 | 物流资料/订单物流 | [物流资料](features/SERVER_LOGISTICS_RESOURCES.md)、[订单上下文](features/SERVER_ORDER_LOGISTICS_CONTEXT.md)、[对话框](features/SERVER_ORDER_LOGISTICS_DIALOG.md) |
 | 人工预计到仓 | [后台](features/SERVER_MATERIAL_ARRIVALS.md)、[界面](features/SERVER_MATERIAL_ARRIVAL_UI.md) |
 | 成衣出货观察 | [不可变观察](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)、[只读界面](features/SERVER_GARMENT_SHIPMENT_UI.md) |
@@ -150,3 +150,5 @@ Gate3本地加工批次实现恢复入口：[加工下单批次](features/PROCES
 当前仅coverage六非doc路径只读预核：四输入相同，两package/workflow手工增量；原144f→0e546投影及独立feature/D155不引UI/schema/写入。basis=current_registered_facts按当前已登记累计产出+截点前剩余比较有效交期；不是历史准时率/库存/出货/关账，不分配生产量到某日。未知日期未评估、原物理订单/执行方/集合版本保持。保留当前repository PG容量保护和中文提示；483be后续客户端断言依赖新客户端，不窄取到本阶段。当前尚无本轮产品改动或新QA，不借旧ff8b。
 
 NETWORK_DEGRADED，push0/PR0/Actions0，不逐Gate重推或触发付费CI。仅自有合成一次性PG/loopback，0真实凭据/Source、真实账号/业务DB/卷、绑定/激活/调度、安装、自动merge/close/deploy或50426切换退役；保护3001/50426/59069/62426、Browser、备份和旧结果。Goal active；0043/关账三问不默认。
+
+[Server交期覆盖](features/SERVER_DELIVERY_COVERAGE.md)只追加生产详情DB-only投影，当前四路径受控前移；D155、旧客户端忽略新字段及容量保护保留，新QA待跑。

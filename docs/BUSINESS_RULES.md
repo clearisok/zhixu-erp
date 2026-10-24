@@ -449,3 +449,5 @@ D-102 第二轮用户确认：制作方案复用 ManufacturingPreset，代表不
 2026-10-24 D154为现有DeliveryPlan的原命令/完整结果不可变回执和fresh权限核对，不改变D083/D100日期数量/集合所有权/CAS。unknown不证明未提交；COMMIT异常只尝试回滚，核对原请求，不自动重发。0042不回填/改Source/生产/价格，见[独立后台契约](features/SERVER_DELIVERY_PLAN_REQUESTS.md)。
 
 2026-10-24 D156交期UI仅维护原DeliveryPlan，合同交期只读，默认0/null不误转人工正数；差异预览/明确作废、精确数量差额提示及原请求核对恢复。与商业/生产/Source身份独立，见[独立UI契约](features/SERVER_DELIVERY_PLAN_MAINTENANCE_UI.md)。新工程验收仍待。
+
+2026-10-24 D155交期覆盖只读比较当前登记累计产出与计划剩余/有效交期需求，不重建历史日产量或准时率，不等同库存/出货/关账；未知日期明确未评估，原物理SO/执行方归属和独立计划版本保持，见[独立契约](features/SERVER_DELIVERY_COVERAGE.md)。新验收后置。
