@@ -17,3 +17,9 @@ Source交期、人工到已持久化Hub的预计日、实际四流各自独立�
 新source冻结后运行定向客户端/HTTP/SQL与涉及的原回归、类型NodeLoadLint、顺序Server/Browser真实构建与产物检查。补built Chromium编辑/预览/保存/读取/历史、丢回执恢复与并发/导航、权限与Source失败、六宽度/DPR/touch、原只读四流与事件回归；截图和几何按精确SHA冻结。最后发布基线与独立终审，未运行不预写PASS。
 
 NETWORK_DEGRADED继续，push0/PR0/Actions0；不重复旧失败通道，不借#125 CI。仅自有合成一次性PG/loopback/私有Chromium；不安装、读取真实凭据/Source、操作真实账号/业务DB/卷、绑定/激活/调度、自动merge/close/deploy、切换或退役50426。保护3001/50426/59069/62426、Browser namespace/IndexedDB、备份和已有结果。Goal active；后续0040/41出货、0042交期/关账分别验收，三问不默认。
+
+14相同输入的产品/测试路径已前移，package只增原3项检查及本轮built驱动入口，原0039/store容量修复未动。9个前端生产路径V1影响记录已登记，沿原卡片/Modal/Drawer及唯一算法接线；尚无新QA，原f28716项不借用。
+
+原f287独立复审发现3个已知状态P2，精确取61e9a660/a290edfe/14a71172的3文件hunk：loading禁止旧scope入口、同步inFlight防双击抢lease、Source完成信号重读与依据变化暂停建议/保留草稿。额外10th UI路径order-material-summary只加完成信号。原built驱动来自14a，当前将补严格拥有者清理和现行前后验收，不借旧结果。客户端1000颜色上限另修并补真实HTTP容量链，仍不改0039限制。
+
+冻结前收窄：3个状态P2采用61e9/a290/14a精确hunk；客户端颜色1000硬限在隔离真实HTTP复现red1fail8500ms，仅两处数组上限对齐已有1MiB响应后green1/1 8964ms。1001颜色合法HTTP保存/回执/读取/历史全部走通；1200来源可读、preview可核，提交known422/replay且无新业务残留，SQL8192/24576保持。该结果为工作态诊断，不称冻结QA。built驱动另取14a→72d0测试hunk，补显式root CDP关闭、自有进程确认、指定before e2cf和after精确SHA、before-only静态覆盖及footer可见断言；当前尚未运行新built浏览器。

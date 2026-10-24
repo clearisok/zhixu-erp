@@ -435,3 +435,5 @@ D-102 第二轮用户确认：制作方案复用 ManufacturingPreset，代表不
 2026-10-24 D054/D147当前候选在既有生产页“物料与运输”对话框接通独立Server tracking：明确仓/备注、预览和历史，共用原production命令与未决槽；无默认仓或到仓/数量/金额推断。只读/冻结展示已存事实，未保存草稿与迟到异步隔离见[界面契约](features/SERVER_ORDER_LOGISTICS_DIALOG.md)。
 
 2026-10-24 D054/D065–069/D147当前Server人工ExpectedArrivalBatch/Allocation独立保存物理SO和Canonical物料内多批日期/精确数量、稳定需求身份及发生时Source/Hub证据；不猜配四流、不换单位、不补齐、不过写来源/实际/排单/金额。后台契约见[Server预计到仓](features/SERVER_MATERIAL_ARRIVALS.md)，页面和唯一逐批物流算法接线后续独立。
+
+2026-10-24 D054/D065–069/D147当前Server物料页按独立人工计划owner接线原分批Modal和历史Drawer；每批依最早未取消排单采用地点与已存Hub复用唯一物流算法。Source日期、人工计划、Actual分离；source失败保留计划/历史，命令原请求恢复不自动POST，权限白名单/owner保护见[当前契约](features/SERVER_MATERIAL_ARRIVALS.md)。当前新UI验收仍待，不据源码接线宣称部署或用户接受。
