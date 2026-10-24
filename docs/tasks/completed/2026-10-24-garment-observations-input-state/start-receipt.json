@@ -1,0 +1,274 @@
+{
+  "at": "2026-10-24T11:48:10.706Z",
+  "branch": "codex/server-garment-observations-current",
+  "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+  "verifiedMain": {
+    "at": "2026-10-24T11:40:46.633Z",
+    "code": 0,
+    "timedOut": false,
+    "sha": "e01a11952b648024c0bd6bf4259de429374981e2"
+  },
+  "reusedRecentReadOnlyMain": true,
+  "head": "5f3dc11df3270fceef14227c0a005220bd570145",
+  "tree": "ba1e496742d41c25bc244c906167a4905a742d10",
+  "clean": true,
+  "previousFinal": {
+    "at": "2026-10-24T11:42:30.051Z",
+    "branch": "codex/server-material-arrival-ui-current",
+    "head": "5f3dc11df3270fceef14227c0a005220bd570145",
+    "tree": "ba1e496742d41c25bc244c906167a4905a742d10",
+    "source": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+    "sourceTree": "6892e1848d6892316eb57b4491b5c39da7b07d2c",
+    "driverSource": "abf3bf774124934b9372586d079308a120d6980d",
+    "proof": "e2a0089fd9063dae77de0eccbd3ac1d4126994cf",
+    "metadataCorrection": "eb2fc6ed5cca17f453bcd98598e7357cbe12080f",
+    "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+    "guard": {
+      "at": "2026-10-24T11:42:29.754Z",
+      "head": "5f3dc11df3270fceef14227c0a005220bd570145",
+      "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 103116,
+      "result": {
+        "status": "PASS",
+        "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
+        "checkedHead": "5f3dc11df3270fceef14227c0a005220bd570145",
+        "historySha": "e01a11952b648024c0bd6bf4259de429374981e2",
+        "pages": 11,
+        "capabilities": 56,
+        "changedUiFiles": 64,
+        "scope": "source/evidence guard only; no browser, runtime, database or user acceptance claim",
+        "errors": []
+      }
+    },
+    "release": {
+      "at": "2026-10-24T11:40:14.829Z",
+      "head": "9d5da934caecc37d1d8089e05307bd18d0527ad6",
+      "productAndNonreleaseSource": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "testDriverSource": "abf3bf774124934b9372586d079308a120d6980d",
+      "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+      "command": "npm run test:release-baseline",
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 400362,
+      "counts": {
+        "tests": 134,
+        "pass": 134,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "sourcePathsUnchanged": true
+    },
+    "tests": {
+      "relatedApi": 97,
+      "rootNonrelease": 811,
+      "browser": {
+        "before": 3,
+        "after": 17,
+        "material": 10,
+        "navigation": 18
+      },
+      "rootWithReleaseUnion": 945
+    },
+    "platformBoundary": "Existing Linux-only Source CLI case skipped on Windows at prior backend; not included in current97 and not claimed passed.",
+    "metadataCorrectionReceipt": {
+      "at": "2026-10-24T11:33:12.441Z",
+      "sha": "9d5da934caecc37d1d8089e05307bd18d0527ad6",
+      "correction": "eb2fc6ed5cca17f453bcd98598e7357cbe12080f",
+      "candidate": "f7f3c160088f5be1312677131a6ce37a9e47a383",
+      "archive": "docs/tasks/completed/2026-10-24-material-arrival-ui-metadata-candidate.json",
+      "product": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "driver": "abf3bf774124934b9372586d079308a120d6980d",
+      "evidence": 387,
+      "capabilities": 56,
+      "oldEvidence": 363,
+      "remainingDirty": []
+    },
+    "workingTreeClean": true,
+    "delivery": {
+      "state": "NOT_ATTEMPTED_NETWORK_DEGRADED",
+      "pushes": 0,
+      "priorTarget": "b6af0cd247c1e7ec4406e69526fa672544cce1d8",
+      "priorState": "TARGET_NOT_DELIVERED"
+    },
+    "hostedActionsTriggeredByThisPhase": 0,
+    "newPr": null,
+    "goal": "active",
+    "deployed": false,
+    "realSourceOrBusinessDatabaseAccess": false,
+    "independentReview": {
+      "at": "2026-10-24T11:48:06.667Z",
+      "reviewer": "/root/server_convergence_review",
+      "mode": "read-only; no own tests/network/writes",
+      "verdict": "no new P1/P2",
+      "verified": [
+        "exact final5f/tree/branch clean; only four state documents after9d",
+        "product a0c3, driver abf3, manifest387/56, proof e2a, independent UI contract and archived f7 unchanged",
+        "release134/134, no fail/cancel/skip, elapsed400362ms",
+        "final e01a guard PASS103116ms;11pages/56capabilities/64cumulativeUI/errors[]"
+      ],
+      "limits": [
+        "945 is phased union, not one run",
+        "existing Linux-only Source CLI skip remains unverified",
+        "no Hosted CI, real Source/activation, deployment or human acceptance"
+      ]
+    },
+    "next": [
+      "Garment shipment0040 offline observation slice, then controlled bound-source refresh0041",
+      "Shipment read UI and DeliveryPlan0042 with exact ledger; closing questions remain undecided"
+    ],
+    "protected": [
+      "3001",
+      "50426",
+      "59069",
+      "62426",
+      "Browser stores",
+      "backups",
+      "existing volumes"
+    ]
+  },
+  "preflight": {
+    "at": "2026-10-24T11:34:48.542Z",
+    "head": "9d5da934caecc37d1d8089e05307bd18d0527ad6",
+    "base": "49bb0d75e379248e3e74465e06c75038c4050c67",
+    "incoming": "b6521d0d510ca0447822096e101919c97f76a980",
+    "paths": [
+      {
+        "path": ".github/workflows/ainuoke-server-source.yml",
+        "before": "3d426f530b08d578bccd59383f9024d2be82e5f9",
+        "after": "4718f27f3fd8d3457d728511643c284f4cbc4e51",
+        "current": "532519cb7ae6b6b8e2f6b5bd4b8a4d59e0e2e145",
+        "strategy": "three-way-required"
+      },
+      {
+        "path": "database/migrations/0040_garment_shipment_observations.sql",
+        "before": null,
+        "after": "b3ab0f95c9c1edffdfa14801491c35a54b0d8fda",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "database/migrations/README.md",
+        "before": "661652ff1ac24f5ef1422c4241b11b8b2ca65f32",
+        "after": "eb50c65cfb181499ca70abf864176d7c2867e476",
+        "current": "1535ebe8bf36464210145fc907d3bed8d86e94f9",
+        "strategy": "three-way-required"
+      },
+      {
+        "path": "package.json",
+        "before": "14e31d436439914683efbf7e4eff0a5a3bb35ab9",
+        "after": "304b4c44d98e6224482cf296bd0b845508b16be9",
+        "current": "28043f5592ee187035ae939f1d5261cc139aec0d",
+        "strategy": "three-way-required"
+      },
+      {
+        "path": "server/ainuoke-source/garment-shipment-observations.test.ts",
+        "before": null,
+        "after": "7630d1c2eecf33ca4eebac6e7976f5d2df98f43b",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/ainuoke-source/garment-shipment-observations.ts",
+        "before": null,
+        "after": "f15066d0d708e488f8b496e3cc8698887fd5d829",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/ainuoke-source/garment-shipment-store.ts",
+        "before": null,
+        "after": "0e7c1c4fd0a9f0cfd44261c89137a583be69be75",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/ainuoke-source/service.ts",
+        "before": "dea45752ecb6587825629c7831814e4bc35f5a5d",
+        "after": "ffc727891ace2ca258b8aa5dfba10c1c4f0de040",
+        "current": "dea45752ecb6587825629c7831814e4bc35f5a5d",
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/app.ts",
+        "before": "df634266743c5a90d42741cd40558840d7354542",
+        "after": "e8ed8b0440cf163304193040b06cb30f48125d82",
+        "current": "df634266743c5a90d42741cd40558840d7354542",
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/index.ts",
+        "before": "3b55d93b6c72cd69df4f600ceebb94880252f6bd",
+        "after": "61c97fda83326493efab70b7261dd82996e2ae5c",
+        "current": "3b55d93b6c72cd69df4f600ceebb94880252f6bd",
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/integration/current-migration-ledger-fixture.ts",
+        "before": "8a35139eec06073e25addb0ea3bff9e1f0088d78",
+        "after": "35f683f7ee1ab54c725dbc47e5a7c27dbf916897",
+        "current": "8a35139eec06073e25addb0ea3bff9e1f0088d78",
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/integration/garment-shipment-store.integration.test.ts",
+        "before": null,
+        "after": "59f34898c08b540bb40b8a6d2cf8f6ba9e309cc6",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/integration/garment-shipment-upgrade.integration.test.ts",
+        "before": null,
+        "after": "ec95098458d250dbd9514653a4f7e699deda76c4",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/sales-orders/normalization-preview.ts",
+        "before": "cbebdb969f57139b07fe7402bfb93672178b8a0c",
+        "after": "467c083a4650000ea5a9b7d1cba6326482313073",
+        "current": "cbebdb969f57139b07fe7402bfb93672178b8a0c",
+        "strategy": "exact-input"
+      },
+      {
+        "path": "tools/ainuoke-bridge/ainuoke_bridge/garment_shipment_observations.py",
+        "before": null,
+        "after": "74f0550e683b19d0e97cb67e8aff3cb867e46eab",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "tools/ainuoke-bridge/tests/test_garment_shipment_observations.py",
+        "before": null,
+        "after": "a47139ae999c979216608627db4f4a7d11503c41",
+        "current": null,
+        "strategy": "exact-input"
+      }
+    ],
+    "repositoryWrites": 0,
+    "pushes": 0,
+    "sourceReads": 0,
+    "sourceActivation": false,
+    "mainNotRefreshedHere": true
+  },
+  "protectedSummaryHashes": [
+    {
+      "path": "docs/tasks/completed/2026-10-24-garment-observations-input-state/CURRENT_STATE.md",
+      "sha256": "f9e9314fdcf85b23b97c0846e1e04185936696fde4f357d71a6a55a3d281fb27"
+    },
+    {
+      "path": "docs/tasks/completed/2026-10-24-garment-observations-input-state/AI_HANDOFF.md",
+      "sha256": "a4492caba04f4349125abe69ae6f42b742ab4a1f6b5bbd33d8b86821d52b17ad"
+    },
+    {
+      "path": "docs/tasks/completed/2026-10-24-garment-observations-input-state/PROJECT_INDEX.md",
+      "sha256": "dcfe047a6a36cdab78053f3f9f40321ca529a719efd8b805410532d9c789df74"
+    }
+  ],
+  "network": "NETWORK_DEGRADED; no push/remote mutation/Actions"
+}
