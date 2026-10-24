@@ -1,6 +1,6 @@
 # 项目知识索引
 
-2026-10-24；比较main e01a11952b648024c0bd6bf4259de429374981e2。GitHub main合并事实与当前累计分支工程能力分开；#125 API例外已完成、其4f三CI不能证明后续本地Gate。当前从[CURRENT_STATE](CURRENT_STATE.md)/[AI_HANDOFF](AI_HANDOFF.md)/[交期覆盖任务](tasks/active/server-delivery-coverage-current-2026-10-24.md)恢复精确状态。
+2026-10-24；比较main e01a11952b648024c0bd6bf4259de429374981e2。GitHub main合并事实与当前累计分支工程能力分开；#125 API例外已完成、其4f三CI不能证明后续本地Gate。当前从[CURRENT_STATE](CURRENT_STATE.md)/[AI_HANDOFF](AI_HANDOFF.md)/[覆盖客户端当前任务](tasks/active/server-delivery-coverage-client-current-2026-10-24.md)恢复精确状态。
 
 前阶段交期UI最终0a/main守卫实际PASS118001ms（11/61/75/errors[]），707发布134/134 PASS464627ms；产品56b57相关/811根/类型NodeLint/双build，driver0e after14、before3及Quote9/P6 14/物料17分阶段联合57浏览器，proof869、23PNG4JSON/10图查看，清单455/61。两次触摸失败及漏env前置失败完整保留，非一轮57全绿；0tests的runner预检不计134失败。独立终审无新P1/P2，未借#125CI。
 
@@ -154,3 +154,5 @@ NETWORK_DEGRADED，push0/PR0/Actions0，不逐Gate重推或触发付费CI。仅�
 [Server交期覆盖](features/SERVER_DELIVERY_COVERAGE.md)只追加生产详情DB-only投影，当前source558的47相关/type/Node/相关lint实际PASS；D155、旧客户端兼容及容量保护保留，见当前证明。
 
 [当前交期覆盖证明](tasks/completed/2026-10-24-delivery-coverage-current-engineering.md)：source558实际47相关/type/Node/import/相关lint通过，proof5e366，清单458/62保留455/61/runtime21routes。无新811/134/Vite/browser/PythonPASS声明；精确main守卫另核，最终累计PR两发布命令仍重跑。
+
+覆盖后台3042最终守卫111057ms PASS，source55847相关通过、new134/new811均0范围复用，完整证据在[下一输入](tasks/completed/2026-10-24-delivery-coverage-client-input-state/)。当前[严格覆盖客户端V0](tasks/active/server-delivery-coverage-client-current-2026-10-24.md)五路径预核4同/1三方，尚无新产品/QA，可见面板未批准不实施。
