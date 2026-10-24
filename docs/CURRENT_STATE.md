@@ -1,11 +1,9 @@
-# 当前状态：PR125已合并，内部目标控制验收准备
+# 当前状态：目标配置隔离工程通过，待新主线发布检查
 
-2026-10-24；最新main 9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf，#125已获明确批准并于15:40:08Z merge commit合并；双父/树与原head核对见[合并证明](tasks/completed/2026-10-24-pr125-merge-verification.md)。原分支/历史保留，未关闭其他PR、部署或操作真实数据。当前branch codex/server-garment-target-current，root唯一writer；既有server_convergence_review只读。
+2026-10-24；实际main 9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf（2026-10-24T15:58:10.453Z独立API），PR125已按明确批准merge，原分支/历史保留；见[合并证明](tasks/completed/2026-10-24-pr125-merge-verification.md)。branch codex/server-garment-target-current；真实本地merge da788e32ecdfe5945511ae8b6832e28fcecc8545 两父为747/9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf，产品无差异，root唯一writer/既有reviewer只读。
 
-0043前阶段clean4b8efa166c6c5af48dc954d4bac7d080bdd8d294已本地收口：7f受影响43、d2ff旧280+18/811/152分源，b919发布134/134、4b对原e01a守卫PASS114632ms。完整结果、失败及三摘要保护于completed/2026-10-24-garment-target-input-state/；这些不表示在新main重跑或新HostedCI。
+最终测试source 40a930019bd8218784e40d7ea49d780f97042fb7（tree e55dbfa52ccca0a6ab63e65c3a2367908f9c9900），仅两处精确错误码断言加强后本文件19/19 PASS8523ms；e19原21文件221/221（150079ms）、16相关根（706ms）、type20016/Node10418+实际载入1491/lint5766ms通过，按未变范围复用，不冒称40a全量重跑。独立源码复审无剩余P1/P2。冻结proof baf2781e6e614619883f5d6165d00fc735cf11bf，清单472/65保持465/64旧对象、main230证据、runtime21routes与全部旧图片；三个真实merge witnesses保留旧决策/排单/关账文档链。详见[本阶段证明](tasks/completed/2026-10-24-garment-target-current-engineering.md)。
 
-本阶段内部0044 target配置9非doc路径按原5fac受控前移（7原blob、2测试命令），source 747e4783dd0aa56e8806420c2021225e0610565f尚未QA。既有0043严格证明枚举保留，不带旧operator/凭据/CLI/HTTP/Catalog/scheduler。42旧SQL Git blob逐一保持；一次checkout使0043原LF在工作树为CRLF，canonical内容与Git blob不变，已记录input reconciliation，迁移runner/checksum规则不改，后续只在精确Git archive的一次性PG验收。
+0044只追加空DB-only目标配置回执；9非doc路径受控前移，不带旧operator/凭据/公开入口。42旧SQL Git blob/canonical不变，0043 raw checkout CRLF差异已保留，不改runner/checksum；全部QA用精确Git archive自有一次性PG。217前端/37原排单UI只按fc103原范围复用，无新Vite/browser/Python或全根811。新main精确守卫和一次必要本地134后置，未预报PASS，最终累计PR仍须必要CI。
 
-下一步补当前严格证明/独立历史回执/两个FK明确引用负测，冻结新source后最小充分验收；不复制旧PASS，不重跑无关前端。
-
-NETWORK_DEGRADED：本阶段push0/PR0/手动Actions0；一次新main fetch成功不证明推送恢复，不逐Gate重试。0真实凭据/Source读取/target启停/现有业务库与账号或卷操作/部署/50426切换；保护3001/50426/59069/62426、Browser、备份及旧成果。关账三问、真实额度/启用/多页与跨次事件、coverage可见V2及旧环境退役仍待相应决定，Goal active。
+NETWORK_DEGRADED，当前target阶段push0/新PR0/手动Actions0；一次fetch成功不证明推送恢复，不逐Gate重试。仅合并已获具体批准的#125，其他PR未合并或关闭。0真实Source/target启停/现有业务库账号卷/部署/50426切换或退役；保护3001/50426/59069/62426、Browser、备份和旧结果。关账三问、真实额度/操作者启用、多页/跨次事件和可见coverage V2仍待相应决定。Goal active。

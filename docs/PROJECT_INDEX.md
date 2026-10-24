@@ -183,3 +183,5 @@ NETWORK_DEGRADED，push0/PR0/Actions0，不逐Gate重推或触发付费CI。仅�
 原采集器4b终态和全量回执已保护于[当前目标配置输入](tasks/completed/2026-10-24-garment-target-input-state/)。当前[0044内部目标配置](tasks/active/server-garment-target-current-2026-10-24.md)仅9路径前移准备，旧operator/真实IO/公开入口不引入，暂无新产品或QA。
 
 [成衣来源目标配置](features/SERVER_GARMENT_TARGET_CONTROL.md)仅内部DB-only预览/原子命令/历史回执；当前9路径前移，0044新增空表，不带旧operator或真实激活。新工程验收另冻结。
+
+[当前目标控制证明](tasks/completed/2026-10-24-garment-target-current-engineering.md)：source40a受影响19，e19原221/16及质量分源通过；proof baf2781e6e614619883f5d6165d00fc735cf11bf，新main 9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf 的真实merge witnesses已绑定，472证据/65能力，旧465和main230完整保留。新M守卫/本地134后置；PR125已获用户具体批准合并，不因此合并本阶段或扩大Source/部署权限。

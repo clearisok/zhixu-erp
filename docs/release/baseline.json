@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
-  "verifiedAt": "2026-10-24T14:44:41.071Z",
+  "baselineSha": "9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf",
+  "verifiedAt": "2026-10-24T15:58:10.453Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -4160,6 +4160,67 @@
       "sha256": "0ba3dced386b99019df632d9fff2e3123aaf19ac730a232e8a116d0981e1735f",
       "supersedes": "decisions-delivery-coverage-client-current-20261024",
       "changeReason": "Forward-bind D158 bounded one-shot technical command, original observation/owner/lock/receipt semantics, pure missing dependency closure and reproduced enum-coercion correction; retain all prior decisions and no real-read/activation grant."
+    },
+    {
+      "id": "closing-navigation-pr125-convergence-20261024-forward-main-9d65-20261024",
+      "kind": "document",
+      "path": "docs/features/CLOSING_CENTER.md",
+      "recordedAtSha": "da788e32ecdfe5945511ae8b6832e28fcecc8545",
+      "sha256": "960321f523c0b3983e6a47f89c0d60e6c5da993e1c47af12d75b26ac2f2b19d0",
+      "supersedes": "closing-navigation-pr125-convergence-20261024",
+      "changeReason": "The actual two-parent integration da788e32ecdfe5945511ae8b6832e28fcecc8545 joins new approved main 9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf and original local source 747e4783dd0aa56e8806420c2021225e0610565f. Preserve the source-parent document history and every prior evidence object; this is a genuine forward merge witness, not reconstructed approval or new runtime testing."
+    },
+    {
+      "id": "production-scheduling-server-current-20261024-forward-main-9d65-20261024",
+      "kind": "document",
+      "path": "docs/features/PRODUCTION_SCHEDULING.md",
+      "recordedAtSha": "da788e32ecdfe5945511ae8b6832e28fcecc8545",
+      "sha256": "dee7fa43ee13c40875f4086e6ed9b6628e37dd08ffa7b2a48c29fc3c81df33e7",
+      "supersedes": "production-scheduling-server-current-20261024",
+      "changeReason": "The actual two-parent integration da788e32ecdfe5945511ae8b6832e28fcecc8545 joins new approved main 9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf and original local source 747e4783dd0aa56e8806420c2021225e0610565f. Preserve the source-parent document history and every prior evidence object; this is a genuine forward merge witness, not reconstructed approval or new runtime testing."
+    },
+    {
+      "id": "decisions-garment-collector-current-20261024-forward-main-9d65-20261024",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "da788e32ecdfe5945511ae8b6832e28fcecc8545",
+      "sha256": "c393e41f8d4b08e80c37ca5494f9e58ce5754bdc2c013067f9b183da23c07e5d",
+      "supersedes": "decisions-garment-collector-current-20261024",
+      "changeReason": "The actual two-parent integration da788e32ecdfe5945511ae8b6832e28fcecc8545 joins new approved main 9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf and original local source 747e4783dd0aa56e8806420c2021225e0610565f. Preserve the source-parent document history and every prior evidence object; this is a genuine forward merge witness, not reconstructed approval or new runtime testing."
+    },
+    {
+      "id": "pr125-approved-merge-20261024",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-24-pr125-merge-verification.md",
+      "recordedAtSha": "da788e32ecdfe5945511ae8b6832e28fcecc8545",
+      "renderedSourceSha": "4f721ecd7ec1a0e31805d7d2a5bdb8600d8a477d",
+      "sha256": "0f983e885e2240628571d5ed1ee5c1feb171797c432c9d6d3c0ef1f11b8b0ca1"
+    },
+    {
+      "id": "garment-target-current-engineering-20261024",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-24-garment-target-current-engineering.md",
+      "recordedAtSha": "baf2781e6e614619883f5d6165d00fc735cf11bf",
+      "renderedSourceSha": "40a930019bd8218784e40d7ea49d780f97042fb7",
+      "sha256": "2d2a2c6ae8ccf3b0bd7b5109e8598191f7a57ee57c8e3c0537e733099dcfea02"
+    },
+    {
+      "id": "server-garment-target-current-20261024",
+      "kind": "document",
+      "path": "docs/features/SERVER_GARMENT_TARGET_CONTROL.md",
+      "recordedAtSha": "baf2781e6e614619883f5d6165d00fc735cf11bf",
+      "renderedSourceSha": "40a930019bd8218784e40d7ea49d780f97042fb7",
+      "sha256": "2260052da1540371548e99d99f5fceb9e245f5a162fd649b7cb36a6422ebfc8c"
+    },
+    {
+      "id": "decisions-garment-target-current-20261024",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "baf2781e6e614619883f5d6165d00fc735cf11bf",
+      "renderedSourceSha": "40a930019bd8218784e40d7ea49d780f97042fb7",
+      "sha256": "91614bf6af580a4f6e20dc963ebe11ba6797b6b0ff662ef7e25e40b860830b92",
+      "supersedes": "decisions-garment-collector-current-20261024-forward-main-9d65-20261024",
+      "changeReason": "Bind D160 target-only engineering scope and exact current221/16 plus stronger affected19 checks after the genuine main integration; preserve the complete prior D158 and earlier decision chain, not a new real-operation permission."
     }
   ],
   "pages": [
@@ -10350,6 +10411,91 @@
           "scope": "No controlled collector deployment/activation; existing dated runtime facts retained without querying or altering them.",
           "evidence": [
             "garment-collector-current-engineering-20261024"
+          ]
+        }
+      }
+    },
+    {
+      "id": "garment-target-control-current",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-connected",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D147/D153/D158/D160 internal DB-only target plan/apply/original receipts. Reuses original target, account/contract proof, physical ownership, fresh four grants, preview CAS/expiry, disable independent of source-chain health, atomic target/audit/completed-only immutable0044 and actor+UUID audit groups. 42 prior SQL Git blobs/canonical bytes unchanged,43 files/max44; no operator/HTTP/CLI/Catalog/scheduler/default/real activation. e19 actual21files221/221,related16,type/Node/load/lint;40a only two stronger exact proof-error assertions,affected file19/19; prior checks scoped not full rerun. Original217frontend/37UI reused,no newVite/browser/Python/full-root. PR125 merged separately,does not merge this target capability. Newmain guard and local134 follow metadata. No real Source/oldDB/account/volume/deployment.",
+      "evidence": [
+        "garment-target-current-engineering-20261024"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "40a930019bd8218784e40d7ea49d780f97042fb7",
+          "scope": "D147/D153/D158/D160 internal DB-only target plan/apply/original receipts. Reuses original target, account/contract proof, physical ownership, fresh four grants, preview CAS/expiry, disable independent of source-chain health, atomic target/audit/completed-only immutable0044 and actor+UUID audit groups. 42 prior SQL Git blobs/canonical bytes unchanged,43 files/max44; no operator/HTTP/CLI/Catalog/scheduler/default/real activation. e19 actual21files221/221,related16,type/Node/load/lint;40a only two stronger exact proof-error assertions,affected file19/19; prior checks scoped not full rerun. Original217frontend/37UI reused,no newVite/browser/Python/full-root. PR125 merged separately,does not merge this target capability. Newmain guard and local134 follow metadata. No real Source/oldDB/account/volume/deployment.",
+          "evidence": [
+            "garment-target-current-engineering-20261024"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-24",
+          "sourceSha": "40a930019bd8218784e40d7ea49d780f97042fb7",
+          "scope": "D147/D153/D158/D160 internal DB-only target plan/apply/original receipts. Reuses original target, account/contract proof, physical ownership, fresh four grants, preview CAS/expiry, disable independent of source-chain health, atomic target/audit/completed-only immutable0044 and actor+UUID audit groups. 42 prior SQL Git blobs/canonical bytes unchanged,43 files/max44; no operator/HTTP/CLI/Catalog/scheduler/default/real activation. e19 actual21files221/221,related16,type/Node/load/lint;40a only two stronger exact proof-error assertions,affected file19/19; prior checks scoped not full rerun. Original217frontend/37UI reused,no newVite/browser/Python/full-root. PR125 merged separately,does not merge this target capability. Newmain guard and local134 follow metadata. No real Source/oldDB/account/volume/deployment.",
+          "evidence": [
+            "garment-target-current-engineering-20261024"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "40a930019bd8218784e40d7ea49d780f97042fb7",
+          "scope": "D147/D153/D158/D160 internal DB-only target plan/apply/original receipts. Reuses original target, account/contract proof, physical ownership, fresh four grants, preview CAS/expiry, disable independent of source-chain health, atomic target/audit/completed-only immutable0044 and actor+UUID audit groups. 42 prior SQL Git blobs/canonical bytes unchanged,43 files/max44; no operator/HTTP/CLI/Catalog/scheduler/default/real activation. e19 actual21files221/221,related16,type/Node/load/lint;40a only two stronger exact proof-error assertions,affected file19/19; prior checks scoped not full rerun. Original217frontend/37UI reused,no newVite/browser/Python/full-root. PR125 merged separately,does not merge this target capability. Newmain guard and local134 follow metadata. No real Source/oldDB/account/volume/deployment.",
+          "evidence": [
+            "garment-target-current-engineering-20261024"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "40a930019bd8218784e40d7ea49d780f97042fb7",
+          "scope": "D147/D153/D158/D160 internal DB-only target plan/apply/original receipts. Reuses original target, account/contract proof, physical ownership, fresh four grants, preview CAS/expiry, disable independent of source-chain health, atomic target/audit/completed-only immutable0044 and actor+UUID audit groups. 42 prior SQL Git blobs/canonical bytes unchanged,43 files/max44; no operator/HTTP/CLI/Catalog/scheduler/default/real activation. e19 actual21files221/221,related16,type/Node/load/lint;40a only two stronger exact proof-error assertions,affected file19/19; prior checks scoped not full rerun. Original217frontend/37UI reused,no newVite/browser/Python/full-root. PR125 merged separately,does not merge this target capability. Newmain guard and local134 follow metadata. No real Source/oldDB/account/volume/deployment.",
+          "evidence": [
+            "garment-target-current-engineering-20261024"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-connected",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "40a930019bd8218784e40d7ea49d780f97042fb7",
+          "scope": "D147/D153/D158/D160 internal DB-only target plan/apply/original receipts. Reuses original target, account/contract proof, physical ownership, fresh four grants, preview CAS/expiry, disable independent of source-chain health, atomic target/audit/completed-only immutable0044 and actor+UUID audit groups. 42 prior SQL Git blobs/canonical bytes unchanged,43 files/max44; no operator/HTTP/CLI/Catalog/scheduler/default/real activation. e19 actual21files221/221,related16,type/Node/load/lint;40a only two stronger exact proof-error assertions,affected file19/19; prior checks scoped not full rerun. Original217frontend/37UI reused,no newVite/browser/Python/full-root. PR125 merged separately,does not merge this target capability. Newmain guard and local134 follow metadata. No real Source/oldDB/account/volume/deployment.",
+          "evidence": [
+            "garment-target-current-engineering-20261024"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "No target configuration deployment or activation; preserve the actual dated runtime evidence without probing or changing existing environments.",
+          "evidence": [
+            "garment-target-current-engineering-20261024"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "No target configuration deployment or activation; preserve the actual dated runtime evidence without probing or changing existing environments.",
+          "evidence": [
+            "garment-target-current-engineering-20261024"
           ]
         }
       }
