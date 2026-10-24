@@ -1,9 +1,11 @@
-# 当前状态：订单物流上下文开始受控前移
+# 当前状态：订单物流上下文后台工程通过，待发布门禁
 
-2026-10-24，main e01a11952b648024c0bd6bf4259de429374981e2已于2026-10-24T09:29:48.067Z独立API核实；当前codex/server-order-tracking-current从main显式FF到clean G6D 4f3fd6e20a2f9e0e848ff352ee73cfdf7610740f，输入保护见[当前任务](tasks/active/server-order-tracking-current-2026-10-24.md)。
+2026-10-24；main e01a11952b648024c0bd6bf4259de429374981e2于2026-10-24T09:29:48.067Z独立API核实。当前codex/server-order-tracking-current，clean起点G6D4f3、prep bcd827、source45f300、proof f676b8。
 
-G6D07d356相关API/升级、根811、43浏览器、类型NodeLint双build/产物全部PASS；64f发布134/134 PASS356242ms，4f3最终精确main守卫PASS96017ms（11/52/51/errors[]），独立最终复审无P1/P2。清单338/52/runtime/21routes与全部旧证据保留。
+source 45f30070abeb1d70211eb10eab7841be10e8f894实际36文件379相关API/升级（213201ms）、97根811（26879ms）、类型36595/Node20091/import2377/lint54513ms全PASS，0fail/cancel/skip；proof f676b85dd644ffb6ab1877b414e6bb05223671fe冻结精确证据，SQL/审计提交前回滚和COMMIT未知须核对的文档边界已收窄。清单340/53前向保留原338/52/runtime/21routes；本轮无前端/新截图/新Vite构建或浏览器PASS声明，未变07d产物及43UI仅作用域复用。详见[工程证明](tasks/completed/2026-10-24-order-tracking-current-engineering.md)与[任务](tasks/active/server-order-tracking-current-2026-10-24.md)。发布134与最终clean精确main守卫接下来执行，不提前PASS或重复未改成功范围。
 
-新阶段仅14路径SQL/Server前移预核，13同/1资源service差异。保存物理SO明确集货仓/备注，不填默认或改计划/产出/价格/出货/关账；页面接线后续。14路径已受控前移：13输入一致，service规范化三方干净合流并保留新旧容量422；原0037前字节/前端代码保持。同一production命令/回执加入严格set_order_tracking，SQL新head/history/有效归属盘点齐备。新3文件测试脚本和Source CI单条调用，不改触发/门槛。下一步冻结source并跑本轮QA，尚无新结果。
+0038只保存物理SO明确Hub与备注，独立不可变逐次历史/版本；同一production命令、fresh权限、可信合同/消费加工批次、有效未冻结SO及原请求核对，null/no-op不造事实，不改计划/执行/金额。0037非空升级保护原表字节和10.125实际产出。客户端/物料到仓和运输建议UI后续独立接线。
 
-网络degraded，不重推/新PR/Actions；#125独立4f三CI及G6A6fd送达不变，不是本轮交付。Goal active；关账三问、真实Source额度/激活、目标切换、人验/退役另有前置。无安装、自动merge/close/deploy或真实账号/业务库/卷/凭据操作；3001/50426/59069/62426、Browser、备份/结果保留。
+G6D4f3最终守卫PASS96017ms、64f发布134/134和07d43浏览器保留；原输入三摘要/hash/完整回执在completed/2026-10-24-order-tracking-input-state/。网络degraded，本阶段push0/新PR0/Actions0，不借#125三CI或重试失败Git通道。
+
+Goal active；关账三问、真实Source额度/激活、目标切换、人验/退役独立；无安装、自动merge/close/deploy或真实账号/业务库/卷/凭据操作。3001/50426/59069/62426、Browser、备份和结果保持。
