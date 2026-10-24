@@ -1,0 +1,543 @@
+{
+  "at": "2026-10-24T15:23:15.128Z",
+  "branch": "codex/server-garment-collector-current",
+  "head": "4b8efa166c6c5af48dc954d4bac7d080bdd8d294",
+  "tree": "df6afb9bc7f0cf81d30fe8dbbf005f489f2fb698",
+  "source": "7f1c9decc34d8e615a169002fa3f6b77531d5f58",
+  "sourceTree": "6e6a6dfe10a1d2b702b6835c1e52cb64517f5ee2",
+  "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+  "proof": "4903618b4d63485fe393419da162ba9c9ee7598b",
+  "metadataHead": "b9193ef198f4d704f3bfc6edaa815df3360655ac",
+  "guard": {
+    "at": "2026-10-24T15:22:40.427Z",
+    "head": "4b8efa166c6c5af48dc954d4bac7d080bdd8d294",
+    "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+    "code": 0,
+    "timedOut": false,
+    "overflow": false,
+    "elapsedMs": 114632,
+    "result": {
+      "status": "PASS",
+      "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
+      "checkedHead": "4b8efa166c6c5af48dc954d4bac7d080bdd8d294",
+      "historySha": "e01a11952b648024c0bd6bf4259de429374981e2",
+      "pages": 11,
+      "capabilities": 64,
+      "changedUiFiles": 76,
+      "scope": "source/evidence guard only; no browser, runtime, database or user acceptance claim",
+      "errors": []
+    }
+  },
+  "release": {
+    "at": "2026-10-24T15:19:39.065Z",
+    "head": "b9193ef198f4d704f3bfc6edaa815df3360655ac",
+    "productSource": "7f1c9decc34d8e615a169002fa3f6b77531d5f58",
+    "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+    "command": "npm run test:release-baseline",
+    "code": 0,
+    "timedOut": false,
+    "overflow": false,
+    "elapsedMs": 511202,
+    "counts": {
+      "tests": 134,
+      "pass": 134,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    "codeChangesSinceProduct": "docs only",
+    "hostedActionsTriggered": 0
+  },
+  "sourceVerification": {
+    "new43": {
+      "at": "2026-10-24T15:04:59.652Z",
+      "source": "7f1c9decc34d8e615a169002fa3f6b77531d5f58",
+      "cwd": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\zhixu-garment-collector-current-amO99d\\context",
+      "args": [
+        "node_modules/tsx/dist/cli.mjs",
+        "--test",
+        "--test-concurrency=1",
+        "--test-reporter=spec",
+        "server/ainuoke-source/garment-filter-evidence.test.ts",
+        "server/integration/garment-collection-worker.test.ts",
+        "server/integration/garment-collection-control.integration.test.ts",
+        "server/integration/garment-collection-upgrade.integration.test.ts"
+      ],
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 27204,
+      "counts": {
+        "tests": 43,
+        "pass": 43,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      }
+    },
+    "type": {
+      "at": "2026-10-24T15:04:56.938Z",
+      "source": "7f1c9decc34d8e615a169002fa3f6b77531d5f58",
+      "cwd": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\zhixu-garment-collector-current-amO99d\\context",
+      "args": [
+        "node_modules/typescript/bin/tsc",
+        "--noEmit"
+      ],
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 24453,
+      "counts": {}
+    },
+    "node": {
+      "at": "2026-10-24T15:04:43.881Z",
+      "source": "7f1c9decc34d8e615a169002fa3f6b77531d5f58",
+      "cwd": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\zhixu-garment-collector-current-amO99d\\context",
+      "args": [
+        "node_modules/typescript/bin/tsc",
+        "-p",
+        "server/tsconfig.json"
+      ],
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 11335,
+      "counts": {}
+    },
+    "load": {
+      "at": "2026-10-24T15:04:45.724Z",
+      "source": "7f1c9decc34d8e615a169002fa3f6b77531d5f58",
+      "cwd": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\zhixu-garment-collector-current-amO99d\\context",
+      "args": [
+        "--input-type=module",
+        "-e",
+        "await import(\"./dist/server/server/app.js\"); await import(\"./dist/server/server/ainuoke-source/garment-collection-control.js\"); await import(\"./dist/server/server/ainuoke-source/garment-filter-evidence.js\")"
+      ],
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 1839,
+      "counts": {}
+    },
+    "lint": {
+      "at": "2026-10-24T15:04:38.580Z",
+      "source": "7f1c9decc34d8e615a169002fa3f6b77531d5f58",
+      "cwd": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\zhixu-garment-collector-current-amO99d\\context",
+      "args": [
+        "node_modules/eslint/bin/eslint.js",
+        "server/ainuoke-source/garment-filter-evidence.ts",
+        "server/ainuoke-source/garment-filter-evidence.test.ts"
+      ],
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 6064,
+      "counts": {}
+    }
+  },
+  "scopedPreFixVerification": {
+    "source": "d2ff4766aca0fdfaa83cc29014565690be2fff6a",
+    "api280": {
+      "at": "2026-10-24T15:02:32.316Z",
+      "source": "d2ff4766aca0fdfaa83cc29014565690be2fff6a",
+      "cwd": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\zhixu-garment-collector-current-XYgVDx\\context",
+      "binary": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "node_modules/tsx/dist/cli.mjs",
+        "--test",
+        "--test-concurrency=1",
+        "--test-reporter=spec",
+        "server/ainuoke-source/garment-filter-evidence.test.ts",
+        "server/integration/garment-collection-worker.test.ts",
+        "server/integration/garment-collection-control.integration.test.ts",
+        "server/integration/garment-collection-upgrade.integration.test.ts",
+        "server/ainuoke-source/garment-shipment-observations.test.ts",
+        "features/ainuoke-garment-shipments/__tests__/client.test.ts",
+        "server/integration/garment-shipment-store.integration.test.ts",
+        "server/integration/garment-shipment-upgrade.integration.test.ts",
+        "server/sales-orders/normalization-assessment.test.ts",
+        "server/integration/normalization-preview.integration.test.ts",
+        "server/integration/normalization-full-evidence.integration.test.ts",
+        "server/integration/normalization-execution-service.integration.test.ts",
+        "server/integration/normalization-case-schema.integration.test.ts",
+        "server/integration/normalization-case-service.integration.test.ts",
+        "server/integration/effective-attribution-schema.integration.test.ts",
+        "server/integration/effective-attribution-source.integration.test.ts",
+        "server/integration/effective-attribution-consumers.integration.test.ts",
+        "server/integration/effective-attribution-write-guards.integration.test.ts",
+        "server/integration/production-scheduling-upgrade.integration.test.ts",
+        "server/integration/logistics-resources-upgrade.integration.test.ts",
+        "server/integration/order-tracking-upgrade.integration.test.ts",
+        "server/integration/material-arrivals-upgrade.integration.test.ts",
+        "server/integration/delivery-plan-requests.integration.test.ts",
+        "server/integration/fresh-start.integration.test.ts"
+      ],
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 189379,
+      "counts": {
+        "tests": 280,
+        "pass": 280,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      }
+    },
+    "exactGit18": {
+      "at": "2026-10-24T15:00:20.372Z",
+      "source": "d2ff4766aca0fdfaa83cc29014565690be2fff6a",
+      "cwd": "C:\\Users\\Administrator\\.codex\\worktrees\\7bf3\\zhixu-ainuoke-api",
+      "binary": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "node_modules/tsx/dist/cli.mjs",
+        "--test",
+        "--test-concurrency=1",
+        "--test-reporter=spec",
+        "server/integration/bound-order-refresh.test.ts",
+        "server/integration/bound-order-refresh.integration.test.ts"
+      ],
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 56389,
+      "counts": {
+        "tests": 18,
+        "pass": 18,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      }
+    },
+    "root811": {
+      "at": "2026-10-24T14:59:52.710Z",
+      "source": "d2ff4766aca0fdfaa83cc29014565690be2fff6a",
+      "cwd": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\zhixu-garment-collector-current-XYgVDx\\context",
+      "binary": "C:\\Program Files\\nodejs\\node.exe",
+      "args": [
+        "--test",
+        "--test-reporter=spec",
+        "tests/ainuoke-contract-api-adapter.test.mjs",
+        "tests/ainuoke-contract-api-sync.test.mjs",
+        "tests/ainuoke-excess-warehouse.test.mjs",
+        "tests/ainuoke-garment-color-size-source.test.mjs",
+        "tests/ainuoke-historical-review-cleanup.test.mjs",
+        "tests/ainuoke-material-api-adapter.test.mjs",
+        "tests/ainuoke-material-api-commit.test.mjs",
+        "tests/ainuoke-material-api-preview.test.mjs",
+        "tests/ainuoke-material-progress.test.mjs",
+        "tests/ainuoke-order-discovery.test.mjs",
+        "tests/ainuoke-personal-api.test.mjs",
+        "tests/ainuoke-sync.test.mjs",
+        "tests/ainuoke-unified-sync.test.mjs",
+        "tests/audit-settings-and-batch-export.test.mjs",
+        "tests/basic-settings-v15.test.mjs",
+        "tests/batch4-1.test.mjs",
+        "tests/batch56-ux.test.mjs",
+        "tests/closing-center.test.mjs",
+        "tests/confirmed-commercial-terms-ui.test.mjs",
+        "tests/cost-responsive-batch1-2.test.mjs",
+        "tests/cost-table-ui-part2.test.mjs",
+        "tests/data-lifecycle.test.mjs",
+        "tests/fabric-calculations.test.mjs",
+        "tests/foundation-enter-submit.test.mjs",
+        "tests/fresh-server-quote-authority.test.mjs",
+        "tests/full-ui-gate-a.test.mjs",
+        "tests/global-costs-v2.test.mjs",
+        "tests/global-search.test.mjs",
+        "tests/local-runtime-observability.test.mjs",
+        "tests/local-single-user-ui.test.mjs",
+        "tests/material-confirmed-facts.test.mjs",
+        "tests/material-display-order.test.mjs",
+        "tests/material-identity-collision.test.mjs",
+        "tests/material-libraries.test.mjs",
+        "tests/navigation-quote-cockpit-correction.test.mjs",
+        "tests/operation-log-groups.test.mjs",
+        "tests/operation-logs.test.mjs",
+        "tests/operations-infrastructure.test.mjs",
+        "tests/order-center.test.mjs",
+        "tests/order-material-commercial-policy.test.mjs",
+        "tests/order-material-read-gate1.test.mjs",
+        "tests/order-material-source-adapter.test.mjs",
+        "tests/permissions.test.mjs",
+        "tests/post-phase6-ui-correction.test.mjs",
+        "tests/postgres-order-detail-cutover.test.mjs",
+        "tests/postgres-order-list-cutover.test.mjs",
+        "tests/price-version-cost-sync.test.mjs",
+        "tests/price-version-labor-summary-ui.test.mjs",
+        "tests/price-version-manufacturing-preset.test.mjs",
+        "tests/production-scheduling.test.mjs",
+        "tests/q3-master-authority-wiring.test.mjs",
+        "tests/quick-master-data.test.mjs",
+        "tests/quote-attachments.test.mjs",
+        "tests/quote-batch-export.test.mjs",
+        "tests/quote-calculations.test.mjs",
+        "tests/quote-center-finishing-fixes.test.mjs",
+        "tests/quote-copy-and-default-quantity.test.mjs",
+        "tests/quote-detail-responsive-correction.test.mjs",
+        "tests/quote-editor-state.test.mjs",
+        "tests/quote-estimate-cost.test.mjs",
+        "tests/quote-excel-export.test.mjs",
+        "tests/quote-freeze.test.mjs",
+        "tests/quote-labor-and-layout-increment.test.mjs",
+        "tests/quote-master-settings-server-candidate.test.mjs",
+        "tests/quote-part1-contract.test.mjs",
+        "tests/quote-part3.test.mjs",
+        "tests/quote-quick-navigation.test.mjs",
+        "tests/quote-revision-management.test.mjs",
+        "tests/quote-server-new-workspace.test.mjs",
+        "tests/quote-server-shadow-read.test.mjs",
+        "tests/quote-server-writer-workspace.test.mjs",
+        "tests/quote-single-price-version.test.mjs",
+        "tests/quote-ui-contract.test.mjs",
+        "tests/quote-v-next-ui.test.mjs",
+        "tests/quote-v12.test.mjs",
+        "tests/quote-v13.test.mjs",
+        "tests/sales-order-bootstrap-preview.test.mjs",
+        "tests/sales-order-final-bootstrap-preview.test.mjs",
+        "tests/sales-order-server-shadow-read.test.mjs",
+        "tests/second-acceptance-foundation.test.mjs",
+        "tests/second-acceptance-order-production.test.mjs",
+        "tests/server-migration-activation-safety.test.mjs",
+        "tests/server-navigation-history.test.mjs",
+        "tests/sidebar-floating-menu.test.mjs",
+        "tests/source-anomaly-evidence.test.mjs",
+        "tests/style-progress-gate3.test.mjs",
+        "tests/style-progress-gate4.test.mjs",
+        "tests/style-progress-material-control-v2.test.mjs",
+        "tests/style-progress-performance.test.mjs",
+        "tests/style-progress.test.mjs",
+        "tests/template-settings.test.mjs",
+        "tests/ui-foundation-phase1.test.mjs",
+        "tests/ui-qa-data-simulation.test.mjs",
+        "tests/ui-redesign-phase3.test.mjs",
+        "tests/ui-redesign-phase4.test.mjs",
+        "tests/ui-redesign-phase5.test.mjs",
+        "tests/ui-redesign-phase6.test.mjs"
+      ],
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 29658,
+      "counts": {
+        "tests": 811,
+        "pass": 811,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      }
+    },
+    "python152": {
+      "at": "2026-10-24T14:59:30.251Z",
+      "source": "d2ff4766aca0fdfaa83cc29014565690be2fff6a",
+      "cwd": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\zhixu-garment-collector-current-XYgVDx\\context\\tools\\ainuoke-bridge",
+      "binary": "python",
+      "args": [
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 7149,
+      "counts": {},
+      "python": {
+        "tests": 152,
+        "seconds": 5.208,
+        "success": true
+      }
+    },
+    "fullLint": {
+      "at": "2026-10-24T15:00:14.488Z",
+      "source": "d2ff4766aca0fdfaa83cc29014565690be2fff6a",
+      "cwd": "C:\\Users\\ADMINI~1\\AppData\\Local\\Temp\\zhixu-garment-collector-current-XYgVDx\\context",
+      "args": [
+        "node_modules/eslint/bin/eslint.js",
+        ".",
+        "--ignore-pattern",
+        "dist",
+        "--ignore-pattern",
+        ".next"
+      ],
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 62278,
+      "counts": {}
+    },
+    "scope": "Actual d2ff results; two TS files later changed, affected4file43/type/Node/lint revalidated at7f. Not a new7f whole-suite or single combined total."
+  },
+  "expectedRedReproduction": {
+    "at": "2026-10-24T15:02:44.642Z",
+    "productSource": "d2ff4766aca0fdfaa83cc29014565690be2fff6a",
+    "cwd": "C:\\Users\\Administrator\\.codex\\worktrees\\7bf3\\zhixu-ainuoke-api",
+    "testFile": "server/ainuoke-source/garment-filter-evidence.test.ts",
+    "testSha256": "2d5e8b3f0a32417d71d30c3eafbac4b7a40ed5fb444596ec8c607aa081ca2fff",
+    "args": [
+      "node_modules/tsx/dist/cli.mjs",
+      "--test",
+      "--test-reporter=spec",
+      "--test-name-pattern=non-string filter envelope|garment proof cannot accept",
+      "server/ainuoke-source/garment-filter-evidence.test.ts"
+    ],
+    "code": 1,
+    "timedOut": false,
+    "overflow": false,
+    "elapsedMs": 1177,
+    "counts": {
+      "tests": 2,
+      "pass": 0,
+      "fail": 2,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    "purpose": "Expected regression reproduction only: new assertions against unchanged d2ff product; no DB/network/credentials; original API suite still owns its archive source."
+  },
+  "dependencyDiscovery": {
+    "at": "2026-10-24T14:53:52.344Z",
+    "inputSource": "49dc50df82c28a23ab4242de6c51ae0e5b04bca4",
+    "initialSource": "ee2103604a477a82c1e6fcf3d063ae5c226b7710",
+    "discovery": "Read-only dependency audit found missing strict JSON and full filter proof/screening modules before any QA. Initial14-path exact-input result did not prove dependency closure.",
+    "exactJsonSourceSha256": "8d183bc766273ce5da5074620957b18857b07815126ab7327c609da43a1a4c92",
+    "blocks": [
+      {
+        "name": "limits-and-query-identity",
+        "sourceStart": 710,
+        "sourceEnd": 1076,
+        "sha256": "1244d731ccbc0462d8ca8d79966c6e3735a33af390db38b17f6c44b3167d503c"
+      },
+      {
+        "name": "strict-screening-and-raw-page",
+        "sourceStart": 1361,
+        "sourceEnd": 5838,
+        "sha256": "7ae651a8274ff8846a442a4f1cef91852358b2ac5e0692459e692a2257a98371"
+      },
+      {
+        "name": "selection-and-account-checks",
+        "sourceStart": 8840,
+        "sourceEnd": 10049,
+        "sha256": "ef7b1145ec5b4fd8e7b11e55d1e9e6c4ec3a0ed00f6725e6225e02a476c4192d"
+      },
+      {
+        "name": "full-proof-envelope-and-validation",
+        "sourceStart": 12161,
+        "sourceEnd": 19465,
+        "sha256": "b679cf9606fef2b00be206972df06eb23ba1a07c9f58055efb6d332964f1f0fb"
+      },
+      {
+        "name": "python-definition",
+        "sourceStart": 1144,
+        "sourceEnd": 1425,
+        "sha256": "83a07c48ad68e18ae17cd3c7e0bbb2c35bcbd11fe262e0fcf7fdc36a9b99539b"
+      },
+      {
+        "name": "python-static-failure",
+        "sourceStart": 2302,
+        "sourceEnd": 2356,
+        "sha256": "c787458ebef9d27518bae82ac0069d84e321941e02080e77487db7f86266d578"
+      },
+      {
+        "name": "python-strict-screen",
+        "sourceStart": 6897,
+        "sourceEnd": 8062,
+        "sha256": "b7dc4d0450948c30adfd3ddedefdc763e5bc680e1c2f74db5eb3e6bcd120fda2"
+      }
+    ],
+    "extracted": [
+      "server/ainuoke-source/garment-filter-evidence.ts",
+      "server/ainuoke-source/exact-source-json.ts",
+      "tools/ainuoke-bridge/ainuoke_bridge/garment_report_screening.py"
+    ],
+    "narrowImportRedirects": 3,
+    "upgradeFixSource": "357a88e513632cdb93e01698096daf1eaf099355",
+    "excluded": [
+      "historical frozen candidate reader/hash",
+      "fixed diagnostic collect/main",
+      "credential/private-report/launcher",
+      "HTTP/CLI/Catalog/scheduler registration",
+      "new real source authorization"
+    ],
+    "testsRun": 0
+  },
+  "reusedFrontend": {
+    "source": "fc103fb87ed3df294922189b4954c1764903ef22",
+    "fileCount": 217,
+    "build": {
+      "environment": "production",
+      "buildId": "coverage-client-fc103fb8-server-20261024",
+      "gitCommit": "fc103fb87ed3df294922189b4954c1764903ef22",
+      "buildTime": "2026-10-24T14:36:40.568Z",
+      "masterSettingsAuthority": "server",
+      "identityMode": "session",
+      "quoteWriterMode": "writable",
+      "quoteAuthority": "server",
+      "orderRead": "snapshot"
+    },
+    "actualBrowserPrior": "37/37",
+    "newBuild": false,
+    "newBrowser": false
+  },
+  "newVite": 0,
+  "newBrowser": 0,
+  "evidenceCount": 465,
+  "capabilities": 64,
+  "localEngineering": "CLOSED_PASS",
+  "independentReview": "PASS_NO_REMAINING_P1_P2",
+  "workingTreeClean": true,
+  "delivery": {
+    "state": "NOT_ATTEMPTED_NETWORK_DEGRADED",
+    "pushes": 0,
+    "newPr": null,
+    "existingFoundationPr": "https://github.com/clearisok/zhixu-erp/pull/125",
+    "mergeApproval": "pending human answer; no merge done"
+  },
+  "hostedActionsTriggered": 0,
+  "goal": "active",
+  "deployed": false,
+  "realSourceOrBusinessDatabaseAccess": false,
+  "existingTargetMigrated": false,
+  "finalCumulativePrRequirement": "Reconcile current main and dependency history, run both release commands and necessary CI before cumulative PR delivery/merge recommendation; do not reuse #125 CI for these new gates.",
+  "outstanding": [
+    "#125 explicit merge approval pending",
+    "No real collector execution/target activation or new financial/source quota",
+    "Closing processing classification / adopted CNY labor vs USD / pre-lock staleness decisions remain pending",
+    "Visible delivery coverage panel requires specific V2 approval",
+    "50426 cutover and legacy retirement separately authorized"
+  ],
+  "protected": [
+    "3001",
+    "50426",
+    "59069",
+    "62426",
+    "Browser stores",
+    "backups",
+    "existing volumes"
+  ],
+  "review": {
+    "at": "2026-10-24T15:28:26.567Z",
+    "reviewer": "/root/server_convergence_review",
+    "mode": "read-only independent final review",
+    "head": "4b8efa166c6c5af48dc954d4bac7d080bdd8d294",
+    "tree": "df6afb9bc7f0cf81d30fe8dbbf005f489f2fb698",
+    "remainingP1": 0,
+    "remainingP2": 0,
+    "result": "PASS",
+    "verified": [
+      "Final exact4b/main e01a guard PASS114632ms,11pages/64cap/76cumulativeUI/errors[]",
+      "b919 release134/134 PASS511202ms,not rerun at4b",
+      "b919 to4b only four state docs;product7f,proof490361 and465/64 manifest unchanged",
+      "Scoped d2ff full checks vs7f affected checks andfc103 frontend reuse accurately distinguished",
+      "Clean worktree and matching final receipt tree"
+    ],
+    "reviewerRanTests": false,
+    "reviewerUsedNetwork": false,
+    "remoteDeliveryClaim": false,
+    "deploymentClaim": false,
+    "sourceActivationClaim": false
+  },
+  "closedAt": "2026-10-24T15:28:26.567Z"
+}
