@@ -19,3 +19,7 @@
 NETWORK_DEGRADED，push0/PR0/Actions0，不借#125CI或逐Gate重试Git。仅自有合成一次性PG/loopback/私有Chromium，不读真实凭据/Source、不改真实账号/业务DB/现有卷、不绑定/激活/调度、安装、自动merge/close/deploy或50426切换退役；保护3001/50426/59069/62426、Browser、备份及结果。Goal active；coverage/0043及关账三问不默认。
 
 V2精确10路径影响记录已先行冻结，引用原具体批准及当前任务；不是新UI授权或工程PASS。独立预核16非workflow输入均原blob，2a→8f2无该路径后续修复。两driver P2需实施前关闭：Gitless下用完整ExpectedSource替代git HEAD、owned Chromium确认退出才删profile；before只允许精确922外部静态，after禁止外部目录；补真实touch而不把Emulation+DOM click称触摸。保留2a最终焦点/长数/单滚动/手机双入口/320fine修复。当前仍无本轮产品写入或新QA。
+
+17路径已受控前移：16原输入相同，workflow仅追加三纯客户端测试、UI驱动和完整ExpectedSource。独立实质UI契约/D156及技术pending生命周期已同步，原3e869/da5b和SQL不改。driver构建身份/owned退出/真实touch尚待本轮修复，未跑新QA，不借旧2a绿灯。
+
+本轮driver两P2及before/实际touch已修，语法/差异检查通过；原子enabled点击保留。下一步冻结新source并新QA，不预写PASS；CURRENT_STATE/AI_HANDOFF为当前恢复点，上述prep/待修属于原阶段记录。

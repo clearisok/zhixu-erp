@@ -98,11 +98,11 @@ export function SavedDeliveryPlanFacts({ data, processing = false }: { data: Del
 type PlanView = { lease: object } & ({ data: DeliveryPlanSetDto; error?: never } | { error: number; data?: never });
 
 /** Only the existing disclosure triggers a GET; each committed identity owns its reply. */
-export function SavedDeliveryPlans({ orderId, active, processing = false }: { orderId: string; active: boolean; processing?: boolean }) {
+export function SavedDeliveryPlans({ orderId, active, processing = false, refreshToken = 0 }: { orderId: string; active: boolean; processing?: boolean; refreshToken?: number }) {
   const session = useServerSession();
   const [attempt, setAttempt] = useState(0);
   const [view, setView] = useState<PlanView | null>(null);
-  const lease = useMemo(() => ({ orderId, session, active, attempt }), [orderId, session, active, attempt]);
+  const lease = useMemo(() => ({ orderId, session, active, attempt, refreshToken }), [orderId, session, active, attempt, refreshToken]);
   const owner = useRef<object | null>(null);
   useLayoutEffect(() => {
     owner.current = lease;
@@ -111,8 +111,9 @@ export function SavedDeliveryPlans({ orderId, active, processing = false }: { or
   useEffect(() => {
     if (!active || session.status !== "authenticated" || !session.hasPermission("order.view")) return;
     let current = true;
+    const abort = new AbortController();
     const owned = () => current && owner.current === lease;
-    void readServerDeliveryPlans(orderId).then(data => {
+    void readServerDeliveryPlans(orderId, { lease: owned, signal: abort.signal }).then(data => {
       if (!owned()) return;
       if (data.salesOrderId !== orderId) { setView({ lease, error: 500 }); return; }
       setView({ lease, data });
@@ -122,7 +123,7 @@ export function SavedDeliveryPlans({ orderId, active, processing = false }: { or
       setView({ lease, error: status });
       if (status === 401) session.invalidate();
     });
-    return () => { current = false; };
+    return () => { current = false; abort.abort(); };
   }, [active, lease, orderId, session]);
   if (!active || session.status !== "authenticated" || !session.hasPermission("order.view")) return null;
   const result = view?.lease === lease ? view : null;
@@ -137,13 +138,13 @@ export function SavedDeliveryPlans({ orderId, active, processing = false }: { or
   </section>;
 }
 
-export function SavedOrderSourceDetails({ orderId, processing, children }: {
-  orderId: string; processing: boolean; children: ReactNode;
+export function SavedOrderSourceDetails({ orderId, processing, children, deliveryPlanRefreshToken = 0 }: {
+  orderId: string; processing: boolean; children: ReactNode; deliveryPlanRefreshToken?: number;
 }) {
   const [expanded, setExpanded] = useState(false);
   return <details className="oc-server-technical-details" onToggle={event => setExpanded(event.currentTarget.open)}>
     <summary>来源与技术详情 <span>只读</span></summary>
-    <SavedDeliveryPlans orderId={orderId} active={expanded} processing={processing} />
+    <SavedDeliveryPlans orderId={orderId} active={expanded} processing={processing} refreshToken={deliveryPlanRefreshToken} />
     {children}
   </details>;
 }

@@ -185,3 +185,7 @@ manifest 记录 product、schemaVersion、environment、initializedAt 和 update
 ## Server人工到仓原请求（2026-10-24，D147）
 
 `zhixu.server.material-arrival.pending.v1.<publicUserUUID>`仅sessionStorage保存本actor/tab一条未核实的requestId、intent、previewHash和schemaVersion/userId/savedAt；数量/日期/稳定需求ID为用户命令，不包含金额、凭据/token或Browser账本。完整写入并读回才POST，刷新不自动提交；同身份同摘要的known回执才释放精确槽。unknown/pending/损坏/未来schema/owner变化保留，不能覆盖新请求。只有明确核对unknown后可人工原ID重发。无localStorage/IndexedDB/Seed/备份格式/迁移/clear变化；关闭标签页或人为清理可能丢临时槽，服务端历史/回执不受影响。
+
+## Server交期原请求（2026-10-24，D156）
+
+sessionStorage的zhixu.server.delivery-plan.pending.v1.<publicUserUUID>只保存本actor/tab原命令和schemaVersion1/userId/savedAt，64KiB。先完整存读再发送，unknown只核对；精确unknown后二次确认同UUID/CAS/body，发送前再次比对原槽，终态同owner才清除。损坏/未来schema/不同请求保留阻断。不读写localStorage/IndexedDB/Seed、Browser业务namespace或备份格式；并非另一个订单账本。关闭标签页或人工清理可能丢技术槽，不改变服务端回执/历史，见[独立UI契约](SERVER_DELIVERY_PLAN_MAINTENANCE_UI.md)。
