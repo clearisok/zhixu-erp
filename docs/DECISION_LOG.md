@@ -27,7 +27,7 @@
 
 - 原2026-10-23工程决定，2026-10-25向当前main受控前移，Active engineering；D147既有范围。新增的是原源码CLI接线，不另建模型、SQL、HTTP、权限、Catalog或调度；D158/D160中无CLI继续表示其冻结切片。真实目标启用与新Source请求额度不由工程入口、hash或确认短语授予。
 - plan/collect/原回执与target plan/apply/原回执显式分开；target独立确认短语、明确时效、无凭据。停用和历史核对不依赖秘密/证明/当前目标状态。0043/0044分账，旧enable不重启，COMMIT/报告未知不报成功、不自动重试。保持原服务fresh权限/意图/CAS/原子审计与严格字符串证明。
-- 当前CLI只导入纯garment-filter-evidence，不恢复旧IO诊断；共享报告仅固定garment-operator kind/prefix，秘密检查不放宽。当前[独立契约](features/SERVER_GARMENT_OPERATOR_CURRENT.md)/[阶段任务](tasks/active/server-garment-operator-current-2026-10-25.md)记录新精确源码与待验收，不借原c54的PASS。无真实凭据/Source/激活、现有库或部署操作。
+- 当前CLI只导入纯garment-filter-evidence，不恢复旧IO诊断；共享报告仅固定garment-operator kind/prefix，秘密检查不放宽。当前[独立契约](features/SERVER_GARMENT_OPERATOR_CURRENT.md)/[阶段任务](tasks/active/server-garment-operator-current-2026-10-25.md)记录新精确源码；最终8cf受影响20项、79f原27/52/71及质量检查已通过，准确分源见[冻结工程证明](tasks/completed/2026-10-25-garment-operator-current-engineering.md)，不借原c54的PASS。无真实凭据/Source/激活、现有库或部署操作。
 
 ### D-160 成衣目标配置复用原目标并保存独立原子历史回执
 

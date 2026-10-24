@@ -23,3 +23,9 @@ COMMIT、started/claim未知或报告写失败不输出暂定成功，不重采/
 见[当前阶段](../tasks/active/server-garment-operator-current-2026-10-25.md)。
 
 当前负测分别隔离枚举变化与零页组合，避免同一输入的其他错误掩盖类型回归；自有副本回退两处严格枚举时样例实际失败。首轮27/52/71及质量结果准确归属79f，后续两测试文件验收按新source另记。原产品、秘密检查、worker预算、43SQL及UI不改。
+
+## 当前工程结果
+
+2026-10-25：首次源码 79f7431493ff267bab9b780f9b8f5fc334edf62b 的 27/52/71 及类型、Node、相关 lint、源码 help 通过；仅两测试补强后最终源码 8cf667f26f191b0ca1d3b31b423dd293d7f2a5b6 的类型、相关 lint 和完整受影响 20/20 通过，实际干净入口正控成功。故意放松枚举的隔离 mutant 使新样例失败，覆盖 P2 关闭；原产品及 43 SQL 未变，独立只读复审无 P1/P2。各结果分源保存，不冒称最终全套重跑。
+
+见[冻结工程证明](../tasks/completed/2026-10-25-garment-operator-current-engineering.md)。精确发布守卫及一次本地 134 在元数据绑定后另记；本文件冻结时未运行。本阶段无新 PR/Hosted CI 或真实 Source、target、现有库账号卷和部署操作。

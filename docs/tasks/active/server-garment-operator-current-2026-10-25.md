@@ -13,3 +13,7 @@
 独立复审发现测试覆盖P2而非产品缺陷：新负测同时清空pages/计数且stage仍validation，既有其他检查已经会拒绝，不能单独证明枚举保护。当前仅改两份测试：完整三页4/3计数保持，只改result数组/嵌套数组或stage数组；零请求空pages另以not-started组合检验。精确错误和0worker/两命令/快照/审计断言保持，未修改产品或时间预算。自有隔离archive上新样例当前guard绿1480ms；仅将两处typeof回退到String的故意mutant红1317ms（Missing expected exception），证明新样例捕获原类型保护；这是测试实验，不是当前产品失败。
 
 接下来新测试源码仅重验类型/两文件lint及两受影响文件完整测试，原目标操作者第三文件、52/71和Node编译按未变范围复用，不冒称新SHA全套重跑。导航PR129三必要CI已首次全部success，实际job日志与合并树核实，仍draft/not-merged；不因此合并任何PR或扩大真实范围。
+
+## 最终受影响结果
+
+8cf667f26f191b0ca1d3b31b423dd293d7f2a5b6 类型17105ms、两文件lint3892ms、两文件完整20/20 PASS270160ms，0fail/cancel/skip；clean源码入口正控成功，HEAD/manifest稳定、dirty空。独立只读复审确认覆盖P2关闭，无剩余P1/P2。原79f的27/52/71与Node等按未变范围保留，未重复。详见[冻结工程证明](../completed/2026-10-25-garment-operator-current-engineering.md)；发布守卫与一次本地134后置。
