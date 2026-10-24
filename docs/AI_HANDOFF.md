@@ -1,15 +1,15 @@
-# 恢复点：G5隔离工程与发布已通过，精确守卫终态另读
+# 恢复点：G6A资源前移，待独立复审与源码冻结
 
-2026-10-24；root唯一writer，既有server_convergence_review只读。main e01a11952b648024c0bd6bf4259de429374981e2于06:03Z独立API核实。#123已获准合并，#125仍CA草稿，原精确4f API例外尚待答复，不重问或绕过旧STOP；完整Goal active。
+2026-10-24；root唯一writer，既有server_convergence_review只读。已独立API核main e01a11952b648024c0bd6bf4259de429374981e2，确切时间见前序outputs/order-context-quote-current-20261024/final-readonly-main.json。#123已获准合并，#125仍CA草稿；原expected-CA/force=false→4f精确API例外尚待答复，不重问/绕过旧STOP。Goal active。
 
-当前codex/order-context-quote-current，产品/测试源码68a38b6bfb0785cc6019381f095660b38cf8fbf7，proof53c9bdc73d9369ab54a41d1fd4af651ffb7bd86f。从干净19c受控前移19路径，保留main/#120、当前Quote测试修复与旧Gate历史；0033不回填，不升级目标。G5创建参考不是商业采用，不自动生成SO/CCT/物料/排单。
+当前codex/server-production-resources-current从main新建并显式FF到干净530203b32aa9b237c4b81be285e91be40d4e990e。输入两状态逐字归档completed/2026-10-24-production-resources-input-state/；start/forward-scope回执在ignored outputs/server-production-resources-current-20261024。起始本机show-ref非quiet不存在返回128，已在写前停止；quiet verify明确缺失后才建分支。未reset/clean、覆盖未知dirty。一次状态文档脚本因CRLF段落锚点失败，在首个write前停止；按规范化原文核对后重写本阶段状态，未动产品/业务数据。
 
-实际日志在ignored outputs/order-context-quote-current-20261024：fulltypes23501ms、Node9609+import1496、lint37797、创建/引用68(42637ms)、根811(19326ms)、before2(16330ms)、after9(22139ms)、Quote/P6/来源107(190540ms)，0失败/取消/跳过。规范长路径archive、现有依赖/noinstall；双构建/产物各45页/fallback1/109assets，Browser1已知preload提示/Server0。新构建完整68a，不用旧54/aaf结果；before渲染6ef，后台/测试68a。7图主控已查看，cleanup终态PASS；独立源码/日志复审无剩余P1/P2，未运行测试。
+实际25个aaf→d717路径全部当前blob等于原输入后才复制。0034接0033四资源无Seed/回填；不带物流/排单/完成。23278单行CAS授权disabled、caf真实初始rAF/单次Enter/一POST403/原ID恢复已窄带回；用现chromium-endpoint stopOwnedChromium/root Browser.close/证据失败仍释放HTTP/PG/未确认退出不删profile，原240s/16s/20s/30s预算不变。driver加入真实目录GET屏障验证CAS等待disabled，严格旧68a before模式和after禁外部静态目录；尚未跑新UI。
 
-当前仅metadata增量：清单前向258证据/48能力，原247/47与其他字段/旧runtime保持；D149文档supersede旧决策leaf，不覆写hash。新PNG含changeReason和既有D147批准引用，不能改旧图/哈希。metadata61e5643b71f3f7196ccbe19801c36957dd5df83e上显式npm发布134/134已PASS（295257ms，测试294002.0284ms），0失败/取消/跳过。与68a的97文件811联合99文件945，不是单次全套。源码路径/97文件文档依赖已核对未变，不重复811。接下来新最终HEAD对main精确守卫，其结果必须读取ignored final-local-checkpoint.json/final-guard-result.json，缺失不得推定PASS；未改变原守卫或测试。
+容量P2已真实红复现：命令1048218B、outbox1048352B、PG结果1054445B→500/unknown，28项24pass4fail（含父项/审计计数连带）。service现SAVEPOINT apply后检查PG真字节，仅静态422容量code可持久拒绝；prior不动、其他异常仍回滚。client严格身份/hash/422code，限额及SQL不放大/截断/改字符规则。工作态28/28 PASS8680ms，含changed/no-op、GETknown/POSTreplay、零资源/例外/审计新增、恰一回执、实际1000项可容纳正控；保留红绿日志，不冒称冻结QA。
 
-前序4B最终19c精确守卫PASS68468ms、proof6d53/源码6ef及短路径/截图字段失败均保留；导航7635、Quote7cf、加工785、4A8da各有独立证据。完整Gate推进还未完成。
+先完成只读复审、准确冻结source，再新canonical archive/noinstall，当前契约/client/outbox/API、角色/用户/空库/G5引用、类型/Node载入/lint、双构建/产物、资源与导航built、根/发布按实际SHA验收。manifest暂258/48且serverRoutes尚未绑定新增三路由；证据/元数据就绪后才运行最终守卫，不提前改能力状态。当前task及V1精确12路径记录为恢复入口。
 
-后续按原依赖：G6A0034资源先于后续排单/完成；只读核了原aaf→d717非docs/workflow25路径，后续实际逐blob审计确认全部25路径current==原aaf输入，0分歧（next-g6a-scope.json）；这是受控窄切片复用依据，不许可导入旧workflow/manifest/摘要或后续整条分支。4C0042回执需要中间fresh-actor/ledger依赖，原2a199最终移动双按钮修复必须保留，不能只复制早7584。尚未实施新G6/4C。
+前序G5 530/main守卫PASS71947ms/clean；68a API68/root811/before2/after9/QuoteP6来源107、双构建/类型/Node/lint，proof53c9；61e发布134/134 PASS295257ms，分阶段99根945。完整输入已归档，不重跑未改成功范围，不借d717历史绿灯。新阶段尚无冻结结果/远端交付。
 
-Actions=0；不新建累计重复PR/重复CI、不自动merge/close/deploy；不读凭据/真实Source、改真实账号业务库/卷、目标切换或入口退役。3001/50426/59069/62426、全部旧结果/备份保持。关账三问、coverage-v1、来源范围和人工接受仍各有前置。
+Actions=0，不新建累计重复PR/重复CI、自动merge/close/deploy、真实凭据/Source/账号业务库/卷/目标切换或入口退役、共享Git/TLS/proxy/auth修改。保留3001/50426/59069/62426、旧结果/备份及Browser账本。关账三问、coverage-v1、真实来源范围/人工接受仍各有前置。

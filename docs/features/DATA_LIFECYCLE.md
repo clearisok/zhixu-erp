@@ -4,6 +4,17 @@
 
 新系统使用独立 DB/volume/origin，从空业务数据开始；不读取旧备份执行导入，不自动同步艾诺科，不发现/接管已有 COS 对象。旧 Browser namespace/IndexedDB、旧库、备份及对象全部保留，无 clear/reset/换 key。本文后续历史导入资产分类与 Q5 freeze 是保留的历史兼容路径，不是当前上线前置条件；已发生 Q3 import 与验收不被否定。详见 `FRESH_START_FOUNDATION.md`。
 
+## Server 生产资料原请求（2026-10-24，D147 G6A）
+
+`zhixu.server.production-resource.pending.v1.<public-user-id>.<kind>` 仅sessionStorage临时保存
+该用户主动填写的资料原命令（schemaVersion/userId/kind/savedAt/command），含名称、启停、备注、
+联系人/电话、日期及关系ID/版本；不含密码、令牌、金额、Browser账本、来源凭据或返回快照。
+最多1MiB，完整写入并读回成功后才POST，不以内存假装可恢复。刷新只恢复核对，不自动POST；
+回执身份/类型/既有规范化SHA-256匹配后才删除本键，已知超界拒绝同样核对；未知/损坏/未来版本/
+摘要冲突不清理、不生成新ID。原ID重试须用户明确操作。会话切换不消费另一owner缓存。
+这是单标签页临时请求地址，关闭页可能丢失；服务端业务、审计及回执仍保留，不是跨设备同步、
+Browser备份或资料权威库。无localStorage/IndexedDB/Seed读写、换key、迁移或清库。
+
 ## Server 准备请求恢复（D-130，2026-10-15）
 
 正式Server准备流程新增独立临时sessionStorage key：`zhixu.server.order-preparation.pending.v1.<publicUserUUID>.<orderUUID>.<create|adopt>`。它只保存未核实命令（请求ID、原参考或准备ID、数量/日期/变化、可选精确报价三ID或采用CAS/原因），不保存账号密码、token、CCT或价格。与Browser业务账本、schema v13、IndexedDB、Seed及备份格式无读写/迁移关系；不是离线Server订单或Browser回退。
