@@ -73,3 +73,11 @@
 主控已查看7图，六宽默认上下文无页溢出，owned Chromium/HTTP/PG cleanup终态通过。53c9bdc73d9369ab54a41d1fd4af651ffb7bd86f冻结工程证明/7PNG/2geometry；before渲染6ef、后台测试68a，after完整68a。清单追加新证据和D149文档revision到258/48，原247/47和所有运行事实逐项不变。独立源码/实际日志复审无剩余P1/P2，未替reviewer声称运行测试。
 
 本metadata checkpoint之后执行显式发布两根文件及精确main守卫；尚未执行不得写通过。当前标准根另外97文件未改，不因metadata重复811；最终按阶段/SHA联合99文件945。无远端交付/CI/真实操作，旧STOP/待答复例外不改变。
+
+## 发布收口实际结果
+
+61e5643b71f3f7196ccbe19801c36957dd5df83e上显式 `npm run test:release-baseline` 134/134 PASS：进程295257ms、测试294002.0284ms，0失败/取消/跳过。68a后仅文档变化；97根文件只在发布守卫中引用本轮变更文档，故保留68a的811结果，与61e的两个发布文件联合全部99文件945，不冒称一个完整运行。原输出spec统计格式只读重新解析，无测试重跑。
+
+独立最终metadata复审无新增P1/P2，核对新增11证据blob/祖先、D149前向链、7PNG批准与真实渲染SHA、原247/47/页面/runtime逐对象保留；reviewer未运行测试。最终clean checkpoint后对已再次核实未变的e01a进行精确守卫；终态在ignored final-guard-result.json/final-local-checkpoint.json，缺失不可推定通过。未新触发Actions/远端写入，原STOP与边界保持。
+
+下一阶段只读预审：原aaf→d717的25个G6A非docs/workflow路径逐blob都等于当前61e输入，0分歧；已读实际0034、service/routes/contract和当前基础设施业务。0034接0033；未在本阶段实施资源/排单或升级任何目标。原浏览器driver清理须前向采用现有owned退出确认后删profile，不能恢复旧kill+定时删除。
