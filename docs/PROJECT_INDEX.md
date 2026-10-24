@@ -1,3 +1,9 @@
+# 当前任务入口
+
+2026-10-25；实际main 9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf，branch codex/order-readchain-main-9d65，明确依赖未合并PR129 d1917aaf91f6bfde5904e4f49dc1b6fd82599680。本地普通合流原读取链8da0fafb5ebe1f15bb747f44e69ef4ef779d93c5，只有三份共享摘要冲突，无业务代码冲突；保留所有原提交。 先读[当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[读取链本地合流](tasks/active/order-readchain-main-9d65-2026-10-25.md)。原103/edf28按精确作用域复用，不改旧日期/hash/限制。保护fbfecb/db683/b611/7da；原完整Goal保持，PR129 merge待答复、Git STOP未解除。
+
+下方为导航输入原索引，保留原状态和日期；当前步骤以上方入口为准。
+
 # Project recovery index
 
 2026-10-25 Asia/Shanghai; actual main 9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf. Read AGENTS, [current state](CURRENT_STATE.md), [handoff](AI_HANDOFF.md) and[current navigation delivery](tasks/active/navigation-pr-main-9d65-2026-10-25.md) before continuing. This PR contains only the original navigation input plus its three Quote acceptance drivers.
