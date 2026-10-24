@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
-  "verifiedAt": "2026-10-24",
+  "verifiedAt": "2026-10-24T06:32:33.310Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -2097,6 +2097,109 @@
       "recordedAtSha": "6d53f664fffdf087140e07801a7891480b5d40ca",
       "renderedSourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
       "sha256": "8b274ecb34a26247ef374f2e8e66b75757af66cf90542eddc02584b612e28d0b"
+    },
+    {
+      "id": "decisions-order-context-quote-current-20261024",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+      "sha256": "7f0437a139843e949bc73d300f7ce8457f09daddabf6e0e630952506a2fa0ebd",
+      "supersedes": "decisions-navigation-pr125-convergence-20261024",
+      "changeReason": "Forward-bind D149 for the already approved D147 Gate5 narrow restoration: immutable creation reference is separate from commercial adoption. Retain all decisions and historical blobs; no runtime or human acceptance claim."
+    },
+    {
+      "id": "order-context-quote-engineering-20261024",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-24-order-context-quote-engineering.md",
+      "recordedAtSha": "53c9bdc73d9369ab54a41d1fd4af651ffb7bd86f",
+      "renderedSourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+      "sha256": "13442bb0f9d4d5958da785b37e319584ac72dc6d8bde25273a5fb4f4e9ab424d"
+    },
+    {
+      "id": "order-context-quote-20261024-before-source-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-context-quote/before-source-1440.png",
+      "recordedAtSha": "53c9bdc73d9369ab54a41d1fd4af651ffb7bd86f",
+      "renderedSourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+      "sha256": "5a98a3b8d47c8d0b2b653a6a64240f3f37542aea83043da7b5a463dfeefca4ac",
+      "changeReason": "New synthetic before/after engineering observations for the approved D147 Gate5 restoration in the existing source selector, new page and Editor. Original images remain immutable; no new human pixel acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-context-quote-20261024-before-source-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-context-quote/before-source-390.png",
+      "recordedAtSha": "53c9bdc73d9369ab54a41d1fd4af651ffb7bd86f",
+      "renderedSourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+      "sha256": "8c0bcc53e75d36bbdce2459eb080885cad8acbc32a9a4c95d150e20be63d47ae",
+      "changeReason": "New synthetic before/after engineering observations for the approved D147 Gate5 restoration in the existing source selector, new page and Editor. Original images remain immutable; no new human pixel acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-context-quote-20261024-before-new-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-context-quote/before-new-1440.png",
+      "recordedAtSha": "53c9bdc73d9369ab54a41d1fd4af651ffb7bd86f",
+      "renderedSourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+      "sha256": "e5117746dac0f9a02aec997c7c4e1445d311eabb0f8477772c3167aa11d7e0b0",
+      "changeReason": "New synthetic before/after engineering observations for the approved D147 Gate5 restoration in the existing source selector, new page and Editor. Original images remain immutable; no new human pixel acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-context-quote-20261024-before-new-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-context-quote/before-new-390.png",
+      "recordedAtSha": "53c9bdc73d9369ab54a41d1fd4af651ffb7bd86f",
+      "renderedSourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+      "sha256": "2941036b0fc1802fca81ac929100899ebb4264c06098de5b0a177d371efe34a6",
+      "changeReason": "New synthetic before/after engineering observations for the approved D147 Gate5 restoration in the existing source selector, new page and Editor. Original images remain immutable; no new human pixel acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-context-quote-20261024-before-build-and-geometry",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-context-quote/before-build-and-geometry.json",
+      "recordedAtSha": "53c9bdc73d9369ab54a41d1fd4af651ffb7bd86f",
+      "renderedSourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+      "sha256": "9c774d80a1408ec5ac67e4a24d46b09601c438d542a9e64276d8930270b17316"
+    },
+    {
+      "id": "order-context-quote-20261024-after-context-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-context-quote/after-context-1440.png",
+      "recordedAtSha": "53c9bdc73d9369ab54a41d1fd4af651ffb7bd86f",
+      "renderedSourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+      "sha256": "e04baa9af3f5b71a3fe510f6efb342089dee02d6ed050837ff7b6a72b96d30dc",
+      "changeReason": "New synthetic before/after engineering observations for the approved D147 Gate5 restoration in the existing source selector, new page and Editor. Original images remain immutable; no new human pixel acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-context-quote-20261024-after-context-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-context-quote/after-context-390.png",
+      "recordedAtSha": "53c9bdc73d9369ab54a41d1fd4af651ffb7bd86f",
+      "renderedSourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+      "sha256": "2f91f57066c32dc70b9246636cea30c3a077791dc4dcc334585e4ccd631592c4",
+      "changeReason": "New synthetic before/after engineering observations for the approved D147 Gate5 restoration in the existing source selector, new page and Editor. Original images remain immutable; no new human pixel acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-context-quote-20261024-after-created-editor-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-context-quote/after-created-editor-1440.png",
+      "recordedAtSha": "53c9bdc73d9369ab54a41d1fd4af651ffb7bd86f",
+      "renderedSourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+      "sha256": "c77d81cf506f270a553eac9a350d1d59ee1640db6eb8e5e50cb3ea9e00d41cca",
+      "changeReason": "New synthetic before/after engineering observations for the approved D147 Gate5 restoration in the existing source selector, new page and Editor. Original images remain immutable; no new human pixel acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-context-quote-20261024-after-build-and-geometry",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-context-quote/after-build-and-geometry.json",
+      "recordedAtSha": "53c9bdc73d9369ab54a41d1fd4af651ffb7bd86f",
+      "renderedSourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+      "sha256": "d98bd9067a0af33fb655fe809bf58854eaa43fd5f1a7c24e4cb0bde33ea4ef78"
     }
   ],
   "pages": [
@@ -6838,6 +6941,91 @@
           "scope": "Current saved-read candidate not deployed. Prior immutable runtime source/image preserved without re-observation.",
           "evidence": [
             "order-saved-source-read-engineering-20261024"
+          ]
+        }
+      }
+    },
+    {
+      "id": "order-context-quote-create",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D147 Gate5 explicit trusted contract-order context to existing Quote draft writer/Editor; immutable original creation reference, no SO/CCT/adoption write. Current isolated API/browser/receipt/session engineering only; no merge, activation, deployment or human acceptance.",
+      "evidence": [
+        "order-context-quote-engineering-20261024"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+          "scope": "D147 Gate5 explicit trusted contract-order context to existing Quote draft writer/Editor; immutable original creation reference, no SO/CCT/adoption write. Current isolated API/browser/receipt/session engineering only; no merge, activation, deployment or human acceptance.",
+          "evidence": [
+            "order-context-quote-engineering-20261024"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-24",
+          "sourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+          "scope": "D147 Gate5 explicit trusted contract-order context to existing Quote draft writer/Editor; immutable original creation reference, no SO/CCT/adoption write. Current isolated API/browser/receipt/session engineering only; no merge, activation, deployment or human acceptance.",
+          "evidence": [
+            "order-context-quote-engineering-20261024"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+          "scope": "D147 Gate5 explicit trusted contract-order context to existing Quote draft writer/Editor; immutable original creation reference, no SO/CCT/adoption write. Current isolated API/browser/receipt/session engineering only; no merge, activation, deployment or human acceptance.",
+          "evidence": [
+            "order-context-quote-engineering-20261024"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+          "scope": "D147 Gate5 explicit trusted contract-order context to existing Quote draft writer/Editor; immutable original creation reference, no SO/CCT/adoption write. Current isolated API/browser/receipt/session engineering only; no merge, activation, deployment or human acceptance.",
+          "evidence": [
+            "order-context-quote-engineering-20261024"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+          "scope": "D147 Gate5 explicit trusted contract-order context to existing Quote draft writer/Editor; immutable original creation reference, no SO/CCT/adoption write. Current isolated API/browser/receipt/session engineering only; no merge, activation, deployment or human acceptance.",
+          "evidence": [
+            "order-context-quote-engineering-20261024"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "Current order-context Quote candidate not deployed. Preserve the historical runtime source/image without re-observation.",
+          "evidence": [
+            "order-context-quote-engineering-20261024"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "Current order-context Quote candidate not deployed. Preserve the historical runtime source/image without re-observation.",
+          "evidence": [
+            "order-context-quote-engineering-20261024"
           ]
         }
       }

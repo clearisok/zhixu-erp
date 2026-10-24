@@ -1,15 +1,11 @@
-# 当前状态：Gate4B已收口，G5订单上下文创建报价前移
+# 当前状态：G5可信订单创建报价已完成隔离工程验收
 
-2026-10-24；06:03Z只读API再核main e01a11952b648024c0bd6bf4259de429374981e2。#123已按具体批准保留历史合并，#121/#122随祖先自动收口、原分支保留。#125仍CA草稿；4f远端exact与actual Git exit1/STOP并存，根因unknown，expected-CA/force=false→4f的精确API例外尚待答复。不重推、移动旧PR引用或自动merge/close。
+2026-10-24；06:03Z只读API核main e01a11952b648024c0bd6bf4259de429374981e2。#123已按具体批准保留原历史合并，#121/#122随祖先自动收口、分支保留。#125仍CA草稿；4f远端exact与actual Git exit1/STOP并存、根因unknown，原expected-CA/force=false→4f精确API例外尚待答复。不重推或据此自动merge/close。
 
-当前codex/order-source-disclosure-current从已核main建立并FF8da，开始clean；只前向原4B窄切片，保留当前main更强金额测试并加5行负控。源码6ef9e37493127661a9d805979660378f6340ad5f在新owned环境：类型/Node编译+实际import/full lint、商业来源API9、根非发布811、before2、after9、原P6/来源向导20全部PASS，0失败/取消/跳过。新双模式构建/产物各45页+fallback/109assets PASS；独立源码/日志复审无新增P1/P2，主控查看7图。首次短路径产物失败保留，规范路径只做一次有界对照，不宣称永久根因修复。[当前任务](tasks/active/order-source-disclosure-current-2026-10-24.md)。
+当前codex/order-context-quote-current从干净19c前移原G5窄切片，保留main/#120金额与当前Quote验收维护。源码68a38b6bfb0785cc6019381f095660b38cf8fbf7：全量类型、Node编译/实际import、lint、创建/引用68、根非发布811、before2、after9、原Quote/P6/来源107全部PASS，均0失败/取消/跳过。双模式构建与原独立产物检查器各45页/fallback1/109assets通过；Browser保留1条preload提示，Server为0。[当前任务](tasks/active/order-context-quote-current-2026-10-24.md)。
 
-冻结证明6d53f664fffdf087140e07801a7891480b5d40ca；清单加10新证据/1本地能力到247/47，原237/46逐项保留，旧blob/PNG/运行维度不变。颜色尺码和自有计划在原位置默认折叠，只读、迟到回复保护、不采集来源；不等于计划编辑或用户人工接受。fdadce3b上显式发布134/134 PASS（280026ms、0失败/取消/跳过）；与6ef的97文件811组成全部99根文件945项，未重复成功811。最终精确main守卫回执单列于当前任务/ignored输出，不把工程结果当远端送达。[冻结证明](tasks/completed/2026-10-24-order-saved-sources-engineering.md)。
+首次维护来源显式进入既有new页，可信SO/合同只读上下文经用户明确创建原经销草稿；0033仅保存不可变创建参考，与商业采用分离，不写SO/CCT/物料/排单。首次enabled单击、双击防重、丢回执GET恢复和A→B→A旧响应保护已真实验证；主控查看7图，六宽无页横溢出。独立复审无剩余P1/P2，复审者未运行测试。[冻结证明53c9](tasks/completed/2026-10-24-order-context-quote-engineering.md)。清单前向258/48，原247/47、旧blob/PNG和runtime维度逐项保留；仅本地工程状态，不等同合并、部署、来源激活或用户接受。
 
-前序导航7635/产品ca53、报价7cf/测试2bd、加工785/产品edf及4A8da/产品c77均有各自最终守卫；66UI、Quote87、加工28、4A103及原发布134保持原SHA，不重复记作本轮。旧宽批次失败和间歇准备失败仍保留。[前一状态原文](tasks/completed/2026-10-24-disclosure-input-state/CURRENT_STATE.md)及各任务记录完整。
+发布两根文件134及精确main守卫在绑定后单独记录；当前不提前宣称通过，也不重复未改的97文件811。前序4B最终19c守卫68468ms PASS，产品6ef before2/after9/P6来源20/API9/类型/Node/lint/双构建通过；根811与fdad发布134分阶段联合945。首次短路径产物及截图批准字段缺失守卫失败保持原记录，未改旧hash消除。前序导航7635/产品ca53、Quote7cf/测试2bd、加工785/产品edf、4A8da/产品c77的独立结果不挪作G5通过。[旧输入原状态](tasks/completed/2026-10-24-order-context-input-state/CURRENT_STATE.md)。
 
-Actions=0；不批量重跑CI/重复push。0ba并发取消/npm缓存候选保留但未生效。未安装、部署、改共享Git/TLS/proxy/auth、读凭据/真实Source、改账号业务库、绑定/激活/调度或退役；3001/50426/59069/62426等旧环境、DB/卷/备份和结果保留。完整Goal仍active，4C、G5、生产/出货/关账按依赖继续；关账三问、coverage-v1、来源额度/目标激活、50426切换/人工接受仍各有前置。
-
-首次2b42精确守卫因7张新截图缺少changeReason/approvalEvidence被正确拒绝；原失败保留first-guard-result.json。仅补既有D147批准范围引用与理由，PNG/哈希/ID、原237/46、guard代码均不改。3项相关契约检查通过（37812ms），原fdad的134不冒称修订后重跑；修订后的精确守卫终态单列。
-
-当前新阶段codex/order-context-quote-current从干净19c前移19个基点blob相同的G5代码/测试/SQL；0033与现0032相接。仅创建参考、不自动商业采用；原Quote金额与验收维护保留，新实际验收待冻结后运行，不将原54/aaf通过冒称当前。见[G5当前任务](tasks/active/order-context-quote-current-2026-10-24.md)。4B最终精确19c守卫已PASS68468ms/25UI/errors[]，独立最终复审无P1/P2，工程与远端仍分开。
+Actions=0；本地集中验证，不批量rerun/重复push，0ba并发取消/npm缓存候选仍未交付生效。未安装、部署、改共享Git/TLS/proxy/auth、读凭据/真实Source、改账号业务库/卷、绑定/激活/调度或退役。3001/50426/59069/62426等旧环境、备份及结果保留。完整Goal active；按原依赖继续资源/排单/完成、4C、成衣出货及关账。关账三问、coverage-v1、新来源额度/目标激活、50426切换/人工接受仍各有前置。

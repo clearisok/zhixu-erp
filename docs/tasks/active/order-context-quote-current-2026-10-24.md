@@ -65,3 +65,11 @@
 另将来源URL UUID与已有server creationId一样规范为小写，并同步原请求owner的URL比较，
 增加大写合法UUID的单元及只读页面/返回正控，非新的来源规则。
 此前19c的当前状态逐字归档于../completed/2026-10-24-order-context-input-state/CURRENT_STATE.md。
+
+## 当前源码实际验收与证据冻结
+
+源码68a38b6bfb0785cc6019381f095660b38cf8fbf7在新canonical archive：全类型23501ms、Node编译9609/实际载入1496ms、lint37797ms、创建及引用68/68(42637ms)、97根文件811/811(19326ms)、旧6ef before2/2(16330ms)、新after9/9(22139ms)、现行Quote/P6/来源三文件107/107(190540ms)，均0失败/取消/跳过。首次可用单击实际通过，不再仅静态推断。双构建/独立产物各45页/fallback1/109assets通过，Browser1条preload提示/Server0；noinstall/noactualSource。
+
+主控已查看7图，六宽默认上下文无页溢出，owned Chromium/HTTP/PG cleanup终态通过。53c9bdc73d9369ab54a41d1fd4af651ffb7bd86f冻结工程证明/7PNG/2geometry；before渲染6ef、后台测试68a，after完整68a。清单追加新证据和D149文档revision到258/48，原247/47和所有运行事实逐项不变。独立源码/实际日志复审无剩余P1/P2，未替reviewer声称运行测试。
+
+本metadata checkpoint之后执行显式发布两根文件及精确main守卫；尚未执行不得写通过。当前标准根另外97文件未改，不因metadata重复811；最终按阶段/SHA联合99文件945。无远端交付/CI/真实操作，旧STOP/待答复例外不改变。
