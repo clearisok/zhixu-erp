@@ -13,7 +13,7 @@
 
 0041只新增空的不可变成功回执。原actor/request锁、精确payload和DB目标指纹防重；原回执经fresh权限后先于当前CAS/时效核对，不重写镜像；unknown不证明未提交。mirror/集合版本/回执与关联OperationLog同事务，不写原始bundle/价格到公开回执。两个物理/有效SO引用进入原归一盘点，不恢复公开归一写入口。
 
-`source:ainuoke:bound-refresh`是私密离线plan/apply/receipt工具，job/evidence绝对受保护忽略路径及精确SHA；apply另需明确execute、请求UUID和预览hash。启动核clean精确源码、verify-only迁移；无Source HTTP/凭据loader/自动采集/绑定/调度/部署。只合成一次性PG验收，真实执行须具体目标授权。当前[本轮任务](../tasks/active/server-bound-refresh-current-2026-10-24.md)新source验收待跑；旧81a结果不作本轮PASS。
+`source:ainuoke:bound-refresh`是私密离线plan/apply/receipt工具，job/evidence绝对受保护忽略路径及精确SHA；apply另需明确execute、请求UUID和预览hash。启动核clean精确源码、verify-only迁移；无Source HTTP/凭据loader/自动采集/绑定/调度/部署。只合成一次性PG验收，真实执行须具体目标授权。当前[本轮证明](../tasks/completed/2026-10-24-bound-refresh-current-engineering.md)记录精确source隔离验收；旧81a结果不作本轮PASS。
 
 升级夹具已有合同/来源非空，但不含已发布0040出货快照；不能称该数据恢复已覆盖。原丢回复覆盖重放及提交后私密报告落盘失败，不等于数据库COMMIT确认丢失模拟。
 
@@ -278,3 +278,5 @@ The server read model now exposes aggregate/current mirror facts plus list-only 
 This does not make the full Browser `SalesOrder` type a server DTO. PO, customer/brand IDs, salesperson/merchandiser, business delivery, quantity changes, delivery plans, price versions, execution snapshots, attachments and audit display fields remain absent or separately owned. See `SALES_ORDER_BROWSER_CUTOVER.md` for the exhaustive matrix.
 
 Real authenticated shadow GET is currently blocked: existing users are active/password-backed, but the permission catalog, roles and assignments are empty and `order.view` cannot resolve. C0 did not run the write-capable server startup or synchronize RBAC. Browser list/detail/write cutover remain NO.
+
+当前source `df5bedaddd2f9e54f8c66f578e32f06859878104`实际19相关API文件184/185（1既有Windows平台跳过，未称PASS）、97根811、类型Node实际load/lint通过。前端/Python未变范围复用，不称新Vite/browser/Python执行；发布与最终精确main守卫由后置实际回执单列。
