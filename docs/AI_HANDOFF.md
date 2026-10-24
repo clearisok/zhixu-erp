@@ -13,3 +13,5 @@ NETWORK_DEGRADED继续，push0/PR0/Actions0；不重复旧失败通道，不借#
 原f287独立复审发现3个已知状态P2，精确取61e9a660/a290edfe/14a71172的3文件hunk：loading禁止旧scope入口、同步inFlight防双击抢lease、Source完成信号重读与依据变化暂停建议/保留草稿。额外10th UI路径order-material-summary只加完成信号。原built驱动来自14a，当前将补严格拥有者清理和现行前后验收，不借旧结果。客户端1000颜色上限另修并补真实HTTP容量链，仍不改0039限制。
 
 冻结前收窄：3个状态P2采用61e9/a290/14a精确hunk；客户端颜色1000硬限在隔离真实HTTP复现red1fail8500ms，仅两处数组上限对齐已有1MiB响应后green1/1 8964ms。1001颜色合法HTTP保存/回执/读取/历史全部走通；1200来源可读、preview可核，提交known422/replay且无新业务残留，SQL8192/24576保持。该结果为工作态诊断，不称冻结QA。built驱动另取14a→72d0测试hunk，补显式root CDP关闭、自有进程确认、指定before e2cf和after精确SHA、before-only静态覆盖及footer可见断言；当前尚未运行新built浏览器。
+
+当前a0c3冻结实际：类型NodeLoadLint、97相关检查/811根、before3/after16、物料显示10/导航18、双构建产物全部PASS，均0fail/cancel/skip；已看8PNG。新driver仅补390px浏览器touchStart/touchEnd打开/关闭历史及零业务写入的明确验收（此前只做mobile metrics），不改产品/接口/测试断言或预算。其独立测试源码checkpoint和新archive另记，后续只重跑这个受改驱动及定向lint，已成功且未变的其他范围复用，不冒称重跑。

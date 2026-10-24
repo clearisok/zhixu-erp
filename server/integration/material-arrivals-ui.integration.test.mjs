@@ -144,6 +144,22 @@ test('manual material arrivals and original logistics run on the exact built Ser
       }
       await command('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
     });
+    await phase('mobile touch opens and closes history with visible targets and no business mutation', async () => {
+      await command('Emulation.setDeviceMetricsOverride', { width: 390, height: 1000, deviceScaleFactor: 1, mobile: true });
+      await command('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 }); await open();
+      const tap = async selector => {
+        const point = await evaluate(`(()=>{const n=document.querySelector(${JSON.stringify(selector)});if(!n||n.disabled)throw Error('touch target unavailable');n.scrollIntoView({block:'center'});const r=n.getBoundingClientRect();return{x:r.left+r.width/2,y:r.top+r.height/2,visible:r.top>=0&&r.bottom<=innerHeight&&r.left>=0&&r.right<=innerWidth}})()`);
+        assert.equal(point.visible, true); await command('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: point.x, y: point.y }] });
+        await command('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }); return point;
+      };
+      const posts = await evaluate('arrivalWire.posts.length');
+      await evaluate("[...document.querySelectorAll('.sp-v4-planner button')].find(n=>n.textContent==='到料历史').setAttribute('data-touch-history','1')");
+      const opened = await tap('[data-touch-history]'); await until(() => evaluate("document.querySelectorAll('[data-arrival-history-version]').length===1"), 'touch history loaded');
+      await shot('touch-history-390'); const closed = await tap('.qc-drawer>header>button'); await until(() => evaluate("!document.querySelector('.qc-drawer')"), 'touch history closed');
+      assert.equal(await evaluate('arrivalWire.posts.length'), posts); assert.equal(await version(), 1); metrics.push({ stage: 'touch-history', width: 390, opened, closed, browserInput: 'CDP touchStart/touchEnd', businessWrites: 0 });
+      await click('取消', '.sp-v4-planner button'); await command('Emulation.setTouchEmulationEnabled', { enabled: false });
+      await command('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
+    });
     await phase('committed lost reply survives refresh and clears only after original receipt verification', async () => {
       await open(); await field('.sp-v4-batch:nth-child(1) input[type=date]', '2027-01-02'); await preview(); await evaluate("arrivalWire.postMode='lost'"); await click('确认保存', '.sp-v4-planner button'); await has('原请求已保留，请先核对结果'); const raw = await pendingRaw(); assert.equal(raw.length, 1); assert.equal(await version(), 2);
       await navigate(); await has('有到料请求待核对'); assert.deepEqual(await pendingRaw(), raw); assert.equal(await evaluate('arrivalWire.posts.length'), 0); await evaluate("arrivalWire.receiptMode='mismatch'"); await click('核对原请求'); await has('核对结果与原请求不一致'); assert.deepEqual(await pendingRaw(), raw);
