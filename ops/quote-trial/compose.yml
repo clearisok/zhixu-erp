@@ -72,6 +72,7 @@ services:
       - ./tls-gateway.mjs:/trial/tls-gateway.mjs:ro
       - ./gateway-health.mjs:/trial/gateway-health.mjs:ro
       - ./readiness.mjs:/trial/readiness.mjs:ro
+      - ./local-objects.mjs:/trial/local-objects.mjs:ro
       - ${TRIAL_TLS_CA_FILE:-${TRIAL_TLS_CERT_FILE:?}}:/run/tls/ca.pem:ro
       - ${TRIAL_TLS_CERT_FILE:?absolute certificate file required}:/run/tls/cert.pem:ro
       - ${TRIAL_TLS_KEY_FILE:?absolute key file required}:/run/tls/key.pem:ro

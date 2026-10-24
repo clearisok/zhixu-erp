@@ -1,9 +1,9 @@
-# 恢复点：PR123新main组合与测试关闭修复
+# 恢复点：PR125合流至已批准新main
 
-2026-10-23；实际main=d1dd4f0fcf9992d5c055c7b67b6832b635485680，#126/#127/#120已分别获准保留原历史合并。完整G1–G5继续；#123本阶段只工程整合，不自动合并或关闭其他PR，不部署、不改真实业务数据。
+2026-10-24；root唯一writer、既有reviewer只读。先API核实main d1dd与#123 CB/三PR检查/预览树不变，按用户明确批准ready并merge #123为e01a11952b648024c0bd6bf4259de429374981e2，独立核实双父/树和保留分支；#121/#122由GitHub自动随祖先收口，没有手工merge/close其他PR。没有新增Actions。
 
-root唯一writer、既有reviewer只读。9ea组合types/server/lint、804源码/68API/112frontend、两构建和134发布已通过，证据222/46原对象不改。首次builtUI的日志查询与profile清理失败完整保留；当前3测试文件只加真实初始GET屏障和owned Chromium close，12单元/8角色日志真实built通过，原14价格加工场景有各自9ea日志。产品/build/SQL/权限未改，不需要重跑不变域来冒称更大覆盖。
+7bf3由clean CI分支0ba正常切换新建codex/pr125-main-e01a-forward@e01a；原CI、1028和运行态ebe/4cf引用保留。一次标准fetch取到真实main对象，未改认证/TLS/共享配置，不能据此宣称旧push STOP根因已消失。正常merge原CA，仅五共享文档冲突。双方摘要按Git字节归档，完整证据并集228/46；先创建真实merge checkpoint，随后用其Git父建立DECISION合流见证，不伪造recordedAt或改旧ID。
 
-下一步提交本阶段7路径、精确d1dd守卫与独立最终复审，既有工具最多一次送达验证引用并核对fullSHA/tree，再将唯一原#123以force=false快进并更新说明/检查新CI。不能移动仍绑定体验环境的原localref ebe。未知交付先核对，不盲推或伪造提交；原Git STOP/网络根因未定保持，安全恢复已获持续授权。
+下一步核对原17运维blob/main业务blob、新组合types/lint/Server、相关运维/API、两构建、134发布与精确e01a守卫，独立复审；先最小充分本地验证，最终集中交付不重复CI。新组合尚未验收；此前CA/CB失败与通过按原源码范围保留在任务/归档。当前无Docker/DB/凭据/Source操作，未经批准不升级旧目标或部署。
 
-#125在root另一个已保护分支做新main验证，Gate7E e971三CI已各一次；不混入这些业务分支，不自动merge/close或部署/Source/真实账号数据库操作。完整目标与待决边界不变。
+完整Goal继续，关账三问未答不默认；#125仍草稿且未获merge授权。其余Source范围/target激活、50426切换、coverage-v1及资产退役不扩大。
