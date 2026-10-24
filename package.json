@@ -121,7 +121,9 @@
     "test:garment-shipments-ui": "tsx --test --test-concurrency=1 server/integration/garment-shipments-ui.integration.test.mjs",
     "test:delivery-coverage": "tsx --test --test-concurrency=1 server/production-scheduling/delivery-coverage.test.ts server/integration/delivery-coverage.integration.test.ts",
     "test:garment-collection-control": "tsx --test --test-concurrency=1 server/ainuoke-source/garment-filter-evidence.test.ts server/integration/garment-collection-worker.test.ts server/integration/garment-collection-control.integration.test.ts server/integration/garment-collection-upgrade.integration.test.ts",
-    "test:garment-target-control": "tsx --test --test-concurrency=1 server/integration/garment-target-control.integration.test.ts server/integration/garment-target-upgrade.integration.test.ts"
+    "test:garment-target-control": "tsx --test --test-concurrency=1 server/integration/garment-target-control.integration.test.ts server/integration/garment-target-upgrade.integration.test.ts",
+    "source:ainuoke:garment-operator": "tsx server/ainuoke-source/garment-operator-cli.ts",
+    "test:garment-operator": "tsx --test --test-concurrency=1 server/integration/garment-operator-cli.test.ts server/integration/garment-operator.integration.test.ts server/integration/garment-target-operator.integration.test.ts"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1146.0",
