@@ -1979,6 +1979,30 @@
       "sha256": "960321f523c0b3983e6a47f89c0d60e6c5da993e1c47af12d75b26ac2f2b19d0",
       "supersedes": "closing-server-target-20261020",
       "changeReason": "Freeze the original approved CNY sales/USD labor target documentation at the actual current-main/navigation merge. This is a history witness, not Server closing implementation, conversion, migration or activation."
+    },
+    {
+      "id": "decisions-navigation-pr125-convergence-20261024",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "c6c84cb5698f69c54f12cef059faf618d713f6c5",
+      "sha256": "551aff6a479216d945fdcc9daf76deff7a2bea8c2a64e29beb9ad25364e4f7fa",
+      "mergeOf": [
+        "decisions-pr125-main-e01a-merge-20261024",
+        "decisions-navigation-main-e01a-merge-20261024"
+      ],
+      "changeReason": "Converge independently preserved current-main/PR125 and current-main/navigation histories at the real final merge; retain all original records and active decisions. No business rule redesign or activation."
+    },
+    {
+      "id": "closing-navigation-pr125-convergence-20261024",
+      "kind": "document",
+      "path": "docs/features/CLOSING_CENTER.md",
+      "recordedAtSha": "c6c84cb5698f69c54f12cef059faf618d713f6c5",
+      "sha256": "960321f523c0b3983e6a47f89c0d60e6c5da993e1c47af12d75b26ac2f2b19d0",
+      "mergeOf": [
+        "closing-pr125-main-e01a-import-20261024",
+        "closing-navigation-main-e01a-import-20261024"
+      ],
+      "changeReason": "Close the two genuine imported closing-target document histories at the actual final merge. Preserve all source evidence and currency/open-business boundaries, without claiming Server closing implementation or deployment."
     }
   ],
   "pages": [
