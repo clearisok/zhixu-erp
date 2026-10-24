@@ -6,7 +6,7 @@
 
 QA见ignored outputs/navigation-main-e01a-forward-20261024/：ca53 canonical archive，types/Node/lint、28+10定向、双构建/外部1028产物检查PASS。Browser preload提示1、Server0。实际6组58/58含nav18；误带旧Quote长套件使总批次90pass/44fail/2cancel，不称全绿，不再重跑旧父或修改产品迎合废止断言。旧Quote为32/44/2，本次总136；historical Gate5的45/44/2含P6，不能混用。首轮baseline129/130隔离Gitmerge准备失败；只复验该项5/5，rootcauseunknown。初次diagnostic preload Windows路径失败保留，后fileURL定向通过；原断言/超时不变。
 
-下一步：固定这次文档增量checkpoint，只运行必要最终release baseline与exact-main guard；补加工批次这个尚未覆盖的相关现行UI套件，不重跑已通过58或重建不变应用。完整回归失败不得称通过；所有已通过父结果与新运行分开。最后独立复审、干净本地checkpoint。Gate3新增Hosted CI=0，不为未合并依赖开累计重复PR。
+本地收口：0dbbf7af7120373dc383f5544c6218da4538a5c4的精确e01a守卫已PASS（22UI/11页面/46能力）；一次必要完整npm release134/134通过，HEAD/237清单稳定。独立追加加工批次8/8通过，同ca53构建的现行7组为66/66；宽批次旧Quote失败不抹除。最后文档只补实际结果；提交后运行一次精确SHA守卫并保存final-guard-result，不重跑类型/lint/构建/66浏览器/成功134。独立审查ca53应用和0db文档无新P1/P2，最终结果段仅元数据。Gate3新增Hosted CI=0，不为未合并依赖开累计重复PR。下一步可只读准备原Gate4增量，不能把完整Goal标完成。
 
 #125仍CA；4f remotely exact与actual Git exit1/STOP并存，不重试Git。已发精确异步例外（expected ca05d3e75d3b28be44184a5ef645c9f24e6f38d3、force=false、target full4f）尚无回复，不重问或代填批准。若获准，先核main/PR lease与对象再用已有update_ref，绝不能把本地1091/当前导航SHA当目标；只一次必要PR CI，不merge或部署。
 
