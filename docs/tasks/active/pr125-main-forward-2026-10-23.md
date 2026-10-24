@@ -41,3 +41,5 @@
 本阶段新组合尚未验证：先证明原17运维及main业务blob未改，再针对角色/用户schema与ops新组合完成最小充分验收和必要134/精确e01a守卫；源码/最终提交分别复审。原CA的ee348/CB结果只保留其旧范围，不把其当作新组合运行。未新建镜像、启动目标、重跑Hosted CI或操作真实数据/Source；不自动merge#125或其他PR。
 
 暂存检查确认原17份运维/验收路径逐blob等于CA，新main的46份非文档增量逐blob保持。原全量diff whitespace只命中CA已冻结的两份BUSINESS_RULES历史归档末尾空行；index blob与CA完全一致，不重写历史。精确排除此两原字节归档后，本阶段whitespace通过。
+
+真实merge checkpoint955474fa8eb12faed1e5de4bf1c22c2fed321396双父为[e01a11952b648024c0bd6bf4259de429374981e2,ca05d3e75d3b28be44184a5ef645c9f24e6f38d3]；仅追加DECISION合流见证至229/46，原228对象保持。此checkpoint不是新组合最终验收PASS，后续源码及守卫仍待。

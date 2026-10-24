@@ -1902,6 +1902,19 @@
       "sha256": "960321f523c0b3983e6a47f89c0d60e6c5da993e1c47af12d75b26ac2f2b19d0",
       "supersedes": "closing-pr125-main-be9-import-20261023",
       "changeReason": "Carry the unchanged approved D147 target-currency document through actual PR125/main d97a72ff merge; original side-chain evidence and all historical currency facts stay intact."
+    },
+    {
+      "id": "decisions-pr125-main-e01a-merge-20261024",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "955474fa8eb12faed1e5de4bf1c22c2fed321396",
+      "renderedSourceSha": "955474fa8eb12faed1e5de4bf1c22c2fed321396",
+      "sha256": "f6486a9c4cb047d9c1dfb6c761b3cdde4d8a92326ca18b3cff70e65745880034",
+      "mergeOf": [
+        "decisions-pr123-main-d1dd-merge-20261023",
+        "decisions-pr125-main-d1dd-merge-20261023"
+      ],
+      "changeReason": "Preserve D146 role/user rules and approved D147 empty-target/currency scope through actual two-parent merge 955474fa [approved main e01a, original PR125 CA]; all prior IDs, blobs, UI approvals and runtime dimensions remain unchanged. Only PR123 was explicitly approved and merged; this witness does not approve PR125, deployment or Source activation."
     }
   ],
   "pages": [
