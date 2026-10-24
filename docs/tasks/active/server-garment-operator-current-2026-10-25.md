@@ -21,3 +21,11 @@
 ## 元数据冻结
 
 冻结证明 26aa3459aa8f0a713d98a54de22b91b85f2d14b8，新源码 8cf667f26f191b0ca1d3b31b423dd293d7f2a5b6，比较main 9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf；475/66保留原472/65及main230证据。新证据和独立契约为新root，DECISION由既有合法main链的最终leaf前向追加；不修改旧ID/hash/边。上述早期PENDING是当时事实，当前工程结果以本节及冻结证明为准。新main精确发布守卫及一次本地134后置，没有新Source/Hosted CI/部署授权。
+
+## 本地发布终态
+
+metadata b20cae896a580b0f20c451fe5a38117453e5fd05：本次按规定命令运行本地test:release-baseline，134/134 PASS（516807ms，0fail/cancel/skip）；同一提交对main精确check:release-baseline PASS（153326ms，errors[]）。475证据/66能力，原472/65与main230对象、路由、运行时及截图均完整保留。当前只更新四份状态文档；不重复134/27/52/71/20或编译，最后精确HEAD守卫另核，不预写最终PASS。
+
+当前Git拒绝STOP的原退出原因仍未确认；仅创建PR129的窄例外已经完成，不能用它交付其他分支。本地工程结果与远端送达分开记录。后续沿已保存的main依赖切片继续，不把累计成衣/生产/来源代码塞入导航PR；必要合并CI保留，未授权自动合并或关闭其他PR。
+
+源代码、证据与metadata独立复审均无剩余P1/P2；当前只收口状态文档，最终精确守卫后另写本机终态，不改冻结proof/feature/DECISION或清单。本阶段无真实Source/账号业务库卷/部署操作。
