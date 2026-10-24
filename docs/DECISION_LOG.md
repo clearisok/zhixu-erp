@@ -43,6 +43,8 @@
 
 - 2026-10-24当前受控前移：原批准字节/原型hash已核，16非workflow原输入一致；沿[独立UI契约](features/SERVER_DELIVERY_PLAN_MAINTENANCE_UI.md)验收，不借旧2a结果。后台3e869保持，不带D155覆盖投影或0043。
 
+- 2026-10-24产品56b/driver0e12的新隔离工程结果见[本轮证明](tasks/completed/2026-10-24-delivery-plan-ui-current-engineering.md)：失败及分阶段联合保留，发布/最后守卫仍后置，不借原工程或#125CI。
+
 ### D-154 DeliveryPlan沿用原命令并保存可核对回执
 
 - 原2026-10-22技术决定，2026-10-24受控前移，Active；D147已批准Server收敛范围内的可靠性，不改变D083/D100的来源/人工所有权、系统默认0、人工正数、独立集合版本和历史计划规则。原PATCH/writer/响应保持，0042只新增空不可变请求回执，不回填或重建计划。
