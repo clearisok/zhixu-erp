@@ -179,3 +179,5 @@ NETWORK_DEGRADED，push0/PR0/Actions0，不逐Gate重推或触发付费CI。仅�
 
 
 原采集器4b终态和全量回执已保护于[当前目标配置输入](tasks/completed/2026-10-24-garment-target-input-state/)。当前[0044内部目标配置](tasks/active/server-garment-target-current-2026-10-24.md)仅9路径前移准备，旧operator/真实IO/公开入口不引入，暂无新产品或QA。
+
+[成衣来源目标配置](features/SERVER_GARMENT_TARGET_CONTROL.md)仅内部DB-only预览/原子命令/历史回执；当前9路径前移，0044新增空表，不带旧operator或真实激活。新工程验收另冻结。

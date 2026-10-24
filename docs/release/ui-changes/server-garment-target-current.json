@@ -1,0 +1,15 @@
+{
+  "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
+  "level": "V0",
+  "paths": [
+    "features/operation-logs/model/operation-log.ts"
+  ],
+  "pages": [
+    "operation-logs"
+  ],
+  "visibleDifference": "none",
+  "evidence": [
+    "docs/tasks/active/server-garment-target-current-2026-10-24.md",
+    "docs/features/SERVER_GARMENT_TARGET_CONTROL.md"
+  ]
+}

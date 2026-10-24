@@ -114,3 +114,8 @@ DeliveryPlan command/result ledger with original SO/audit foreign keys. Explicit
 UUID and deterministic legacy identities share the current writer; no plan, owner,
 permission or business backfill. Startup stays verify-only. Only owned synthetic
 0041-to-current rehearsal is in scope; no existing target upgrade or deployment.
+
+0043_garment_collection_commands.sql仅空actor/request技术采集账本，started确认后单次worker；未知结果不重采。
+0044_garment_target_commands.sql仅空、不可变completed-only目标配置回执。配置无Source IO，target/原审计/回执同事务；
+无target种子、默认时效或回填，不自动启用来源或升级现有库。0043非空副本升级仅使用本阶段自有一次性合成PG，
+核对42份旧SQL全hash，原观察、目标、命令与全部旧public表原值保留；正常启动仍verify-only。

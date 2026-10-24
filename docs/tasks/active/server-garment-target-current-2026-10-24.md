@@ -13,3 +13,7 @@
 冻结source后执行本轮目标控制、非空0043升级、原0043采集/0040观察/归一引用和既有旧前缀升级回归，类型/Node编译及实际载入/相关lint。核对42份旧SQL全hash、原publisher/HTTP/Catalog/scheduler/权限不变；UI仅OperationLog类型并集，无DOM/布局变化，按V0精确路径记录，不新截图或重复前端build/browser。新工程证据和精确main守卫按实际结果后置，134仅在输入变化要求或交付时执行，不重复无关已通过测试。未运行新检查，不预写PASS。
 
 关账三问、可见coverage V2、真实额度/操作者启用/多页实证/事件身份、#125合并、50426切换及旧环境退役仍待各自批准。Goal active。
+
+## 当前前移
+
+9非doc路径已按允许范围前移：7个source blob精确，package/workflow只新增目标控制测试命令；0043的严格枚举修复和纯依赖闭包保持。42份旧SQL全hash相同，仅新增0044，当前43文件/max44（0013历史缺号不补造）。D160与独立feature记录无IO目标配置；日志仅两处type union，V0/visibleDifference:none，不是新日志UI或公开启停入口。尚待source冻结和新QA，不借旧分支结果。
