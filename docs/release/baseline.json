@@ -1892,6 +1892,27 @@
       "sha256": "cdeb67c55a4c50a35c34079949969a68c3bc776f933d4b982e7f6739efd68aa3",
       "supersedes": "decisions-convergence-system-management-merge-20261020",
       "changeReason": "Approved Gate3 restores persistent Server navigation and feature-owned exit protection without changing layout, business ownership, permissions or source activation; preserve both merged decision histories."
+    },
+    {
+      "id": "decisions-navigation-main-e01a-merge-20261024",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "188bcfff0a1e40d479ffc694a421516767447910",
+      "sha256": "551aff6a479216d945fdcc9daf76deff7a2bea8c2a64e29beb9ad25364e4f7fa",
+      "mergeOf": [
+        "decisions-pr123-main-d1dd-merge-20261023",
+        "decisions-server-navigation-continuity-20261020"
+      ],
+      "changeReason": "Preserve actual current main and original reviewed navigation decision histories at their real two-parent merge; keep D-145/D-146 and D-147 while importing approved D-148 without rewriting historical records."
+    },
+    {
+      "id": "closing-navigation-main-e01a-import-20261024",
+      "kind": "document",
+      "path": "docs/features/CLOSING_CENTER.md",
+      "recordedAtSha": "188bcfff0a1e40d479ffc694a421516767447910",
+      "sha256": "960321f523c0b3983e6a47f89c0d60e6c5da993e1c47af12d75b26ac2f2b19d0",
+      "supersedes": "closing-server-target-20261020",
+      "changeReason": "Freeze the original approved CNY sales/USD labor target documentation at the actual current-main/navigation merge. This is a history witness, not Server closing implementation, conversion, migration or activation."
     }
   ],
   "pages": [
