@@ -1,15 +1,9 @@
-# 当前状态：Server交期维护界面待精确验收
+# 当前状态：Server交期维护界面隔离通过，待发布门禁
 
-2026-10-24；main e01a11952b648024c0bd6bf4259de429374981e2（13:22:59.888Z API核实，同次基线复用）。分支codex/server-delivery-plan-ui-current从clean c70继续，原三摘要及0042完整终态保存于completed/2026-10-24-delivery-plan-ui-input-state。root唯一writer，既有server_convergence_review独立只读。
+2026-10-24；main e01a11952b648024c0bd6bf4259de429374981e2（2026-10-24T14:00:20.127Z独立只读API），branch codex/server-delivery-plan-ui-current，从cleanc70→prepdda→V2scopeb170。原完整前置保护completed/2026-10-24-delivery-plan-ui-input-state/；root唯一writer，既有server_convergence_review独立只读。
 
-前阶段0042 c70/main精确守卫PASS104753ms，62693源码16文件两组185/185、根811/类型NodeLint PASS，proof3e869、清单424/60。无新Vite/browser/Python，215产物hash同922；139Python及1ae134仅范围复用，不称当前134新PASS/全输入未变/完整945。最终累计PR前两发布命令仍须重跑。详见前置归档及0042当前任务。
+产品source 56b813be4fd7fa45b70bdeda794870df0fcfe9e5实际6文件57客户端/API（45175ms）、97根811（27607ms）、类型38607/Node编译19364+实际import3645/lint59361ms及双构建产物PASS。before3/after14/Quote9/P6 14/物料17分阶段通过联合57浏览器；最终driver 0e12c1aa48179dc1da3f699ae9769d031221ce93，只改测试及状态，产品构建56b不重建。proof 869aa11d4270d591c7299de149ff60d13a9189b5冻结23PNG/4JSON、八宽九模式/390真实触摸及10图查看，清单455/61保留旧424/60/runtime/21routes。见[本轮证明](tasks/completed/2026-10-24-delivery-plan-ui-current-engineering.md)与[当前任务](tasks/active/server-delivery-plan-ui-current-2026-10-24.md)。当前新发布134、最后clean精确main守卫及最终独立复审仍后置，不预写PASS。
 
-当前交期维护UI17非文档路径已受控前移，16原输入一致，workflow仅加本轮三纯客户端测试/精确ExpectedSource/UI。已沿原call_d4696批准登记V2十路径；具体批准原字节及原型hash不改。独立UI契约/D156/技术pending已同步，后台3e869、da5b及SQL原文保持；不带coverage/0043。driver两P2已修：Gitless完整ExpectedSource、before精确922外部静态/after自有构建，根CDP及owned Chromium确认退出才删profile；原子点击和真实CDP touch单列。原2a最终焦点/长数/单滚动/手机双入口/320fine修复均保留。当前等待本轮精确source验收，不借旧2a或#125 CI。
+两次触摸首轮1pass/2fail、第二轮1pass/2fail，以及相关回归初23pass/1前置失败（漏精确构建env）原件/归档保持。最终等待instant布局两帧后再触摸，未延长预算/备用点击/放宽断言；只补after及未执行物料17，不重复已过23/57/811/质量/双build。不是一轮57全绿、唯一根因证明或硬件触摸。原3e869后台、da5b持久化契约及SQL不变。旧Linux CLI平台缺口/Python139范围复用不变；未据此完成全部Source或关账。
 
-[当前任务](tasks/active/server-delivery-plan-ui-current-2026-10-24.md)；[UI契约](features/SERVER_DELIVERY_PLAN_MAINTENANCE_UI.md)。
-
-NETWORK_DEGRADED，push0/PR0/Actions0，不逐Gate重推或触发付费CI。仅自有合成一次性PG/loopback/私有Chromium，不读真实凭据/Source、不改真实账号/业务DB/卷、绑定/激活/调度/安装/自动merge/close/deploy或50426切换退役；保护3001/50426/59069/62426、Browser、备份及结果。Goal active；coverage/0043及关账三问不默认。
-
-2026-10-24 source56b实际57客户端/API、根811、类型NodeLint、双构建/产物及before3均PASS。after首轮1pass/2fail（含父节点），停在新真实touch的来源关闭按钮：搜索表单先出现而busy仍禁用关闭，驱动未等enabled。仅修测试等待可见/启用/可命中目标，并区分driver/rendered SHA；产品/既有测试/构建不变，原失败日志完整保留。仅补跑受影响after及尚未运行相关UI；不重复已过57/811/质量/构建。
-
-触摸第二轮仍1pass/2fail：日志只证实触摸后来源弹窗未出现，不足认定唯一产品或驱动根因；首轮也仅直接证明关闭目标当时不可用，与busy禁用时序一致而非已证实唯一原因。现测试使用instant滚动后两帧再取实际命中，并记录触摸/指针/click现场；不延长16秒、不重复输入、不改普通click/放宽断言。仅驱动及状态变更，56b产品/质量/API/两构建均不重跑，失败原件和两归档保留。
+NETWORK_DEGRADED，push0/PR0/Actions0，不借#125CI或逐Gate重试Git。仅自有一次性合成PG/loopback/私有Chromium，0真实凭据/Source、真实账号/业务DB/现有卷、绑定/激活/调度、安装、自动merge/close/deploy或50426切换退役；保护3001/50426/59069/62426、Browser、备份与旧结果。Goal active，coverage/0043及关账三问不默认。

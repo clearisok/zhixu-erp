@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
-  "verifiedAt": "2026-10-24T13:00:21.354Z",
+  "verifiedAt": "2026-10-24T14:00:20.127Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -3778,6 +3778,302 @@
       "sha256": "f56ca32460ae88fca84b509d60eaf158ecbd1b3a0684e344b11f7758623a1baa",
       "supersedes": "decisions-garment-observations-current-20261024",
       "changeReason": "Forward-bind approved D154 original DeliveryPlan command receipts under D083/D100/D147. Preserve prior business ownership, dates/quantities, real-operation limits and all decision history."
+    },
+    {
+      "id": "delivery-plan-ui-current-engineering-20261024",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-24-delivery-plan-ui-current-engineering.md",
+      "recordedAtSha": "869aa11d4270d591c7299de149ff60d13a9189b5",
+      "renderedSourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+      "sha256": "23ed6401fa07311f93f176cd99a392ac716c6732ef01d22015370980c419c8ad"
+    },
+    {
+      "id": "server-delivery-plan-ui-current-20261024",
+      "kind": "document",
+      "path": "docs/features/SERVER_DELIVERY_PLAN_MAINTENANCE_UI.md",
+      "recordedAtSha": "869aa11d4270d591c7299de149ff60d13a9189b5",
+      "renderedSourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+      "sha256": "996a16750d087ee7caf0f6b04a37321bc6ab01872ebb71d30719455e9db8325f"
+    },
+    {
+      "id": "delivery-plan-ui-specific-approval-current-20261024",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-22-delivery-plan-maintenance-ui-approval.md",
+      "recordedAtSha": "dda3928908132398cd21babe852168430d5e16f0",
+      "renderedSourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+      "sha256": "502952456442969eef6b194e4d2d927f3110455ef9220d01f755fc9fba93bd87"
+    },
+    {
+      "id": "decisions-delivery-plan-ui-current-20261024",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "869aa11d4270d591c7299de149ff60d13a9189b5",
+      "renderedSourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+      "sha256": "36226e6246fdebb9d3d3e83762a8ccc9055a5e19353611f1dff036b051434605",
+      "supersedes": "decisions-delivery-plan-requests-current-20261024",
+      "changeReason": "Forward-bind specifically approved D156 maintenance interface and current engineering evidence, preserving all D100/D154 business ownership, failures, history and real-operation limits."
+    },
+    {
+      "id": "delivery-plan-ui-current-before-header-1280",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-delivery-plan-ui-current/before-header-1280.png",
+      "recordedAtSha": "869aa11d4270d591c7299de149ff60d13a9189b5",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "79964b8ce6440e19a7fb6d73a78b083a50bbe01f47ae762e4be39ff67facc9c6",
+      "changeReason": "New exact synthetic before/after evidence for specifically approved D156 compact detail-header delivery action and Foundation maintenance modal. Preserve original contract read-only and plan ownership/preview/recovery rules, both source and delivery actions at mobile widths, scoped responsive table, keyboard focus and390 actual touch. Old screenshots/hashes remain unchanged; not user acceptance or deployment.",
+      "approvalEvidence": "delivery-plan-ui-specific-approval-current-20261024"
+    },
+    {
+      "id": "delivery-plan-ui-current-before-header-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-delivery-plan-ui-current/before-header-1440.png",
+      "recordedAtSha": "869aa11d4270d591c7299de149ff60d13a9189b5",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "b159b4d0330e8662dd37256cd2bdb466c3b85f5af217b4b04f84b4e57bb0d186",
+      "changeReason": "New exact synthetic before/after evidence for specifically approved D156 compact detail-header delivery action and Foundation maintenance modal. Preserve original contract read-only and plan ownership/preview/recovery rules, both source and delivery actions at mobile widths, scoped responsive table, keyboard focus and390 actual touch. Old screenshots/hashes remain unchanged; not user acceptance or deployment.",
+      "approvalEvidence": "delivery-plan-ui-specific-approval-current-20261024"
+    },
+    {
+      "id": "delivery-plan-ui-current-before-header-1536",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-delivery-plan-ui-current/before-header-1536.png",
+      "recordedAtSha": "869aa11d4270d591c7299de149ff60d13a9189b5",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "7db9e45c00e0dfbb0ab3cbc366d4e540aafb65172614895093e871b482fe33bf",
+      "changeReason": "New exact synthetic before/after evidence for specifically approved D156 compact detail-header delivery action and Foundation maintenance modal. Preserve original contract read-only and plan ownership/preview/recovery rules, both source and delivery actions at mobile widths, scoped responsive table, keyboard focus and390 actual touch. Old screenshots/hashes remain unchanged; not user acceptance or deployment.",
+      "approvalEvidence": "delivery-plan-ui-specific-approval-current-20261024"
+    },
+    {
+      "id": "delivery-plan-ui-current-before-header-1920",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-delivery-plan-ui-current/before-header-1920.png",
+      "recordedAtSha": "869aa11d4270d591c7299de149ff60d13a9189b5",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "77c9a46371ac22949e8103c82b23517a8cb5ac5ddace853cbd05412f52f06acf",
+      "changeReason": "New exact synthetic before/after evidence for specifically approved D156 compact detail-header delivery action and Foundation maintenance modal. Preserve original contract read-only and plan ownership/preview/recovery rules, both source and delivery actions at mobile widths, scoped responsive table, keyboard focus and390 actual touch. Old screenshots/hashes remain unchanged; not user acceptance or deployment.",
+      "approvalEvidence": "delivery-plan-ui-specific-approval-current-20261024"
+    },
+    {
+      "id": "delivery-plan-ui-current-before-header-320",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-delivery-plan-ui-current/before-header-320.png",
+      "recordedAtSha": "869aa11d4270d591c7299de149ff60d13a9189b5",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "ae8f6c546739b956add2dd0445a9c2f726ca7b2403dc5e390c41c0d507edc6b3",
+      "changeReason": "New exact synthetic before/after evidence for specifically approved D156 compact detail-header delivery action and Foundation maintenance modal. Preserve original contract read-only and plan ownership/preview/recovery rules, both source and delivery actions at mobile widths, scoped responsive table, keyboard focus and390 actual touch. Old screenshots/hashes remain unchanged; not user acceptance or deployment.",
+      "approvalEvidence": "delivery-plan-ui-specific-approval-current-20261024"
+    },
+    {
+      "id": "delivery-plan-ui-current-before-header-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-delivery-plan-ui-current/before-header-390.png",
+      "recordedAtSha": "869aa11d4270d591c7299de149ff60d13a9189b5",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "3aa78c84c090b8ee29c501055473c4060f5746d23a42920bb0b93042a4c1dbef",
+      "changeReason": "New exact synthetic before/after evidence for specifically approved D156 compact detail-header delivery action and Foundation maintenance modal. Preserve original contract read-only and plan ownership/preview/recovery rules, both source and delivery actions at mobile widths, scoped responsive table, keyboard focus and390 actual touch. Old screenshots/hashes remain unchanged; not user acceptance or deployment.",
+      "approvalEvidence": "delivery-plan-ui-specific-approval-current-20261024"
+    },
+    {
+      "id": "delivery-plan-ui-current-before-header-736",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-delivery-plan-ui-current/before-header-736.png",
+      "recordedAtSha": "869aa11d4270d591c7299de149ff60d13a9189b5",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "657642e4e721d8c04d74bdc66ba5ed74cb80d79dfe36d4b10160f9bf3f60b29a",
+      "changeReason": "New exact synthetic before/after evidence for specifically approved D156 compact detail-header delivery action and Foundation maintenance modal. Preserve original contract read-only and plan ownership/preview/recovery rules, both source and delivery actions at mobile widths, scoped responsive table, keyboard focus and390 actual touch. Old screenshots/hashes remain unchanged; not user acceptance or deployment.",
+      "approvalEvidence": "delivery-plan-ui-specific-approval-current-20261024"
+    },
+    {
+      "id": "delivery-plan-ui-current-before-header-900",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-delivery-plan-ui-current/before-header-900.png",
+      "recordedAtSha": "869aa11d4270d591c7299de149ff60d13a9189b5",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "426e167dd4b5335827f0a44aa8504b3f0b3fe1f259c9f0ef5cf36ebc2d249470",
+      "changeReason": "New exact synthetic before/after evidence for specifically approved D156 compact detail-header delivery action and Foundation maintenance modal. Preserve original contract read-only and plan ownership/preview/recovery rules, both source and delivery actions at mobile widths, scoped responsive table, keyboard focus and390 actual touch. Old screenshots/hashes remain unchanged; not user acceptance or deployment.",
+      "approvalEvidence": "delivery-plan-ui-specific-approval-current-20261024"
+    },
+    {
+      "id": "delivery-plan-ui-current-before-build-and-checks",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-delivery-plan-ui-current/before-build-and-checks.json",
+      "recordedAtSha": "869aa11d4270d591c7299de149ff60d13a9189b5",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "5e9476cc564cec0223d60ef6c190a070b6256dd84d209b9f02533f3b883f3ce3"
+    },
+    {
+      "id": "delivery-plan-ui-current-before-receipt",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-delivery-plan-ui-current/before-receipt.json",
+      "recordedAtSha": "869aa11d4270d591c7299de149ff60d13a9189b5",
+      "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "sha256": "789389f375be2b0c5ae23ba6929f253a90fdb5bf9748c94cceef4616c40093fc"
+    },
+    {
+      "id": "delivery-plan-ui-current-after-build-and-checks",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-delivery-plan-ui-current/after-build-and-checks.json",
+      "recordedAtSha": "869aa11d4270d591c7299de149ff60d13a9189b5",
+      "renderedSourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+      "sha256": "91a335a197a1742d682bb2d7eb3a6f586ded8b4a81dedd28275b6414f186e2b9"
+    },
+    {
+      "id": "delivery-plan-ui-current-after-edit-1280",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-delivery-plan-ui-current/after-edit-1280.png",
+      "recordedAtSha": "869aa11d4270d591c7299de149ff60d13a9189b5",
+      "renderedSourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+      "sha256": "e41f83f940eeea2fa87017bdde3c2434439b578badb14b1cd0164ced99c429f5",
+      "changeReason": "New exact synthetic before/after evidence for specifically approved D156 compact detail-header delivery action and Foundation maintenance modal. Preserve original contract read-only and plan ownership/preview/recovery rules, both source and delivery actions at mobile widths, scoped responsive table, keyboard focus and390 actual touch. Old screenshots/hashes remain unchanged; not user acceptance or deployment.",
+      "approvalEvidence": "delivery-plan-ui-specific-approval-current-20261024"
+    },
+    {
+      "id": "delivery-plan-ui-current-after-edit-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-delivery-plan-ui-current/after-edit-1440.png",
+      "recordedAtSha": "869aa11d4270d591c7299de149ff60d13a9189b5",
+      "renderedSourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+      "sha256": "65b1fcb49d63e13c6df92da06f9d389f25d1c1f2f3ffd67b883fe128266316ab",
+      "changeReason": "New exact synthetic before/after evidence for specifically approved D156 compact detail-header delivery action and Foundation maintenance modal. Preserve original contract read-only and plan ownership/preview/recovery rules, both source and delivery actions at mobile widths, scoped responsive table, keyboard focus and390 actual touch. Old screenshots/hashes remain unchanged; not user acceptance or deployment.",
+      "approvalEvidence": "delivery-plan-ui-specific-approval-current-20261024"
+    },
+    {
+      "id": "delivery-plan-ui-current-after-edit-1536",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-delivery-plan-ui-current/after-edit-1536.png",
+      "recordedAtSha": "869aa11d4270d591c7299de149ff60d13a9189b5",
+      "renderedSourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+      "sha256": "98d4d9312bcb4d4739c7dfa421f1d2bf459374375394ab5daae3e31e4624dbac",
+      "changeReason": "New exact synthetic before/after evidence for specifically approved D156 compact detail-header delivery action and Foundation maintenance modal. Preserve original contract read-only and plan ownership/preview/recovery rules, both source and delivery actions at mobile widths, scoped responsive table, keyboard focus and390 actual touch. Old screenshots/hashes remain unchanged; not user acceptance or deployment.",
+      "approvalEvidence": "delivery-plan-ui-specific-approval-current-20261024"
+    },
+    {
+      "id": "delivery-plan-ui-current-after-edit-1920",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-delivery-plan-ui-current/after-edit-1920.png",
+      "recordedAtSha": "869aa11d4270d591c7299de149ff60d13a9189b5",
+      "renderedSourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+      "sha256": "b639e760eb1b6dd3d2d94f7457bd806401792266093b834d1b5b74cf04be55ae",
+      "changeReason": "New exact synthetic before/after evidence for specifically approved D156 compact detail-header delivery action and Foundation maintenance modal. Preserve original contract read-only and plan ownership/preview/recovery rules, both source and delivery actions at mobile widths, scoped responsive table, keyboard focus and390 actual touch. Old screenshots/hashes remain unchanged; not user acceptance or deployment.",
+      "approvalEvidence": "delivery-plan-ui-specific-approval-current-20261024"
+    },
+    {
+      "id": "delivery-plan-ui-current-after-edit-320",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-delivery-plan-ui-current/after-edit-320.png",
+      "recordedAtSha": "869aa11d4270d591c7299de149ff60d13a9189b5",
+      "renderedSourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+      "sha256": "a877e8ddc0ad1b539e234e9c4c5c77eb3dd8b36fc2b19a3e24939f7bde5c807f",
+      "changeReason": "New exact synthetic before/after evidence for specifically approved D156 compact detail-header delivery action and Foundation maintenance modal. Preserve original contract read-only and plan ownership/preview/recovery rules, both source and delivery actions at mobile widths, scoped responsive table, keyboard focus and390 actual touch. Old screenshots/hashes remain unchanged; not user acceptance or deployment.",
+      "approvalEvidence": "delivery-plan-ui-specific-approval-current-20261024"
+    },
+    {
+      "id": "delivery-plan-ui-current-after-edit-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-delivery-plan-ui-current/after-edit-390.png",
+      "recordedAtSha": "869aa11d4270d591c7299de149ff60d13a9189b5",
+      "renderedSourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+      "sha256": "cd9c2c88872f3ed77c937e90e16deaa88881b3bcb0ce623019a7992b41e5bbbd",
+      "changeReason": "New exact synthetic before/after evidence for specifically approved D156 compact detail-header delivery action and Foundation maintenance modal. Preserve original contract read-only and plan ownership/preview/recovery rules, both source and delivery actions at mobile widths, scoped responsive table, keyboard focus and390 actual touch. Old screenshots/hashes remain unchanged; not user acceptance or deployment.",
+      "approvalEvidence": "delivery-plan-ui-specific-approval-current-20261024"
+    },
+    {
+      "id": "delivery-plan-ui-current-after-edit-736",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-delivery-plan-ui-current/after-edit-736.png",
+      "recordedAtSha": "869aa11d4270d591c7299de149ff60d13a9189b5",
+      "renderedSourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+      "sha256": "70152279101c185245d5374a0e0d4c658a06acb4955c7a4a50ff5a94b6c7cf2e",
+      "changeReason": "New exact synthetic before/after evidence for specifically approved D156 compact detail-header delivery action and Foundation maintenance modal. Preserve original contract read-only and plan ownership/preview/recovery rules, both source and delivery actions at mobile widths, scoped responsive table, keyboard focus and390 actual touch. Old screenshots/hashes remain unchanged; not user acceptance or deployment.",
+      "approvalEvidence": "delivery-plan-ui-specific-approval-current-20261024"
+    },
+    {
+      "id": "delivery-plan-ui-current-after-edit-900",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-delivery-plan-ui-current/after-edit-900.png",
+      "recordedAtSha": "869aa11d4270d591c7299de149ff60d13a9189b5",
+      "renderedSourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+      "sha256": "41f08edb3fd901ffb27153b36fa750e20d9216d2cd741bc8b7c0c3b1e3237804",
+      "changeReason": "New exact synthetic before/after evidence for specifically approved D156 compact detail-header delivery action and Foundation maintenance modal. Preserve original contract read-only and plan ownership/preview/recovery rules, both source and delivery actions at mobile widths, scoped responsive table, keyboard focus and390 actual touch. Old screenshots/hashes remain unchanged; not user acceptance or deployment.",
+      "approvalEvidence": "delivery-plan-ui-specific-approval-current-20261024"
+    },
+    {
+      "id": "delivery-plan-ui-current-after-header-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-delivery-plan-ui-current/after-header-1440.png",
+      "recordedAtSha": "869aa11d4270d591c7299de149ff60d13a9189b5",
+      "renderedSourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+      "sha256": "a3fd1a6de88dba2ca796d978a0472733cb51d458cb7f921cf7ffd6421fc539a9",
+      "changeReason": "New exact synthetic before/after evidence for specifically approved D156 compact detail-header delivery action and Foundation maintenance modal. Preserve original contract read-only and plan ownership/preview/recovery rules, both source and delivery actions at mobile widths, scoped responsive table, keyboard focus and390 actual touch. Old screenshots/hashes remain unchanged; not user acceptance or deployment.",
+      "approvalEvidence": "delivery-plan-ui-specific-approval-current-20261024"
+    },
+    {
+      "id": "delivery-plan-ui-current-after-header-320-fine",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-delivery-plan-ui-current/after-header-320-fine.png",
+      "recordedAtSha": "869aa11d4270d591c7299de149ff60d13a9189b5",
+      "renderedSourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+      "sha256": "4cd58af4587f36984d157d07948cd25ecebcdb7156670c31763d822f5d4da026",
+      "changeReason": "New exact synthetic before/after evidence for specifically approved D156 compact detail-header delivery action and Foundation maintenance modal. Preserve original contract read-only and plan ownership/preview/recovery rules, both source and delivery actions at mobile widths, scoped responsive table, keyboard focus and390 actual touch. Old screenshots/hashes remain unchanged; not user acceptance or deployment.",
+      "approvalEvidence": "delivery-plan-ui-specific-approval-current-20261024"
+    },
+    {
+      "id": "delivery-plan-ui-current-after-header-320",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-delivery-plan-ui-current/after-header-320.png",
+      "recordedAtSha": "869aa11d4270d591c7299de149ff60d13a9189b5",
+      "renderedSourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+      "sha256": "5f53a89e75f1e36b72ede04c34e7dc2374791262f53740a5daee40275c05b394",
+      "changeReason": "New exact synthetic before/after evidence for specifically approved D156 compact detail-header delivery action and Foundation maintenance modal. Preserve original contract read-only and plan ownership/preview/recovery rules, both source and delivery actions at mobile widths, scoped responsive table, keyboard focus and390 actual touch. Old screenshots/hashes remain unchanged; not user acceptance or deployment.",
+      "approvalEvidence": "delivery-plan-ui-specific-approval-current-20261024"
+    },
+    {
+      "id": "delivery-plan-ui-current-after-header-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-delivery-plan-ui-current/after-header-390.png",
+      "recordedAtSha": "869aa11d4270d591c7299de149ff60d13a9189b5",
+      "renderedSourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+      "sha256": "9bf9566134082d42e5f63d7932204f4fc4004a81f19ae9c1870f1261ce0d9239",
+      "changeReason": "New exact synthetic before/after evidence for specifically approved D156 compact detail-header delivery action and Foundation maintenance modal. Preserve original contract read-only and plan ownership/preview/recovery rules, both source and delivery actions at mobile widths, scoped responsive table, keyboard focus and390 actual touch. Old screenshots/hashes remain unchanged; not user acceptance or deployment.",
+      "approvalEvidence": "delivery-plan-ui-specific-approval-current-20261024"
+    },
+    {
+      "id": "delivery-plan-ui-current-after-preview-320",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-delivery-plan-ui-current/after-preview-320.png",
+      "recordedAtSha": "869aa11d4270d591c7299de149ff60d13a9189b5",
+      "renderedSourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+      "sha256": "99e4fd4851af9035e16897b91877e210c7420aa3e3e3d30d7199ab7603840b3e",
+      "changeReason": "New exact synthetic before/after evidence for specifically approved D156 compact detail-header delivery action and Foundation maintenance modal. Preserve original contract read-only and plan ownership/preview/recovery rules, both source and delivery actions at mobile widths, scoped responsive table, keyboard focus and390 actual touch. Old screenshots/hashes remain unchanged; not user acceptance or deployment.",
+      "approvalEvidence": "delivery-plan-ui-specific-approval-current-20261024"
+    },
+    {
+      "id": "delivery-plan-ui-current-after-receipt",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-delivery-plan-ui-current/after-receipt.json",
+      "recordedAtSha": "869aa11d4270d591c7299de149ff60d13a9189b5",
+      "renderedSourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+      "sha256": "27c6ad0957ab75e889ea34531883a94ce1a1ea9742958647f12f10c2f4ec6baf"
+    },
+    {
+      "id": "delivery-plan-ui-current-after-saved-open-disclosure-desktop",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-delivery-plan-ui-current/after-saved-open-disclosure-desktop.png",
+      "recordedAtSha": "869aa11d4270d591c7299de149ff60d13a9189b5",
+      "renderedSourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+      "sha256": "293d98b8f59efbd50fc78178a066a2b2f5d3f06b839d5ffadf775e87be2e0e42",
+      "changeReason": "New exact synthetic before/after evidence for specifically approved D156 compact detail-header delivery action and Foundation maintenance modal. Preserve original contract read-only and plan ownership/preview/recovery rules, both source and delivery actions at mobile widths, scoped responsive table, keyboard focus and390 actual touch. Old screenshots/hashes remain unchanged; not user acceptance or deployment.",
+      "approvalEvidence": "delivery-plan-ui-specific-approval-current-20261024"
+    },
+    {
+      "id": "delivery-plan-ui-current-after-touch-editor-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-delivery-plan-ui-current/after-touch-editor-390.png",
+      "recordedAtSha": "869aa11d4270d591c7299de149ff60d13a9189b5",
+      "renderedSourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+      "sha256": "ce1654fae0a383bff7789235e021cbeb55229fcce8f57a1ac7d283fe1b9678c8",
+      "changeReason": "New exact synthetic before/after evidence for specifically approved D156 compact detail-header delivery action and Foundation maintenance modal. Preserve original contract read-only and plan ownership/preview/recovery rules, both source and delivery actions at mobile widths, scoped responsive table, keyboard focus and390 actual touch. Old screenshots/hashes remain unchanged; not user acceptance or deployment.",
+      "approvalEvidence": "delivery-plan-ui-specific-approval-current-20261024"
     }
   ],
   "pages": [
@@ -9628,6 +9924,91 @@
           "scope": "Current0042 technical request receipts not deployed; retain old runtime snapshots without querying those environments.",
           "evidence": [
             "delivery-plan-requests-current-engineering-20261024"
+          ]
+        }
+      }
+    },
+    {
+      "id": "delivery-plan-ui-current",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D083/D100/D147/D154/D156 current Server DeliveryPlan maintenance UI: specifically approved compact title action and Foundation edit/void/preview/confirmed save with source contract read-only. Exact actor/tab original-intent persistence, unknown receipt and second explicit sameUUID/CAS/body retry, same-session layout ownership and independent source/delivery guards. Product56b57 related API/client/root811/type/Node/lint/dual builds; driver0e14after,3before and40 phased related browser union57,23PNG4JSON,10 actual viewed images. Two touch failures and omitted-ExpectedSource precondition failure preserved; only affected checks rerun. No product rebuild/retest repetition, real Source/upgrade/deployment or human acceptance.",
+      "evidence": [
+        "delivery-plan-ui-current-engineering-20261024"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+          "scope": "D083/D100/D147/D154/D156 current Server DeliveryPlan maintenance UI: specifically approved compact title action and Foundation edit/void/preview/confirmed save with source contract read-only. Exact actor/tab original-intent persistence, unknown receipt and second explicit sameUUID/CAS/body retry, same-session layout ownership and independent source/delivery guards. Product56b57 related API/client/root811/type/Node/lint/dual builds; driver0e14after,3before and40 phased related browser union57,23PNG4JSON,10 actual viewed images. Two touch failures and omitted-ExpectedSource precondition failure preserved; only affected checks rerun. No product rebuild/retest repetition, real Source/upgrade/deployment or human acceptance.",
+          "evidence": [
+            "delivery-plan-ui-current-engineering-20261024"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-24",
+          "sourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+          "scope": "D083/D100/D147/D154/D156 current Server DeliveryPlan maintenance UI: specifically approved compact title action and Foundation edit/void/preview/confirmed save with source contract read-only. Exact actor/tab original-intent persistence, unknown receipt and second explicit sameUUID/CAS/body retry, same-session layout ownership and independent source/delivery guards. Product56b57 related API/client/root811/type/Node/lint/dual builds; driver0e14after,3before and40 phased related browser union57,23PNG4JSON,10 actual viewed images. Two touch failures and omitted-ExpectedSource precondition failure preserved; only affected checks rerun. No product rebuild/retest repetition, real Source/upgrade/deployment or human acceptance.",
+          "evidence": [
+            "delivery-plan-ui-current-engineering-20261024"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+          "scope": "D083/D100/D147/D154/D156 current Server DeliveryPlan maintenance UI: specifically approved compact title action and Foundation edit/void/preview/confirmed save with source contract read-only. Exact actor/tab original-intent persistence, unknown receipt and second explicit sameUUID/CAS/body retry, same-session layout ownership and independent source/delivery guards. Product56b57 related API/client/root811/type/Node/lint/dual builds; driver0e14after,3before and40 phased related browser union57,23PNG4JSON,10 actual viewed images. Two touch failures and omitted-ExpectedSource precondition failure preserved; only affected checks rerun. No product rebuild/retest repetition, real Source/upgrade/deployment or human acceptance.",
+          "evidence": [
+            "delivery-plan-ui-current-engineering-20261024"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+          "scope": "D083/D100/D147/D154/D156 current Server DeliveryPlan maintenance UI: specifically approved compact title action and Foundation edit/void/preview/confirmed save with source contract read-only. Exact actor/tab original-intent persistence, unknown receipt and second explicit sameUUID/CAS/body retry, same-session layout ownership and independent source/delivery guards. Product56b57 related API/client/root811/type/Node/lint/dual builds; driver0e14after,3before and40 phased related browser union57,23PNG4JSON,10 actual viewed images. Two touch failures and omitted-ExpectedSource precondition failure preserved; only affected checks rerun. No product rebuild/retest repetition, real Source/upgrade/deployment or human acceptance.",
+          "evidence": [
+            "delivery-plan-ui-current-engineering-20261024"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+          "scope": "D083/D100/D147/D154/D156 current Server DeliveryPlan maintenance UI: specifically approved compact title action and Foundation edit/void/preview/confirmed save with source contract read-only. Exact actor/tab original-intent persistence, unknown receipt and second explicit sameUUID/CAS/body retry, same-session layout ownership and independent source/delivery guards. Product56b57 related API/client/root811/type/Node/lint/dual builds; driver0e14after,3before and40 phased related browser union57,23PNG4JSON,10 actual viewed images. Two touch failures and omitted-ExpectedSource precondition failure preserved; only affected checks rerun. No product rebuild/retest repetition, real Source/upgrade/deployment or human acceptance.",
+          "evidence": [
+            "delivery-plan-ui-current-engineering-20261024"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "Current delivery maintenance UI not deployed; keep original runtime snapshots without querying those environments.",
+          "evidence": [
+            "delivery-plan-ui-current-engineering-20261024"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "Current delivery maintenance UI not deployed; keep original runtime snapshots without querying those environments.",
+          "evidence": [
+            "delivery-plan-ui-current-engineering-20261024"
           ]
         }
       }
