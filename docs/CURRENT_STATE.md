@@ -1,13 +1,11 @@
-# 当前状态：PR125持久空目标与交付诊断合流候选
+# 当前状态：独立CI成本控制本地候选
 
-2026-10-24；实际main=e01a11952b648024c0bd6bf4259de429374981e2。#123已获准以merge commit合并，双父[d1dd,cb1658]、tree e31c5588与已验收CB一致；三项PR检查成功。#121/#122由GitHub随祖先自动收口，原分支保留；没有手工合并或关闭其他PR。
+2026-10-25；实际main 9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf，branch codex/ci-cost-controls-main-9d65，从main建立、初始dirty空。三必要工作流自动触发仅PR，保留workflow_dispatch；本次各新增并发控制和npm下载缓存，其他字段/步骤/命令/env经解析与原文双重比较完整保留。类型/数据库/UI/公式没有变化。
 
-当前codex/pr125-delivery-diagnostics-e01a从实际main建立、显式FF原9e，再正常merge独立工具e007。冲突仅三份摘要；原PR125的17运维/main46非docs、数据库测试夹具及本工具四文件各自保持已验收blob，不加入生产/来源等累计业务。清单与原9e完全一致，230证据/46能力及截图/运行维度不改，双方历史在真实父提交/既有任务中保留。
+本地三YAML解析与策略等价、六个分组输入样例、diff whitespace通过；使用现有锁定js-yaml，不安装。实际缓存命中/取消及费用收益尚未观测，未触发付费工作流。独立复审及最终精确守卫按outputs/ci-cost-controls-20261025的同HEAD回执核对；不存在不视为通过，相同HEAD已通过则复用。真实PR前仍保留134及三必要CI。
 
-#125源码091的134/134、42角色用户API、2数据库工具、类型/Server编译/lint及规范长路径双构建/产物检查保持各自范围；旧ENOENT和短路径失败保留，不冒称部署或永久根因。独立工具419的75/75、134/134（280089.0723ms，HEAD/manifest稳定）、定向lint及精确e01a源码守卫通过，显式拒绝P2已关闭、无新增P1/P2。本次合流只补实际范围/证据守卫与复审，不重复已通过且blob未变的业务/DB/浏览器/构建套件，不把父检查写成合流树的新运行。
+完整Goal不变。当前CI分支以main为基线，未携带本地累计业务；b611c61f65227113b6203d23a1a0fe46cce4537b保留完整G1–G8/R就绪审查，7da954545bd9b720bfc28edbd313bc387dd5c195保留成衣工程终态。62426仍旧8175构建、50426未观察到监听且原因未知；仅原轮只读观察，当前不重复查询或改变运行环境。
 
-9e一次上传后工具STOP_AUTH_OR_DIVERGENCE与独立EXACT_HEAD_VERIFIED并存；远端tree/parent精确相同、Actions=0。缺少原push退出码，具体原因unknown，原STOP不清除、不重推9e。新工具区分成功ref普通词与显式拒绝，后者即使exit0仍STOP，并只在post-push decision提供白名单摘要。新候选需完成合流守卫/复审、当前直接预检正常及身份/祖先/clean检查后，仅一次新目标首交付；独立核实前不移动原#125引用。
+PR129仍唯一草稿、三项原CI通过，具体合并确认待答复。Git STOP不清除，不上传其他分支、不合并部署、不操作真实Source/账号业务库/卷。关账三问、来源额度/启用、目标切换、用户接受和旧环境退役分别保留边界。
 
-#125仍草稿、未获merge批准；本次只准备同一PR的前向交付，不新建重复工具PR或批量重跑CI。未更新旧持久目标、镜像或体验环境，未部署/读取凭据或真实Source/改账号业务库。保留9e、e007、717、CI节流0ba和产物1028等分支与所有3001/50426/旧入口、Browser、卷、对象和备份。
-
-完整G1–G5未完成；其余Server生产/来源工程仍在独立候选。关账三问、coverage-v1、真实来源额度/target激活、50426批准切换/用户接受和逐项资产退役保持各自前置，不能因工程或CI通过自动完成。
+本阶段[契约与证据](tasks/active/ci-cost-controls-2026-10-25.md)。main输入原状态保留于[精确main文件](https://github.com/clearisok/zhixu-erp/blob/9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf/docs/CURRENT_STATE.md)，不把其旧日期/PR125未合并语句当当前状态。
