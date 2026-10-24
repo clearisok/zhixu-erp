@@ -61,3 +61,7 @@ blob仍等于原d717，唯一差异为server/production-resources/service.ts的�
 源码cd73726babfaa86ffef671cbbe3a37fd542dace6实际类型/Node/import/lint、24文件268 API/升级、97根811及before2/after17/资源14/导航18/登录11/P6 14全部PASS，0失败/取消/跳过。双构建/独立产物各45页、1fallback、112assets通过；Browser旧users preload提示1条，Server0。规范archive、真实时长、17新PNG/2geometry及11张主控审图见[新证明](../completed/2026-10-24-production-planning-current-engineering.md)。未扩展测试超时、未新安装，所有实际PG/HTTP/账号均owned合成。
 
 独立文档复审纠正COMMIT未知不可声明回滚，逻辑1MiB与4096字节客户端信封区别明确；不是产品变更，不重复成功C范围。现在只推进proof checkpoint、manifest新版本、发布134和最后精确main守卫，未发生的不提前PASS。269/49原对象及全部旧hash/证据保持，本阶段远端未交付、Actions0，不新增累计PR。
+
+## 新证据checkpoint与前向绑定
+
+proof69277400b24657b20f435f57bfa7ab5f798cfc3b已冻结，随后独立API于08:11Z再次核main e01a不变。清单292证据/50能力/21Server路由，原269/49/runtime对象逐项不变；D150接68a决策链，production修订保留原blob，新feature、proof及17图/2geometry有精确P/C/f441身份。新增只证明本机planned/cancelled，不扩大完成/来源/部署状态。元数据后再运行发布134与最终clean HEAD精确main守卫，结果尚未发生。

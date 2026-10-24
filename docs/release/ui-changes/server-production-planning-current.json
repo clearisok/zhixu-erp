@@ -20,6 +20,7 @@
   ],
   "visibleDifference": "Restore approved D147 Gate6B Server ownership on the existing production-scheduling route using the existing MasterDetail, queue/order-pool tables and Foundation dialogs. Preserve exact quantities, calendar/queue formulas, fixed dates, stable resource snapshots and explicit preview. Retain the prior Server mobile search/views separation. No execution/completion, logistics, pricing, Browser storage/defaults or V2/V3 redesign. Current before/after engineering proof follows new frozen builds, never old919 screenshots.",
   "evidence": [
-    "docs/tasks/active/server-production-planning-current-2026-10-24.md"
+    "docs/tasks/active/server-production-planning-current-2026-10-24.md",
+    "docs/tasks/completed/2026-10-24-production-planning-current-engineering.md"
   ]
 }
