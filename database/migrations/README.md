@@ -1,5 +1,11 @@
 # PostgreSQL migrations
 
+0033 adds an immutable, nonmonetary Quote creation reference to a proven order
+context. It is separate from Quote revision data and commercial adoption, shares
+the existing actor/request receipt identity, and performs no backfill, grants,
+SO creation or price adoption. Only disposable databases are authorized here;
+normal startup remains verify-only and real activation is separately gated.
+
 0025 adds independent, per-SO opt-in payment-request observation targets,
 immutable snapshots and monotonic/CAS heads. It inserts no target, snapshot,
 account or grant. Existing material Source enablement does not enable financial

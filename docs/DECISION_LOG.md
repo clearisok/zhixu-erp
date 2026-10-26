@@ -23,6 +23,13 @@
 
 ## Active
 
+### D-149 可信订单创建报价参考与商业采用分离
+
+- 原批准2026-10-20；2026-10-24向当前main前移，Active（业务/架构边界，当前验收独立记录）。执行D147已批准Gate5窄接线，不替代普通D102或D145报价唯一来源/加工批次规则。合同首次来源选择可进入既有new页；服务端核实当前有效SO、稳定合同和保存事实，明确创建经销草稿，复用原编号/writer/Editor，不按名称猜master ID。
+- 0033不可变创建参考与Quote、actor/request、原SO同事务；不自动创建SO/CCT、采用价格或限制报价服务其他订单。已采用、完成/取消、历史alias及已消费加工订单不能由此换绑；后续Quote/Source变化不覆盖创建参考。
+- 幂等含上下文，原普通hash保持；已知业务拒绝保存rejected，未知/缺回执不许可自动重POST。恢复只读，session/layout owner保护、来源二次核对/镜像锁与金额权限保持。
+- 代码：creation-order-context.ts、creation-workflows.ts、0033及相关API/真实构建驱动。当前候选与实际结果以[本轮G5](tasks/active/order-context-quote-current-2026-10-24.md)为准；不借旧54/aaf结果宣称新验收、部署或人工接受。
+
 ### D-148 Server 导航连续性与退出保护
 
 - 2026-10-20，Active；执行用户已批准的 Server 收敛 Gate3，恢复既有导航/布局，不新增菜单或开放路由。可信根边界持有唯一 AppShell，页面只注册精确路由/身份作用域的标题、返回目标和现有回调；身份等待/失败局部展示，匿名态移除受保护内容。Browser 原路径和长期存储保持。

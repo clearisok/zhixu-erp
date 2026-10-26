@@ -103,7 +103,9 @@
     "test:order-sale-adjustments-ui": "tsx --test server/integration/order-sale-adjustment-ui.integration.test.mjs",
     "test:processing-quote-push": "tsx --test --test-concurrency=1 server/integration/processing-quote-push.integration.test.ts",
     "test:processing-quote-push-ui": "tsx --test server/integration/processing-quote-push-ui.integration.test.mjs",
-    "test:business-operation-logs": "tsx --test --test-concurrency=1 server/integration/business-operation-logs.integration.test.ts server/integration/quote-audit-read.integration.test.ts"
+    "test:business-operation-logs": "tsx --test --test-concurrency=1 server/integration/business-operation-logs.integration.test.ts server/integration/quote-audit-read.integration.test.ts",
+    "test:quote-order-context": "tsx --test --test-concurrency=1 features/quote-center/server/__tests__/quote-creation-contract.test.ts server/integration/quote-order-context.integration.test.ts",
+    "test:quote-order-context-ui": "tsx --test server/integration/quote-order-context-ui.integration.test.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1146.0",

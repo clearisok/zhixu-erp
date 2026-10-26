@@ -1,0 +1,3 @@
+# G5 原输入与历史保护
+
+2026-10-25。当前本地普通合流保留 9907a2f3cc87ef4d6896e46aaed994d557ba3fdd 与 530203b32aa9b237c4b81be285e91be40d4e990e 原历史。此目录逐字保留原 e01a V1 记录，标准LF SHA256 e35ad0e3f42ed62931f4e9669425921337233ad512cc9cee77f35755e47a7014。现记录只前移实际main基线并增加当前阶段链接，不改变六路径/三页/批准范围。两父原 CURRENT_STATE、AI_HANDOFF、PROJECT_INDEX 按原Git对象完整可读，例如 git show 530203b32aa9b237c4b81be285e91be40d4e990e:docs/CURRENT_STATE.md；不把旧进度摘要重复堆入当前恢复点。原53c9证明、7PNG/2JSON及其失败/提示/限制保持原文件和哈希。
