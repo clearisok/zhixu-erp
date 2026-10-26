@@ -1,9 +1,9 @@
-# Project recovery index
+# 当前任务入口
 
-2026-10-25 Asia/Shanghai; actual main 9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf. Read AGENTS, [current state](CURRENT_STATE.md), [handoff](AI_HANDOFF.md) and[current navigation delivery](tasks/active/navigation-pr-main-9d65-2026-10-25.md) before continuing. This PR contains only the original navigation input plus its three Quote acceptance drivers.
+2026-10-26；main 869ee84dd0b31de6161011e4aa560678b244a64d于2026-10-26T04:56:38.443Z独立核实，本branch codex/garment-observations-main-anchor-869e真实从N合流原当前观察阶段aad673099da0221312a70e88bd8e2f33bfa06244。原工作分支codex/garment-observations-main-869e的保护性B 3a1a0955420d659aa23ea1295c314a184df72d85保持不动；全部非docs精确已验收source d1930a2da590098f70e6433892eab350a3262e0c。
 
-The complete prior project/module/source/recovery index and historical evidence are preserved byte-for-byte in[input PROJECT_INDEX](tasks/completed/2026-10-25-navigation-pr-input-state/PROJECT_INDEX.md). Product facts still come from code, BUSINESS_RULES and Active decisions. Relevant current contracts: [UI Foundation](features/UI_FOUNDATION.md), [release guard](features/RELEASE_BASELINE_GUARD.md), [D-148](DECISION_LOG.md), [original navigation forward QA](tasks/active/server-navigation-main-forward-2026-10-24.md), [Quote acceptance](tasks/active/quote-server-current-acceptance-2026-10-24.md).
+此分支只建立缺失的exact-N文档 ancestry 见证，不是新的业务实现、独立发布或通过声明。独立复审发现原[80f,aad]闭叉不足以覆盖原696在N之外的决定记录；现真实A父必须为[N,aad]，先冻结组合文本，再R绑定两个实际分支贡献的mergeOf。随后与B普通合流并最终闭叉。旧对象、旧失败、guard和业务源码都不改。
 
-Later cumulative target-control work remains on codex/server-garment-target-current at d4060b60a52db766c548b20a5974b43a224784a8; its protected state/receipts are outside this narrow PR. No reset, migration, dependency install, real-data operation or automatic merge/deployment follows from navigation delivery. Full Goal remains active.
+见[本见证阶段](tasks/active/garment-observations-main-anchor-869e-2026-10-26.md)及原[观察契约](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)。原保护性B不移动，A/R后必须回到原分支合流，不在本分支冒称完整工程收口。
 
-[Navigation engineering proof](tasks/completed/2026-10-25-navigation-main-9d65-engineering.md): original0698 named guard and134PASS; rejected6c evidence-root revision preserved, corrected as an independent proof with old240/main230/input237 intact. Final corrected guard/review and delivery/PR CI remain pending. The original integration task is frozen history; current state/handoff owns recovery status.
+原173/174（1既有Linux CLI Windows跳过）、811根、139离线Python和旧4e8232发布134保留各自日期/范围；本轮不重跑。无新Vite/浏览器、Hosted、真实Source/凭据/账号/业务库、迁移或部署操作，不切换/退役任何已有环境。Goal active，必要Linux CI和新基线最终守卫仍待。

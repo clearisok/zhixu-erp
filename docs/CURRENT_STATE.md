@@ -1,9 +1,9 @@
-# Current state: corrected navigation evidence candidate
+# 当前状态：成衣观察main见证恢复
 
-2026-10-25 Asia/Shanghai; actual main 9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf. Branch codex/navigation-pr-main-9d65 preserves navigation input 7cf7238b93b309cc736b473eeedaba394e6a47b7 through genuine merge 85072a26ab40906fbffa37e3facf7326c33eac5c. PR125 approved merge/history retained; PR124 auto-marked merged after inclusion. No other merge/close is authorized.
+2026-10-26；main 869ee84dd0b31de6161011e4aa560678b244a64d于2026-10-26T04:56:38.443Z独立核实，本branch codex/garment-observations-main-anchor-869e真实从N合流原当前观察阶段aad673099da0221312a70e88bd8e2f33bfa06244。原工作分支codex/garment-observations-main-869e的保护性B 3a1a0955420d659aa23ea1295c314a184df72d85保持不动；全部非docs精确已验收source d1930a2da590098f70e6433892eab350a3262e0c。
 
-0698f5eb2c1ac8644328cc2b826aefbc3c9d98ab named main guard PASS73799ms and named release134/134 PASS292141ms (0fail/cancel/skip,stable HEAD/manifest). Final6c documentation revision then failed the evidence-root anchor guard; no push followed. The original task root is restored exactly and observed results are bound to a distinct proof path; all prior240 valid objects/main230/input237 stay. Corrected final exact-HEAD guard and final review remain PENDING; do not call6c PASS or rerun successful134 without a new reason. See[engineering proof](tasks/completed/2026-10-25-navigation-main-9d65-engineering.md).
+此分支只建立缺失的exact-N文档 ancestry 见证，不是新的业务实现、独立发布或通过声明。独立复审发现原[80f,aad]闭叉不足以覆盖原696在N之外的决定记录；现真实A父必须为[N,aad]，先冻结组合文本，再R绑定两个实际分支贡献的mergeOf。随后与B普通合流并最终闭叉。旧对象、旧失败、guard和业务源码都不改。
 
-64 total paths/33 non-document files, no SQL or later domain code. ca53/2bd original QA is reused only for unchanged scopes after210 retained build files and archive hash were checked;66 UI is phased,87 Quote is local,old90/44/2 retained. No new build/browser/install. The[original frozen integration input](tasks/active/navigation-pr-main-9d65-2026-10-25.md) records its earlier pending state; current outcome is here and in the separate proof.
+见[本见证阶段](tasks/active/garment-observations-main-anchor-869e-2026-10-26.md)及原[观察契约](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)。原保护性B不移动，A/R后必须回到原分支合流，不在本分支冒称完整工程收口。
 
-REMOTE PENDING at this local checkpoint; exact finalSHA/guard/delivery/PR receipts remain in ignored outputs/navigation-pr-main-9d65-20261025. No new Hosted CI yet. Protect later d406 target branch,3001/50426/59069/62426,Browser,real accounts/business DB/volumes,backups and old evidence. No realSource/credentials,activation/scheduling,deployment or50426 cutover/retirement. Standing safe recovery never waives auth/divergence/certificate/unknown-dirty STOPs. Closing questions,real quotas,visible coverageV2 remain separate; full Goal active.
+原173/174（1既有Linux CLI Windows跳过）、811根、139离线Python和旧4e8232发布134保留各自日期/范围；本轮不重跑。无新Vite/浏览器、Hosted、真实Source/凭据/账号/业务库、迁移或部署操作，不切换/退役任何已有环境。Goal active，必要Linux CI和新基线最终守卫仍待。

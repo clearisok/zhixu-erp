@@ -1,0 +1,262 @@
+{
+  "at": "2026-10-24T11:00:52.232Z",
+  "branch": "codex/server-material-arrival-ui-current",
+  "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+  "verifiedMain": {
+    "at": "2026-10-24T10:57:17.649Z",
+    "sha": "e01a11952b648024c0bd6bf4259de429374981e2"
+  },
+  "head": "557ce07bb71195f1fef9cec9e10f3cf8b55b4add",
+  "tree": "a1f0a2561ea90c7eba1d5333299ceca2fec49344",
+  "clean": true,
+  "previousFinal": {
+    "at": "2026-10-24T10:58:51.159Z",
+    "branch": "codex/server-material-arrivals-current",
+    "head": "557ce07bb71195f1fef9cec9e10f3cf8b55b4add",
+    "tree": "a1f0a2561ea90c7eba1d5333299ceca2fec49344",
+    "source": "c994eac8aee32f9e6877fa81e65a604376760519",
+    "sourceTree": "2916955e902633b5b196aab465826f4ee7610c9c",
+    "proof": "761267deb29796206de5492fa01bb79a417680b1",
+    "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+    "guard": {
+      "at": "2026-10-24T10:58:50.867Z",
+      "head": "557ce07bb71195f1fef9cec9e10f3cf8b55b4add",
+      "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 93213,
+      "result": {
+        "status": "PASS",
+        "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
+        "checkedHead": "557ce07bb71195f1fef9cec9e10f3cf8b55b4add",
+        "historySha": "e01a11952b648024c0bd6bf4259de429374981e2",
+        "pages": 11,
+        "capabilities": 55,
+        "changedUiFiles": 54,
+        "scope": "source/evidence guard only; no browser, runtime, database or user acceptance claim",
+        "errors": []
+      }
+    },
+    "release": {
+      "at": "2026-10-24T10:55:14.159Z",
+      "head": "49aa9b16111ad972ab7e8228bfc73ce1875a47ea",
+      "productAndNonreleaseSource": "c994eac8aee32f9e6877fa81e65a604376760519",
+      "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+      "command": "npm run test:release-baseline",
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 372749,
+      "counts": {
+        "tests": 134,
+        "pass": 134,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "sourcePathsUnchanged": true
+    },
+    "tests": {
+      "apiTotal": 218,
+      "apiPass": 217,
+      "apiSkip": 1,
+      "rootNonrelease": 811,
+      "rootWithReleaseUnion": 945,
+      "newViteBuild": 0,
+      "newBrowser": 0
+    },
+    "platformBoundary": {
+      "at": "2026-10-24T10:46:16.176Z",
+      "source": "c994eac8aee32f9e6877fa81e65a604376760519",
+      "platform": "win32",
+      "test": "Linux CLI check is read-only; wrong target fails; explicit source writes only snapshots",
+      "file": "server/integration/ainuoke-server-source.integration.test.ts",
+      "line": 277,
+      "guard": "skip:process.platform===win32",
+      "originalGuardAndCliBlobsUnchanged": true,
+      "counts": {
+        "tests": 218,
+        "pass": 217,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 1
+      },
+      "unverified": "Linux CLI path at current source; not claimed pass; retain necessary Linux CI before merge/deploy",
+      "newMaterialArrivalTestsExecuted": true,
+      "noNewSourceReadsOrDependencyInstall": true
+    },
+    "workingTreeClean": true,
+    "delivery": {
+      "state": "NOT_ATTEMPTED_NETWORK_DEGRADED",
+      "pushes": 0,
+      "priorTarget": "b6af0cd247c1e7ec4406e69526fa672544cce1d8",
+      "priorState": "TARGET_NOT_DELIVERED"
+    },
+    "hostedActionsTriggeredByThisPhase": 0,
+    "newPr": null,
+    "goal": "active",
+    "deployed": false,
+    "realSourceOrBusinessDatabaseAccess": false,
+    "independentReview": {
+      "at": "2026-10-24T11:00:50.189Z",
+      "reviewer": "/root/server_convergence_review",
+      "mode": "read-only; no own tests/network/writes",
+      "verdict": "no remaining P1/P2",
+      "verified": [
+        "final557ce four state documents only; c994 product/proof761267/manifest unchanged",
+        "release134 at metadata49aa,372749ms; API217 pass +1 existing Windows skip",
+        "final exact-main guard e01a PASS93213ms,11/55/54/errors[]; clean",
+        "no new Vite/browser/Source/deploy/human acceptance"
+      ],
+      "unverified": [
+        "Linux-only existing Source CLI integration case skipped on win32"
+      ]
+    },
+    "next": [
+      "G6D existing material arrival UI and unique logistics projection",
+      "Garment shipment0040/refresher0041; DeliveryPlan0042 with exact migration prefix"
+    ],
+    "protected": [
+      "3001",
+      "50426",
+      "59069",
+      "62426",
+      "Browser stores",
+      "backups",
+      "existing volumes"
+    ]
+  },
+  "preflight": {
+    "at": "2026-10-24T10:59:18.051Z",
+    "head": "557ce07bb71195f1fef9cec9e10f3cf8b55b4add",
+    "base": "689afa128bc13f56d96dfa5db13403808048943f",
+    "incoming": "f28762005ee2587ae859a89b1b02c71edaf963f6",
+    "dirty": "",
+    "rows": [
+      {
+        "path": "features/production-scheduling/service/material-logistics-service.ts",
+        "before": "a284d14dfb998f36656318ec21b9be39cb868c2c",
+        "after": "a24ce323f070ebabbb5a22d82d2b45bca7b47095",
+        "current": "a284d14dfb998f36656318ec21b9be39cb868c2c",
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/style-progress/components/material-control-tower-read-only.tsx",
+        "before": "0fd9c790d980bb5299ba05dec0d12d938905139e",
+        "after": "f93a140491789d9e45c307791dee5e3d5515938b",
+        "current": "0fd9c790d980bb5299ba05dec0d12d938905139e",
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/style-progress/components/server-material-arrivals.tsx",
+        "before": null,
+        "after": "4f9cc51e5f1f7cef998c97fdc729c929aeadb428",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/style-progress/components/style-progress-server-page.tsx",
+        "before": "74c31cb899eb160643de8ec0c9e60282b765da92",
+        "after": "2d38881a41af51df2042d9d5cd1835831bcdad93",
+        "current": "74c31cb899eb160643de8ec0c9e60282b765da92",
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/style-progress/model/server-arrival-logistics.ts",
+        "before": null,
+        "after": "c79e6d9b14462459371b8f1efc37b34f50bfd6e6",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/style-progress/server/__tests__/arrival-logistics.test.ts",
+        "before": null,
+        "after": "02738cc5bc85361d340cb50f695eb85053ac2402",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/style-progress/server/__tests__/material-arrivals-client.test.ts",
+        "before": null,
+        "after": "26d8b8541545c54556579800fb88cf1793e8a8d5",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/style-progress/server/material-arrival-draft.ts",
+        "before": null,
+        "after": "7a3b066088ab91d60b3c53bcba3aae20328287c5",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/style-progress/server/material-arrivals-client.ts",
+        "before": null,
+        "after": "5ebf9f95bb7ccf5fb3a219f71bb20bf95e72a9b6",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/style-progress/server/material-arrivals-pending.ts",
+        "before": null,
+        "after": "d53a0a142524d92a6b92f0979f6af8b36c144070",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/style-progress/server/use-material-arrivals.ts",
+        "before": null,
+        "after": "dd187311049ab4d378af80fd66128258979651e0",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "package.json",
+        "before": "2877307f28f3cf370ade195c41ade6625a72c58a",
+        "after": "44172d876b45f58d25e48993e4ffa1a6d3ca7412",
+        "current": "5fb1a66ace2c7a680cb9952b74e55514b3033c92",
+        "strategy": "three-way-required"
+      },
+      {
+        "path": "server/integration/material-arrival-logistics.integration.test.ts",
+        "before": null,
+        "after": "323c09830a566befb7cfdbc62f7f695144b8c30d",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/material-arrivals/logistics.ts",
+        "before": null,
+        "after": "88c9b0e3a26faeab4b685b41e34ff4c15c738bb0",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/material-arrivals/service.ts",
+        "before": "185d2da1974bf2e62ad57bf978e9a9b4ce5c0d0b",
+        "after": "ceca1cfdc24fa144d8e304aa38eada0fb662f0e3",
+        "current": "185d2da1974bf2e62ad57bf978e9a9b4ce5c0d0b",
+        "strategy": "exact-input"
+      }
+    ],
+    "sourceMutated": false,
+    "realSourceReads": 0,
+    "pushes": 0
+  },
+  "protectedSummaryHashes": [
+    {
+      "path": "docs/tasks/completed/2026-10-24-material-arrival-ui-input-state/CURRENT_STATE.md",
+      "sha256": "b656f704dafe5bc964ce49033e748db6ee39a7d43217e6d7cc3c0eec5922c5f4"
+    },
+    {
+      "path": "docs/tasks/completed/2026-10-24-material-arrival-ui-input-state/AI_HANDOFF.md",
+      "sha256": "c4abca32834f52f63d1154fa448897256aea04138d79354f840ee1739538795a"
+    },
+    {
+      "path": "docs/tasks/completed/2026-10-24-material-arrival-ui-input-state/PROJECT_INDEX.md",
+      "sha256": "1badb371e2b9c7df228c6efedee589c534f5258371df31a51eb206b9b11aafce"
+    }
+  ],
+  "network": "NETWORK_DEGRADED; no remote mutation/push/Actions"
+}

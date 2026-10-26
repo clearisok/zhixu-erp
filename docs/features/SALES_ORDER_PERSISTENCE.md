@@ -5,6 +5,20 @@
 
 # SalesOrder PostgreSQL Persistence Foundation
 
+## 2026-10-24 G5创建报价参考（本地候选）
+
+可信合同SO可为新经销报价提供一次不可变创建参考，0033只保存quote/actor/request/原SO及当时上下文，
+不是订单商业采用或第二套价格。创建不更新SO/Source/执行流水；后续Quote或Source变化不覆盖参考。
+新增外键纳入现有历史引用指纹/升级前可选检查，未恢复公开归一操作。现有默认创建、合同/加工身份、
+颜色价格与交付计划读取保持；实际验收见[G5当前任务](../tasks/active/order-context-quote-current-2026-10-24.md)。
+
+## 2026-10-24 Gate4A 保存来源读取链（本地前向候选）
+
+订单颜色/尺码只投影可信保存证据，DeliveryPlan来源比较同时验证来源link的ID与合同号。
+多个历史link不复制订单结果；无匹配来源不拿mirror冒充可信比较，自有计划及价格保持。
+新增GET客户端与DTO不开放计划编辑、不改变schema、实际来源或商业采用；
+证据及当前验收见[前移任务](../tasks/active/order-source-readchain-current-2026-10-24.md)。
+
 ## PR93 integration verification — 2026-10-12
 
 Ordinary main merge 070d958 preserves both optional Material GET and the commercial-terms-read.v1 CCT projection/partial PATCH. New Material HTTP negative audit reuses the shared synthetic security fixture and covers 401, viewer/cost/sale/labor/full read grants, no-store, read-only write rejection, immediate session revocation and default unconfigured Material503. CCT null/zero, exact provenance, linked/unlinked currencies, CAS and trustworthy audit/transaction behavior remain intact. No migration, roles policy change, live Source or production activation occurred. [Joint verification and current counts](../tasks/active/order-material-pr93-integration.md).

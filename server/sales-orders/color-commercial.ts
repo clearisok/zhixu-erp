@@ -1,4 +1,4 @@
-import {createHash} from 'node:crypto';
+import {readStableOrderColors} from './color-identities.js';
 import type {Pool,PoolClient} from 'pg';
 import type {TrustedIdentity} from '../auth/session.js';
 import {HttpError} from '../http/errors.js';
@@ -6,18 +6,15 @@ import {requirePermission} from '../auth/permissions.js';
 import {readCommercialCandidate,type CommercialCandidate} from './commercial-source.js';
 import {quoteProductSnapshot,productHash,type ProductSnapshot} from './product-snapshot.js';
 import {requireOrderCommandActor,requireVerifiedOrderBusiness} from './identity-service.js';
-import {lockEffectiveAttribution,requireEffectiveOrderForWrite} from './effective-attribution.js';
+import {lockEffectiveAttribution,requireEffectiveOrderForWrite,freezePhysicalOrderGroups} from './effective-attribution.js';
 import {appendOperationLog} from '../operation-logs/repository.js';
 import {orderCommandControlError} from './command-control.js';
 import {identityUuid} from './identity-model.js';
 
 type Queryable=Pick<Pool|PoolClient,'query'>;
 export function pricingFail(status:number,code:string):never{throw new HttpError(status,code,code);}
-const colorKey=(v:string)=>v.normalize('NFC').trim().replace(/\s+/gu,' ').toLowerCase();
-function stableColorId(orderId:string,key:string){const s=createHash('sha256').update(orderId.toLowerCase()+'\0'+key).digest('hex');return `${s.slice(0,8)}-${s.slice(8,12)}-5${s.slice(13,16)}-a${s.slice(17,20)}-${s.slice(20,32)}`;}
 export async function readPricingColors(c:Queryable,orderId:string){
- const rows=(await c.query<{sourceLineIdentity:string;colorName:string;quantity:string}>(`SELECT source_line_identity AS "sourceLineIdentity",color_name AS "colorName",quantity::text FROM ainuoke_sales_order_color_mirrors WHERE sales_order_id=$1 ORDER BY color_name,source_line_identity`,[orderId])).rows;
- return rows.map(row=>({...row,businessKey:colorKey(row.colorName),id:stableColorId(orderId,colorKey(row.colorName)),ambiguous:rows.filter(r=>colorKey(r.colorName)===colorKey(row.colorName)).length!==1}));
+ return readStableOrderColors(c,orderId);
 }
 export type CommercialLine={colorId:string|null;colorName:string|null;quantity:string|null;priceVersionId:string;priceVersionName:string;source:CommercialCandidate;product:ProductSnapshot;productHash:string;baseSalePrice:string|null;salePrice:string|null;laborPrice:string;laborCurrency:'CNY'|'USD'};
 export async function readCommercialLines(c:Queryable,orderId:string,versionId:string):Promise<CommercialLine[]>{
@@ -43,7 +40,7 @@ export async function appendLineCommercialVersion(c:PoolClient,input:{orderId:st
  return {id};
 }
 export async function pricingTarget(c:PoolClient,id:string){
- if(!identityUuid.test(id))pricingFail(400,'invalid_order_id');await requireEffectiveOrderForWrite(c,id);
+ if(!identityUuid.test(id))pricingFail(400,'invalid_order_id');await requireEffectiveOrderForWrite(c,id);await freezePhysicalOrderGroups(c,[id]);
  const business=await requireVerifiedOrderBusiness(c,id,true);if(['completed','cancelled'].includes(business.lifecycle_state))pricingFail(409,'order_commercial_frozen');return business;
 }
 export async function pricingActor(c:PoolClient,actor:TrustedIdentity,permission:'order.commercial.adopt'|'quote.order_price.adjust'){

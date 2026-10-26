@@ -1,0 +1,126 @@
+{
+  "at": "2026-10-24T09:52:24.716Z",
+  "branch": "codex/server-order-logistics-dialog-current",
+  "main": "e01a11952b648024c0bd6bf4259de429374981e2",
+  "prior": "4a20952607d4bccdcf37118ed16aad1067efbe03",
+  "initialClean": true,
+  "previousGoalTurn": "progress",
+  "priorFinal": {
+    "at": "2026-10-24T09:46:07.328Z",
+    "branch": "codex/server-order-tracking-current",
+    "head": "4a20952607d4bccdcf37118ed16aad1067efbe03",
+    "tree": "faaefe692dce3fe3b35f4c371a733f2c35a399b0",
+    "source": "45f30070abeb1d70211eb10eab7841be10e8f894",
+    "sourceTree": "dba7b266dbabcf50a4da76f9b9eaf89f6c356e96",
+    "proof": "f676b85dd644ffb6ab1877b414e6bb05223671fe",
+    "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+    "guard": {
+      "at": "2026-10-24T09:46:07.039Z",
+      "head": "4a20952607d4bccdcf37118ed16aad1067efbe03",
+      "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 85215,
+      "result": {
+        "status": "PASS",
+        "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
+        "checkedHead": "4a20952607d4bccdcf37118ed16aad1067efbe03",
+        "historySha": "e01a11952b648024c0bd6bf4259de429374981e2",
+        "pages": 11,
+        "capabilities": 53,
+        "changedUiFiles": 51,
+        "scope": "source/evidence guard only; no browser, runtime, database or user acceptance claim",
+        "errors": []
+      }
+    },
+    "release": {
+      "at": "2026-10-24T09:44:30.018Z",
+      "head": "fd36ef1dacb9b08fc57539ab7cf02c9eadb4e711",
+      "productAndNonreleaseSource": "45f30070abeb1d70211eb10eab7841be10e8f894",
+      "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+      "command": "npm run test:release-baseline",
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 352688,
+      "counts": {
+        "tests": 134,
+        "pass": 134,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "sourcePathsUnchanged": true
+    },
+    "tests": {
+      "api": 379,
+      "apiFiles": 36,
+      "rootNonrelease": 811,
+      "rootWithReleaseUnion": 945,
+      "newUiTests": 0
+    },
+    "frontend": {
+      "source": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+      "build": {
+        "environment": "production",
+        "buildId": "logistics-resources-07d481af-server-20261024",
+        "gitCommit": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+        "buildTime": "2026-10-24T09:13:55.381Z",
+        "masterSettingsAuthority": "server",
+        "identityMode": "session",
+        "quoteWriterMode": "writable",
+        "quoteAuthority": "server",
+        "orderRead": "snapshot"
+      },
+      "sourcePathsVerifiedUnchanged": true,
+      "priorBrowser": {
+        "before": 2,
+        "after": 23,
+        "navigation": 18
+      },
+      "reuseScope": "unchanged frontend only; not a new source UI/build pass"
+    },
+    "workingTreeClean": true,
+    "delivery": {
+      "state": "NOT_ATTEMPTED_NETWORK_DEGRADED",
+      "pushes": 0,
+      "priorTarget": "b6af0cd247c1e7ec4406e69526fa672544cce1d8",
+      "priorState": "TARGET_NOT_DELIVERED"
+    },
+    "hostedActionsTriggeredByThisPhase": 0,
+    "newPr": null,
+    "goal": "active",
+    "deployed": false,
+    "realSourceOrBusinessDatabaseAccess": false,
+    "next": [
+      "D147 order logistics dialog 2a0cec28a0ab736c6f7500bf512dd7260364c5cb",
+      "0039 material arrivals; 0040/41 shipment, then0042 delivery writer"
+    ],
+    "protected": [
+      "3001",
+      "50426",
+      "59069",
+      "62426",
+      "Browser stores",
+      "backups",
+      "existing volumes"
+    ],
+    "independentReview": {
+      "at": "2026-10-24T09:49:34.666Z",
+      "reviewer": "server_convergence_review",
+      "scope": "read-only exact final/docs/evidence/results",
+      "result": "no new P1/P2",
+      "testsRunByReviewer": false,
+      "networkUsedByReviewer": false
+    }
+  },
+  "hashes": {
+    "CURRENT_STATE.md": "395fcd9554cea591f7de94febc6a29a2b0dac367571c4c47c5be06e938c4c99a",
+    "AI_HANDOFF.md": "01c73083598fc5de96148448664c6efc3568ee41db458d32dce6f2411b5d8d55",
+    "PROJECT_INDEX.md": "fd71bfe218d6b30d6221f216ce6c91f3368a1b90d9d6787bfb8034fa67abb9d8"
+  },
+  "networkMode": "NETWORK_DEGRADED",
+  "pushes": 0,
+  "branchCreatedAtMainThenExplicitFastForward": true
+}

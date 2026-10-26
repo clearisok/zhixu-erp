@@ -1,0 +1,71 @@
+# G6B 当前生产排单 Server 前向整合
+
+2026-10-24；执行已批准D147/G6B，root唯一writer，既有server_convergence_review只读。
+独立API再次核main `e01a11952b648024c0bd6bf4259de429374981e2`；新建
+`codex/server-production-planning-current`后显式FF至已收口、已远端核实的G6A
+`6fd11e48c431392bb818f3d502794004727d745c`，起点clean，无继承用户dirty。
+两份输入状态逐字、逐SHA256保存在completed/2026-10-24-production-planning-input-state/。
+回执outputs/server-production-planning-current-20261024/start.json；旧分支及全部提交保留。
+
+## 依赖与只读预核
+
+G6A最终精确main守卫PASS79777ms（11页/49能力/38累计UI/errors[]），发布0d上134/134
+PASS312533ms，与f441根811分阶段联合945。实际API73、before2/after14/导航18、类型/Node/
+lint及双构建均PASS；证明d69。新分支正常DryRun后既有工具只上传一次，独立API核完整6fd、
+tree与父，Actions=0；不称全局网络根因已解决。#125另有单独API例外至4f和3项attempt1绿灯，
+仍open draft，未合并；不能将其CI当作本地6fd或本阶段新验收。
+
+本次只读范围预核原d717→已验收排单页面源码
+`919643d8cde2b0ec22987631e685e6a661829881`：50个非docs/workflow路径中49个当前输入
+blob仍等于原d717，唯一差异为server/production-resources/service.ts的新容量修复。
+这是冲突预核，不是已整合或验证。原中间8c180缺后续跨组议价锁序P2修复，不可直接作为最终输入。
+同时核对7eb整批物理SO冻结、15295稳定读/历史、919移动布局，以及更晚6C对共享路径的影响。
+不整包导入原8f累计分支，不恢复旧workflow、状态、清单或过时测试规则。
+
+## 实施边界
+
+- 按已批准工作日、日产量、交接公式，复用有界精确decimal计算；每组/订单/单条版本CAS，
+  明确预览后保存，已开工/完成/固定日期历史不自动移动。
+- 计划保存稳定SO/颜色身份和资源事实快照。现有来源、报价/CCT/订单成交价、冻结引用和权限保持；
+  新排单读取真实有效业务资格，不因款号/名称相似建立身份或合并执行数量。
+- 0035只通过新迁移前向扩展；先读LEGACY/实际SQL/ledger/引用盘点。只在自建一次性PG验证升级，
+  不升级任何现有目标。现0034与本次容量拒绝/原请求恢复修复必须保留。
+- 后台fresh actor/资源快照锁抽取与既有D146锁序相容；跨订单重排与批量议价整批稳定顺序冻结。
+  沿用幂等、原ID查询、SAVEPOINT已知拒绝、未知结果不自动POST及不可变审计。
+- 只恢复既有排单页面、队列/订单池/表单；V1精确路径与新冻结before/after另记，不借旧919图像。
+  G6C实际开工/完成及物流后置，未接线事实显示未知，不以0或无风险冒充。
+
+## 当前状态与验收安排
+
+尚未复制或修改排单产品/SQL/API/UI；本阶段只有分支、输入保护和预核，没有新PASS。
+先核实际feature/业务/决策与目标代码，逐路径整合并保留容量修复，再冻结源码。
+按改动执行计划纯契约/计算、实际PG/API/升级与跨模块锁序、资源容量/角色/来源/议价回归，
+类型/Node实际import/lint、双authority构建/产物、当前真实浏览器与必要根/发布检查。
+新结果按精确源码记录，已成功且未变的范围不重复执行；原红绿/失败及旧截图不覆盖。
+
+不新增累计重复PR或不必要Actions，不批量rerun。当前Goal active；不自动merge/close/deploy、
+读真实凭据/Source、改真实账号/业务库/卷、绑定/激活/调度/退役、改共享Git/TLS/proxy/auth。
+3001/50426/59069/62426、旧Browser账本、备份及现有结果保持。用户已确认完成重排需同时具备
+完成与排单编辑权限，既有产出归原执行方/原排单、剩余另建，留待G6C接线；不是本阶段擅自简化。
+
+## 受控源整合与工作态红绿
+
+已再次逐blob验证50路径，49等于原输入，唯一资源service保留本次容量保护。首轮CRLF/LF三方整文件冲突在仓库0写入时停止并保存回执；规范化后干净整合。未复制旧工作流/状态/清单。后续按当前格式增加两个npm脚本和原PR CI的资源/排单命令，不增触发或减少旧门槛。旧3f2两个UI断言窄带，strict before/owned清理按当前helper修复，保留原预算。
+
+新增实际快照容量P2：合法日历回执1048294B，但完整资源facts1048855B，原preview后500/unknown。先有一次fixture误用不存在recorded_at列，修正后真实红34项32pass2fail；原始两轮保留。现原SAVEPOINT内PG真实字节422，保留SQL/限额/hash/字符；工作态两文件52/52 PASS22679ms，0失败/取消/跳过，覆盖零部分写/恰一拒绝/GETknown/原ID重放/正常组再预览。独立只读复审无剩余P1/P2，未替审阅者声称运行测试。
+
+当前产品/SQL/UI已前移，上一节“尚未复制”只表示起始40bf时刻；本阶段尚未完成冻结类型/Node/lint、完整API/升级、双构建/浏览器、根/发布或远端交付。先独立源码checkpoint，然后实际验证，不把工作态52或旧919结果当最终PASS。三摘要、feature/D150和12路径V1同步；清单269/49旧对象未改，新增路由/文档版本/新能力待真实证据后绑定。
+
+## 当前冻结QA终态（cd737）
+
+源码cd73726babfaa86ffef671cbbe3a37fd542dace6实际类型/Node/import/lint、24文件268 API/升级、97根811及before2/after17/资源14/导航18/登录11/P6 14全部PASS，0失败/取消/跳过。双构建/独立产物各45页、1fallback、112assets通过；Browser旧users preload提示1条，Server0。规范archive、真实时长、17新PNG/2geometry及11张主控审图见[新证明](../completed/2026-10-24-production-planning-current-engineering.md)。未扩展测试超时、未新安装，所有实际PG/HTTP/账号均owned合成。
+
+独立文档复审纠正COMMIT未知不可声明回滚，逻辑1MiB与4096字节客户端信封区别明确；不是产品变更，不重复成功C范围。现在只推进proof checkpoint、manifest新版本、发布134和最后精确main守卫，未发生的不提前PASS。269/49原对象及全部旧hash/证据保持，本阶段远端未交付、Actions0，不新增累计PR。
+
+## 新证据checkpoint与前向绑定
+
+proof69277400b24657b20f435f57bfa7ab5f798cfc3b已冻结，随后独立API于08:11Z再次核main e01a不变。清单292证据/50能力/21Server路由，原269/49/runtime对象逐项不变；D150接68a决策链，production修订保留原blob，新feature、proof及17图/2geometry有精确P/C/f441身份。新增只证明本机planned/cancelled，不扩大完成/来源/部署状态。元数据后再运行发布134与最终clean HEAD精确main守卫，结果尚未发生。
+
+## 元数据后发布终态
+
+51a366244c822bb4dc157201a9d5bb133ab11f11实际npm run test:release-baseline为134/134 PASS，进程319203ms，0失败/取消/跳过。C之后只有docs/evidence，97根811源码未变，分阶段联合99文件945，不重复未改成功范围。独立只读复核proof/292清单无P1/P2：原269/49/runtime逐对象不变，新23记录均核Git blob/SHA256及祖先，21路由与AST允许列表相符，V1原12路径未扩大；审阅者未运行测试。最终clean HEAD/main守卫单独保存回执，不制造自证commit循环。新远端/CI尚未发生，不预写成功。Goal active；G6C只读预核30路径28输入相同，2处client/driver须保留本阶段修复，无tracked写入或新QA声明。

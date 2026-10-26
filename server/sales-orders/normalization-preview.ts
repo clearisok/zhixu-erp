@@ -25,6 +25,11 @@ export const NORMALIZATION_REFERENCES = [
  ['ainuoke_payment_snapshots','sales_order_id','id'],
  ['ainuoke_payment_snapshots','source_owner_order_id','id'],
  ['ainuoke_payment_heads','sales_order_id','source_key'],
+ ['ainuoke_garment_shipment_targets','sales_order_id','source_key'],
+ ['ainuoke_garment_shipment_snapshots','sales_order_id','id'],
+ ['ainuoke_garment_shipment_snapshots','source_owner_order_id','id'],
+ ['ainuoke_garment_shipment_color_matches','sales_order_id','snapshot_id'],
+ ['ainuoke_garment_shipment_heads','sales_order_id','source_key'],
  ['sales_order_identity_profiles','sales_order_id','sales_order_id'],
  ['sales_order_identity_profiles','reference_order_id','sales_order_id'],
  ['sales_order_preparations','reference_order_id','id'],
@@ -39,6 +44,19 @@ export const NORMALIZATION_REFERENCES = [
  ['sales_order_business_source_snapshots','reference_order_id','commercial_version_id'],
  ['processing_order_batches','reference_order_id','id'],
  ['processing_order_batch_consumptions','sales_order_id','batch_id'],
+ ['quote_creation_order_contexts','sales_order_id','quote_id'],
+ ['production_order_plan_heads','sales_order_id','sales_order_id'],
+ ['production_schedule_assignments','sales_order_id','id'],
+ ['production_schedule_plan_versions','sales_order_id','assignment_id'],
+ ['production_schedule_command_orders','sales_order_id','request_id'],
+ ['production_schedule_executions','sales_order_id','assignment_id'],
+ ['production_schedule_execution_versions','sales_order_id','assignment_id'],
+ ['production_order_execution_trackings','sales_order_id','id'],
+ ['production_order_execution_tracking_versions','sales_order_id','tracking_id'],
+ ['material_arrival_demands','sales_order_id','id'],
+ ['material_arrival_plans','sales_order_id','id'],
+ ['material_arrival_plan_versions','sales_order_id','plan_id'],
+ ['material_arrival_command_orders','sales_order_id','request_id'],
 ] as const;
 const references=NORMALIZATION_REFERENCES;
 /** Optional only for an unupgraded rehearsal. A partial financial schema fails
@@ -48,6 +66,7 @@ export async function normalizationReferences(client:PoolClient){
   WHERE n.nspname='public' AND c.relkind='r' AND c.relname IN ('ainuoke_payment_source_targets','ainuoke_payment_snapshots','ainuoke_payment_heads')`)).rows[0].n;
  if(present!==0&&present!==3)throw new HttpError(503,'payment_reference_schema_incomplete','Financial source reference schema is incomplete');
  const sourceReady=(await client.query("SELECT to_regclass('sales_order_business_source_snapshots') IS NOT NULL ready")).rows[0].ready;
+ const creationContextReady=(await client.query("SELECT to_regclass('quote_creation_order_contexts') IS NOT NULL ready")).rows[0].ready;
  const colorTables=['sales_order_color_identities','sales_order_commercial_lines'];
  const colorCount=(await client.query<{n:number}>(`SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
   WHERE n.nspname='public' AND c.relkind='r' AND c.relname=ANY($1::text[])`,[colorTables])).rows[0].n;
@@ -55,7 +74,22 @@ export async function normalizationReferences(client:PoolClient){
  const adjustmentCount=(await client.query<{n:number}>(`SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
   WHERE n.nspname='public' AND c.relkind='r' AND c.relname IN ('order_sale_adjustment_operations','order_sale_adjustment_receipts')`)).rows[0].n;
  if(adjustmentCount!==0&&adjustmentCount!==2)throw new HttpError(503,'adjustment_reference_schema_incomplete','Sale adjustment reference schema is incomplete');
- return references.filter(([table])=>(present===3||!table.startsWith('ainuoke_payment_'))&&(sourceReady||table!=='sales_order_business_source_snapshots')&&(colorCount===colorTables.length||!colorTables.includes(table))&&(adjustmentCount===2||table!=='order_sale_adjustment_receipts'));
+ const planningTables=['production_order_plan_heads','production_group_plan_heads','production_schedule_assignments','production_schedule_plan_versions','production_schedule_commands','production_schedule_command_orders','production_schedule_resource_snapshots'];
+ const planningCount=(await client.query<{n:number}>(`SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r' AND c.relname=ANY($1::text[])`,[planningTables])).rows[0].n;
+ if(planningCount!==0&&planningCount!==planningTables.length)throw new HttpError(503,'production_reference_schema_incomplete','Production plan reference schema is incomplete');
+ const executionTables=['production_schedule_executions','production_schedule_execution_versions','production_schedule_execution_epochs'];
+ const executionCount=(await client.query<{n:number}>(`SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r' AND c.relname=ANY($1::text[])`,[executionTables])).rows[0].n;
+ if(executionCount!==0&&executionCount!==executionTables.length)throw new HttpError(503,'production_execution_reference_schema_incomplete','Production execution reference schema is incomplete');
+ const trackingTables=['production_order_execution_trackings','production_order_execution_tracking_versions'];
+ const trackingCount=(await client.query<{n:number}>(`SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r' AND c.relname=ANY($1::text[])`,[trackingTables])).rows[0].n;
+ if(trackingCount!==0&&trackingCount!==trackingTables.length)throw new HttpError(503,'production_tracking_reference_schema_incomplete','Production tracking reference schema is incomplete');
+ const arrivalTables=['material_arrival_demands','material_arrival_plans','material_arrival_plan_versions','material_arrival_commands','material_arrival_command_orders'];
+ const arrivalCount=(await client.query<{n:number}>(`SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r' AND c.relname=ANY($1::text[])`,[arrivalTables])).rows[0].n;
+ if(arrivalCount!==0&&arrivalCount!==arrivalTables.length)throw new HttpError(503,'material_arrival_reference_schema_incomplete','Material arrival reference schema is incomplete');
+ const garmentTables=['ainuoke_garment_shipment_targets','ainuoke_garment_shipment_snapshots','ainuoke_garment_shipment_color_matches','ainuoke_garment_shipment_heads'];
+ const garmentCount=(await client.query<{n:number}>(`SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r' AND c.relname=ANY($1::text[])`,[garmentTables])).rows[0].n;
+ if(garmentCount!==0&&garmentCount!==garmentTables.length)throw new HttpError(503,'garment_reference_schema_incomplete','Garment shipment reference schema is incomplete');
+ return references.filter(([table])=>(present===3||!table.startsWith('ainuoke_payment_'))&&(sourceReady||table!=='sales_order_business_source_snapshots')&&(creationContextReady||table!=='quote_creation_order_contexts')&&(colorCount===colorTables.length||!colorTables.includes(table))&&(adjustmentCount===2||table!=='order_sale_adjustment_receipts')&&(planningCount===planningTables.length||!planningTables.includes(table))&&(executionCount===executionTables.length||!executionTables.includes(table))&&(trackingCount===trackingTables.length||!trackingTables.includes(table))&&(arrivalCount===arrivalTables.length||!arrivalTables.includes(table))&&(garmentCount===garmentTables.length||!garmentTables.includes(table)));
 }
 export function validateNormalizationPair(ids: readonly string[]) {
  if(ids.length!==2 || ids.some(id=>typeof id!=='string'||!identityUuid.test(id)) || ids[0].toLowerCase()===ids[1].toLowerCase()) throw new HttpError(400,'invalid_normalization_pair','Two distinct order IDs required');

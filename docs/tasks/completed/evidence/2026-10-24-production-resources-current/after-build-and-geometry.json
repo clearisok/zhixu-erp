@@ -1,0 +1,130 @@
+{
+  "build": {
+    "environment": "production",
+    "buildId": "resources-f441e70d-server-20261024",
+    "gitCommit": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+    "buildTime": "2026-10-24T07:07:52.823Z",
+    "masterSettingsAuthority": "server",
+    "identityMode": "session",
+    "quoteWriterMode": "writable",
+    "quoteAuthority": "server",
+    "orderRead": "snapshot"
+  },
+  "geometry": [
+    {
+      "width": 1920,
+      "scroll": 1920,
+      "drawer": {
+        "x": 1360,
+        "y": 0,
+        "width": 560,
+        "height": 1000,
+        "top": 0,
+        "right": 1920,
+        "bottom": 1000,
+        "left": 1360
+      }
+    },
+    {
+      "width": 1536,
+      "scroll": 1536,
+      "drawer": {
+        "x": 976,
+        "y": 0,
+        "width": 560,
+        "height": 1000,
+        "top": 0,
+        "right": 1536,
+        "bottom": 1000,
+        "left": 976
+      }
+    },
+    {
+      "width": 1440,
+      "scroll": 1440,
+      "drawer": {
+        "x": 880,
+        "y": 0,
+        "width": 560,
+        "height": 1000,
+        "top": 0,
+        "right": 1440,
+        "bottom": 1000,
+        "left": 880
+      }
+    },
+    {
+      "width": 1280,
+      "scroll": 1280,
+      "drawer": {
+        "x": 720,
+        "y": 0,
+        "width": 560,
+        "height": 1000,
+        "top": 0,
+        "right": 1280,
+        "bottom": 1000,
+        "left": 720
+      }
+    },
+    {
+      "width": 900,
+      "scroll": 900,
+      "drawer": {
+        "x": 340,
+        "y": 0,
+        "width": 560,
+        "height": 1000,
+        "top": 0,
+        "right": 900,
+        "bottom": 1000,
+        "left": 340
+      }
+    },
+    {
+      "width": 390,
+      "scroll": 390,
+      "drawer": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 1000,
+        "top": 0,
+        "right": 390,
+        "bottom": 1000,
+        "left": 0
+      }
+    },
+    {
+      "page": "calendar",
+      "width": 1440,
+      "scroll": 1440,
+      "drawer": {
+        "x": 960,
+        "y": 0,
+        "width": 480,
+        "height": 1000,
+        "top": 0,
+        "right": 1440,
+        "bottom": 1000,
+        "left": 960
+      }
+    },
+    {
+      "page": "calendar",
+      "width": 390,
+      "scroll": 390,
+      "drawer": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 1000,
+        "top": 0,
+        "right": 390,
+        "bottom": 1000,
+        "left": 0
+      }
+    }
+  ],
+  "errors": []
+}

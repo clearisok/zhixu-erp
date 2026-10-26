@@ -23,7 +23,7 @@ import { createPaymentSnapshotReader, preparePaymentPublication, publishPaymentS
 import { hash } from '../ainuoke-source/contract.js';
 /** Always generates its own loopback tmpfs PostgreSQL; never reads DATABASE_URL or source credentials. */
 import type { NormalizationExecutionOptions } from '../sales-orders/normalization-execution-service.js';
-export async function startContinuousFixture(staticDirectory:string,options: NormalizationExecutionOptions & {orderAlerts?:boolean;excessWarehouse?:boolean;materialDisplay?:boolean;paymentRequests?:boolean} = {}) {
+export async function startContinuousFixture(staticDirectory:string,options: NormalizationExecutionOptions & {orderAlerts?:boolean;excessWarehouse?:boolean;materialDisplay?:boolean;paymentRequests?:boolean;materialArrivals?:boolean} = {}) {
  const normalizationExecution:NormalizationExecutionOptions=options;
  const db=await startDisposablePostgres();const pool=new pg.Pool({connectionString:await db.createDatabase("continuous_demo")});
  const server=createServer();const origins:string[]=[];const errors:unknown[]=[];
@@ -91,6 +91,7 @@ export async function startContinuousFixture(staticDirectory:string,options: Nor
   const ports=createPersistedMaterialPorts(pool,{sourceKey:source.sourceKey,maxAgeMs:1800000},()=>Date.now()+(mode==="stale"?1800001:0));
   server.on("request",(req,res)=>{if(req.url?.includes("/material-progress"))materialReads++;app(req,res);});
   const app=createApp({pool,staticDirectory,normalizationExecution,attachmentStorage:new MemoryAttachmentStorage(),allowedOrigins:origins,security:{secureCookies:false,sessionTtlSeconds:7200},logger:{error:e=>errors.push(e)},orderMaterialRead:ports,orderMaterialHistory:createPersistedMaterialHistoryReader(pool,{sourceKey:source.sourceKey,maxAgeMs:1800000}),
+    ...(options.materialArrivals?{materialArrivalSource:{sourceKey:source.sourceKey,maxAgeMs:1800000}}:{}),
     ...(options.paymentRequests?{orderPaymentRead:async(identity:Parameters<typeof readPayments>[0],id:string)=>{paymentReads++;const result=await readPayments(identity,id);if(paymentDelay)await new Promise(done=>setTimeout(done,paymentDelay));return result;}}:{})});
   await new Promise<void>(done=>server.listen(0,"127.0.0.1",done));
   const address=server.address();if(!address||typeof address!=="object")throw Error("loopback fixture failed");

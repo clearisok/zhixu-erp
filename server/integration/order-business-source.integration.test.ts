@@ -80,6 +80,11 @@ test('quote-only source, stable colors and immutable commercial lines',{timeout:
   assert.deepEqual(Object.keys(data.product??{}).sort(),['quoteCode','revisionLabel','priceVersionName','styleNo','styleName'].sort());
   const visible=await readOrderBusinessSource(pool,actor,a),visibleLine=visible.commercial.current?.lines?.[0];
   assert.ok(visibleLine?.sale.visibility==='allowed');assert.equal(visibleLine.sale.value.price,'120');
+
+  const containsPrice=(value:unknown):boolean=>Array.isArray(value)?value.some(containsPrice):value&&typeof value==='object'?Object.values(value).some(containsPrice):value===120||value==='120';
+  assert.equal(containsPrice(data),false);
+  assert.equal(containsPrice({id:'00000000-0000-4000-8000-000000000120'}),false);
+  assert.equal(containsPrice({sale:120}),true);
   const id=await order();await pool.query("UPDATE sales_orders SET lifecycle_state='completed',version=version+1 WHERE id=$1",[id]);await assert.rejects(()=>command(id),code('order_commercial_frozen'));
  });
  await t.test('source search splits whitespace into AND terms without granting costs',async()=>{

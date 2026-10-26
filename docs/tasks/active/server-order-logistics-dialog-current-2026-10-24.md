@@ -1,0 +1,25 @@
+# 当前订单物料与运输对话框 Server 接线
+
+2026-10-24，D054/D147/G6D，root唯一writer、既有server_convergence_review只读。main e01a11952b648024c0bd6bf4259de429374981e2于2026-10-24T09:52:24.716Z独立API核实，新分支codex/server-order-logistics-dialog-current自main显式FF至clean 4a20952607d4bccdcf37118ed16aad1067efbe03；三摘要/hash及前阶段完整终态在../completed/2026-10-24-order-logistics-dialog-input-state/。
+
+## 前置与范围
+
+上一Goal turn是progress：0038后台45f379相关API/升级、根811、类型NodeLint已实际PASS；fd36发布134/134（352688ms），4a最终精确main守卫PASS85215ms（11/53/51/errors[]），独立最终复审无P1/P2。前端仍复用07d；不把旧UI当新验收。清单340/53完整。
+
+原ffef→2a0仅11路径，9输入相同，production-plan-client与planning UI driver保留现行容量提示、strict before和owned清理；先scratch三方预核，无未确认冲突写入。复用现有订单池/队列、Modal/Drawer，恢复原“物料与运输”入口，不开新导航或另建outbox。明确集货仓/备注、预览和独立历史；未设置不猜默认。只读角色能查看；pending/脏输入/身份owner/迟到响应和现有计划及执行流程保持。
+
+## 验收与边界
+
+精确8个UI生产路径V1；当前Server后台共用0038/production命令，旧0034–38/schema/权限不改。实际冻结类型/Node/import/lint、客户端/SQL/权限/原流程回归、当前source双build/artifact、旧07d before（已有计划/实际但无物流对话框）和当前after/导航/六宽截图与几何，完整根/发布及最后精确main守卫。全部一次性合成PG/Chromium，已有环境不动。
+
+不接逐物料到仓/运输建议/真实来源；0039后续独立。Git NETWORK_DEGRADED，不再逐Gate push、触发CI或借#125三CI。Goal active；不自动merge/close/deploy、真实凭据/Source/账号/业务库/卷、绑定/激活/调度、50426切换或退役。保留3001/50426/59069/62426、Browser、备份和结果。
+
+11路径已受控前移：9同/2三方，client干净合流保留容量提示，driver唯一入口冲突在0仓库写入预核停止后明确保留strict before/owned清理并接新tracking验收。before已改观察07d已有计划+实际、无物流入口；fixture明确写1计划/1实际，浏览器零写，不借更早无实际断言。8路径V1和独立feature齐备；现有order-tracking脚本仅加入新client文件，CI原调用复用，无新workflow行或触发。本轮QA尚未运行。
+
+浏览器首轮实际34pass/2fail（包含失败父节点），82,299ms；唯一失败在history场景一次性读取尚未出现的queue按钮标签，导致undefined等待超时，原failure.json显示目标行后已出现且无console/server错误。仅补精确SYN-PLAN-30队列项等待，不加全局超时、不放松断言。失败日志/JSON/原context保留；API386、根811、类型NodeLint、before2及双构建未变范围复用，after及未运行资源/导航继续真实验收。
+
+## 当前冻结源码实际结果
+
+source e2cf2bb4397a656b58cfab8388049bd84559527e实际37文件386相关API/升级（218272ms）、97根811（26907ms）、before2/after37/资源23/导航18，类型/Node/import/lint、双Vite构建和产物检查全部PASS，0fail/cancel/skip。proof 54c28cec392a435b1fcffedfa47e32c4b7f5f98b冻结17PNG/2原JSON、42几何，主控实际查看8张；六宽含1536 DPR1.25/390 touch。清单361/54保留旧340/53/runtime/21routes。独立source静态review无新增P1/P2，审阅者未跑测试/网络。完整过程保存ignored outputs/server-order-logistics-dialog-current-20261024；旧图不改、旧失败/网络回执保留。metadata后发布134及clean精确main守卫再实际运行。
+
+7f0d4c77f05a0afb12ae36fb0fc71ea51119785c上发布134/134实际PASS（381564ms），0fail/cancel/skip；与e2cf根811分阶段联合945。product/API/根未改，after由2c286f测试等待修复驱动，原34/2失败保留；不把范围复用称新全量。metadata后仅本次四状态文档，proof/产品/测试/清单保持；最终clean精确main守卫以随后实际回执核定。
