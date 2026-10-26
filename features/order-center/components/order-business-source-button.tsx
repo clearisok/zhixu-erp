@@ -2,6 +2,7 @@
 import {useEffect,useRef,useState} from 'react';
 import {Button,DescriptionList,FormItem,Modal} from '@/components/foundation';
 import {useServerSession} from '@/features/server-auth';
+import {useServerNavigationProtection} from '@/components/foundation/server-navigation-protection';
 import type {readOrderBusinessSource,previewOrderBusinessSource} from '../../../server/sales-orders/business-source-service';
 import type {listOrderSourceQuotes,readOrderSourceOptions} from '../../../server/quotes/order-source-candidates';
 
@@ -23,6 +24,7 @@ export function OrderBusinessSourceButton({orderId,businessType,readOnly,onGuard
  const permitted=['order.commercial.adopt','quote.view','commercial.sale.view','commercial.labor.view',...(quoteContextId?['quote.order_price.adjust','commercial.sale.edit']:[])].every(p=>session.permissions.includes(p as typeof session.permissions[number]));
  const editable=permitted&&!readOnly&&enabled&&(!state?.commercial.current||Boolean(quoteContextId));
  const dirty=open&&Boolean(options||pending||reason);
+ useServerNavigationProtection({blocked:dirty||busy,message:'来源维护尚未完成，请先保存、关闭或核对原来源请求。'});
  useEffect(()=>{onGuardChange(dirty||busy);return()=>onGuardChange(false);},[dirty,busy,onGuardChange]);
  useEffect(()=>{alive.current=true;return()=>{alive.current=false;};},[]);
  async function run(fn:(e:number)=>Promise<void>){if(lock.current)return;const e=epoch.current;lock.current=true;setBusy(true);setError('');try{await fn(e);}catch(x){if(alive.current&&e===epoch.current){if(x instanceof OrderSourceError&&x.status===401)session.invalidate();setError(x instanceof OrderSourceError?(messages[x.code]??`未完成（${x.code}），请核对后再试。`):'结果尚未核实，请读取当前状态或用原请求重试。');}}finally{lock.current=false;if(alive.current&&e===epoch.current)setBusy(false);}}

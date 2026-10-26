@@ -9,7 +9,8 @@ import { readableEstimateQuote, type QuoteEditorData as Quote } from "../model/q
 import type { QuoteVersionAction } from "../server/quote-editor-persistence";
 import { mergeAttachmentMirror } from "../server/quote-attachment-draft";
 import { createServerQuoteAttachmentController } from "../model/quote-attachment-controller";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
+import { useProtectedRouter as useRouter, useServerNavigationProtection } from "@/components/foundation/server-navigation-protection";
 import {
   AppShell,
   AlertBanner,
@@ -225,6 +226,7 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
   const [revisionManagerOpen, setRevisionManagerOpen] = useState(false);
   const [operationLogOpen, setOperationLogOpen] = useState(false);
   const [priceSyncRequest, setPriceSyncRequest] = useState<PriceSyncRequest>(null);
+  const confirmedNavigation = useServerNavigationProtection({ dirty: isDirty, blocked: serverMode && (serverBusy || Boolean(serverError) || Boolean(priceSyncRequest)), message: "请先完成当前报价保存或核对原请求，再离开。" });
   const [priceDifferencesOpen, setPriceDifferencesOpen] = useState(false);
   const [exportDifferenceWarningOpen, setExportDifferenceWarningOpen] = useState(false);
   const [confirmationValidationIssues, setConfirmationValidationIssues] = useState<QuoteValidationIssue[]>([]);
@@ -456,7 +458,7 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
     const target = pendingNavigation;
     setIsDirty(false);
     setPendingNavigation(null);
-    if (target) router.push(target);
+    if (target) confirmedNavigation(() => router.push(target));
   };
   const cancelDeparture = () => { if (!serverBusy) { setPendingNavigation(null); setPendingLogout(false); } };
   const requestLogout = async () => {
@@ -465,6 +467,7 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
     await serverSession.logout();
   };
   const requestNavigation = (target: string) => {
+    if (serverMode && (serverBusy || serverError || priceSyncRequest)) { notify('请先完成当前报价保存或核对，再离开。'); return; }
     const intent = createNavigationIntent(isDirty, target);
     if (intent.pendingTarget) setPendingNavigation(intent.pendingTarget);
     if (intent.navigateTo) router.push(intent.navigateTo);

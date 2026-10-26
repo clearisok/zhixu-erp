@@ -6,6 +6,7 @@ import {quoteServerClient,type QuoteServerListItem} from '@/features/quote-cente
 import {createSalesOrderServerClient,SalesOrderServerReadError} from '../server/sales-order-server-client';
 import type {ServerSalesOrderReadDto,ServerSalesOrderPage} from '../server/sales-order-server-model';
 import type {listProcessingBatches,previewProcessingBatch} from '../../../server/sales-orders/processing-batch-service';
+import {useServerNavigationProtection} from '@/components/foundation/server-navigation-protection';
 const orderClient=createSalesOrderServerClient();
 type Page=Awaited<ReturnType<typeof listProcessingBatches>>;
 type Preview=Awaited<ReturnType<typeof previewProcessingBatch>>;
@@ -31,6 +32,7 @@ export function ProcessingBatchDialog({mode}:{mode:'import'|'push'}){
  const [referenceSearch,setReferenceSearch]=useState(''),[referenceOptions,setReferenceOptions]=useState<ServerSalesOrderReadDto[]>([]),[referencePage,setReferencePage]=useState<ServerSalesOrderPage|null>(null),[referenceSelection,setReferenceSelection]=useState<ServerSalesOrderReadDto|null>(null);
  const [draft,setDraft]=useState({quoteId:'',revisionId:'',priceVersionId:'',customerName:'',businessStyleNo:'',quantity:'',orderDate:new Date().toLocaleDateString('en-CA'),deliveryDate:'',customerReference:'',deliveryRequirements:'',referenceOrderId:''});
  const [pending,setPending]=useState<Pending|null>(null),[failedRetry,setFailedRetry]=useState<Pending|null>(null),[cancelling,setCancelling]=useState<Page['items'][number]['batch']|null>(null),[cancelReason,setCancelReason]=useState(''),lock=useRef(false);
+ useServerNavigationProtection({blocked:open&&(busy||Boolean(pending)),message:'加工下单正在处理或结果尚未确认，请先用原请求核对。'});
  const canManage=session.hasPermission('order.processing.batch.manage'),canConsume=session.hasPermission('order.processing.consume');
  const allowed=(canManage||canConsume)&&session.hasPermission('order.view')&&session.hasPermission('quote.view')&&session.hasPermission('commercial.labor.view');
  async function action(run:()=>Promise<void>){if(lock.current)return;lock.current=true;setBusy(true);setError('');try{await run();}catch(e){if((e instanceof ApiError||e instanceof SalesOrderServerReadError)&&e.status===401)session.invalidate();setError(e instanceof SalesOrderServerReadError?'参考订单查询失败，请重新搜索。':e instanceof ApiError?`操作未完成：${e.code}`:'服务响应尚未确认，请重试原请求。');}finally{lock.current=false;setBusy(false);}}

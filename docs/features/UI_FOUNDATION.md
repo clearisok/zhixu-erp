@@ -8,6 +8,25 @@ UI Foundation 为 Quote Center 和基础设置提供统一的 ERP 页面、表�
 
 ## Current behavior
 
+2026-10-20 D-148 / Server convergence Gate3: the trusted Server boundary owns one
+persistent AppShell frame. Page-level AppShell calls register route/identity-scoped
+title, explicit back target and existing feature navigation callbacks; only the
+frame/sidebar state survives navigation. Identity loading/failure is local to the
+content, with protected content removed when identity is unavailable. Existing
+layout, menu, responsive rules and CSS order are unchanged; Browser keeps its
+page-owned frame. `.rsc` responses use component MIME and no-store.
+
+Server dirty/in-flight/unknown-receipt owners register UI-only exit protection.
+Menu, links, public router, Back/Forward and logout respect it; save/reconcile
+commands remain feature-owned. Early public History indexing lets known traversal
+restore before confirmation, without losing Forward on cancel. Foreign entries
+are never guessed or rewritten: retain the draft and explain the next approved
+navigation opens a fresh document. Native beforeunload protection is retained.
+Registration and async navigation permits are bound to the mounted owner and
+trusted identity, preventing an old receipt from navigating a later login.
+No Browser business storage or framework-private history state is repurposed.
+See [Gate3 evidence and limits](../tasks/active/server-convergence-gate3-2026-10-20.md).
+
 D-099 Quote UI convergence: PR #64 is the visual/IA baseline, current Server the security/data/business baseline. Reuse this Foundation, not a new UI library/theme. Original Server list grouping is a feature-level opt-in over independent authorized fields and stable UI preferences; other `DataTable` consumers retain fit-first behavior. More/Portal/keyboard actions, trusted Shell, local scrolling and PR83 sticky/compact-cost fixes remain. Server type-first creation uses shared PageHeader/Card/FormItem without changing write timing. [Audit and synthetic evidence](../tasks/active/quote-original-ui-convergence.md); ENGINEERING PASS, human UI approval PENDING, no runtime deployment.
 
 `components/foundation/` 当前包含：

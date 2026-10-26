@@ -1,11 +1,9 @@
-# 恢复点：PR125与独立交付工具正常合流
+# Handoff: navigation evidence correction, final validation pending
 
-2026-10-24；root唯一writer、既有reviewer只读。main e01a11952b648024c0bd6bf4259de429374981e2已获准合并#123，#121/#122自动随祖先收口、原分支保留。其余不自动merge/close，不部署、不动真实账号/业务库/Source。
+2026-10-25 Asia/Shanghai; actual main 9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf. Branch codex/navigation-pr-main-9d65 preserves navigation input 7cf7238b93b309cc736b473eeedaba394e6a47b7 through genuine merge 85072a26ab40906fbffa37e3facf7326c33eac5c. PR125 approved merge/history retained; PR124 auto-marked merged after inclusion. No other merge/close is authorized.
 
-从clean e007保护工具分支后，codex/pr125-delivery-diagnostics-e01a从e01a建立、显式FF9e36c6e9f4eceae4c91585538d47eaa25ec4555d，再正常merge e00750f8efc798303c42aa6435eedc5cb608335d。仅AI_HANDOFF/CURRENT_STATE/PROJECT_INDEX三处冲突；自动manifest等于原9e全字节内容（忽略工作树CRLF），230/46及所有旧证据/截图/状态维度不动。工具原717累计业务没有合入。
+0698f5eb2c1ac8644328cc2b826aefbc3c9d98ab named main guard PASS73799ms and named release134/134 PASS292141ms (0fail/cancel/skip,stable HEAD/manifest). Final6c documentation revision then failed the evidence-root anchor guard; no push followed. The original task root is restored exactly and observed results are bound to a distinct proof path; all prior240 valid objects/main230/input237 stay. Corrected final exact-HEAD guard and final review remain PENDING; do not call6c PASS or rerun successful134 without a new reason. See[engineering proof](tasks/completed/2026-10-25-navigation-main-9d65-engineering.md).
 
-父范围：#125的091已134发布/42API/2数据库工具、类型/编译/lint/双构建和静态产物，最终9e精确e01a守卫/复审；工具419已75/75与134/134、定向lint、源码守卫/复审，最终e007仅三文档。原red/ENOENT/短路径失败完整保留。下一步验证合流代码逐blob分别等于两父、冻结证据不变，保存真实merge checkpoint，补精确e01a守卫和独立合流复审；不重复不变模块测试，不称合流树新运行了父套件。
+64 total paths/33 non-document files, no SQL or later domain code. ca53/2bd original QA is reused only for unchanged scopes after210 retained build files and archive hash were checked;66 UI is phased,87 Quote is local,old90/44/2 retained. No new build/browser/install. The[original frozen integration input](tasks/active/navigation-pr-main-9d65-2026-10-25.md) records its earlier pending state; current outcome is here and in the separate proof.
 
-9e已一次上传但旧工具STOP+exact并存，远端SHA/tree/parent确切一致、0 Actions；原退出码/原因unknown。保留原STOP，不重推9e、不因工具本地PASS直接快进#125。新候选独立最终验收后，只有当前直接预检NORMAL、身份/祖先/clean与明确fullSHA都满足，才允许一次新目标首交付；新工具会记录安全退出诊断，认证/明确拒绝/TLS等仍STOP。独立核实送达后才更新唯一#125，不新建重复工具PR；不自动merge。
-
-输出在ignored outputs/pr125-delivery-diagnostics-20261024/，父验证分别在pr125-main-e01a-forward-20261024与git-delivery-diagnostics-main-20261024。保护原9e/e007/717/0ba/1028、运行态ebe/4cf及所有旧环境。完整G1–G5和关账/coverage/Source/50426切换/用户接受/退役边界不变。
+REMOTE PENDING at this local checkpoint; exact finalSHA/guard/delivery/PR receipts remain in ignored outputs/navigation-pr-main-9d65-20261025. No new Hosted CI yet. Protect later d406 target branch,3001/50426/59069/62426,Browser,real accounts/business DB/volumes,backups and old evidence. No realSource/credentials,activation/scheduling,deployment or50426 cutover/retirement. Standing safe recovery never waives auth/divergence/certificate/unknown-dirty STOPs. Closing questions,real quotas,visible coverageV2 remain separate; full Goal active.

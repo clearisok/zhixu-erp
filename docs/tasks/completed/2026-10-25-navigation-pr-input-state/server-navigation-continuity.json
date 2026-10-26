@@ -1,0 +1,50 @@
+{
+  "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
+  "level": "V1",
+  "visibleDifference": "Forward-integrate the already approved Gate3 V1 restoration onto verified current main: retain the existing Server Shell while identity/loading/errors transition and preserve feature-owned dirty, pending and unknown-receipt guards. Same 22 paths and original behavior; no menu, density, breakpoint, permission or domain workflow redesign.",
+  "paths": [
+    "app/layout.tsx",
+    "components/foundation/app-shell.tsx",
+    "components/foundation/page-back-button.tsx",
+    "components/foundation/server-navigation-history.ts",
+    "components/foundation/server-navigation-protection.tsx",
+    "features/order-center/components/order-business-source-button.tsx",
+    "features/order-center/components/processing-batch-dialog.tsx",
+    "features/order-center/components/server-order-center-page.tsx",
+    "features/order-center/components/server-sales-order-detail-page.tsx",
+    "features/permissions/components/server-role-page.tsx",
+    "features/permissions/components/server-user-permission-page.tsx",
+    "features/quote-center/components/global-quote-settings-page.tsx",
+    "features/quote-center/components/processing-quote-push.tsx",
+    "features/quote-center/components/production-quote-pages.tsx",
+    "features/quote-center/components/quote-creation-wizard.tsx",
+    "features/quote-center/components/quote-direct-create.tsx",
+    "features/quote-center/components/quote-editor.tsx",
+    "features/quote-center/components/quote-order-pricing.tsx",
+    "features/quote-center/components/quote-server-boundary.tsx",
+    "features/quote-center/components/restricted-quote-content.tsx",
+    "features/quote-center/components/server-quote-writer-page.tsx",
+    "features/style-progress/components/material-progress-settings-page.tsx"
+  ],
+  "pages": [
+    "navigation",
+    "quote-list",
+    "quote-new",
+    "quote-detail",
+    "quote-settings",
+    "order-list",
+    "order-detail",
+    "material",
+    "user-permissions",
+    "material-progress-settings",
+    "login"
+  ],
+  "evidence": [
+    "docs/tasks/active/server-navigation-main-forward-2026-10-24.md",
+    "docs/tasks/active/server-convergence-gate3-2026-10-20.md",
+    "server/integration/server-navigation-continuity.integration.test.mjs",
+    "server/integration/order-sale-adjustment-ui.integration.test.mjs",
+    "tests/server-navigation-history.test.mjs",
+    "docs/tasks/completed/2026-10-24-navigation-forward-inputs/README.md"
+  ]
+}
