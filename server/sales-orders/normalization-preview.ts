@@ -79,7 +79,6 @@ export async function normalizationReferences(client:PoolClient){
  const planRequestsReady=(await client.query("SELECT to_regclass('public.sales_order_delivery_plan_requests') IS NOT NULL AS ready")).rows[0].ready;
  const laborAdoptionsReady=(await client.query("SELECT to_regclass('public.order_labor_adoption_commands') IS NOT NULL AS ready")).rows[0].ready;
  const laborEvidenceReady=(await client.query("SELECT EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='sales_order_commercial_lines' AND column_name='labor_confirmation_source') AS ready")).rows[0].ready;
- if(laborAdoptionsReady!==laborEvidenceReady)throw new HttpError(503,'labor_adoption_reference_schema_incomplete','Labor adoption reference schema is incomplete');
  const references=NORMALIZATION_REFERENCES.filter(([table])=>(laborAdoptionsReady||table!=='order_labor_adoption_commands')&&(garmentTargetsReady||table!=='ainuoke_garment_target_commands')&&(garmentCommandsReady||table!=='ainuoke_garment_collection_commands')&&(refreshReady||table!=='ainuoke_order_source_refresh_receipts')&&(planRequestsReady||table!=='sales_order_delivery_plan_requests'));
  const present=(await client.query<{n:number}>(`SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
   WHERE n.nspname='public' AND c.relkind='r' AND c.relname IN ('ainuoke_payment_source_targets','ainuoke_payment_snapshots','ainuoke_payment_heads')`)).rows[0].n;
@@ -109,6 +108,7 @@ export async function normalizationReferences(client:PoolClient){
  const garmentCount=(await client.query<{n:number}>(`SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r' AND c.relname=ANY($1::text[])`,[garmentTables])).rows[0].n;
  if(garmentCount!==0&&garmentCount!==garmentTables.length)throw new HttpError(503,'garment_reference_schema_incomplete','Garment shipment reference schema is incomplete');
  if((garmentCommandsReady||garmentTargetsReady)&&garmentCount!==garmentTables.length)throw new HttpError(503,'garment_reference_schema_incomplete','Garment command reference schema is incomplete');
+ if(laborAdoptionsReady!==laborEvidenceReady)throw new HttpError(503,'labor_adoption_reference_schema_incomplete','Labor adoption reference schema is incomplete');
  const closingTables=['server_closing_commands','server_closing_periods','server_closing_period_versions','server_closing_period_heads','server_closing_allocations','server_closing_allocation_versions','server_closing_allocation_heads'];
  const closingCount=(await client.query<{n:number}>(`SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r' AND c.relname=ANY($1::text[])`,[closingTables])).rows[0].n;
  if(closingCount!==0&&closingCount!==closingTables.length)throw new HttpError(503,'closing_reference_schema_incomplete','Server closing reference schema is incomplete');
