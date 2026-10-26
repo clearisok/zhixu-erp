@@ -23,6 +23,13 @@
 
 ## Active
 
+### D-167 Server关账浏览器契约与原命令回执绑定
+
+- 日期：2026-10-27；Active engineering，实施D162/D163，不改变手工数量/月份、CNY成衣/USD工价、快照冻结、税率创建后固定或权限。原contract去除间接Node依赖，同一parseClosingIntent/Command在Server与浏览器共用；Buffer等价Unicode检验保留BOM/未配对代理项语义。read-query规则原样抽出，不另建价格计算或Browser仓储。
+- 原关账回执增加commandHash并复验存储command/request/hash，仍只按当前actor原UUID读取，坏存储不造证明；不返回原命令或金额。历史绑定entityType/entityId，发生时时间统一ISO，原对象/身份/版本不改。
+- 浏览器白名单投影覆盖basis/月份/明细/历史/preview/result；手工归属/CAS/hash/分页和三桶金额独立。1MiB、fresh会话owner lease、无自动POST重试、原UUID终态核对；sessionStorage只保存本actor/tab的一条原命令，坏字节不覆盖，无旧Browser账本/Seed/IndexedDB读写。
+- 当前只有协议和原请求存储函数，低层submit不负责存储，不宣称UI save→POST编排或真实session/provider/导航接线完成。具体[关账UI草图](tasks/active/server-closing-ui-proposal-2026-10-27.md)已征询且仍pending；USD采用UI原问题也不被替代。精确源码及验证见[阶段](tasks/active/server-closing-browser-protocol-2026-10-27.md)。远端STOP未解除，不授予来源、合并、部署或现有库操作。
+
 ### D-166 USD采用无界面原请求控制器
 
 - 日期：2026-10-27；Active engineering，实施D165恢复约束，不新增业务/价格规则、权限、schema或页面设计。复用原client/pending与同一Server命令、商业版本和回执。

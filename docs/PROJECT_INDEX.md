@@ -1,7 +1,5 @@
 # 当前任务入口
 
-2026-10-27；最后核实main869ee84dd0b31de6161011e4aa560678b244a64d（沿用本日已核实，未fetch）；分支codex/usd-labor-controller-main-869e，clean父3d727b46c17b8f02dfc8952804c47771621ab295。PR130最后head61704afe22fe9fd0ea9f6625c6092fcbb9575dfc，旧CI不代表本阶段；远端STOP根因UNRESOLVED。
+2026-10-27；main869ee84dd0b31de6161011e4aa560678b244a64d沿用同日已核实，未fetch。分支codex/server-closing-browser-protocol-main-869e，clean父e5f4d2350e545628761bf6da7f41245f9d49b43c；PR130旧head61704afe22fe9fd0ea9f6625c6092fcbb9575dfc不代表本地新代码，远端STOP根因UNRESOLVED。
 
-先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[配套契约](features/ORDER_USD_LABOR_INTERFACE.md)、[Gate8D2阶段](tasks/active/usd-labor-controller-2026-10-27.md)；父[Gate8D1工程](tasks/completed/2026-10-27-order-usd-labor-interface-engineering.md)、[收口](tasks/completed/2026-10-27-order-usd-labor-interface-validation.md)、[Gate8C契约](features/ORDER_USD_LABOR_ADOPTION.md)、[收口](tasks/completed/2026-10-27-order-usd-labor-adoption-validation.md)及[全Gate](tasks/active/server-convergence-gate0-2026-10-20.md)保留。具体UI批准尚待，不恢复Browser或自由调工价入口。
-
-当前[Gate8D2冻结工程](tasks/completed/2026-10-27-usd-labor-controller-engineering.md)与[验收收口](tasks/completed/2026-10-27-usd-labor-controller-validation.md)分别记录分源结果及最终精确守卫；68能力保持，未声明UI/交付完成。
+先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[关账协议](features/SERVER_CLOSING_INTERFACE.md)、[当前阶段](tasks/active/server-closing-browser-protocol-2026-10-27.md)与[待批准UI草图](tasks/active/server-closing-ui-proposal-2026-10-27.md)。前置[USD控制器工程](tasks/completed/2026-10-27-usd-labor-controller-engineering.md)/[收口](tasks/completed/2026-10-27-usd-labor-controller-validation.md)、[Server关账命令](features/SERVER_CLOSING_COMMANDS.md)、[USD契约](features/ORDER_USD_LABOR_INTERFACE.md)及[全Gate](tasks/active/server-convergence-gate0-2026-10-20.md)保留。当前不恢复旧Browser或自由金额入口，68项能力状态不因新协议推进。

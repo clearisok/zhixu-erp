@@ -11,7 +11,7 @@
     "server:dev": "tsx watch server/index.ts",
     "server:build": "tsc -p server/tsconfig.json",
     "test:order-usd-labor-adoption": "tsx --test --test-concurrency=1 server/sales-orders/labor-adoption-model.test.ts features/quote-center/server/__tests__/labor-adoption-client.test.ts features/quote-center/server/__tests__/labor-adoption-controller.test.ts server/integration/order-usd-labor-adoption.integration.test.ts server/integration/order-usd-labor-interface.integration.test.ts server/integration/order-usd-labor-controller.integration.test.ts",
-    "test:closing-backend": "tsx --test --test-concurrency=1 server/closing/basis-model.test.ts server/closing/contract.test.ts server/integration/closing-basis.integration.test.ts server/integration/closing-commands.integration.test.ts server/integration/closing-integrity.integration.test.ts",
+    "test:closing-backend": "tsx --test --test-concurrency=1 server/closing/basis-model.test.ts server/closing/contract.test.ts server/integration/closing-basis.integration.test.ts server/integration/closing-commands.integration.test.ts server/integration/closing-integrity.integration.test.ts features/closing-center/server/__tests__/closing-client.test.ts server/integration/closing-interface.integration.test.ts",
     "server:start": "node dist/server/server/index.js",
     "db:migrate": "tsx server/db/migrate.ts",
     "db:migrate:status": "tsx server/db/migration-status.ts",

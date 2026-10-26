@@ -7,21 +7,9 @@ import { closingSchemaAvailable, readClosingAllocation, readClosingAllocationHis
   type ClosingAllocationRecord, type ClosingPeriodRecord } from './repository.js';
 import { currentClosingExecutionReferences, projectClosingSnapshot } from './snapshot.js';
 import { compareClosingExecutionReferences, type ClosingExecutionReference } from './basis-model.js';
+import { parseClosingReadQuery } from './read-contract.js';
+export { parseClosingReadQuery } from './read-contract.js';
 
-type Query = { offset: number; limit: number; version: number | null; includeVoided: boolean; year: string | null; status: string | null };
-export function parseClosingReadQuery(params: URLSearchParams, kind: 'list' | 'period' | 'history'): Query {
-  const allowed = kind === 'list' ? ['offset', 'limit', 'year', 'status'] : kind === 'period' ? ['offset', 'limit', 'version', 'includeVoided'] : ['offset', 'limit', 'version'];
-  if ([...params.keys()].some(key => !allowed.includes(key) || params.getAll(key).length !== 1)) closingFail(400, 'invalid_closing_query');
-  const integer = (key: string, fallback: number, min: number, max: number) => {
-    const value = params.get(key); if (value === null) return fallback;
-    if (!/^\d{1,10}$/u.test(value) || Number(value) < min || Number(value) > max) closingFail(400, 'invalid_closing_query');
-    return Number(value);
-  };
-  const year = params.get('year'), status = params.get('status'), include = params.get('includeVoided') ?? 'false';
-  if (year !== null && !/^(19|20|21)\d{2}$/u.test(year) || status !== null && !['open', 'confirmed', 'locked'].includes(status) || !['true', 'false'].includes(include)) closingFail(400, 'invalid_closing_query');
-  return { offset: integer('offset', 0, 0, 100000), limit: integer('limit', 25, 1, 50), version: params.has('version') ? integer('version', 1, 1, 2147483647) : null,
-    includeVoided: include === 'true', year, status };
-}
 async function readTransaction<T>(pool: Pool, identity: TrustedIdentity, read: (client: PoolClient, actor: TrustedIdentity) => Promise<T>) {
   const client = await pool.connect();
   try {
@@ -35,7 +23,7 @@ async function readTransaction<T>(pool: Pool, identity: TrustedIdentity, read: (
 function publicPeriod(period: ClosingPeriodRecord, actor: TrustedIdentity) {
   const freeText = actor.permissions.includes('commercial.sale.view') && actor.permissions.includes('commercial.labor.view');
   return { id: period.id, month: period.month, versionId: period.versionId, version: period.version, status: period.status,
-    taxRatePercent: period.taxRatePercent, actorName: period.actorName, action: period.action, recordedAt: period.recordedAt,
+    taxRatePercent: period.taxRatePercent, actorName: period.actorName, action: period.action, recordedAt: new Date(period.recordedAt).toISOString(),
     ...(freeText ? { remark: period.remark, reason: period.reason } : {}) };
 }
 function summary(allocations: ClosingAllocationRecord[], actor: TrustedIdentity) {
@@ -67,7 +55,7 @@ function publicAllocation(row: ClosingAllocationRecord, actor: TrustedIdentity, 
   const fullyVisible = (!row.snapshot.channels.sales || actor.permissions.includes('commercial.sale.view')) && (!row.snapshot.channels.work || actor.permissions.includes('commercial.labor.view'));
   const review = compareClosingExecutionReferences(row.snapshot.reviewBasis, current, status);
   return { id: row.id, periodId: row.periodId, versionId: row.versionId, version: row.version, status: row.status,
-    actorName: row.actorName, action: row.action, recordedAt: row.recordedAt, ...(fullyVisible ? { reason: row.reason } : {}),
+    actorName: row.actorName, action: row.action, recordedAt: new Date(row.recordedAt).toISOString(), ...(fullyVisible ? { reason: row.reason } : {}),
     snapshot: projectClosingSnapshot(row.snapshot, actor), executionReview: row.status === 'voided' ? { status: 'not_evaluated_voided', requiresReview: false, changes: null } : {
       status: historical ? review.changes.length ? 'historical_snapshot_with_later_changes' : 'historical_snapshot' : review.status,
       changes: review.changes, requiresReview: !historical && review.requiresReview, lockedSnapshotPreserved: review.lockedSnapshotPreserved } };
@@ -110,13 +98,13 @@ export async function readClosingHistory(pool: Pool, identity: TrustedIdentity, 
         v.remark,v.actor_name AS "actorName",v.action,v.reason,v.recorded_at::text AS "recordedAt",NULL AS "allocationManifest"
         FROM server_closing_periods p JOIN server_closing_period_versions v ON v.period_id=p.id WHERE p.id=$1 AND v.version<=$2 ORDER BY v.version DESC LIMIT $3 OFFSET $4`,
       [id, anchor, query.limit + 1, query.offset])).rows;
-      return { asOfVersion: anchor, items: rows.slice(0, query.limit).map(row => publicPeriod(row, actor)), hasMore: rows.length > query.limit, offset: query.offset, limit: query.limit };
+      return { entityType: kind, entityId: id, asOfVersion: anchor, items: rows.slice(0, query.limit).map(row => publicPeriod(row, actor)), hasMore: rows.length > query.limit, offset: query.offset, limit: query.limit };
     }
     const current = await readClosingAllocation(client, id), anchor = query.version ?? current.version;
     if (anchor > current.version) closingFail(400, 'invalid_closing_query');
     const rows = await readClosingAllocationHistory(client, id, query.offset, anchor), period = await readClosingPeriod(client, current.periodId);
     const references = await referenceMap(client, rows);
-    return { asOfVersion: anchor, items: rows.slice(0, query.limit).map(row => publicAllocation(row, actor, references.get(row.orderId) ?? [], period.status, true)),
+    return { entityType: kind, entityId: id, asOfVersion: anchor, items: rows.slice(0, query.limit).map(row => publicAllocation(row, actor, references.get(row.orderId) ?? [], period.status, true)),
       hasMore: rows.length > query.limit, offset: query.offset, limit: query.limit };
   });
 }

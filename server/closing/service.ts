@@ -204,11 +204,17 @@ export async function readClosingCommandReceipt(pool: Pool, identity: TrustedIde
     let actor = await readCurrentActor(client, identity); requirePermissions(actor, CLOSING_READ_PERMISSIONS); await closingSchemaAvailable(client);
     await client.query('SELECT pg_advisory_xact_lock_shared(hashtextextended($1,0))', [`server-closing:${actor.internalUserId}:${requestId}`]);
     actor = await readCurrentActor(client, identity); requirePermissions(actor, CLOSING_READ_PERMISSIONS);
-    const row = (await client.query<{ result: ClosingOutcome; required_permissions: PermissionKey[] }>('SELECT result,required_permissions FROM server_closing_commands WHERE actor_id=$1 AND request_id=$2', [actor.internalUserId, requestId])).rows[0];
+    const row = (await client.query<{ payload_hash: string; command: unknown; result: ClosingOutcome; required_permissions: PermissionKey[] }>(
+      'SELECT payload_hash,command,result,required_permissions FROM server_closing_commands WHERE actor_id=$1 AND request_id=$2', [actor.internalUserId, requestId])).rows[0];
+    if (row) {
+      let original: ClosingCommand;
+      try { original = parseClosingCommand(row.command); } catch { return closingFail(503, 'closing_receipt_invalid'); }
+      if (original.requestId !== requestId || planHash(original) !== row.payload_hash || row.result.requestId !== requestId) closingFail(503, 'closing_receipt_invalid');
+    }
     let result = row?.result ?? null;
     if (result?.status === 'rejected' && row!.required_permissions.filter(key => key.startsWith('commercial.')).some(key => !actor.permissions.includes(key))) {
       result = { ...result, error: { status: result.error.status, code: 'closing_details_restricted' } };
     }
-    await client.query('COMMIT'); return row ? { state: 'recorded' as const, requestId, result } : { state: 'unknown' as const, requestId };
+    await client.query('COMMIT'); return row ? { state: 'recorded' as const, requestId, commandHash: row.payload_hash, result: result! } : { state: 'unknown' as const, requestId };
   } catch (error) { await client.query('ROLLBACK').catch(() => undefined); throw error; } finally { client.release(); }
 }

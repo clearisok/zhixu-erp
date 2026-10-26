@@ -1,7 +1,6 @@
 import type { PermissionKey } from '../../features/permissions/model/permissions.js';
-import { identityUuid } from '../sales-orders/identity-model.js';
 import { canonicalDecimal } from '../quotes/decimal-projection.js';
-import { closingBasisFail } from './basis-model.js';
+import { HttpError } from '../http/errors.js';
 
 export type ClosingChannels = { sales: boolean; work: boolean };
 export type ClosingAllocationData = {
@@ -18,7 +17,8 @@ export type ClosingIntent =
   | (PeriodTarget & { action: 'confirm_period' | 'unconfirm_period' | 'lock_period' | 'reopen_period'; reason: string });
 export type ClosingCommand = { requestId: string; intent: ClosingIntent; previewHash: string };
 export const CLOSING_READ_PERMISSIONS = ['closing.view', 'order.view', 'schedule.view'] as const;
-export function closingFail(status: number, code: string): never { return closingBasisFail(status, code); }
+/** Browser-safe contract shared with the Server client; no repository or Node runtime. */
+export function closingFail(status: number, code: string): never { throw new HttpError(status, code, code); }
 function invalid(): never { return closingFail(400, 'invalid_closing_command'); }
 function object(value: unknown): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) invalid();
@@ -28,7 +28,7 @@ function exact(raw: Record<string, unknown>, keys: readonly string[]) {
   if (Object.keys(raw).length !== keys.length || keys.some(key => !Object.hasOwn(raw, key))) invalid();
 }
 export function closingUuid(value: unknown) {
-  if (typeof value !== 'string' || !identityUuid.test(value)) invalid();
+  if (typeof value !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu.test(value)) invalid();
   return value.toLowerCase();
 }
 function version(value: unknown) {
@@ -36,7 +36,8 @@ function version(value: unknown) {
   return value as number;
 }
 function text(value: unknown, required = false) {
-  if (typeof value !== 'string' || value.length > 2000 || value.includes('\0') || Buffer.from(value, 'utf8').toString('utf8') !== value || required && !value.trim()) invalid();
+  if (typeof value !== 'string' || value.length > 2000 || value.includes('\0')
+    || new TextDecoder('utf-8', { ignoreBOM: true }).decode(new TextEncoder().encode(value)) !== value || required && !value.trim()) invalid();
   return value.trim();
 }
 export function closingQuantity(value: unknown) {

@@ -1,0 +1,16 @@
+{
+  "baselineSha": "869ee84dd0b31de6161011e4aa560678b244a64d",
+  "level": "V0",
+  "paths": [
+    "features/closing-center/server/closing-client.ts",
+    "features/closing-center/server/closing-pending.ts",
+    "features/closing-center/server/closing-projection.ts"
+  ],
+  "pages": [
+    "order-detail"
+  ],
+  "visibleDifference": "none",
+  "evidence": [
+    "docs/features/SERVER_CLOSING_INTERFACE.md"
+  ]
+}
