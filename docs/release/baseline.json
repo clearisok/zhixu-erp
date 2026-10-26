@@ -4581,6 +4581,14 @@
       "recordedAtSha": "8e6068b4894fd4d5417edc8ba02fc154f77a1f2d",
       "renderedSourceSha": "6d27d1e7fa1079f1830511068ff070791df310ab",
       "sha256": "494e4d2c9a3063dfff17975025ab03702e0d69d23d79301fed72970be77b09c9"
+    },
+    {
+      "id": "nonempty-domain-sequence-precision-20261026",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-26-nonempty-domain-sequence-precision.md",
+      "recordedAtSha": "5f2f529b700e455755bfcee64aa9ebf6d30c4e21",
+      "renderedSourceSha": "12477a1fa58f1cff0182974e0894671585a4824f",
+      "sha256": "529afe1148325b9c2e1ebacb222ddd362612bf18a125cd035aaf7a2800f3a9a7"
     }
   ],
   "pages": [
