@@ -17,3 +17,5 @@ source checkpoint后canonical archive逐blob校验，复用现有依赖不安装
 预审eb176a3e发现1项P2：仅HTTP200不能证明回执known，unknown→unknown会假阳性。已前向修正为逐请求known/原UUID/applied，并比对原POST结果（仅剥离transport replayed/payloadHash）。新增4项正负回归；首次测试fake response缺bytes导致TypeError，不能将其3项拒绝当有效负向结果；修正stub并限定AssertionError后实际4/4。初次继承函数比较只因CRLF/LF失败，按Git canonical行尾核对后4函数/原8名称/新增1名称通过。无runtime/DB尝试已消耗，原archive保留。
 
 实际终态：test source e3a23280e152d4113366604da020c68eb3e519bb、原6d镜像，canonical 2991 blobs/0 overlay；一次新非空runtime 9/9、478994ms，原请求均known且匹配POST。冷重建、全部表/sequence在恢复启动前、领域API在启动后比较通过；旧50/179/27元数据changes=[]。本地原件hash见[冻结证明](../completed/2026-10-26-nonempty-domain-recovery-validation.md)。Git/ref STOP仍保留，本轮Hosted0，PR130仍617。
+
+证明由Q 8e6068b4894fd4d5417edc8ba02fc154f77a1f2d冻结；后续R只追加独立根至505证据/66能力，原504和全部UI/能力字段保持。最终守卫/复审另据实际回执。
