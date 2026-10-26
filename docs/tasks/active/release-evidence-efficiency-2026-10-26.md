@@ -25,3 +25,5 @@ Push/新PR/Hosted/真实Source/凭据/账号/现有库、卷和备份写入0。N
 独立只读复审a778无P1/P2；按建议补充一项聚合预算边界：四个16MiB唯一对象加同OID别名正好64MiB允许，再加8字节新对象整体拒绝。此新增项尚未独立运行，纳入集中144项（原134+新增10）；既有定向9项仍仅归属此前源码。feature措辞已区分普通内存Git替身与指定真实Git仓，不把全部负测说成真实Git。
 
 2026-10-26实际终态：精确源码S c1f8e861f6491026c4943f498554256a640bd609（tree dd16cc9a10355aba31a8977091de333d346db23c）的唯一完整发布144/144通过，886968ms、零失败/取消/跳过，无超时/溢出，HEAD/manifest稳定且clean；两语法和选定ESLint通过。原失败不改写。[冻结证明](../completed/2026-10-26-release-evidence-efficiency-validation.md)保留来源/原件hash；后续仅docs/manifest，不能称exact-R144。最终同HEAD的exact-N守卫及复审按实际回执核对，不提前声明交付。
+
+证明由真实Q bd984bf9cce7e636fd03df3b6b3a841f2377b080冻结，追加独立document根至502证据/66能力；原501记录、全部能力、UI记录和业务源保持。最终同HEAD守卫与终审以本机回执核定。
