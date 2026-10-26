@@ -7,3 +7,5 @@
 N/aad原394证据/57能力全部保留；R后395/57。原两叶：decisions-navigation-pr125-convergence-20261024-forward-main-9d65-20261025、decisions-garment-observations-current-20261024。实际A与R回执在outputs/garment-observations-main-869e-20261026，未保存前不预写成功。
 
 原173/174（1既有Linux CLI Windows跳过）、811根、139离线Python和旧4e8232发布134保留各自日期/范围；本轮不重跑。无新Vite/浏览器、Hosted、真实Source/凭据/账号/业务库、迁移或部署操作，不切换/退役任何已有环境。Goal active，必要Linux CI和新基线最终守卫仍待。
+
+实际A 4e92b0bfae06923940c3b85cd78fc1714f96444f（tree e26a18799f130cc939e82ce0e1bcb3f98a9b3d72，父[869ee84dd0b31de6161011e4aa560678b244a64d,aad673099da0221312a70e88bd8e2f33bfa06244]）已冻结组合决定文本；本次R绑定decisions-garment-observations-main-anchor-869e-20261026，规范hash 083a8028a28b8946b14977d6f6ea5423820f83192f8043dac9b4f5b80b7950f5，原394记录完整保留，395/57。仍需回原B合流并最终守卫，未记P2关闭或最终PASS。
