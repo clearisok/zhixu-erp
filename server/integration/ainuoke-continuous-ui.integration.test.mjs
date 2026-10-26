@@ -159,7 +159,17 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
   });
   await t.test("missing UUID and unsupported routes cannot enter old Browser pages",async()=>{
    await navigate("/order-center/style-progress/detail");await has("仅接受正式订单 UUID");
-   for(const route of ["/order-center/new","/order-center/style-progress","/order-center/risks","/production-scheduling","/closing-center"]){await navigate(route);await has("此模块未在当前候选中启用");}
+   for(const route of ["/order-center/new","/order-center/style-progress","/order-center/risks","/closing-center"]){await navigate(route);await has("此模块未在当前候选中启用");}
+   assert.deepEqual(await evaluate("Object.keys(localStorage).filter(k=>k.startsWith('zhixu.erp.local.'))"),[]);
+  });
+  await t.test("explicit snapshot candidate opens trusted Server planning without Browser stores or business writes",async()=>{
+   await login(x.users.at(-1));await navigate("/production-scheduling");await has("暂无生产排单权限");
+   assert.equal(await evaluate("document.querySelector('.ps-server-scheduling-page')!==null"),false);
+   assert.equal(await evaluate("(async()=> (await fetch('/api/v1/production-scheduling/groups')).status)()"),403);
+   await login(x.users[0]);await navigate("/production-scheduling");await has("暂无生产组");
+   assert.equal(await evaluate("location.pathname"),"/production-scheduling");
+   assert.equal(await evaluate("document.querySelector('.ps-server-scheduling-page')!==null"),true);
+   assert.deepEqual(await evaluate("window.businessWrites"),[]);
    assert.deepEqual(await evaluate("Object.keys(localStorage).filter(k=>k.startsWith('zhixu.erp.local.'))"),[]);
   });
   await t.test("saved Quote retries logout without another aggregate PUT, but later edits must save again",async()=>{

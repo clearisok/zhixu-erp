@@ -35,6 +35,9 @@ jobs:
           npm run test:order-sale-adjustments
           npm run test:processing-batches
           npm run test:processing-quote-push
+          npm run test:production-resources
+          npm run test:production-planning
+          npm run test:production-execution
           npm run test:order-normalization
           npm run test:order-effective-attribution
           npm run test:order-normalization-execution
@@ -80,6 +83,8 @@ jobs:
         run: |
           node --test tests/server-navigation-history.test.mjs
           npx --no-install tsx --test server/integration/server-navigation-continuity.integration.test.mjs
+          npm run test:production-resources-ui
+          npm run test:production-planning-ui
           npm run test:ainuoke-continuous-ui
           npm run test:processing-batches-ui
           npm run test:processing-quote-push-ui

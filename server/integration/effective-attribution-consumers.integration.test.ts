@@ -31,6 +31,8 @@ test('effective identities are consistent across current reads and original hist
  await bootstrapAdmin(pool,{username:'synthetic-effective-admin',displayName:'Synthetic',password:'Synthetic-2026'});
  const actor=await loadExistingBootstrapActor(pool,'synthetic-effective-admin');
  const input:CreateAinuokeSalesOrderInput={source:{sourceId:'synthetic-current-contract',sourceRowIdentity:'synthetic-source-row',salesContractNo:'SYN-CONTRACT-ONLY',insideOrderNo:'SYN-FACTORY-ONLY',lifecycleStatusRaw:'生效',contractDate:'2026-10-01',contractDeliveryDate:'2026-12-01',styleNo:'SYN-BUSINESS-ONLY',companyNameSnapshot:'Synthetic',customerNameSnapshot:'Synthetic',brandNameSnapshot:'Synthetic',quantity:100,sourceHash:'synthetic-hash',fetchedAt:'2026-10-15T00:00:00Z'},colors:[{sourceLineIdentity:'synthetic-blue',colorName:'Synthetic blue',quantity:100,deliveryDate:'2026-12-01',sourceHash:'synthetic-color'}]};
+ input.source.sourceMetadata={reportId:'6086103',colorDetail:{schemaVersion:'ainuoke-garment-color-size.v1',reportId:'6087105',status:'usable',insideOrderNoDrift:false}};
+ input.colors[0].sourceMetadata={reportId:'6087105',salesContractNo:input.source.salesContractNo,quantityPendingConfirmation:false,sourceQuantity:100,insideOrderNoDrift:false,sizeRule:'M,L',sizeAllocations:[{slot:1,sizeName:'M',quantity:40},{slot:2,sizeName:'L',quantity:60}],sizeMatrixStatus:'SIZE_MATRIX_VALID'};
  const original=(await createAinuokeSalesOrder(pool,actor,input)).salesOrder.id;
  const quote=createSyntheticQuoteFixture('synthetic-effective-quote','distribution');
  for(const revision of quote.revisions){revision.imageAttachmentIds=[];revision.fileAttachmentIds=[];revision.styleImageAttachmentId=null;}
@@ -72,6 +74,8 @@ test('effective identities are consistent across current reads and original hist
  await t.test('detail projects trusted contract on effective root but original detail never redirects UUID',async()=>{
   const current=await getSalesOrderById(pool,primary),history=await getSalesOrderById(pool,original);
   assert.equal(current?.salesContractNo,input.source.salesContractNo);assert.equal(current?.insideOrderNo,input.source.insideOrderNo);assert.deepEqual(current?.colors,history?.colors);
+  assert.equal(current?.colors[0].sizeEvidence.status,'available');assert.deepEqual(current?.colorSource,history?.colorSource);
+  if(current?.colors[0].sizeEvidence.status==='available')assert.equal(current.colors[0].sizeEvidence.sourceQuantity,100);
   assert.equal(history?.id,original);assert.equal(history?.creationSource,'ainuoke');assert.equal(history?.attribution?.effectiveOrderId,primary);assert.equal(history?.quantity,100);
   assert.deepEqual((await pool.query('SELECT row_to_json(o) AS row FROM sales_orders o ORDER BY id')).rows,beforeOrders);
   assert.deepEqual((await pool.query('SELECT row_to_json(l) AS row FROM sales_order_source_links l ORDER BY id')).rows,beforeLinks);

@@ -6,7 +6,7 @@ import {canonicalDecimal} from '../quotes/model.js';
 import {readOrderCommercialState} from './commercial-version-service.js';
 import {readCommercialLines,readPricingColors,pricingActor,pricingTarget,pricingFail,appendLineCommercialVersion,projectPricingLines} from './color-commercial.js';
 import {productHash,type ProductSnapshot} from './product-snapshot.js';
-import {lockEffectiveAttribution} from './effective-attribution.js';
+import {lockEffectiveAttribution,freezePhysicalOrderGroups} from './effective-attribution.js';
 import {appendOperationLog} from '../operation-logs/repository.js';
 import {identityUuid} from './identity-model.js';
 import {requireOrderCommandActor} from './identity-service.js';
@@ -70,6 +70,7 @@ async function previewOne(c:PoolClient,actor:TrustedIdentity,item:Item,rule:Sale
 }
 export async function previewSaleAdjustment(pool:Pool,actor:TrustedIdentity,raw:Record<string,unknown>){
  if(Object.keys(raw).sort().join(',')!=='items,rule')pricingFail(400,'invalid_sale_adjustment_preview');const rule=parseRule(raw.rule),items=parseItems(raw.items),c=await pool.connect();try{await c.query('BEGIN');await lockEffectiveAttribution(c);const a=await pricingActor(c,actor,'quote.order_price.adjust');const results=[];
+ await freezePhysicalOrderGroups(c,items.map(item=>item.salesOrderId));
  for(const item of [...items].sort((a,b)=>a.salesOrderId.localeCompare(b.salesOrderId)))try{results.push({status:'ready' as const,...(await previewOne(c,a,item,rule)).public});}catch(e){if(!(e instanceof HttpError))throw e;results.push({status:'failed' as const,salesOrderId:item.salesOrderId,code:e.code});}
  await c.query('ROLLBACK');return {rule,items:results};
  }catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}

@@ -69,3 +69,7 @@ GitHub只读核实2026-10-24T02:17:16Z：main仍e01a，#125仍open draft、head 
 为保持唯一PR并避免重复付费CI，root从已核实main e01a新建codex/pr125-delivery-diagnostics-e01a，显式FF原9e后正常merge独立工具e00750f8efc798303c42aa6435eedc5cb608335d。只有三摘要冲突，manifest自动等于原9e，230/46全部证据/状态保持。原17运维及main业务不重写，工具四文件取已验收419/e007，追加旧空目录夹具仍为9e原blob；不合入717累计业务。真实merge父保存双方完整历史，当前摘要前向替代，完整原状态可从父SHA与各自任务/归档恢复，不复制大型manifest或抹除旧失败。
 
 工具75/75、134/134及lint/守卫/复审属于419，#125的134/42API/2数据库工具及双构建等属于091/c592与9e元数据范围；合流只做逐blob/范围/证据核对、精确main守卫和独立复审，不宣称父套件在新树重新执行。未改变这些已验收模块或测试输入时，不为状态标签重跑。原9e一次上传STOP+独立exact的退出原因仍unknown；不重推旧SHA、不清除原STOP。只有新候选当前直接预检正常、身份/祖先/clean及独立精确送达都满足，才继续唯一#125引用/必要CI，不自动merge或部署。
+
+## 2026-10-24 精确API例外交付完成
+
+用户新明确批准仅expected ca05/force=false API快进4f；执行1次，独立核远端完整SHA、原tree与双父，无Git重推。main e01a不变；临时合并dd5700双父为e01a/4f，tree=b1abcc6d8d6b7ce6e228d081582c878a3b1cdb61，与已验收候选相同。Source40072506615、Team40072506633、Baseline40072506617全部success/pull_request/attempt1，无rerun/dispatch。独立只读复审无新增P1/P2，足够更新说明但未核验分支保护；PR说明已更新且保持open draft，不ready/merge/close。原exit1/STOP与根因unknown保留，不宣布全局Git恢复。G6A等后续本地阶段不在4f，不借本CI宣称已交付。回执outputs/pr125-api-lease-20261024/final-*.json。

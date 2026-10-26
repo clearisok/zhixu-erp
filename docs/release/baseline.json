@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf",
-  "verifiedAt": "2026-10-24T16:32:17.118Z",
+  "baselineSha": "869ee84dd0b31de6161011e4aa560678b244a64d",
+  "verifiedAt": "2026-10-26T02:32:02.985Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -2037,6 +2037,801 @@
       "recordedAtSha": "9958bc4930464a2fc1ab8bf9dab2be75768f885a",
       "renderedSourceSha": "ca53d8b8ac7100e6c94e49e4aa36fb5ce3eab658",
       "sha256": "68c812b127f550947690072785e66d1539bd91ef8ff76e69f9579fc5faa9e879"
+    },
+    {
+      "id": "order-saved-source-read-engineering-20261024",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-24-order-saved-sources-engineering.md",
+      "recordedAtSha": "6d53f664fffdf087140e07801a7891480b5d40ca",
+      "renderedSourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+      "sha256": "2d49319fade0736c70e42f4960069064df43735e430cb85e3d999e7e34aee932"
+    },
+    {
+      "id": "order-saved-source-20261024-before-default-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-saved-sources/before-default-1440.png",
+      "recordedAtSha": "6d53f664fffdf087140e07801a7891480b5d40ca",
+      "renderedSourceSha": "ca53d8b8ac7100e6c94e49e4aa36fb5ce3eab658",
+      "sha256": "61da1d35b2deb14b5540ef0b48249c5b468a2b0d9176d5f379910758e53dc7cc",
+      "changeReason": "New synthetic before/after engineering observations for the approved D147 G4 restoration of saved source reads in the original P6 positions. Preserve all prior images; no new human pixel acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-saved-source-20261024-before-default-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-saved-sources/before-default-390.png",
+      "recordedAtSha": "6d53f664fffdf087140e07801a7891480b5d40ca",
+      "renderedSourceSha": "ca53d8b8ac7100e6c94e49e4aa36fb5ce3eab658",
+      "sha256": "f07b2e878bcc028f6c22e37176e41974700c178743254f887aec9181bd222f5c",
+      "changeReason": "New synthetic before/after engineering observations for the approved D147 G4 restoration of saved source reads in the original P6 positions. Preserve all prior images; no new human pixel acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-saved-source-20261024-before-build-and-geometry",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-saved-sources/before-build-and-geometry.json",
+      "recordedAtSha": "6d53f664fffdf087140e07801a7891480b5d40ca",
+      "renderedSourceSha": "ca53d8b8ac7100e6c94e49e4aa36fb5ce3eab658",
+      "sha256": "ae39876d8f0efadcbd5b36f0ea12663685216de6249c31051be795effcccba12"
+    },
+    {
+      "id": "order-saved-source-20261024-after-default-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-saved-sources/after-default-1440.png",
+      "recordedAtSha": "6d53f664fffdf087140e07801a7891480b5d40ca",
+      "renderedSourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+      "sha256": "b538bd79d52b42e673895533bb5e297ac4db28e95b8c263204752f5bce498ebb",
+      "changeReason": "New synthetic before/after engineering observations for the approved D147 G4 restoration of saved source reads in the original P6 positions. Preserve all prior images; no new human pixel acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-saved-source-20261024-after-default-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-saved-sources/after-default-390.png",
+      "recordedAtSha": "6d53f664fffdf087140e07801a7891480b5d40ca",
+      "renderedSourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+      "sha256": "a5895abee753a003f80f3003721ad445d098c0ea88b3883815ddf319522f20ac",
+      "changeReason": "New synthetic before/after engineering observations for the approved D147 G4 restoration of saved source reads in the original P6 positions. Preserve all prior images; no new human pixel acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-saved-source-20261024-after-sizes-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-saved-sources/after-sizes-1440.png",
+      "recordedAtSha": "6d53f664fffdf087140e07801a7891480b5d40ca",
+      "renderedSourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+      "sha256": "ac9093b4ee1ed8a293b4045117b347e3a802b115fda49a9f2c8351c2c9872d4e",
+      "changeReason": "New synthetic before/after engineering observations for the approved D147 G4 restoration of saved source reads in the original P6 positions. Preserve all prior images; no new human pixel acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-saved-source-20261024-after-sizes-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-saved-sources/after-sizes-390.png",
+      "recordedAtSha": "6d53f664fffdf087140e07801a7891480b5d40ca",
+      "renderedSourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+      "sha256": "baa14afce4354bca9f30bc94df0891512c4219eab1860cfe19cfab6e9888a6ee",
+      "changeReason": "New synthetic before/after engineering observations for the approved D147 G4 restoration of saved source reads in the original P6 positions. Preserve all prior images; no new human pixel acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-saved-source-20261024-after-plan-facts",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-saved-sources/after-plan-facts.png",
+      "recordedAtSha": "6d53f664fffdf087140e07801a7891480b5d40ca",
+      "renderedSourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+      "sha256": "ea56fb935d865fe70304959493e83610089751bf6e3b6cecb0e64945931c8d6a",
+      "changeReason": "New synthetic before/after engineering observations for the approved D147 G4 restoration of saved source reads in the original P6 positions. Preserve all prior images; no new human pixel acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-saved-source-20261024-after-build-and-geometry",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-saved-sources/after-build-and-geometry.json",
+      "recordedAtSha": "6d53f664fffdf087140e07801a7891480b5d40ca",
+      "renderedSourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+      "sha256": "8b274ecb34a26247ef374f2e8e66b75757af66cf90542eddc02584b612e28d0b"
+    },
+    {
+      "id": "decisions-order-context-quote-current-20261024",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+      "sha256": "7f0437a139843e949bc73d300f7ce8457f09daddabf6e0e630952506a2fa0ebd",
+      "supersedes": "decisions-navigation-pr125-convergence-20261024",
+      "changeReason": "Forward-bind D149 for the already approved D147 Gate5 narrow restoration: immutable creation reference is separate from commercial adoption. Retain all decisions and historical blobs; no runtime or human acceptance claim."
+    },
+    {
+      "id": "order-context-quote-engineering-20261024",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-24-order-context-quote-engineering.md",
+      "recordedAtSha": "53c9bdc73d9369ab54a41d1fd4af651ffb7bd86f",
+      "renderedSourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+      "sha256": "13442bb0f9d4d5958da785b37e319584ac72dc6d8bde25273a5fb4f4e9ab424d"
+    },
+    {
+      "id": "order-context-quote-20261024-before-source-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-context-quote/before-source-1440.png",
+      "recordedAtSha": "53c9bdc73d9369ab54a41d1fd4af651ffb7bd86f",
+      "renderedSourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+      "sha256": "5a98a3b8d47c8d0b2b653a6a64240f3f37542aea83043da7b5a463dfeefca4ac",
+      "changeReason": "New synthetic before/after engineering observations for the approved D147 Gate5 restoration in the existing source selector, new page and Editor. Original images remain immutable; no new human pixel acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-context-quote-20261024-before-source-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-context-quote/before-source-390.png",
+      "recordedAtSha": "53c9bdc73d9369ab54a41d1fd4af651ffb7bd86f",
+      "renderedSourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+      "sha256": "8c0bcc53e75d36bbdce2459eb080885cad8acbc32a9a4c95d150e20be63d47ae",
+      "changeReason": "New synthetic before/after engineering observations for the approved D147 Gate5 restoration in the existing source selector, new page and Editor. Original images remain immutable; no new human pixel acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-context-quote-20261024-before-new-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-context-quote/before-new-1440.png",
+      "recordedAtSha": "53c9bdc73d9369ab54a41d1fd4af651ffb7bd86f",
+      "renderedSourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+      "sha256": "e5117746dac0f9a02aec997c7c4e1445d311eabb0f8477772c3167aa11d7e0b0",
+      "changeReason": "New synthetic before/after engineering observations for the approved D147 Gate5 restoration in the existing source selector, new page and Editor. Original images remain immutable; no new human pixel acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-context-quote-20261024-before-new-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-context-quote/before-new-390.png",
+      "recordedAtSha": "53c9bdc73d9369ab54a41d1fd4af651ffb7bd86f",
+      "renderedSourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+      "sha256": "2941036b0fc1802fca81ac929100899ebb4264c06098de5b0a177d371efe34a6",
+      "changeReason": "New synthetic before/after engineering observations for the approved D147 Gate5 restoration in the existing source selector, new page and Editor. Original images remain immutable; no new human pixel acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-context-quote-20261024-before-build-and-geometry",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-context-quote/before-build-and-geometry.json",
+      "recordedAtSha": "53c9bdc73d9369ab54a41d1fd4af651ffb7bd86f",
+      "renderedSourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+      "sha256": "9c774d80a1408ec5ac67e4a24d46b09601c438d542a9e64276d8930270b17316"
+    },
+    {
+      "id": "order-context-quote-20261024-after-context-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-context-quote/after-context-1440.png",
+      "recordedAtSha": "53c9bdc73d9369ab54a41d1fd4af651ffb7bd86f",
+      "renderedSourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+      "sha256": "e04baa9af3f5b71a3fe510f6efb342089dee02d6ed050837ff7b6a72b96d30dc",
+      "changeReason": "New synthetic before/after engineering observations for the approved D147 Gate5 restoration in the existing source selector, new page and Editor. Original images remain immutable; no new human pixel acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-context-quote-20261024-after-context-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-context-quote/after-context-390.png",
+      "recordedAtSha": "53c9bdc73d9369ab54a41d1fd4af651ffb7bd86f",
+      "renderedSourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+      "sha256": "2f91f57066c32dc70b9246636cea30c3a077791dc4dcc334585e4ccd631592c4",
+      "changeReason": "New synthetic before/after engineering observations for the approved D147 Gate5 restoration in the existing source selector, new page and Editor. Original images remain immutable; no new human pixel acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-context-quote-20261024-after-created-editor-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-context-quote/after-created-editor-1440.png",
+      "recordedAtSha": "53c9bdc73d9369ab54a41d1fd4af651ffb7bd86f",
+      "renderedSourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+      "sha256": "c77d81cf506f270a553eac9a350d1d59ee1640db6eb8e5e50cb3ea9e00d41cca",
+      "changeReason": "New synthetic before/after engineering observations for the approved D147 Gate5 restoration in the existing source selector, new page and Editor. Original images remain immutable; no new human pixel acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-context-quote-20261024-after-build-and-geometry",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-context-quote/after-build-and-geometry.json",
+      "recordedAtSha": "53c9bdc73d9369ab54a41d1fd4af651ffb7bd86f",
+      "renderedSourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+      "sha256": "d98bd9067a0af33fb655fe809bf58854eaa43fd5f1a7c24e4cb0bde33ea4ef78"
+    },
+    {
+      "id": "production-resources-current-engineering-20261024",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-24-production-resources-current-engineering.md",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+      "sha256": "52fe921eb48af2d73e0c0e72ecd3916768714dbd979314f209cbdef474e593e9"
+    },
+    {
+      "id": "production-resources-current-20261024-before-infrastructure-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-resources-current/before-infrastructure-1440.png",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+      "sha256": "e8397b695fda542f1eb5c1eccf49e3133ff31f742320c91029814176ad21bf86",
+      "changeReason": "New synthetic engineering observations for approved D147 Gate6A Server restoration on three existing resource pages. Keep all previous PNG bytes and evidence; default764 top views are not full page or1440 evidence. No redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-resources-current-20261024-before-infrastructure-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-resources-current/before-infrastructure-390.png",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+      "sha256": "48b0fb2e6072f334ebb45e11684c60186bf2c3fe81aac73f91369975d7fc23be",
+      "changeReason": "New synthetic engineering observations for approved D147 Gate6A Server restoration on three existing resource pages. Keep all previous PNG bytes and evidence; default764 top views are not full page or1440 evidence. No redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-resources-current-20261024-after-factory-form-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-resources-current/after-factory-form-1440.png",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+      "sha256": "77c73bf56dcd1b083be600c61e823974c31471c28b11bc1993e79f65bb6f7afc",
+      "changeReason": "New synthetic engineering observations for approved D147 Gate6A Server restoration on three existing resource pages. Keep all previous PNG bytes and evidence; default764 top views are not full page or1440 evidence. No redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-resources-current-20261024-after-factory-form-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-resources-current/after-factory-form-390.png",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+      "sha256": "24bbb121842f73016f08f7a33acb9a164a0031a707974e7d4eb4f78e7ae061df",
+      "changeReason": "New synthetic engineering observations for approved D147 Gate6A Server restoration on three existing resource pages. Keep all previous PNG bytes and evidence; default764 top views are not full page or1440 evidence. No redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-resources-current-20261024-after-calendar-form-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-resources-current/after-calendar-form-1440.png",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+      "sha256": "ef216a64238fceae0ef8ad7c746e80578add2a6a7f5edcc76fb4d8374c017f89",
+      "changeReason": "New synthetic engineering observations for approved D147 Gate6A Server restoration on three existing resource pages. Keep all previous PNG bytes and evidence; default764 top views are not full page or1440 evidence. No redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-resources-current-20261024-after-calendar-form-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-resources-current/after-calendar-form-390.png",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+      "sha256": "9e1ede31b9d6ccbec6864c029f1a5cdfbd2e79dedfb3b4d39e1436cdfcbbe786",
+      "changeReason": "New synthetic engineering observations for approved D147 Gate6A Server restoration on three existing resource pages. Keep all previous PNG bytes and evidence; default764 top views are not full page or1440 evidence. No redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-resources-current-20261024-after-infrastructure-top-764",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-resources-current/after-infrastructure-top-764.png",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+      "sha256": "dc052b939c370661f73e13881688b6f262ffaa332bf6a1fec20536fcf0328c5f",
+      "changeReason": "New synthetic engineering observations for approved D147 Gate6A Server restoration on three existing resource pages. Keep all previous PNG bytes and evidence; default764 top views are not full page or1440 evidence. No redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-resources-current-20261024-after-related-current-top-764",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-resources-current/after-related-current-top-764.png",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+      "sha256": "7da083714496ef8d6574369ae8d86ab6ca9c5ea2dbbd2c47234752b2974aea1b",
+      "changeReason": "New synthetic engineering observations for approved D147 Gate6A Server restoration on three existing resource pages. Keep all previous PNG bytes and evidence; default764 top views are not full page or1440 evidence. No redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-resources-current-20261024-before-build-and-geometry",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-resources-current/before-build-and-geometry.json",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+      "sha256": "682026c91226c95753ef59190517c38c77f2d456f1bc83d89d73bc0a9e8ecc2f"
+    },
+    {
+      "id": "production-resources-current-20261024-after-build-and-geometry",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-resources-current/after-build-and-geometry.json",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+      "sha256": "dd9675c05a9aefd2e48ff1e29b3b5a4f5d56a78c7f94ef9883b5e66b14629470"
+    },
+    {
+      "id": "production-planning-current-engineering-20261024",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-24-production-planning-current-engineering.md",
+      "recordedAtSha": "69277400b24657b20f435f57bfa7ab5f798cfc3b",
+      "renderedSourceSha": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+      "sha256": "a9e4316fa733ee0fa0845dba4e39b585a3f56db8a858749ac63a0ba43f5f77ff"
+    },
+    {
+      "id": "decisions-production-planning-current-20261024",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "69277400b24657b20f435f57bfa7ab5f798cfc3b",
+      "renderedSourceSha": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+      "sha256": "be3c04a00cc2bb1ab56df2a8b48f212ba948140eca4c0d4953e0802ff2596190",
+      "supersedes": "decisions-order-context-quote-current-20261024",
+      "changeReason": "Forward-bind D150 for approved D147 Gate6B: direct SO assignments, immutable resource/history/CAS and separate plan/execution facts. Preserve every prior decision record; current engineering evidence is not deployment or human acceptance."
+    },
+    {
+      "id": "production-scheduling-server-current-20261024",
+      "kind": "document",
+      "path": "docs/features/PRODUCTION_SCHEDULING.md",
+      "recordedAtSha": "69277400b24657b20f435f57bfa7ab5f798cfc3b",
+      "renderedSourceSha": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+      "sha256": "dee7fa43ee13c40875f4086e6ed9b6628e37dd08ffa7b2a48c29fc3c81df33e7",
+      "supersedes": "production",
+      "changeReason": "Add the current Server planning contract pointer while retaining the Browser historical implementation, storage and formulas. D147 approves this narrow Server restoration; completion and logistics remain later gates."
+    },
+    {
+      "id": "server-production-planning-current-20261024",
+      "kind": "document",
+      "path": "docs/features/SERVER_PRODUCTION_PLANNING.md",
+      "recordedAtSha": "69277400b24657b20f435f57bfa7ab5f798cfc3b",
+      "renderedSourceSha": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+      "sha256": "494e16dac0f872f1605e039fcc54c21149b92380961b0f798f40760de3d77ba6"
+    },
+    {
+      "id": "production-planning-current-20261024-before-build-and-checks",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-planning-current/before-build-and-checks.json",
+      "recordedAtSha": "69277400b24657b20f435f57bfa7ab5f798cfc3b",
+      "renderedSourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+      "sha256": "856fcd4db6aa8c340849033aa2807abbca3cb29baf6440c1c3d591320a225ddb"
+    },
+    {
+      "id": "production-planning-current-20261024-before-planning-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-planning-current/before-planning-1440.png",
+      "recordedAtSha": "69277400b24657b20f435f57bfa7ab5f798cfc3b",
+      "renderedSourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+      "sha256": "357225aec72478cd7ce57ed317d6bbbf47505165947652c269f20b9931c350e8",
+      "changeReason": "New synthetic before/after observations for approved D147 Gate6B Server restoration of the existing production-scheduling route. Keep all previous PNG bytes/IDs. DPR1.25 and default764 top views are stated accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-planning-current-20261024-before-planning-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-planning-current/before-planning-390.png",
+      "recordedAtSha": "69277400b24657b20f435f57bfa7ab5f798cfc3b",
+      "renderedSourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+      "sha256": "bf7e76b913d76e2deb83549f18958ee2bf03ef849b0888d2e4efa7ac5cdb294c",
+      "changeReason": "New synthetic before/after observations for approved D147 Gate6B Server restoration of the existing production-scheduling route. Keep all previous PNG bytes/IDs. DPR1.25 and default764 top views are stated accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-planning-current-20261024-after-anchored-history-top-764",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-planning-current/after-anchored-history-top-764.png",
+      "recordedAtSha": "69277400b24657b20f435f57bfa7ab5f798cfc3b",
+      "renderedSourceSha": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+      "sha256": "ac623f6ddeb0266e09a5da657ec898e8a4e8b5759cf9fd24c20541fe36d24cb4",
+      "changeReason": "New synthetic before/after observations for approved D147 Gate6B Server restoration of the existing production-scheduling route. Keep all previous PNG bytes/IDs. DPR1.25 and default764 top views are stated accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-planning-current-20261024-after-build-and-checks",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-planning-current/after-build-and-checks.json",
+      "recordedAtSha": "69277400b24657b20f435f57bfa7ab5f798cfc3b",
+      "renderedSourceSha": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+      "sha256": "f879d2a4202230621f3c7d99e70e00cf689f625367b8b65a7fc4fbf9d6c207b9"
+    },
+    {
+      "id": "production-planning-current-20261024-after-first-plan-top-764",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-planning-current/after-first-plan-top-764.png",
+      "recordedAtSha": "69277400b24657b20f435f57bfa7ab5f798cfc3b",
+      "renderedSourceSha": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+      "sha256": "469f7d17435761e6dad70cf1cd538892bc8445b5ece6b4acfd3d10d0b9f2244c",
+      "changeReason": "New synthetic before/after observations for approved D147 Gate6B Server restoration of the existing production-scheduling route. Keep all previous PNG bytes/IDs. DPR1.25 and default764 top views are stated accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-planning-current-20261024-after-form-1280",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-planning-current/after-form-1280.png",
+      "recordedAtSha": "69277400b24657b20f435f57bfa7ab5f798cfc3b",
+      "renderedSourceSha": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+      "sha256": "99a508672a460fbd934439f66e33bf0332664083c32dc982c82d3f31897947e3",
+      "changeReason": "New synthetic before/after observations for approved D147 Gate6B Server restoration of the existing production-scheduling route. Keep all previous PNG bytes/IDs. DPR1.25 and default764 top views are stated accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-planning-current-20261024-after-form-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-planning-current/after-form-1440.png",
+      "recordedAtSha": "69277400b24657b20f435f57bfa7ab5f798cfc3b",
+      "renderedSourceSha": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+      "sha256": "3d130d3a5f696c04896a5d458c25a00b1dc512c601f4cee35a58862d3db19128",
+      "changeReason": "New synthetic before/after observations for approved D147 Gate6B Server restoration of the existing production-scheduling route. Keep all previous PNG bytes/IDs. DPR1.25 and default764 top views are stated accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-planning-current-20261024-after-form-1536",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-planning-current/after-form-1536.png",
+      "recordedAtSha": "69277400b24657b20f435f57bfa7ab5f798cfc3b",
+      "renderedSourceSha": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+      "sha256": "eaab5011653ff35ac8807a25e0b74f2458f38ef09c24bdba95f9cfc33a5826cb",
+      "changeReason": "New synthetic before/after observations for approved D147 Gate6B Server restoration of the existing production-scheduling route. Keep all previous PNG bytes/IDs. DPR1.25 and default764 top views are stated accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-planning-current-20261024-after-form-1920",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-planning-current/after-form-1920.png",
+      "recordedAtSha": "69277400b24657b20f435f57bfa7ab5f798cfc3b",
+      "renderedSourceSha": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+      "sha256": "b8f637f4e1bc5b35b3f3a2dbb86a25ae996890e026df5e161a695c82628d297c",
+      "changeReason": "New synthetic before/after observations for approved D147 Gate6B Server restoration of the existing production-scheduling route. Keep all previous PNG bytes/IDs. DPR1.25 and default764 top views are stated accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-planning-current-20261024-after-form-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-planning-current/after-form-390.png",
+      "recordedAtSha": "69277400b24657b20f435f57bfa7ab5f798cfc3b",
+      "renderedSourceSha": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+      "sha256": "b840aca19bc6168938ac92bce44e401e399f76cfc00a1b92c0e84d1146e226e1",
+      "changeReason": "New synthetic before/after observations for approved D147 Gate6B Server restoration of the existing production-scheduling route. Keep all previous PNG bytes/IDs. DPR1.25 and default764 top views are stated accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-planning-current-20261024-after-form-900",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-planning-current/after-form-900.png",
+      "recordedAtSha": "69277400b24657b20f435f57bfa7ab5f798cfc3b",
+      "renderedSourceSha": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+      "sha256": "4f264a6fd7a8ded008d1c3c97f762d77e482a7c8a026481dff686e20dc757bc6",
+      "changeReason": "New synthetic before/after observations for approved D147 Gate6B Server restoration of the existing production-scheduling route. Keep all previous PNG bytes/IDs. DPR1.25 and default764 top views are stated accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-planning-current-20261024-after-over-assigned-top-764",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-planning-current/after-over-assigned-top-764.png",
+      "recordedAtSha": "69277400b24657b20f435f57bfa7ab5f798cfc3b",
+      "renderedSourceSha": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+      "sha256": "df61e02b76b830f2f646eaeb34ee09129677dc85f6b81e757ab73761d0e61b6f",
+      "changeReason": "New synthetic before/after observations for approved D147 Gate6B Server restoration of the existing production-scheduling route. Keep all previous PNG bytes/IDs. DPR1.25 and default764 top views are stated accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-planning-current-20261024-after-queue-1280",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-planning-current/after-queue-1280.png",
+      "recordedAtSha": "69277400b24657b20f435f57bfa7ab5f798cfc3b",
+      "renderedSourceSha": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+      "sha256": "ebc429e90387ac1084d060d9deb3ea465269271c5618ba495a5b902b2b4ca3e7",
+      "changeReason": "New synthetic before/after observations for approved D147 Gate6B Server restoration of the existing production-scheduling route. Keep all previous PNG bytes/IDs. DPR1.25 and default764 top views are stated accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-planning-current-20261024-after-queue-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-planning-current/after-queue-1440.png",
+      "recordedAtSha": "69277400b24657b20f435f57bfa7ab5f798cfc3b",
+      "renderedSourceSha": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+      "sha256": "dfb7f9cbc51b70892caab57b53bc02c434c374930f02103007a86b55e560ba0d",
+      "changeReason": "New synthetic before/after observations for approved D147 Gate6B Server restoration of the existing production-scheduling route. Keep all previous PNG bytes/IDs. DPR1.25 and default764 top views are stated accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-planning-current-20261024-after-queue-1536",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-planning-current/after-queue-1536.png",
+      "recordedAtSha": "69277400b24657b20f435f57bfa7ab5f798cfc3b",
+      "renderedSourceSha": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+      "sha256": "35bc9f59505d742de8d9e6f713b3be5d1ed924be111881c034c624dd2ffc0003",
+      "changeReason": "New synthetic before/after observations for approved D147 Gate6B Server restoration of the existing production-scheduling route. Keep all previous PNG bytes/IDs. DPR1.25 and default764 top views are stated accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-planning-current-20261024-after-queue-1920",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-planning-current/after-queue-1920.png",
+      "recordedAtSha": "69277400b24657b20f435f57bfa7ab5f798cfc3b",
+      "renderedSourceSha": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+      "sha256": "14b18cb8233ddcf14652455e51fcb5c6e7a5b4e1d312e17c7c569f79555be047",
+      "changeReason": "New synthetic before/after observations for approved D147 Gate6B Server restoration of the existing production-scheduling route. Keep all previous PNG bytes/IDs. DPR1.25 and default764 top views are stated accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-planning-current-20261024-after-queue-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-planning-current/after-queue-390.png",
+      "recordedAtSha": "69277400b24657b20f435f57bfa7ab5f798cfc3b",
+      "renderedSourceSha": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+      "sha256": "63732b30c4bec1086180a2aeec7fa7194e67c2b7b2d06303f37504c598efab56",
+      "changeReason": "New synthetic before/after observations for approved D147 Gate6B Server restoration of the existing production-scheduling route. Keep all previous PNG bytes/IDs. DPR1.25 and default764 top views are stated accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-planning-current-20261024-after-queue-900",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-planning-current/after-queue-900.png",
+      "recordedAtSha": "69277400b24657b20f435f57bfa7ab5f798cfc3b",
+      "renderedSourceSha": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+      "sha256": "93e8f0dc02ae304d2c529b74937c94305002539f34e81a85ee94041e5b9259c5",
+      "changeReason": "New synthetic before/after observations for approved D147 Gate6B Server restoration of the existing production-scheduling route. Keep all previous PNG bytes/IDs. DPR1.25 and default764 top views are stated accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-execution-current-engineering-20261024",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-24-production-execution-current-engineering.md",
+      "recordedAtSha": "6184a442faeb4a263b7d54feb4537db75f49990a",
+      "renderedSourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "sha256": "fbb85eed92fe9d1d566949f6519907f973f9a58a021426ebdcdbdd47f04068b1"
+    },
+    {
+      "id": "decisions-production-execution-current-20261024",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "6184a442faeb4a263b7d54feb4537db75f49990a",
+      "renderedSourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "sha256": "284471f207dafc1c05cf9b9d65653a1f5ce1cc740b22cb90a4baab043300a22c",
+      "supersedes": "decisions-production-planning-current-20261024",
+      "changeReason": "Forward-bind approved D151 actual-output attribution, complete/edit dual permission and explicit next-queue replan for D147 Gate6C. Keep all D150 and earlier decision blobs; no financial, source, deployment or acceptance expansion."
+    },
+    {
+      "id": "server-production-execution-current-20261024",
+      "kind": "document",
+      "path": "docs/features/SERVER_PRODUCTION_EXECUTION.md",
+      "recordedAtSha": "6184a442faeb4a263b7d54feb4537db75f49990a",
+      "renderedSourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "sha256": "2cff6108f07ce69629f31e55d1f685f78da8ca3ec256519eced83e6d2d13831b"
+    },
+    {
+      "id": "production-execution-current-20261024-before-build-and-checks",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-execution-current/before-build-and-checks.json",
+      "recordedAtSha": "6184a442faeb4a263b7d54feb4537db75f49990a",
+      "renderedSourceSha": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+      "sha256": "7e964d214d882a4c0cb580e96edbe0de2f8045b6853fe06bee8681e47ffaa6ef"
+    },
+    {
+      "id": "production-execution-current-20261024-before-planning-without-execution-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-execution-current/before-planning-without-execution-1440.png",
+      "recordedAtSha": "6184a442faeb4a263b7d54feb4537db75f49990a",
+      "renderedSourceSha": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+      "sha256": "96d83b6dde9cf3ffc5b8b56bbb8bfcae0a2caa2a5d50146136d942f6a6f56a4d",
+      "changeReason": "New exact synthetic before/after observations for approved D147 Gate6C actual execution on the existing queue/completion/history UI. Preserve all prior PNG bytes/IDs. Six widths, DPR1.25 and default764 history top are described accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-execution-current-20261024-before-planning-without-execution-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-execution-current/before-planning-without-execution-390.png",
+      "recordedAtSha": "6184a442faeb4a263b7d54feb4537db75f49990a",
+      "renderedSourceSha": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+      "sha256": "f78666631d82eff0e83a215fcc216c28a6578c4670c5e64d41d4bfcb3fbce0ec",
+      "changeReason": "New exact synthetic before/after observations for approved D147 Gate6C actual execution on the existing queue/completion/history UI. Preserve all prior PNG bytes/IDs. Six widths, DPR1.25 and default764 history top are described accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-execution-current-20261024-after-actual-anchored-history-top-764",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-execution-current/after-actual-anchored-history-top-764.png",
+      "recordedAtSha": "6184a442faeb4a263b7d54feb4537db75f49990a",
+      "renderedSourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "sha256": "72f8c86c6e979be7cb4052d7b76c8ee71f4e57d8b1abadf01e5c9f8df8410aa4",
+      "changeReason": "New exact synthetic before/after observations for approved D147 Gate6C actual execution on the existing queue/completion/history UI. Preserve all prior PNG bytes/IDs. Six widths, DPR1.25 and default764 history top are described accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-execution-current-20261024-after-actual-form-1280",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-execution-current/after-actual-form-1280.png",
+      "recordedAtSha": "6184a442faeb4a263b7d54feb4537db75f49990a",
+      "renderedSourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "sha256": "d729d6e836a30f3b8d7c9c2e5294dcc0b22fea6104eb9a920853aa2b220ee445",
+      "changeReason": "New exact synthetic before/after observations for approved D147 Gate6C actual execution on the existing queue/completion/history UI. Preserve all prior PNG bytes/IDs. Six widths, DPR1.25 and default764 history top are described accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-execution-current-20261024-after-actual-form-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-execution-current/after-actual-form-1440.png",
+      "recordedAtSha": "6184a442faeb4a263b7d54feb4537db75f49990a",
+      "renderedSourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "sha256": "38240a781aa6bc2dfe7a522b0f7ed2e9ed6acffed4d84ab4d6823f1eb65fbb3b",
+      "changeReason": "New exact synthetic before/after observations for approved D147 Gate6C actual execution on the existing queue/completion/history UI. Preserve all prior PNG bytes/IDs. Six widths, DPR1.25 and default764 history top are described accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-execution-current-20261024-after-actual-form-1536",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-execution-current/after-actual-form-1536.png",
+      "recordedAtSha": "6184a442faeb4a263b7d54feb4537db75f49990a",
+      "renderedSourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "sha256": "15d3da1813f9cb4ebf7fe5b06344da34d95e21bb66d4667943926801d2c69535",
+      "changeReason": "New exact synthetic before/after observations for approved D147 Gate6C actual execution on the existing queue/completion/history UI. Preserve all prior PNG bytes/IDs. Six widths, DPR1.25 and default764 history top are described accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-execution-current-20261024-after-actual-form-1920",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-execution-current/after-actual-form-1920.png",
+      "recordedAtSha": "6184a442faeb4a263b7d54feb4537db75f49990a",
+      "renderedSourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "sha256": "9a30cb85a5198645674d21ee354d2773cb580b784844cdd0fe365103160bd8a4",
+      "changeReason": "New exact synthetic before/after observations for approved D147 Gate6C actual execution on the existing queue/completion/history UI. Preserve all prior PNG bytes/IDs. Six widths, DPR1.25 and default764 history top are described accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-execution-current-20261024-after-actual-form-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-execution-current/after-actual-form-390.png",
+      "recordedAtSha": "6184a442faeb4a263b7d54feb4537db75f49990a",
+      "renderedSourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "sha256": "e6bcd5fdc26ec689d311312b975dbc944bcb0e305de758b0460775124878b3d5",
+      "changeReason": "New exact synthetic before/after observations for approved D147 Gate6C actual execution on the existing queue/completion/history UI. Preserve all prior PNG bytes/IDs. Six widths, DPR1.25 and default764 history top are described accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-execution-current-20261024-after-actual-form-900",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-execution-current/after-actual-form-900.png",
+      "recordedAtSha": "6184a442faeb4a263b7d54feb4537db75f49990a",
+      "renderedSourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "sha256": "a26844b8f0c860039b4161627ed35066f2014becf9dcefe175e3237bed9e75bf",
+      "changeReason": "New exact synthetic before/after observations for approved D147 Gate6C actual execution on the existing queue/completion/history UI. Preserve all prior PNG bytes/IDs. Six widths, DPR1.25 and default764 history top are described accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-execution-current-20261024-after-actual-internal-1280",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-execution-current/after-actual-internal-1280.png",
+      "recordedAtSha": "6184a442faeb4a263b7d54feb4537db75f49990a",
+      "renderedSourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "sha256": "62fcf0fdea625495c46c444ce96031a0812ccefba5419937c4204c75b737a9d4",
+      "changeReason": "New exact synthetic before/after observations for approved D147 Gate6C actual execution on the existing queue/completion/history UI. Preserve all prior PNG bytes/IDs. Six widths, DPR1.25 and default764 history top are described accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-execution-current-20261024-after-actual-internal-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-execution-current/after-actual-internal-1440.png",
+      "recordedAtSha": "6184a442faeb4a263b7d54feb4537db75f49990a",
+      "renderedSourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "sha256": "2a8f3a1c3723bba8ecd6b1ee1088e26b1545139b6b6c8fcc5539d6042b83efc5",
+      "changeReason": "New exact synthetic before/after observations for approved D147 Gate6C actual execution on the existing queue/completion/history UI. Preserve all prior PNG bytes/IDs. Six widths, DPR1.25 and default764 history top are described accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-execution-current-20261024-after-actual-internal-1536",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-execution-current/after-actual-internal-1536.png",
+      "recordedAtSha": "6184a442faeb4a263b7d54feb4537db75f49990a",
+      "renderedSourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "sha256": "d39656ae1dd2a27eca3727744e2090c1cc577fe1ec331ddbf8413cae79168555",
+      "changeReason": "New exact synthetic before/after observations for approved D147 Gate6C actual execution on the existing queue/completion/history UI. Preserve all prior PNG bytes/IDs. Six widths, DPR1.25 and default764 history top are described accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-execution-current-20261024-after-actual-internal-1920",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-execution-current/after-actual-internal-1920.png",
+      "recordedAtSha": "6184a442faeb4a263b7d54feb4537db75f49990a",
+      "renderedSourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "sha256": "0a10526209adeb4f59ec2d6fb03195ec0229dc74a3c3a8efdaf249303fc345ef",
+      "changeReason": "New exact synthetic before/after observations for approved D147 Gate6C actual execution on the existing queue/completion/history UI. Preserve all prior PNG bytes/IDs. Six widths, DPR1.25 and default764 history top are described accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-execution-current-20261024-after-actual-internal-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-execution-current/after-actual-internal-390.png",
+      "recordedAtSha": "6184a442faeb4a263b7d54feb4537db75f49990a",
+      "renderedSourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "sha256": "dda6a981d20f0ddb53f9770977021bff1081631674b503bf2cb4564c946f9bfb",
+      "changeReason": "New exact synthetic before/after observations for approved D147 Gate6C actual execution on the existing queue/completion/history UI. Preserve all prior PNG bytes/IDs. Six widths, DPR1.25 and default764 history top are described accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-execution-current-20261024-after-actual-internal-900",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-execution-current/after-actual-internal-900.png",
+      "recordedAtSha": "6184a442faeb4a263b7d54feb4537db75f49990a",
+      "renderedSourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "sha256": "8cb3c76fc1c3fec09036620b6103e5bfa337de0ee56dd9e92f46719798cdc395",
+      "changeReason": "New exact synthetic before/after observations for approved D147 Gate6C actual execution on the existing queue/completion/history UI. Preserve all prior PNG bytes/IDs. Six widths, DPR1.25 and default764 history top are described accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-execution-current-20261024-after-actual-preview-1280",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-execution-current/after-actual-preview-1280.png",
+      "recordedAtSha": "6184a442faeb4a263b7d54feb4537db75f49990a",
+      "renderedSourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "sha256": "fe568d2d291a6b8277f8cb29d9a9d6d15f528df60533ea9276c1d60cef7bc2d9",
+      "changeReason": "New exact synthetic before/after observations for approved D147 Gate6C actual execution on the existing queue/completion/history UI. Preserve all prior PNG bytes/IDs. Six widths, DPR1.25 and default764 history top are described accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-execution-current-20261024-after-actual-preview-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-execution-current/after-actual-preview-1440.png",
+      "recordedAtSha": "6184a442faeb4a263b7d54feb4537db75f49990a",
+      "renderedSourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "sha256": "f4cd7ad40984f0de55f9f918a6b643e7904f11846ff81016cb68a8988ed57f7c",
+      "changeReason": "New exact synthetic before/after observations for approved D147 Gate6C actual execution on the existing queue/completion/history UI. Preserve all prior PNG bytes/IDs. Six widths, DPR1.25 and default764 history top are described accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-execution-current-20261024-after-actual-preview-1536",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-execution-current/after-actual-preview-1536.png",
+      "recordedAtSha": "6184a442faeb4a263b7d54feb4537db75f49990a",
+      "renderedSourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "sha256": "cf7c921a854adc2e512693a4eeb2693bb3ae7d7a310e0ec0d303b70d7916ed3b",
+      "changeReason": "New exact synthetic before/after observations for approved D147 Gate6C actual execution on the existing queue/completion/history UI. Preserve all prior PNG bytes/IDs. Six widths, DPR1.25 and default764 history top are described accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-execution-current-20261024-after-actual-preview-1920",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-execution-current/after-actual-preview-1920.png",
+      "recordedAtSha": "6184a442faeb4a263b7d54feb4537db75f49990a",
+      "renderedSourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "sha256": "4e07df37105426a95c8d33c5de35f458b4b839bfe998cdf25d5df4b2a500a684",
+      "changeReason": "New exact synthetic before/after observations for approved D147 Gate6C actual execution on the existing queue/completion/history UI. Preserve all prior PNG bytes/IDs. Six widths, DPR1.25 and default764 history top are described accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-execution-current-20261024-after-actual-preview-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-execution-current/after-actual-preview-390.png",
+      "recordedAtSha": "6184a442faeb4a263b7d54feb4537db75f49990a",
+      "renderedSourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "sha256": "95a51031e3b545d30167b28e0c6f16e5f960eeb49e281a59ba52c4fc7dc0c293",
+      "changeReason": "New exact synthetic before/after observations for approved D147 Gate6C actual execution on the existing queue/completion/history UI. Preserve all prior PNG bytes/IDs. Six widths, DPR1.25 and default764 history top are described accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-execution-current-20261024-after-actual-preview-900",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-execution-current/after-actual-preview-900.png",
+      "recordedAtSha": "6184a442faeb4a263b7d54feb4537db75f49990a",
+      "renderedSourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "sha256": "385b79306608415782a0bdd0dde3150eec12ea7a5b8e4645a13141a2519669c0",
+      "changeReason": "New exact synthetic before/after observations for approved D147 Gate6C actual execution on the existing queue/completion/history UI. Preserve all prior PNG bytes/IDs. Six widths, DPR1.25 and default764 history top are described accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-execution-current-20261024-after-build-and-checks",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-execution-current/after-build-and-checks.json",
+      "recordedAtSha": "6184a442faeb4a263b7d54feb4537db75f49990a",
+      "renderedSourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "sha256": "1856c957e38ba2efd69f7aa4323bf7aa2f550daec55502debd720c9635502788"
+    },
+    {
+      "id": "production-execution-current-20261024-after-queue-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-execution-current/after-queue-1440.png",
+      "recordedAtSha": "6184a442faeb4a263b7d54feb4537db75f49990a",
+      "renderedSourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "sha256": "825676ebc3096d32a86e165f6217c9732e50e22698f154a6f6158ec8e742120e",
+      "changeReason": "New exact synthetic before/after observations for approved D147 Gate6C actual execution on the existing queue/completion/history UI. Preserve all prior PNG bytes/IDs. Six widths, DPR1.25 and default764 history top are described accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-execution-current-20261024-after-queue-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-execution-current/after-queue-390.png",
+      "recordedAtSha": "6184a442faeb4a263b7d54feb4537db75f49990a",
+      "renderedSourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "sha256": "a803b2b2af0c1a88497b3c8f40c399ade0650efd7ee4a0f6b4500b22ab324f33",
+      "changeReason": "New exact synthetic before/after observations for approved D147 Gate6C actual execution on the existing queue/completion/history UI. Preserve all prior PNG bytes/IDs. Six widths, DPR1.25 and default764 history top are described accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
     }
   ],
   "pages": [
@@ -2135,10 +2930,11 @@
       "route": "/order-center/server-detail?id=UUID",
       "routeFile": "app/order-center/server-detail/page.tsx",
       "components": [
-        "features/order-center/components/server-sales-order-detail-page.tsx"
+        "features/order-center/components/server-sales-order-detail-page.tsx",
+        "features/order-center/components/server-saved-order-sources.tsx"
       ],
       "acceptance": "approved-history",
-      "acceptanceScope": "Compact executionOnly, no CCT calls, three/one columns, folded technical facts; production not activated. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance. D121 original-history functions have synthetic engineering evidence only; no new human visual acceptance or deployment. D121 header corrections have synthetic six-width evidence; this is not new human pixel acceptance.",
+      "acceptanceScope": "Compact executionOnly, no CCT calls, three/one columns, folded technical facts; production not activated. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance. D121 original-history functions have synthetic engineering evidence only; no new human visual acceptance or deployment. D121 header corrections have synthetic six-width evidence; this is not new human pixel acceptance. D147 Gate4B current 2026-10-24 isolated engineering restores saved size/owned plan reads in default-closed original disclosures; new before/after images and six-width default geometry are engineering evidence only, not renewed human acceptance or deployment.",
       "evidence": [
         "order-integration",
         "order-images",
@@ -2152,7 +2948,15 @@
         "material-order-header-order-header-1440",
         "material-order-header-order-header-390",
         "material-order-page-approved-scope",
-        "material-order-header-ui-verification"
+        "material-order-header-ui-verification",
+        "order-saved-source-read-engineering-20261024",
+        "order-saved-source-20261024-before-default-1440",
+        "order-saved-source-20261024-before-default-390",
+        "order-saved-source-20261024-after-default-1440",
+        "order-saved-source-20261024-after-default-390",
+        "order-saved-source-20261024-after-sizes-1440",
+        "order-saved-source-20261024-after-sizes-390",
+        "order-saved-source-20261024-after-plan-facts"
       ]
     },
     {
@@ -2342,7 +3146,11 @@
     "/order-center/style-progress/detail",
     "/system-settings/progress-settings",
     "/system-settings/roles",
-    "/system-settings/users"
+    "/system-settings/users",
+    "/basic-settings/production-groups",
+    "/basic-settings/outsource-factories",
+    "/system-settings/production-infrastructure",
+    "/production-scheduling"
   ],
   "capabilities": [
     {
@@ -6685,6 +7493,431 @@
           ],
           "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
           "runtimeId": "preview18444"
+        }
+      }
+    },
+    {
+      "id": "order-saved-source-read",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D147 Gate4 saved contract/color/size evidence and read-only owned DeliveryPlan in existing default-closed disclosures; exact identities, unknown/zero/history, lazy GET and committed-session reply ownership. No writer, price, schema, Source refresh or Browser fallback. Current isolated engineering only; no merge/runtime/human acceptance.",
+      "evidence": [
+        "order-saved-source-read-engineering-20261024"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+          "scope": "D147 Gate4 saved contract/color/size evidence and read-only owned DeliveryPlan in existing default-closed disclosures; exact identities, unknown/zero/history, lazy GET and committed-session reply ownership. No writer, price, schema, Source refresh or Browser fallback. Current isolated engineering only; no merge/runtime/human acceptance.",
+          "evidence": [
+            "order-saved-source-read-engineering-20261024"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-24",
+          "sourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+          "scope": "D147 Gate4 saved contract/color/size evidence and read-only owned DeliveryPlan in existing default-closed disclosures; exact identities, unknown/zero/history, lazy GET and committed-session reply ownership. No writer, price, schema, Source refresh or Browser fallback. Current isolated engineering only; no merge/runtime/human acceptance.",
+          "evidence": [
+            "order-saved-source-read-engineering-20261024"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+          "scope": "D147 Gate4 saved contract/color/size evidence and read-only owned DeliveryPlan in existing default-closed disclosures; exact identities, unknown/zero/history, lazy GET and committed-session reply ownership. No writer, price, schema, Source refresh or Browser fallback. Current isolated engineering only; no merge/runtime/human acceptance.",
+          "evidence": [
+            "order-saved-source-read-engineering-20261024"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+          "scope": "D147 Gate4 saved contract/color/size evidence and read-only owned DeliveryPlan in existing default-closed disclosures; exact identities, unknown/zero/history, lazy GET and committed-session reply ownership. No writer, price, schema, Source refresh or Browser fallback. Current isolated engineering only; no merge/runtime/human acceptance.",
+          "evidence": [
+            "order-saved-source-read-engineering-20261024"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+          "scope": "D147 Gate4 saved contract/color/size evidence and read-only owned DeliveryPlan in existing default-closed disclosures; exact identities, unknown/zero/history, lazy GET and committed-session reply ownership. No writer, price, schema, Source refresh or Browser fallback. Current isolated engineering only; no merge/runtime/human acceptance.",
+          "evidence": [
+            "order-saved-source-read-engineering-20261024"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "Current saved-read candidate not deployed. Prior immutable runtime source/image preserved without re-observation.",
+          "evidence": [
+            "order-saved-source-read-engineering-20261024"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "Current saved-read candidate not deployed. Prior immutable runtime source/image preserved without re-observation.",
+          "evidence": [
+            "order-saved-source-read-engineering-20261024"
+          ]
+        }
+      }
+    },
+    {
+      "id": "order-context-quote-create",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D147 Gate5 explicit trusted contract-order context to existing Quote draft writer/Editor; immutable original creation reference, no SO/CCT/adoption write. Current isolated API/browser/receipt/session engineering only; no merge, activation, deployment or human acceptance.",
+      "evidence": [
+        "order-context-quote-engineering-20261024"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+          "scope": "D147 Gate5 explicit trusted contract-order context to existing Quote draft writer/Editor; immutable original creation reference, no SO/CCT/adoption write. Current isolated API/browser/receipt/session engineering only; no merge, activation, deployment or human acceptance.",
+          "evidence": [
+            "order-context-quote-engineering-20261024"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-24",
+          "sourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+          "scope": "D147 Gate5 explicit trusted contract-order context to existing Quote draft writer/Editor; immutable original creation reference, no SO/CCT/adoption write. Current isolated API/browser/receipt/session engineering only; no merge, activation, deployment or human acceptance.",
+          "evidence": [
+            "order-context-quote-engineering-20261024"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+          "scope": "D147 Gate5 explicit trusted contract-order context to existing Quote draft writer/Editor; immutable original creation reference, no SO/CCT/adoption write. Current isolated API/browser/receipt/session engineering only; no merge, activation, deployment or human acceptance.",
+          "evidence": [
+            "order-context-quote-engineering-20261024"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+          "scope": "D147 Gate5 explicit trusted contract-order context to existing Quote draft writer/Editor; immutable original creation reference, no SO/CCT/adoption write. Current isolated API/browser/receipt/session engineering only; no merge, activation, deployment or human acceptance.",
+          "evidence": [
+            "order-context-quote-engineering-20261024"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+          "scope": "D147 Gate5 explicit trusted contract-order context to existing Quote draft writer/Editor; immutable original creation reference, no SO/CCT/adoption write. Current isolated API/browser/receipt/session engineering only; no merge, activation, deployment or human acceptance.",
+          "evidence": [
+            "order-context-quote-engineering-20261024"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "Current order-context Quote candidate not deployed. Preserve the historical runtime source/image without re-observation.",
+          "evidence": [
+            "order-context-quote-engineering-20261024"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "Current order-context Quote candidate not deployed. Preserve the historical runtime source/image without re-observation.",
+          "evidence": [
+            "order-context-quote-engineering-20261024"
+          ]
+        }
+      }
+    },
+    {
+      "id": "production-resources-current",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D147 Gate6A Server production calendars, sites, groups and outsource factories on three existing pages; stable identities, CAS, fresh session authority, immutable command receipts and bounded request recovery. Current synthetic API/browser/build engineering only, no scheduling, completion, logistics, target upgrade, merge, deployment or human acceptance.",
+      "evidence": [
+        "production-resources-current-engineering-20261024"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+          "scope": "D147 Gate6A Server production calendars, sites, groups and outsource factories on three existing pages; stable identities, CAS, fresh session authority, immutable command receipts and bounded request recovery. Current synthetic API/browser/build engineering only, no scheduling, completion, logistics, target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "production-resources-current-engineering-20261024"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-24",
+          "sourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+          "scope": "D147 Gate6A Server production calendars, sites, groups and outsource factories on three existing pages; stable identities, CAS, fresh session authority, immutable command receipts and bounded request recovery. Current synthetic API/browser/build engineering only, no scheduling, completion, logistics, target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "production-resources-current-engineering-20261024"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+          "scope": "D147 Gate6A Server production calendars, sites, groups and outsource factories on three existing pages; stable identities, CAS, fresh session authority, immutable command receipts and bounded request recovery. Current synthetic API/browser/build engineering only, no scheduling, completion, logistics, target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "production-resources-current-engineering-20261024"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+          "scope": "D147 Gate6A Server production calendars, sites, groups and outsource factories on three existing pages; stable identities, CAS, fresh session authority, immutable command receipts and bounded request recovery. Current synthetic API/browser/build engineering only, no scheduling, completion, logistics, target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "production-resources-current-engineering-20261024"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+          "scope": "D147 Gate6A Server production calendars, sites, groups and outsource factories on three existing pages; stable identities, CAS, fresh session authority, immutable command receipts and bounded request recovery. Current synthetic API/browser/build engineering only, no scheduling, completion, logistics, target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "production-resources-current-engineering-20261024"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "Current production-resource candidate not deployed. Preserve the historical runtime source/image without re-observation.",
+          "evidence": [
+            "production-resources-current-engineering-20261024"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "Current production-resource candidate not deployed. Preserve the historical runtime source/image without re-observation.",
+          "evidence": [
+            "production-resources-current-engineering-20261024"
+          ]
+        }
+      }
+    },
+    {
+      "id": "production-planning-current",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D147 Gate6B current Server planned/cancelled production assignments directly owned by eligible SOs; immutable resources and history, stable colors, exact preview, per-item/order/group CAS, bounded queries and original-request recovery on the existing queue/order-pool UI. Synthetic API/browser/build engineering only. No actual execution/completion, logistics, shipment, closing, target upgrade, merge, deployment or human acceptance.",
+      "evidence": [
+        "production-planning-current-engineering-20261024"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+          "scope": "D147 Gate6B current Server planned/cancelled production assignments directly owned by eligible SOs; immutable resources and history, stable colors, exact preview, per-item/order/group CAS, bounded queries and original-request recovery on the existing queue/order-pool UI. Synthetic API/browser/build engineering only. No actual execution/completion, logistics, shipment, closing, target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "production-planning-current-engineering-20261024"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-24",
+          "sourceSha": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+          "scope": "D147 Gate6B current Server planned/cancelled production assignments directly owned by eligible SOs; immutable resources and history, stable colors, exact preview, per-item/order/group CAS, bounded queries and original-request recovery on the existing queue/order-pool UI. Synthetic API/browser/build engineering only. No actual execution/completion, logistics, shipment, closing, target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "production-planning-current-engineering-20261024"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+          "scope": "D147 Gate6B current Server planned/cancelled production assignments directly owned by eligible SOs; immutable resources and history, stable colors, exact preview, per-item/order/group CAS, bounded queries and original-request recovery on the existing queue/order-pool UI. Synthetic API/browser/build engineering only. No actual execution/completion, logistics, shipment, closing, target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "production-planning-current-engineering-20261024"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+          "scope": "D147 Gate6B current Server planned/cancelled production assignments directly owned by eligible SOs; immutable resources and history, stable colors, exact preview, per-item/order/group CAS, bounded queries and original-request recovery on the existing queue/order-pool UI. Synthetic API/browser/build engineering only. No actual execution/completion, logistics, shipment, closing, target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "production-planning-current-engineering-20261024"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+          "scope": "D147 Gate6B current Server planned/cancelled production assignments directly owned by eligible SOs; immutable resources and history, stable colors, exact preview, per-item/order/group CAS, bounded queries and original-request recovery on the existing queue/order-pool UI. Synthetic API/browser/build engineering only. No actual execution/completion, logistics, shipment, closing, target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "production-planning-current-engineering-20261024"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "Current planning candidate not deployed. Preserve historical source/image without re-observation.",
+          "evidence": [
+            "production-planning-current-engineering-20261024"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "Current planning candidate not deployed. Preserve historical source/image without re-observation.",
+          "evidence": [
+            "production-planning-current-engineering-20261024"
+          ]
+        }
+      }
+    },
+    {
+      "id": "production-execution-current",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D147 Gate6C current Server cumulative actual execution, immutable original assignment/executor/color/resource attribution, technical first-execution concurrency epoch, reasoned corrections and explicit complete+edit next-queue replan using the existing command/audit/UI. Synthetic API/upgrade/browser/build engineering only. No logistics, garment shipment, closing, real target upgrade, merge, deployment or human acceptance.",
+      "evidence": [
+        "production-execution-current-engineering-20261024"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+          "scope": "D147 Gate6C current Server cumulative actual execution, immutable original assignment/executor/color/resource attribution, technical first-execution concurrency epoch, reasoned corrections and explicit complete+edit next-queue replan using the existing command/audit/UI. Synthetic API/upgrade/browser/build engineering only. No logistics, garment shipment, closing, real target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "production-execution-current-engineering-20261024"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-24",
+          "sourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+          "scope": "D147 Gate6C current Server cumulative actual execution, immutable original assignment/executor/color/resource attribution, technical first-execution concurrency epoch, reasoned corrections and explicit complete+edit next-queue replan using the existing command/audit/UI. Synthetic API/upgrade/browser/build engineering only. No logistics, garment shipment, closing, real target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "production-execution-current-engineering-20261024"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+          "scope": "D147 Gate6C current Server cumulative actual execution, immutable original assignment/executor/color/resource attribution, technical first-execution concurrency epoch, reasoned corrections and explicit complete+edit next-queue replan using the existing command/audit/UI. Synthetic API/upgrade/browser/build engineering only. No logistics, garment shipment, closing, real target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "production-execution-current-engineering-20261024"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+          "scope": "D147 Gate6C current Server cumulative actual execution, immutable original assignment/executor/color/resource attribution, technical first-execution concurrency epoch, reasoned corrections and explicit complete+edit next-queue replan using the existing command/audit/UI. Synthetic API/upgrade/browser/build engineering only. No logistics, garment shipment, closing, real target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "production-execution-current-engineering-20261024"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+          "scope": "D147 Gate6C current Server cumulative actual execution, immutable original assignment/executor/color/resource attribution, technical first-execution concurrency epoch, reasoned corrections and explicit complete+edit next-queue replan using the existing command/audit/UI. Synthetic API/upgrade/browser/build engineering only. No logistics, garment shipment, closing, real target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "production-execution-current-engineering-20261024"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "Current production execution candidate not deployed. Preserve historical runtime source/image without re-observation.",
+          "evidence": [
+            "production-execution-current-engineering-20261024"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "Current production execution candidate not deployed. Preserve historical runtime source/image without re-observation.",
+          "evidence": [
+            "production-execution-current-engineering-20261024"
+          ]
         }
       }
     }
