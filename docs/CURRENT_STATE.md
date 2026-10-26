@@ -1,15 +1,13 @@
-# 当前状态：成衣出货观察后台本地整合
+# 当前状态：成衣出货观察main证据收敛
 
-2026-10-26；main 869ee84dd0b31de6161011e4aa560678b244a64d于2026-10-26T04:56:38.443Z独立API核实，开放PR为0；branch codex/garment-observations-main-869e从该main创建，显式快进已审分批到料UI 80fdf8ba80c6bfef3321c61d6c8fe8662eb44e22后普通合流真正的当前观察阶段aad673099da0221312a70e88bd8e2f33bfa06244。全部非docs逐blob等于已验收source d1930a2da590098f70e6433892eab350a3262e0c，只增加16项原后台增量，没有重引早期修复或混入后续0041/42/43。
+2026-10-26；main 869ee84dd0b31de6161011e4aa560678b244a64d于2026-10-26T04:56:38.443Z独立API核实，开放PR为0。branch codex/garment-observations-main-869e从N显式快进80fdf8ba80c6bfef3321c61d6c8fe8662eb44e22并普通合流原当前观察aad673099da0221312a70e88bd8e2f33bfa06244，保护性B 3a1a0955420d659aa23ea1295c314a184df72d85保留；真实A 4e92b0bfae06923940c3b85cd78fc1714f96444f直接父为[N,aad]，R 5670a8869768f9a1cd8189a23c09e52031e328f7绑定A后现普通合回B。全部非docs精确已验收source d1930a2da590098f70e6433892eab350a3262e0c，无新产品差异。
 
-0040只新增默认关闭的逐合同target、不可变观察/颜色匹配和CAS head；Num是本笔成衣数量、outdate是业务日期，其他日期和累计字段分别保留。缺失/非法/零/负值不混同；颜色按既有稳定身份唯一匹配，歧义不猜。完整两遍观察不是跨次事件账，不以消失/空结果作取消，不把负数命名冲销，不写生产完成、价格、收入或关账。
+0040只保存指定合同两遍不可变观察及稳定颜色映射，Num/outdate与其他日期/累计列独立；不跨快照累加、不以空结果或消失当取消，不写生产完成、价格、收入或关账。可信session DB-only GET、独立默认关闭target、fresh权限/物理SO/profile锁、CAS/同事务审计/原捕获回执与实际JSONB容量保持，不新增采集或激活入口。
 
-原d193 archive SHA256 58adb7b1db317c04e758ca9deb8f9a710ecbbf5e0bb9a8e5b18e538ff1799e36、19文件174项相关单元/SQL/API（173通过/1既有Linux Source CLI Windows平台SKIP，150909ms）、根811、139离线Python及类型/Node实际load/lint已核对。proof 696738e5b21a57a4d82e3c1e7b610f96c361f8c1保留原日期、源码和失败记录；0039非空升级只证明已有SO与Source逐表保护，未预置人工到料计划。前端和锁文件未变，原a0c3的215复制产物hash一致，没有新Vite或浏览器验收。原4e8232发布134/134（406504ms）及aad旧base守卫保持历史归属。本轮不重跑未变测试，只在最终提交绑定后新跑精确N源码守卫；正式PR仍须当前发布134与必要三CI，不能用旧134覆盖Linux缺口。
+原d193 archive SHA256 58adb7b1db317c04e758ca9deb8f9a710ecbbf5e0bb9a8e5b18e538ff1799e36及proof 696738e5b21a57a4d82e3c1e7b610f96c361f8c1、174项相关单元/SQL/API（173通过/1既有Windows平台Linux CLI SKIP）、根811、139离线Python、类型/Node/load/lint均按原2026-10-24范围复用。原4e8232发布134/134（406504ms）不覆盖Linux缺口。0039升级夹具为非空SO/Source，未预置人工计划；未变化前端a0c3的215复制产物hash一致，无新Vite或浏览器。最终当前N源码守卫仍待实际运行，正式PR仍须当前发布134及必要三CI。
 
-原3个新增记录中，feature/proof为独立路径，D152/153是决定文档的新分支。保留实际两父全部400/390对象，先在普通merge checkpoint冻结组合文本；随后仅加一条mergeOf连接当前决定叶与原观察叶，不删除旧记录、不改hash或伪造父关系。初合流清单403/57，绑定后预期404/57，21Server页面路由和49份继承UI影响记录完全不变。
+初仅给B加一条mergeOf的计划被独立复审判P2：缺696对N的直接父见证。未运行旧bind-evidence.mjs、未改guard或原对象。已用真实A=[N,aad]及R绑定修正ancestry，再普通合流R回保护B；当前404/57有两个预期叶，随后以本真实合流L冻结文本并前向绑定最终mergeOf，形成405/57单叶。原父对象、49份继承UI、全部0034–0040和冻结feature/proof均保留。
 
-普通PowerShell同样复现约5秒TLS中断，具体代理/上游根因仍未定位；未重复原失败通道，未修改共享代理/TLS/认证。H0d70原精确授权保留，本分支Execute/Push/PR/Hosted均0，不自动merge/close。
+实际Push/新PR/Hosted/真实Source/凭据/账号/业务库/对象/卷/备份操作均0；未安装或应用迁移，不切换3001/50426/59069/62426及其他入口，不部署、激活、调度或退役。普通PowerShell亦复现TLS故障，根因未定，不重复旧通道或改共享代理/TLS/认证；H0d70精确授权与原STOP保留。完整Goal active，不自动merge/close。
 
-无新真实Source、凭据、账号、业务库、对象/卷/备份操作，不改Browser持久账本、不安装依赖或执行真实迁移，不切换3001/50426/59069/62426及其他入口，不部署、激活、调度或退役。保留80f/201ac及此前分支、镜像和测试结果；新source工程预算不是新增真实读取许可。
-
-[阶段](tasks/active/garment-observations-main-869e-2026-10-26.md)。完整Goal active；此为观察持久化/DB-only读取切片，非事件账、正式采集、关账或业务闭环完成。
+[阶段](tasks/active/garment-observations-main-869e-2026-10-26.md)；最终精确N守卫及P2关闭以同HEAD final.json和独立复审核定，缺失不记通过。后续0041、观察UI、0042/coverage、0043与关账/真实切换仍独立。
