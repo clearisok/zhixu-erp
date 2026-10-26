@@ -23,6 +23,21 @@
 
 ## Active
 
+### D-150 Server排单计划版本与采用资源事实
+
+- 原批准2026-10-20；2026-10-24向当前main前移，Active。实施D147/G6B，延续D043直接SO→Assignment；计划与客户交付、实际完成、金额/关账独立。可信合同或已消费加工批次计划不以认领、负责人或商业采用为前置，不宣称完整生产闭环。
+- 单条、SO集合、组队列分别CAS；完整预览后明确提交，跨组首版用单个事务锁串行化。资源事实完整不可变，普通编辑不追随master，明确重排才采用最新日历；固定日期及纯内核执行保护保留，6C真实执行接线另行实现。
+- 0035前向新增、不回填旧数据/权限。逐次准确计划版本、actor/request回执及同事务OperationLog受SQL保护；稳定颜色共用非金额算法。全部有效组物理SO按UUID先冻结，来源子集先锁父，历史source owner不被搬单/搬交期。批量议价预览同批冻结以免相反锁序，不改任何成交价。
+- 新计划引用/成功回执/快照纳入归一只读盘点；外部生产/财务覆盖仍unavailable，拒绝回执不冒称成功SO桥接，不恢复公开归一写入口。没有外发裸价/币种推断，也不扩展未来关账规则。
+- 当前代码及边界见[Server排单](features/SERVER_PRODUCTION_PLANNING.md)、0035、production-scheduling与color-identities/freezePhysicalOrderGroups。工程验收按[本轮任务](tasks/active/server-production-planning-current-2026-10-24.md)精确SHA记录，旧919结果不作新验收；真实部署/来源/账号业务库及资产退役授权不扩大。
+
+### D-149 可信订单创建报价参考与商业采用分离
+
+- 原批准2026-10-20；2026-10-24向当前main前移，Active（业务/架构边界，当前验收独立记录）。执行D147已批准Gate5窄接线，不替代普通D102或D145报价唯一来源/加工批次规则。合同首次来源选择可进入既有new页；服务端核实当前有效SO、稳定合同和保存事实，明确创建经销草稿，复用原编号/writer/Editor，不按名称猜master ID。
+- 0033不可变创建参考与Quote、actor/request、原SO同事务；不自动创建SO/CCT、采用价格或限制报价服务其他订单。已采用、完成/取消、历史alias及已消费加工订单不能由此换绑；后续Quote/Source变化不覆盖创建参考。
+- 幂等含上下文，原普通hash保持；已知业务拒绝保存rejected，未知/缺回执不许可自动重POST。恢复只读，session/layout owner保护、来源二次核对/镜像锁与金额权限保持。
+- 代码：creation-order-context.ts、creation-workflows.ts、0033及相关API/真实构建驱动。当前候选与实际结果以[本轮G5](tasks/active/order-context-quote-current-2026-10-24.md)为准；不借旧54/aaf结果宣称新验收、部署或人工接受。
+
 ### D-148 Server 导航连续性与退出保护
 
 - 2026-10-20，Active；执行用户已批准的 Server 收敛 Gate3，恢复既有导航/布局，不新增菜单或开放路由。可信根边界持有唯一 AppShell，页面只注册精确路由/身份作用域的标题、返回目标和现有回调；身份等待/失败局部展示，匿名态移除受保护内容。Browser 原路径和长期存储保持。

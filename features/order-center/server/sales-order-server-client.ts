@@ -4,6 +4,7 @@ import type {
   ServerSalesOrderPage,
   ServerSalesOrderReadDto,
 } from "./sales-order-server-model";
+import type { DeliveryPlanSetDto } from "../../../server/sales-orders/delivery-plan-model";
 
 export class SalesOrderServerReadError extends Error {
   constructor(
@@ -64,3 +65,15 @@ export function createSalesOrderServerClient(options: {
 }
 
 export const salesOrderServerClient = createSalesOrderServerClient();
+
+/** Separate request/snapshot from order detail; no PATCH or Browser fallback. */
+export async function readServerDeliveryPlans(id: string, options: {
+  baseUrl?: string;
+  fetchImpl?: typeof fetch;
+} = {}): Promise<DeliveryPlanSetDto> {
+  const baseUrl = (options.baseUrl ?? "").replace(/\/$/u, "");
+  const response = await (options.fetchImpl ?? fetch)(`${baseUrl}/api/v1/sales-orders/${encodeURIComponent(id)}/delivery-plans`, {
+    method: "GET", credentials: "include", cache: "no-store",
+  });
+  return (await parseResponse<{ deliveryPlanSet: DeliveryPlanSetDto }>(response)).deliveryPlanSet;
+}

@@ -1,9 +1,11 @@
-# Handoff: navigation evidence correction, final validation pending
+# 恢复点：G6B生产排单当前main本地整合
 
-2026-10-25 Asia/Shanghai; actual main 9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf. Branch codex/navigation-pr-main-9d65 preserves navigation input 7cf7238b93b309cc736b473eeedaba394e6a47b7 through genuine merge 85072a26ab40906fbffa37e3facf7326c33eac5c. PR125 approved merge/history retained; PR124 auto-marked merged after inclusion. No other merge/close is authorized.
+当前比较基线为已独立API核实的main 869ee84dd0b31de6161011e4aa560678b244a64d（2026-10-26T02:05:13.299Z）。branch codex/production-planning-main-869e从该main干净建立，普通合流原G6B b6af0cd247c1e7ec4406e69526fa672544cce1d8；稍后保留已整合G6A 910fbd4834336446abadb64c9d617b1ae868424b的完整历史。全部非docs与已验收源码cd73726babfaa86ffef671cbbe3a37fd542dace6逐blob相同，没有新业务改动。
 
-0698f5eb2c1ac8644328cc2b826aefbc3c9d98ab named main guard PASS73799ms and named release134/134 PASS292141ms (0fail/cancel/skip,stable HEAD/manifest). Final6c documentation revision then failed the evidence-root anchor guard; no push followed. The original task root is restored exactly and observed results are bound to a distinct proof path; all prior240 valid objects/main230/input237 stay. Corrected final exact-HEAD guard and final review remain PENDING; do not call6c PASS or rerun successful134 without a new reason. See[engineering proof](tasks/completed/2026-10-25-navigation-main-9d65-engineering.md).
+先读[本阶段](tasks/active/production-planning-main-869e-2026-10-26.md)与outputs/production-planning-main-869e-20261026的preview、evidence-plan、start及同HEAD终态。先真实B父[N,b6]冻结、绑定新决定/生产文档记录，再合910f保留F/C历史并冻结第二真实决定合流；不改变原证据对象和守卫。268/811/各浏览器及质量/双构建严格按cd737复用，本次精确守卫和未来PR当前134分别记，不冒称新QA。
 
-64 total paths/33 non-document files, no SQL or later domain code. ca53/2bd original QA is reused only for unchanged scopes after210 retained build files and archive hash were checked;66 UI is phased,87 Quote is local,old90/44/2 retained. No new build/browser/install. The[original frozen integration input](tasks/active/navigation-pr-main-9d65-2026-10-25.md) records its earlier pending state; current outcome is here and in the separate proof.
+H订单读取链0d70的精确交付授权仍有效，实际Execute/Push/PR/Hosted均0。用户普通PowerShell的三种读取也在约5.3秒失败，故障不限Codex；TLS中断具体位置/原因及历史exit1仍未证明。本轮不再探测未改变的Git通道、不改共享代理/TLS/认证，资源与排单不借用H指定上传授权。PR129已按单独批准合并，其他合并/关闭未授权。
 
-REMOTE PENDING at this local checkpoint; exact finalSHA/guard/delivery/PR receipts remain in ignored outputs/navigation-pr-main-9d65-20261025. No new Hosted CI yet. Protect later d406 target branch,3001/50426/59069/62426,Browser,real accounts/business DB/volumes,backups and old evidence. No realSource/credentials,activation/scheduling,deployment or50426 cutover/retirement. Standing safe recovery never waives auth/divergence/certificate/unknown-dirty STOPs. Closing questions,real quotas,visible coverageV2 remain separate; full Goal active.
+不应用0035到任何现有库，不改变3001/50426/59069/62426、真实账号/业务库/对象/卷/备份或旧Browser记录；没有新真实Source读取、绑定、激活、调度、部署或退役。
+
+后续按依赖推进实际执行、4C、物流出货及待决关账；不以本地整合代替远端送达、正式部署或用户接受。

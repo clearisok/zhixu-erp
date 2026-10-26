@@ -1,5 +1,20 @@
 # PostgreSQL migrations
 
+0034 adds empty production calendars, date exceptions, sites, groups and outsource
+factories plus immutable actor/request outcomes. Stable resource identity,
+forward versions and disable-instead-of-delete guards do not import Browser
+defaults, create schedules, grant permissions or touch commercial data. Relations
+are explicit calendar -> site -> group. The command service validates current
+availability and authorization transactionally; SQL foreign keys retain history.
+Only disposable synthetic databases have been authorized for this stage. Normal
+startup is still verify-only; existing targets have not been upgraded.
+
+0033 adds an immutable, nonmonetary Quote creation reference to a proven order
+context. It is separate from Quote revision data and commercial adoption, shares
+the existing actor/request receipt identity, and performs no backfill, grants,
+SO creation or price adoption. Only disposable databases are authorized here;
+normal startup remains verify-only and real activation is separately gated.
+
 0025 adds independent, per-SO opt-in payment-request observation targets,
 immutable snapshots and monotonic/CAS heads. It inserts no target, snapshot,
 account or grant. Existing material Source enablement does not enable financial
@@ -50,3 +65,10 @@ normalization; old proof hashes are not rewritten. Synthetic PG validation only;
 real activation and old binary compatibility remain separately gated.
 
 0028_order_color_commercial_versions.sql：D145商业版本颜色明细扩展，保留0015/0016/0027；旧记录不回填。只在一次性合成数据库演练，真实迁移须另行授权。
+
+0035_production_schedule_plans.sql：D147新目标的计划层，不是完成量或关账。
+直接引用有效SalesOrder及既有稳定颜色身份；独立订单/队列CAS、不可变资源事实、
+逐次计划版本、actor/request回执及成功命令订单桥接。来源/颜色/交期子集服从物理
+父订单冻结，来源持有单与当前有效单仍保留各自历史。没有新权限、默认资料、
+价格、币种、实际执行、交期回写或旧数据导入；未知人工日期的工作日计数保持null。
+应用正常启动仍只验证迁移；当前只授权一次性合成数据库，不能据文件存在激活旧库。

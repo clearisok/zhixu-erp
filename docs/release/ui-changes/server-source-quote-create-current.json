@@ -1,0 +1,15 @@
+{
+  "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
+  "level": "V1",
+  "paths": [
+    "features/order-center/components/order-business-source-button.tsx",
+    "features/quote-center/components/quote-direct-create.tsx",
+    "features/quote-center/components/quote-creation-origin.tsx",
+    "features/quote-center/components/quote-editor.tsx",
+    "features/quote-center/components/restricted-quote-content.tsx",
+    "features/quote-center/server/quote-creation-client.ts"
+  ],
+  "pages": ["order-detail", "quote-new", "quote-detail"],
+  "visibleDifference": "Restore approved D147 Gate5 in the existing source selector/new page/editor: secondary explicit create entry, readonly trusted contract context and original-order return reference. Ordinary one-click defaults remain. No new modal, navigation model, pricing operation, automatic adoption or Browser writer. Current before/after engineering evidence will be frozen after actual verification, not borrowed from old54.",
+  "evidence": ["docs/tasks/active/order-context-quote-current-2026-10-24.md"]
+}

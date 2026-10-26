@@ -17,6 +17,15 @@ export async function requireEffectiveOrderForWrite(client:PoolClient,id:string)
  if(identity.historicalDuplicate)throw new HttpError(409,'historical_duplicate_order_read_only','Historical duplicate order cannot receive new execution');
  return identity;
 }
+/** Caller owns BEGIN and takes this before individual order/source row locks.
+ * A source mirror may remain on another physical member of an effective group. */
+export async function freezePhysicalOrderGroups(client:PoolClient,ids:readonly string[]){
+ if(ids.length>500||ids.some(id=>!identityUuid.test(id)))throw new HttpError(400,'invalid_order_freeze_scope','Invalid order freeze scope');
+ const attributed=await lockEffectiveAttribution(client);
+ const rows=await client.query<{id:string}>(`SELECT id::text FROM sales_orders WHERE ${attributed?'id IN (SELECT original_order_id FROM sales_order_effective_identities WHERE effective_order_id=ANY($1::uuid[]))':'id=ANY($1::uuid[])'} ORDER BY id LIMIT 2001 FOR UPDATE`,[ids]);
+ if(rows.rows.length>2000)throw new HttpError(422,'order_freeze_scope_limit','Order freeze scope exceeds supported size');
+ return rows.rows.map(row=>row.id);
+}
 export async function readEffectiveOrderGroup(client:Queryable,id:string){
  const identity=await resolveEffectiveOrder(client,id);
  const members=(await client.query<{originalOrderId:string;effectiveOrderId:string;attributionChangeId:string|null;attributionVersion:number}>(`SELECT original_order_id::text AS "originalOrderId",effective_order_id::text AS "effectiveOrderId",attribution_change_id::text AS "attributionChangeId",attribution_version AS "attributionVersion" FROM sales_order_effective_identities WHERE effective_order_id=$1 ORDER BY original_order_id LIMIT 101`,[identity.effectiveOrderId])).rows;
