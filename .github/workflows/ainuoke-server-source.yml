@@ -38,6 +38,7 @@ jobs:
           npm run test:production-resources
           npm run test:logistics-resources
           npm run test:order-tracking
+          npm run test:material-arrivals
           npm run test:production-planning
           npm run test:production-execution
           npm run test:order-normalization

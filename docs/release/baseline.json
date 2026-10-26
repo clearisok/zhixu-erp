@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "869ee84dd0b31de6161011e4aa560678b244a64d",
-  "verifiedAt": "2026-10-26T04:04:13.503Z",
+  "verifiedAt": "2026-10-26T04:19:08.956Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -3324,6 +3324,22 @@
       "sha256": "388351a57bd1dd70f1e9937db8ed6626d0d36989ab47c2c85a2caff04fef29bb",
       "changeReason": "New exact synthetic before/after observations for approved D054/D147 order logistics in the existing Server planning Modal and Drawer. Existing navigation and density retained; six widths including 1536 DPR1.25 and 390 touch. Preserve all prior PNGs; no redesign, real Source, deployment or human acceptance.",
       "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "material-arrivals-current-engineering-20261024",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-24-material-arrivals-current-engineering.md",
+      "recordedAtSha": "761267deb29796206de5492fa01bb79a417680b1",
+      "renderedSourceSha": "c994eac8aee32f9e6877fa81e65a604376760519",
+      "sha256": "338a9ff8f3723696eb7c386b3029e943e5ed30c4bd3086895b79fa7158113256"
+    },
+    {
+      "id": "server-material-arrivals-current-20261024",
+      "kind": "document",
+      "path": "docs/features/SERVER_MATERIAL_ARRIVALS.md",
+      "recordedAtSha": "761267deb29796206de5492fa01bb79a417680b1",
+      "renderedSourceSha": "c994eac8aee32f9e6877fa81e65a604376760519",
+      "sha256": "775eab3e922b8b5d403c0db36b61aad42dc4ae6c99520934bd2437284e3e1a47"
     }
   ],
   "pages": [
@@ -8664,6 +8680,91 @@
           "scope": "Current order logistics dialog candidate not deployed; preserve historical runtime source/image without re-observation.",
           "evidence": [
             "order-logistics-dialog-current-engineering-20261024"
+          ]
+        }
+      }
+    },
+    {
+      "id": "material-arrivals-current",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D054/D065-69/D147 current Windows synthetic backend for manual material arrival batches/allocations, stable demand identities, explicit Hub/source generations, exact capacity, fresh permissions and immutable history/actor-request receipts. Current217 passing related checks plus811 root; one unchanged Linux-only CLI test skipped on Windows is NOT claimed passed. No UI/logistics projection closure, new Vite/browser, real Source, target upgrade, merge/deployment or human acceptance.",
+      "evidence": [
+        "material-arrivals-current-engineering-20261024"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "c994eac8aee32f9e6877fa81e65a604376760519",
+          "scope": "D054/D065-69/D147 current Windows synthetic backend for manual material arrival batches/allocations, stable demand identities, explicit Hub/source generations, exact capacity, fresh permissions and immutable history/actor-request receipts. Current217 passing related checks plus811 root; one unchanged Linux-only CLI test skipped on Windows is NOT claimed passed. No UI/logistics projection closure, new Vite/browser, real Source, target upgrade, merge/deployment or human acceptance.",
+          "evidence": [
+            "material-arrivals-current-engineering-20261024"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-24",
+          "sourceSha": "c994eac8aee32f9e6877fa81e65a604376760519",
+          "scope": "D054/D065-69/D147 current Windows synthetic backend for manual material arrival batches/allocations, stable demand identities, explicit Hub/source generations, exact capacity, fresh permissions and immutable history/actor-request receipts. Current217 passing related checks plus811 root; one unchanged Linux-only CLI test skipped on Windows is NOT claimed passed. No UI/logistics projection closure, new Vite/browser, real Source, target upgrade, merge/deployment or human acceptance.",
+          "evidence": [
+            "material-arrivals-current-engineering-20261024"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "c994eac8aee32f9e6877fa81e65a604376760519",
+          "scope": "D054/D065-69/D147 current Windows synthetic backend for manual material arrival batches/allocations, stable demand identities, explicit Hub/source generations, exact capacity, fresh permissions and immutable history/actor-request receipts. Current217 passing related checks plus811 root; one unchanged Linux-only CLI test skipped on Windows is NOT claimed passed. No UI/logistics projection closure, new Vite/browser, real Source, target upgrade, merge/deployment or human acceptance.",
+          "evidence": [
+            "material-arrivals-current-engineering-20261024"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "c994eac8aee32f9e6877fa81e65a604376760519",
+          "scope": "D054/D065-69/D147 current Windows synthetic backend for manual material arrival batches/allocations, stable demand identities, explicit Hub/source generations, exact capacity, fresh permissions and immutable history/actor-request receipts. Current217 passing related checks plus811 root; one unchanged Linux-only CLI test skipped on Windows is NOT claimed passed. No UI/logistics projection closure, new Vite/browser, real Source, target upgrade, merge/deployment or human acceptance.",
+          "evidence": [
+            "material-arrivals-current-engineering-20261024"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "c994eac8aee32f9e6877fa81e65a604376760519",
+          "scope": "D054/D065-69/D147 current Windows synthetic backend for manual material arrival batches/allocations, stable demand identities, explicit Hub/source generations, exact capacity, fresh permissions and immutable history/actor-request receipts. Current217 passing related checks plus811 root; one unchanged Linux-only CLI test skipped on Windows is NOT claimed passed. No UI/logistics projection closure, new Vite/browser, real Source, target upgrade, merge/deployment or human acceptance.",
+          "evidence": [
+            "material-arrivals-current-engineering-20261024"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "Current manual material arrival backend not deployed; preserve historical runtime observations without new queries.",
+          "evidence": [
+            "material-arrivals-current-engineering-20261024"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "Current manual material arrival backend not deployed; preserve historical runtime observations without new queries.",
+          "evidence": [
+            "material-arrivals-current-engineering-20261024"
           ]
         }
       }

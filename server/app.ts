@@ -65,6 +65,8 @@ import { routeTeamAccess } from "./auth/team-access-routes.js";
 import { routeManagedRoles } from "./auth/managed-role-routes.js";
 import { routeProductionResources } from "./production-resources/routes.js";
 import { routeProductionScheduling } from "./production-scheduling/routes.js";
+import { routeMaterialArrivals } from "./material-arrivals/routes.js";
+import type { SourceReadConfig } from "./ainuoke-source/reader.js";
 import type { PaymentSnapshotReader } from './ainuoke-source/payment-request-store.js';
 
 export type ServerLogger = {
@@ -80,12 +82,13 @@ export type AppDependencies = {
   identityAuthority?: IdentityAuthority;
   attachmentStorage?: AttachmentStorage;
   orderMaterialRead?: MaterialReadPorts;
+  materialArrivalSource?: SourceReadConfig | null;
   orderMaterialHistory?: MaterialHistoryReader;
   orderPaymentRead?: PaymentSnapshotReader;
   normalizationExecution?: NormalizationExecutionOptions;
   orderCommandMode?: OrderCommandMode;
 };
-type ResolvedAppDependencies = Required<Omit<AppDependencies, "attachmentStorage" | "orderMaterialRead" | "orderMaterialHistory" | "orderPaymentRead" | "normalizationExecution">> & Pick<AppDependencies, "attachmentStorage" | "orderMaterialRead" | "orderMaterialHistory" | "orderPaymentRead" | "normalizationExecution">;
+type ResolvedAppDependencies = Required<Omit<AppDependencies, "attachmentStorage" | "orderMaterialRead" | "materialArrivalSource" | "orderMaterialHistory" | "orderPaymentRead" | "normalizationExecution">> & Pick<AppDependencies, "attachmentStorage" | "orderMaterialRead" | "materialArrivalSource" | "orderMaterialHistory" | "orderPaymentRead" | "normalizationExecution">;
 
 const defaultLogger: ServerLogger = {
   error(event) {
@@ -362,6 +365,7 @@ async function route(
   if (await routeMaterialProgressSettings(request, response, dependencies)) return;
   if (await routeProductionResources(request, response, dependencies)) return;
   if (await routeProductionScheduling(request, response, dependencies)) return;
+  if (await routeMaterialArrivals(request, response, dependencies)) return;
   const creationReceipt = /^\/api\/v1\/quotes\/creation-receipts\/([^/]+)$/.exec(path);
   const creationOrder = /^\/api\/v1\/quotes\/creation-order-context\/([^/]+)$/.exec(path);
   const creationOrigin = /^\/api\/v1\/quotes\/([^/]+)\/creation-origin$/.exec(path);

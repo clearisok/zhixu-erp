@@ -179,3 +179,5 @@ manifest 记录 product、schemaVersion、environment、initializedAt 和 update
 2026-10-24 D054/D147当前0038候选只新增空订单物流上下文head/history并扩原命令action。新UUID明确归原物理SO，不读/迁移/Seed或修改Browser长期记录，不回填默认仓或搬历史；旧0037之前字节保持。只授权一次性合成PG，实际目标未升级，见[Server契约](SERVER_ORDER_LOGISTICS_CONTEXT.md)。
 
 2026-10-24当前订单物流对话框沿用actor/tab的production-plan.pending.v1原key/envelope，新增严格tracking命令分支，旧plan/execution原命令及hash兼容；不迁移/清空Browser业务键、不Seed或另建outbox。刷新仅核原请求，unknown不自动重发。实际接线见[Server对话框](SERVER_ORDER_LOGISTICS_DIALOG.md)。
+
+2026-10-24 D147当前0039仅新增空Server人工预计到仓计划、稳定需求注册及不可变历史/回执；不读、迁移、Seed、删除或覆盖Browser ExpectedArrivalBatch/key/namespace。来源快照读取复用原Material pipeline，人工计划不随来源重同步被重写，现有目标不自动升级，见[当前Server契约](SERVER_MATERIAL_ARRIVALS.md)。

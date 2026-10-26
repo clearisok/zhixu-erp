@@ -91,3 +91,8 @@ Assignment及当时计划版本/资源归属；不改0035计划状态，不回�
 复用production_schedule_commands及成功SO桥接，不设默认、不回填、不搬原身份。SQL保护精确版本、
 发生时仓快照、每个中间事件及只读生命周期；不推进SO/计划/队列/执行版本，不复制物料日期或金额。
 0037非空升级及新API仅一次性合成PG验证，正常启动verify-only，现有目标不因该文件存在自动升级。
+
+0039_material_arrival_plans.sql：D054/D065–069/D147的独立Server人工到仓批次与Allocation，长期需求UUID与各代来源证据分离；
+按物理SO/Canonical组保存手工分批、当时Hub/跟进版本与精确需求容量，原OperationLog及actor/request回执同事务。
+不以Source交期生成到仓日期，不补齐未安排数量、不绑定四流、不换单位或搬历史；没有seed/backfill。
+0038非空Source/跟进/回执升级只在一次性合成PG验证，现有体验和正式数据库不因该文件存在执行迁移。
