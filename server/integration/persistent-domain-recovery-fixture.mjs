@@ -133,7 +133,7 @@ export async function snapshotPersistentDomainDatabase(state,includeTechnical=fa
     database[name]=JSON.parse(raw);
   }
   for(const name of requiredNonempty)assert.ok(database[name]?.count>0,'nonempty_recovery_fixture_required:'+name);
-  if(includeTechnical)database.sequences=JSON.parse(await state.sql("SELECT COALESCE(jsonb_agg(to_jsonb(s) ORDER BY sequencename),'[]'::jsonb)::text FROM pg_sequences s WHERE schemaname='public'"));
+  if(includeTechnical)database.sequences=await state.sql("SELECT COALESCE(jsonb_agg(to_jsonb(s) ORDER BY sequencename),'[]'::jsonb)::text FROM pg_sequences s WHERE schemaname='public'");
   return database;
 }
 

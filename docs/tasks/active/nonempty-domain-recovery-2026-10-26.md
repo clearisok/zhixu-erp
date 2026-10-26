@@ -19,3 +19,5 @@ source checkpoint后canonical archive逐blob校验，复用现有依赖不安装
 实际终态：test source e3a23280e152d4113366604da020c68eb3e519bb、原6d镜像，canonical 2991 blobs/0 overlay；一次新非空runtime 9/9、478994ms，原请求均known且匹配POST。冷重建、全部表/sequence在恢复启动前、领域API在启动后比较通过；旧50/179/27元数据changes=[]。本地原件hash见[冻结证明](../completed/2026-10-26-nonempty-domain-recovery-validation.md)。Git/ref STOP仍保留，本轮Hosted0，PR130仍617。
 
 证明由Q 8e6068b4894fd4d5417edc8ba02fc154f77a1f2d冻结；后续R只追加独立根至505证据/66能力，原504和全部UI/能力字段保持。最终守卫/复审另据实际回执。
+
+终审精度P2：e3读取pg_sequences后JSON.parse会舍入bigint元数据；原演练last_value为安全小整数/null，不冒称完整64位字段逐字证明。新增同一读取分支回归已先红（object非string），现只取消JSON.parse，原SQL/排序/调用位置/全表hash/恢复流程不变；后续新自有PG边界核验，原9项不重复。原proof“到仓60.25显式断言”需精确限定：直接断言计划100/完成20.25，到仓60.25是提交输入和POST/恢复回执一致比较；原冻结文档保留，将追加独立补充证明。
