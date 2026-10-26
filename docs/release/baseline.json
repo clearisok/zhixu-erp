@@ -4755,6 +4755,24 @@
       "recordedAtSha": "9d287e738d38a9d2a25bfb86a7e74698a29f7be7",
       "renderedSourceSha": "2c9e321c5a5d0e6ddca85f90f7348c07de955eda",
       "sha256": "8d24d55e7f05e8b2594682c650a7cff4737ea6b5e0aed3b95bf362b42eafd0bc"
+    },
+    {
+      "id": "server-closing-interface-d167-decision-log-20261027",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "94ba0322be2e454a1f4ed838428a135cc5eb53d4",
+      "renderedSourceSha": "45a5b087b4b3ed19ae448188257146a516d75bf4",
+      "sha256": "ea99ad3ffe32f4eec5161d0ad2cc542396dec8bf1cfb0ce0766e9a55857a4fb1",
+      "supersedes": "usd-labor-controller-d166-decision-log-20261027",
+      "changeReason": "D167 binds the existing Server closing protocol and original receipts without new pricing, tax or UI rules; retain D162/D163 and unresolved remote/UI boundaries"
+    },
+    {
+      "id": "server-closing-interface-engineering-20261027",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-27-server-closing-interface-engineering.md",
+      "recordedAtSha": "94ba0322be2e454a1f4ed838428a135cc5eb53d4",
+      "renderedSourceSha": "45a5b087b4b3ed19ae448188257146a516d75bf4",
+      "sha256": "d9f46408419d6c09193b062295009f71edb96cd20b17575a7d3adfda8b60ec22"
     }
   ],
   "pages": [
