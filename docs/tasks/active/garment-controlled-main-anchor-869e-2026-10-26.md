@@ -15,3 +15,5 @@ D160/161沿原0040目标、0043采集及0044启停回执提供唯一原源码CLI
 实际原证据/能力479/66，R绑定三文档后482/66；后续仍需实际L/P和同HEAD守卫。
 
 NETWORK_DEGRADED保持：用户普通PowerShell三种只读Git均exit128/uncertain_transport、约5.35秒，可排除仅Codex会失败，仍不能据JSON断定相同TLS环节或根因。不重复原Git探测/推送，不改共享代理/TLS/认证，原H0d70授权及STOP保留。本阶段Push/新PR/Hosted/真实Source/凭据/账号/现有业务库/卷备份操作均0；不启用、绑定、调度、部署、merge main、切换或退役，3001/50426/59069/62426等旧对象与Browser数据保护。
+
+实际A 52afadf649d36bf54a715b878ba2db153f9d2a90（tree 46ef5a824bf2afd6f432369166c8d96e8c98d239，父[869ee84dd0b31de6161011e4aa560678b244a64d,7da954545bd9b720bfc28edbd313bc387dd5c195]），R绑定decisions-garment-controlled-main-anchor-869e-20261026、closing-garment-controlled-main-anchor-869e-20261026、production-garment-controlled-main-anchor-869e-20261026；三文档hash分别按实际A Git blob计算，最终L/P和守卫后置。

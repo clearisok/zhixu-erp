@@ -4281,6 +4281,42 @@
       "sha256": "1e52f04089d8d27dc4b3a8b1224c0fb49e7d68182b4654a10d081c47724e7675",
       "supersedes": "decisions-garment-target-current-20261024",
       "changeReason": "Bind original D159/D161 operator composition on current D158/D160 owners, precise current20 and prior79f27/52/71 scopes, no new business rule, Source quota or activation. Preserve all prior decision and actual-main merge witnesses."
+    },
+    {
+      "id": "decisions-garment-controlled-main-anchor-869e-20261026",
+      "path": "docs/DECISION_LOG.md",
+      "mergeOf": [
+        "decisions-navigation-pr125-convergence-20261024-forward-main-9d65-20261025",
+        "decisions-garment-operator-current-20261025"
+      ],
+      "kind": "document",
+      "recordedAtSha": "52afadf649d36bf54a715b878ba2db153f9d2a90",
+      "renderedSourceSha": "8cf667f26f191b0ca1d3b31b423dd293d7f2a5b6",
+      "sha256": "1e52f04089d8d27dc4b3a8b1224c0fb49e7d68182b4654a10d081c47724e7675",
+      "changeReason": "Bind independently contributed document leaves at the actual two-parent merge of exact main N and the preserved collector/target/operator chain. Keep original identities, hashes, all parent records and business scope; no manufactured ancestry or guard exception."
+    },
+    {
+      "id": "closing-garment-controlled-main-anchor-869e-20261026",
+      "path": "docs/features/CLOSING_CENTER.md",
+      "mergeOf": [
+        "closing-navigation-pr125-convergence-20261024-forward-main-9d65-20261025",
+        "closing-navigation-pr125-convergence-20261024-forward-main-9d65-20261024"
+      ],
+      "kind": "document",
+      "recordedAtSha": "52afadf649d36bf54a715b878ba2db153f9d2a90",
+      "renderedSourceSha": "8cf667f26f191b0ca1d3b31b423dd293d7f2a5b6",
+      "sha256": "960321f523c0b3983e6a47f89c0d60e6c5da993e1c47af12d75b26ac2f2b19d0",
+      "changeReason": "Bind independently contributed document leaves at the actual two-parent merge of exact main N and the preserved collector/target/operator chain. Keep original identities, hashes, all parent records and business scope; no manufactured ancestry or guard exception."
+    },
+    {
+      "id": "production-garment-controlled-main-anchor-869e-20261026",
+      "path": "docs/features/PRODUCTION_SCHEDULING.md",
+      "supersedes": "production-scheduling-server-current-20261024-forward-main-9d65-20261024",
+      "kind": "document",
+      "recordedAtSha": "52afadf649d36bf54a715b878ba2db153f9d2a90",
+      "renderedSourceSha": "8cf667f26f191b0ca1d3b31b423dd293d7f2a5b6",
+      "sha256": "dee7fa43ee13c40875f4086e6ed9b6628e37dd08ffa7b2a48c29fc3c81df33e7",
+      "changeReason": "Forward the sole incoming production document leaf at the genuine direct-parent N integration. Current bytes match; preserve its complete revision chain without pretending two independent predecessors exist."
     }
   ],
   "pages": [
