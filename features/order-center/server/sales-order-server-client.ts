@@ -5,6 +5,7 @@ import type {
   ServerSalesOrderReadDto,
 } from "./sales-order-server-model";
 import type { DeliveryPlanSetDto } from "../../../server/sales-orders/delivery-plan-model";
+import { createDeliveryPlanClient, DeliveryPlanClientError, type DeliveryPlanLease } from './delivery-plan-client';
 
 export class SalesOrderServerReadError extends Error {
   constructor(
@@ -70,10 +71,12 @@ export const salesOrderServerClient = createSalesOrderServerClient();
 export async function readServerDeliveryPlans(id: string, options: {
   baseUrl?: string;
   fetchImpl?: typeof fetch;
+  lease?: DeliveryPlanLease;
+  signal?: AbortSignal;
 } = {}): Promise<DeliveryPlanSetDto> {
-  const baseUrl = (options.baseUrl ?? "").replace(/\/$/u, "");
-  const response = await (options.fetchImpl ?? fetch)(`${baseUrl}/api/v1/sales-orders/${encodeURIComponent(id)}/delivery-plans`, {
-    method: "GET", credentials: "include", cache: "no-store",
-  });
-  return (await parseResponse<{ deliveryPlanSet: DeliveryPlanSetDto }>(response)).deliveryPlanSet;
+  try { return await createDeliveryPlanClient(options).read(id, options.lease ?? (() => true), options.signal); }
+  catch (error) {
+    if (error instanceof DeliveryPlanClientError) throw new SalesOrderServerReadError(error.status, error.code, error.message);
+    throw error;
+  }
 }

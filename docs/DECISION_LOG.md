@@ -23,6 +23,28 @@
 
 ## Active
 
+### D-156 Server交付计划维护沿用原领域和原请求恢复
+
+- 2026-10-22，Active；用户对原call_d4696fa532a64295ba294304d8404abf回复“按草图实施”。
+  [冻结批准](tasks/completed/2026-10-22-delivery-plan-maintenance-ui-approval.md)限定标题小按钮、
+  Foundation弹窗增改作废、预览保存、来源只读与数量差异提示；不改变D100/D154后台规则。
+- 复用原GET/PATCH/原完整body receipt。仅实际变更提交；默认0/null不被强制改为人工正数，
+  作废历史和行身份保留。交期与商业/生产事实独立，来源维护和交期维护独立owner后合并退出保护。
+- actor/tab技术pending先完整存读后发送，不是Browser账本或回退。未知不清缓存、不自动重写；
+  为避免发送前断网后永久未知，只有精确unknown回执才开放二次人工确认的同UUID/CAS/body重发。
+  再次发送前核对原槽完整相等，一次确认最多一发；重发后旧许可失效，错误/切单/换会话不沿用。
+  此为已批准“先核对、不盲目再保存”的恢复实现，不新增业务写入口或产生新计划身份。
+- 规范SO UUID贯通缓存/当前GET/旧披露刷新；实际session对象在layout失效，防同用户ABA和迟到401。
+  processing不把仅来源镜像的null伪称加工资料未记录。完成/取消状态沿用原DeliveryPlan编辑权限。
+- 证据：`features/order-center/server/delivery-plan-*`、maintenance hook/组件、原详情及Foundation Modal。
+  原2026-10-22工程/失败记录保留在2a19960a8f9810062f15b87e18214505aa74f8c5原提交，不作为本轮PASS。
+  当前[source任务](tasks/active/server-delivery-plan-ui-current-2026-10-24.md)及独立UI契约记录新工程/远端/门禁边界。
+  工程通过不代表部署或人工接受；原决策阶段快照与失败保留，不改D100/D154规则。
+
+- 2026-10-24当前受控前移：原批准字节/原型hash已核，16非workflow原输入一致；沿[独立UI契约](features/SERVER_DELIVERY_PLAN_MAINTENANCE_UI.md)验收，不借旧2a结果。后台3e869保持，不带D155覆盖投影或0043。
+
+- 2026-10-24产品56b/driver0e12的新隔离工程结果见[本轮证明](tasks/completed/2026-10-24-delivery-plan-ui-current-engineering.md)：失败及分阶段联合保留，发布/最后守卫仍后置，不借原工程或#125CI。
+
 ### D-154 DeliveryPlan沿用原命令并保存可核对回执
 
 - 原2026-10-22技术决定，2026-10-24受控前移，Active；D147已批准Server收敛范围内的可靠性，不改变D083/D100的来源/人工所有权、系统默认0、人工正数、独立集合版本和历史计划规则。原PATCH/writer/响应保持，0042只新增空不可变请求回执，不回填或重建计划。

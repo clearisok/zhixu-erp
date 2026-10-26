@@ -42,6 +42,7 @@ jobs:
           npm run test:garment-shipment-observations
           npm run test:bound-order-refresh
           npx --no-install tsx --test --test-concurrency=1 server/sales-orders/delivery-plan-request.test.ts server/integration/delivery-plan-requests.integration.test.ts
+          npx --no-install tsx --test features/order-center/server/__tests__/delivery-plan-client.test.ts features/order-center/server/__tests__/delivery-plan-draft.test.ts features/order-center/server/__tests__/delivery-plan-pending.test.ts
           npm run test:production-planning
           npm run test:production-execution
           npm run test:order-normalization
@@ -88,6 +89,7 @@ jobs:
       - name: Existing P6 pages, six roles and persisted refresh in private Chromium
         env:
           GARMENT_SHIPMENTS_EXPECTED_SOURCE: ${{ github.sha }}
+          DELIVERY_PLAN_EXPECTED_SOURCE: ${{ github.sha }}
         run: |
           node --test tests/server-navigation-history.test.mjs
           npx --no-install tsx --test server/integration/server-navigation-continuity.integration.test.mjs
@@ -101,6 +103,7 @@ jobs:
           npm run test:material-history-ui
           npx --no-install tsx --test server/integration/material-display-ui.integration.test.mjs
           npm run test:garment-shipments-ui
+          npx --no-install tsx --test server/integration/delivery-plan-maintenance-ui.integration.test.mjs
           npm run test:ainuoke-payment-panel-ui
       - name: Python fixed catalog and transport boundaries
         working-directory: tools/ainuoke-bridge
