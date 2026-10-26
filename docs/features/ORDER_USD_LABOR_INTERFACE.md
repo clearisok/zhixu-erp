@@ -21,13 +21,13 @@
 
 `features/quote-center/server/labor-adoption-client.ts`为浏览器安全的严格白名单协议层。只用同源session、no-store、有限响应读取及owner lease；不导入Node/PG运行时、业务计算、Browser仓储或旧价格。字符串枚举和数字状态不强制转换，原样数组/嵌套数组/错摘要/旧owner响应不能冒充结果。POST不会自动重试；202、网络错误或坏响应继续保留原请求，随后只GET核对。
 
-`zhixu.server.usd-labor.pending.v1.<public-user-id>`只在sessionStorage保存同actor/tab的一条未核实原命令，含Quote上下文、原订单/颜色、版本、目标修订、用户确认/原因、请求UUID与previewHash。不保存结构化金额、CCT/报价响应、密码或token；用户主动输入的原因按原文保存。完整写入并读回后才允许调用POST。不同订单/Quote不能覆盖未决命令；损坏/未来版本/非规范化字节/不可写保留并阻止新发送。只有匹配的终态回执才能显式确认并移除此精确键。
+`zhixu.server.usd-labor.pending.v1.<public-user-id>`只在sessionStorage保存同actor/tab的一条未核实原命令，含Quote上下文、原订单/颜色、版本、目标修订、用户确认/原因、请求UUID与previewHash。不保存结构化金额、CCT/报价响应、密码或token；用户主动输入的原因按原文保存。未来UI调用者须在完整写入并读回后才调用POST；低层client.submit本身不操作sessionStorage，本切片没有页面controller，不冒称调用顺序已做UI验收。不同订单/Quote不能覆盖未决命令；损坏/未来版本/非规范化字节/不可写保留并阻止新发送。只有匹配的终态回执才能显式确认并移除此精确键。
 
 这不是离线业务库、跨标签页/设备备份或自动重发队列；关闭标签页可能丢失本机地址，Server命令和历史仍保留。没有localStorage/IndexedDB/Seed、旧namespace、Browser schema或备份迁移变化。现有体验站点未读取或清理。
 
 ## 当前状态与界面边界
 
-精确S 60c2a6a2848978af1bb9ebe72184de97f4b14450的41项受影响检查、811项目、类型/lint/前后端构建及项目Vite浏览器bundle通过，静态终审0P1/P2；[冻结工程](../tasks/completed/2026-10-27-order-usd-labor-interface-engineering.md)保留初次38/36/2、附加构建器误选失败与精确分源。不是新UI交互验收；最终发布检查另记录。[阶段记录](../tasks/active/order-usd-labor-interface-2026-10-27.md)。
+精确S 60c2a6a2848978af1bb9ebe72184de97f4b14450的41项受影响检查、811项目、类型/lint/前后端构建及项目Vite浏览器bundle通过，静态终审0P1/P2；[冻结工程](../tasks/completed/2026-10-27-order-usd-labor-interface-engineering.md)保留初次38/36/2、附加构建器误选失败与精确分源。不是新UI交互验收；发布144与最终精确守卫按[验收收口](../tasks/completed/2026-10-27-order-usd-labor-interface-validation.md)和本机final.json分别记录。[阶段记录](../tasks/active/order-usd-labor-interface-2026-10-27.md)。
 
 报价详情“关联订单”三步USD采用页签的具体交互确认仍pending，不能将已批准后端规则或等待时间冒称V2界面批准。因此本切片无DOM、CSS、导航入口或新UI像素/人工接受声明。后续界面和Server关账/税率更正继续独立推进。
 
