@@ -4661,32 +4661,38 @@
       "changeReason": "D163 implements D162 Server closing snapshots and atomic commands; preserve all historical Browser/Server evidence and uncompleted UI/live boundaries"
     },
     {
-      "id": "closing-commands-d163-server_closing-20261027",
-      "kind": "document",
-      "path": "docs/features/SERVER_CLOSING.md",
-      "recordedAtSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
-      "renderedSourceSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
-      "sha256": "43d9774122b66cc13189227595d2acdf129975bed6d90dd69e660f1607c3d8d9",
-      "supersedes": "closing-basis-d162-server_closing-20261026",
-      "changeReason": "D163 implements D162 Server closing snapshots and atomic commands; preserve all historical Browser/Server evidence and uncompleted UI/live boundaries"
-    },
-    {
-      "id": "closing-commands-d163-business_rules-20261027",
-      "kind": "document",
-      "path": "docs/BUSINESS_RULES.md",
-      "recordedAtSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
-      "renderedSourceSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
-      "sha256": "e08d3e037403139e06e4602d7bd936d5b6cca903b1a2ea71e92136df833bd592",
-      "supersedes": "closing-basis-d162-business_rules-20261026",
-      "changeReason": "D163 implements D162 Server closing snapshots and atomic commands; preserve all historical Browser/Server evidence and uncompleted UI/live boundaries"
-    },
-    {
       "id": "closing-commands-d163-2026-10-27-server-closing-commands-engineering-20261027",
       "kind": "document",
       "path": "docs/tasks/completed/2026-10-27-server-closing-commands-engineering.md",
       "recordedAtSha": "8830f086d3b4a8c04c0f247e2a61aa10bb4d45ca",
       "renderedSourceSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
       "sha256": "2135f3b48392a0abc952ecf017b52c8cb7e5e000501363f5ab34719cf1a9839f"
+    },
+    {
+      "id": "closing-commands-d163-decisions-reconciled-20261027",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "e12638cc392e5268f56f589e312f067ca2110535",
+      "renderedSourceSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
+      "sha256": "afb6d89e521cec3f049a73ef7d2ae3f33758ee1910f7b9df3c4bb8c160b3bc8c",
+      "supersedes": "closing-commands-d163-decision_log-20261027",
+      "changeReason": "Preserve D163 business rules and legally anchored decision history; point current implementation to the independent Gate8B contract and clarify retired invalid candidates"
+    },
+    {
+      "id": "closing-commands-d163-independent-contract-20261027",
+      "kind": "document",
+      "path": "docs/features/SERVER_CLOSING_COMMANDS.md",
+      "recordedAtSha": "e12638cc392e5268f56f589e312f067ca2110535",
+      "renderedSourceSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
+      "sha256": "499e98da6ca9ccec6d74e689daefe8803629f9f2c14cb8bba034b25b05644d19"
+    },
+    {
+      "id": "closing-commands-d163-evidence-reconciliation-20261027",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-27-closing-command-evidence-reconciliation.md",
+      "recordedAtSha": "e12638cc392e5268f56f589e312f067ca2110535",
+      "renderedSourceSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
+      "sha256": "f95735e1b0acd51224428a6cf2f772d81a7ffe3ee6f943f84210e85f99affebf"
     }
   ],
   "pages": [
