@@ -1,17 +1,15 @@
-# 当前状态：物料分批到料界面本地整合
+# 当前状态：成衣出货观察后台本地整合
 
-2026-10-26；main 869ee84dd0b31de6161011e4aa560678b244a64d于2026-10-26T04:35:24.589Z独立API核实，开放PR为0；branch codex/material-arrival-ui-main-869e从该main创建，显式快进已审0039后台201ac270cf75cf983dd27dd17eb82836fe2ea3aa后普通合流原到料界面5f3dc11df3270fceef14227c0a005220bd570145。全部非docs逐blob等于驱动源码abf3bf774124934b9372586d079308a120d6980d；产品逐blob等于a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad，唯独原material-arrivals-ui集成测试驱动已作abf3触摸补验。
+2026-10-26；main 869ee84dd0b31de6161011e4aa560678b244a64d于2026-10-26T04:56:38.443Z独立API核实，开放PR为0；branch codex/garment-observations-main-869e从该main创建，显式快进已审分批到料UI 80fdf8ba80c6bfef3321c61d6c8fe8662eb44e22后普通合流真正的当前观察阶段aad673099da0221312a70e88bd8e2f33bfa06244。全部非docs逐blob等于已验收source d1930a2da590098f70e6433892eab350a3262e0c，只增加16项原后台增量，没有重引早期修复或混入后续0041/42/43。
 
-原Server物料卡片新增分批到料入口，沿用Modal、历史Drawer和唯一material-logistics-service，不新建导航或第二套物流算法。每批填写到已明确持久化集货仓日期和逐需求数量，可部分未安排；Source交期、人工计划和实际四流分别保留。运输建议取最早未取消排单的采用地点快照，路线当前版本只用于测算，不伪称已冻结到仓或实际出运；buffer与距上线分列。缺仓、来源、路线或唯一匹配时明确提示，不推断默认值。
+0040只新增默认关闭的逐合同target、不可变观察/颜色匹配和CAS head；Num是本笔成衣数量、outdate是业务日期，其他日期和累计字段分别保留。缺失/非法/零/负值不混同；颜色按既有稳定身份唯一匹配，歧义不猜。完整两遍观察不是跨次事件账，不以消失/空结果作取消，不把负数命名冲销，不写生产完成、价格、收入或关账。
 
-原产品archive SHA256 65ee4546cc20e65b171fbf585ec51e2596dd9b261c34c565d2108ae8ce3daa24和driver archive SHA256 314592182747b0b0c0f8a65121dca8f7d18bf20983ee8d1cf3bcd52037c58be8已核对；原a0c3的97相关单元/SQL/API、根811、类型/Node/load/lint与双构建，before3/abf3 after17/物料10/导航18共48浏览器全部实际通过。18PNG/3JSON、8图查看及proof e2a0089fd9063dae77de0eccbd3ac1d4126994cf保持原字节、日期与source范围。修正元数据后的9d5da9发布134/134（400362ms）与5f3旧base守卫保留；初f7候选和1001颜色容量red/green不是本轮新验收。仅Browser产物的users路由preload hint告警照原产物记录保留，不冒称零告警。本轮不重跑未变测试、构建或浏览器，只在最终commit后新跑精确N源码守卫；正式PR仍需当前发布134与必要三CI。
+原d193 archive SHA256 58adb7b1db317c04e758ca9deb8f9a710ecbbf5e0bb9a8e5b18e538ff1799e36、19文件174项相关单元/SQL/API（173通过/1既有Linux Source CLI Windows平台SKIP，150909ms）、根811、139离线Python及类型/Node实际load/lint已核对。proof 696738e5b21a57a4d82e3c1e7b610f96c361f8c1保留原日期、源码和失败记录；0039非空升级只证明已有SO与Source逐表保护，未预置人工到料计划。前端和锁文件未变，原a0c3的215复制产物hash一致，没有新Vite或浏览器验收。原4e8232发布134/134（406504ms）及aad旧base守卫保持历史归属。本轮不重跑未变测试，只在最终提交绑定后新跑精确N源码守卫；正式PR仍须当前发布134与必要三CI，不能用旧134覆盖Linux缺口。
 
-原后台218项217通过/1既有Windows平台SKIP仍独立未验证；Linux Source CLI与原557ce逐blob未变，当前97、48浏览器及旧134均不能覆盖该缺口。必要Linux CI是未来合并前置，不以源码守卫替代运行验收。
+原3个新增记录中，feature/proof为独立路径，D152/153是决定文档的新分支。保留实际两父全部400/390对象，先在普通merge checkpoint冻结组合文本；随后仅加一条mergeOf连接当前决定叶与原观察叶，不删除旧记录、不改hash或伪造父关系。初合流清单403/57，绑定后预期404/57，21Server页面路由和49份继承UI影响记录完全不变。
 
-400证据/56能力/21Server路由保持原状态；精确N守卫及独立复审以同HEAD final.json核定。48份继承UI不改，本轮10路径V1只更新比较base和阶段链接，原图不替换。
+普通PowerShell同样复现约5秒TLS中断，具体代理/上游根因仍未定位；未重复原失败通道，未修改共享代理/TLS/认证。H0d70原精确授权保留，本分支Execute/Push/PR/Hosted均0，不自动merge/close。
 
-H0d70精确交付授权保留；本分支实际Execute/Push/新PR/Hosted为0。普通PowerShell也复现TLS中断，根因未确认，不重复未改变通道、不修改共享代理/TLS/认证，不把H授权扩展为本分支远端写入授权。不自动merge/close。
+无新真实Source、凭据、账号、业务库、对象/卷/备份操作，不改Browser持久账本、不安装依赖或执行真实迁移，不切换3001/50426/59069/62426及其他入口，不部署、激活、调度或退役。保留80f/201ac及此前分支、镜像和测试结果；新source工程预算不是新增真实读取许可。
 
-没有新凭据、真实Source请求、账号、业务库、对象/卷/备份写入，不触Browser持久账本，不安装依赖或应用迁移，不替换3001/50426/59069/62426等入口，不部署、激活、调度或退役。原201ac/1b47/7db/588d/81f及38580受保护镜像分支和所有旧结果保持；未来持久化演练须复用38580已审归属保护harness，不执行业务分支继承的旧驱动。
-
-[阶段](tasks/active/material-arrival-ui-main-869e-2026-10-26.md)。完整Goal active；出运、交期、Server关账和正式切换仍有后续阶段。
+[阶段](tasks/active/garment-observations-main-869e-2026-10-26.md)。完整Goal active；此为观察持久化/DB-only读取切片，非事件账、正式采集、关账或业务闭环完成。

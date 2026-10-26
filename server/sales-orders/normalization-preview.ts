@@ -25,6 +25,11 @@ export const NORMALIZATION_REFERENCES = [
  ['ainuoke_payment_snapshots','sales_order_id','id'],
  ['ainuoke_payment_snapshots','source_owner_order_id','id'],
  ['ainuoke_payment_heads','sales_order_id','source_key'],
+ ['ainuoke_garment_shipment_targets','sales_order_id','source_key'],
+ ['ainuoke_garment_shipment_snapshots','sales_order_id','id'],
+ ['ainuoke_garment_shipment_snapshots','source_owner_order_id','id'],
+ ['ainuoke_garment_shipment_color_matches','sales_order_id','snapshot_id'],
+ ['ainuoke_garment_shipment_heads','sales_order_id','source_key'],
  ['sales_order_identity_profiles','sales_order_id','sales_order_id'],
  ['sales_order_identity_profiles','reference_order_id','sales_order_id'],
  ['sales_order_preparations','reference_order_id','id'],
@@ -81,7 +86,10 @@ export async function normalizationReferences(client:PoolClient){
  const arrivalTables=['material_arrival_demands','material_arrival_plans','material_arrival_plan_versions','material_arrival_commands','material_arrival_command_orders'];
  const arrivalCount=(await client.query<{n:number}>(`SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r' AND c.relname=ANY($1::text[])`,[arrivalTables])).rows[0].n;
  if(arrivalCount!==0&&arrivalCount!==arrivalTables.length)throw new HttpError(503,'material_arrival_reference_schema_incomplete','Material arrival reference schema is incomplete');
- return references.filter(([table])=>(present===3||!table.startsWith('ainuoke_payment_'))&&(sourceReady||table!=='sales_order_business_source_snapshots')&&(creationContextReady||table!=='quote_creation_order_contexts')&&(colorCount===colorTables.length||!colorTables.includes(table))&&(adjustmentCount===2||table!=='order_sale_adjustment_receipts')&&(planningCount===planningTables.length||!planningTables.includes(table))&&(executionCount===executionTables.length||!executionTables.includes(table))&&(trackingCount===trackingTables.length||!trackingTables.includes(table))&&(arrivalCount===arrivalTables.length||!arrivalTables.includes(table)));
+ const garmentTables=['ainuoke_garment_shipment_targets','ainuoke_garment_shipment_snapshots','ainuoke_garment_shipment_color_matches','ainuoke_garment_shipment_heads'];
+ const garmentCount=(await client.query<{n:number}>(`SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r' AND c.relname=ANY($1::text[])`,[garmentTables])).rows[0].n;
+ if(garmentCount!==0&&garmentCount!==garmentTables.length)throw new HttpError(503,'garment_reference_schema_incomplete','Garment shipment reference schema is incomplete');
+ return references.filter(([table])=>(present===3||!table.startsWith('ainuoke_payment_'))&&(sourceReady||table!=='sales_order_business_source_snapshots')&&(creationContextReady||table!=='quote_creation_order_contexts')&&(colorCount===colorTables.length||!colorTables.includes(table))&&(adjustmentCount===2||table!=='order_sale_adjustment_receipts')&&(planningCount===planningTables.length||!planningTables.includes(table))&&(executionCount===executionTables.length||!executionTables.includes(table))&&(trackingCount===trackingTables.length||!trackingTables.includes(table))&&(arrivalCount===arrivalTables.length||!arrivalTables.includes(table))&&(garmentCount===garmentTables.length||!garmentTables.includes(table)));
 }
 export function validateNormalizationPair(ids: readonly string[]) {
  if(ids.length!==2 || ids.some(id=>typeof id!=='string'||!identityUuid.test(id)) || ids[0].toLowerCase()===ids[1].toLowerCase()) throw new HttpError(400,'invalid_normalization_pair','Two distinct order IDs required');
