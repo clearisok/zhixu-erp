@@ -9,3 +9,5 @@
 原e3 9/9及124序列2/2继续按各自source保留，不能借用为本次新八表证据。完整G1–G8/R继续；稳定跨次成衣事件、更正和关账口径仍待后续。3001/50426/59069/62426等旧入口、账号、数据、卷、网络、对象、备份与Browser数据保持；无真实Source/凭据、push/API ref、CI、合并、部署、切换或退役。
 
 原件outputs/source-ledger-recovery-20261026；[逐字输入归档](../completed/2026-10-26-source-ledger-input-state/receipt.json)。
+
+实际runtime：source 6dcea703ccc5372ad1b6d68ad919a287ef975dc6＋原6d镜像，新9/9、488736ms，55表非空；0040–44八表、两代观察/精确数量和新增5份原回执通过。原13份继续有效。外层TAP汇总初次失败，原件保留；实际Node三项校准后仅离线生成独立reconciled结果，未重跑DB。旧50/179/27所选元数据changes=[]；[冻结证明](../completed/2026-10-26-source-ledger-recovery-validation.md)。最终守卫/终审待实际回执。

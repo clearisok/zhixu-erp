@@ -1,0 +1,63 @@
+# 0040–0044非空来源账本恢复证明
+
+2026-10-26；本地工程，不是远端交付、真实Source或部署。
+
+## 精确输入与实际结果
+
+- Test source 6dcea703ccc5372ad1b6d68ad919a287ef975dc6，parent a9653daad9c33b13499c33425ae8a86dd7ad2ac2，tree 105a71cf4267a855329f9337c2d0d144e28ca2db。原6d镜像 6d27d1e7fa1079f1830511068ff070791df310ab / sha256:6a30bf2e192a27b090a9444244d4c918e09afc07f5f65df1d5ae672c4c1677be；所有产品/API/SQL/UI字节未变，不重建镜像、不安装依赖。Canonical 3001 blobs、0 overlay；语法/定向lint和8项原回执正负检查通过。
+- 新SOURCE_LEDGER_RECOVERY显式opt-in，在原新owned项目演练中增加合成profile与第二张可信SO、两代成衣观察、手工交期命令和已有合同刷新。一次新runtime 9/9、488736ms，0fail/cancel/skip/timeout/overflow。原e3 9项及124序列2项按原source保留；本次不是用旧结果替代新输入。
+- 55张业务表实际非空；100张业务表参加当前态比较。停写备份后冻结全部public表及精确pg_sequences文本，在恢复目标启动/login前相等；冷重建、恢复后的领域读取和原回执亦相等。旧50容器/179卷/27网络所选元数据changes=[]；不冒称检查其业务内容。
+
+## 新八表与领域断言
+
+- ainuoke_garment_shipment_targets：1行
+- ainuoke_garment_shipment_snapshots：2行
+- ainuoke_garment_shipment_color_matches：2行
+- ainuoke_garment_shipment_heads：1行
+- ainuoke_order_source_refresh_receipts：1行
+- sales_order_delivery_plan_requests：1行
+- ainuoke_garment_collection_commands：2行
+- ainuoke_garment_target_commands：1行
+
+- 两次collect均显式注入fakeCollect，恰2次；回传HTTP/报表计数是合成值，实际真实Source请求0。新profile仅不存在时INSERT，未覆盖local-empty。0044只覆盖成功enable，0043只覆盖成功发布，不冒称新覆盖disable、旧enable重放、started或COMMIT未知故障。
+- 原两代publication不同，generation为1/2，head指向第二代，第一代仍可通过实际reader重建；逐笔精确数量9007199254740993.000000000001和9007199254740994.000000000002均直接断言，颜色复合引用匹配原冻结行。reader固定评估时钟只避免动态evaluatedAt造成误差，不是现实经过时间的fresh/stale验收；要求观察非空，拒绝空对空通过。
+- 0041只作用原bindOrders建立的合成SO。手工90.125交期计划、排单、完成版本和物料到仓版本在刷新前后逐行保持；来源预览数量为120（不是新增的存储数值直接断言）。原0042 PATCH结果与完整命令回执保持，即使之后来源版本变化也不替换历史结果。
+- 原13个known/applied生产/资源/到仓回执继续核对；新增5个为0041 completed、0042 applied、0043两份completed及0044 completed。分别验证原UUID/订单与原结果，拒绝unknown/started/null，恢复后只调用read函数，不重新apply或采集。
+
+## 范围与交付
+
+不是43迁移所有业务域均非空恢复的证明，不建立跨次稳定成衣事件身份/冲销，不写生产完成、成交价、收入或关账。完整G1–G8/R继续；关账三项口径、真实Source授权/激活、目标人工接受/切换及依赖审计后的旧路径退役仍待。原环境/Browser/账号/库/卷/对象/备份保持。
+
+main基线869ee84dd0b31de6161011e4aa560678b244a64d；唯一草稿PR130远端仍61704afe22fe9fd0ea9f6625c6092fcbb9575dfc，其原CI3/3不归本次本地源码。本轮Hosted0、无push/API改ref、合并或部署。Git退出1的STOP_AUTH_OR_DIVERGENCE根因未定，后续本地SHA不解除冻结。用户普通PowerShell早期约5秒TLS中断同样存在，证明当时并非仅Codex内发生，不能据此确定当前退出1根因。
+
+## 本机原件SHA256
+
+start.json：d769b5ece1064ee238da7400b669ed86ce6fdea4fbbf943bcc353fa58cadee7b
+
+source-checkpoint.json：072fd9dbc7bc3143fc6979b2a540930e6a7aa758b31443017580680470264087
+
+prepared.json：386e15a50e70cd3cbfafd5021fe11c5794013328214548bfbd72cba7110092dc
+
+preflight-review.json：7708c362c22bf86f0190338dc4fb3fb7e88f53beae42221e25b5ea07e23bbf3e
+
+runtime-attempt.json：80fa05737fe4c0c12a3e619905aba9a8680475c58357255d6a181dc5b8753e87
+
+runtime-result.json：dd4119fef1d34c8d375c159ff4c0e7a02d91748918d19cc5ac670f529ff26e10
+
+runtime-reconciled.json：10ce04e7d1b0a2c3ae5fbc094c212f30434f1cd5de948747bb014caabe2d8206
+
+runtime.log：5afb42e575056d5ffec8d4c2154d37b2398c334ad6978ecbf43d28692817dc7e
+
+reconcile.mjs：28512189b09f709dac1acacb2e43b3f97323bb8d97f52fe243e47a6ee2144801
+
+tap-json-fixture.mjs：fe66c575869b7c844af0131f68a5565918590cec92f972a6d3aa60cadfd60094
+
+tap-calibration.log：24fc8e984259a29094346cd99ebf6e5c13be7222af021d4fd856528f76f7b80e
+
+preservation.json：52a1e9f18613a4325ff5fd89bd2264a07bd0ed451b3f3eecc90e7042bdb4937c
+
+原件outputs/source-ledger-recovery-20261026，保留源码归档与原始日志；不上传raw快照/凭据。[当前阶段](../active/source-ledger-recovery-2026-10-26.md)。最终精确head守卫和独立终审另按真实回执。
+
+## 外层汇总问题的独立收口
+
+原Node测试进程退出0、9/9；外层ignored run.mjs初次直接JSON.parse TAP诊断，遇到新增精确sequence文本中的反斜杠，故runtime-result.json保持passed=false和原parseError。没有覆盖或冒称该wrapper首次成功。当前Node v24.16.0内置tapEscape先双写反斜杠、再转义#；独立reconcile仅逆此传输层，并要求正向逐字roundtrip。实际Node TAP三项校准覆盖PG bigint原文、Windows路径/井号/转义字符和decimal，3/3；原runtime.log不变，runtime-reconciled.json单独保存结果与原件hash。sequence仍是字符串，不解析其中数值，没有重跑runtime/建库/采集或更改原断言。
