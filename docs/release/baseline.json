@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "869ee84dd0b31de6161011e4aa560678b244a64d",
-  "verifiedAt": "2026-10-26T03:50:09.022Z",
+  "verifiedAt": "2026-10-26T04:04:13.503Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -3122,6 +3122,208 @@
       "recordedAtSha": "f676b85dd644ffb6ab1877b414e6bb05223671fe",
       "renderedSourceSha": "45f30070abeb1d70211eb10eab7841be10e8f894",
       "sha256": "18388841540973db3506c716b0c8aa01c5adeb2314feceba77dbfcf64c27d238"
+    },
+    {
+      "id": "order-logistics-dialog-current-engineering-20261024",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-24-order-logistics-dialog-current-engineering.md",
+      "recordedAtSha": "54c28cec392a435b1fcffedfa47e32c4b7f5f98b",
+      "renderedSourceSha": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+      "sha256": "e975bcc8736a630772b8d2558be3fa3c4f375b8fd20600553f310c9ca051e70d"
+    },
+    {
+      "id": "server-order-logistics-dialog-current-20261024",
+      "kind": "document",
+      "path": "docs/features/SERVER_ORDER_LOGISTICS_DIALOG.md",
+      "recordedAtSha": "54c28cec392a435b1fcffedfa47e32c4b7f5f98b",
+      "renderedSourceSha": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+      "sha256": "95fca3963580c7a2d5e0bbf6bee23c41ad03dbefd9c98a9999241c3246dda48f"
+    },
+    {
+      "id": "order-logistics-dialog-current-20261024-before-build-and-checks",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-logistics-dialog-current/before-build-and-checks.json",
+      "recordedAtSha": "54c28cec392a435b1fcffedfa47e32c4b7f5f98b",
+      "renderedSourceSha": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+      "sha256": "c5d1617920bcb5a017d2ce10d837e498e78326bd2216d922faff8d8f696a3728"
+    },
+    {
+      "id": "order-logistics-dialog-current-20261024-before-order-without-logistics-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-logistics-dialog-current/before-order-without-logistics-1440.png",
+      "recordedAtSha": "54c28cec392a435b1fcffedfa47e32c4b7f5f98b",
+      "renderedSourceSha": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+      "sha256": "9c3fe3b15caf7ebd2bf22148964dbd063c0dfbac4e16f448c9965e895423c2e5",
+      "changeReason": "New exact synthetic before/after observations for approved D054/D147 order logistics in the existing Server planning Modal and Drawer. Existing navigation and density retained; six widths including 1536 DPR1.25 and 390 touch. Preserve all prior PNGs; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-logistics-dialog-current-20261024-before-order-without-logistics-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-logistics-dialog-current/before-order-without-logistics-390.png",
+      "recordedAtSha": "54c28cec392a435b1fcffedfa47e32c4b7f5f98b",
+      "renderedSourceSha": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+      "sha256": "ef866807cfaa98608f7557068b278f3e90ac9dffe3b4a21f43c6b5ea338808dd",
+      "changeReason": "New exact synthetic before/after observations for approved D054/D147 order logistics in the existing Server planning Modal and Drawer. Existing navigation and density retained; six widths including 1536 DPR1.25 and 390 touch. Preserve all prior PNGs; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-logistics-dialog-current-20261024-after-build-and-checks",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-logistics-dialog-current/after-build-and-checks.json",
+      "recordedAtSha": "54c28cec392a435b1fcffedfa47e32c4b7f5f98b",
+      "renderedSourceSha": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+      "sha256": "8d725f707a1460adf115de1e2d0c52527c20ce5ccc0411f3486a34060d882671"
+    },
+    {
+      "id": "order-logistics-dialog-current-20261024-after-tracking-anchored-history",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-logistics-dialog-current/after-tracking-anchored-history.png",
+      "recordedAtSha": "54c28cec392a435b1fcffedfa47e32c4b7f5f98b",
+      "renderedSourceSha": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+      "sha256": "70dbb4a67d4caa0071d121439d406ac56724cc1a5401ad60409f407b2d267eac",
+      "changeReason": "New exact synthetic before/after observations for approved D054/D147 order logistics in the existing Server planning Modal and Drawer. Existing navigation and density retained; six widths including 1536 DPR1.25 and 390 touch. Preserve all prior PNGs; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-logistics-dialog-current-20261024-after-tracking-explicit-saved",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-logistics-dialog-current/after-tracking-explicit-saved.png",
+      "recordedAtSha": "54c28cec392a435b1fcffedfa47e32c4b7f5f98b",
+      "renderedSourceSha": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+      "sha256": "74998fb581bec7bbdddd5398979c878e2cc3199741c4e79c3f9d868e54069ac5",
+      "changeReason": "New exact synthetic before/after observations for approved D054/D147 order logistics in the existing Server planning Modal and Drawer. Existing navigation and density retained; six widths including 1536 DPR1.25 and 390 touch. Preserve all prior PNGs; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-logistics-dialog-current-20261024-after-tracking-form-1280",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-logistics-dialog-current/after-tracking-form-1280.png",
+      "recordedAtSha": "54c28cec392a435b1fcffedfa47e32c4b7f5f98b",
+      "renderedSourceSha": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+      "sha256": "96ee02a346d4b347afbc52f680ff75ee2a81c7b83d69d30c8826a5cb2b888b1a",
+      "changeReason": "New exact synthetic before/after observations for approved D054/D147 order logistics in the existing Server planning Modal and Drawer. Existing navigation and density retained; six widths including 1536 DPR1.25 and 390 touch. Preserve all prior PNGs; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-logistics-dialog-current-20261024-after-tracking-form-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-logistics-dialog-current/after-tracking-form-1440.png",
+      "recordedAtSha": "54c28cec392a435b1fcffedfa47e32c4b7f5f98b",
+      "renderedSourceSha": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+      "sha256": "43783b2697a05ef3180c44faa60da8fb5ecf6ac3756c89383fc6aa5b57ae5814",
+      "changeReason": "New exact synthetic before/after observations for approved D054/D147 order logistics in the existing Server planning Modal and Drawer. Existing navigation and density retained; six widths including 1536 DPR1.25 and 390 touch. Preserve all prior PNGs; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-logistics-dialog-current-20261024-after-tracking-form-1536",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-logistics-dialog-current/after-tracking-form-1536.png",
+      "recordedAtSha": "54c28cec392a435b1fcffedfa47e32c4b7f5f98b",
+      "renderedSourceSha": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+      "sha256": "577e25d2732a1c5a41b21d6dcb0a5ffc528d1cc31fbce06c34892453678285cf",
+      "changeReason": "New exact synthetic before/after observations for approved D054/D147 order logistics in the existing Server planning Modal and Drawer. Existing navigation and density retained; six widths including 1536 DPR1.25 and 390 touch. Preserve all prior PNGs; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-logistics-dialog-current-20261024-after-tracking-form-1920",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-logistics-dialog-current/after-tracking-form-1920.png",
+      "recordedAtSha": "54c28cec392a435b1fcffedfa47e32c4b7f5f98b",
+      "renderedSourceSha": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+      "sha256": "4068d67d92c0cc917bbb7746cfe3d25246325da305fb03bc18e2b2247cff0e42",
+      "changeReason": "New exact synthetic before/after observations for approved D054/D147 order logistics in the existing Server planning Modal and Drawer. Existing navigation and density retained; six widths including 1536 DPR1.25 and 390 touch. Preserve all prior PNGs; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-logistics-dialog-current-20261024-after-tracking-form-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-logistics-dialog-current/after-tracking-form-390.png",
+      "recordedAtSha": "54c28cec392a435b1fcffedfa47e32c4b7f5f98b",
+      "renderedSourceSha": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+      "sha256": "5eb6e1fcf30e7a9965638775bcb9376114e22679d785d2c7de28e41908f1d430",
+      "changeReason": "New exact synthetic before/after observations for approved D054/D147 order logistics in the existing Server planning Modal and Drawer. Existing navigation and density retained; six widths including 1536 DPR1.25 and 390 touch. Preserve all prior PNGs; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-logistics-dialog-current-20261024-after-tracking-form-900",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-logistics-dialog-current/after-tracking-form-900.png",
+      "recordedAtSha": "54c28cec392a435b1fcffedfa47e32c4b7f5f98b",
+      "renderedSourceSha": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+      "sha256": "be471e07722c73cf18261412894c54542316d4ca34e2d07e3e1c35e780ab278e",
+      "changeReason": "New exact synthetic before/after observations for approved D054/D147 order logistics in the existing Server planning Modal and Drawer. Existing navigation and density retained; six widths including 1536 DPR1.25 and 390 touch. Preserve all prior PNGs; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-logistics-dialog-current-20261024-after-tracking-immutable-history",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-logistics-dialog-current/after-tracking-immutable-history.png",
+      "recordedAtSha": "54c28cec392a435b1fcffedfa47e32c4b7f5f98b",
+      "renderedSourceSha": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+      "sha256": "c3fe0d64c61f74cb7e87d7a6b82217f74b266d94430b0fe1b7f850a220d62dc9",
+      "changeReason": "New exact synthetic before/after observations for approved D054/D147 order logistics in the existing Server planning Modal and Drawer. Existing navigation and density retained; six widths including 1536 DPR1.25 and 390 touch. Preserve all prior PNGs; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-logistics-dialog-current-20261024-after-tracking-preview-1280",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-logistics-dialog-current/after-tracking-preview-1280.png",
+      "recordedAtSha": "54c28cec392a435b1fcffedfa47e32c4b7f5f98b",
+      "renderedSourceSha": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+      "sha256": "5d58b3e0ed667ede7aff6daee8f1b53e0186ae5e077cef0a95217f9a07db139b",
+      "changeReason": "New exact synthetic before/after observations for approved D054/D147 order logistics in the existing Server planning Modal and Drawer. Existing navigation and density retained; six widths including 1536 DPR1.25 and 390 touch. Preserve all prior PNGs; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-logistics-dialog-current-20261024-after-tracking-preview-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-logistics-dialog-current/after-tracking-preview-1440.png",
+      "recordedAtSha": "54c28cec392a435b1fcffedfa47e32c4b7f5f98b",
+      "renderedSourceSha": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+      "sha256": "d13c68d12c265401f2697ede42694c6e48e77f7574eedc91289b45c6aec7fecb",
+      "changeReason": "New exact synthetic before/after observations for approved D054/D147 order logistics in the existing Server planning Modal and Drawer. Existing navigation and density retained; six widths including 1536 DPR1.25 and 390 touch. Preserve all prior PNGs; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-logistics-dialog-current-20261024-after-tracking-preview-1536",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-logistics-dialog-current/after-tracking-preview-1536.png",
+      "recordedAtSha": "54c28cec392a435b1fcffedfa47e32c4b7f5f98b",
+      "renderedSourceSha": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+      "sha256": "25f0e00892d35b90627965ff9ff64d6de46b122ed237d05b52f1828aeedfdf7d",
+      "changeReason": "New exact synthetic before/after observations for approved D054/D147 order logistics in the existing Server planning Modal and Drawer. Existing navigation and density retained; six widths including 1536 DPR1.25 and 390 touch. Preserve all prior PNGs; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-logistics-dialog-current-20261024-after-tracking-preview-1920",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-logistics-dialog-current/after-tracking-preview-1920.png",
+      "recordedAtSha": "54c28cec392a435b1fcffedfa47e32c4b7f5f98b",
+      "renderedSourceSha": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+      "sha256": "b4a8f9d30438a2f31a956e348605c7a2036ab33b97f511763358e16e7f4754cd",
+      "changeReason": "New exact synthetic before/after observations for approved D054/D147 order logistics in the existing Server planning Modal and Drawer. Existing navigation and density retained; six widths including 1536 DPR1.25 and 390 touch. Preserve all prior PNGs; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-logistics-dialog-current-20261024-after-tracking-preview-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-logistics-dialog-current/after-tracking-preview-390.png",
+      "recordedAtSha": "54c28cec392a435b1fcffedfa47e32c4b7f5f98b",
+      "renderedSourceSha": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+      "sha256": "47728d6dc3735a148cbe9bbda7313fa51671fd8ef98ee678422e2ed93fcc2a76",
+      "changeReason": "New exact synthetic before/after observations for approved D054/D147 order logistics in the existing Server planning Modal and Drawer. Existing navigation and density retained; six widths including 1536 DPR1.25 and 390 touch. Preserve all prior PNGs; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "order-logistics-dialog-current-20261024-after-tracking-preview-900",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-order-logistics-dialog-current/after-tracking-preview-900.png",
+      "recordedAtSha": "54c28cec392a435b1fcffedfa47e32c4b7f5f98b",
+      "renderedSourceSha": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+      "sha256": "388351a57bd1dd70f1e9937db8ed6626d0d36989ab47c2c85a2caff04fef29bb",
+      "changeReason": "New exact synthetic before/after observations for approved D054/D147 order logistics in the existing Server planning Modal and Drawer. Existing navigation and density retained; six widths including 1536 DPR1.25 and 390 touch. Preserve all prior PNGs; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
     }
   ],
   "pages": [
@@ -8377,6 +8579,91 @@
           "scope": "Current order logistics context backend not deployed. Preserve historical runtime source/image without re-observation.",
           "evidence": [
             "order-tracking-current-engineering-20261024"
+          ]
+        }
+      }
+    },
+    {
+      "id": "order-logistics-dialog-current",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D054/D147 current order logistics UI on existing Server planning page, explicit hub and remark with preview and immutable history; same production request/outbox, fresh permissions, CAS and concrete layout/Drawer ownership. Synthetic API, dual builds, before/after and resource/navigation browser regression only. No new schema, material arrival, shipment, closing, real data, target upgrade, merge/deployment or human acceptance.",
+      "evidence": [
+        "order-logistics-dialog-current-engineering-20261024"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+          "scope": "D054/D147 current order logistics UI on existing Server planning page, explicit hub and remark with preview and immutable history; same production request/outbox, fresh permissions, CAS and concrete layout/Drawer ownership. Synthetic API, dual builds, before/after and resource/navigation browser regression only. No new schema, material arrival, shipment, closing, real data, target upgrade, merge/deployment or human acceptance.",
+          "evidence": [
+            "order-logistics-dialog-current-engineering-20261024"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-24",
+          "sourceSha": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+          "scope": "D054/D147 current order logistics UI on existing Server planning page, explicit hub and remark with preview and immutable history; same production request/outbox, fresh permissions, CAS and concrete layout/Drawer ownership. Synthetic API, dual builds, before/after and resource/navigation browser regression only. No new schema, material arrival, shipment, closing, real data, target upgrade, merge/deployment or human acceptance.",
+          "evidence": [
+            "order-logistics-dialog-current-engineering-20261024"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+          "scope": "D054/D147 current order logistics UI on existing Server planning page, explicit hub and remark with preview and immutable history; same production request/outbox, fresh permissions, CAS and concrete layout/Drawer ownership. Synthetic API, dual builds, before/after and resource/navigation browser regression only. No new schema, material arrival, shipment, closing, real data, target upgrade, merge/deployment or human acceptance.",
+          "evidence": [
+            "order-logistics-dialog-current-engineering-20261024"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+          "scope": "D054/D147 current order logistics UI on existing Server planning page, explicit hub and remark with preview and immutable history; same production request/outbox, fresh permissions, CAS and concrete layout/Drawer ownership. Synthetic API, dual builds, before/after and resource/navigation browser regression only. No new schema, material arrival, shipment, closing, real data, target upgrade, merge/deployment or human acceptance.",
+          "evidence": [
+            "order-logistics-dialog-current-engineering-20261024"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+          "scope": "D054/D147 current order logistics UI on existing Server planning page, explicit hub and remark with preview and immutable history; same production request/outbox, fresh permissions, CAS and concrete layout/Drawer ownership. Synthetic API, dual builds, before/after and resource/navigation browser regression only. No new schema, material arrival, shipment, closing, real data, target upgrade, merge/deployment or human acceptance.",
+          "evidence": [
+            "order-logistics-dialog-current-engineering-20261024"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "Current order logistics dialog candidate not deployed; preserve historical runtime source/image without re-observation.",
+          "evidence": [
+            "order-logistics-dialog-current-engineering-20261024"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "Current order logistics dialog candidate not deployed; preserve historical runtime source/image without re-observation.",
+          "evidence": [
+            "order-logistics-dialog-current-engineering-20261024"
           ]
         }
       }

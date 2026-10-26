@@ -11,9 +11,12 @@ import { parseExecutionData, parseExecutionIntent, type ExecutionCommand, type E
 import type { ExecutionFacts } from "../../../server/production-scheduling/execution-preview";
 import type { StoredExecution } from "../../../server/production-scheduling/execution-store";
 import { parseProductionCommand, type ProductionCommand } from "./production-command";
+import { parseOrderTrackingIntent, type OrderTrackingCommand, type OrderTrackingIntent } from "../../../server/production-scheduling/tracking-contract";
+import { createOrderTrackingProjections, type OrderTrackingHistoryRead, type OrderTrackingPreview, type OrderTrackingRead, type VerifiedTrackingOutcome } from "./production-tracking-projection";
 
 export type { PlanCommand, PlanIntent, Assignment };
 export type { ExecutionCommand, ExecutionIntent, StoredExecution, ProductionCommand };
+export type { OrderTrackingCommand, OrderTrackingIntent, OrderTrackingRead, OrderTrackingPreview, OrderTrackingHistoryRead, VerifiedTrackingOutcome };
 export type { PlanOrderSummary, PlanListQuery };
 export type PlanPreview = Awaited<ReturnType<typeof previewProductionPlan>>;
 export type VerifiedPlanOutcome = PlanOutcome & { payloadHash: string };
@@ -24,7 +27,9 @@ export type VerifiedExecutionOutcome = Extract<VerifiedPlanOutcome, { status: "r
   assignments: Assignment[]; execution: StoredExecution; assignmentId: string;
   orderVersions: { orderId: string; version: number }[]; queueVersions: { groupId: string; version: number }[];
 };
-export type ProductionReceipt = { state: "known"; requestId: string; result: VerifiedPlanOutcome | VerifiedExecutionOutcome }
+export type VerifiedProductionOutcome<C extends ProductionCommand = ProductionCommand> = C extends OrderTrackingCommand ? VerifiedTrackingOutcome
+  : C extends ExecutionCommand ? VerifiedExecutionOutcome : VerifiedPlanOutcome;
+export type ProductionReceipt<C extends ProductionCommand = ProductionCommand> = { state: "known"; requestId: string; result: VerifiedProductionOutcome<C> }
   | { state: "pending" | "unknown"; requestId: string; result: null };
 export type ExecutionPreview = { intent: ExecutionIntent; previewHash: string; before: ExecutionFacts | null; after: ExecutionFacts; changed: boolean;
   warnings: { kind: string; assignmentId: string }[]; planChanges: { before: Assignment; after: PlanDraft }[];
@@ -54,6 +59,16 @@ export type PlanHistoryRead = { assignment: Assignment; resources: PlanResources
     snapshot: Pick<Assignment, "id" | "orderId" | "version" | "plannedQuantity" | "plannedStartDate" | "plannedEndDate" | "resourceSnapshotHash" | "status" | "remark" | "colorNameSnapshot"> }[] };
 
 const messages: Record<string, string> = {
+  invalid_order_tracking_intent: "请检查集货仓和备注。",
+  order_tracking_unavailable: "物料与运输跟进暂时不可用，请重新读取。",
+  order_tracking_version_conflict: "这张订单的集货仓或备注已更新，请重新读取后预览。",
+  order_tracking_preview_changed: "订单或集货仓资料已变化，请重新读取后预览。",
+  order_tracking_preview_too_large: "本次跟进预览过大，无法安全保存。",
+  order_tracking_read_too_large: "本次跟进历史过大，请联系管理员核对。",
+  production_supply_hub_disabled: "新选择的集货仓已停用，请选择启用的仓库。",
+  production_resource_not_found: "所选基础资料不存在，请重新读取。",
+  production_resources_unavailable: "生产与运输资料暂时不可用，请重新读取。",
+  production_order_read_only: "这张订单已完成或取消，只能查看物料与运输历史。",
   invalid_production_execution_intent: "请检查累计完成数量、执行状态和实际日期。",
   production_executions_unavailable: "生产执行暂时不可用，请重新读取。",
   production_execution_version_conflict: "本条实际进度已更新，请重新读取后预览。",
@@ -123,13 +138,16 @@ function boolean(value: unknown): boolean { if (typeof value !== "boolean") retu
 function timestamp(value: unknown): string { const result = text(value, 30); if (!Number.isFinite(Date.parse(result)) || new Date(result).toISOString() !== result) return invalid(); return result; }
 function array(value: unknown, max = 500): unknown[] { if (!Array.isArray(value) || value.length > max) return invalid(); return value; }
 function unique<T>(items: T[], id: (item: T) => string): T[] { if (new Set(items.map(id)).size !== items.length) return invalid(); return items; }
+const trackingProjection = createOrderTrackingProjections({ object, integer, text, uuid, timestamp, boolean, hash, invalid, mismatch,
+  errorCode: code => Object.hasOwn(messages, code) ? code : "plan_known_rejection" });
 
 export function canonicalProductionPlanCommand(value: unknown): PlanCommand {
   try { return parsePlanCommand(value); } catch { throw new ProductionPlanError(400, "invalid_production_plan_intent", true); }
 }
 export function canonicalProductionCommand(value: unknown): ProductionCommand {
   try { return parseProductionCommand(value); } catch { throw new ProductionPlanError(400,
-    (value as { intent?: { action?: unknown } } | null)?.intent?.action === "record_execution" ? "invalid_production_execution_intent" : "invalid_production_plan_intent", true); }
+    (value as { intent?: { action?: unknown } } | null)?.intent?.action === "record_execution" ? "invalid_production_execution_intent"
+      : (value as { intent?: { action?: unknown } } | null)?.intent?.action === "set_order_tracking" ? "invalid_order_tracking_intent" : "invalid_production_plan_intent", true); }
 }
 export async function productionPlanFingerprint(value: ProductionCommand): Promise<string> {
   const command = canonicalProductionCommand(value);
@@ -405,7 +423,7 @@ export function createProductionPlanClient(fetchImpl: typeof fetch = fetch) {
   // fields or receipt wrapper. Keep a fixed envelope allowance, not an
   // unbounded read or a larger domain/command payload limit.
   const prefix = "/api/v1/production-scheduling", maxBytes = 1024 * 1024 + 4096;
-  async function request(path: string, current: Lease, body?: PlanIntent | ProductionCommand | ExecutionIntent) {
+  async function request(path: string, current: Lease, body?: PlanIntent | ProductionCommand | ExecutionIntent | OrderTrackingIntent) {
     assertLease(current); let response: Response;
     try { response = await fetchImpl(prefix + path, { method: body ? "POST" : "GET", credentials: "include", cache: "no-store",
       ...(body ? { headers: { "Content-Type": "application/json", "X-Zhixu-Request": "1" }, body: JSON.stringify(body) } : {}) }); }
@@ -428,7 +446,43 @@ export function createProductionPlanClient(fetchImpl: typeof fetch = fetch) {
       : typeof raw.code === "string" && Object.hasOwn(messages, raw.code) ? raw.code : "plan_outcome_unknown";
     throw new ProductionPlanError(response.status, code, command && response.status === 400 && code === "invalid_production_plan_intent");
   }
+  async function execute<C extends ProductionCommand>(value: C, current?: Lease): Promise<VerifiedProductionOutcome<C> & { replayed: boolean }>;
+  async function execute(value: ProductionCommand, current: Lease = () => true): Promise<VerifiedProductionOutcome & { replayed: boolean }> {
+    assertLease(current); const command = canonicalProductionCommand(value), fingerprint = await productionPlanFingerprint(command); assertLease(current);
+    const { response, data } = await request(command.intent.action === "record_execution" ? "/execution/commands" : command.intent.action === "set_order_tracking" ? "/order-tracking/commands" : "/commands", current, command);
+    if (!response.ok && data.status !== "rejected") return httpError(response, data, true);
+    const outcome = command.intent.action === "record_execution" ? projectExecutionOutcome(data, command as ExecutionCommand, fingerprint)
+      : command.intent.action === "set_order_tracking" ? trackingProjection.outcome(data, command as OrderTrackingCommand, fingerprint) : projectOutcome(data, command as PlanCommand, fingerprint);
+    if (typeof data.replayed !== "boolean" || (outcome.status === "applied" ? !response.ok : response.status !== outcome.error.status)) return invalid();
+    return { ...outcome, replayed: data.replayed };
+  }
+  async function receipt<C extends ProductionCommand>(value: C, current?: Lease): Promise<ProductionReceipt<C>>;
+  async function receipt(value: ProductionCommand, current: Lease = () => true): Promise<ProductionReceipt> {
+    assertLease(current); const command = canonicalProductionCommand(value), fingerprint = await productionPlanFingerprint(command); assertLease(current);
+    const { response, data } = await request(`/commands/${command.requestId}`, current); if (!response.ok) return httpError(response, data);
+    if (data.requestId !== command.requestId) return mismatch();
+    if (data.state === "known") return { state: "known", requestId: command.requestId, result: command.intent.action === "record_execution"
+      ? projectExecutionOutcome(data.result, command as ExecutionCommand, fingerprint) : command.intent.action === "set_order_tracking"
+        ? trackingProjection.outcome(data.result, command as OrderTrackingCommand, fingerprint) : projectOutcome(data.result, command as PlanCommand, fingerprint) };
+    if (!["pending", "unknown"].includes(data.state as string) || data.result !== null) return invalid();
+    return { state: data.state as "pending" | "unknown", requestId: command.requestId, result: null };
+  }
   return {
+    execute, receipt,
+    async orderTracking(inputId: string, current: Lease = () => true): Promise<OrderTrackingRead> {
+      const id = uuid(inputId), { response, data } = await request(`/order-tracking/orders/${id}`, current); if (!response.ok) return httpError(response, data);
+      return trackingProjection.read(data, id);
+    },
+    async orderTrackingPreview(value: OrderTrackingIntent, scope: OrderTrackingRead, current: Lease = () => true): Promise<OrderTrackingPreview> {
+      let intent: OrderTrackingIntent; try { intent = parseOrderTrackingIntent(value); } catch { throw new ProductionPlanError(400, "invalid_order_tracking_intent", true); }
+      const { response, data } = await request("/order-tracking/preview", current, intent); if (!response.ok) return httpError(response, data);
+      return trackingProjection.preview(data, intent, scope);
+    },
+    async orderTrackingHistory(inputId: string, offset = 0, asOfVersion: number | null = null, current: Lease = () => true): Promise<OrderTrackingHistoryRead> {
+      const id = uuid(inputId), pageOffset = integer(offset, 0, 100000), anchor = asOfVersion === null ? null : integer(asOfVersion, 0, 2147483647);
+      const { response, data } = await request(`/order-tracking/history/${id}?offset=${pageOffset}${anchor === null ? "" : `&asOfVersion=${anchor}`}`, current); if (!response.ok) return httpError(response, data);
+      return trackingProjection.history(data, id, pageOffset, anchor);
+    },
     async orders(input: Omit<Extract<PlanListQuery, { kind: "orders" }>, "kind">, current: Lease = () => true): Promise<PlanOrderDirectory> {
       const params = new URLSearchParams(Object.entries(input).map(([key, value]) => [key, String(value)])), query = parsePlanListQuery(params, "orders");
       if (query.kind !== "orders") return invalid();
@@ -521,23 +575,6 @@ export function createProductionPlanClient(fetchImpl: typeof fetch = fetch) {
       });
       if (history.length !== Math.max(0, Math.min(50, at - pageOffset)) || hasMore !== (pageOffset + history.length < at)) return mismatch();
       return { assignment: plan, execution: head, history, asOfVersion: at, offset: pageOffset, hasMore, nextOffset };
-    },
-    async execute(value: ProductionCommand, current: Lease = () => true) {
-      assertLease(current); const command = canonicalProductionCommand(value), fingerprint = await productionPlanFingerprint(command); assertLease(current);
-      const { response, data } = await request(command.intent.action === "record_execution" ? "/execution/commands" : "/commands", current, command);
-      if (!response.ok && data.status !== "rejected") return httpError(response, data, true);
-      const outcome = command.intent.action === "record_execution" ? projectExecutionOutcome(data, command as ExecutionCommand, fingerprint) : projectOutcome(data, command as PlanCommand, fingerprint);
-      if (typeof data.replayed !== "boolean" || (outcome.status === "applied" ? !response.ok : response.status !== outcome.error.status)) return invalid();
-      return { ...outcome, replayed: data.replayed };
-    },
-    async receipt(value: ProductionCommand, current: Lease = () => true): Promise<ProductionReceipt> {
-      assertLease(current); const command = canonicalProductionCommand(value), fingerprint = await productionPlanFingerprint(command); assertLease(current);
-      const { response, data } = await request(`/commands/${command.requestId}`, current); if (!response.ok) return httpError(response, data);
-      if (data.requestId !== command.requestId) return mismatch();
-      if (data.state === "known") return { state: "known", requestId: command.requestId, result: command.intent.action === "record_execution"
-        ? projectExecutionOutcome(data.result, command as ExecutionCommand, fingerprint) : projectOutcome(data.result, command as PlanCommand, fingerprint) };
-      if (!["pending", "unknown"].includes(data.state as string) || data.result !== null) return invalid();
-      return { state: data.state as "pending" | "unknown", requestId: command.requestId, result: null };
     },
   };
 }

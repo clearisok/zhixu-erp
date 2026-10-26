@@ -67,11 +67,17 @@ async function fixture(staticDirectory) {
       const preview = await request('/api/v1/production-scheduling/execution/preview', intent);
       return request('/api/v1/production-scheduling/execution/commands', { requestId: randomUUID(), intent: preview.intent, previewHash: preview.previewHash });
     };
-    return { pool, errors, base, password, login, user, resource, changeResource, order, plan, execution, request, close };
+    const tracking = async (orderId, supplyHubId, remark) => {
+      const scope = await request('/api/v1/production-scheduling/order-tracking/orders/' + orderId);
+      const intent = { action: 'set_order_tracking', orderId, expectedVersion: scope.tracking?.version ?? 0, data: { supplyHubId, remark } };
+      const preview = await request('/api/v1/production-scheduling/order-tracking/preview', intent);
+      return request('/api/v1/production-scheduling/order-tracking/commands', { requestId: randomUUID(), intent: preview.intent, previewHash: preview.previewHash });
+    };
+    return { pool, errors, base, password, login, user, resource, changeResource, order, plan, execution, tracking, request, close };
   } catch (error) { await close(); throw error; }
 }
 
-test('Gate6B/C built scheduling preserves plans, actual execution, recovery and session ownership', { timeout: 300000 }, async t => {
+test('Gate6B/C/D built scheduling preserves plans, actual execution, tracking, recovery and session ownership', { timeout: 360000 }, async t => {
   const before = process.env.PLAN_UI_BEFORE === '1';
   if (!before) assert.equal(process.env.PLAN_UI_STATIC_DIR, undefined, 'after must use its current build');
   const staticDirectory = resolve(before ? process.env.PLAN_UI_STATIC_DIR ?? 'dist/client' : 'dist/client');
@@ -99,6 +105,7 @@ test('Gate6B/C built scheduling preserves plans, actual execution, recovery and 
     const loginUI = async username => { await field('input[name=username]', username); await field('input[name=password]', x.password); await click('登录织序'); };
     const posts = () => network.filter(row => row.method === 'POST' && row.path === '/api/v1/production-scheduling/commands').length;
     const executionPosts = () => network.filter(row => row.method === 'POST' && row.path === '/api/v1/production-scheduling/execution/commands').length;
+    const trackingPosts = () => network.filter(row => row.method === 'POST' && row.path === '/api/v1/production-scheduling/order-tracking/commands').length;
     const count = async table => (await x.pool.query('SELECT count(*)::int n FROM ' + table)).rows[0].n;
     const shot = async name => { const image = await command('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false }); await writeFile(join(evidence, name + '.png'), Buffer.from(image.data, 'base64')); };
     const poolSearch = async name => { await click('未排订单'); await field('input[aria-label=搜索排单]', name); await has(name.split(' ')[0]); await until(() => evaluate("document.querySelectorAll('.ps-pool-row:not(.head)').length===1"), 'one order'); };
@@ -109,36 +116,47 @@ test('Gate6B/C built scheduling preserves plans, actual execution, recovery and 
     const openActual = async (index, label = '更正实际记录') => { await click('未排订单'); await click('全部订单'); await field('input[aria-label=搜索排单]', 'SYN-PLAN-' + String(index).padStart(2, '0')); await until(() => evaluate("document.querySelectorAll('.ps-pool-row:not(.head)').length===1"), 'one actual order'); await click('查看排单', '.ps-pool-row button'); await click(label, '[role=dialog] button'); await has('累计完成数量'); };
     const actualHead = async id => (await x.request('/api/v1/production-scheduling/executions/' + id)).execution;
     const actualSave = async () => { await click('预览进度', '[role=dialog] button'); await has('确认实际进度'); await click('确认保存', '[role=dialog] button'); await has('实际进度已保存'); };
+    const openTracking = async index => { await click('未排订单'); await click('全部订单'); await field('input[aria-label=搜索排单]', 'SYN-PLAN-' + String(index).padStart(2, '0')); await until(() => evaluate("document.querySelectorAll('.ps-pool-row:not(.head)').length===1"), 'one tracking order'); await click('查看排单', '.ps-pool-row button'); await click('物料与运输', '[role=dialog] button'); await until(() => evaluate("Boolean(document.querySelector('.ps-server-tracking-modal'))"), 'tracking modal'); };
+    const trackingSave = async () => { await click('预览跟进', '[role=dialog] button'); await has('确认物料与运输'); await click('确认保存', '[role=dialog] button'); await has('物料与运输已保存'); };
+    const trackingHead = async id => (await x.request('/api/v1/production-scheduling/order-tracking/orders/' + id)).tracking;
     await command('Page.addScriptToEvaluateOnNewDocument', { source: `
-      window.planMode='ready';window.planListMode='ready';window.planReceiptMode='ready';window.planPreviewMode='ready';window.executionQueueMode='ready';window.planWaiters=[];window.planPostWaiters=[];window.planReceiptWaiters=[];window.planPreviewWaiters=[];window.planLateWaiters=[];window.planBodies=[];
+      window.planMode='ready';window.planListMode='ready';window.planReceiptMode='ready';window.planPreviewMode='ready';window.executionQueueMode='ready';window.trackingReadMode='ready';window.trackingReadWaiters=[];window.planWaiters=[];window.planPostWaiters=[];window.planReceiptWaiters=[];window.planPreviewWaiters=[];window.planLateWaiters=[];window.planBodies=[];
       const planFetch=fetch;window.fetch=async(...args)=>{const u=new URL(typeof args[0]==='string'?args[0]:args[0].url,location.href),m=args[1]?.method??'GET';
-        if(['/api/v1/production-scheduling/commands','/api/v1/production-scheduling/execution/commands'].includes(u.pathname)&&m==='POST'){planBodies.push(JSON.parse(args[1].body));const mode=planMode;planMode='ready';if(mode==='before-network')throw Error('synthetic offline before send');if(mode==='late'){planLateWaiters.push(()=>planFetch(...args));throw Error('synthetic response missing before late arrival');}const r=await planFetch(...args);if(mode==='lost')throw Error('synthetic lost reply');if(mode==='mismatch'){const d=await r.json();return Response.json({...d,payloadHash:'a'.repeat(64)},{status:r.status});}if(mode==='delay200'||mode==='delay401'){const d=await r.json();return new Promise(done=>planPostWaiters.push(()=>done(mode==='delay401'?Response.json({error:{code:'synthetic_old_expired'}},{status:401}):Response.json(d,{status:r.status}))));}return r;}
-        if(['/api/v1/production-scheduling/preview','/api/v1/production-scheduling/execution/preview'].includes(u.pathname)){const mode=planPreviewMode;planPreviewMode='ready';const r=await planFetch(...args);return mode==='hold'?new Promise(done=>planPreviewWaiters.push(()=>done(r))):r;}
+        if(['/api/v1/production-scheduling/commands','/api/v1/production-scheduling/execution/commands','/api/v1/production-scheduling/order-tracking/commands'].includes(u.pathname)&&m==='POST'){planBodies.push(JSON.parse(args[1].body));const mode=planMode;planMode='ready';if(mode==='before-network')throw Error('synthetic offline before send');if(mode==='late'){planLateWaiters.push(()=>planFetch(...args));throw Error('synthetic response missing before late arrival');}const r=await planFetch(...args);if(mode==='lost')throw Error('synthetic lost reply');if(mode==='mismatch'){const d=await r.json();return Response.json({...d,payloadHash:'a'.repeat(64)},{status:r.status});}if(mode==='delay200'||mode==='delay401'){const d=await r.json();return new Promise(done=>planPostWaiters.push(()=>done(mode==='delay401'?Response.json({error:{code:'synthetic_old_expired'}},{status:401}):Response.json(d,{status:r.status}))));}return r;}
+        if(['/api/v1/production-scheduling/preview','/api/v1/production-scheduling/execution/preview','/api/v1/production-scheduling/order-tracking/preview'].includes(u.pathname)){const mode=planPreviewMode;planPreviewMode='ready';const r=await planFetch(...args);return mode==='hold'?new Promise(done=>planPreviewWaiters.push(()=>done(r))):r;}
+        if(u.pathname.startsWith('/api/v1/production-scheduling/order-tracking/orders/')&&m==='GET'){const mode=trackingReadMode;trackingReadMode='ready';const r=await planFetch(...args);if(mode==='unavailable')return Response.json({error:{code:'order_tracking_unavailable'}},{status:503});if(mode==='hold'||mode==='hold401')return new Promise(done=>trackingReadWaiters.push(()=>done(mode==='hold401'?Response.json({error:{code:'synthetic_old_expired'}},{status:401}):r)));return r;}
         if(u.pathname.startsWith('/api/v1/production-scheduling/commands/')){const mode=planReceiptMode;planReceiptMode='ready';const r=await planFetch(...args);if(mode==='mismatch'){const d=await r.json();return Response.json({...d,result:d.result?{...d.result,payloadHash:'a'.repeat(64)}:d.result});}if(mode==='delay200'||mode==='delay401'){const d=await r.json();return new Promise(done=>planReceiptWaiters.push(()=>done(mode==='delay401'?Response.json({error:{code:'synthetic_old_expired'}},{status:401}):Response.json(d,{status:r.status}))));}return r;}
         if(/^\\/api\\/v1\\/production-scheduling\\/groups\\/[a-f0-9-]+$/.test(u.pathname)&&m==='GET'&&executionQueueMode==='fail')return Response.json({error:{code:'production_plan_read_too_large'}},{status:422});
         if(/^\\/api\\/v1\\/production-scheduling\\/(groups|orders)$/.test(u.pathname)&&m==='GET'){const mode=planListMode;planListMode='ready';const r=await planFetch(...args);if(mode==='delay200'||mode==='delay401')return new Promise(done=>planWaiters.push(()=>done(mode==='delay401'?Response.json({error:{code:'synthetic_old_expired'}},{status:401}):r)));return r;}return planFetch(...args);};` });
     await loginCookie('plan.editor'); await navigate('/production-scheduling');
     if (before) {
-      await phase('the exact prior Server build shows planning without execution controls or actual writes', async () => {
+      await phase('the exact prior Server build keeps planning and actual output but has no logistics dialog or writes', async () => {
         await has('暂无生产组');
         const calendar = await x.resource('calendars', { name: '旧计划工作日历', enabled: true, remark: '', workingWeekdays: [1, 2, 3, 4, 5], exceptions: [] });
         const site = await x.resource('sites', { name: '旧计划地点', enabled: true, remark: '', countryCode: null, productionCalendarId: calendar.id, preProductionSampleLeadDays: 0 });
         const group = await x.resource('groups', { name: '旧计划合成组', enabled: true, remark: '', shortName: '', productionSiteId: site.id, sortOrder: 0 });
         const order = await x.order(1);
-        await x.plan(order, { executionType: 'internal', executorId: group.id, colorId: null, plannedQuantity: '30', duration: { mode: 'workdays', workdays: 2 }, dates: { mode: 'auto_queue', startDate: '2027-01-04' }, remark: '' });
+        const planned = await x.plan(order, { executionType: 'internal', executorId: group.id, colorId: null, plannedQuantity: '30', duration: { mode: 'workdays', workdays: 2 }, dates: { mode: 'auto_queue', startDate: '2027-01-04' }, remark: '' });
+        await x.execution(planned.assignments[0].id, { status: 'in_progress', completedQuantity: '5', actualStartDate: '2027-01-04', actualCompletedDate: null });
         for (const width of [1440, 390]) {
           await command('Emulation.setDeviceMetricsOverride', { width, height: 1000, deviceScaleFactor: 1, mobile: width === 390 });
           await navigate('/production-scheduling'); await has('旧计划合成组'); await has('SYN-PLAN-01');
-          await has('实际完成尚未纳入');
+          assert.equal(await evaluate("document.body.innerText.includes('实际完成尚未纳入')"), false);
           assert.equal(await evaluate("document.querySelector('.ps-server-scheduling-page')!==null"), true);
           await click('更多排单：SYN-PLAN-01 · 1'); await has('查看历史');
-          assert.equal(await evaluate("document.body.innerText.includes('登记进度')||document.body.innerText.includes('结束排单')"), false);
-          await shot('planning-without-execution-' + width);
+          await has('登记进度'); await has('结束排单');
+          await click('未排订单'); await click('全部订单'); await field('input[aria-label=搜索排单]', 'SYN-PLAN-01');
+          await until(() => evaluate("document.querySelectorAll('.ps-pool-row:not(.head)').length===1"), 'one prior order');
+          await click('查看排单', '.ps-pool-row button'); await has('更正实际记录');
+          assert.equal(await evaluate("document.querySelector('[role=dialog]').innerText.includes('物料与运输')"), false);
+          assert.equal(await evaluate("Boolean(document.querySelector('.ps-server-tracking-modal'))"), false);
+          await shot('order-without-logistics-' + width);
         }
         assert.equal(posts(), 0);
-        assert.deepEqual(network.filter(row => row.path.includes('/production-scheduling/execution')), []);
-        assert.equal(await count('production_schedule_assignments'), 1); assert.equal(await count('production_schedule_commands'), 1);
-        for (const table of ['production_schedule_executions', 'production_schedule_execution_versions', 'quote_center_quotes']) assert.equal(await count(table), 0);
+        assert.deepEqual(network.filter(row => row.path.includes('/production-scheduling/order-tracking')), []);
+        assert.equal(await count('production_schedule_assignments'), 1); assert.equal(await count('production_schedule_commands'), 2);
+        for (const table of ['production_schedule_executions', 'production_schedule_execution_versions']) assert.equal(await count(table), 1);
+        for (const table of ['production_order_execution_trackings', 'production_order_execution_tracking_versions', 'quote_center_quotes']) assert.equal(await count(table), 0);
         assert.deepEqual(await evaluate("Object.keys(localStorage).filter(k=>k.startsWith('zhixu.erp.'))"), []);
         assert.deepEqual(errors, []); assert.deepEqual(x.errors, []);
       });
@@ -217,7 +235,7 @@ test('Gate6B/C built scheduling preserves plans, actual execution, recovery and 
       }
     });
     await phase('cached pending guards the concrete view-order button and corrupted storage is retained', async () => {
-      await startPlan('SYN-PLAN-07', second.id, '10'); await click('预览排单'); await has('确认排单变更'); await evaluate("planMode='before-network'"); await click('确认保存'); await has('保存结果尚未确认'); const original = await pendingCommand(); await navigate('/production-scheduling'); await has('有一条排单操作结果待核对');
+      await startPlan('SYN-PLAN-07', second.id, '10'); await click('预览排单'); await has('确认排单变更'); await evaluate("planMode='before-network'"); await click('确认保存'); await has('保存结果尚未确认'); const original = await pendingCommand(); await navigate('/production-scheduling'); await has('有一条生产操作结果待核对');
       await click('更多排单：SYN-PLAN-01 · 1'); await click('查看订单', '[role=menu] button'); await has('请先核对原请求'); assert.equal(await evaluate('location.pathname'), '/production-scheduling');
       await click('核对原请求'); await has('暂未找到原操作回执'); await click('重试原请求'); await has('排单已保存');
       const key = 'zhixu.server.production-plan.pending.v1.' + (await x.pool.query("SELECT public_id::text FROM app_users WHERE username='plan.editor'")).rows[0].public_id;
@@ -236,8 +254,8 @@ test('Gate6B/C built scheduling preserves plans, actual execution, recovery and 
         if (channel === 'receipt') { await has('保存结果尚未确认'); await evaluate('planReceiptMode=' + JSON.stringify('delay' + status)); await click('核对原请求', '[role=dialog] button'); }
         const waiters = channel === 'post' ? 'planPostWaiters' : 'planReceiptWaiters'; await until(() => evaluate(waiters + '.length===1'), 'held old response'); const original = await pendingCommand();
         const key = 'zhixu.server.production-plan.pending.v1.' + (await x.pool.query("SELECT public_id::text FROM app_users WHERE username='plan.editor'")).rows[0].public_id, raw = await evaluate('sessionStorage.getItem(' + JSON.stringify(key) + ')');
-        await evaluate('planWaiters.splice(0).forEach(done=>done())'); await has('忘记密码？请联系系统管理员'); await loginUI('plan.second'); await has('A合成一组'); assert.equal(await evaluate("document.body.innerText.includes('有一条排单操作结果待核对')"), false);
-        await click('用户菜单'); await click('退出登录'); await has('忘记密码？请联系系统管理员'); await loginUI('plan.editor'); await has('有一条排单操作结果待核对'); await evaluate(waiters + '.splice(0).forEach(done=>done())'); await wait(180);
+        await evaluate('planWaiters.splice(0).forEach(done=>done())'); await has('忘记密码？请联系系统管理员'); await loginUI('plan.second'); await has('A合成一组'); assert.equal(await evaluate("document.body.innerText.includes('有一条生产操作结果待核对')"), false);
+        await click('用户菜单'); await click('退出登录'); await has('忘记密码？请联系系统管理员'); await loginUI('plan.editor'); await has('有一条生产操作结果待核对'); await evaluate(waiters + '.splice(0).forEach(done=>done())'); await wait(180);
         assert.equal(await evaluate('sessionStorage.getItem(' + JSON.stringify(key) + ')'), raw); assert.equal(await evaluate("document.body.innerText.includes('忘记密码？请联系系统管理员')"), false); assert.equal(await evaluate("[...document.querySelectorAll('button')].some(n=>n.textContent==='重试原请求')"), false);
         await click('核对原请求'); await has('排单已保存'); assert.equal((await x.pool.query('SELECT count(*)::int n FROM production_schedule_commands WHERE request_id=$1', [original.requestId])).rows[0].n, 1);
       }
@@ -331,7 +349,7 @@ test('Gate6B/C built scheduling preserves plans, actual execution, recovery and 
     await phase('lost and mismatched actual receipts survive refresh and clear only the original request', async () => {
       await openActual(27, '登记进度'); await field('input[aria-label=累计完成数量]', '5.125'); await click('预览进度', '[role=dialog] button'); await has('确认实际进度'); await evaluate("planMode='lost'"); await click('确认保存', '[role=dialog] button'); await has('保存结果尚未确认');
       const original = await pendingCommand(); assert.equal(original.intent.action, 'record_execution'); const before = executionPosts(); assert.equal((await actualHead(laterActual.id)).version, 1);
-      await navigate('/production-scheduling'); await has('有一条排单操作结果待核对'); assert.equal(executionPosts(), before); await click('核对原请求'); await has('实际进度已保存'); assert.equal((await actualHead(laterActual.id)).version, 1);
+      await navigate('/production-scheduling'); await has('有一条生产操作结果待核对'); assert.equal(executionPosts(), before); await click('核对原请求'); await has('实际进度已保存'); assert.equal((await actualHead(laterActual.id)).version, 1);
       await openActual(27); await field('input[aria-label=累计完成数量]', '6.125'); await click('预览进度', '[role=dialog] button'); await has('确认实际进度'); await evaluate("planMode='mismatch'"); await click('确认保存', '[role=dialog] button'); await has('核对结果与原请求不一致'); await evaluate("planReceiptMode='mismatch'"); await click('核对原请求', '[role=dialog] button'); await has('核对结果与原请求不一致'); assert.equal((await actualHead(laterActual.id)).version, 2);
       await click('核对原请求', '[role=dialog] button'); await has('实际进度已保存'); assert.equal((await x.pool.query('SELECT count(*)::int n FROM production_schedule_commands WHERE request_id=$1', [original.requestId])).rows[0].n, 1);
     });
@@ -343,8 +361,8 @@ test('Gate6B/C built scheduling preserves plans, actual execution, recovery and 
         if (channel === 'receipt') { await has('保存结果尚未确认'); await evaluate('planReceiptMode=' + JSON.stringify('delay' + status)); await click('核对原请求', '[role=dialog] button'); }
         const waiters = channel === 'post' ? 'planPostWaiters' : 'planReceiptWaiters'; await until(() => evaluate(waiters + '.length===1'), 'held old actual response');
         const original = await pendingCommand(), key = 'zhixu.server.production-plan.pending.v1.' + (await x.pool.query("SELECT public_id::text FROM app_users WHERE username='plan.editor'")).rows[0].public_id, raw = await evaluate('sessionStorage.getItem(' + JSON.stringify(key) + ')');
-        await evaluate('planWaiters.splice(0).forEach(done=>done())'); await has('忘记密码？请联系系统管理员'); await loginUI('plan.second'); await has('A合成一组'); assert.equal(await evaluate("document.body.innerText.includes('有一条排单操作结果待核对')"), false);
-        await click('用户菜单'); await click('退出登录'); await has('忘记密码？请联系系统管理员'); await loginUI('plan.editor'); await has('有一条排单操作结果待核对'); await evaluate(waiters + '.splice(0).forEach(done=>done())'); await wait(180);
+        await evaluate('planWaiters.splice(0).forEach(done=>done())'); await has('忘记密码？请联系系统管理员'); await loginUI('plan.second'); await has('A合成一组'); assert.equal(await evaluate("document.body.innerText.includes('有一条生产操作结果待核对')"), false);
+        await click('用户菜单'); await click('退出登录'); await has('忘记密码？请联系系统管理员'); await loginUI('plan.editor'); await has('有一条生产操作结果待核对'); await evaluate(waiters + '.splice(0).forEach(done=>done())'); await wait(180);
         assert.equal(await evaluate('sessionStorage.getItem(' + JSON.stringify(key) + ')'), raw); assert.equal(await evaluate("document.body.innerText.includes('忘记密码？请联系系统管理员')"), false); await click('核对原请求'); await has('实际进度已保存');
         assert.equal((await x.pool.query('SELECT count(*)::int n FROM production_schedule_commands WHERE request_id=$1', [original.requestId])).rows[0].n, 1);
       }
@@ -377,6 +395,112 @@ test('Gate6B/C built scheduling preserves plans, actual execution, recovery and 
       await x.pool.query("UPDATE sales_orders SET lifecycle_state='completed',version=version+1 WHERE id=$1", [executionOrders[1]]); await click('重新读取'); await click('生产组', '.ps-view-tabs button'); await field('input[aria-label=搜索排单]', 'X实际执行组'); await has('X实际执行组 · 计划队列'); await has('历史 / 已冻结，仅查看');
       await click('更多排单：SYN-PLAN-27 · 1'); assert.equal(await evaluate("[...document.querySelectorAll('.ps-row-more-menu button')].some(n=>['登记进度','更正实际记录','结束排单'].includes(n.textContent))"), false); await click('查看执行历史', '.ps-row-more-menu button'); await has('实际版本 ' + (anchor + 1)); await click('关闭执行历史');
     });
+    const trackingOrder = await x.order(30), frozenTrackingOrder = await x.order(31);
+    let trackingHub = await x.resource('hubs', { name: 'A合成集货仓', enabled: true, remark: '' });
+    const otherTrackingHub = await x.resource('hubs', { name: 'B合成集货仓', enabled: true, remark: '' });
+    const disabledTrackingHub = await x.resource('hubs', { name: 'C停用集货仓', enabled: false, remark: '' });
+    for (let n = 0; n < 21; n++) await x.resource('hubs', { name: 'Z分页集货仓' + n, enabled: true, remark: '' });
+    let firstTracking;
+    await phase('tracking has no inferred default; explicit paged selection and preview update only follow-up facts', async () => {
+      const originalPlan = await x.request('/api/v1/production-scheduling/orders/' + trackingOrder);
+      await openTracking(30); assert.equal(await evaluate("document.querySelector('select[aria-label=集货仓选择]').value"), '');
+      assert.equal(await evaluate("document.querySelector('select[aria-label=集货仓选择]').options[0].text"), '未设置');
+      await click('预览跟进', '[role=dialog] button'); await has('记录没有变化'); assert.equal(await count('production_order_execution_trackings'), 0);
+      assert.equal(await evaluate("[...document.querySelectorAll('[role=dialog] button')].find(n=>n.textContent==='确认保存').disabled"), true); await click('返回修改', '[role=dialog] button');
+      await has('24 条'); await click('下页集货仓'); await has('第 2 页'); await field('input[aria-label=搜索集货仓]', 'A合成 仓'); await has('1 条');
+      await field('select[aria-label=集货仓选择]', trackingHub.id, 'HTMLSelectElement'); await field('textarea[aria-label=物料与运输备注]', ' 首次明确选择\n分批核对 ', 'HTMLTextAreaElement');
+      await click('预览跟进', '[role=dialog] button'); await has('确认物料与运输'); assert.equal(await count('production_order_execution_trackings'), 0); const before = trackingPosts();
+      await evaluate("(()=>{const b=[...document.querySelectorAll('[role=dialog] button')].find(n=>n.textContent==='确认保存');b.click();b.click()})()"); await has('物料与运输已保存');
+      assert.equal(trackingPosts(), before + 1); firstTracking = await trackingHead(trackingOrder); assert.equal(firstTracking.version, 1); assert.equal(firstTracking.remark, ' 首次明确选择\n分批核对 ');
+      assert.deepEqual(await x.request('/api/v1/production-scheduling/orders/' + trackingOrder), originalPlan); await shot('tracking-explicit-saved');
+    });
+    await phase('renamed disabled hubs keep occurrence history and an explicit clear preserves identity', async () => {
+      trackingHub = await x.changeResource(trackingHub, { name: 'A合成仓当前名称', enabled: false });
+      await openTracking(30); await has('上次保存时：A合成集货仓'); await has('当前名称：A合成仓当前名称');
+      assert.equal(await evaluate("document.querySelector('select[aria-label=集货仓选择]').value"), trackingHub.id);
+      assert.equal(await evaluate(`[...document.querySelector('select[aria-label=集货仓选择]').options].find(n=>n.value===${JSON.stringify(disabledTrackingHub.id)}).disabled`), true);
+      await field('textarea[aria-label=物料与运输备注]', '保留原停用仓，更新备注', 'HTMLTextAreaElement'); await trackingSave();
+      assert.equal((await trackingHead(trackingOrder)).hubSnapshot.name, 'A合成仓当前名称');
+      await openTracking(30); await field('select[aria-label=集货仓选择]', '', 'HTMLSelectElement'); await field('textarea[aria-label=物料与运输备注]', '', 'HTMLTextAreaElement'); await trackingSave();
+      const cleared = await trackingHead(trackingOrder); assert.equal(cleared.id, firstTracking.id); assert.equal(cleared.version, 3); assert.equal(cleared.supplyHubId, null);
+      await click('查看排单', '.ps-pool-row button'); await click('查看跟进历史', '[role=dialog] button'); await has('跟进版本 1');
+      const text = await evaluate("document.querySelector('[role=dialog]').innerText"); assert.ok(text.includes('保存时集货仓：A合成集货仓')); assert.ok(text.includes('保存时集货仓：A合成仓当前名称')); assert.ok(text.includes('保存时集货仓：未设置'));
+      await shot('tracking-immutable-history'); await click('关闭物料与运输历史');
+    });
+    await phase('tracking concurrency preserves the exact draft until an explicit fresh preview', async () => {
+      await openTracking(30); await field('select[aria-label=集货仓选择]', otherTrackingHub.id, 'HTMLSelectElement'); await field('textarea[aria-label=物料与运输备注]', '用户保留草稿', 'HTMLTextAreaElement');
+      await click('预览跟进', '[role=dialog] button'); await has('确认物料与运输'); await x.tracking(trackingOrder, otherTrackingHub.id, '他人已保存');
+      await click('确认保存', '[role=dialog] button'); await has('集货仓或备注已更新'); assert.equal((await trackingHead(trackingOrder)).remark, '他人已保存');
+      assert.equal(await evaluate("document.querySelector('textarea[aria-label=物料与运输备注]').value"), '用户保留草稿');
+      await click('重新读取跟进', '[role=dialog] button'); await has('输入已保留'); assert.equal(await evaluate("document.querySelector('textarea[aria-label=物料与运输备注]').value"), '用户保留草稿');
+      await trackingSave(); assert.equal((await trackingHead(trackingOrder)).remark, '用户保留草稿');
+    });
+    await phase('tracking lost replies and explicit unknown retry share the original pending slot with plans and execution', async () => {
+      await openTracking(30); await field('textarea[aria-label=物料与运输备注]', '提交后丢回执', 'HTMLTextAreaElement'); await click('预览跟进', '[role=dialog] button'); await has('确认物料与运输');
+      await evaluate("planMode='lost'"); await click('确认保存', '[role=dialog] button'); await has('保存结果尚未确认'); const original = await pendingCommand(), before = trackingPosts(), version = (await trackingHead(trackingOrder)).version;
+      assert.equal(original.intent.action, 'set_order_tracking'); await navigate('/production-scheduling'); await has('有一条生产操作结果待核对'); assert.equal(trackingPosts(), before);
+      await poolSearch('SYN-PLAN-09'); assert.equal(await evaluate("[...document.querySelectorAll('.ps-pool-row button')].find(n=>n.textContent==='排单').disabled"), true);
+      await evaluate("planReceiptMode='mismatch'"); await click('核对原请求'); await has('核对结果与原请求不一致'); assert.deepEqual(await pendingCommand(), original);
+      await click('核对原请求'); await has('物料与运输已保存'); assert.equal((await trackingHead(trackingOrder)).version, version);
+      await openTracking(30); await field('textarea[aria-label=物料与运输备注]', '明确重试原编号', 'HTMLTextAreaElement'); await click('预览跟进', '[role=dialog] button'); await has('确认物料与运输'); await evaluate("planMode='before-network'"); await click('确认保存', '[role=dialog] button'); await has('保存结果尚未确认'); const unknown = await pendingCommand();
+      await click('核对原请求', '[role=dialog] button'); await has('暂未找到原操作回执'); assert.equal((await trackingHead(trackingOrder)).version, version);
+      await click('重试原请求', '[role=dialog] button'); await has('物料与运输已保存'); assert.equal((await trackingHead(trackingOrder)).version, version + 1);
+      assert.equal((await x.pool.query('SELECT count(*)::int n FROM production_schedule_commands WHERE request_id=$1', [unknown.requestId])).rows[0].n, 1);
+    });
+    await phase('frozen rereads never misrepresent retained unsaved notes as current facts; viewers remain read only', async () => {
+      await x.tracking(frozenTrackingOrder, otherTrackingHub.id, '已经保存的备注'); await openTracking(31); await field('textarea[aria-label=物料与运输备注]', '未保存且不能冒充事实', 'HTMLTextAreaElement'); const before = trackingPosts();
+      await x.pool.query("UPDATE sales_orders SET lifecycle_state='completed',version=version+1 WHERE id=$1", [frozenTrackingOrder]); await click('重新读取跟进', '[role=dialog] button'); await has('当前仅可查看'); await has('保留了未保存的输入');
+      const text = await evaluate("document.querySelector('[role=dialog]').innerText"); assert.ok(text.includes('备注：已经保存的备注')); assert.equal(text.includes('备注：未保存且不能冒充事实'), false); assert.equal(await evaluate("document.querySelector('[role=dialog] textarea')!==null"), false);
+      await click('关闭', '[role=dialog] button'); await has('有未保存修改'); await click('放弃修改'); assert.equal(trackingPosts(), before); assert.equal((await trackingHead(frozenTrackingOrder)).remark, '已经保存的备注');
+      await loginCookie('plan.viewer'); await navigate('/production-scheduling'); await openTracking(30); await has('当前仅可查看'); assert.equal(await evaluate("document.querySelectorAll('[role=dialog] input,[role=dialog] select,[role=dialog] textarea').length"), 0);
+      assert.equal(await evaluate("[...document.querySelectorAll('[role=dialog] button')].some(n=>n.textContent==='预览跟进')"), false); await click('关闭', '[role=dialog] button'); await loginCookie('plan.editor'); await navigate('/production-scheduling');
+    });
+    await phase('an unavailable or suspended optional tracking read does not block old plans or cross drawer ownership', async () => {
+      await poolSearch('SYN-PLAN-30'); await evaluate("trackingReadMode='hold401'"); await click('查看排单', '.ps-pool-row button'); await has('这张订单尚无排单'); await until(() => evaluate('trackingReadWaiters.length===1'), 'held optional tracking');
+      assert.equal(await evaluate("[...document.querySelectorAll('[role=dialog] button')].find(n=>n.textContent==='新增排单').disabled"), false); await click('关闭订单排单');
+      await poolSearch('SYN-PLAN-09'); await click('查看排单', '.ps-pool-row button'); await has('集货仓：未设置'); await evaluate('trackingReadWaiters.splice(0).forEach(done=>done())'); await wait(180);
+      assert.equal(await evaluate("document.body.innerText.includes('忘记密码？请联系系统管理员')"), false); assert.ok((await evaluate("document.querySelector('[role=dialog]').innerText")).includes('SYN-PLAN-09')); await click('关闭订单排单');
+      await poolSearch('SYN-PLAN-30'); await evaluate("trackingReadMode='hold401'"); await click('查看排单', '.ps-pool-row button'); await until(() => evaluate('trackingReadWaiters.length===1'), 'old drawer response before modal commit');
+      await evaluate("window.trackingReleaseObserved=false;window.trackingReleaseObserver=new MutationObserver(()=>{if(document.querySelector('.ps-server-tracking-modal')){trackingReleaseObserver.disconnect();trackingReleaseObserved=true;trackingReadWaiters.splice(0).forEach(done=>done())}});trackingReleaseObserver.observe(document.body,{subtree:true,childList:true})");
+      await click('物料与运输', '[role=dialog] button'); await until(() => evaluate("trackingReleaseObserved&&Boolean(document.querySelector('textarea[aria-label=物料与运输备注]'))"), 'layout-owned tracking modal'); await wait(180);
+      assert.equal(await evaluate("document.body.innerText.includes('忘记密码？请联系系统管理员')"), false); await closeClean();
+      await poolSearch('SYN-PLAN-30'); await evaluate("trackingReadMode='unavailable'"); await click('查看排单', '.ps-pool-row button'); await has('物料与运输跟进暂时不可用'); await has('这张订单尚无排单');
+      await click('物料与运输', '[role=dialog] button'); await until(() => evaluate("Boolean(document.querySelector('textarea[aria-label=物料与运输备注]'))"), 'tracking recovers independently'); await closeClean();
+    });
+    await phase('fresh tracking revocation protects known receipts and unknown retry without consuming pending bytes', async () => {
+      await openTracking(30); await field('textarea[aria-label=物料与运输备注]', '撤权前保存', 'HTMLTextAreaElement'); await click('预览跟进', '[role=dialog] button'); await has('确认物料与运输'); await evaluate("planMode='lost'"); await click('确认保存', '[role=dialog] button'); await has('保存结果尚未确认'); const saved = await pendingCommand();
+      await x.pool.query("DELETE FROM app_role_permissions WHERE role_id='plan.editor' AND permission_key='schedule.edit'"); await click('核对原请求', '[role=dialog] button'); await has('没有执行此操作的权限'); assert.deepEqual(await pendingCommand(), saved);
+      await x.pool.query("INSERT INTO app_role_permissions(role_id,permission_key) VALUES('plan.editor','schedule.edit')"); await click('核对原请求', '[role=dialog] button'); await has('物料与运输已保存');
+      await openTracking(30); await field('textarea[aria-label=物料与运输备注]', '撤权后不可重试写入', 'HTMLTextAreaElement'); await click('预览跟进', '[role=dialog] button'); await has('确认物料与运输'); await evaluate("planMode='before-network'"); await click('确认保存', '[role=dialog] button'); await has('保存结果尚未确认'); const original = await pendingCommand(), before = (await trackingHead(trackingOrder)).version;
+      await x.pool.query("DELETE FROM app_role_permissions WHERE role_id='plan.editor' AND permission_key='schedule.edit'"); await click('核对原请求', '[role=dialog] button'); await has('暂未找到原操作回执'); await click('重试原请求', '[role=dialog] button'); await has('没有执行此操作的权限'); assert.equal((await trackingHead(trackingOrder)).version, before); assert.deepEqual(await pendingCommand(), original);
+      await x.pool.query("INSERT INTO app_role_permissions(role_id,permission_key) VALUES('plan.editor','schedule.edit')"); await click('核对原请求', '[role=dialog] button'); await has('暂未找到原操作回执'); await click('重试原请求', '[role=dialog] button'); await has('物料与运输已保存');
+    });
+    await phase('late tracking mutations and receipts cannot cross A-B-A session ownership', async () => {
+      let sequence = 0;
+      for (const channel of ['post', 'receipt']) for (const status of [200, 401]) {
+        await openTracking(30); await field('textarea[aria-label=物料与运输备注]', '迟到跟进回执' + sequence++, 'HTMLTextAreaElement'); await evaluate("planListMode='delay401'"); await click('重新读取'); await until(() => evaluate('planWaiters.length===1'), 'held tracking session read');
+        await click('预览跟进', '[role=dialog] button'); await has('确认物料与运输'); await evaluate('planMode=' + JSON.stringify(channel === 'post' ? 'delay' + status : 'lost')); await click('确认保存', '[role=dialog] button');
+        if (channel === 'receipt') { await has('保存结果尚未确认'); await evaluate('planReceiptMode=' + JSON.stringify('delay' + status)); await click('核对原请求', '[role=dialog] button'); }
+        const waiters = channel === 'post' ? 'planPostWaiters' : 'planReceiptWaiters'; await until(() => evaluate(waiters + '.length===1'), 'held old tracking response');
+        const original = await pendingCommand(), key = 'zhixu.server.production-plan.pending.v1.' + (await x.pool.query("SELECT public_id::text FROM app_users WHERE username='plan.editor'")).rows[0].public_id, raw = await evaluate('sessionStorage.getItem(' + JSON.stringify(key) + ')');
+        await evaluate('planWaiters.splice(0).forEach(done=>done())'); await has('忘记密码？请联系系统管理员'); await loginUI('plan.second'); await has('A合成一组'); assert.equal(await evaluate("document.body.innerText.includes('有一条生产操作结果待核对')"), false);
+        await click('用户菜单'); await click('退出登录'); await has('忘记密码？请联系系统管理员'); await loginUI('plan.editor'); await has('有一条生产操作结果待核对'); await evaluate(waiters + '.splice(0).forEach(done=>done())'); await wait(180);
+        assert.equal(await evaluate('sessionStorage.getItem(' + JSON.stringify(key) + ')'), raw); assert.equal(await evaluate("document.body.innerText.includes('忘记密码？请联系系统管理员')"), false); await click('核对原请求'); await has('物料与运输已保存');
+        assert.equal((await x.pool.query('SELECT count(*)::int n FROM production_schedule_commands WHERE request_id=$1', [original.requestId])).rows[0].n, 1);
+      }
+    });
+    await phase('tracking history keeps a complete 25-item anchor and the original queue entry shares its physical order', async () => {
+      for (let n = 0; n < 26; n++) await x.tracking(trackingOrder, otherTrackingHub.id, '合成跟进历史' + n);
+      const anchor = (await trackingHead(trackingOrder)).version; await poolSearch('SYN-PLAN-30'); await click('查看排单', '.ps-pool-row button'); await click('查看跟进历史', '[role=dialog] button'); await has('跟进版本 ' + anchor);
+      assert.equal(await evaluate("document.querySelectorAll('.ps-server-tracking-history .qc-card').length"), 25); await x.tracking(trackingOrder, otherTrackingHub.id, '历史打开后新增');
+      await click('加载更早跟进记录', '[role=dialog] button'); await until(() => evaluate("[...document.querySelectorAll('[role=dialog] strong')].some(n=>n.textContent==='跟进版本 1')"), 'oldest tracking version');
+      assert.equal(await evaluate(`document.querySelector('[role=dialog]').innerText.includes('跟进版本 ${anchor + 1}')`), false); await shot('tracking-anchored-history'); await click('关闭物料与运输历史');
+      await x.plan(trackingOrder, data({ plannedQuantity: '5' })); await click('生产组', '.ps-view-tabs button'); await field('input[aria-label=搜索排单]', 'A合成一组'); await has('A合成一组 · 计划队列');
+      const queueEntry = "[...document.querySelectorAll('button')].map(n=>n.getAttribute('aria-label')).find(n=>n?.startsWith('更多排单：SYN-PLAN-30 ·'))";
+      await until(() => evaluate('Boolean(' + queueEntry + ')'), 'exact tracking order queue entry');
+      const label = await evaluate(queueEntry); await click(label); await click('物料与运输', '.ps-row-more-menu button');
+      await until(() => evaluate("document.querySelector('textarea[aria-label=物料与运输备注]')?.value==='历史打开后新增'"), 'same tracking order from queue'); await closeClean();
+    });
     await phase('real desktop, DPR and mobile geometry preserve usable queue and form bounds', async () => {
       for (const [width, deviceScaleFactor] of [[1920, 1], [1536, 1.25], [1440, 1], [1280, 1], [900, 1], [390, 1]]) {
         await command('Emulation.setDeviceMetricsOverride', { width, height: 1000, deviceScaleFactor, mobile: width === 390 }); await navigate('/production-scheduling'); await has('A合成一组');
@@ -392,6 +516,14 @@ test('Gate6B/C built scheduling preserves plans, actual execution, recovery and 
         assert.equal(metrics.buttons.length, 4); assert.ok(metrics.scroll <= width + 1, JSON.stringify(metrics)); assert.ok(metrics.buttons.every(row => row.left >= metrics.panel.left && row.right <= metrics.panel.right && row.bottom <= 1001), JSON.stringify(metrics));
         for (let i = 0; i < metrics.buttons.length; i++) for (let j = i + 1; j < metrics.buttons.length; j++) { const a = metrics.buttons[i], b = metrics.buttons[j]; assert.ok(a.right <= b.left + 1 || b.right <= a.left + 1 || a.bottom <= b.top + 1 || b.bottom <= a.top + 1, JSON.stringify(metrics)); }
         geometry.push(metrics); await shot('actual-internal-' + width); await closeClean(); await has('有未保存修改'); await click('放弃修改');
+        await openTracking(30); await field('textarea[aria-label=物料与运输备注]', '逐批核对，保持已确认资料。\n' + '长备注验证'.repeat(90), 'HTMLTextAreaElement');
+        metrics = await evaluate("({page:'tracking-form',width:innerWidth,scroll:document.documentElement.scrollWidth,panel:document.querySelector('[role=dialog]').getBoundingClientRect().toJSON(),fields:[...document.querySelectorAll('[role=dialog] input,[role=dialog] select,[role=dialog] textarea')].filter(n=>n.getClientRects().length).map(n=>({label:n.getAttribute('aria-label'),left:n.getBoundingClientRect().left,right:n.getBoundingClientRect().right})),buttons:[...document.querySelectorAll('[role=dialog] footer button')].map(n=>n.getBoundingClientRect().toJSON())})");
+        assert.ok(metrics.scroll <= width + 1, JSON.stringify(metrics)); assert.ok(metrics.panel.width <= width + 1); assert.ok(metrics.fields.every(row => row.left >= metrics.panel.left && row.right <= metrics.panel.right), JSON.stringify(metrics)); assert.ok(metrics.buttons.every(row => row.left >= metrics.panel.left && row.right <= metrics.panel.right && row.bottom <= 1001), JSON.stringify(metrics)); geometry.push(metrics); await shot('tracking-form-' + width);
+        await click('预览跟进', '[role=dialog] button'); await has('确认物料与运输');
+        metrics = await evaluate("({page:'tracking-preview',width:innerWidth,scroll:document.documentElement.scrollWidth,panel:document.querySelector('[role=dialog]').getBoundingClientRect().toJSON(),headDisplay:getComputedStyle(document.querySelector('[role=dialog] thead')).display,head:[...document.querySelectorAll('[role=dialog] th')].map(n=>({text:n.textContent,...n.getBoundingClientRect().toJSON()})),rows:[...document.querySelectorAll('[role=dialog] tbody tr')].map(n=>[...n.cells].map(c=>c.getBoundingClientRect().toJSON()))})");
+        assert.equal(metrics.headDisplay, 'table-header-group'); assert.deepEqual(metrics.head.map(row => row.text), ['修改项目','修改前','修改后']); assert.ok(metrics.scroll <= width + 1, JSON.stringify(metrics));
+        for (const cells of metrics.rows) for (let i = 0; i < 3; i++) { assert.ok(cells[i].width > 0 && Math.abs(cells[i].left - metrics.head[i].left) < 2 && cells[i].left >= metrics.panel.left && cells[i].right <= metrics.panel.right, JSON.stringify(metrics)); if (i) assert.ok(cells[i - 1].right <= cells[i].left + 1, JSON.stringify(metrics)); }
+        geometry.push(metrics); await shot('tracking-preview-' + width); await click('返回修改', '[role=dialog] button'); await closeClean(); await has('有未保存修改'); await click('放弃修改');
       }
     });
     assert.deepEqual(errors, []); assert.deepEqual(x.errors, []); assert.equal(await count('quote_center_quotes'), 0);
