@@ -1,23 +1,17 @@
-# 当前状态：成衣受控链整合
+# 当前状态：累计Server与CI成本控制
 
-2026-10-26；main 869ee84dd0b31de6161011e4aa560678b244a64d于2026-10-26T07:40:09.751Z独立API核实，open PR 0。codex/garment-controlled-main-869e从N建立后显式快进2509b7cb0cda644ae4dbb2d87d442fadea706085，普通合流实际N-direct A 52afadf649d36bf54a715b878ba2db153f9d2a90的绑定R 9505704aae6c32b532ab8fc7c143a41431138e91。collector 4b8efa166c6c5af48dc954d4bac7d080bdd8d294 → target d4060b60a52db766c548b20a5974b43a224784a8 → operator 7da954545bd9b720bfc28edbd313bc387dd5c195均真实祖先，三原Gate历史完整保留；全部非docs精确source 8cf667f26f191b0ca1d3b31b423dd293d7f2a5b6。
+2026-10-26；main 869ee84dd0b31de6161011e4aa560678b244a64d于2026-10-26T08:25:23.082Z独立API核实，open PR 0。codex/ci-cost-main-869e从N建立后显式快进3851936e2fb8d6e3e95b4d47a3e141687a77555f，普通合流原成本分支db683892e7c90df3ea81c4b8162dd2aa36a3d03a（原base9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf），原提交和29保护引用保持。成衣/生产/来源等累计应用源码仍为8cf667f26f191b0ca1d3b31b423dd293d7f2a5b6，只三workflow增加既有成本策略。
 
-D158复用0040观察发布，0043只增加空的actor/request技术账本；采前确认started提交，网络期间不持DB锁，采后fresh权限/合同/颜色/target/CAS核对与快照、审计、终态同事务。原回执未知不回收、不换UUID重采。worker固定6086979单合同两遍完整首页，各100行；最多1登录+2报表、4MiB单响应/8MiB报表/180秒，零重试或翻页；严格原文hash/无损JSON/完整计数/精确合同及两遍校验保持。
+三条必要工作流只加入同PR过时运行取消和npm下载缓存：按workflow/event/PR分组，手动run_id独立，只在PR取消。原pull_request/main与显式workflow_dispatch、检查名称、固定action SHA、contents:read、完整checkout、Node24、npm ci、全部当前测试/构建命令和15/20/20分钟上限保持；没有push重复触发、paths跳过、降低门槛或部署更改。新增成衣三项和此前生产/来源测试步骤完整保留。
 
-D160/161沿原0040目标、0043采集及0044启停回执提供唯一原源码CLI，先验证干净已提交源码与现有迁移/既有账号，不迁移、初始化、绑定或增加公开HTTP/Catalog/调度。启用必须明确策略和原账号/合同过滤证明；停用与历史核对不依赖凭据、证明或当前来源链。启停与采集分账，COMMIT或报告未知不展示暂定成功、不自动重试。Num/outdate为观察口径，不把观察当稳定事件、收入或关账。
+全部应用、API、SQL、UI和测试源码继续精确8cf；与其相比仅三份workflow有原成本增量。原501证据/66能力对象、11页/21路由及全部继承UI记录保持，原db683证据/能力是其完整子集；实际普通merge保留两父历史，不制造新revision。原三成衣Gate及更早源码QA继续按各自来源/范围复用。集中验证后新增一份独立路径QA证明至502/66，不修改原证据或能力状态。
 
-原三Gate QA按精确源码分别复用：collector d2ff的280/18后台、811根、152Python和fullLint仅未变范围；枚举实际2红后7f最新4文件43/43及类型/Node/相关lint通过。target e19的221/16和质量检查保持，40a仅加强两断言后本文件19/19通过。operator79f的27/52/71及质量检查保持，8cf两测试加强后20/20、类型/相关lint和实际原源码CLI正向检查通过；隔离枚举mutant负测保留。不相加为一次全量或本轮新跑。
+当前合流YAML校验去掉两项新增后与3851936e逐字/结构完全相等，并检查6个分组样例；复用既有锁定js-yaml4.1.1，不安装依赖。只在实际source merge S集中跑一次当前发布134；终态后Q冻结精确S/base/计数/时长和边界，R绑定独立证明，再仅运行最终R的exact-N守卫。Q/R仅docs，不把S134冒称exact-R重跑。实际终态以outputs/ci-cost-main-869e-20261026/final.json核定，未来最终PR必要CI仍保留。Hosted0，未实测缓存命中、取消效果或费用节省。
 
-原b919/5223/b20三个134发布回归分别属于其原日期、源码/metadata与e01a/9d65基线；当前动态manifest/docs已变，不记本轮134/811/945、构建、浏览器、Python或SQL通过。最终累计PR前仍需当时main精确守卫、一轮当前发布134及必要CI；本地本阶段仅新增最终同HEAD exact-N源码/证据守卫和独立复审。Linux专属Source CLI平台缺口保持。
+当前实际合流策略校验已通过；最终提交、集中发布回归、精确N守卫和独立复审以outputs/ci-cost-main-869e-20261026/final.json核定，缺终态不记阶段PASS。历史QA与当前验证、远端交付、真实Source激活、运行和人工接受分开记录。
 
-13项新冻结document逐Git blob/hash核对，52份继承UI记录保持；新V0仅operation-log model一条路径，原JSON及三摘要逐字归档，只前向base和阶段链接。A/R保留Dlog、同字节closing与production完整修订，production单叶不伪造merge；L/P只关闭Dlog和production两真实剩余叉。全部父记录和11页/21路由metadata保持。实际L冻结三文档组合，P绑定Dlog/production两真实剩余叉至501/66；closing仅沿A/R单叶保留。最终同HEAD守卫及终审按回执核定。
+完整G1–G8/R Goal active。后续按累计源码准备受保护的本机候选与当前范围验收；稳定成衣事件/更正、Server关账三项待决、真实来源具体范围/激活、目标切换与人工接受、依赖审计后退役仍分别待条件。可见coverage V2未批准/未实现，不借交期维护批准扩张。
 
-本阶段最终同HEAD exact-N源码/证据守卫、独立复审与干净状态以outputs/garment-controlled-main-869e-20261026/final.json核定；无实际终态回执不记PASS。历史QA、当前工程、远端交付、真实Source激活、运行及人工接受分别记录。
+NETWORK_DEGRADED及原Git STOP保留，普通PowerShell三种Git同样exit128/约5.35秒；不重复探测/推送，不改共享代理/TLS/认证，H0d70授权仍未消耗。本阶段Push/新PR/Hosted/真实Source/凭据/账号/现有业务库、卷或备份操作均0，不合并main、启用来源、调度、部署、切换或退役；3001/50426/59069/62426等既有环境和Browser数据保持。
 
-后续仍须累计范围验证、稳定成衣事件身份及更正、Server关账三项待决、真实Source具体额度/目标激活、目标环境切换与人工验收、依赖审计后退役。可见交期覆盖V2未批准也未实现；完整G1–G8/R Goal active，三个受控工程入口不等于运行激活或人类授权。
-
-NETWORK_DEGRADED保持：用户普通PowerShell三种只读Git均exit128/uncertain_transport、约5.35秒，可排除仅Codex会失败，仍不能据JSON断定相同TLS环节或根因。不重复原Git探测/推送，不改共享代理/TLS/认证，原H0d70授权及STOP保留。本阶段Push/新PR/Hosted/真实Source/凭据/账号/现有业务库/卷备份操作均0；不启用、绑定、调度、部署、merge main、切换或退役，3001/50426/59069/62426等旧对象与Browser数据保护。
-
-[阶段](tasks/active/garment-controlled-main-869e-2026-10-26.md)、[输入归档](tasks/completed/2026-10-26-garment-controlled-main-input-state/receipt.json)。
-
-实际L 63cfab62f31677560631373b4892f91b5ddbfd57（tree 8f2f2e39b5212ea2d90752b9b5ff9bda4940841d，父[2509b7cb0cda644ae4dbb2d87d442fadea706085,9505704aae6c32b532ab8fc7c143a41431138e91]）绑定decisions-garment-controlled-main-869e-20261026-merge、production-garment-controlled-main-869e-20261026-merge，hash各取实际L Git blob；A 52afadf649d36bf54a715b878ba2db153f9d2a90、R 9505704aae6c32b532ab8fc7c143a41431138e91及三原Gate历史保持。501/66证据/能力、11页/21路由完整，最终守卫与复审后置。
+[阶段](tasks/active/ci-cost-main-869e-2026-10-26.md)、[前阶段](tasks/active/garment-controlled-main-869e-2026-10-26.md)、[输入归档](tasks/completed/2026-10-26-ci-cost-main-input-state/receipt.json)。
