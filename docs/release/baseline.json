@@ -3607,6 +3607,19 @@
         "decisions-garment-observations-current-20261024"
       ],
       "changeReason": "Real two-parent integration of exact current main N and independent current observation source aad. Preserve both original decision branches and establish forward ancestry for D152/D153 without changing old evidence, rules or the guard."
+    },
+    {
+      "id": "decisions-garment-observations-main-869e-20261026-merge",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "6f80d7a0810f8ce5059a295fde52afa5ba3d04d9",
+      "renderedSourceSha": "d1930a2da590098f70e6433892eab350a3262e0c",
+      "sha256": "083a8028a28b8946b14977d6f6ea5423820f83192f8043dac9b4f5b80b7950f5",
+      "mergeOf": [
+        "decisions-logistics-resources-execution-main-869e-20261026-merge",
+        "decisions-garment-observations-main-anchor-869e-20261026"
+      ],
+      "changeReason": "Close the actual protected current-main Server history and genuine N-direct garment observation witness at their real two-parent merge. Preserve the original696 record, all prior N/B/L/11c6 evidence and the corrected ancestry path; no guard, source, business or runtime change."
     }
   ],
   "pages": [

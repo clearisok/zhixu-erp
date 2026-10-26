@@ -31,3 +31,5 @@ root唯一writer，既有独立审查者只读。
 ## 独立复审P2及实际修复
 
 原单B绑定计划未执行并保留于保护性B 3a1a0955420d659aa23ea1295c314a184df72d85和旧plan/只读复审回执；新方案经独立静态核对，无新产品问题。真实A 4e92b0bfae06923940c3b85cd78fc1714f96444f、R 5670a8869768f9a1cd8189a23c09e52031e328f7已保存；现在合回B，只改根恢复摘要及本阶段记录，源、旧对象、守卫均未改。见[独立A/R记录](garment-observations-main-anchor-869e-2026-10-26.md)。最终仍待实际L、最终绑定、精确N守卫与终审，未预写P2关闭。
+
+实际最终L 6f80d7a0810f8ce5059a295fde52afa5ba3d04d9（tree 354a671cf485e660e531225a925fec7e48bebde1，父[3a1a0955420d659aa23ea1295c314a184df72d85,5670a8869768f9a1cd8189a23c09e52031e328f7]）已冻结组合决定；最终mergeOf记录decisions-garment-observations-main-869e-20261026-merge规范hash 083a8028a28b8946b14977d6f6ea5423820f83192f8043dac9b4f5b80b7950f5，连接原logistics叶与真实A记录。404原记录完整保留，当前405/57/21routes单叶。源码仍精确d193；新精确N守卫和独立终审按本HEAD后置回执核实，不预写PASS。
