@@ -27,3 +27,9 @@ S2 774264574191801147e2151b2b77ef5dc4d30f93修后唯一运行9项7PASS/2FAIL，�
 新增最小safeFailure分类只检查非零子进程的有界stderr，返回固定docker_address_pool_exhausted，不转发原文；身份错误优先，未知继续泛化。负控先红，23相关和两文件lint通过。独立审查指出新archive路径会改变bind/configHash，已停止该方案；不放宽身份校验。
 
 新checkpoint后拟保留原S2全部tracked字节，仅在其ops目录增两个明确记账的唯一诊断文件：新Git blob分类器、只替换该import的原CLI拷贝。dirname/Compose/bind路径不变，执行前核对五服务hash、原容器/卷身份及全部原字节；不宣称诊断runner为0overlay。须完成窄审后仅对同一成功prepared的owned合成恢复目标单独记账一次start，区分tool/image来源，保留旧7/9；不重跑初始化/备份/完整演练，不先改IPAM或预报结果。
+
+## 已执行的独立补验（不改写原失败）
+
+S3/tool545fe97ad1eb14302c2d87ae3b975b9434414a2d安全分类单次诊断明确复现docker_address_pool_exhausted。仅为本owned恢复项目缺失ingress配置经18宿主路由/30Docker子网检验无重叠的10.253.244.0/28；原default/服务/卷/五hash不变，私密config另存，修正start27079ms READY。
+
+独立读取PASS，27本机HTTP、15财务路径/10账本回执/原PNG，8表非空，0领域重放。原全表/sequence断言沿用S2已执行事实，不补造内存快照或称新全流程9/9。三个owned项目15容器已停，12卷和合成备份保留，旧55/183/29元数据及276refs保持。分源、失败、补验、限制和hash见[冻结证明](../completed/2026-10-27-financial-recovery-engineering.md)；完整HEAD守卫另记，Goal/UI/远端边界不变。
