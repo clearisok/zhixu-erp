@@ -3004,6 +3004,18 @@
       "sha256": "9da151b95c70e1d521b77e4100c7e61de226e849f4a2da816ab12d9c72795c46",
       "changeReason": "New exact synthetic before/after observations for approved D147 G6D hubs and transport plans in the existing production-infrastructure cards and wide drawer. Preserve prior PNGs and navigation. Six widths with DPR1, no V2/V3 redesign, human acceptance, real Source or deployment.",
       "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "decisions-logistics-resources-main-869e-20261026-merge",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "572d4368c8f9fede5958d3f5bcb888efd75ae034",
+      "sha256": "284471f207dafc1c05cf9b9d65653a1f5ce1cc740b22cb90a4baab043300a22c",
+      "mergeOf": [
+        "decisions-navigation-pr125-convergence-20261024-forward-main-9d65-20261025",
+        "decisions-production-execution-current-20261024"
+      ],
+      "changeReason": "Freeze the real exact-main and independent logistics-resource merge. Preserve both decision histories and every original evidence object without changing approved rules, identities, source ownership, prices or runtime status."
     }
   ],
   "pages": [
