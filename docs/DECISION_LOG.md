@@ -23,6 +23,36 @@
 
 ## Active
 
+### D-161 / D-159 当前成衣操作者复用原配置与单次采集服务
+
+- 原2026-10-23工程决定，2026-10-25向当前main受控前移，Active engineering；D147既有范围。新增的是原源码CLI接线，不另建模型、SQL、HTTP、权限、Catalog或调度；D158/D160中无CLI继续表示其冻结切片。真实目标启用与新Source请求额度不由工程入口、hash或确认短语授予。
+- plan/collect/原回执与target plan/apply/原回执显式分开；target独立确认短语、明确时效、无凭据。停用和历史核对不依赖秘密/证明/当前目标状态。0043/0044分账，旧enable不重启，COMMIT/报告未知不报成功、不自动重试。保持原服务fresh权限/意图/CAS/原子审计与严格字符串证明。
+- 当前CLI只导入纯garment-filter-evidence，不恢复旧IO诊断；共享报告仅固定garment-operator kind/prefix，秘密检查不放宽。当前[独立契约](features/SERVER_GARMENT_OPERATOR_CURRENT.md)/[阶段任务](tasks/active/server-garment-operator-current-2026-10-25.md)记录新精确源码；最终8cf受影响20项、79f原27/52/71及质量检查已通过，准确分源见[冻结工程证明](tasks/completed/2026-10-25-garment-operator-current-engineering.md)，不借原c54的PASS。无真实凭据/Source/激活、现有库或部署操作。
+
+### D-160 成衣目标配置复用原目标并保存独立原子历史回执
+
+- 原2026-10-23技术契约，2026-10-24向实际main e01a11952b648024c0bd6bf4259de429374981e2当前候选前移；Active engineering。D147既有范围内，不改变D152数量/日期、D153观察与D158单次采集。仅内部plan/apply/receipt，无CLI/HTTP/Catalog/调度或真实激活。
+- enable复验具体原C1/C0/C1过滤证明、profile账号、唯一可信合同/原物理owner/有效归属、版本及明确时效，不提供默认策略或换绑target账号。disable不依赖证明/profile/合同/颜色/head健康，可停止历史alias；不存在为no-op，不建目标。旧观察/原时效和全部历史保持。
+- 四项既有fresh权限、实际DB/actor/UUID/意图/期限/hash与原publication锁统一。配置无外部IO，0044只建空completed-only不可变回执；target、原审计与回执一次事务。锁等待后重核期限与范围，未知COMMIT只读核对原UUID，不暂定成功或自动重试。
+- 新审计operationId同时含actor及UUID，不把两人相同UUID的不同SO操作合组。历史enable回放仅返回当时结果；原SO/物理owner双引用及完整行进入归一指纹，不开放归一执行或移动流水。
+- 当前代码：garment-target-control.ts、0044、目标控制/0043非空升级测试及[独立契约](features/SERVER_GARMENT_TARGET_CONTROL.md)。原代码存在不证明本轮验收；新源码/QA按[当前任务](tasks/active/server-garment-target-current-2026-10-24.md)冻结，该条初记时未运行；当前40a/e19分源结果见[冻结证明](tasks/completed/2026-10-24-garment-target-current-engineering.md)，不借旧20/954/134。
+- 真实启停、来源额度、现有库升级、部署、50426切换及旧环境退役均需具体授权，本轮不执行；hash和工程预览不是人类操作授权。
+
+
+### D-158 单SO成衣采集使用持久单次回执与原子发布
+
+- 原2026-10-23技术决定，2026-10-24当前受控前移，Active；D147/D152/D153已批准Server工程，不改变Num/outdate、价格、完成、关账或跨次事件。0043只新增空技术命令，不seed/回填/启用target，不开放HTTP/公开CLI/Catalog/调度。
+- 本账号/本合同完整C1/C0/C1过滤证据重建，绑定实际库/actor/可信合同/原物理owner/target/颜色/head及request有效期。仅两遍完整首页100行；1登录+2报表/3HTTP、4MiB单响应/8MiB报表/180秒/零重试是工程天花板，不授予新真实请求或多页范围。
+- started提交确认后才调用唯一worker，等待后重核expiry；网络不持DB锁，started不回收。原0040发布提为同owner事务primitive，snapshot/颜色/head/审计/成功终态原子；COMMIT未知只核原请求，不重采或把回滚尝试当已失败。
+- 原actor/request回执fresh鉴权、封闭形状/hash重建，过期/target变更后仍返回历史；未知计数不补0，凭据/原文不入回执。双SO引用加入完整归一指纹，不开放执行。
+- 当前12原输入精确加2命令手工整合，包含d99282晚expiry/回执修复，41旧SQL保持；见[独立控制层契约](features/SERVER_GARMENT_COLLECTION_CONTROL.md)和[当前任务](tasks/active/server-garment-collector-current-2026-10-24.md)。新source/隔离QA后另冻证据，不借旧31/181或#125CI；未激活/部署/人工接受。
+
+- 2026-10-24初次14路径预核漏纯依赖，ee210未做QA；当前按原函数块前移严格JSON/完整过滤证据与Python筛查，排除旧CLI/凭据/报告入口，新增负向验收，具体范围见独立控制层契约。
+
+- 2026-10-24原纯提取函数枚举强制转换P2已定向复现2项失败；当前只收紧result/workerStage为真实字符串，不改变合法证明或预算。修复后新QA另记，原d2ff结果不改写。
+
+- 2026-10-24当前7f严格枚举修复后的43新检查及d2ff原280+18/811/152范围证据见[当前证明](tasks/completed/2026-10-24-garment-collector-current-engineering.md)。2红测与依赖发现保留，无新前端/真实Source/自动激活声明，发布/最终守卫后置。
+
 ### D-156 Server交付计划维护沿用原领域和原请求恢复
 
 - 2026-10-22，Active；用户对原call_d4696fa532a64295ba294304d8404abf回复“按草图实施”。

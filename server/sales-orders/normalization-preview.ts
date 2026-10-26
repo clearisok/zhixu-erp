@@ -31,6 +31,10 @@ export const NORMALIZATION_REFERENCES = [
  ['ainuoke_garment_shipment_snapshots','source_owner_order_id','id'],
  ['ainuoke_garment_shipment_color_matches','sales_order_id','snapshot_id'],
  ['ainuoke_garment_shipment_heads','sales_order_id','source_key'],
+ ['ainuoke_garment_collection_commands','sales_order_id','request_id'],
+ ['ainuoke_garment_collection_commands','source_owner_order_id','request_id'],
+ ['ainuoke_garment_target_commands','sales_order_id','request_id'],
+ ['ainuoke_garment_target_commands','source_owner_order_id','request_id'],
  ['ainuoke_order_source_refresh_receipts','sales_order_id','request_id'],
  ['ainuoke_order_source_refresh_receipts','source_owner_order_id','request_id'],
  ['sales_order_identity_profiles','sales_order_id','sales_order_id'],
@@ -65,9 +69,11 @@ const references=NORMALIZATION_REFERENCES;
 /** Optional only for an unupgraded rehearsal. A partial financial schema fails
  * closed. Observations are reference evidence, never actual bank payments. */
 export async function normalizationReferences(client:PoolClient){
+ const garmentTargetsReady=(await client.query("SELECT to_regclass('public.ainuoke_garment_target_commands') IS NOT NULL AS ready")).rows[0].ready;
+ const garmentCommandsReady=(await client.query("SELECT to_regclass('public.ainuoke_garment_collection_commands') IS NOT NULL AS ready")).rows[0].ready;
  const refreshReady=(await client.query("SELECT to_regclass('public.ainuoke_order_source_refresh_receipts') IS NOT NULL AS ready")).rows[0].ready;
  const planRequestsReady=(await client.query("SELECT to_regclass('public.sales_order_delivery_plan_requests') IS NOT NULL AS ready")).rows[0].ready;
- const references=NORMALIZATION_REFERENCES.filter(([table])=>(refreshReady||table!=='ainuoke_order_source_refresh_receipts')&&(planRequestsReady||table!=='sales_order_delivery_plan_requests'));
+ const references=NORMALIZATION_REFERENCES.filter(([table])=>(garmentTargetsReady||table!=='ainuoke_garment_target_commands')&&(garmentCommandsReady||table!=='ainuoke_garment_collection_commands')&&(refreshReady||table!=='ainuoke_order_source_refresh_receipts')&&(planRequestsReady||table!=='sales_order_delivery_plan_requests'));
  const present=(await client.query<{n:number}>(`SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
   WHERE n.nspname='public' AND c.relkind='r' AND c.relname IN ('ainuoke_payment_source_targets','ainuoke_payment_snapshots','ainuoke_payment_heads')`)).rows[0].n;
  if(present!==0&&present!==3)throw new HttpError(503,'payment_reference_schema_incomplete','Financial source reference schema is incomplete');
@@ -95,6 +101,7 @@ export async function normalizationReferences(client:PoolClient){
  const garmentTables=['ainuoke_garment_shipment_targets','ainuoke_garment_shipment_snapshots','ainuoke_garment_shipment_color_matches','ainuoke_garment_shipment_heads'];
  const garmentCount=(await client.query<{n:number}>(`SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r' AND c.relname=ANY($1::text[])`,[garmentTables])).rows[0].n;
  if(garmentCount!==0&&garmentCount!==garmentTables.length)throw new HttpError(503,'garment_reference_schema_incomplete','Garment shipment reference schema is incomplete');
+ if((garmentCommandsReady||garmentTargetsReady)&&garmentCount!==garmentTables.length)throw new HttpError(503,'garment_reference_schema_incomplete','Garment command reference schema is incomplete');
  return references.filter(([table])=>(present===3||!table.startsWith('ainuoke_payment_'))&&(sourceReady||table!=='sales_order_business_source_snapshots')&&(creationContextReady||table!=='quote_creation_order_contexts')&&(colorCount===colorTables.length||!colorTables.includes(table))&&(adjustmentCount===2||table!=='order_sale_adjustment_receipts')&&(planningCount===planningTables.length||!planningTables.includes(table))&&(executionCount===executionTables.length||!executionTables.includes(table))&&(trackingCount===trackingTables.length||!trackingTables.includes(table))&&(arrivalCount===arrivalTables.length||!arrivalTables.includes(table))&&(garmentCount===garmentTables.length||!garmentTables.includes(table)));
 }
 export function validateNormalizationPair(ids: readonly string[]) {

@@ -1,21 +1,19 @@
-# 恢复点：交期覆盖只读契约与客户端
+# 恢复点：原成衣受控链与main合流
 
-2026-10-26；main 869ee84dd0b31de6161011e4aa560678b244a64d于2026-10-26T07:21:59.779Z独立API核实，open PR 0。本branch codex/delivery-coverage-main-869e从N建立后显式快进c8d0eff5463ef3ad705f27cc950d191be58e9d51，普通合流实际N-direct A c7f1c14f73d7247660cfbab307763cdbe759151c的绑定R 800321f37b7df51498da0adcbb0dace41e569362。原backend 3042f4129965a01919c3a2d531dcd4bfba582223为client c83510c5337f63c7f62d422bbb9dfd764e6fc0e7祖先，两原Gate完整保留；全部非docs精确source fc103fb87ed3df294922189b4954c1764903ef22。
+2026-10-26；main 869ee84dd0b31de6161011e4aa560678b244a64d于2026-10-26T07:40:09.751Z独立API核实，open PR 0。codex/garment-controlled-main-869e从N建立后显式快进2509b7cb0cda644ae4dbb2d87d442fadea706085，普通合流实际N-direct A 52afadf649d36bf54a715b878ba2db153f9d2a90的绑定R 9505704aae6c32b532ab8fc7c143a41431138e91。collector 4b8efa166c6c5af48dc954d4bac7d080bdd8d294 → target d4060b60a52db766c548b20a5974b43a224784a8 → operator 7da954545bd9b720bfc28edbd313bc387dd5c195均真实祖先，三原Gate历史完整保留；全部非docs精确source 8cf667f26f191b0ca1d3b31b423dd293d7f2a5b6。
 
-先读[本阶段](tasks/active/delivery-coverage-main-869e-2026-10-26.md)、[N见证](tasks/active/delivery-coverage-main-anchor-869e-2026-10-26.md)及outputs/delivery-coverage-main-869e-20261026。7项新冻结document逐blob/hash核对；51份继承UI记录保持，新V0仅2路径且只前向base+阶段链接，原JSON/三摘要逐字归档。D155两条顺序修订以真实A/R及本L/P闭叉，其他5项是独立根，不伪造revision。全部父manifest对象保持；11pages/21routes等非record字段与原input/当前依赖一致。实际L已冻结组合D155，最终P前向绑定两叶至483/63；最终同HEAD守卫与终审按回执核定。
+先读[本阶段](tasks/active/garment-controlled-main-869e-2026-10-26.md)、[N见证](tasks/active/garment-controlled-main-anchor-869e-2026-10-26.md)和outputs/garment-controlled-main-869e-20261026。13项新冻结document逐Git blob/hash核对，52份继承UI记录保持；新V0仅operation-log model一条路径，原JSON及三摘要逐字归档，只前向base和阶段链接。A/R保留Dlog、同字节closing与production完整修订，production单叶不伪造merge；L/P只关闭Dlog和production两真实剩余叉。全部父记录和11页/21路由metadata保持。实际中间499/66，保存L后绑定两见证至501/66。
 
-D155只在既有生产订单GET中追加当前登记事实的只读交期覆盖：同一READ ONLY REPEATABLE READ、fresh订单/排单查看权限、原物理SO的交期/排单/执行。取消排单产出保留，未取消且未结束的正剩余按计划结束日供给；同日需求合并保留planIds，累计只计一次，未知日期单列未评估。精确十进制、500排单/1000计划/完整1MiB边界保持，不写业务、审计或回执，不读金额/币种，不引库存、历史准时率、成衣出货、关账或Source日期fallback。
+D158复用0040观察发布，0043只增加空的actor/request技术账本；采前确认started提交，网络期间不持DB锁，采后fresh权限/合同/颜色/target/CAS核对与快照、审计、终态同事务。原回执未知不回收、不换UUID重采。worker固定6086979单合同两遍完整首页，各100行；最多1登录+2报表、4MiB单响应/8MiB报表/180秒，零重试或翻页；严格原文hash/无损JSON/完整计数/精确合同及两遍校验保持。
 
-客户端仍沿原session GET和lease，只白名单验证服务端同响应结果，复用原D155纯函数；缺失/null保持不可用，不计算另一套业务账或伪造零风险。取消/结束/alias归属与原摘要一致性保护保持。V0仅2个helper，不改DOM、菜单、CSS、排单/完成/物流命令；可见覆盖面板未实现，须独立具体V2批准，不借D156交期维护批准。
+D160/161沿原0040目标、0043采集及0044启停回执提供唯一原源码CLI，先验证干净已提交源码与现有迁移/既有账号，不迁移、初始化、绑定或增加公开HTTP/Catalog/调度。启用必须明确策略和原账号/合同过滤证明；停用与历史核对不依赖凭据、证明或当前来源链。启停与采集分账，COMMIT或报告未知不展示暂定成功、不自动重试。Num/outdate为观察口径，不把观察当稳定事件、收入或关账。
 
-原2026-10-24后台source558345ae7ee4ba2e07f24fd319e42c052919370d、proof5e36626bbbdbaef5fe46bef1e76bfde51219bf9a的47/47与类型/相关lint/Node编译及import保持。客户端sourcefc103fb87ed3df294922189b4954c1764903ef22、proof9a31d555c900bd1eebf20bc484f886f7b99a790a的62/62、类型/相关lint/Node及双构建产物、原排单built UI37/37分别按原进程和范围复用，不相加为109或本轮新跑。backend3042确为clientc835祖先，一次合流保留两原Gate提交及各自验收，不合并改写历史。
+原三Gate QA按精确源码分别复用：collector d2ff的280/18后台、811根、152Python和fullLint仅未变范围；枚举实际2红后7f最新4文件43/43及类型/Node/相关lint通过。target e19的221/16和质量检查保持，40a仅加强两断言后本文件19/19通过。operator79f的27/52/71及质量检查保持，8cf两测试加强后20/20、类型/相关lint和实际原源码CLI正向检查通过；隔离枚举mutant负测保留。不相加为一次全量或本轮新跑。
 
-首次Node smoke误找未emit的浏览器helper、首次UI_CHANGE_PAGE守卫失败及其精确修正/通过记录保留。原707的134仅历史工具范围；当前动态manifest/docs已变，不称本轮134/811/945或新浏览器/构建/Python通过。最终累计PR前仍须当时main精确守卫、新发布134及必要CI。本阶段只新增最终同HEAD精确源码/证据守卫及独立复审；Linux专属Source CLI平台缺口保持。
+原b919/5223/b20三个134发布回归分别属于其原日期、源码/metadata与e01a/9d65基线；当前动态manifest/docs已变，不记本轮134/811/945、构建、浏览器、Python或SQL通过。最终累计PR前仍需当时main精确守卫、一轮当前发布134及必要CI；本地本阶段仅新增最终同HEAD exact-N源码/证据守卫和独立复审。Linux专属Source CLI平台缺口保持。
 
-最终同HEAD精确N源码/证据守卫及独立复审按outputs/delivery-coverage-main-869e-20261026/final.json核定，无实际回执不记PASS。历史原QA不等于当前新执行，工程/远端/运行/Source激活/人工接受分别记录。
+本阶段最终同HEAD exact-N源码/证据守卫、独立复审与干净状态以outputs/garment-controlled-main-869e-20261026/final.json核定；无实际终态回执不记PASS。历史QA、当前工程、远端交付、真实Source激活、运行及人工接受分别记录。
 
-后续0043受控采集/目标/operator、可见覆盖面板独立批准、稳定成衣事件身份及更正、Server关账三项待决、真实Source额度/激活、目标切换与人工验收、依赖审计后退役均未因此完成或授权。
+后续仍须累计范围验证、稳定成衣事件身份及更正、Server关账三项待决、真实Source具体额度/目标激活、目标环境切换与人工验收、依赖审计后退役。可见交期覆盖V2未批准也未实现；完整G1–G8/R Goal active，三个受控工程入口不等于运行激活或人类授权。
 
-NETWORK_DEGRADED保持；用户普通PowerShell三种Git探测均exit128/uncertain_transport、约5.35秒，结合此前本机TLS诊断可排除仅Codex会失败，不能据JSON证明相同TLS环节或具体根因。不重复旧Git探测/推送，不改共享代理/TLS/认证，H0d70授权及原STOP保留。本阶段Push/新PR/Hosted/真实Source/凭据/账号/现有业务数据库或卷备份操作均0，无新SQL执行、构建/浏览器/业务测试，不部署、绑定、激活、调度、merge main、close、切换或退役；3001/50426/59069/62426及其他旧对象和Browser数据保护。完整G1–G8/R Goal active。
-
-实际L 920ba4200c3200fef8b93a92d0ed9addd38834ed（tree 88b8c5efb2d741bb8d9f783f426be1e310424119，父[c8d0eff5463ef3ad705f27cc950d191be58e9d51,800321f37b7df51498da0adcbb0dace41e569362]）绑定decisions-delivery-coverage-main-869e-20261026-merge，规范hash 89f7c3d55276d114a7ebb47e42f994f82f5992c853224ce0e8c6ca2c3d221667；A c7f1c14f73d7247660cfbab307763cdbe759151c、R 800321f37b7df51498da0adcbb0dace41e569362及两原Gate历史保持。483证据/63能力、11页/21路由和全部父记录保留，最终精确N守卫/终审以随后同HEAD回执核定。
+NETWORK_DEGRADED保持：用户普通PowerShell三种只读Git均exit128/uncertain_transport、约5.35秒，可排除仅Codex会失败，仍不能据JSON断定相同TLS环节或根因。不重复原Git探测/推送，不改共享代理/TLS/认证，原H0d70授权及STOP保留。本阶段Push/新PR/Hosted/真实Source/凭据/账号/现有业务库/卷备份操作均0；不启用、绑定、调度、部署、merge main、切换或退役，3001/50426/59069/62426等旧对象与Browser数据保护。

@@ -453,3 +453,5 @@ D-102 第二轮用户确认：制作方案复用 ManufacturingPreset，代表不
 2026-10-24 D155交期覆盖只读比较当前登记累计产出与计划剩余/有效交期需求，不重建历史日产量或准时率，不等同库存/出货/关账；未知日期明确未评估，原物理SO/执行方归属和独立计划版本保持，见[独立契约](features/SERVER_DELIVERY_COVERAGE.md)。新验收后置。
 
 2026-10-24 D155客户端V0仅验证同一次响应中的计划/执行与原覆盖投影一致，服务缺失/null不表示零缺口，不本地补算业务结果；后台为唯一owner，尚无新可见风险面板，见[客户端契约](features/SERVER_DELIVERY_COVERAGE_UI.md)。
+
+2026-10-24 D158单SO成衣采集仅持久一次技术请求、采前expiry与采后原子发布，不改D152/D153观察口径或建立出货总账。工程预算不是新真实读取许可；无公开入口/默认激活，见[控制层契约](features/SERVER_GARMENT_COLLECTION_CONTROL.md)。
