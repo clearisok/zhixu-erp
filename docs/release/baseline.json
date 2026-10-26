@@ -2246,6 +2246,15 @@
         "decisions-order-context-quote-current-20261024"
       ],
       "changeReason": "Freeze the actual two-parent 9907+530 local G5 merge, where each parent contributes a different preserved decision history. Retain all 262 original records; the later approved PR129 main requires a genuine forward integration before release validation."
+    },
+    {
+      "id": "decisions-order-context-main-869e-20261026-forward",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "c31536246c306ecdcadc97c2abddbf2b887fcc56",
+      "sha256": "7f0437a139843e949bc73d300f7ce8457f09daddabf6e0e630952506a2fa0ebd",
+      "supersedes": "decisions-order-context-main-9d65-20261026-merge",
+      "changeReason": "Genuine two-parent forward merge joins exact approved PR129 main 869ee84dd0b31de6161011e4aa560678b244a64d and independent P0 9f9f87b06a89c2e929c1eab7cb9f4a8f1de6b6b7. Preserve all original decision branches and the real L0 mergeOf closure; this witnesses old D149 against the new actual main without changing business rules, original evidence or runtime claims."
     }
   ],
   "pages": [
