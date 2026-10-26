@@ -17,8 +17,54 @@ async function run(bin,args,input){
   try{return (await execute(bin,args,{encoding:'utf8',windowsHide:true,timeout:180000,maxBuffer:8e6})).stdout.trim();}catch{throw Error('owned_command_failed');}
 }
 const docker=(args,input)=>run('docker',args,input);
-const trial=(state,action,bundle)=>run(process.execPath,[resolve('ops/quote-trial/trial.mjs'),action,state.config,`--execute=${state.project}`,...(bundle?[`--bundle-dir=${bundle}`]:[])]);
-async function port(){const server=createServer();await new Promise(r=>server.listen(0,'127.0.0.1',r));const result=server.address().port;await new Promise(r=>server.close(r));assert.ok(![3000,3001,3002,50426,59069,62326,18443,18444].includes(result));return result;}
+function assertNoProjectNetworks(project,networks){
+  for(const network of networks){
+    const labels=new Map((network.Labels||'').split(',').map(label=>{
+      const at=label.indexOf('=');return [label.slice(0,at),label.slice(at+1)];
+    }));
+    assert.ok(network.Name!==`${project}_default`&&network.Name!==`${project}_ingress`&&labels.get('com.docker.compose.project')!==project,'owned_prepare_requires_new_networks');
+  }
+}
+const trial=async(state,action,bundle)=>{
+  if(action==='prepare-local'&&state.prepared!==true){
+    const networks=(await docker(['network','ls','--format','{{json .}}'])).split('\n').filter(Boolean).map(line=>JSON.parse(line));
+    assertNoProjectNetworks(state.project,networks);
+  }
+  const result=await run(process.execPath,[resolve('ops/quote-trial/trial.mjs'),action,state.config,`--execute=${state.project}`,...(bundle?[`--bundle-dir=${bundle}`]:[])]);
+  if(action==='prepare-local'){
+    const receipt=JSON.parse(result);
+    assert.deepEqual({project:receipt.project,operation:receipt.operation,result:receipt.result},{project:state.project,operation:action,result:'LOCAL_SECRETS_PREPARED'});
+    state.prepared=true;
+  }
+  return result;
+};
+async function port(){const server=createServer();await new Promise(r=>server.listen(0,'127.0.0.1',r));const result=server.address().port;await new Promise(r=>server.close(r));assert.ok(![3000,3001,3002,5432,18443,18444,50426,54351,59069,62200,62310,62316,62326,62426,64686].includes(result));return result;}
+
+async function cleanupOwnedState(state,owned,completed){
+  assert.ok(owned.includes(state.project));
+  // A nonce is not proof of ownership: prepare-local may refuse an existing
+  // project or volume. Never stop or remove a rejected/partially prepared state.
+  if(state.prepared!==true)return false;
+  await state.compose(completed?['down','--volumes']:['stop']);
+  return true;
+}
+
+test('persistent trial requires new networks and successful preparation before cleanup',async()=>{
+  const project='zhixu-quote-trial-it-owned',calls=[];
+  assertNoProjectNetworks(project,[]);
+  assertNoProjectNetworks(project,[{Name:'other_default',Labels:'com.docker.compose.project=other'},{Name:`${project}-other_default`,Labels:`com.docker.compose.project=${project}-other`}]);
+  for(const network of [{Name:`${project}_default`},{Name:`${project}_ingress`},{Name:'unusual-name',Labels:`other=x,com.docker.compose.project=${project}`}])assert.throws(()=>assertNoProjectNetworks(project,[network]),/owned_prepare_requires_new_networks/);
+  const state={project,compose:async args=>calls.push(args)};
+  assert.equal(await cleanupOwnedState(state,[project],false),false);
+  assert.equal(await cleanupOwnedState(state,[project],true),false);
+  assert.deepEqual(calls,[]);
+  state.prepared=true;
+  assert.equal(await cleanupOwnedState(state,[project],false),true);
+  assert.equal(await cleanupOwnedState(state,[project],true),true);
+  assert.deepEqual(calls,[['stop'],['down','--volumes']]);
+  await assert.rejects(cleanupOwnedState(state,['another-project'],true));
+  assert.equal(calls.length,2);
+});
 
 test('persistent local trial: owned volumes, signed TLS S3, restart and independent recovery',{
   skip:process.platform!=='win32'||!process.env.ZHIXU_LOCAL_TRIAL_IMAGE,
@@ -40,7 +86,9 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
     if(!passed)throw Error(`owned_phase_failed: ${name}`);
   }
   t.after(async()=>{
-    for(const s of states){assert.ok(owned.includes(s.project));await s.compose(completed?['down','--volumes']:['stop']);}
+    for(const s of states){
+      if(!await cleanupOwnedState(s,owned,completed))t.diagnostic('Unprepared state retained; no cleanup command is authorized.');
+    }
     if(completed){
       if(backup){assert.ok(backup.startsWith(resolve('backups')+sep)&&backup.endsWith('.dump'));await rm(backup);await rm(`${backup}.manifest.json`);}
       assert.ok(resolve(parent).startsWith(resolve(tmpdir())+sep));await rm(parent,{recursive:true});

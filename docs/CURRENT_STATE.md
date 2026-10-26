@@ -1,19 +1,13 @@
-# 当前状态：累计Server与发布输入效率
+# 当前状态：累计Server的持久化隔离验收准备
 
-2026-10-26。main 869ee84dd0b31de6161011e4aa560678b244a64d于2026-10-26T08:25:23.082Z经独立API核实；本阶段未刷新原生Git。新分支codex/release-evidence-read-efficiency从该N建立并显式快进干净968b9e71267363cb7e224324b306c470c8f7a246，CI成本分支与此前29条保护引用不移动。
+2026-10-26；main 869ee84dd0b31de6161011e4aa560678b244a64d于2026-10-26T08:25:23.082Z经独立API核实，原生Git仍未刷新。新分支codex/persistent-cumulative-43-main-869e从N建立、显式快进c5f994396203803218c5bb853e316cdf761e83ce，普通合流原已审持久化harness分支38580ae2185cddedb175cdd8fde88fee2eb8443d，两边原提交和全部保护引用保持。仅四共享文档冲突按当前事实解决，原502证据/66能力和UI记录不变。
 
-原44103291的发布回归901399ms超时，无汇总，仍不通过；原失败回执不覆盖。单条诊断84890ms完成，其中501次串行Git读取78521ms、独立夹具1725ms、校验3435ms。有界全套诊断361009ms终止，前41条顶层用例、46次校验持续推进，初始化96836ms、校验合计166105ms、最长4850ms；只用于归因，不作完整发布通过或原超时具体位置的证明。
+镜像从本次实际source checkpoint的canonical Git archive单次构建，明确标为未合并累计候选，不能冒称main镜像。43份迁移（最高版本44）只在两个全新、归属可证明且prepared的合成项目中显式初始化；正常启动verify-only。应用/API/SQL/UI源继续8cf，新增仅已审f03 harness和ops说明；原模块QA按各source复用。复用S c1f8e861的144/144与R c5f99439的exact-N守卫，不把它们冒称新harness/镜像结果。原main31迁移8/8仍是历史。
 
-最小改动：测试夹具用两次有界Git cat-file读取实际不可变对象，验证完整SHA/path、对象类型、大小及二进制边界；4096输入/1MiB请求、单blob16MiB、唯一payload64MiB、每子进程15秒，缺失/越界整体失败，CR/LF/NUL不能注入行协议。只按真实OID去重内容，不使用旧校验结果。每个夹具仍独立复制全部文件，仅将父目录创建去重。原validateBaseline、runCheck、单blob读、全部134项原断言、真实Git夹具、清理约束、证据ID/hash/修订边和必要CI保持；无跨check缓存或hardlink。
+先逐blob校验archive和43SQL、已审harness f03ac2adcb7aa27695565ade10c788a070161144；独立复审后只build一次，运行一次实际镜像8项持久化/TLS/S3/重启/冷重建/备份/独立恢复。成功后仅清理本轮新项目；失败保留自有现场、不自动循环重试。旧容器所选身份/镜像/状态及既有卷/网络名单在前后只读比对，不读旧业务内容、私密config或凭据。
 
-定向新增9项真实Git/二进制/空/Unicode/重复对象/缺失/树/注入/请求和payload上限测试已通过（2026-10-26，工具输出2e4e62，实际4316.6ms；只选该组，不是全套）。随后在干净源码checkpoint集中运行完整发布回归，预期原134+新增10；计数必须以实际回执为准，不预先PASS。再冻结精确source/base结果并运行最终exact-N守卫和独立复审；不把源码QA冒称后续文档提交的再次运行。
+构建/实际8项/新最终守卫尚未执行；不提前PASS。
 
-完整G1–G8/R Goal active。当前应用/SQL/UI继续精确8cf667f26f191b0ca1d3b31b423dd293d7f2a5b6，新增仅CI策略与测试输入效率工具。下一步为当前43份迁移的全新本机隔离候选验收，不能借用旧main31迁移的8/8；使用已审查f03清理保护，不重置旧体验。稳定成衣事件/更正、三项关账业务决定、具体真实采集/激活、人工接受/切换及依赖审计后退役仍分别待条件。
+3001/50426/59069/62426及其他旧入口、账号、库、对象、卷、备份、Browser数据保持；不升级旧库，不读取D:/workspace/ainuoke-key.txt，不登录/采集/绑定/激活/调度真实Source。不合并main、不正式部署、不替换50426或退役。当前NETWORK_DEGRADED及原STOP保持，不重复Git探测/推送，H0d70授权未消耗，Hosted0。完整G1–G8/R继续，关账三项、来源具体授权、人工接受和切换仍待条件。
 
-Push/新PR/Hosted/真实Source/凭据/账号/现有库、卷和备份写入0。NETWORK_DEGRADED及原STOP保留，普通PowerShell同样约5.35秒失败；不重复探测，不改共享代理/TLS/认证，H0d70交付授权仍未消耗。无合并、启用、调度、正式部署、50426切换或旧环境退役。
-
-[阶段](tasks/active/release-evidence-efficiency-2026-10-26.md)；[旧状态原文](tasks/completed/2026-10-26-release-evidence-efficiency-input-state/receipt.json)。
-
-独立只读复审a778无P1/P2；按建议补充一项聚合预算边界：四个16MiB唯一对象加同OID别名正好64MiB允许，再加8字节新对象整体拒绝。此新增项尚未独立运行，纳入集中144项（原134+新增10）；既有定向9项仍仅归属此前源码。feature措辞已区分普通内存Git替身与指定真实Git仓，不把全部负测说成真实Git。
-
-2026-10-26实际终态：精确源码S c1f8e861f6491026c4943f498554256a640bd609（tree dd16cc9a10355aba31a8977091de333d346db23c）的唯一完整发布144/144通过，886968ms、零失败/取消/跳过，无超时/溢出，HEAD/manifest稳定且clean；两语法和选定ESLint通过。原失败不改写。[冻结证明](tasks/completed/2026-10-26-release-evidence-efficiency-validation.md)保留来源/原件hash；后续仅docs/manifest，不能称exact-R144。最终同HEAD的exact-N守卫及复审按实际回执核对，不提前声明交付。
+[阶段](tasks/active/persistent-cumulative-43-2026-10-26.md)；[前阶段冻结144证据](tasks/completed/2026-10-26-release-evidence-efficiency-validation.md)；[输入归档](tasks/completed/2026-10-26-persistent-cumulative-43-input-state/receipt.json)。

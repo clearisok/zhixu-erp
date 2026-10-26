@@ -1,9 +1,5 @@
 # 当前任务入口
 
-2026-10-26；main 869ee84dd0b31de6161011e4aa560678b244a64d，独立API核实于2026-10-26T08:25:23.082Z，原生Git未刷新。当前分支codex/release-evidence-read-efficiency，干净baseline968b9e71267363cb7e224324b306c470c8f7a246。
+2026-10-26；main 869ee84dd0b31de6161011e4aa560678b244a64d于2026-10-26T08:25:23.082Z经独立API核实，原生Git仍未刷新。新分支codex/persistent-cumulative-43-main-869e从N建立、显式快进c5f994396203803218c5bb853e316cdf761e83ce，普通合流原已审持久化harness分支38580ae2185cddedb175cdd8fde88fee2eb8443d，两边原提交和全部保护引用保持。仅四共享文档冲突按当前事实解决，原502证据/66能力和UI记录不变。
 
-先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[发布效率阶段](tasks/active/release-evidence-efficiency-2026-10-26.md)、[发布守卫](features/RELEASE_BASELINE_GUARD.md)、[规则](BUSINESS_RULES.md)、[决定](DECISION_LOG.md)与[收敛Gate0](tasks/active/server-convergence-gate0-2026-10-20.md)。原[CI合流](tasks/active/ci-cost-main-869e-2026-10-26.md)失败回执完整保留，不是134通过。
-
-全G1–G8/R目标继续，业务源码仍8cf；当前只有测试输入效率与三工作流成本策略。定向9通过不替代完整发布、最终守卫、43迁移运行验收或用户接受。无Source/切换/部署授权扩大。[输入归档](tasks/completed/2026-10-26-release-evidence-efficiency-input-state/receipt.json)。
-
-2026-10-26实际终态：精确源码S c1f8e861f6491026c4943f498554256a640bd609（tree dd16cc9a10355aba31a8977091de333d346db23c）的唯一完整发布144/144通过，886968ms、零失败/取消/跳过，无超时/溢出，HEAD/manifest稳定且clean；两语法和选定ESLint通过。原失败不改写。[冻结证明](tasks/completed/2026-10-26-release-evidence-efficiency-validation.md)保留来源/原件hash；后续仅docs/manifest，不能称exact-R144。最终同HEAD的exact-N守卫及复审按实际回执核对，不提前声明交付。
+先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[43迁移隔离验收](tasks/active/persistent-cumulative-43-2026-10-26.md)、[持久化契约](features/SERVER_PERSISTENCE.md)、[运维](../ops/quote-trial/README.md)、[规则](BUSINESS_RULES.md)、[决定](DECISION_LOG.md)。原[144与成本策略冻结证据](tasks/completed/2026-10-26-release-evidence-efficiency-validation.md)只归属其source，原31迁移8/8不代替本轮。完整G1–G8/R继续，无来源/部署/退役授权扩大。
