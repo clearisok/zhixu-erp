@@ -7,3 +7,5 @@ D154是已有决定文档的真正修订，原pre-N记录需要实际N-direct an
 0042只为原交期命令增加不可变技术回执，fresh权限、actor/request防重、集合CAS、完整历史与unknown核对保持；无UI、真实Source或数据库升级操作。原626归档167+cleanGit根18分组联合185/185、根811/类型NodeLint按原日期复用，旧1ae134仅工具范围不称当前134或945，215前端及139Python未新跑。必要CI/最终源码守卫/后续交期UI与完整Goal独立。
 
 428原证据/60能力保留；R绑定后429/60。原升级夹具不含非空0040观察或0041回执，不扩称数据恢复。NETWORK_DEGRADED不重复Git，不部署、激活、调度、合并或退役，不切换现有环境。实际A/R及后续L/P以outputs/delivery-plan-requests-main-869e-20261026回执为准。
+
+真实A 51992a9d3b8766e7ed105ddcea0b7de049771560（tree e175a206899d7fd0cdc2384d29d42c7270dba91c，父[869ee84dd0b31de6161011e4aa560678b244a64d,c70aa15b69640c48ba001e1bbbbbef119365303a]）已冻结组合D154；R绑定decisions-delivery-plan-requests-main-anchor-869e-20261026，规范hash f56ca32460ae88fca84b509d60eaf158ecbd1b3a0684e344b11f7758623a1baa。后续仍须实际L/P和同HEAD守卫，不预写最终PASS。

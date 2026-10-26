@@ -3812,6 +3812,19 @@
       "sha256": "f56ca32460ae88fca84b509d60eaf158ecbd1b3a0684e344b11f7758623a1baa",
       "supersedes": "decisions-garment-observations-current-20261024",
       "changeReason": "Forward-bind approved D154 original DeliveryPlan command receipts under D083/D100/D147. Preserve prior business ownership, dates/quantities, real-operation limits and all decision history."
+    },
+    {
+      "id": "decisions-delivery-plan-requests-main-anchor-869e-20261026",
+      "path": "docs/DECISION_LOG.md",
+      "mergeOf": [
+        "decisions-navigation-pr125-convergence-20261024-forward-main-9d65-20261025",
+        "decisions-delivery-plan-requests-current-20261024"
+      ],
+      "kind": "document",
+      "recordedAtSha": "51992a9d3b8766e7ed105ddcea0b7de049771560",
+      "renderedSourceSha": "62693a8fac3db6aa1d86b73cf812d53395aa0cec",
+      "sha256": "f56ca32460ae88fca84b509d60eaf158ecbd1b3a0684e344b11f7758623a1baa",
+      "changeReason": "Bind the actual two-parent integration of exact main N and independent current DeliveryPlan stage c70. Preserve the D154 revision and all prior decision branches while providing its genuine forward ancestry; no guard, historical evidence or business change."
     }
   ],
   "pages": [
