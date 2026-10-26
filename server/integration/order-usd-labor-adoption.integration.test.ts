@@ -124,7 +124,8 @@ test('Gate8C explicit USD labor adoption preserves independent order, product, b
   await t.test('sale adjustment preserves separate USD confirmation and old commercial versions', async () => {
     const old = await state(a.id), item = { salesOrderId: a.id }, rule = { kind: 'amount' as const, value: '-1' };
     const preview = await previewSaleAdjustment(pool, editor.actor, { items: [item], rule });
-    const result = await commitSaleAdjustment(pool, editor.actor, { requestId: randomUUID(), reason: 'Synthetic sale only', rule, items: [{ ...item, expectedVersion: old.version, fingerprint: preview.items[0].fingerprint }] });
+    const pricePreview = preview.items[0]; assert.equal(pricePreview.status, 'ready'); if (pricePreview.status !== 'ready') assert.fail('Sale preview must be ready');
+    const result = await commitSaleAdjustment(pool, editor.actor, { requestId: randomUUID(), reason: 'Synthetic sale only', rule, items: [{ ...item, expectedVersion: old.version, fingerprint: pricePreview.fingerprint }] });
     assert.equal(result.items[0].status, 'updated'); const current = await state(a.id);
     assert.deepEqual(current.lines!.map(line => line.laborConfirmationSource), old.lines!.map(line => line.laborConfirmationSource));
     assert.deepEqual(current.lines!.map(line => line.laborPrice), old.lines!.map(line => line.laborPrice));

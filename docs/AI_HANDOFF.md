@@ -7,3 +7,6 @@ D162/D164：PV确认保存确认时币种，已确认PV不能直接改币种；�
 原Gate8B f080已完成本地验收，106定向/811项目/144发布，详细证据[Gate8B验收](tasks/completed/2026-10-27-server-closing-commands-validation.md)及[澄清](tasks/completed/2026-10-27-closing-command-evidence-reconciliation.md)保持。本阶段不得用其结果代替新源码验证。
 
 STOP_AUTH_OR_DIVERGENCE原push退出1根因UNRESOLVED，远端Git/ref写仍冻结；0新Hosted CI/真实Source/现有库/合并/部署/切换。旧环境与111旧refs保护，Goal保持active。下一步：扩大负控、独立审查、精确源码收口，随后报价工价采用与关账UI。
+
+
+当前精确源码S `34547801fd818f5f6777809f11c09ddd574688c2` 的3043 Git blob已归档逐字验证，0overlay；811项目、Server build、changed lint通过，root类型发现新测试的报价预览union未收窄，现只补显式ready断言。应用/SQL不变；原失败保留，待新精确归档补root类型，不重跑已过项目。构建runner最初猜错CLI路径，改用原npm build脚本，结果仍待。
