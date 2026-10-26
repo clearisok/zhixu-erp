@@ -9,3 +9,5 @@ Q/R仅冻结新证明及追加独立证据，原506/UI/能力字段保持；最�
 完整G1–G8/R继续；本轮只覆盖合成enable及成功发布，固定reader时钟不冒称现实freshness、故障注入或所有域非空。稳定跨次成衣事件/更正、关账三项口径、具体真实查询/激活、目标人工接受/切换及退役仍待。3001/50426等旧环境、账号、数据、卷、备份和Browser保持；不合并或正式部署。
 
 [阶段](tasks/active/source-ledger-recovery-2026-10-26.md)；[新证明](tasks/completed/2026-10-26-source-ledger-recovery-validation.md)；[原精度澄清](tasks/completed/2026-10-26-nonempty-domain-sequence-precision.md)。
+
+[网络证据澄清](tasks/completed/2026-10-26-source-ledger-network-evidence-clarification.md)：人工JSON仅证明约5.35秒不确定传输失败，不证明具体TLS或同一根因；原STOP保持。恢复结果不变，原件保留。
