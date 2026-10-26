@@ -2234,6 +2234,18 @@
       "recordedAtSha": "53c9bdc73d9369ab54a41d1fd4af651ffb7bd86f",
       "renderedSourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
       "sha256": "d98bd9067a0af33fb655fe809bf58854eaa43fd5f1a7c24e4cb0bde33ea4ef78"
+    },
+    {
+      "id": "decisions-order-context-main-9d65-20261026-merge",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "0d7194a6112dd2c956885f674ce0b76befc8a3f7",
+      "sha256": "7f0437a139843e949bc73d300f7ce8457f09daddabf6e0e630952506a2fa0ebd",
+      "mergeOf": [
+        "decisions-navigation-pr125-convergence-20261024-forward-main-9d65-20261025",
+        "decisions-order-context-quote-current-20261024"
+      ],
+      "changeReason": "Freeze the actual two-parent 9907+530 local G5 merge, where each parent contributes a different preserved decision history. Retain all 262 original records; the later approved PR129 main requires a genuine forward integration before release validation."
     }
   ],
   "pages": [
