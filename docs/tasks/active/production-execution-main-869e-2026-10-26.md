@@ -2,7 +2,7 @@
 
 2026-10-26；root唯一writer，既有独立审查者只读。
 
-比较基线main 869ee84dd0b31de6161011e4aa560678b244a64d已于2026-10-26T02:32:02.985Z独立API核实。branch codex/production-execution-main-869e从该main干净建立并普通合流原G6C cab72ba9d38583d2441b42c274be324fb899aab4；本阶段继续保留已审G6B a938602d08478b73126a63bebde6689bc6390f9e完整历史。全部非docs逐blob等于已验收执行源码9c2f5bc536f9e5023a32b2e93cfd292984f00abe。
+比较基线main 869ee84dd0b31de6161011e4aa560678b244a64d已于2026-10-26T02:32:02.985Z独立API核实。branch codex/production-execution-main-869e从该main干净建立并普通合流原G6C cab72ba9d38583d2441b42c274be324fb899aab4；本阶段已普通合流并保留已审G6B a938602d08478b73126a63bebde6689bc6390f9e完整历史。全部非docs逐blob等于已验收执行源码9c2f5bc536f9e5023a32b2e93cfd292984f00abe。
 
 ## 已批准范围
 
@@ -27,3 +27,9 @@ H订单读取链0d70的指定交付授权保留，实际Execute/Push/PR/Hosted�
 不将0036应用到现有目标；不更改真实账号/业务库、3001/50426/59069/62426、Browser记录、对象/卷/备份。没有新真实凭据/Source读取、绑定、激活、调度、部署或资产退役。
 
 完整G1–G8/R仍active；4C、物流、成衣出货和Server关账仍有后续Gate。关账三项业务决定、真实Source范围/激活、目标入口切换、coverage V2、人工业务接受及退役前置不擅定。
+
+## 真实合流与保留结果
+
+第一真实合流B 76a38a6f0d7af18d56c2246d6d411582edf7d16c父为main 869ee84dd0b31de6161011e4aa560678b244a64d与独立G6C cab72ba9d38583d2441b42c274be324fb899aab4，绑定提交ecee4e5bdddf2e6f157f980c81ff96c588c6bdf6已记录main/D151两侧真实贡献。第二普通合流保留规划a938602d08478b73126a63bebde6689bc6390f9e完整F/C/规划B/L历史及production文档11c6同路径witness。实际只遇4份汇总/manifest冲突，全部非docs继续精确9c2；330证据/51能力在最终决定记录绑定前完整保留，旧runtime/能力/PNG未改。第二真实合流的决定mergeOf随后绑定，不使用未来SHA。
+
+执行资格、完成/编辑组合、原产出归属和同命令事务均来自已验收原代码；本轮没有另改业务规则、SQL或测试。最终新守卫及独立复审尚待，不预写通过。
