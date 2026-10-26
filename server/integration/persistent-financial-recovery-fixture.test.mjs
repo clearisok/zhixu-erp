@@ -46,3 +46,11 @@ test('empty financial tables cannot satisfy recovery even if every HTTP read wou
   await assert.rejects(snapshotPersistentFinancialRecovery(state, 'synthetic', { readPaths: [], receipts: [] }), /nonempty_financial_recovery_required/);
   assert.equal(reads, 0);
 });
+test('owned financial seed reaches the synthetic host generator before any container IO', async () => {
+  const stop = new Error('synthetic generator boundary reached'), calls = [];
+  const state = { prepared: true, project: 'zhixu-quote-trial-it-0123456789', compose: () => assert.fail('generator failure must stop before container IO') };
+  const run = async (binary, args) => { calls.push({ binary, args }); throw stop; };
+  await assert.rejects(seedPersistentFinancialRecovery(state, 'synthetic', { orderId: 'synthetic', assignments: ['one', 'two'] }, run), error => error === stop);
+  assert.equal(calls.length, 1); assert.equal(calls[0].binary, process.execPath);
+  assert.deepEqual(calls[0].args.slice(0, 4), ['--import', 'tsx', '--input-type=module', '-e']);
+});

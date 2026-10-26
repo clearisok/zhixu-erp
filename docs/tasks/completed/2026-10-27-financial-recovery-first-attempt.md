@@ -1,0 +1,25 @@
+# Gate8F首次演练失败及夹具修正
+
+2026-10-27，branch codex/financial-recovery-fixture-main-869e；原S/image source 22fe4e84f08441f6a0c849540871e56b44d8aa9f，clean父d68c25663ac42a8746e15f44f610653e7d6cba06。一次image build已成功，ID sha256:ad6cf01f17e34f0dc6cf2523f6526bbf440f67abaafa100e76e84f41121ea31e，45迁移文件/最高0046；不重建相同生产字节。原canonical控制16项15通过/1镜像设计SKIP，不能代替实际演练。
+
+实际首次owned运行127412ms，6项4PASS/2FAIL（包含父项），0取消/跳过。原空库初始化、对象/TLS负控及Quote/PNG API通过；随后财务夹具在host generator前ReferenceError：Cannot access process before initialization。函数末尾const process遮蔽全局对象导致TDZ；财务输入尚未开始，未进入重启/备份恢复阶段，不能称本轮恢复通过。缺失DOMAIN诊断是业务子测试中止的结果，不将外层解析错误当根因。原结果/日志保留，不覆盖、不重跑原工具。
+
+新增generator边界回归先失败，准确出现原ReferenceError；仅把局部变量改为processingRow，修后7/7与两文件lint通过。WIP/精确S/修后结果各自归属，不能相加成通过数量。独立只读复审关闭TDZ P2，0新增P1/P2；审查者未执行测试/环境。
+
+原harness已停止本次zhixu-quote-trial-it-41e3b58260五容器，四卷及私密输入保留；未清理失败现场。只读核对原50/179/27所选Docker元数据与276旧ref changes=[]，不是业务内容审计。原preserve包装在新增测试dirty时先拒绝、未查询Docker；本次独立只读核对保留该拒绝事实，不回退代码制造clean。
+
+下一步只对修后新checkpoint和全新nonce项目作一次独立验证，testSource与imageSource分开；需证明生产TS/SQL/ops/依赖未变后复用原镜像，不能宣称S2镜像或首次成功。原6d/各领域证明保留。main869ee84dd0b31de6161011e4aa560678b244a64d沿用同日核实，Git/ref STOP根因UNRESOLVED；UI具体批准pending，0Hosted/远端写/真实Source/旧库/合并/正式部署/切换/退役，Goal active。
+
+## 原件SHA256
+
+- runtime-result.json：edf2d4533094aecc036fef92d394057a2676c73cfee67fe405231536e21624c6
+- runtime.log：cfba4878f8cdba003a2416be856c12a2c5c95dd48097ca909ec8dd5a4c728fbe
+- image.json：2e65d580d39a9198369374bd0b2d165295ded3c33f1144fe2c4053165f39eb97
+- tdz-red.json：72c9906441067a15609ccee5c7ec1c630dfeef5bfc2a6e3d726ba3714ec92236
+- tdz-red.log：cb23bf36ad6affa6e39c0f0197111597d3df8366330b0ce8eab2fd0b87b64447
+- tdz-fixed.json：120ec3335375d59397ea647a0ef61d8f613cc8d2ba9ffc12be64e262721e5383
+- tdz-fixed.log：30e732a4db1cd72f74a54a833e6afb70b299a995f35d8dc409f13d9174109b19
+- tdz-fixed-source.json：e81b92c68a2ce7ea66b9bbdc892f7dd635f2d0e052b2e56e99b001628da7cdab
+- failure-preservation.json：2b7fd1f7eb5d6cf45cc9e8c324cecf8725b8b6f8562459af85eff3c93019da23
+
+本机目录outputs/financial-recovery-20261027；后续成功证明须引用本记录，不删除失败历史。

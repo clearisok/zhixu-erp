@@ -15,3 +15,7 @@ Gate8B/C分别验证过非空关账/工价采用PG恢复，原整套持久化镜
 WIP14项回执正负测试及四文件lint已通过；随后只补完整labor命令样本和本地测试命令，精确source QA尚待。source commit、canonical archive逐blob核对和只读预审后，最多一次新镜像构建及一次owned全流程。实际失败保留原件及owned现场，不自动循环；未运行结果不预报PASS。原成功结果各归原source，不重复全仓/Hosted检查以省费用。最终精确守卫在收口完整HEAD运行，必要完整PR门禁仍保留。
 
 3001/50426/59069/62426等旧环境、账号/库/对象/卷/备份/Browser全部保护。仅新nonce owned两个项目，成功仅清理本次资产，失败只停已成功prepare的本次服务并保留卷。0真实Source/凭据/绑定/激活/调度/远端写/Hosted/merge/正式部署/入口切换/旧路径退役。关账和USD具体UI仍pending，完整Goal active。原状态[逐字归档](../completed/2026-10-27-financial-recovery-input-state/receipt.json)；本机原件outputs/financial-recovery-20261027。
+
+## 首次实际失败及独立修正验证边界
+
+原22fe4e84镜像构建通过，actual6项4PASS/2FAIL，财务generator前TDZ中止；原件保留，未完成恢复。局部变量仅改名、新边界回归先红后7绿，独立复审0P1/P2。失败项目已停五容器/四卷保留；原276ref及50/179/27所选元数据保持。详见[准确记录](../completed/2026-10-27-financial-recovery-first-attempt.md)。后续新source checkpoint/归档并证明生产字节未变后，复用已构建镜像进行一次新nonce修正验证；testSource/imageSource分别记录，不直接重跑原工具、不重建镜像、不预报PASS。

@@ -154,8 +154,8 @@ export async function seedPersistentFinancialRecovery(state, cookie, domain, run
   assert.equal(lockedAfter.summary.registeredQuantity, '10.375'); assert.equal(lockedAfter.summary.garmentSalesCny.amount.decimal, '819.25');
   assert.equal(lockedAfter.summary.distributionLaborUsd.amount.decimal, '30.8125');
   assert.equal(lockedAfter.summary.processingServiceUsd.amount.decimal, '0');
-  const process = lockedAfter.items.find(row => row.id === processAllocation.allocationId);
-  assert.equal(process.snapshot.outputs.work.bucket, 'processing_service'); assert.equal(Object.hasOwn(process.snapshot.outputs, 'garmentSale'), false);
+  const processingRow = lockedAfter.items.find(row => row.id === processAllocation.allocationId);
+  assert.equal(processingRow.snapshot.outputs.work.bucket, 'processing_service'); assert.equal(Object.hasOwn(processingRow.snapshot.outputs, 'garmentSale'), false);
   fixture.periodIds = [before.periodId, after.periodId]; fixture.allocationIds = [oldAllocation.allocationId, newAllocation.allocationId, processAllocation.allocationId];
   fixture.lockedVersions = [lockedBefore.period.version, lockedAfter.period.version];
   fixture.readPaths = [sourcePath, ...[domain.orderId, processingOrderId].map(id => closing + '/orders/' + id + '/basis'),
