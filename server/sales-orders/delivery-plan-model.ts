@@ -21,6 +21,7 @@ export type DeliveryPlanSetDto = {
   };
 };
 export type DeliveryPlanCommand = {
+  requestId?: string;
   expectedVersion: number;
   upserts: { id: string | null; deliveryDate: string; quantity: string }[];
   voidIds: string[];
@@ -33,7 +34,8 @@ export function validDeliveryDate(value: unknown): value is string {
 }
 export function parseDeliveryPlanCommand(value: Record<string, unknown>): DeliveryPlanCommand {
   const invalid = () => { throw new HttpError(400, 'invalid_delivery_plan_command', 'Invalid DeliveryPlan command'); };
-  if (Object.keys(value).some(key => !['expectedVersion', 'upserts', 'voidIds'].includes(key))
+  if (Object.keys(value).some(key => !['requestId', 'expectedVersion', 'upserts', 'voidIds'].includes(key))
+      || value.requestId !== undefined && (typeof value.requestId !== 'string' || !UUID_PATTERN.test(value.requestId))
       || !Number.isSafeInteger(value.expectedVersion) || (value.expectedVersion as number) < 0
       || !Array.isArray(value.upserts) || !Array.isArray(value.voidIds)
       || value.upserts.length + value.voidIds.length === 0
@@ -46,11 +48,12 @@ export function parseDeliveryPlanCommand(value: Record<string, unknown>): Delive
         || !validDeliveryDate(input.deliveryDate) || typeof input.quantity !== 'string'
         || input.quantity.length > 64 || !/^(?:0|[1-9]\d*)(?:\.\d+)?$/.test(input.quantity)
         || /^0(?:\.0+)?$/.test(input.quantity)) return invalid();
-    return { id: input.id as string | null, deliveryDate: input.deliveryDate as string, quantity: input.quantity as string };
+    return { id: input.id === null ? null : (input.id as string).toLowerCase(), deliveryDate: input.deliveryDate as string, quantity: input.quantity as string };
   });
-  const voidIds = value.voidIds as string[];
-  if (voidIds.some(id => typeof id !== 'string' || !UUID_PATTERN.test(id))) invalid();
+  if ((value.voidIds as unknown[]).some(id => typeof id !== 'string' || !UUID_PATTERN.test(id))) invalid();
+  const voidIds = (value.voidIds as string[]).map(id => id.toLowerCase());
   const ids = [...upserts.flatMap(row => row.id ? [row.id] : []), ...voidIds];
   if (new Set(ids).size !== ids.length) invalid();
-  return { expectedVersion: value.expectedVersion as number, upserts, voidIds };
+  return { ...(value.requestId === undefined ? {} : { requestId: (value.requestId as string).toLowerCase() }),
+    expectedVersion: value.expectedVersion as number, upserts, voidIds };
 }

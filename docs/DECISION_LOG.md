@@ -23,6 +23,14 @@
 
 ## Active
 
+### D-154 DeliveryPlan沿用原命令并保存可核对回执
+
+- 原2026-10-22技术决定，2026-10-24受控前移，Active；D147已批准Server收敛范围内的可靠性，不改变D083/D100的来源/人工所有权、系统默认0、人工正数、独立集合版本和历史计划规则。原PATCH/writer/响应保持，0042只新增空不可变请求回执，不回填或重建计划。
+- 可选显式UUID与旧body确定性身份共用actor-scoped ledger；首await前复制原SO与全部规范命令，同请求返回原完整结果，不同请求保留CAS。缺表无无回执写旁路，历史结果不因后来Source/CAS/alias重判，但始终fresh user/roles/grants。
+- POST原完整命令只读核对，unknown不证明失败、不自动重发。计划、可信审计、成功回执同事务，仅writer固定409/422保留拒绝；连接/SQL/审计/锁超时不伪造终态。COMMIT结果未知须核对，回滚尝试不证明未提交。
+- 完整结果含作废历史，compact JSON和PG实际JSONB16MiB，超量SAVEPOINT撤销计划/审计后存小拒绝，不截断历史；新原SO外键纳入既有完整引用指纹，不搬身份/生产/价格。
+- 证据：delivery-plan-service.ts、delivery-plan-request.ts、0042和[独立契约](features/SERVER_DELIVERY_PLAN_REQUESTS.md)、[当前任务](tasks/active/server-delivery-plan-requests-current-2026-10-24.md)。新工程验收按当前source另记，不借旧12cf；无UI、真实采集/来源激活、环境迁移、部署或人工接受，Goal active。
+
 ### D-153 成衣出货先保存不可变观察
 
 - 原2026-10-21技术决定，2026-10-24受控前移，Active；D147批准工程范围内实施0040，不改变D152业务口径。默认关闭的独立target/快照/颜色匹配/head，只证明指定查询两遍观察一致，不把contains首页样本当完整合同或Source已激活。

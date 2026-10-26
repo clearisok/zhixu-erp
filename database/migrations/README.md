@@ -108,3 +108,9 @@ not backfill, activate Source, create orders, grant permissions or migrate an
 existing environment. The offline operator is verify-only for schema; source
 promotion and trusted audit share one explicit transaction. Normalization includes
 both SO references and complete row bytes. Real upgrades remain separately gated.
+
+0042_delivery_plan_request_receipts.sql adds an empty immutable actor-scoped original
+DeliveryPlan command/result ledger with original SO/audit foreign keys. Explicit
+UUID and deterministic legacy identities share the current writer; no plan, owner,
+permission or business backfill. Startup stays verify-only. Only owned synthetic
+0041-to-current rehearsal is in scope; no existing target upgrade or deployment.

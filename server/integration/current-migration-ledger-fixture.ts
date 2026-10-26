@@ -42,6 +42,7 @@ export const CURRENT_MIGRATION_FILES = Object.freeze([
   '0039_material_arrival_plans.sql',
   '0040_garment_shipment_observations.sql',
   '0041_bound_order_source_refresh_receipts.sql',
+  '0042_delivery_plan_request_receipts.sql',
 ]);
 
 export const migrationFilesAfter = (version: number) =>
