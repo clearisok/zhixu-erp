@@ -2602,6 +2602,18 @@
       "sha256": "7f0437a139843e949bc73d300f7ce8457f09daddabf6e0e630952506a2fa0ebd",
       "supersedes": "decisions-order-context-main-9d65-20261026-merge",
       "changeReason": "Genuine two-parent forward merge joins exact approved PR129 main 869ee84dd0b31de6161011e4aa560678b244a64d and independent P0 9f9f87b06a89c2e929c1eab7cb9f4a8f1de6b6b7. Preserve all original decision branches and the real L0 mergeOf closure; this witnesses old D149 against the new actual main without changing business rules, original evidence or runtime claims."
+    },
+    {
+      "id": "decisions-production-planning-resources-main-869e-20261026-merge",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "d27b04788bbe5ffb67bdb98f1a7fb13309c700c0",
+      "sha256": "be3c04a00cc2bb1ab56df2a8b48f212ba948140eca4c0d4953e0802ff2596190",
+      "mergeOf": [
+        "decisions-production-planning-main-869e-20261026-merge",
+        "decisions-order-context-main-869e-20261026-forward"
+      ],
+      "changeReason": "Freeze the genuine planning-witness and reviewed-resource-history merge. Each parent contributes an independent decision integration; preserve original D149/D150, F/C, current main and every parent evidence object. No product, permission, formula, runtime or deployment claim changes."
     }
   ],
   "pages": [

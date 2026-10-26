@@ -2,7 +2,7 @@
 
 2026-10-26，root唯一writer，既有独立reviewer只读。
 
-当前比较基线为已独立API核实的main 869ee84dd0b31de6161011e4aa560678b244a64d（2026-10-26T02:05:13.299Z）。branch codex/production-planning-main-869e从该main干净建立，普通合流原G6B b6af0cd247c1e7ec4406e69526fa672544cce1d8；稍后保留已整合G6A 910fbd4834336446abadb64c9d617b1ae868424b的完整历史。全部非docs与已验收源码cd73726babfaa86ffef671cbbe3a37fd542dace6逐blob相同，没有新业务改动。
+当前比较基线为已独立API核实的main 869ee84dd0b31de6161011e4aa560678b244a64d（2026-10-26T02:05:13.299Z）。branch codex/production-planning-main-869e从该main干净建立，普通合流原G6B b6af0cd247c1e7ec4406e69526fa672544cce1d8；现已普通合流并保留G6A 910fbd4834336446abadb64c9d617b1ae868424b的完整历史。全部非docs与已验收源码cd73726babfaa86ffef671cbbe3a37fd542dace6逐blob相同，没有新业务改动。
 
 ## 历史与证据路径
 
@@ -29,3 +29,9 @@ H订单读取链0d70的精确交付授权仍有效，实际Execute/Push/PR/Hoste
 第一真实合流B 11c6b0e2099346bcec1903c9508392270b30b541的父为main 869ee84dd0b31de6161011e4aa560678b244a64d与独立原G6B b6af0cd247c1e7ec4406e69526fa672544cce1d8；绑定提交2d43ec2f652de4d09b3261877d556f688a021eb3冻结D150/main决策mergeOf及同路径生产文档forward witness，原证据逐项不变。第二次普通合流保留G6A 910fbd4834336446abadb64c9d617b1ae868424b，也只遇4份汇总/清单冲突；完整非docs继续精确cd737。原G5 F/C链保留，第二真实合流的决定mergeOf随后绑定。清单在新绑定前300证据/50能力，旧runtime/能力/截图不改。
 
 独立策略复审已核两次决定贡献/非冗余及生产文档同路径要求，无剩余P1/P2；该策略复审未运行测试，也不替代最终commit/manifest与当前守卫复审。
+
+## 最终候选与新门禁
+
+第二真实合流L d27b04788bbe5ffb67bdb98f1a7fb13309c700c0的父为2d43ec2f652de4d09b3261877d556f688a021eb3与910fbd4834336446abadb64c9d617b1ae868424b，追加决定mergeOf记录保留两侧F/C/B。当前manifest301证据/50能力/21Server路由；本轮三个新证据只绑定既有真实合流，所有原对象及17PNG/2JSON未改。全部非docs仍逐blob等于cd737，资源容量保护和排单预算修复均包含。
+
+本次最终commit后的精确N源码/证据守卫将单独执行并保留同HEAD回执；只有回执真实PASS才算通过。原类型/API/SQL/浏览器/构建按精确source复用，不冒称本次重跑；原51a发布134属于旧base，本次未重新运行。正式PR交付前须补当前发布回归和必要CI，不取消质量门槛。
