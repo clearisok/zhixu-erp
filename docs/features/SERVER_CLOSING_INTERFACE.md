@@ -30,7 +30,7 @@ closing-controller.ts复用原九类命令、client/pending/parseClosingPreview/
 
 关账[页面草图](../tasks/active/server-closing-ui-proposal-2026-10-27.md)已异步征询，尚无答复，等待不构成V2/V3批准；USD采用原UI问题保留。当前basis读取兼容最多1000当前颜色和1000历史残留行的联合诊断；稳定颜色歧义行只可只读阻断，不可变成可关账依据。1MiB及服务端原规则不放宽。
 
-Gate8E1最终7d6ce0e5ca5011fa693dcaea9e0b93c2642ce5f3精确守卫PASS、clean，527证据/68能力。Gate8E2当前WIP19单元＋8真实HTTP（含父项）及lint通过；固定源码后的质量检查、复审和新守卫见[当前编排阶段](../tasks/active/server-closing-controller-2026-10-27.md)，不将WIP当最终结果或重复挪用811/144。
+Gate8E1最终7d6ce0e5ca5011fa693dcaea9e0b93c2642ce5f3精确守卫PASS、clean，527证据/68能力。Gate8E2精确S4dfcd44e03b2c6949fa9140aadd4d9b0471f2719的52项相关回归（15client＋21controller＋8原interface HTTP＋8新controller HTTP，HTTP均含父项）、根类型/lint及Vite8浏览器编译通过，3079blob/0overlay owned归档。独立复审busy同步销毁P2已红测/修复，最终0剩余P1/P2；失败原件及诊断分类器失配保留。见[冻结工程](../tasks/completed/2026-10-27-server-closing-controller-engineering.md)/[当前编排阶段](../tasks/active/server-closing-controller-2026-10-27.md)。本阶段未重跑811/旧构建/144，不混同原源码归属，实际新PR交付前必要完整检查仍须做。
 
 原Gate8B冻结文档及本机失败记录保留。无schema迁移、现有库/账号、真实Source/激活/调度、合并、部署、旧环境切换/退役。最后核实main869ee84dd0b31de6161011e4aa560678b244a64d沿用同日既有证据，本阶段未重复fetch/API；远端Git/ref STOP根因UNRESOLVED。
 
