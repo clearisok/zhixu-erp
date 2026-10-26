@@ -32,6 +32,17 @@ function projectLine(line: CommercialLine) {
     priceVersionName: line.priceVersionName, laborPrice: line.laborPrice, laborCurrency: line.laborCurrency,
     confirmation: line.laborConfirmationSource ? laborSourceIdentity(line.laborConfirmationSource) : null };
 }
+/** Exact historical header only; never use today's head or colors to fill gaps. */
+async function historicalLabor(client: PoolClient, orderId: string, versionId: string) {
+  const lines = await readCommercialLines(client, orderId, versionId); if (lines.length) return lines.map(projectLine);
+  const old = (await client.query<{ priceVersionId: string; priceVersionName: string | null; laborPrice: string; laborCurrency: 'CNY' | 'USD' }>(
+    `SELECT v.price_version_id AS "priceVersionId",s.product_snapshot->'priceVersion'->>'name' AS "priceVersionName",
+     v.confirmed_labor_price::text AS "laborPrice",v.labor_currency AS "laborCurrency" FROM sales_order_commercial_versions v
+     LEFT JOIN sales_order_business_source_snapshots s ON s.commercial_version_id=v.id AND s.sales_order_id=v.sales_order_id
+     WHERE v.id=$1 AND v.sales_order_id=$2 AND v.pricing_scope='legacy_uniform'`, [versionId, orderId])).rows[0];
+  return old ? [{ colorId: null, colorName: '历史统一价', quantity: null, priceVersionId: old.priceVersionId,
+    priceVersionName: old.priceVersionName ?? '历史方案', laborPrice: old.laborPrice, laborCurrency: old.laborCurrency, confirmation: null }] : [];
+}
 export async function previewLaborAdoption(pool: Pool, identity: TrustedIdentity, raw: unknown) {
   const intent = parseLaborAdoptionIntent(raw), client = await pool.connect();
   try {
@@ -114,8 +125,8 @@ export async function readLaborAdoptionHistory(pool: Pool, identity: TrustedIden
        FROM order_labor_adoption_commands WHERE sales_order_id=$1 ORDER BY created_at DESC,actor_id,request_id LIMIT 21 OFFSET $2`, [orderId, offset])).rows;
     const items = [];
     for (const row of rows.slice(0, 20)) items.push({ requestId: row.requestId, createdAt: row.createdAt, result: row.result,
-      before: row.beforeId ? (await readCommercialLines(client, orderId, row.beforeId)).map(projectLine) : [],
-      after: row.afterId ? (await readCommercialLines(client, orderId, row.afterId)).map(projectLine) : [] });
+      before: row.beforeId ? await historicalLabor(client, orderId, row.beforeId) : [],
+      after: row.afterId ? await historicalLabor(client, orderId, row.afterId) : [] });
     const result = { items, offset, hasMore: rows.length > 20 };
     if (Buffer.byteLength(JSON.stringify(result)) > 1048576) fail(422, 'labor_history_too_large'); await client.query('COMMIT'); return result;
   } catch (error) { await client.query('ROLLBACK').catch(() => undefined); throw error; } finally { client.release(); }

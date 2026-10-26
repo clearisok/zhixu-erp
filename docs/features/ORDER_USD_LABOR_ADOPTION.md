@@ -13,7 +13,7 @@
 
 `POST /api/v1/quotes/order-labor-adoptions/preview|commands`，`GET .../commands/:requestId|history?orderId=UUID&offset=0`。仅 session authority；写入需要 fresh `order.view`、`quote.view`、`order.commercial.adopt`、`commercial.labor.view/edit`，不推导售价或成本权限。预览为 REPEATABLE READ READ ONLY，执行等待锁后重新读取事实。
 
-显式选择一张物理 SO 与颜色，追加 `labor_adoption` 商业版本。完整保留原 source/product/hash、售价/基准售价、数量快照、未选颜色和加工批次 consumption。新 `labor_confirmation_source` 只保存选定工价的精确确认凭据，不复制整份含售价的 CCT。通用后续售价调整须保留该字段。加工旧统一版仅凭精确原消费及产品证据转为一条 `colorId=null` 的订单级行，原批次与商业版本继续存在；新版头不再等于原 consumption 版本不表示批次丢失。
+显式选择一张物理 SO 与颜色，仅允许原 CNY 工价明确采用 USD；已 USD 仅允许金额和完整凭据完全相同的 no-op，不开放 USD→USD 再采用。混合选择中任一行越界整单拒绝，不静默跳过。成功追加 `labor_adoption` 商业版本。完整保留原 source/product/hash、售价/基准售价、数量快照、未选颜色和加工批次 consumption。新 `labor_confirmation_source` 只保存选定工价的精确确认凭据，不复制整份含售价的 CCT。通用后续售价调整须保留该字段。加工旧统一版仅凭精确原消费及产品证据转为一条 `colorId=null` 的订单级行，原批次与商业版本继续存在；新版头不再等于原 consumption 版本不表示批次丢失。
 
 复用 effective fence、物理 SO 锁、terms→Quote 锁及 actor/request 商业请求命名空间；商业 head、Quote 版本和 CCT/确认凭据共同参与 CAS。订单完成/取消、历史 alias、新颜色映射歧义和产品变化拒绝。新命令尊重运行时/数据库暂停，历史请求可核对。稳定拒绝保存回执；未知 COMMIT 返回 unverified，只核对原请求，不自动重做。版本、head、审计、completed-only 回执同事务，真实 PG jsonb 字节预算在变更前验证。
 

@@ -55,7 +55,8 @@ export function laborProductComparison(before: ProductSnapshot, candidate: Produ
     if (configuration && Object.keys(configuration).sort().join(',') === 'schemaVersion,sources,status' && configuration.schemaVersion === 1
       && ['incomplete', 'configured'].includes(String(configuration.status)) && Array.isArray(configuration.sources)
       && configuration.sources.every(row => row && typeof row === 'object' && Object.keys(row).sort().join(',') === 'field,source'
-        && typeof row.field === 'string' && ['unset', 'technical_default', 'explicit', 'preset', 'accepted_default'].includes(row.source))) delete pricing.configuration;
+        && ['quoteType', 'manufacturingCountry', 'laborCurrency', 'usdCnyRate', 'markupRate', 'freight'].includes(row.field)
+        && ['unset', 'technical_default', 'explicit', 'preset', 'accepted_default'].includes(row.source))) delete pricing.configuration;
     priceVersion.pricingParameters = pricing;
     return { quoteCode: value.quoteCode, revision, priceVersion };
   };

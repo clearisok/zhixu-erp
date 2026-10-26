@@ -78,6 +78,8 @@ export async function normalizationReferences(client:PoolClient){
  const refreshReady=(await client.query("SELECT to_regclass('public.ainuoke_order_source_refresh_receipts') IS NOT NULL AS ready")).rows[0].ready;
  const planRequestsReady=(await client.query("SELECT to_regclass('public.sales_order_delivery_plan_requests') IS NOT NULL AS ready")).rows[0].ready;
  const laborAdoptionsReady=(await client.query("SELECT to_regclass('public.order_labor_adoption_commands') IS NOT NULL AS ready")).rows[0].ready;
+ const laborEvidenceReady=(await client.query("SELECT EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='sales_order_commercial_lines' AND column_name='labor_confirmation_source') AS ready")).rows[0].ready;
+ if(laborAdoptionsReady!==laborEvidenceReady)throw new HttpError(503,'labor_adoption_reference_schema_incomplete','Labor adoption reference schema is incomplete');
  const references=NORMALIZATION_REFERENCES.filter(([table])=>(laborAdoptionsReady||table!=='order_labor_adoption_commands')&&(garmentTargetsReady||table!=='ainuoke_garment_target_commands')&&(garmentCommandsReady||table!=='ainuoke_garment_collection_commands')&&(refreshReady||table!=='ainuoke_order_source_refresh_receipts')&&(planRequestsReady||table!=='sales_order_delivery_plan_requests'));
  const present=(await client.query<{n:number}>(`SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
   WHERE n.nspname='public' AND c.relkind='r' AND c.relname IN ('ainuoke_payment_source_targets','ainuoke_payment_snapshots','ainuoke_payment_heads')`)).rows[0].n;

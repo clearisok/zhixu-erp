@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { randomUUID } from 'node:crypto';
 import { resolve } from 'node:path';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import pg from 'pg';
 import { closingFixture, closingCode } from './closing-fixture.js';
 import { runMigrations } from '../db/migration-runner.js';
@@ -12,6 +14,10 @@ import { readClosingOrderBasis } from '../closing/basis-service.js';
 import { previewClosingCommand } from '../closing/service.js';
 import { previewSaleAdjustment, commitSaleAdjustment } from '../sales-orders/sale-adjustment-service.js';
 import { findSalesOrderIdsByQuoteProvenance } from '../confirmed-commercial-terms/repository.js';
+import { updateConfirmedCommercialTermsByQuote } from '../confirmed-commercial-terms/service.js';
+import { applyQuoteVersionCommand } from '../quotes/version-workflows.js';
+import { appendOperationLog } from '../operation-logs/repository.js';
+import { normalizationReferences } from '../sales-orders/normalization-preview.js';
 
 test('Gate8C explicit USD labor adoption preserves independent order, product, batch and closing facts', { timeout: 240000 }, async t => {
   const x = await closingFixture(t, 45, true), { pool, editor } = x;
@@ -33,11 +39,14 @@ test('Gate8C explicit USD labor adoption preserves independent order, product, b
     const s = await state(id); return { orderId: id, expectedVersion: s.version, targetRevisionId: targetRevisionId ?? s.revisionId,
       colorIds: colorIds ?? (s.lines?.map(line => line.colorId) ?? [null]), productUnchangedConfirmed: true as const, reason: 'Explicit synthetic USD terms' };
   }
-  async function command(id: string, revisionId: string, colorIds?: (string | null)[]) { const preview = await previewLaborAdoption(pool, editor.actor, await intent(id, revisionId, colorIds)); return { requestId: randomUUID(), intent: preview.intent, previewHash: preview.previewHash }; }
-  async function successor(id: string, price = '4.25') {
+  async function command(id: string, revisionId: string, colorIds?: (string | null)[]) {
+    const current = await state(id), selectedIds = colorIds ?? current.lines?.filter(line => line.laborCurrency === 'CNY').map(line => line.colorId) ?? [null];
+    const preview = await previewLaborAdoption(pool, editor.actor, await intent(id, revisionId, selectedIds)); return { requestId: randomUUID(), intent: preview.intent, previewHash: preview.previewHash };
+  }
+  async function successor(id: string, price = '4.25', fromRevisionId?: string) {
     const source = await state(id), before = (await x.repository.getById(source.quoteId))!;
     const created = await http('quotes/' + source.quoteId + '/version-workflows', { action: 'revision.create', expectedVersion: before.version,
-      sourceRevisionId: source.revisionId, reason: '工价调整', note: 'Explicit USD confirmation only' }); assert.equal(created.status, 200, created.text);
+      sourceRevisionId: fromRevisionId ?? source.revisionId, reason: '工价调整', note: 'Explicit USD confirmation only' }); assert.equal(created.status, 200, created.text);
     let record = (await x.repository.getById(source.quoteId))!;
     const revision = record.quote.revisions.find(row => row.revisionId === record.quote.defaultRevisionId)!;
     for (const pv of revision.priceVersions) pv.pricingParameters.laborCurrency = 'USD';
@@ -108,6 +117,9 @@ test('Gate8C explicit USD labor adoption preserves independent order, product, b
     const saved = await x.apply({ action: 'create_allocation', periodId: period.periodId, expectedPeriodVersion: period.periodVersion, orderId: process.id, data }); assert.equal(saved.result.status, 'applied');
     const basis = await readClosingOrderBasis(pool, editor.actor, process.id); assert.equal('garmentSale' in basis.priceLines[0], false);
     assert.ok((await findSalesOrderIdsByQuoteProvenance(pool, { quoteId: after.quoteId, revisionId: processingRevision, priceVersionId: after.lines![0].priceVersionId })).includes(process.id));
+    const history = await readLaborAdoptionHistory(pool, editor.actor, new URLSearchParams({ orderId: process.id }));
+    assert.equal(history.items[0].before[0].laborCurrency, 'CNY'); assert.equal(history.items[0].after[0].laborCurrency, 'USD');
+    assert.equal(history.items[0].before[0].laborPrice, before.laborPrice);
   });
   await t.test('sale adjustment preserves separate USD confirmation and old commercial versions', async () => {
     const old = await state(a.id), item = { salesOrderId: a.id }, rule = { kind: 'amount' as const, value: '-1' };
@@ -119,7 +131,7 @@ test('Gate8C explicit USD labor adoption preserves independent order, product, b
     const history = await readLaborAdoptionHistory(pool, editor.actor, new URLSearchParams({ orderId: a.id })); assert.ok(history.items.length >= 2); assert.equal(JSON.stringify(history).includes('salePrice'), false);
   });
   await t.test('stale preview is durably rejected, and replay does not depend on current quote availability', async () => {
-    const c = await command(b.id, revisionId, [b.basis.priceLines[0].colorId]);
+    const c = await command(b.id, revisionId);
     const current = (await x.repository.getById(x.distribution.q.id))!; current.quote.revisions.at(-1)!.note += ' later'; await x.repository.save(current.quote, current.version);
     const rejected = await executeLaborAdoption(pool, editor.actor, c); assert.equal(rejected.status, 'rejected'); assert.equal(rejected.status === 'rejected' && rejected.error.code, 'labor_adoption_preview_changed');
     assert.equal((await executeLaborAdoption(pool, editor.actor, c)).status, 'rejected'); assert.equal((await executeLaborAdoption(pool, editor.actor, selected)).status, 'applied');
@@ -146,5 +158,99 @@ test('Gate8C explicit USD labor adoption preserves independent order, product, b
     await assert.rejects(() => pool.query("DELETE FROM order_labor_adoption_commands WHERE request_id=$1", [selected.requestId]));
     await assert.rejects(() => pool.query(`INSERT INTO order_labor_adoption_commands(actor_id,request_id,declared_order_id,payload_hash,command,result)
       VALUES($1,$2,$3,$4,'{}','{}')`, [editor.actor.internalUserId, randomUUID(), a.id, 'a'.repeat(64)]));
+  });
+  await t.test('existing CCT null never falls back to PV; CCT-only changes invalidate an outstanding preview', async () => {
+    const pending = await x.order(), pendingWhite = pending.basis.priceLines.find(row => row.colorName === 'White')!.colorId!;
+    const current = await state(a.id), line = current.lines!.find(row => row.colorId === white)!, record = (await x.repository.getById(current.quoteId))!;
+    const provenance = { quoteId: current.quoteId, revisionId, priceVersionId: line.priceVersionId };
+    const first = await updateConfirmedCommercialTermsByQuote(pool, editor.actor, provenance, { expectedVersion: 0, expectedQuoteVersion: record.version, confirmedLaborPrice: null, laborCurrency: 'USD' });
+    await assert.rejects(async () => previewLaborAdoption(pool, editor.actor, await intent(pending.id, revisionId, [pendingWhite])), closingCode('labor_usd_confirmation_required'));
+    const second = await updateConfirmedCommercialTermsByQuote(pool, editor.actor, provenance, { expectedVersion: first.current!.version, expectedQuoteVersion: record.version, confirmedLaborPrice: '6', laborCurrency: 'USD' });
+    const c = await command(pending.id, revisionId, [pendingWhite]);
+    await updateConfirmedCommercialTermsByQuote(pool, editor.actor, provenance, { expectedVersion: second.current!.version, expectedQuoteVersion: record.version, confirmedLaborPrice: '7', laborCurrency: 'USD' });
+    const result = await executeLaborAdoption(pool, editor.actor, c); assert.equal(result.status, 'rejected'); assert.equal(result.status === 'rejected' && result.error.code, 'labor_adoption_preview_changed');
+    assert.equal((await state(a.id)).lines!.find(row => row.colorId === white)!.laborPrice, '4.25');
+  });
+  await t.test('a real two-level successor works; product differences block even with a fresh USD confirmation', async () => {
+    const order = await x.processing('CNY'), first = await successor(order.id), second = await successor(order.id, '1.75', first);
+    assert.equal((await executeLaborAdoption(pool, editor.actor, await command(order.id, second))).status, 'applied');
+    const record = (await x.repository.getById((await state(order.id)).quoteId))!; record.quote.revisions.at(-1)!.priceVersions[0].labor.description = 'A different process';
+    const saved = await http('quotes/' + record.quote.id, { quote: record.quote, expectedVersion: record.version }, 'PUT'); assert.equal(saved.status, 200, saved.text);
+    await assert.rejects(async () => previewLaborAdoption(pool, editor.actor, await intent(order.id, second)), closingCode('labor_product_changed'));
+  });
+  await t.test('generic PUT-created successor and duplicate creation audits cannot manufacture trusted lineage', async () => {
+    const order = await x.processing('CNY'), source = await state(order.id), record = (await x.repository.getById(source.quoteId))!;
+    const built = applyQuoteVersionCommand(record.quote, { action: 'revision.create', expectedVersion: record.version, sourceRevisionId: source.revisionId, reason: '其他', note: 'Client-built legacy path' },
+      { id: randomUUID, actor: 'Client provided name', now: new Date().toISOString() });
+    const saved = await http('quotes/' + record.quote.id, { quote: built, expectedVersion: record.version }, 'PUT'); assert.equal(saved.status, 200, saved.text);
+    await assert.rejects(async () => previewLaborAdoption(pool, editor.actor, await intent(order.id, built.defaultRevisionId)), closingCode('labor_revision_creation_evidence_required'));
+    const trusted = await successor(order.id), proof = (await pool.query("SELECT * FROM operation_logs WHERE quote_id=$1 AND context->>'revisionId'=$2 AND metadata->>'workflowAction'='revision.create'", [source.quoteId, trusted])).rows[0];
+    const client = await pool.connect(); try {
+      await client.query('BEGIN'); await appendOperationLog(client, editor.actor, { module: '报价中心', action: '保存报价', entityType: 'Quote', entityId: source.quoteId, quoteId: source.quoteId,
+        context: proof.context, beforeData: proof.before_data, afterData: proof.after_data, metadata: proof.metadata }); await client.query('COMMIT');
+    } finally { client.release(); }
+    await assert.rejects(async () => previewLaborAdoption(pool, editor.actor, await intent(order.id, trusted)), closingCode('labor_revision_creation_evidence_required'));
+  });
+  await t.test('USD→USD price or same-price provenance changes are outside D162; mixed selections fail atomically', async () => {
+    async function denied(input: Awaited<ReturnType<typeof intent>>) {
+      await assert.rejects(() => previewLaborAdoption(pool, editor.actor, input), closingCode('labor_conversion_scope_cny_required'));
+      const requestId = randomUUID(), before = await state(input.orderId);
+      const response = await http('quotes/order-labor-adoptions/commands', { requestId, intent: input, previewHash: '0'.repeat(64) });
+      assert.equal(response.status, 409); assert.match(response.text, /labor_conversion_scope_cny_required/u);
+      const receipt = await readLaborAdoptionReceipt(pool, editor.actor, requestId); assert.equal(receipt.state, 'recorded');
+      assert.equal('result' in receipt && receipt.result.status, 'rejected'); assert.deepEqual(await state(input.orderId), before);
+    }
+    const order = await x.processing('CNY'), first = await successor(order.id, '2');
+    const saved = await executeLaborAdoption(pool, editor.actor, await command(order.id, first)); assert.equal(saved.status, 'applied');
+    const different = await successor(order.id, '3');
+    await denied(await intent(order.id, different));
+    const same = await successor(order.id, '2');
+    await denied(await intent(order.id, same));
+    const mixed = await x.order(); const before = await state(mixed.id);
+    await denied(await intent(mixed.id, revisionId));
+    assert.deepEqual(await state(mixed.id), before);
+  });
+  await t.test('completed orders reject new adoption, while exact original receipts stay readable', async () => {
+    await pool.query("UPDATE sales_orders SET lifecycle_state='completed',version=version+1 WHERE id=$1", [process.id]);
+    await assert.rejects(async () => previewLaborAdoption(pool, editor.actor, await intent(process.id, processingRevision)), closingCode('order_commercial_frozen'));
+    const history = await readLaborAdoptionHistory(pool, editor.actor, new URLSearchParams({ orderId: process.id })); assert.equal(history.items[0].before[0].laborCurrency, 'CNY');
+  });
+  await t.test('CNY→USD adoption cannot reprice existing locked closing snapshots or their earlier versions', async () => {
+    const order = await x.order(), source = await state(order.id), color = source.lines!.find(row => row.colorName === 'White')!;
+    const created = (await x.apply({ action: 'create_period', month: '2026-12', taxRatePercent: '0', taxRateConfirmed: true, remark: 'Preserve old USD closing' })).result;
+    const allocation = (await x.apply({ action: 'create_allocation', periodId: created.periodId, expectedPeriodVersion: created.periodVersion, orderId: order.id,
+      data: { quantity: '2', colorId: color.colorId, assignmentId: null, executor: null, channels: { sales: true, work: false }, remark: '' } })).result;
+    const confirmed = (await x.apply({ action: 'confirm_period', periodId: created.periodId, expectedPeriodVersion: allocation.periodVersion, reason: 'Explicit confirmation' })).result;
+    await x.apply({ action: 'lock_period', periodId: created.periodId, expectedPeriodVersion: confirmed.periodVersion, reason: 'Explicit lock' });
+    const frozen = (await pool.query('SELECT to_jsonb(v) snapshot FROM server_closing_allocation_versions v WHERE sales_order_id=$1 ORDER BY version', [order.id])).rows;
+    assert.equal((await executeLaborAdoption(pool, editor.actor, await command(order.id, revisionId))).status, 'applied');
+    assert.equal(color.laborCurrency, 'CNY'); assert.equal((await state(order.id)).lines!.find(row => row.colorId === color.colorId)!.laborCurrency, 'USD');
+    assert.deepEqual((await pool.query('SELECT to_jsonb(v) snapshot FROM server_closing_allocation_versions v WHERE sales_order_id=$1 ORDER BY version', [order.id])).rows, frozen);
+    const client = await pool.connect(); try { await client.query('BEGIN READ ONLY'); const references = await normalizationReferences(client);
+      assert.ok(references.some(([table, column]) => table === 'order_labor_adoption_commands' && column === 'sales_order_id'));
+      assert.ok(references.some(([table, column]) => table === 'order_labor_adoption_commands' && column === 'declared_order_id')); await client.query('COMMIT');
+    } finally { client.release(); }
+  });
+  await t.test('owned full backup/restore preserves labor provenance, immutable receipts and original physical identities', async () => {
+    const source = (await pool.query('SELECT current_database() name')).rows[0].name as string;
+    const targetUrl = await x.postgres.createDatabase('labor_restore'), targetName = new URL(targetUrl).pathname.slice(1);
+    assert.match(source, /^zhixu_it_closing_commands_[a-f0-9]{8}$/u); assert.match(targetName, /^zhixu_it_labor_restore_[a-f0-9]{8}$/u); assert.notEqual(source, targetName);
+    const restored = new pg.Pool({ connectionString: targetUrl });
+    const digest = async (db: pg.Pool) => {
+      const result: Record<string, unknown> = {};
+      for (const { tablename } of (await db.query("SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename")).rows) {
+        assert.match(tablename, /^[a-z0-9_]+$/u); result[tablename] = (await db.query(`SELECT count(*)::int n,md5(coalesce(jsonb_agg(to_jsonb(t) ORDER BY to_jsonb(t)::text)::text,'[]')) hash FROM public."${tablename}" t`)).rows[0];
+      } return result;
+    };
+    try {
+      assert.equal((await restored.query("SELECT count(*)::int n FROM pg_tables WHERE schemaname='public'")).rows[0].n, 0);
+      const before = await digest(pool), docker = (args: string[]) => promisify(execFile)('docker', ['exec', x.postgres.containerName, ...args], { encoding: 'utf8', timeout: 60000, windowsHide: true });
+      await docker(['pg_dump', '-U', 'postgres', '-d', source, '-Fc', '-f', '/tmp/labor-owned-synthetic.dump']);
+      await docker(['pg_restore', '-U', 'postgres', '--exit-on-error', '--no-owner', '-d', targetName, '/tmp/labor-owned-synthetic.dump']);
+      assert.deepEqual(await digest(restored), before); assert.deepEqual((await runMigrations(restored, resolve('database/migrations'))).applied, []);
+      assert.deepEqual(await readLaborAdoptionReceipt(restored, editor.actor, selected.requestId), await readLaborAdoptionReceipt(pool, editor.actor, selected.requestId));
+      assert.deepEqual(await state(a.id), (await readOrderCommercialState(restored, a.id)).current);
+      assert.deepEqual(await digest(restored), before);
+    } finally { await restored.end(); }
   });
 });

@@ -50,3 +50,16 @@ test('public source identity contains no hidden amount, cost or product digest',
     sourceCctVersion: 3, confirmedAt: '2026-10-27T00:00:00Z', price: '12345.6789', currency: 'USD', productHash: 'b'.repeat(64) };
   const result = JSON.stringify(laborSourceIdentity(source)); assert.equal(result.includes(source.price), false); assert.equal(result.includes(source.productHash), false);
 });
+
+test('real creation configuration including freight may change technical sources; unknown configuration stays compared', () => {
+  const old = product(), next = product();
+  const pricing = old.priceVersion.pricingParameters as Record<string, unknown>;
+  pricing.configuration = { schemaVersion: 1, status: 'configured', sources: [
+    { field: 'manufacturingCountry', source: 'explicit' }, { field: 'laborCurrency', source: 'preset' },
+    { field: 'usdCnyRate', source: 'accepted_default' }, { field: 'markupRate', source: 'preset' }, { field: 'freight', source: 'preset' }, { field: 'quoteType', source: 'accepted_default' }] };
+  const target = next.priceVersion.pricingParameters as Record<string, unknown>;
+  target.configuration = structuredClone(pricing.configuration);
+  (target.configuration as { sources: { field: string; source: string }[] }).sources.find(row => row.field === 'laborCurrency')!.source = 'explicit';
+  target.laborCurrency = 'USD'; assert.equal(laborProductComparison(old, next).compatible, true);
+  (target.configuration as Record<string, unknown>).futureSpecification = 'must not disappear'; assert.equal(laborProductComparison(old, next).compatible, false);
+});

@@ -110,8 +110,11 @@ export async function buildLaborAdoption(client: PoolClient, intent: LaborAdopti
   }
   const after = lines.map(line => intent.colorIds.includes(line.colorId) ? { ...line, laborPrice: sources.get(line.priceVersionId)!.price,
     laborCurrency: 'USD' as const, laborConfirmationSource: sources.get(line.priceVersionId)! } : line);
-  const changed = after.some((line, index) => productHash([line.laborPrice, line.laborCurrency, line.laborConfirmationSource ?? null])
+  const changes = after.map((line, index) => productHash([line.laborPrice, line.laborCurrency, line.laborConfirmationSource ?? null])
     !== productHash([lines[index].laborPrice, lines[index].laborCurrency, lines[index].laborConfirmationSource ?? null]));
+  // D162 authorizes CNY→USD, not a general order labor negotiation channel.
+  if (lines.some((line, index) => intent.colorIds.includes(line.colorId) && line.laborCurrency === 'USD' && changes[index])) fail(409, 'labor_conversion_scope_cny_required');
+  const changed = changes.some(Boolean);
   const previewHash = productHash({ intent, current: { id: current.id, version: current.version },
     colors: basis.colors.map(color => ({ id: color.id, name: color.colorName, quantity: color.quantity })),
     sources: [...sources.values()].map(laborSourceIdentity), quoteVersion: record.version });

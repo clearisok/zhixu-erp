@@ -21,7 +21,10 @@ test('Gate8B manual closing: nonempty upgrade, immutable snapshots, trusted HTTP
   const tableNames = (await pool.query("SELECT tablename FROM pg_tables WHERE schemaname='public' AND tablename<>'schema_migrations' ORDER BY tablename")).rows.map(row => row.tablename as string);
   async function digests() {
     const values: Record<string, string> = {};
-    for (const name of tableNames) { assert.match(name, /^[a-z0-9_]+$/u); values[name] = (await pool.query(`SELECT md5(coalesce(jsonb_agg(to_jsonb(r) ORDER BY to_jsonb(r)::text)::text,'[]')) digest FROM public."${name}" r`)).rows[0].digest; }
+    for (const name of tableNames) { assert.match(name, /^[a-z0-9_]+$/u);
+      // 0046 adds one nullable evidence column; compare every pre-upgrade field.
+      const row = name === 'sales_order_commercial_lines' ? "to_jsonb(r)-'labor_confirmation_source'" : 'to_jsonb(r)';
+      values[name] = (await pool.query(`SELECT md5(coalesce(jsonb_agg(${row} ORDER BY ${row}::text)::text,'[]')) digest FROM public."${name}" r`)).rows[0].digest; }
     return values;
   }
   const before = await digests();
@@ -29,6 +32,7 @@ test('Gate8B manual closing: nonempty upgrade, immutable snapshots, trusted HTTP
   const upgrade = await runMigrations(pool, resolve('database/migrations'));
   assert.deepEqual(upgrade.applied, ['0045_server_closing_snapshots.sql', '0046_order_usd_labor_adoptions.sql']);
   assert.deepEqual(await digests(), before); assert.deepEqual((await pool.query('SELECT * FROM schema_migrations WHERE version<=44 ORDER BY version')).rows, ledger);
+  assert.equal((await pool.query('SELECT count(*)::int n FROM sales_order_commercial_lines WHERE labor_confirmation_source IS NOT NULL')).rows[0].n, 0);
   await t.test('0045 adds empty tables without changing old nonempty rows and is idempotent', async () => {
     assert.deepEqual(CURRENT_MIGRATION_FILES, (await readdir(resolve('database/migrations'))).filter(name => /^\d+_.*\.sql$/u.test(name)).sort());
     assert.deepEqual((await runMigrations(pool, resolve('database/migrations'))).applied, []);
