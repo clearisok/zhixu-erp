@@ -15,3 +15,5 @@
 证明Q ea3581234f52cdca8cd10f0ce308063aee6cb978；后续R只追加独立根至507/66，原506记录及全部能力/UI字段保留。最终守卫/复审按实际回执。
 
 独立终审发现网络证据措辞P2，已前向[澄清](../completed/2026-10-26-source-ledger-network-evidence-clarification.md)；原冻结证明/507记录保留。原37bc守卫PASS128084ms只归原head，最终新head另验；不重跑业务恢复。
+
+澄清Q 40592075ba805a5fecc9dedb799b4f5e19bc01fc；R只追加独立根至508/66，原507及全部UI/能力字段保留，原运行不重跑。

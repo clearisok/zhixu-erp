@@ -4597,6 +4597,14 @@
       "recordedAtSha": "ea3581234f52cdca8cd10f0ce308063aee6cb978",
       "renderedSourceSha": "6dcea703ccc5372ad1b6d68ad919a287ef975dc6",
       "sha256": "73479ca2f7722b90c892dfefdbd3e5316197db54eeb88b1dac1305e8f9735e8b"
+    },
+    {
+      "id": "source-ledger-network-evidence-clarification-20261026",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-26-source-ledger-network-evidence-clarification.md",
+      "recordedAtSha": "40592075ba805a5fecc9dedb799b4f5e19bc01fc",
+      "renderedSourceSha": "6dcea703ccc5372ad1b6d68ad919a287ef975dc6",
+      "sha256": "9b932062dbd07b162451a2b7830d9a4bda545db82e5a22fd06e3fe42d0df361f"
     }
   ],
   "pages": [
