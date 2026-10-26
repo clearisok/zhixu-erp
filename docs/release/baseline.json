@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "869ee84dd0b31de6161011e4aa560678b244a64d",
-  "verifiedAt": "2026-10-26T04:19:08.956Z",
+  "verifiedAt": "2026-10-26T04:35:24.589Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -3340,6 +3340,234 @@
       "recordedAtSha": "761267deb29796206de5492fa01bb79a417680b1",
       "renderedSourceSha": "c994eac8aee32f9e6877fa81e65a604376760519",
       "sha256": "775eab3e922b8b5d403c0db36b61aad42dc4ae6c99520934bd2437284e3e1a47"
+    },
+    {
+      "id": "material-arrival-ui-current-engineering-20261024",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-24-material-arrival-ui-current-engineering.md",
+      "recordedAtSha": "e2a0089fd9063dae77de0eccbd3ac1d4126994cf",
+      "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "sha256": "509a760a28427c622b94f62e4ae66439f1d9c32080dd8744a83a64f35e83c808"
+    },
+    {
+      "id": "material-arrival-ui-current-before-before-material-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-material-arrival-ui-current/before-before-material-1440.png",
+      "recordedAtSha": "e2a0089fd9063dae77de0eccbd3ac1d4126994cf",
+      "renderedSourceSha": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+      "sha256": "d5034265c862c8b117570f0ae8e5cf87f43f7fbeed6fbbcfa1b100f9704155a2",
+      "changeReason": "New exact synthetic before/after observations of the approved D054/D065-69/D147 existing material cards, arrival Modal and history Drawer, six widths/DPR and separate browser touch. Preserve all prior image bytes and records; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "material-arrival-ui-current-before-before-material-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-material-arrival-ui-current/before-before-material-390.png",
+      "recordedAtSha": "e2a0089fd9063dae77de0eccbd3ac1d4126994cf",
+      "renderedSourceSha": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+      "sha256": "a417ed356270b26f66664ef3f60ba4ce32f58c7173c71389dc80834b503c4660",
+      "changeReason": "New exact synthetic before/after observations of the approved D054/D065-69/D147 existing material cards, arrival Modal and history Drawer, six widths/DPR and separate browser touch. Preserve all prior image bytes and records; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "material-arrival-ui-current-before-build-and-checks",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-material-arrival-ui-current/before-build-and-checks.json",
+      "recordedAtSha": "e2a0089fd9063dae77de0eccbd3ac1d4126994cf",
+      "renderedSourceSha": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+      "sha256": "43efcffa6ad291f1a4576a4437d871bda3a3c400195a608e7f06ca80e0e147db"
+    },
+    {
+      "id": "material-arrival-ui-current-after-build-and-checks",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-material-arrival-ui-current/after-build-and-checks.json",
+      "recordedAtSha": "e2a0089fd9063dae77de0eccbd3ac1d4126994cf",
+      "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "sha256": "f98f554481bf5003e4c67f829b43f2a2758de80b75e85f2d2abbdcbbb3e03895"
+    },
+    {
+      "id": "material-arrival-ui-current-after-draft-source-changed",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-material-arrival-ui-current/after-draft-source-changed.png",
+      "recordedAtSha": "e2a0089fd9063dae77de0eccbd3ac1d4126994cf",
+      "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "sha256": "47a5b7541d6ff0e57b5ae743ce4f63ac5b59f788f1656675ad4cb0a07abc88bc",
+      "changeReason": "New exact synthetic before/after observations of the approved D054/D065-69/D147 existing material cards, arrival Modal and history Drawer, six widths/DPR and separate browser touch. Preserve all prior image bytes and records; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "material-arrival-ui-current-after-explicit-clear-history",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-material-arrival-ui-current/after-explicit-clear-history.png",
+      "recordedAtSha": "e2a0089fd9063dae77de0eccbd3ac1d4126994cf",
+      "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "sha256": "8731b2189f3341445b5f5798f5464c1a2cf79b8a1128c848aba85c05d18e1587",
+      "changeReason": "New exact synthetic before/after observations of the approved D054/D065-69/D147 existing material cards, arrival Modal and history Drawer, six widths/DPR and separate browser touch. Preserve all prior image bytes and records; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "material-arrival-ui-current-after-history-1280",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-material-arrival-ui-current/after-history-1280.png",
+      "recordedAtSha": "e2a0089fd9063dae77de0eccbd3ac1d4126994cf",
+      "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "sha256": "0ca80a60195cf92d846d03d648c0a3ca54b9ef3c03b39545108b93296deef5b1",
+      "changeReason": "New exact synthetic before/after observations of the approved D054/D065-69/D147 existing material cards, arrival Modal and history Drawer, six widths/DPR and separate browser touch. Preserve all prior image bytes and records; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "material-arrival-ui-current-after-history-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-material-arrival-ui-current/after-history-1440.png",
+      "recordedAtSha": "e2a0089fd9063dae77de0eccbd3ac1d4126994cf",
+      "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "sha256": "70a3e4840324c44e1e84cd856345339c6fa1c2a1e4729607c4bc3bb68d388cdb",
+      "changeReason": "New exact synthetic before/after observations of the approved D054/D065-69/D147 existing material cards, arrival Modal and history Drawer, six widths/DPR and separate browser touch. Preserve all prior image bytes and records; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "material-arrival-ui-current-after-history-1536",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-material-arrival-ui-current/after-history-1536.png",
+      "recordedAtSha": "e2a0089fd9063dae77de0eccbd3ac1d4126994cf",
+      "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "sha256": "851ab2fc49642d2cb7abd07b78577c330a29205f0d35c98bac4c2b287364a574",
+      "changeReason": "New exact synthetic before/after observations of the approved D054/D065-69/D147 existing material cards, arrival Modal and history Drawer, six widths/DPR and separate browser touch. Preserve all prior image bytes and records; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "material-arrival-ui-current-after-history-1920",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-material-arrival-ui-current/after-history-1920.png",
+      "recordedAtSha": "e2a0089fd9063dae77de0eccbd3ac1d4126994cf",
+      "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "sha256": "e7a92b5c22ac135cd1eca6b0249350c397abfdee53988c545f7dff294a5b0f17",
+      "changeReason": "New exact synthetic before/after observations of the approved D054/D065-69/D147 existing material cards, arrival Modal and history Drawer, six widths/DPR and separate browser touch. Preserve all prior image bytes and records; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "material-arrival-ui-current-after-history-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-material-arrival-ui-current/after-history-390.png",
+      "recordedAtSha": "e2a0089fd9063dae77de0eccbd3ac1d4126994cf",
+      "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "sha256": "0452feef80d358a99f2f826dafc248e139f1ac0ba4b51d67171b6b3689e40d2d",
+      "changeReason": "New exact synthetic before/after observations of the approved D054/D065-69/D147 existing material cards, arrival Modal and history Drawer, six widths/DPR and separate browser touch. Preserve all prior image bytes and records; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "material-arrival-ui-current-after-history-900",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-material-arrival-ui-current/after-history-900.png",
+      "recordedAtSha": "e2a0089fd9063dae77de0eccbd3ac1d4126994cf",
+      "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "sha256": "47cca5c8723bc98683b06388b53c090a7d1dc2fe835254e2d81c1c577058be4c",
+      "changeReason": "New exact synthetic before/after observations of the approved D054/D065-69/D147 existing material cards, arrival Modal and history Drawer, six widths/DPR and separate browser touch. Preserve all prior image bytes and records; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "material-arrival-ui-current-after-planner-1280",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-material-arrival-ui-current/after-planner-1280.png",
+      "recordedAtSha": "e2a0089fd9063dae77de0eccbd3ac1d4126994cf",
+      "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "sha256": "dd9ea3bfb30d201e7b49c53fdd10c7a2cb7672bffa3801b1728ebabf447917a8",
+      "changeReason": "New exact synthetic before/after observations of the approved D054/D065-69/D147 existing material cards, arrival Modal and history Drawer, six widths/DPR and separate browser touch. Preserve all prior image bytes and records; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "material-arrival-ui-current-after-planner-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-material-arrival-ui-current/after-planner-1440.png",
+      "recordedAtSha": "e2a0089fd9063dae77de0eccbd3ac1d4126994cf",
+      "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "sha256": "63ef674647120b70cdeb83608d0181072712df59473d642f291d9c1012b58c7e",
+      "changeReason": "New exact synthetic before/after observations of the approved D054/D065-69/D147 existing material cards, arrival Modal and history Drawer, six widths/DPR and separate browser touch. Preserve all prior image bytes and records; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "material-arrival-ui-current-after-planner-1536",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-material-arrival-ui-current/after-planner-1536.png",
+      "recordedAtSha": "e2a0089fd9063dae77de0eccbd3ac1d4126994cf",
+      "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "sha256": "48797ca17216614c87a2d7769b2f05c28614bec6395085123b19a4651c056a3c",
+      "changeReason": "New exact synthetic before/after observations of the approved D054/D065-69/D147 existing material cards, arrival Modal and history Drawer, six widths/DPR and separate browser touch. Preserve all prior image bytes and records; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "material-arrival-ui-current-after-planner-1920",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-material-arrival-ui-current/after-planner-1920.png",
+      "recordedAtSha": "e2a0089fd9063dae77de0eccbd3ac1d4126994cf",
+      "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "sha256": "5732bb0be1e59f0f8331b4c1998f39bbbe5d350e9f9620e8c014bb69446eb493",
+      "changeReason": "New exact synthetic before/after observations of the approved D054/D065-69/D147 existing material cards, arrival Modal and history Drawer, six widths/DPR and separate browser touch. Preserve all prior image bytes and records; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "material-arrival-ui-current-after-planner-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-material-arrival-ui-current/after-planner-390.png",
+      "recordedAtSha": "e2a0089fd9063dae77de0eccbd3ac1d4126994cf",
+      "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "sha256": "dc27d313b487f191016192831857e2a150dc1f94cfa262746b63d363b9c3c51f",
+      "changeReason": "New exact synthetic before/after observations of the approved D054/D065-69/D147 existing material cards, arrival Modal and history Drawer, six widths/DPR and separate browser touch. Preserve all prior image bytes and records; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "material-arrival-ui-current-after-planner-900",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-material-arrival-ui-current/after-planner-900.png",
+      "recordedAtSha": "e2a0089fd9063dae77de0eccbd3ac1d4126994cf",
+      "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "sha256": "cb8d97d806f2f6dfa7790fcea455a55caae14d57a719024fd647165fde790c14",
+      "changeReason": "New exact synthetic before/after observations of the approved D054/D065-69/D147 existing material cards, arrival Modal and history Drawer, six widths/DPR and separate browser touch. Preserve all prior image bytes and records; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "material-arrival-ui-current-after-receipt",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-material-arrival-ui-current/after-receipt.json",
+      "recordedAtSha": "e2a0089fd9063dae77de0eccbd3ac1d4126994cf",
+      "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "sha256": "01a60c8534e27a85096f2cfd6633a79aed7d7c776f64d46f0790dd51a0f65fc3"
+    },
+    {
+      "id": "material-arrival-ui-current-after-source-unavailable-history",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-material-arrival-ui-current/after-source-unavailable-history.png",
+      "recordedAtSha": "e2a0089fd9063dae77de0eccbd3ac1d4126994cf",
+      "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "sha256": "973b96bd92f39479fb27d5586a0f36f969434964265a612d2fcb2198c4429337",
+      "changeReason": "New exact synthetic before/after observations of the approved D054/D065-69/D147 existing material cards, arrival Modal and history Drawer, six widths/DPR and separate browser touch. Preserve all prior image bytes and records; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "material-arrival-ui-current-after-touch-history-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-material-arrival-ui-current/after-touch-history-390.png",
+      "recordedAtSha": "e2a0089fd9063dae77de0eccbd3ac1d4126994cf",
+      "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "sha256": "003079a96f955b6739de7ce436d71eac76f05a90081dcd82730f613979f98a0e",
+      "changeReason": "New exact synthetic before/after observations of the approved D054/D065-69/D147 existing material cards, arrival Modal and history Drawer, six widths/DPR and separate browser touch. Preserve all prior image bytes and records; no redesign, real Source, deployment or human acceptance.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "server-material-arrival-ui-contract-20261024",
+      "kind": "document",
+      "path": "docs/features/SERVER_MATERIAL_ARRIVAL_UI.md",
+      "recordedAtSha": "eb2fc6ed5cca17f453bcd98598e7357cbe12080f",
+      "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "sha256": "30221347cf34c67a4a6d41da7fd7445b97edb79b4a77d123e795aea1140cee10"
+    },
+    {
+      "id": "material-arrival-ui-metadata-correction-20261024",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-24-material-arrival-ui-metadata-candidate.json",
+      "recordedAtSha": "eb2fc6ed5cca17f453bcd98598e7357cbe12080f",
+      "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "sha256": "352ef59d26b79e23bf4ebad48f2147929e2266d9f196574a8a338c650a836f42"
     }
   ],
   "pages": [
@@ -8765,6 +8993,91 @@
           "scope": "Current manual material arrival backend not deployed; preserve historical runtime observations without new queries.",
           "evidence": [
             "material-arrivals-current-engineering-20261024"
+          ]
+        }
+      }
+    },
+    {
+      "id": "material-arrival-ui-current",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D054/D065-69/D147 current Server manual material arrival UI on existing cards/modal/history, exact partial multi-unit allocations and unique per-batch logistics from persisted Hub/adopted schedule location. Current97 related and811 root; actual before3/after17/material10/navigation18 browser checks, six widths/DPR and synthetic touch, dual builds, immutable history and guarded recovery. No second price/logistics owner, new schema, real Source, target upgrade, merge/deployment or human acceptance. Existing Linux-only Source CLI gap remains separate.",
+      "evidence": [
+        "material-arrival-ui-current-engineering-20261024"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+          "scope": "D054/D065-69/D147 current Server manual material arrival UI on existing cards/modal/history, exact partial multi-unit allocations and unique per-batch logistics from persisted Hub/adopted schedule location. Current97 related and811 root; actual before3/after17/material10/navigation18 browser checks, six widths/DPR and synthetic touch, dual builds, immutable history and guarded recovery. No second price/logistics owner, new schema, real Source, target upgrade, merge/deployment or human acceptance. Existing Linux-only Source CLI gap remains separate.",
+          "evidence": [
+            "material-arrival-ui-current-engineering-20261024"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-24",
+          "sourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+          "scope": "D054/D065-69/D147 current Server manual material arrival UI on existing cards/modal/history, exact partial multi-unit allocations and unique per-batch logistics from persisted Hub/adopted schedule location. Current97 related and811 root; actual before3/after17/material10/navigation18 browser checks, six widths/DPR and synthetic touch, dual builds, immutable history and guarded recovery. No second price/logistics owner, new schema, real Source, target upgrade, merge/deployment or human acceptance. Existing Linux-only Source CLI gap remains separate.",
+          "evidence": [
+            "material-arrival-ui-current-engineering-20261024"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+          "scope": "D054/D065-69/D147 current Server manual material arrival UI on existing cards/modal/history, exact partial multi-unit allocations and unique per-batch logistics from persisted Hub/adopted schedule location. Current97 related and811 root; actual before3/after17/material10/navigation18 browser checks, six widths/DPR and synthetic touch, dual builds, immutable history and guarded recovery. No second price/logistics owner, new schema, real Source, target upgrade, merge/deployment or human acceptance. Existing Linux-only Source CLI gap remains separate.",
+          "evidence": [
+            "material-arrival-ui-current-engineering-20261024"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+          "scope": "D054/D065-69/D147 current Server manual material arrival UI on existing cards/modal/history, exact partial multi-unit allocations and unique per-batch logistics from persisted Hub/adopted schedule location. Current97 related and811 root; actual before3/after17/material10/navigation18 browser checks, six widths/DPR and synthetic touch, dual builds, immutable history and guarded recovery. No second price/logistics owner, new schema, real Source, target upgrade, merge/deployment or human acceptance. Existing Linux-only Source CLI gap remains separate.",
+          "evidence": [
+            "material-arrival-ui-current-engineering-20261024"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+          "scope": "D054/D065-69/D147 current Server manual material arrival UI on existing cards/modal/history, exact partial multi-unit allocations and unique per-batch logistics from persisted Hub/adopted schedule location. Current97 related and811 root; actual before3/after17/material10/navigation18 browser checks, six widths/DPR and synthetic touch, dual builds, immutable history and guarded recovery. No second price/logistics owner, new schema, real Source, target upgrade, merge/deployment or human acceptance. Existing Linux-only Source CLI gap remains separate.",
+          "evidence": [
+            "material-arrival-ui-current-engineering-20261024"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "Current material arrival UI is not deployed; preserve historical runtime observations without re-query.",
+          "evidence": [
+            "material-arrival-ui-current-engineering-20261024"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "Current material arrival UI is not deployed; preserve historical runtime observations without re-query.",
+          "evidence": [
+            "material-arrival-ui-current-engineering-20261024"
           ]
         }
       }

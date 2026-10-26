@@ -1,13 +1,15 @@
-# 恢复点：当前main人工预计到仓后台整合
+# 恢复点：当前main分批到料界面整合
 
-2026-10-26；main 869ee84dd0b31de6161011e4aa560678b244a64d于2026-10-26T04:19:08.956Z独立API核实，开放PR为0；branch codex/material-arrivals-main-869e从该main创建，显式快进已审订单物流弹窗1b47fb2b646a5c1347a377cf44c9b5cff25db37e后普通合流原0039后台557ce07bb71195f1fef9cec9e10f3cf8b55b4add。全部非docs逐blob等于已验收源码c994eac8aee32f9e6877fa81e65a604376760519。
+2026-10-26；main 869ee84dd0b31de6161011e4aa560678b244a64d于2026-10-26T04:35:24.589Z独立API核实，开放PR为0；branch codex/material-arrival-ui-main-869e从该main创建，显式快进已审0039后台201ac270cf75cf983dd27dd17eb82836fe2ea3aa后普通合流原到料界面5f3dc11df3270fceef14227c0a005220bd570145。全部非docs逐blob等于驱动源码abf3bf774124934b9372586d079308a120d6980d；产品逐blob等于a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad，唯独原material-arrivals-ui集成测试驱动已作abf3触摸补验。
 
-先读[阶段](tasks/active/material-arrivals-main-869e-2026-10-26.md)及outputs/material-arrivals-main-869e-20261026同HEAD终态。真实merge父应为[1b47,557ce]；376/55/21routes，原父证据、N/B/L/11c6、47份继承UI和0034–0039字节保持。只入两个独立文档，决定单叶不改；单路径V0仅比较base/link前向。
+先读[阶段](tasks/active/material-arrival-ui-main-869e-2026-10-26.md)与outputs/material-arrival-ui-main-869e-20261026同HEAD终态。真实merge父应为[201ac,5f3]，全部非docs精确abf3，产品a0c3除唯一触摸测试driver外未变；400/56/21routes，24独立新记录和原决定单叶/N/B/L/11c6不变。48继承UI保持，本阶段10路径V1原JSON归档后只base/link前向。
 
-原c994 canonical archive SHA256 3c45c607c83f1bb549f0ae446d346bf400b3c99b165c2588bf5dc96cd0e0d773、24文件218项相关测试（217通过/1既有Windows平台SKIP，0fail/cancel）、根811及类型/Node/load/lint实际记录已核对；proof 761267deb29796206de5492fa01bb79a417680b1原字节保持。跳过的是原Linux Source CLI集成场景，原guard和CLI blob不变，未验证路径不称通过，必要Linux CI仍是未来合并前置。原49aa9b发布134和557ce旧base守卫保留其日期及范围，不能覆盖该SKIP。本轮不重跑未变API、构建或浏览器；最终commit只新跑精确N源码守卫，正式PR仍须当前发布134和必要三CI。
+原产品archive SHA256 65ee4546cc20e65b171fbf585ec51e2596dd9b261c34c565d2108ae8ce3daa24和driver archive SHA256 314592182747b0b0c0f8a65121dca8f7d18bf20983ee8d1cf3bcd52037c58be8已核对；原a0c3的97相关单元/SQL/API、根811、类型/Node/load/lint与双构建，before3/abf3 after17/物料10/导航18共48浏览器全部实际通过。18PNG/3JSON、8图查看及proof e2a0089fd9063dae77de0eccbd3ac1d4126994cf保持原字节、日期与source范围。修正元数据后的9d5da9发布134/134（400362ms）与5f3旧base守卫保留；初f7候选和1001颜色容量red/green不是本轮新验收。仅Browser产物的users路由preload hint告警照原产物记录保留，不冒称零告警。本轮不重跑未变测试、构建或浏览器，只在最终commit后新跑精确N源码守卫；正式PR仍需当前发布134与必要三CI。
 
-H0d70精确交付授权保留，Execute/Push/新PR/Hosted仍0；普通PowerShell亦复现TLS失败，根因未确认，不重复未改变通道探测、不改共享代理/TLS/认证，不把H授权扩展到本分支。没有自动合并/关闭PR。
+原后台218项217通过/1既有Windows平台SKIP仍独立未验证；Linux Source CLI与原557ce逐blob未变，当前97、48浏览器及旧134均不能覆盖该缺口。必要Linux CI是未来合并前置，不以源码守卫替代运行验收。
 
-本阶段没有新凭据/真实Source/账号/业务库/对象/卷/备份操作，不替换3001/50426/59069/62426入口，不激活、调度、部署或退役。原1b47/7db/588d/81f和38580受保护镜像分支及旧结果保持；未使用继承的旧persistent演练驱动，未来镜像演练须复用38580已审归属保护harness。
+H0d70精确交付授权保留；本分支实际Execute/Push/新PR/Hosted为0。普通PowerShell也复现TLS中断，根因未确认，不重复未改变通道、不修改共享代理/TLS/认证，不把H授权扩展为本分支远端写入授权。不自动merge/close。
 
-继续预计到仓UI，保留218/217/1原平台边界，不能以新标签或134冒称Linux CLI通过；完整Goal active。
+没有新凭据、真实Source请求、账号、业务库、对象/卷/备份写入，不触Browser持久账本，不安装依赖或应用迁移，不替换3001/50426/59069/62426等入口，不部署、激活、调度或退役。原201ac/1b47/7db/588d/81f及38580受保护镜像分支和所有旧结果保持；未来持久化演练须复用38580已审归属保护harness，不执行业务分支继承的旧驱动。
+
+继续0040/41出运观察及0042交期，完整Goal active，不重复未变化成功检查；不把UI工程验收当真实业务或用户接受。

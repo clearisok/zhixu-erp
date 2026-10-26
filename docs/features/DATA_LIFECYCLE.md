@@ -181,3 +181,7 @@ manifest 记录 product、schemaVersion、environment、initializedAt 和 update
 2026-10-24当前订单物流对话框沿用actor/tab的production-plan.pending.v1原key/envelope，新增严格tracking命令分支，旧plan/execution原命令及hash兼容；不迁移/清空Browser业务键、不Seed或另建outbox。刷新仅核原请求，unknown不自动重发。实际接线见[Server对话框](SERVER_ORDER_LOGISTICS_DIALOG.md)。
 
 2026-10-24 D147当前0039仅新增空Server人工预计到仓计划、稳定需求注册及不可变历史/回执；不读、迁移、Seed、删除或覆盖Browser ExpectedArrivalBatch/key/namespace。来源快照读取复用原Material pipeline，人工计划不随来源重同步被重写，现有目标不自动升级，见[当前Server契约](SERVER_MATERIAL_ARRIVALS.md)。
+
+## Server人工到仓原请求（2026-10-24，D147）
+
+`zhixu.server.material-arrival.pending.v1.<publicUserUUID>`仅sessionStorage保存本actor/tab一条未核实的requestId、intent、previewHash和schemaVersion/userId/savedAt；数量/日期/稳定需求ID为用户命令，不包含金额、凭据/token或Browser账本。完整写入并读回才POST，刷新不自动提交；同身份同摘要的known回执才释放精确槽。unknown/pending/损坏/未来schema/owner变化保留，不能覆盖新请求。只有明确核对unknown后可人工原ID重发。无localStorage/IndexedDB/Seed/备份格式/迁移/clear变化；关闭标签页或人为清理可能丢临时槽，服务端历史/回执不受影响。
