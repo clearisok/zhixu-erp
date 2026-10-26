@@ -45,6 +45,19 @@
 
 - 2026-10-24产品56b/driver0e12的新隔离工程结果见[本轮证明](tasks/completed/2026-10-24-delivery-plan-ui-current-engineering.md)：失败及分阶段联合保留，发布/最后守卫仍后置，不借原工程或#125CI。
 
+### D-155 交期覆盖基于当前登记事实，不重建历史产出
+
+- 原2026-10-22技术决定、2026-10-24受控前移，Active；承接D043/D147/D151和既有累计交期比较。当前全部已登记产出（含取消排单）保留原物理SO/执行方；只有未取消、未结束的正剩余按计划结束日形成预计供给。
+- 既有生产订单GET在同一READ ONLY REPEATABLE READ追加deliveryCoverage；有效交期同日合并并保留全部planIds，累计需求和供给只计一次。未知日期单列未评估，不用来源日期替代。不将累计产出按一个实际结束日期摊到某日，不扣减6086979观察；非历史准时率、库存、成衣出货或关账。
+- fresh order.view+schedule.view，原500排单/1000有效交期/完整1MiB响应及精确十进制边界保持；超限明确422不截断，不读金额、不写计划/执行/回执/审计或新表。不以生产planVersion冒充独立DeliveryPlan集合的CAS。
+- 证据：delivery-coverage.ts/test、同一service订单GET及[独立契约](features/SERVER_DELIVERY_COVERAGE.md)/[当前任务](tasks/active/server-delivery-coverage-current-2026-10-24.md)。新工程结果后置，旧ff8b/483be及#125CI不作本轮PASS；无UI/部署/真实来源或人工接受。
+
+- 2026-10-24当前source558345的47相关/类型/Node/相关lint实际结果见[新工程证明](tasks/completed/2026-10-24-delivery-coverage-current-engineering.md)，无新UI/SQL/134或旧结果替代；最后精确守卫后置。
+
+- 2026-10-24严格客户端V0受控前移：同一GET白名单保留coverage、复用纯D155投影验证同响应，缺失/null保持服务未提供；不另建公式或显示面板。见[独立客户端契约](features/SERVER_DELIVERY_COVERAGE_UI.md)，本轮新验收后置，不扩张D156批准。
+
+- 2026-10-24严格客户端source fc103fb8实际62及新双构建/原排单built UI通过，smoke runner失败保留，见[本轮证明](tasks/completed/2026-10-24-delivery-coverage-client-current-engineering.md)。V0不引面板、Source请求或第二计算owner，最终精确守卫后置。
+
 ### D-154 DeliveryPlan沿用原命令并保存可核对回执
 
 - 原2026-10-22技术决定，2026-10-24受控前移，Active；D147已批准Server收敛范围内的可靠性，不改变D083/D100的来源/人工所有权、系统默认0、人工正数、独立集合版本和历史计划规则。原PATCH/writer/响应保持，0042只新增空不可变请求回执，不回填或重建计划。

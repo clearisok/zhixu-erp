@@ -1,0 +1,259 @@
+{
+  "at": "2026-10-24T14:26:32.964Z",
+  "branch": "codex/server-delivery-coverage-client-current",
+  "baseline": {
+    "head": "3042f4129965a01919c3a2d531dcd4bfba582223",
+    "tree": "d6369d92f8412343723f566448f809ec42d3ec47",
+    "main": "e01a11952b648024c0bd6bf4259de429374981e2",
+    "clean": true
+  },
+  "verifiedMain": {
+    "at": "2026-10-24T14:21:53.707Z",
+    "code": 0,
+    "timedOut": false,
+    "sha": "e01a11952b648024c0bd6bf4259de429374981e2"
+  },
+  "originals": [
+    {
+      "path": "docs/CURRENT_STATE.md",
+      "preserved": "docs/tasks/completed/2026-10-24-delivery-coverage-client-input-state/CURRENT_STATE.md",
+      "sha256": "132f1a5aa3e3a2d2df32d7abbbf7ec7d32270ee6bafbcd7685222ffe5e5ff19c",
+      "gitBlob": "10d28bba77179c3033478fe4e7ab108f98285cd6"
+    },
+    {
+      "path": "docs/AI_HANDOFF.md",
+      "preserved": "docs/tasks/completed/2026-10-24-delivery-coverage-client-input-state/AI_HANDOFF.md",
+      "sha256": "871c2a3a5b9a8b29169edb4acd5b3d444ecbb0ea49d8259800b6a6f374c4cd89",
+      "gitBlob": "3fd41e1aa9582019d26ef37d39e111403ceecd9d"
+    },
+    {
+      "path": "docs/PROJECT_INDEX.md",
+      "preserved": "docs/tasks/completed/2026-10-24-delivery-coverage-client-input-state/PROJECT_INDEX.md",
+      "sha256": "09ecd50e694450ac22184f185760bb2c21fcd3c82d572065e0c446e95a5901c8",
+      "gitBlob": "929953ba21a2b3de37ec389f69a49c1aabe38dfa"
+    }
+  ],
+  "priorFinal": {
+    "at": "2026-10-24T14:23:45.070Z",
+    "branch": "codex/server-delivery-coverage-current",
+    "head": "3042f4129965a01919c3a2d531dcd4bfba582223",
+    "tree": "d6369d92f8412343723f566448f809ec42d3ec47",
+    "source": "558345ae7ee4ba2e07f24fd319e42c052919370d",
+    "sourceTree": "2027881a4c990118b573f8bdd455907fe79e9b81",
+    "proof": "5e36626bbbdbaef5fe46bef1e76bfde51219bf9a",
+    "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+    "guard": {
+      "at": "2026-10-24T14:23:44.769Z",
+      "head": "3042f4129965a01919c3a2d531dcd4bfba582223",
+      "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 111057,
+      "result": {
+        "status": "PASS",
+        "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
+        "checkedHead": "3042f4129965a01919c3a2d531dcd4bfba582223",
+        "historySha": "e01a11952b648024c0bd6bf4259de429374981e2",
+        "pages": 11,
+        "capabilities": 62,
+        "changedUiFiles": 75,
+        "scope": "source/evidence guard only; no browser, runtime, database or user acceptance claim",
+        "errors": []
+      }
+    },
+    "tests": {
+      "related": {
+        "tests": 47,
+        "pass": 47,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "type": {
+        "at": "2026-10-24T14:16:56.623Z",
+        "source": "558345ae7ee4ba2e07f24fd319e42c052919370d",
+        "cwd": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\zhixu-delivery-coverage-9Sp9v9\\context",
+        "args": [
+          "node_modules/typescript/bin/tsc",
+          "--noEmit"
+        ],
+        "code": 0,
+        "timedOut": false,
+        "overflow": false,
+        "elapsedMs": 26766,
+        "counts": {}
+      },
+      "compile": {
+        "at": "2026-10-24T14:16:44.269Z",
+        "source": "558345ae7ee4ba2e07f24fd319e42c052919370d",
+        "cwd": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\zhixu-delivery-coverage-9Sp9v9\\context",
+        "args": [
+          "node_modules/typescript/bin/tsc",
+          "-p",
+          "server/tsconfig.json"
+        ],
+        "code": 0,
+        "timedOut": false,
+        "overflow": false,
+        "elapsedMs": 14340,
+        "counts": {}
+      },
+      "load": {
+        "at": "2026-10-24T14:16:46.145Z",
+        "source": "558345ae7ee4ba2e07f24fd319e42c052919370d",
+        "cwd": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\zhixu-delivery-coverage-9Sp9v9\\context",
+        "args": [
+          "--input-type=module",
+          "-e",
+          "await import(\"./dist/server/server/app.js\"); await import(\"./dist/server/server/production-scheduling/delivery-coverage.js\"); await import(\"./dist/server/server/production-scheduling/service.js\")"
+        ],
+        "code": 0,
+        "timedOut": false,
+        "overflow": false,
+        "elapsedMs": 1871,
+        "counts": {}
+      },
+      "lint": {
+        "at": "2026-10-24T14:16:39.725Z",
+        "source": "558345ae7ee4ba2e07f24fd319e42c052919370d",
+        "cwd": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\zhixu-delivery-coverage-9Sp9v9\\context",
+        "args": [
+          "node_modules/eslint/bin/eslint.js",
+          "server/production-scheduling/delivery-coverage.ts",
+          "server/production-scheduling/delivery-coverage.test.ts",
+          "server/production-scheduling/service.ts",
+          "server/integration/delivery-coverage.integration.test.ts"
+        ],
+        "code": 0,
+        "timedOut": false,
+        "overflow": false,
+        "elapsedMs": 9830,
+        "counts": {}
+      },
+      "newRootRuns": 0,
+      "reusedRoot811": {
+        "source": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+        "scope": "unchanged root/frontend only, not current811PASS"
+      },
+      "newReleaseRuns": 0,
+      "reusedRelease134": {
+        "head": "70765755ab7dc3524a93090fffd3008df9be5993",
+        "scope": "tool regression scope only; dynamic docs/manifest changed, not new134PASS/all inputs unchanged/full945"
+      },
+      "newVite": 0,
+      "newBrowser": 0,
+      "newPython": 0
+    },
+    "evidence": {
+      "capabilities": 62,
+      "uiOrSchemaChanged": false,
+      "evidenceCount": 458
+    },
+    "workingTreeClean": true,
+    "delivery": {
+      "state": "NOT_ATTEMPTED_NETWORK_DEGRADED",
+      "pushes": 0,
+      "newPr": null
+    },
+    "hostedActionsTriggeredByThisPhase": 0,
+    "goal": "active",
+    "deployed": false,
+    "realSourceOrBusinessDatabaseAccess": false,
+    "independentReview": "closed; no new P1/P2",
+    "next": [
+      "Strict coverage clientV0; visible panel requires its own V2 approval",
+      "Controlled collector0043; closing decisions pending"
+    ],
+    "finalCumulativePrRequirement": "Run both release commands and necessary CI before final delivery/merge recommendation",
+    "protected": [
+      "3001",
+      "50426",
+      "59069",
+      "62426",
+      "Browser stores",
+      "backups",
+      "existing volumes"
+    ],
+    "review": {
+      "at": "2026-10-24T14:26:29.334Z",
+      "reviewer": "/root/server_convergence_review",
+      "head": "3042f4129965a01919c3a2d531dcd4bfba582223",
+      "tree": "d6369d92f8412343723f566448f809ec42d3ec47",
+      "mode": "independent read-only; no tests/network/writes",
+      "result": "closed; no new P1/P2",
+      "verified": [
+        "Exact3042/tree/clean ande01a guard111057ms11/62/75/errors[]",
+        "455evidence61cap/runtime21routes retained; three new document hashes/ancestry/decision chain correct",
+        "47new and zero new134/811 distinguished from scoped reuse",
+        "Preparation wording historical; receipt mixed evidence count label corrected"
+      ]
+    },
+    "closedAt": "2026-10-24T14:26:29.334Z"
+  },
+  "priorReview": {
+    "at": "2026-10-24T14:26:29.334Z",
+    "reviewer": "/root/server_convergence_review",
+    "head": "3042f4129965a01919c3a2d531dcd4bfba582223",
+    "tree": "d6369d92f8412343723f566448f809ec42d3ec47",
+    "mode": "independent read-only; no tests/network/writes",
+    "result": "closed; no new P1/P2",
+    "verified": [
+      "Exact3042/tree/clean ande01a guard111057ms11/62/75/errors[]",
+      "455evidence61cap/runtime21routes retained; three new document hashes/ancestry/decision chain correct",
+      "47new and zero new134/811 distinguished from scoped reuse",
+      "Preparation wording historical; receipt mixed evidence count label corrected"
+    ]
+  },
+  "preflight": {
+    "at": "2026-10-24T14:23:07.811Z",
+    "head": "3042f4129965a01919c3a2d531dcd4bfba582223",
+    "base": "c5b4bec40097606142c69ecc2517de82a4c07370",
+    "incoming": "483be024031699af8d8e19fa67a4bedc85e21740",
+    "paths": [
+      {
+        "path": "features/production-scheduling/server/__tests__/delivery-coverage-client.test.ts",
+        "before": null,
+        "after": "e08ba431e9fb9ed7b7e04e03f0f12bb0c6d9a177",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/production-scheduling/server/__tests__/production-plan-read-fixture.ts",
+        "before": "68b7c633b6c279cb504064740781365fd9f52d44",
+        "after": "7f6688bd40a969dc522293dd2103f10ddcba1ece",
+        "current": "68b7c633b6c279cb504064740781365fd9f52d44",
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/production-scheduling/server/delivery-coverage-projection.ts",
+        "before": null,
+        "after": "afe17e59e1711fd9b292125cc1a69606e501cd13",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/production-scheduling/server/production-plan-client.ts",
+        "before": "54243e283863ea3de1015ff7556d4750d275a7e2",
+        "after": "49b04974a2a69b880b1b55a76764cadcf5edd78c",
+        "current": "4fbdf2672cbc02fa8545dc666f1afacee6b4301b",
+        "strategy": "three-way-required"
+      },
+      {
+        "path": "server/integration/delivery-coverage.integration.test.ts",
+        "before": "93addb70a64d9ec0f258f96a62a69a628074e7ae",
+        "after": "6a44362d71f7d6077ff82739d4f6be3bfaf8c452",
+        "current": "93addb70a64d9ec0f258f96a62a69a628074e7ae",
+        "strategy": "exact-input"
+      }
+    ],
+    "writes": 0,
+    "testsRun": 0,
+    "pushes": 0,
+    "realSourceRequests": 0
+  },
+  "fetches": 0,
+  "pushes": 0,
+  "hostedActionsTriggered": 0,
+  "realSourceRequests": 0
+}

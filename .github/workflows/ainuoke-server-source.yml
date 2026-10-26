@@ -45,6 +45,8 @@ jobs:
           npx --no-install tsx --test features/order-center/server/__tests__/delivery-plan-client.test.ts features/order-center/server/__tests__/delivery-plan-draft.test.ts features/order-center/server/__tests__/delivery-plan-pending.test.ts
           npm run test:production-planning
           npm run test:production-execution
+          npm run test:delivery-coverage
+          npx --no-install tsx --test features/production-scheduling/server/__tests__/delivery-coverage-client.test.ts
           npm run test:order-normalization
           npm run test:order-effective-attribution
           npm run test:order-normalization-execution

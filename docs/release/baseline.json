@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "869ee84dd0b31de6161011e4aa560678b244a64d",
-  "verifiedAt": "2026-10-26T06:43:59.554Z",
+  "verifiedAt": "2026-10-26T07:21:59.779Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -4288,6 +4288,79 @@
       "renderedSourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
       "sha256": "36226e6246fdebb9d3d3e83762a8ccc9055a5e19353611f1dff036b051434605",
       "changeReason": "Close the actual cumulative Server dependency and genuine N-direct D156 UI witness at their real two-parent merge. Preserve all original approval, screenshots, decision revisions and parent manifest records; no business change or guard exception."
+    },
+    {
+      "id": "delivery-coverage-current-engineering-20261024",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-24-delivery-coverage-current-engineering.md",
+      "recordedAtSha": "5e36626bbbdbaef5fe46bef1e76bfde51219bf9a",
+      "renderedSourceSha": "558345ae7ee4ba2e07f24fd319e42c052919370d",
+      "sha256": "6cfffd5696dce4baeabdfe1870e26d8c5839b6ee8e724734a35844321ae30bea"
+    },
+    {
+      "id": "server-delivery-coverage-current-20261024",
+      "kind": "document",
+      "path": "docs/features/SERVER_DELIVERY_COVERAGE.md",
+      "recordedAtSha": "5e36626bbbdbaef5fe46bef1e76bfde51219bf9a",
+      "renderedSourceSha": "558345ae7ee4ba2e07f24fd319e42c052919370d",
+      "sha256": "856e4bafbb2a013cf0557cf22867cd502f8078b0b0ab116fe4e7150266a818d6"
+    },
+    {
+      "id": "decisions-delivery-coverage-current-20261024",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "5e36626bbbdbaef5fe46bef1e76bfde51219bf9a",
+      "renderedSourceSha": "558345ae7ee4ba2e07f24fd319e42c052919370d",
+      "sha256": "e651b47208e65d416f6fe8e90e9fefa3dca1b4fcbc01176be1982db4f08f544c",
+      "supersedes": "decisions-delivery-plan-ui-current-20261024",
+      "changeReason": "Forward-bind D155 current registered-fact read projection, retaining D151 execution identity, D100 demand ownership, all historical decisions and explicit unassessed scope."
+    },
+    {
+      "id": "delivery-coverage-client-current-engineering-20261024",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-24-delivery-coverage-client-current-engineering.md",
+      "recordedAtSha": "9a31d555c900bd1eebf20bc484f886f7b99a790a",
+      "renderedSourceSha": "fc103fb87ed3df294922189b4954c1764903ef22",
+      "sha256": "64c068998d508616d9ab9cc288143a64f710c5d182b51715058d625664e46894"
+    },
+    {
+      "id": "server-delivery-coverage-client-current-20261024",
+      "kind": "document",
+      "path": "docs/features/SERVER_DELIVERY_COVERAGE_UI.md",
+      "recordedAtSha": "9a31d555c900bd1eebf20bc484f886f7b99a790a",
+      "renderedSourceSha": "fc103fb87ed3df294922189b4954c1764903ef22",
+      "sha256": "a61f3c062808e3efac79af4d7e0f2167d547de3aa87fe8c35695652cc9a43f0a"
+    },
+    {
+      "id": "decisions-delivery-coverage-client-current-20261024",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "9a31d555c900bd1eebf20bc484f886f7b99a790a",
+      "renderedSourceSha": "fc103fb87ed3df294922189b4954c1764903ef22",
+      "sha256": "89f7c3d55276d114a7ebb47e42f994f82f5992c853224ce0e8c6ca2c3d221667",
+      "supersedes": "decisions-delivery-coverage-current-20261024",
+      "changeReason": "Forward-bind strict same-response client validation for existing D155 read, preserving historical decisions, owner/session/size limits and requiring separate approval for any visible coverage panel."
+    },
+    {
+      "id": "delivery-coverage-client-impact-correction-20261024",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-24-delivery-coverage-client-impact-correction.md",
+      "recordedAtSha": "85e9360c3aee704f42f2d711b910d0070c6929d8",
+      "renderedSourceSha": "fc103fb87ed3df294922189b4954c1764903ef22",
+      "sha256": "cbe80b57942c2a6da83c80f0fcffd2b6e32b3656a53748e4cf4791f52453561a"
+    },
+    {
+      "id": "decisions-delivery-coverage-main-anchor-869e-20261026",
+      "path": "docs/DECISION_LOG.md",
+      "mergeOf": [
+        "decisions-navigation-pr125-convergence-20261024-forward-main-9d65-20261025",
+        "decisions-delivery-coverage-client-current-20261024"
+      ],
+      "kind": "document",
+      "recordedAtSha": "c7f1c14f73d7247660cfbab307763cdbe759151c",
+      "renderedSourceSha": "fc103fb87ed3df294922189b4954c1764903ef22",
+      "sha256": "89f7c3d55276d114a7ebb47e42f994f82f5992c853224ce0e8c6ca2c3d221667",
+      "changeReason": "Bind the actual direct-parent merge of exact main N and the independent current D155 backend/client stage. Preserve both original Gate histories, all immutable records and verified21-route metadata; no guard exception, business change or manufactured ancestry."
     }
   ],
   "pages": [
@@ -10223,6 +10296,176 @@
           "scope": "Current delivery maintenance UI not deployed; keep original runtime snapshots without querying those environments.",
           "evidence": [
             "delivery-plan-ui-current-engineering-20261024"
+          ]
+        }
+      }
+    },
+    {
+      "id": "delivery-coverage-current",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D043/D147/D151/D155 existing production-order GET adds exact nonmonetary deliveryCoverage under one fresh-permission READ ONLY REPEATABLE READ. Current completed output remains original physical SO/executor including cancellations; only active unended positive remainder contributes expected supply. Dated demand cumulative once, unknown dates unassessed, not historical timeliness/inventory/shipment/closing. Current5files47 checks, type/Node/import/relatedlint. No schema/UI/browser/Vite/Python change. Prior56b811/frontend217/browser57 and707134 are scoped reuse, NOT current new pass or complete945. Final cumulativePR both release commands remain mandatory.",
+      "evidence": [
+        "delivery-coverage-current-engineering-20261024"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "558345ae7ee4ba2e07f24fd319e42c052919370d",
+          "scope": "D043/D147/D151/D155 existing production-order GET adds exact nonmonetary deliveryCoverage under one fresh-permission READ ONLY REPEATABLE READ. Current completed output remains original physical SO/executor including cancellations; only active unended positive remainder contributes expected supply. Dated demand cumulative once, unknown dates unassessed, not historical timeliness/inventory/shipment/closing. Current5files47 checks, type/Node/import/relatedlint. No schema/UI/browser/Vite/Python change. Prior56b811/frontend217/browser57 and707134 are scoped reuse, NOT current new pass or complete945. Final cumulativePR both release commands remain mandatory.",
+          "evidence": [
+            "delivery-coverage-current-engineering-20261024"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-24",
+          "sourceSha": "558345ae7ee4ba2e07f24fd319e42c052919370d",
+          "scope": "D043/D147/D151/D155 existing production-order GET adds exact nonmonetary deliveryCoverage under one fresh-permission READ ONLY REPEATABLE READ. Current completed output remains original physical SO/executor including cancellations; only active unended positive remainder contributes expected supply. Dated demand cumulative once, unknown dates unassessed, not historical timeliness/inventory/shipment/closing. Current5files47 checks, type/Node/import/relatedlint. No schema/UI/browser/Vite/Python change. Prior56b811/frontend217/browser57 and707134 are scoped reuse, NOT current new pass or complete945. Final cumulativePR both release commands remain mandatory.",
+          "evidence": [
+            "delivery-coverage-current-engineering-20261024"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "558345ae7ee4ba2e07f24fd319e42c052919370d",
+          "scope": "D043/D147/D151/D155 existing production-order GET adds exact nonmonetary deliveryCoverage under one fresh-permission READ ONLY REPEATABLE READ. Current completed output remains original physical SO/executor including cancellations; only active unended positive remainder contributes expected supply. Dated demand cumulative once, unknown dates unassessed, not historical timeliness/inventory/shipment/closing. Current5files47 checks, type/Node/import/relatedlint. No schema/UI/browser/Vite/Python change. Prior56b811/frontend217/browser57 and707134 are scoped reuse, NOT current new pass or complete945. Final cumulativePR both release commands remain mandatory.",
+          "evidence": [
+            "delivery-coverage-current-engineering-20261024"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "558345ae7ee4ba2e07f24fd319e42c052919370d",
+          "scope": "D043/D147/D151/D155 existing production-order GET adds exact nonmonetary deliveryCoverage under one fresh-permission READ ONLY REPEATABLE READ. Current completed output remains original physical SO/executor including cancellations; only active unended positive remainder contributes expected supply. Dated demand cumulative once, unknown dates unassessed, not historical timeliness/inventory/shipment/closing. Current5files47 checks, type/Node/import/relatedlint. No schema/UI/browser/Vite/Python change. Prior56b811/frontend217/browser57 and707134 are scoped reuse, NOT current new pass or complete945. Final cumulativePR both release commands remain mandatory.",
+          "evidence": [
+            "delivery-coverage-current-engineering-20261024"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "558345ae7ee4ba2e07f24fd319e42c052919370d",
+          "scope": "D043/D147/D151/D155 existing production-order GET adds exact nonmonetary deliveryCoverage under one fresh-permission READ ONLY REPEATABLE READ. Current completed output remains original physical SO/executor including cancellations; only active unended positive remainder contributes expected supply. Dated demand cumulative once, unknown dates unassessed, not historical timeliness/inventory/shipment/closing. Current5files47 checks, type/Node/import/relatedlint. No schema/UI/browser/Vite/Python change. Prior56b811/frontend217/browser57 and707134 are scoped reuse, NOT current new pass or complete945. Final cumulativePR both release commands remain mandatory.",
+          "evidence": [
+            "delivery-coverage-current-engineering-20261024"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "Current delivery read projection not deployed; historical runtime facts retained without querying those environments.",
+          "evidence": [
+            "delivery-coverage-current-engineering-20261024"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "Current delivery read projection not deployed; historical runtime facts retained without querying those environments.",
+          "evidence": [
+            "delivery-coverage-current-engineering-20261024"
+          ]
+        }
+      }
+    },
+    {
+      "id": "delivery-coverage-client-current",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "V0 existing production-order session GET validates same-response deliveryCoverage with existing pure D155; missing/null unavailable, exact decimals/plan coverage/summary/lease and original 1MiB+4096 envelope preserved. No DOM/style/navigation/new panel, Source call, SQL, write, money or role change. Actual source fc103:62 related checks,type,relatedlint,Node compile/import,dual Vite/artifacts and37 real built planning UI. Initial ignored runner emit-path smoke error preserved; corrected smoke only. 707134 tool/fixture scoped reuse, NOT current134PASS/all dynamic inputs unchanged/full945; final cumulativePR both release commands mandatory.",
+      "evidence": [
+        "delivery-coverage-client-current-engineering-20261024"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "fc103fb87ed3df294922189b4954c1764903ef22",
+          "scope": "V0 existing production-order session GET validates same-response deliveryCoverage with existing pure D155; missing/null unavailable, exact decimals/plan coverage/summary/lease and original 1MiB+4096 envelope preserved. No DOM/style/navigation/new panel, Source call, SQL, write, money or role change. Actual source fc103:62 related checks,type,relatedlint,Node compile/import,dual Vite/artifacts and37 real built planning UI. Initial ignored runner emit-path smoke error preserved; corrected smoke only. 707134 tool/fixture scoped reuse, NOT current134PASS/all dynamic inputs unchanged/full945; final cumulativePR both release commands mandatory.",
+          "evidence": [
+            "delivery-coverage-client-current-engineering-20261024"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-24",
+          "sourceSha": "fc103fb87ed3df294922189b4954c1764903ef22",
+          "scope": "V0 existing production-order session GET validates same-response deliveryCoverage with existing pure D155; missing/null unavailable, exact decimals/plan coverage/summary/lease and original 1MiB+4096 envelope preserved. No DOM/style/navigation/new panel, Source call, SQL, write, money or role change. Actual source fc103:62 related checks,type,relatedlint,Node compile/import,dual Vite/artifacts and37 real built planning UI. Initial ignored runner emit-path smoke error preserved; corrected smoke only. 707134 tool/fixture scoped reuse, NOT current134PASS/all dynamic inputs unchanged/full945; final cumulativePR both release commands mandatory.",
+          "evidence": [
+            "delivery-coverage-client-current-engineering-20261024"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "fc103fb87ed3df294922189b4954c1764903ef22",
+          "scope": "V0 existing production-order session GET validates same-response deliveryCoverage with existing pure D155; missing/null unavailable, exact decimals/plan coverage/summary/lease and original 1MiB+4096 envelope preserved. No DOM/style/navigation/new panel, Source call, SQL, write, money or role change. Actual source fc103:62 related checks,type,relatedlint,Node compile/import,dual Vite/artifacts and37 real built planning UI. Initial ignored runner emit-path smoke error preserved; corrected smoke only. 707134 tool/fixture scoped reuse, NOT current134PASS/all dynamic inputs unchanged/full945; final cumulativePR both release commands mandatory.",
+          "evidence": [
+            "delivery-coverage-client-current-engineering-20261024"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "fc103fb87ed3df294922189b4954c1764903ef22",
+          "scope": "V0 existing production-order session GET validates same-response deliveryCoverage with existing pure D155; missing/null unavailable, exact decimals/plan coverage/summary/lease and original 1MiB+4096 envelope preserved. No DOM/style/navigation/new panel, Source call, SQL, write, money or role change. Actual source fc103:62 related checks,type,relatedlint,Node compile/import,dual Vite/artifacts and37 real built planning UI. Initial ignored runner emit-path smoke error preserved; corrected smoke only. 707134 tool/fixture scoped reuse, NOT current134PASS/all dynamic inputs unchanged/full945; final cumulativePR both release commands mandatory.",
+          "evidence": [
+            "delivery-coverage-client-current-engineering-20261024"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "fc103fb87ed3df294922189b4954c1764903ef22",
+          "scope": "V0 existing production-order session GET validates same-response deliveryCoverage with existing pure D155; missing/null unavailable, exact decimals/plan coverage/summary/lease and original 1MiB+4096 envelope preserved. No DOM/style/navigation/new panel, Source call, SQL, write, money or role change. Actual source fc103:62 related checks,type,relatedlint,Node compile/import,dual Vite/artifacts and37 real built planning UI. Initial ignored runner emit-path smoke error preserved; corrected smoke only. 707134 tool/fixture scoped reuse, NOT current134PASS/all dynamic inputs unchanged/full945; final cumulativePR both release commands mandatory.",
+          "evidence": [
+            "delivery-coverage-client-current-engineering-20261024"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "Strict coverage client not deployed; original runtime facts retained, no runtime query or cutover.",
+          "evidence": [
+            "delivery-coverage-client-current-engineering-20261024"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "Strict coverage client not deployed; original runtime facts retained, no runtime query or cutover.",
+          "evidence": [
+            "delivery-coverage-client-current-engineering-20261024"
           ]
         }
       }

@@ -1,0 +1,35 @@
+# Server交期覆盖客户端与展示
+
+原2026-10-22切片，2026-10-24当前受控前移；D155现有只读投影的客户端接线，非新的风险/出货/关账系统。
+后台契约见[原交期覆盖](SERVER_DELIVERY_COVERAGE.md)，原冻结文件和证据不改写。
+阶段状态和实际检查见[当前任务](../tasks/active/server-delivery-coverage-client-current-2026-10-24.md)。
+
+## 当前实现边界
+
+`createProductionPlanClient().order()`沿用原session GET、1MiB逻辑响应与完整会话lease，
+既有4KiB传输封套余量不变。
+`deliveryCoverage`缺失或null投影为null，含义是服务未提供，不能显示无风险、零缺口，
+也不从Source交期、Browser排单或本地缓存补出一份结果。
+
+已提供coverage仅保留D155 schema、basis、assessment、精确数量、日期、计划ID与无日期需求。
+同一响应中的DeliveryPlan/原物理SO排单/执行先经原白名单，再通过原纯投影验证coverage。
+不一致明确拒绝读取，不清空请求或编造可用量。比较不写业务事实、不建立第二套计算规则，
+后台仍是唯一owner；确认量和待执行量还须与同响应订单摘要一致。
+
+取消排单已完成量保留；结束排单的剩余不算未来供给；日期相同需求合并、跨日期累计，
+无日期明确未评估。没有实时库存、历史准时率、当天产量或成衣出货口径。
+无金额、币种、财务确认或Source调用，不增加查看权限。
+
+## 展示状态
+
+本切片仅客户端V0，现有页面尚不显示新字段。后续订单排单抽屉的局部展示须先给具体草图、
+取得V2批准，再做真实构建、桌面/手机可达性和前后对照验收。现有菜单、表格密度、
+所有创建/编辑/完成/物流命令及未知结果保护不变；工程通过不代表已部署或用户接受。
+
+## 当前输入和验收范围
+
+当前四原输入精确，production-plan-client三方仅保留G6B已有snapshot容量中文提示；workflow只补新增客户端测试。原D155 backend5e366契约/SQL不改，当前客户端缺失/null和严格同响应验证不改变业务owner。新source后定向单元/真实HTTP/类型Node/相关lint、双构建产物和原排单built回归另冻结，不借旧483的测试、原型或截图；尚无新PASS。没有新的可见面板，具体V2草图须独立批准，不能用D156交期维护批准扩张范围。
+
+## 当前实际工程证据
+
+2026-10-24 source fc103fb87ed3df294922189b4954c1764903ef22：62/62定向、类型、相关lint、Node编译/修正后模块smoke、真实双构建/产物及排单built UI 37/37通过。首次smoke的runner emit范围错误原记录保留，未改产品。见[独立当前证明](../tasks/completed/2026-10-24-delivery-coverage-client-current-engineering.md)；无新覆盖面板或新134/811/139声明。最终精确main守卫、远端及用户接受分别记录，不借旧483或#125CI。
