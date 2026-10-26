@@ -25,7 +25,9 @@ export function useOrderMaterial(id: string) {
     void read();document.addEventListener('visibilitychange',onVisible);window.addEventListener('focus',onVisible);
     return()=>{controller.abort();clearTimeout(timer);document.removeEventListener('visibilitychange',onVisible);window.removeEventListener('focus',onVisible);};
   },[id,scope,refresh]);
-  return {model:state.id===scope?state.model:null,error:state.id===scope?state.error:null,loading:state.id!==scope||state.loading,reload:()=>{setState({id:scope,model:null,error:null,loading:true});setRefresh(n=>n+1);}};
+  return {model:state.id===scope?state.model:null,error:state.id===scope?state.error:null,loading:state.id!==scope||state.loading,
+    completion:state.id===scope&&!state.loading?state:null,
+    reload:()=>{setState({id:scope,model:null,error:null,loading:true});setRefresh(n=>n+1);}};
 }
 export function OrderMaterialSummary({salesOrderId}:{salesOrderId:string}) {
   const state=useOrderMaterial(salesOrderId); const route=orderMaterialNavigation(salesOrderId);const view=state.model?.progress;

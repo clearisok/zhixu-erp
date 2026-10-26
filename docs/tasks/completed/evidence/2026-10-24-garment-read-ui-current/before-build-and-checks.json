@@ -1,0 +1,48 @@
+{
+  "renderedSourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+  "before": true,
+  "build": {
+    "environment": "production",
+    "buildId": "material-arrival-ui-a0c3d164-server-20261024",
+    "gitCommit": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+    "buildTime": "2026-10-24T11:15:32.568Z",
+    "masterSettingsAuthority": "server",
+    "identityMode": "session",
+    "quoteWriterMode": "writable",
+    "quoteAuthority": "server",
+    "orderRead": "snapshot"
+  },
+  "metrics": [
+    {
+      "width": 1920,
+      "overflow": false,
+      "shipmentSection": false
+    },
+    {
+      "width": 1536,
+      "overflow": false,
+      "shipmentSection": false
+    },
+    {
+      "width": 1440,
+      "overflow": false,
+      "shipmentSection": false
+    },
+    {
+      "width": 1280,
+      "overflow": false,
+      "shipmentSection": false
+    },
+    {
+      "width": 900,
+      "overflow": false,
+      "shipmentSection": false
+    },
+    {
+      "width": 390,
+      "overflow": false,
+      "shipmentSection": false
+    }
+  ],
+  "errors": []
+}

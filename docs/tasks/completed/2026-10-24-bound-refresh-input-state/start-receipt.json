@@ -1,0 +1,234 @@
+{
+  "at": "2026-10-24T12:07:11.474Z",
+  "branch": "codex/server-bound-refresh-current",
+  "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+  "verifiedMain": {
+    "at": "2026-10-24T12:03:51.719Z",
+    "code": 0,
+    "timedOut": false,
+    "sha": "e01a11952b648024c0bd6bf4259de429374981e2"
+  },
+  "reusedRecentReadOnlyMain": true,
+  "head": "aad673099da0221312a70e88bd8e2f33bfa06244",
+  "tree": "c0bf1506a2c707235f955ecaf8e3cfcdb98c4028",
+  "clean": true,
+  "previousFinal": {
+    "at": "2026-10-24T12:05:28.844Z",
+    "branch": "codex/server-garment-observations-current",
+    "head": "aad673099da0221312a70e88bd8e2f33bfa06244",
+    "tree": "c0bf1506a2c707235f955ecaf8e3cfcdb98c4028",
+    "source": "d1930a2da590098f70e6433892eab350a3262e0c",
+    "sourceTree": "6f4224432dfb373ee53c302e22bc793fda8c6132",
+    "proof": "696738e5b21a57a4d82e3c1e7b610f96c361f8c1",
+    "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+    "guard": {
+      "at": "2026-10-24T12:05:28.553Z",
+      "head": "aad673099da0221312a70e88bd8e2f33bfa06244",
+      "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 96831,
+      "result": {
+        "status": "PASS",
+        "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
+        "checkedHead": "aad673099da0221312a70e88bd8e2f33bfa06244",
+        "historySha": "e01a11952b648024c0bd6bf4259de429374981e2",
+        "pages": 11,
+        "capabilities": 57,
+        "changedUiFiles": 64,
+        "scope": "source/evidence guard only; no browser, runtime, database or user acceptance claim",
+        "errors": []
+      }
+    },
+    "release": {
+      "at": "2026-10-24T12:03:18.422Z",
+      "head": "4e8232007f5d06a6a09def3baee20cd8143a85de",
+      "productAndNonreleaseSource": "d1930a2da590098f70e6433892eab350a3262e0c",
+      "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+      "command": "npm run test:release-baseline",
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 406504,
+      "counts": {
+        "tests": 134,
+        "pass": 134,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "sourcePathsUnchanged": true
+    },
+    "tests": {
+      "relatedApiTotal": 174,
+      "relatedApiPass": 173,
+      "relatedApiSkip": 1,
+      "rootNonrelease": 811,
+      "python": 139,
+      "rootWithReleaseUnion": 945,
+      "newVite": 0,
+      "newBrowser": 0
+    },
+    "platformBoundary": "Existing Linux-only Source CLI integration skipped on win32, unchanged; NOT claimed passed",
+    "frontendScope": {
+      "unchanged": true,
+      "renderedSource": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "artifactFiles": 215,
+      "allCopiedHashesEqual": true
+    },
+    "workingTreeClean": true,
+    "delivery": {
+      "state": "NOT_ATTEMPTED_NETWORK_DEGRADED",
+      "pushes": 0,
+      "priorTarget": "b6af0cd247c1e7ec4406e69526fa672544cce1d8",
+      "priorState": "TARGET_NOT_DELIVERED"
+    },
+    "hostedActionsTriggeredByThisPhase": 0,
+    "newPr": null,
+    "goal": "active",
+    "deployed": false,
+    "realSourceOrBusinessDatabaseAccess": false,
+    "independentReview": {
+      "at": "2026-10-24T12:07:06.747Z",
+      "reviewer": "/root/server_convergence_review",
+      "mode": "read-only; no own tests/network/writes",
+      "verdict": "no new P1/P2",
+      "verified": [
+        "exact aad/tree/branch clean; only four state documents after4e",
+        "product d1930/proof696/feature/decisions/manifest39057 unchanged",
+        "release134/134, no fail/cancel/skip, elapsed406504ms",
+        "exact-main e01a guard PASS96831ms;11pages/57capabilities/64cumulativeUI/errors[]"
+      ],
+      "limits": [
+        "173/174 includes one existing unverified Linux CLI platform skip on Windows",
+        "no new Vite/browser/Hosted CI/real Source/activation/deployment/human acceptance",
+        "945 is phased root+release union, not one run"
+      ]
+    },
+    "next": [
+      "0041 controlled offline bound-order refresh; preserve contract identities and user plans",
+      "Shipment UI/DeliveryPlan0042/collector0043; closing decisions remain pending"
+    ],
+    "protected": [
+      "3001",
+      "50426",
+      "59069",
+      "62426",
+      "Browser stores",
+      "backups",
+      "existing volumes"
+    ]
+  },
+  "preflight": {
+    "at": "2026-10-24T11:57:52.469Z",
+    "head": "4e8232007f5d06a6a09def3baee20cd8143a85de",
+    "base": "a29675586231806960eb5069087e705f0d0c4642",
+    "incoming": "81a8d600434844784067e7c977a173b566e7c634",
+    "paths": [
+      {
+        "path": ".github/workflows/ainuoke-server-source.yml",
+        "before": "fbea72abfe523f3b4b5bfd46d2d9da9cea082b8c",
+        "after": "dca0014e701db1fd42a60cf84dd0eadaf3790df3",
+        "current": "02d56b50165473b082eb7b220940b0bfa5780f03",
+        "strategy": "three-way-required"
+      },
+      {
+        "path": "database/migrations/0041_bound_order_source_refresh_receipts.sql",
+        "before": null,
+        "after": "47169ace816bebf641062076ee3155017972b100",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "database/migrations/README.md",
+        "before": "eb50c65cfb181499ca70abf864176d7c2867e476",
+        "after": "43d12f9a200173c3080a83d3680c36ab92343646",
+        "current": "2b06b1082bbd9179d3c12c2c237bb6ba72fafbc3",
+        "strategy": "three-way-required"
+      },
+      {
+        "path": "package.json",
+        "before": "7c92795ff54c8ecd692e7f7156b866b2db3bc36d",
+        "after": "58916c8af41d2dac9f677d7943a54647c1af5407",
+        "current": "ca27f059fe1b66a0a3dca1e1c873183bb863b933",
+        "strategy": "three-way-required"
+      },
+      {
+        "path": "server/ainuoke-source/bound-order-refresh-cli.ts",
+        "before": null,
+        "after": "f7b7a132e4949956755f1f9160890691c28a0e09",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/ainuoke-source/bound-order-refresh.ts",
+        "before": null,
+        "after": "1006fe269f8268820d8cfe4aaf6c4b79af464157",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/ainuoke-source/live-preflight.ts",
+        "before": "3249deda7a255c8b8942cb257cc762f3670a0385",
+        "after": "be05a6359d206376c0e3cf5e608c224d2e387619",
+        "current": "8e9977182656d6ec09ffe22d4d429b29a631cf0e",
+        "strategy": "three-way-required"
+      },
+      {
+        "path": "server/integration/bound-order-refresh.integration.test.ts",
+        "before": null,
+        "after": "0e8d613a56a2232c433b3196e64542cf5fd80eec",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/integration/bound-order-refresh.test.ts",
+        "before": null,
+        "after": "8e0afb1a5e04cb3bfba87e2ad3f2dc89d0568e4a",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/integration/current-migration-ledger-fixture.ts",
+        "before": "35f683f7ee1ab54c725dbc47e5a7c27dbf916897",
+        "after": "18bef306aa89f03add38567c116609bc50c52dca",
+        "current": "35f683f7ee1ab54c725dbc47e5a7c27dbf916897",
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/sales-orders/delivery-plan-source-refresh.ts",
+        "before": "6fc4f38cc2c7ed92c2664d1690a715e6430897e5",
+        "after": "1e3abe97bcbf6a7fa5cd26638dfc1b53a0ed528b",
+        "current": "6fc4f38cc2c7ed92c2664d1690a715e6430897e5",
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/sales-orders/normalization-preview.ts",
+        "before": "467c083a4650000ea5a9b7d1cba6326482313073",
+        "after": "cae601f608eb19fd387c438d7c5389465db1d634",
+        "current": "467c083a4650000ea5a9b7d1cba6326482313073",
+        "strategy": "exact-input"
+      }
+    ],
+    "repositoryWrites": 0,
+    "pushes": 0,
+    "sourceReads": 0,
+    "sourceActivation": false
+  },
+  "protectedSummaryHashes": [
+    {
+      "path": "docs/tasks/completed/2026-10-24-bound-refresh-input-state/CURRENT_STATE.md",
+      "sha256": "533190a07d0d576709e388e9c7df4058bc8c6f5ce1392f77b4316ddc10408c7c"
+    },
+    {
+      "path": "docs/tasks/completed/2026-10-24-bound-refresh-input-state/AI_HANDOFF.md",
+      "sha256": "eee7c8055f4b723c4c3a149b10088883b0ca60f64b2278fffd912fc9846749e5"
+    },
+    {
+      "path": "docs/tasks/completed/2026-10-24-bound-refresh-input-state/PROJECT_INDEX.md",
+      "sha256": "2c55bc44e0439c3fad1520955140e410c0c6889f533ea76b7f6207d68b2c4457"
+    }
+  ],
+  "network": "NETWORK_DEGRADED; no remote mutation/push/Actions"
+}

@@ -1,0 +1,98 @@
+{
+  "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+  "before": false,
+  "build": {
+    "environment": "production",
+    "buildId": "garment-read-ui-922488b9-server-20261024",
+    "gitCommit": "922488b9474daeed8abc2204e21f6ffeefc39955",
+    "buildTime": "2026-10-24T12:46:24.781Z",
+    "masterSettingsAuthority": "server",
+    "identityMode": "session",
+    "quoteWriterMode": "writable",
+    "quoteAuthority": "server",
+    "orderRead": "snapshot"
+  },
+  "metrics": [
+    {
+      "width": 1920,
+      "overflow": false,
+      "inside": true,
+      "drawer": {
+        "inside": true,
+        "overflow": false,
+        "footer": true
+      }
+    },
+    {
+      "width": 1536,
+      "overflow": false,
+      "inside": true,
+      "drawer": {
+        "inside": true,
+        "overflow": false,
+        "footer": true
+      }
+    },
+    {
+      "width": 1440,
+      "overflow": false,
+      "inside": true,
+      "drawer": {
+        "inside": true,
+        "overflow": false,
+        "footer": true
+      }
+    },
+    {
+      "width": 1280,
+      "overflow": false,
+      "inside": true,
+      "drawer": {
+        "inside": true,
+        "overflow": false,
+        "footer": true
+      }
+    },
+    {
+      "width": 900,
+      "overflow": false,
+      "inside": true,
+      "drawer": {
+        "inside": true,
+        "overflow": false,
+        "footer": true
+      }
+    },
+    {
+      "width": 390,
+      "overflow": false,
+      "inside": true,
+      "drawer": {
+        "inside": true,
+        "overflow": false,
+        "footer": true
+      }
+    },
+    {
+      "touch": {
+        "width": 390,
+        "openTarget": {
+          "x": 149,
+          "y": 697.6875,
+          "width": 60,
+          "height": 40,
+          "inside": true
+        },
+        "closeTarget": {
+          "x": 326,
+          "y": 966,
+          "width": 96,
+          "height": 44,
+          "inside": true
+        },
+        "actualTouchEvents": true
+      }
+    }
+  ],
+  "errors": []
+}

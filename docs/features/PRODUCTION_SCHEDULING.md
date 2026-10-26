@@ -1,5 +1,9 @@
 # 生产队列、排单与物料运输
 
+## 当前Server候选与下文历史
+
+2026-10-24，D147/G6B当前代码已接独立Server计划、版本/资源快照、可信查询与既有页面，见[Server排单](SERVER_PRODUCTION_PLANNING.md)及[本轮任务](../tasks/active/server-production-planning-current-2026-10-24.md)。尚待本轮冻结工程验收，不代表真实开工/完成、物流或关账闭环，也未部署或迁移Browser。下文当前行为/缺口按原Browser历史理解；公式、长期存储及旧日期说明保留。
+
 ## Purpose
 
 在 v6 单款 SalesOrder 基线上直接维护生产分配、内部队列、实际完成、物料到仓、运输建议与交期风险。模块不修改订单商务事实，不复用根路径 PostgreSQL 旧 `schedules`，关账只引用稳定 `ScheduleAssignment.id`。

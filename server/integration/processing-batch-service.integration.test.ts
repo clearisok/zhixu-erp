@@ -1,4 +1,5 @@
 import {getSalesOrderById,listSalesOrders} from '../sales-orders/repository.js';
+import {readDeliveryPlanSet} from '../sales-orders/delivery-plan-repository.js';
 import {mutateOrderIdentity,readOrderIdentity} from '../sales-orders/identity-service.js';
 import {createServer} from 'node:http';
 import {createApp} from '../app.js';
@@ -69,6 +70,10 @@ test('processing service atomic synthetic lifecycle',{timeout:180000},async t=>{
   const b=await confirmed(),before=await count();const results=await Promise.all([consume(b.batchId,b.version!,actor),consume(b.batchId,b.version!,other)]);
   assert.equal(await count(),before+1);const ids=results.map(x=>('salesOrderId' in x.results[0])?x.results[0].salesOrderId:null);assert.ok(ids[0]);assert.equal(ids[0],ids[1]);
   const commercial=(await pool.query('SELECT confirmed_labor_price::text,confirmed_sale_price FROM sales_order_commercial_versions WHERE sales_order_id=$1',[ids[0]])).rows[0];assert.equal(commercial.confirmed_labor_price,'0');assert.equal(commercial.confirmed_sale_price,null);
+  const detail=await getSalesOrderById(pool,ids[0]!);assert.equal(detail?.businessType,'processing');
+  assert.deepEqual(detail?.colorSource,{status:'not_applicable'});assert.deepEqual(detail?.colors,[]);
+  const plans=await readDeliveryPlanSet(pool,ids[0]!);assert.equal(plans.sourceQuantity,null);assert.equal(plans.sourceDeliveryDate,null);
+  assert.equal(plans.ownership,'uninitialized');assert.deepEqual(plans.plans,[]);
  });
  await t.test('two real batches on same quote create two different SO, batch retry returns same response',async()=>{
   const a=await confirmed(),b=await confirmed(),requestId=randomUUID(),before=await count();const command={requestId,items:[{batchId:a.batchId,expectedVersion:a.version},{batchId:b.batchId,expectedVersion:b.version}]};const first=await consumeProcessingBatches(pool,actor,command);assert.deepEqual(await consumeProcessingBatches(pool,actor,command),first);assert.equal(await count(),before+2);assert.notEqual((first.results[0] as {salesOrderId:string}).salesOrderId,(first.results[1] as {salesOrderId:string}).salesOrderId);

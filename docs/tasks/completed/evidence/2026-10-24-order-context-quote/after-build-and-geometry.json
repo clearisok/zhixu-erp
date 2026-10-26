@@ -1,0 +1,105 @@
+{
+  "build": {
+    "environment": "production",
+    "buildId": "order-context-68a38b6b-server-20261024",
+    "gitCommit": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+    "buildTime": "2026-10-24T06:26:21.205Z",
+    "masterSettingsAuthority": "server",
+    "identityMode": "session",
+    "quoteWriterMode": "writable",
+    "quoteAuthority": "server",
+    "orderRead": "snapshot"
+  },
+  "metrics": [
+    {
+      "width": 1920,
+      "deviceScaleFactor": 1,
+      "scroll": 1920,
+      "button": {
+        "x": 296.5,
+        "y": 421.859375,
+        "width": 118,
+        "height": 38,
+        "top": 421.859375,
+        "right": 414.5,
+        "bottom": 459.859375,
+        "left": 296.5
+      }
+    },
+    {
+      "width": 1536,
+      "deviceScaleFactor": 1.25,
+      "scroll": 1536,
+      "button": {
+        "x": 236.78125,
+        "y": 421.859375,
+        "width": 118,
+        "height": 38,
+        "top": 421.859375,
+        "right": 354.78125,
+        "bottom": 459.859375,
+        "left": 236.78125
+      }
+    },
+    {
+      "width": 1440,
+      "deviceScaleFactor": 1,
+      "scroll": 1440,
+      "button": {
+        "x": 234.671875,
+        "y": 421.859375,
+        "width": 118,
+        "height": 38,
+        "top": 421.859375,
+        "right": 352.671875,
+        "bottom": 459.859375,
+        "left": 234.671875
+      }
+    },
+    {
+      "width": 1280,
+      "deviceScaleFactor": 1,
+      "scroll": 1280,
+      "button": {
+        "x": 231.15625,
+        "y": 421.859375,
+        "width": 118,
+        "height": 38,
+        "top": 421.859375,
+        "right": 349.15625,
+        "bottom": 459.859375,
+        "left": 231.15625
+      }
+    },
+    {
+      "width": 900,
+      "deviceScaleFactor": 1,
+      "scroll": 900,
+      "button": {
+        "x": 114.796875,
+        "y": 441.859375,
+        "width": 118,
+        "height": 38,
+        "top": 441.859375,
+        "right": 232.796875,
+        "bottom": 479.859375,
+        "left": 114.796875
+      }
+    },
+    {
+      "width": 390,
+      "deviceScaleFactor": 1,
+      "scroll": 390,
+      "button": {
+        "x": 29,
+        "y": 583.8125,
+        "width": 118,
+        "height": 44,
+        "top": 583.8125,
+        "right": 147,
+        "bottom": 627.8125,
+        "left": 29
+      }
+    }
+  ]
+}
