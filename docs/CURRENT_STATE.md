@@ -9,3 +9,6 @@ D-162已记录五项确认：加工服务单列；非USD工价阻断；未锁引
 完整G1–G8/R未完成。期间/快照命令、原子复核/确认锁定和工价采用等后续工程继续；不照搬Browser税率/FX/累计量分月。旧3001/50426/59069等环境、账号、库、卷、备份及Browser保持，无新真实Source/激活、合并、部署或Hosted CI。
 
 [当前阶段](tasks/active/server-closing-basis-2026-10-26.md)；[契约](features/SERVER_CLOSING.md)；[前阶段完整记录](tasks/completed/2026-10-26-pre-closing-basis/CURRENT_STATE.md)。
+
+
+精确源码 4bc68c6ecabcb3acc5541d0c4fc20aa850242ddf：canonical3013/0overlay、根typecheck/Server build/changed lint和811项项目测试通过。归档20项responsive通过；release guard因缺Git对象未完成，下一步在原工作树补该文件和最终精确发布守卫。旧50/179/27及109分支所选元数据保持。源码/失败均保留，[工程证明](tasks/completed/2026-10-26-server-closing-basis-engineering.md)。
