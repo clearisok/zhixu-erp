@@ -100,6 +100,19 @@ exact-target DB tools, object integrity checks, writer refusal, owned preparatio
 and failure preservation remain in force. This is synthetic recovery evidence,
 not real Source validation, financial closing, user acceptance or deployment.
 
+Also set `ZHIXU_LOCAL_TRIAL_SOURCE_LEDGER_RECOVERY=true` to add nonempty
+0040–0044 ledgers to that same fresh rehearsal. An explicitly injected synthetic
+worker publishes two generations; their exact decimal strings, frozen color
+matches and head/history are read using a fixed evaluation clock. Report request
+counts in these fixtures are synthetic, with no Source HTTP calls. A separate
+synthetic profile is inserted only if absent; `local-empty` is never overwritten.
+The original bound SO is refreshed from generated evidence after a manual HTTPS
+delivery-plan command. Its production, arrival and manual delivery rows must
+remain unchanged. Recovery queries original completed receipts under each
+protocol, including the complete delivery command; it never reapplies them in
+the new database. This does not establish stable shipment event IDs, cancellation
+or financial semantics.
+
 ## Historical Quote trial candidate (2026-10-09)
 
 The candidate engineering evidence below is **not deployment evidence**. D-098 locks the merged Quote-first

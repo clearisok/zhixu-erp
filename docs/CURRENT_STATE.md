@@ -1,11 +1,11 @@
-# 当前状态：非空恢复与序列精度已隔离验证
+# 当前状态：补齐来源账本非空恢复
 
-2026-10-26；核实main 869ee84dd0b31de6161011e4aa560678b244a64d；本地分支 codex/persistent-cumulative-43-main-869e。唯一草稿PR130远端仍61704afe22fe9fd0ea9f6625c6092fcbb9575dfc、三项CI通过、未合并；本地新工程未推送。Git退出1的STOP_AUTH_OR_DIVERGENCE根因未定，远端Git/ref写冻结，不能借新SHA绕过。
+2026-10-26；输入 a9653daad9c33b13499c33425ae8a86dd7ad2ac2，tree 691fdd9b695f7bc5a2d1b9b12a1c0f5fd629d9ce，分支 codex/persistent-cumulative-43-main-869e，工作树干净。main 869ee84dd0b31de6161011e4aa560678b244a64d；唯一草稿PR130远端仍61704afe22fe9fd0ea9f6625c6092fcbb9575dfc，原三项CI通过、未合并。Git退出1的STOP_AUTH_OR_DIVERGENCE根因未定，远端Git/ref写冻结；用户普通PowerShell的早期约5秒TLS中断对照不能解除另一笔退出1的停止状态。
 
-e3测试源码＋6d原镜像的新非空恢复9/9（478994ms），47表非空、7领域读取/13known原回执及全表hash通过。后续12477a1fa58f1cff0182974e0894671585a4824f仅修序列表示：保留原PG文本避免bigint舍入；实际新PG及同一读取分支2/2（2841ms），2993blob/0overlay；未重跑原9项、构建或CI。原序列JSON投影和60.25断言措辞的精确边界见补充证明。旧50/179/27所选元数据不变，非旧业务内容审计。
+在原owned持久化恢复演练上增加显式SOURCE_LEDGER_RECOVERY开关，依赖原DOMAIN_RECOVERY。0040–0044八表采用新合成profile、可信SO、两代观察及原领域命令；显式fake worker恰2次，报告请求计数为合成返回值，不运行真实worker。0041只刷新原bindOrders的SO；人工交期、排单、完成和到仓版本不得被覆盖。恢复仅查原回执、不重新apply；各协议要求原UUID/completed或applied及精确结果，拒绝unknown/started/null。
 
-Q/R只冻结证明与506/66清单，原505及UI/能力字段保持；最终同HEAD守卫与独立复审按本机终态核对。新运行不是已合并/部署或用户人工接受。
+先提交源码、canonical archive逐blob核对、独立只读复审，再以原6d镜像运行一次新增输入。冷重建和恢复后比较两代非空观察、颜色/head/历史和精确数量字符串；固定评估时钟只验证持久化投影，不冒称真实经过时间的freshness验收。维护停写后比较全部public表hash和精确pg_sequences文本，必须在恢复启动/login前完成。新runtime尚未运行，不提前PASS。
 
-完整G1–G8/R继续；0040–0044未全域非空验证，稳定跨次成衣事件/更正、关账三项口径、具体真实来源授权/激活、目标人工接受/切换和依赖审计后退役仍待后续。3001/50426等旧入口、账号、库、卷、对象、备份和Browser数据保持；不合并或正式部署。
+原e3 9/9及124序列2/2继续按各自source保留，不能借用为本次新八表证据。完整G1–G8/R继续；稳定跨次成衣事件、更正和关账口径仍待后续。3001/50426/59069/62426等旧入口、账号、数据、卷、网络、对象、备份与Browser数据保持；无真实Source/凭据、push/API ref、CI、合并、部署、切换或退役。
 
-[阶段](tasks/active/nonempty-domain-recovery-2026-10-26.md)；[原9项证明](tasks/completed/2026-10-26-nonempty-domain-recovery-validation.md)；[精度和范围补充](tasks/completed/2026-10-26-nonempty-domain-sequence-precision.md)。
+[本阶段](tasks/active/source-ledger-recovery-2026-10-26.md)；[原非空和精度证明](tasks/completed/2026-10-26-nonempty-domain-sequence-precision.md)。

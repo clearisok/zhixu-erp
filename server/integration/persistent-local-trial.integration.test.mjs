@@ -114,6 +114,8 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
   }
   const a=await state(owned[0]);let cookie,quoteId,record,attachmentId,attachmentPath,snapshot,adminHash;
   const domainRecovery=process.env.ZHIXU_LOCAL_TRIAL_DOMAIN_RECOVERY==='true';
+  const sourceLedgerRecovery=process.env.ZHIXU_LOCAL_TRIAL_SOURCE_LEDGER_RECOVERY==='true';
+  assert.ok(!sourceLedgerRecovery||domainRecovery,'source ledger rehearsal requires the owned domain input');
   let domainFixture,domainSnapshot,frozenDomainDatabase;
   const domainVerified={restart:false,beforeRestoreStartup:false,restoredReadbacks:false};
   const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=','base64');
@@ -169,7 +171,7 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
     await assert.rejects(trial(a,'objects-export'));
   });
   if(domainRecovery)await phase('nonempty domain input uses trusted binding and formal production/logistics/material commands',async()=>{
-    domainFixture=await seedPersistentDomainRecovery(a,cookie,run);
+    domainFixture=await seedPersistentDomainRecovery(a,cookie,run,{sourceLedgerRecovery});
     domainSnapshot=await snapshotPersistentDomains(a,cookie,domainFixture);
   });
   await phase('restart and cold container recreation preserve DB identity, adopted rows and attachment bytes',async()=>{
@@ -233,6 +235,9 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
     if(domainRecovery){assertPersistentDomainRecovery(domainSnapshot,await snapshotPersistentDomains(b,restoredCookie,domainFixture));domainVerified.restoredReadbacks=true;}
     await assert.rejects(trial(b,'restore-check'));
   });
-  if(domainRecovery)t.diagnostic('DOMAIN_RECOVERY '+JSON.stringify({imageSource:commit,...domainVerified,orderId:domainFixture.orderId,assignmentIds:domainFixture.assignments,businessTables:domainSnapshot.database,frozenTables:frozenDomainDatabase,sequences:undefined,readbacks:domainFixture.readPaths.length,receipts:domainFixture.receipts.length}));
+  if(domainRecovery)t.diagnostic('DOMAIN_RECOVERY '+JSON.stringify({imageSource:commit,...domainVerified,orderId:domainFixture.orderId,assignmentIds:domainFixture.assignments,businessTables:domainSnapshot.database,frozenTables:frozenDomainDatabase,sequences:undefined,readbacks:domainFixture.readPaths.length,receipts:domainFixture.receipts.length,
+    ...(sourceLedgerRecovery?{sourceLedger:{orderId:domainFixture.sourceLedger.orderId,publications:domainFixture.sourceLedger.publications,
+      generations:domainSnapshot.sourceLedger.versions.map(v=>v.generation),fakeWorkerCalls:domainFixture.sourceLedger.fakeWorkerCalls,
+      syntheticRequestCounts:true,receiptCount:domainFixture.sourceLedger.receipts.length+1}}:{})}));
   completed=true;t.diagnostic(`Exact image ${commit}; ${expectedMigrations.length} migrations; source and restore use distinct persistent object/data/secret volumes; no existing environment touched.`);
 });

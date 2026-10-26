@@ -1,9 +1,9 @@
-# 恢复点：非空恢复与精度补验本地收口
+# 恢复点：来源账本非空恢复
 
-2026-10-26；核实main 869ee84dd0b31de6161011e4aa560678b244a64d；本地分支 codex/persistent-cumulative-43-main-869e。唯一草稿PR130远端仍61704afe22fe9fd0ea9f6625c6092fcbb9575dfc、三项CI通过、未合并；本地新工程未推送。Git退出1的STOP_AUTH_OR_DIVERGENCE根因未定，远端Git/ref写冻结，不能借新SHA绕过。
+2026-10-26；输入 a9653daad9c33b13499c33425ae8a86dd7ad2ac2，tree 691fdd9b695f7bc5a2d1b9b12a1c0f5fd629d9ce，分支 codex/persistent-cumulative-43-main-869e，工作树干净。main 869ee84dd0b31de6161011e4aa560678b244a64d；唯一草稿PR130远端仍61704afe22fe9fd0ea9f6625c6092fcbb9575dfc，原三项CI通过、未合并。Git退出1的STOP_AUTH_OR_DIVERGENCE根因未定，远端Git/ref写冻结；用户普通PowerShell的早期约5秒TLS中断对照不能解除另一笔退出1的停止状态。
 
-e3测试源码＋6d原镜像的新非空恢复9/9（478994ms），47表非空、7领域读取/13known原回执及全表hash通过。后续12477a1fa58f1cff0182974e0894671585a4824f仅修序列表示：保留原PG文本避免bigint舍入；实际新PG及同一读取分支2/2（2841ms），2993blob/0overlay；未重跑原9项、构建或CI。原序列JSON投影和60.25断言措辞的精确边界见补充证明。旧50/179/27所选元数据不变，非旧业务内容审计。
+先读[阶段](tasks/active/source-ledger-recovery-2026-10-26.md)及outputs/source-ledger-recovery-20261026。只有独立预审后才能运行本阶段新owned演练；观察超时不重启原handle，不自动重试失败。
 
-先读[阶段](tasks/active/nonempty-domain-recovery-2026-10-26.md)及[精确补充](tasks/completed/2026-10-26-nonempty-domain-sequence-precision.md)。outputs/domain-recovery-20261026保留runtime-result、原metadata-checkpoint/guard、sequence-qa-result、precision-metadata-checkpoint/precision-guard/final。所有已终态验收不重跑；最终guard未终态时只观察原handle。
+先提交源码、canonical archive逐blob核对、独立只读复审，再以原6d镜像运行一次新增输入。冷重建和恢复后比较两代非空观察、颜色/head/历史和精确数量字符串；固定评估时钟只验证持久化投影，不冒称真实经过时间的freshness验收。维护停写后比较全部public表hash和精确pg_sequences文本，必须在恢复启动/login前完成。新runtime尚未运行，不提前PASS。
 
-完整G1–G8/R继续；0040–0044未全域非空验证，稳定跨次成衣事件/更正、关账三项口径、具体真实来源授权/激活、目标人工接受/切换和依赖审计后退役仍待后续。3001/50426等旧入口、账号、库、卷、对象、备份和Browser数据保持；不合并或正式部署。
+原e3 9/9及124序列2/2继续按各自source保留，不能借用为本次新八表证据。完整G1–G8/R继续；稳定跨次成衣事件、更正和关账口径仍待后续。3001/50426/59069/62426等旧入口、账号、数据、卷、网络、对象、备份与Browser数据保持；无真实Source/凭据、push/API ref、CI、合并、部署、切换或退役。

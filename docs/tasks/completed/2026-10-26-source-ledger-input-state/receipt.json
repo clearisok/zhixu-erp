@@ -1,0 +1,26 @@
+{
+  "at": "2026-10-26T13:08:28.243Z",
+  "files": [
+    {
+      "source": "a9653daad9c33b13499c33425ae8a86dd7ad2ac2",
+      "path": "docs/CURRENT_STATE.md",
+      "archive": "docs/tasks/completed/2026-10-26-source-ledger-input-state/CURRENT_STATE.md",
+      "gitBlob": "eb79bf11ac9ad1a1fce04eb4b68648bfff70ad01",
+      "sha256": "42c45323e7e87aad60ac4b823a9bcafac6f3f72c53f522ce167405e6302a4068"
+    },
+    {
+      "source": "a9653daad9c33b13499c33425ae8a86dd7ad2ac2",
+      "path": "docs/AI_HANDOFF.md",
+      "archive": "docs/tasks/completed/2026-10-26-source-ledger-input-state/AI_HANDOFF.md",
+      "gitBlob": "8a7e27be6dfb134298041ec4076b90d7126e9d4d",
+      "sha256": "90f069da8fa5d176f4fed8b279472f0bda86c2d37746012fe669604ac7ec4dd9"
+    },
+    {
+      "source": "a9653daad9c33b13499c33425ae8a86dd7ad2ac2",
+      "path": "docs/PROJECT_INDEX.md",
+      "archive": "docs/tasks/completed/2026-10-26-source-ledger-input-state/PROJECT_INDEX.md",
+      "gitBlob": "34194669255f65e8f5ffccb1bf1aad7105ca4967",
+      "sha256": "2c96b1dd8590ad38ddb61621805bf41f3800ab6338937d08ab1b17e9b694b29b"
+    }
+  ]
+}

@@ -2,6 +2,7 @@
 // test-only: production backup/restore, schema and services are not replaced.
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
+import {seedPersistentSourceLedgers,snapshotPersistentSourceLedgers} from './persistent-source-ledger-recovery-fixture.mjs';
 
 const production='/api/v1/production-scheduling';
 const arrival='/api/v1/material-arrivals';
@@ -39,7 +40,7 @@ export async function readPersistentDomainReceipts(state,cookie,receipts){
   return responses;
 }
 
-export async function seedPersistentDomainRecovery(state,cookie,run){
+export async function seedPersistentDomainRecovery(state,cookie,run,{sourceLedgerRecovery=false}={}){
   assert.equal(state.prepared,true,'domain fixture requires successful owned preparation');
   assert.match(state.project,/^zhixu-quote-trial-it-[0-9a-f]{10}$/);
   // Reuse the existing generated order/material fixtures. The host TS loader
@@ -119,6 +120,7 @@ export async function seedPersistentDomainRecovery(state,cookie,run){
     arrival+'/orders/'+fixture.orderId+'/materials/'+encodeURIComponent(fixture.canonicalKey)+'/history'];
   const current=await json(state,cookie,production+'/orders/'+fixture.orderId);
   assert.equal(current.summary.plannedQuantity,'100');assert.equal(current.summary.completedQuantity,'20.25');
+  if(sourceLedgerRecovery)fixture.sourceLedger=await seedPersistentSourceLedgers(state,cookie,fixture,run);
   return fixture;
 }
 
@@ -142,7 +144,7 @@ export async function snapshotPersistentDomains(state,cookie,fixture){
   const responses={};
   for(const path of fixture.readPaths)responses[path]=await json(state,cookie,path);
   Object.assign(responses,await readPersistentDomainReceipts(state,cookie,fixture.receipts));
-  return {database,responses};
+  return {database,responses,...(fixture.sourceLedger?{sourceLedger:await snapshotPersistentSourceLedgers(state,cookie,fixture.sourceLedger)}:{})};
 }
 
 export function assertPersistentDomainRecovery(before,after){
