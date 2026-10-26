@@ -1,0 +1,21 @@
+{
+  "at": "2026-10-26T05:44:04.351Z",
+  "source": "acb98e0493217660b746745b92d9d374037ce66c",
+  "branch": "codex/garment-observations-main-869e",
+  "dirty": "",
+  "files": {
+    "PROJECT_INDEX.md": {
+      "gitBlob": "3848a17701f2396217b92bb6e255089220393565",
+      "sha256": "2790b87deff57e4fe51194dff03814d88891d07c18ea6955c536d50216ef8a6d"
+    },
+    "CURRENT_STATE.md": {
+      "gitBlob": "0447e7ede06089f3a1cd8588d9c69fa1d135a7b7",
+      "sha256": "b42e3ae76b19d3c6a1a8c18f48c97e0d4327add46d176803842f159910d27af5"
+    },
+    "AI_HANDOFF.md": {
+      "gitBlob": "e78b52786d137d2b3fbe6c2d8ca756eb7537f5b6",
+      "sha256": "7848926b474b40fd226b125de0fa3345d6ee87be6d6abd4eb1da2ba9a0e4f8cf"
+    }
+  },
+  "scope": "Exact preserved recovery documents before this phase; prior actual guard and review remain in their original same-HEAD receipts."
+}

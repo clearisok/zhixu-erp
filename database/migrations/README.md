@@ -101,3 +101,10 @@ Assignment及当时计划版本/资源归属；不改0035计划状态，不回�
 不可变原输入/精确上下文/颜色依据及逐代head；颜色匹配使用订单复合FK，不移历史来源或执行记录。
 不是出货事件账、真实Source激活、完成或关账。0039非空合成库升级逐行保护所有原public表；
 只授权新建的一次性PG验收，不对现有目标执行schema更新或回填。
+0041 adds an empty, immutable successful bound-contract refresh receipt keyed by
+actor/request UUID. It stores original and effective SO references, exact command
+and preview hashes and a bounded result, without raw Source data or prices. It does
+not backfill, activate Source, create orders, grant permissions or migrate an
+existing environment. The offline operator is verify-only for schema; source
+promotion and trusted audit share one explicit transaction. Normalization includes
+both SO references and complete row bytes. Real upgrades remain separately gated.

@@ -1,13 +1,15 @@
-# 恢复点：成衣观察N直接父见证及分支闭合
+# 恢复点：合同刷新一次真实合流
 
-2026-10-26；main 869ee84dd0b31de6161011e4aa560678b244a64d于2026-10-26T04:56:38.443Z独立API核实，开放PR为0。branch codex/garment-observations-main-869e从N显式快进80fdf8ba80c6bfef3321c61d6c8fe8662eb44e22并普通合流原当前观察aad673099da0221312a70e88bd8e2f33bfa06244，保护性B 3a1a0955420d659aa23ea1295c314a184df72d85保留；真实A 4e92b0bfae06923940c3b85cd78fc1714f96444f直接父为[N,aad]，R 5670a8869768f9a1cd8189a23c09e52031e328f7绑定A后现普通合回B。全部非docs精确已验收source d1930a2da590098f70e6433892eab350a3262e0c，无新产品差异。
+2026-10-26；main 869ee84dd0b31de6161011e4aa560678b244a64d于2026-10-26T05:36:37.442Z独立API核实、open PR 0。branch codex/bound-refresh-main-869e从N建立后显式快进当前依赖acb98e0493217660b746745b92d9d374037ce66c，普通合流当前原始b97d8d6c17a2ef78c0f460e43b4524dca03b3573；产品/测试/SQL及全部非docs精确已验收source df5bedaddd2f9e54f8c66f578e32f06859878104，proof da5b5cc695106dab71986d32354e99ccae134c23，没有新产品差异。
 
-先读[阶段](tasks/active/garment-observations-main-869e-2026-10-26.md)、[A见证](tasks/active/garment-observations-main-anchor-869e-2026-10-26.md)和outputs/garment-observations-main-869e-20261026。不得执行已退役的初版bind-evidence.mjs；本次merge-anchor.mjs负责真实A/R/L闭合。初仅给B加一条mergeOf的计划被独立复审判P2：缺696对N的直接父见证。未运行旧bind-evidence.mjs、未改guard或原对象。已用真实A=[N,aad]及R绑定修正ancestry，再普通合流R回保护B；本真实合流L已冻结文本并前向绑定最终mergeOf，当前405/57单叶。原父对象、49份继承UI、全部0034–0040和冻结feature/proof均保留。
+先读[本阶段](tasks/active/bound-refresh-main-869e-2026-10-26.md)和outputs/bound-refresh-main-869e-20261026/revised-plan.json。只执行integrate.mjs，anchor.mjs已退役且从未执行。先前未执行的N锚点草稿被独立复审指出P2：两feature在N/acb没有同路径根，新增supersedes会缺main锚点。未发生tracked修改、分支或merge，即退役anchor.mjs，改一次真实[acb,b97]合流。三条新独立根及所有父对象原样保留，共408证据/58能力；Dlog两侧文本相同，沿用acb真实N/aad见证与唯一叶。49份ui-changes（48JSON和README）原blob保留，无新UI影响或功能批准。
 
-原d193 archive SHA256 58adb7b1db317c04e758ca9deb8f9a710ecbbf5e0bb9a8e5b18e538ff1799e36及proof 696738e5b21a57a4d82e3c1e7b610f96c361f8c1、174项相关单元/SQL/API（173通过/1既有Windows平台Linux CLI SKIP）、根811、139离线Python、类型/Node/load/lint均按原2026-10-24范围复用。原4e8232发布134/134（406504ms）不覆盖Linux缺口。0039升级夹具为非空SO/Source，未预置人工计划；未变化前端a0c3的215复制产物hash一致，无新Vite或浏览器。最终当前N源码守卫仍待实际运行，正式PR仍须当前发布134及必要三CI。
+原2026-10-24精确df5验收为19文件API分阶段联合185总/184通过/1既有Linux CLI Windows跳过：归档初182通过/2失败/1跳过，原因是私密fixture需要Git忽略前置而归档无Git；ACL与真实工作树忽略检查通过，仅受影响文件16/16补跑，其余18文件169总/168通过/1跳过复用。原失败与日志保留，不称一次185全绿。根811、类型/Node编译与实际import/lint通过，4cc15c9发布134/134（412214ms）均属原日期范围。139离线Python、215份a0c3前端产物仅在未变范围复用，没有本轮Python/Vite/browser/发布测试重跑。
 
-实际Push/新PR/Hosted/真实Source/凭据/账号/业务库/对象/卷/备份操作均0；未安装或应用迁移，不切换3001/50426/59069/62426及其他入口，不部署、激活、调度或退役。普通PowerShell亦复现TLS故障，根因未定，不重复旧通道或改共享代理/TLS/认证；H0d70精确授权与原STOP保留。完整Goal active，不自动merge/close。
+本阶段最终精确N源码守卫、保护引用核对及独立终审以同HEAD outputs/bound-refresh-main-869e-20261026/final.json为准；缺少实际回执不记PASS。正式PR仍需交付精确SHA、一次当前基线发布134与必要三CI，不借历史134或其他PR CI。
 
-下一步沿真正当前0041版本推进，不直接合旧raw历史；Linux CI缺口、升级夹具边界、事件身份/撤销、关账三问、真实Source额度/激活、目标切换/人验/退役不默认。
+既有Linux Source CLI Windows跳过仍待必要Linux CI；0040前缀升级夹具含非空用户/合同/颜色/计划/审计，但没有已发布非空0040出货观察；报告落盘失败后读取原回执不等于COMMIT确认丢失模拟。完整成衣事件身份/撤销、关账三问、真实Source新额度/激活、目标切换/人工验收/旧路径退役仍独立待办。
 
-实际最终L 6f80d7a0810f8ce5059a295fde52afa5ba3d04d9（tree 354a671cf485e660e531225a925fec7e48bebde1，父[3a1a0955420d659aa23ea1295c314a184df72d85,5670a8869768f9a1cd8189a23c09e52031e328f7]）已冻结组合决定；最终mergeOf记录decisions-garment-observations-main-869e-20261026-merge规范hash 083a8028a28b8946b14977d6f6ea5423820f83192f8043dac9b4f5b80b7950f5，连接原logistics叶与真实A记录。404原记录完整保留，当前405/57/21routes单叶。源码仍精确d193；新精确N守卫和独立终审按本HEAD后置回执核实，不预写PASS。
+NETWORK_DEGRADED保持，普通PowerShell与Codex均约5秒TLS中断，根因未定；不重复失败Git或修改共享代理/TLS/认证。H0d70精确恢复授权和原STOP保留。本阶段Push/新PR/Hosted/真实Source/凭据/账号/业务库/现有对象卷备份操作均0，不安装或应用迁移，不切换3001/50426/59069/62426及其他入口，不部署、激活、调度、merge main、close或退役。完整G1–G8/R Goal active。
+
+后续出货UI/0042/coverage/0043以实际当前原始分支逐片复审；不把本次离线工具当真实刷新或开通采集。
