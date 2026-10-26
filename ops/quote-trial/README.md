@@ -78,6 +78,28 @@ in Gate 0 even when those endpoints are not currently listening.
 Successful cleanup removes only the two newly owned synthetic projects, never
 an existing target, historical test project, backup or volume.
 
+### Opt-in nonempty domain recovery rehearsal
+
+Set `ZHIXU_LOCAL_TRIAL_DOMAIN_RECOVERY=true` only alongside the explicit image
+and full image commit above. This adds synthetic trusted contract/color/material
+input through the existing binding/capture services, then creates resources,
+internal/external plans, completion history, order logistics and material arrival
+versions through the actual HTTPS APIs. It does not query Ainuoke or activate a
+real source. The Node host uses the already installed `tsx` loader to serialize
+existing generated fixtures; no dependency installation or new runtime image is
+required when the application bytes are unchanged.
+
+The same harness compares every non-auth business table and domain/history/
+request readback after cold recreation and after independent recovery. After
+maintenance, it also freezes all public table row counts/digests and sequence
+states; these must match the restored database **before** app startup or login.
+Technical authentication rows are excluded only from the active-runtime comparison,
+where new sessions/login times are expected; they are included in that frozen
+pre-start comparison. Required domain tables must be nonempty. The original
+exact-target DB tools, object integrity checks, writer refusal, owned preparation
+and failure preservation remain in force. This is synthetic recovery evidence,
+not real Source validation, financial closing, user acceptance or deployment.
+
 ## Historical Quote trial candidate (2026-10-09)
 
 The candidate engineering evidence below is **not deployment evidence**. D-098 locks the merged Quote-first

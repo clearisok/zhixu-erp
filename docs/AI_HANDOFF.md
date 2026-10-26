@@ -1,7 +1,9 @@
-# 恢复点：PR130货款侧栏测试兼容
+# 恢复点：新业务域非空恢复
 
-2026-10-26；当前核实main 869ee84dd0b31de6161011e4aa560678b244a64d；codex/persistent-cumulative-43-main-869e，baseline f8ed7f33c911cc1ec52cf3b3d9432912ac5aa80f。先读[当前任务](tasks/active/payment-panel-ci-recovery-2026-10-26.md)和outputs/payment-panel-ci-recovery-20261026的start/prepared/diagnostic。原f8已交付唯一PR130，首次CI两通过/source因旧事件按钮选择器连续超时后取消；不要直接重跑或延长上限。
+2026-10-26；核实main 869ee84dd0b31de6161011e4aa560678b244a64d，本地分支 codex/persistent-cumulative-43-main-869e；阶段输入 61704afe22fe9fd0ea9f6625c6092fcbb9575dfc，tree 46900a09200739db4a9e528c33b8fdc5331abac9，开始时工作树干净。唯一草稿[PR130](https://github.com/clearisok/zhixu-erp/pull/130)仍精确指向61704afe22fe9fd0ea9f6625c6092fcbb9575dfc，三项CI首次成功、最终独立复审0P1/P2，未合并。原Git退出1的STOP_AUTH_OR_DIVERGENCE及根因未定保持；独立本地工程不解除远端Git/ref写冻结。
 
-本阶段仅测试具名事件按钮/fail-fast/CI expected source；新source checkpoint后在新owned runner复用6d镜像原dist作9项实际浏览器，test/render来源分别记录，不覆盖现有工作树dist。旧失败保留，未完成不PASS。原6d 8/8与f8 Hosted baseline不重跑/不冒称新head。最终守卫/独立复审后一次普通安全交付更新同PR，不自动merge/deploy/Source/旧数据操作。完整G1–G8/R与既有待决/切换/退役限制保持。
+先读[当前阶段](tasks/active/nonempty-domain-recovery-2026-10-26.md)、outputs/domain-recovery-20261026的start/source-checkpoint/验收回执。若实际进程仍live只观察原handle；禁止因观察超时重启或自动重试。
 
-实际修后终态：test source 01d112b98e02d8aaacb4af14b4fa4522d6d3c207 / actualParent 49ff169b09e22f3891beab17ed2b6b605d168e31 / phaseBase f8ed7f33c911cc1ec52cf3b3d9432912ac5aa80f，renderSource 6d27d1e7fa1079f1830511068ff070791df310ab；canonical 2983 tracked files/0 overlay，复用dist 1211字节匹配文件。实际9/9、23202ms、0 fail/cancel/skip/timeout/overflow；语法/lint/YAML/8原phase体校验通过，旧50/179/27元数据changes=[]。完整原件hash见[证明](tasks/completed/2026-10-26-payment-panel-ci-validation.md)。下一步最终守卫/复审后仅更新原PR130，未交付新修，不称新CI通过。
+source checkpoint后canonical archive逐blob校验，复用现有依赖不安装；独立预审后一次运行owned合成项目。冷重建及恢复后核对业务表、领域/history/receipt；维护停写后冻结全部public表hash与sequence，在新目标恢复后启动/login前比较。原id、decimal、版本、审计与回执不得丢；要求相关表非空，失败停止保留自有现场。新工程结果尚待真实回执，不提前PASS。
+
+3001/50426/59069/62426及旧账号、库、对象、卷、网络、备份和Browser数据保持；不使用真实凭据或发起Ainuoke请求，不绑定/激活真实Source，不push/API改ref、新PR、CI、merge、正式部署、入口切换或退役。仅本地checkpoint。完整G1–G8/R继续；跨次成衣稳定事件/更正、关账三项口径、真实Source授权和人工接受仍待后续，不把本阶段缩作整个目标。
