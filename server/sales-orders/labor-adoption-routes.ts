@@ -6,6 +6,7 @@ import { sendJson } from '../http/responses.js';
 import { assertMutationBoundary, readJsonBody } from '../http/request.js';
 import type { OrderCommandMode } from './command-control.js';
 import { executeLaborAdoption, previewLaborAdoption, readLaborAdoptionHistory, readLaborAdoptionReceipt } from './labor-adoption-service.js';
+import { listLaborAdoptionOrders, readLaborAdoptionOptions } from './labor-adoption-queries.js';
 
 /** Quote Center is the only write surface; order readers remain read-only. */
 export async function routeLaborAdoptions(request: IncomingMessage, response: ServerResponse, dependencies: {
@@ -23,6 +24,9 @@ export async function routeLaborAdoptions(request: IncomingMessage, response: Se
     return true;
   }
   if (request.method !== 'GET') throw new HttpError(405, 'method_not_allowed', 'Method not allowed');
+  if (url.pathname === prefix + '/orders') { sendJson(response, 200, await listLaborAdoptionOrders(dependencies.pool, actor, url.searchParams)); return true; }
+  const options = /^\/api\/v1\/quotes\/order-labor-adoptions\/orders\/([^/]+)\/options$/u.exec(url.pathname);
+  if (options) { sendJson(response, 200, await readLaborAdoptionOptions(dependencies.pool, actor, options[1], url.searchParams)); return true; }
   if (url.pathname === prefix + '/history') { sendJson(response, 200, await readLaborAdoptionHistory(dependencies.pool, actor, url.searchParams)); return true; }
   const receipt = /^\/api\/v1\/quotes\/order-labor-adoptions\/commands\/([^/]+)$/u.exec(url.pathname);
   if (!receipt) throw new HttpError(404, 'not_found', 'Route not found'); if (url.search) throw new HttpError(400, 'invalid_labor_query', 'Unexpected query');

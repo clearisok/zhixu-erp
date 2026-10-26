@@ -23,6 +23,9 @@ async function schema(client: PoolClient) {
     SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='sales_order_commercial_lines' AND column_name='labor_confirmation_source') AS ready`)).rows[0];
   if (!row.ready) fail(503, 'labor_adoption_schema_unavailable');
 }
+export async function readLaborAdoptionActor(client: PoolClient, identity: TrustedIdentity) {
+  const actor = await readCurrentActor(client, identity); requireGrants(actor); await schema(client); return actor;
+}
 async function budget(client: PoolClient, command: LaborAdoptionCommand) {
   const bytes = (await client.query<{ bytes: number }>('SELECT octet_length($1::jsonb::text)::int AS bytes', [JSON.stringify(command)])).rows[0].bytes;
   if (bytes > 131072) fail(422, 'labor_adoption_command_too_large');
@@ -110,8 +113,9 @@ export async function readLaborAdoptionReceipt(pool: Pool, identity: TrustedIden
     let actor = await readCurrentActor(client, identity); requireGrants(actor); await schema(client);
     await client.query('SELECT pg_advisory_xact_lock_shared(hashtextextended($1,0))', [`order-commercial-request:${actor.internalUserId}:${requestId}`]);
     actor = await readCurrentActor(client, identity); requireGrants(actor);
-    const row = (await client.query<{ result: LaborAdoptionOutcome }>('SELECT result FROM order_labor_adoption_commands WHERE actor_id=$1 AND request_id=$2', [actor.internalUserId, requestId])).rows[0];
-    await client.query('COMMIT'); return row ? { state: 'recorded' as const, requestId, result: row.result } : { state: 'unknown' as const, requestId };
+    const row = (await client.query<{ result: LaborAdoptionOutcome; orderId: string; commandHash: string }>(
+      'SELECT result,declared_order_id::text AS "orderId",payload_hash AS "commandHash" FROM order_labor_adoption_commands WHERE actor_id=$1 AND request_id=$2', [actor.internalUserId, requestId])).rows[0];
+    await client.query('COMMIT'); return row ? { state: 'recorded' as const, requestId, orderId: row.orderId, commandHash: row.commandHash, result: row.result } : { state: 'unknown' as const, requestId };
   } catch (error) { await client.query('ROLLBACK').catch(() => undefined); throw error; } finally { client.release(); }
 }
 export async function readLaborAdoptionHistory(pool: Pool, identity: TrustedIdentity, params: URLSearchParams) {
@@ -120,14 +124,21 @@ export async function readLaborAdoptionHistory(pool: Pool, identity: TrustedIden
   const client = await pool.connect();
   try {
     await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY'); const actor = await readCurrentActor(client, identity); requireGrants(actor); await schema(client);
-    const rows = (await client.query<{ requestId: string; createdAt: string; result: LaborAdoptionOutcome; beforeId: string | null; afterId: string | null }>(
-      `SELECT request_id::text AS "requestId",created_at::text AS "createdAt",result,before_version_id::text AS "beforeId",after_version_id::text AS "afterId"
-       FROM order_labor_adoption_commands WHERE sales_order_id=$1 ORDER BY created_at DESC,actor_id,request_id LIMIT 21 OFFSET $2`, [orderId, offset])).rows;
+    const rows = (await client.query<{ requestId: string; createdAt: Date; actorUserId: string; actorName: string | null; result: LaborAdoptionOutcome; beforeId: string | null; afterId: string | null }>(
+      `SELECT c.request_id::text AS "requestId",c.created_at AS "createdAt",u.public_id::text AS "actorUserId",
+       CASE WHEN audit.matches=1 THEN audit.actor_name ELSE NULL END AS "actorName",c.result,
+       c.before_version_id::text AS "beforeId",c.after_version_id::text AS "afterId"
+       FROM order_labor_adoption_commands c JOIN app_users u ON u.id=c.actor_id
+       LEFT JOIN LATERAL(SELECT count(*) matches,min(l.actor_name) actor_name FROM operation_logs l
+         WHERE l.operation_id=c.result->>'operationId' AND l.actor_user_id=c.actor_id
+         AND l.entity_type='OrderCommercialVersion' AND l.entity_id=c.after_version_id::text
+         AND l.metadata->>'workflow'='usd_labor_adoption' AND l.metadata->>'requestId'=c.request_id::text) audit ON true
+       WHERE c.sales_order_id=$1 ORDER BY c.created_at DESC,c.actor_id,c.request_id LIMIT 21 OFFSET $2`, [orderId, offset])).rows;
     const items = [];
-    for (const row of rows.slice(0, 20)) items.push({ requestId: row.requestId, createdAt: row.createdAt, result: row.result,
+    for (const row of rows.slice(0, 20)) items.push({ requestId: row.requestId, createdAt: row.createdAt.toISOString(), actorUserId: row.actorUserId, actorName: row.actorName, result: row.result,
       before: row.beforeId ? await historicalLabor(client, orderId, row.beforeId) : [],
       after: row.afterId ? await historicalLabor(client, orderId, row.afterId) : [] });
-    const result = { items, offset, hasMore: rows.length > 20 };
+    const result = { orderId, items, offset, hasMore: rows.length > 20 };
     if (Buffer.byteLength(JSON.stringify(result)) > 1048576) fail(422, 'labor_history_too_large'); await client.query('COMMIT'); return result;
   } catch (error) { await client.query('ROLLBACK').catch(() => undefined); throw error; } finally { client.release(); }
 }

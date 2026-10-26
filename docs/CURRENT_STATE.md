@@ -1,9 +1,9 @@
-# 当前状态：Gate8C USD工价采用后端本地通过
+# 当前状态：Gate8D1 USD采用查询与浏览器协议
 
-2026-10-27；最后核实main 869ee84dd0b31de6161011e4aa560678b244a64d（本轮未fetch）；分支codex/order-usd-labor-adoption-main-869e。初始源码S 34547801fd818f5f6777809f11c09ddd574688c2；最终源码S4 7afc5bb3a38784bd44dc539dbf1104143ae49fb2，精确归档3043blob/0overlay。父Gate8B f080263ab681afdb79b20df3200ca027a96ec234。PR130原远端仍61704afe22fe9fd0ea9f6625c6092fcbb9575dfc，旧CI不代表本阶段。Git退出1的STOP_AUTH_OR_DIVERGENCE根因UNRESOLVED，远端Git/ref写继续冻结。
+2026-10-27；最后核实main 869ee84dd0b31de6161011e4aa560678b244a64d（本轮未fetch）；分支codex/order-usd-labor-interface-main-869e，clean父Gate8C 46d29a8fae7252d0e2a909ed269b968faef9ebd1。PR130最后已核实head61704afe22fe9fd0ea9f6625c6092fcbb9575dfc，旧CI不代表本阶段。原Git退出1的STOP_AUTH_OR_DIVERGENCE根因UNRESOLVED，远端Git/ref写继续冻结。
 
-D162/D164后端：仅CNY→USD明确采用；原USD只能完整凭据及金额相同no-op，混合越界整单拒绝。可信后继/确认时币种、原产品/售价/批次/关账保护、独立工价来源及幂等回执。0046不回填。
+D162/D164只允许CNY→USD，原USD仅精确no-op，原产品/售价/批次/关账保护不变。D165补同Quote的合同/加工订单查询、共用USD确认解析、回执原订单/命令摘要、历史actor/request与发生时姓名，以及浏览器临时原命令协议；无schema/价格规则改变。[当前契约](features/ORDER_USD_LABOR_INTERFACE.md)。
 
-分源192定向及811项目通过，类型/相关lint/Server与前端构建通过；独立静态复审0剩余P1/P2。M 86b0f2d0f4fca5a2e03353153dabb2a21ffd82b2的发布回归144/144与精确守卫PASS，证据521/能力68，旧记录完整保留。初始失败原件保留，只补受影响检查。[验收收口](tasks/completed/2026-10-27-order-usd-labor-adoption-validation.md)；[冻结工程证明](tasks/completed/2026-10-27-order-usd-labor-adoption-engineering.md)；[契约](features/ORDER_USD_LABOR_ADOPTION.md)。随后仅更新收口文档，最终精确提交结果见本机final.json，未生成前不预报。
+Gate8C的192分源定向/811项目/144发布与最终46d守卫已通过，见[原收口](tasks/completed/2026-10-27-order-usd-labor-adoption-validation.md)及其final.json。本阶段修复初次HTTP解析错误和复审枚举P2，原日志保留；当前静态复审0剩余P1/P2，历史新改动及精确源码质量/发布检查仍待。见[阶段](tasks/active/order-usd-labor-interface-2026-10-27.md)，不借旧测试预报新PASS。
 
-完整Goal active；尚无USD采用UI、Server关账UI或税率更正，不是正式业务闭环。本次0Hosted CI/远端写/真实Source/现有库/部署/切换。旧50容器/179卷/27网络及111旧refs元数据保持，不是业务内容审计。Gate8B及旧证据继续保留。
+完整Goal active；USD采用页签三步交互待用户具体答复，未实施DOM/CSS；Server关账UI和税率更正也未完成。本阶段0Hosted CI/远端写/真实Source/现有库/部署/切换。开始时272条旧本地分支、50容器/179卷/27网络标识已登记，不是业务内容审计；现有体验环境与旧证据保留。

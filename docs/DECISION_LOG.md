@@ -23,6 +23,14 @@
 
 ## Active
 
+### D-165 USD采用查询、原请求核对与历史身份
+
+- 日期：2026-10-27；Active engineering，D162/D164配套协议，不改变仅CNY→USD、报价中心owner、原产品/售价/批次/关账保护及写权限。
+- 新查询仅按当前采用Quote列物理订单，含加工；稳定颜色与原消费依据，20条分页、字面搜索、fresh工价读取授权、1MiB投影。候选与写入共用CCT包括null优先的USD解析；候选不能替代可信后继/产品/CAS预览，也不代替用户确认产品未变化。
+- 回执绑定原订单及完整命令摘要；history以actor/request区分合法同UUID，发生时姓名只读匹配的不可变审计，缺失不借当前姓名补造。客户端协议不做枚举强转，坏响应/错owner/未知提交保留原命令且无自动重发。
+- sessionStorage仅存每actor/tab的原身份/意图/hash及用户原因，完整读回才允许POST，不保存价格/CCT快照或凭据；损坏/未来版本不覆盖，无Browser账本/Seed/IndexedDB迁移或清理。见[配套契约](features/ORDER_USD_LABOR_INTERFACE.md)。
+- 具体V2采用页签仍待本轮三步交互答复；本切片没有DOM/CSS/导航变化。工程、独立终审和发布门禁按[阶段](tasks/active/order-usd-labor-interface-2026-10-27.md)记录，不预报通过，不等同远端、部署、来源激活或完整Goal完成。
+
 ### D-164 明确采用 USD 工价复用原商业版本与可信报价确认
 
 - 日期：2026-10-27；Active engineering，实施 D162，不改变其币种、手工关账和历史冻结规则。只在报价中心显式选择当前订单/颜色，仅允许CNY→USD；已USD只有金额与完整凭据完全相同的no-op，混合选择越界整单拒绝。不提供一般USD→USD再采用、自由工价、自动换汇、不同产品/Quote/PV换绑或订单侧写入口。

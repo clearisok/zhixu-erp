@@ -1,5 +1,5 @@
 import type { PoolClient } from 'pg';
-import type { ServerQuote } from '../quotes/model.js';
+import type { QuoteRecord, ServerQuote } from '../quotes/model.js';
 import { canonicalDecimal } from '../quotes/model.js';
 import { readQuoteAggregateInTransaction } from '../quotes/repository.js';
 import { findTermsByQuoteProvenance, lockQuoteTermsContext } from '../confirmed-commercial-terms/repository.js';
@@ -30,15 +30,15 @@ async function requireSuccessor(client: PoolClient, quote: ServerQuote, quoteVer
   }
   fail(409, 'labor_revision_chain_limit');
 }
-async function currentLaborLines(client: PoolClient, intent: LaborAdoptionIntent, freeze: boolean) {
-  if (freeze) { await requireEffectiveOrderForWrite(client, intent.orderId); await freezePhysicalOrderGroups(client, [intent.orderId]); }
-  else if ((await resolveEffectiveOrder(client, intent.orderId)).historicalDuplicate) fail(409, 'historical_duplicate_order_read_only');
-  const business = await requireVerifiedOrderBusiness(client, intent.orderId, freeze);
+export async function readLaborAdoptionOrderBasis(client: PoolClient, orderId: string, freeze = false, expectedVersion?: number) {
+  if (freeze) { await requireEffectiveOrderForWrite(client, orderId); await freezePhysicalOrderGroups(client, [orderId]); }
+  else if ((await resolveEffectiveOrder(client, orderId)).historicalDuplicate) fail(409, 'historical_duplicate_order_read_only');
+  const business = await requireVerifiedOrderBusiness(client, orderId, freeze);
   if (['completed', 'cancelled'].includes(business.lifecycle_state)) fail(409, 'order_commercial_frozen');
-  const state = await readOrderCommercialState(client, intent.orderId), current = state.current;
+  const state = await readOrderCommercialState(client, orderId), current = state.current;
   if (!current) fail(409, 'order_commercial_basis_required');
-  if (state.version !== intent.expectedVersion) fail(409, 'order_commercial_version_conflict');
-  const colors = await readPricingColors(client, intent.orderId);
+  if (expectedVersion !== undefined && state.version !== expectedVersion) fail(409, 'order_commercial_version_conflict');
+  const colors = await readPricingColors(client, orderId);
   if (colors.length > 1000 || colors.some(color => color.ambiguous)) fail(409, 'order_color_identity_ambiguous');
   let lines = current.lines;
   if (!lines) {
@@ -48,7 +48,7 @@ async function currentLaborLines(client: PoolClient, intent: LaborAdoptionIntent
     const row = (await client.query(`SELECT s.product_snapshot,s.product_hash,v.source_fingerprint FROM sales_order_commercial_versions v
       JOIN processing_order_batch_consumptions b ON b.sales_order_id=v.sales_order_id AND b.commercial_version_id=v.id
       JOIN sales_order_business_source_snapshots s ON s.commercial_version_id=v.id AND s.sales_order_id=v.sales_order_id AND s.kind='quote'
-      WHERE v.id=$1 AND v.sales_order_id=$2`, [current.id, intent.orderId])).rows[0];
+      WHERE v.id=$1 AND v.sales_order_id=$2`, [current.id, orderId])).rows[0];
     const product = row?.product_snapshot as ProductSnapshot | undefined;
     if (!product || product.schemaVersion !== 'order-product.v1' || !product.priceVersion || productHash(product) !== row.product_hash
       || !['cct', 'quote_confirmation'].includes(current.sourceKind)) fail(409, 'labor_product_evidence_required');
@@ -63,7 +63,6 @@ async function currentLaborLines(client: PoolClient, intent: LaborAdoptionIntent
     || line.source.quoteId !== current.quoteId || line.source.revisionId !== current.revisionId)) fail(409, 'labor_product_evidence_required');
   if (colors.length ? lines.length !== colors.length || lines.some(line => !colors.some(color => color.id === line.colorId))
     : lines.length !== 1 || lines[0].colorId !== null || business.businessType !== 'processing') fail(409, 'labor_color_mapping_required');
-  if (intent.colorIds.some(id => !lines.some(line => line.colorId === id))) fail(409, 'labor_selected_color_unavailable');
   return { business, state, current, lines, colors };
 }
 function confirmedAmount(value: unknown) {
@@ -71,7 +70,8 @@ function confirmedAmount(value: unknown) {
   return canonicalDecimal(value);
 }
 export async function buildLaborAdoption(client: PoolClient, intent: LaborAdoptionIntent, freeze: boolean) {
-  const basis = await currentLaborLines(client, intent, freeze), { current, lines } = basis;
+  const basis = await readLaborAdoptionOrderBasis(client, intent.orderId, freeze, intent.expectedVersion), { current, lines } = basis;
+  if (intent.colorIds.some(id => !lines.some(line => line.colorId === id))) fail(409, 'labor_selected_color_unavailable');
   const selected = lines.filter(line => intent.colorIds.includes(line.colorId));
   const ids = [...new Set(selected.map(line => line.priceVersionId))].sort();
   if (freeze) {
@@ -96,15 +96,7 @@ export async function buildLaborAdoption(client: PoolClient, intent: LaborAdopti
       if (comparison.revisionNoteChanged) warnings.push('revision_note_changed_confirm_product_unchanged');
     }
     const terms = await findTermsByQuoteProvenance(client, { quoteId: current.quoteId, revisionId: revision.revisionId, priceVersionId });
-    const confirmation = priceVersion.confirmation;
-    // An existing CCT (including null) is authoritative. Never fall back from it.
-    if (terms ? terms.labor_currency !== 'USD' : confirmation?.laborCurrencyAtConfirmation !== 'USD') fail(409, 'labor_confirmation_currency_evidence_required');
-    const price = confirmedAmount(terms ? terms.confirmed_labor_price : confirmation?.confirmedLaborPrice);
-    const confirmedAt = terms ? terms.updated_at.toISOString() : confirmation?.confirmedAt;
-    if (!confirmedAt || !Number.isFinite(Date.parse(confirmedAt))) fail(409, 'labor_confirmation_time_required');
-    const source: LaborConfirmationSource = { schemaVersion: 'quote-labor-confirmation.v1', quoteId: current.quoteId, revisionId: revision.revisionId,
-      priceVersionId, quoteVersion: record.version, sourceKind: terms ? 'cct' : 'quote_confirmation', sourceCctId: terms?.id ?? null,
-      sourceCctVersion: terms?.version ?? null, confirmedAt, price, currency: 'USD', productHash: productHash(product) };
+    const source = resolveUsdLaborConfirmation(record, revision, priceVersion, terms);
     const bytes = (await client.query<{ bytes: number }>('SELECT octet_length($1::jsonb::text)::int AS bytes', [JSON.stringify(source)])).rows[0].bytes;
     if (bytes > 4096) fail(422, 'labor_confirmation_evidence_too_large'); sources.set(priceVersionId, source);
   }
@@ -119,4 +111,23 @@ export async function buildLaborAdoption(client: PoolClient, intent: LaborAdopti
     colors: basis.colors.map(color => ({ id: color.id, name: color.colorName, quantity: color.quantity })),
     sources: [...sources.values()].map(laborSourceIdentity), quoteVersion: record.version });
   return { ...basis, after, changed, sources, previewHash, warnings: [...new Set(warnings)], quoteCode: record.quote.quoteCode, revisionLabel: revision.revisionLabel };
+}
+
+export type LaborTermsEvidence = Pick<NonNullable<Awaited<ReturnType<typeof findTermsByQuoteProvenance>>>,
+  'id' | 'version' | 'labor_currency' | 'confirmed_labor_price' | 'updated_at'>;
+/** The query picker and the authoritative writer use the same confirmation
+ * precedence. Options are suggestions; product/successor/CAS still require preview. */
+export function resolveUsdLaborConfirmation(record: QuoteRecord, revision: ServerQuote['revisions'][number],
+  priceVersion: ServerQuote['revisions'][number]['priceVersions'][number], terms: LaborTermsEvidence | null): LaborConfirmationSource {
+  if (priceVersion.pricingParameters.laborCurrency !== 'USD') fail(409, 'labor_usd_confirmation_required');
+  const confirmation = priceVersion.confirmation;
+  if (terms ? terms.labor_currency !== 'USD' : confirmation?.laborCurrencyAtConfirmation !== 'USD') fail(409, 'labor_confirmation_currency_evidence_required');
+  const price = confirmedAmount(terms ? terms.confirmed_labor_price : confirmation?.confirmedLaborPrice);
+  const confirmedAt = terms ? terms.updated_at.toISOString() : confirmation?.confirmedAt;
+  if (!confirmedAt || !Number.isFinite(Date.parse(confirmedAt))) fail(409, 'labor_confirmation_time_required');
+  const { priceVersions: omitted, ...productRevision } = revision; void omitted;
+  return { schemaVersion: 'quote-labor-confirmation.v1', quoteId: record.quote.id, revisionId: revision.revisionId,
+    priceVersionId: priceVersion.id, quoteVersion: record.version, sourceKind: terms ? 'cct' : 'quote_confirmation', sourceCctId: terms?.id ?? null,
+    sourceCctVersion: terms?.version ?? null, confirmedAt, price, currency: 'USD',
+    productHash: productHash({ schemaVersion: 'order-product.v1', quoteCode: record.quote.quoteCode, revision: productRevision, priceVersion }) };
 }
