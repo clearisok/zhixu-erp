@@ -3953,6 +3953,19 @@
       "renderedSourceSha": "62693a8fac3db6aa1d86b73cf812d53395aa0cec",
       "sha256": "f56ca32460ae88fca84b509d60eaf158ecbd1b3a0684e344b11f7758623a1baa",
       "changeReason": "Bind the actual two-parent integration of exact main N and independent current DeliveryPlan stage c70. Preserve the D154 revision and all prior decision branches while providing its genuine forward ancestry; no guard, historical evidence or business change."
+    },
+    {
+      "id": "decisions-delivery-plan-requests-main-869e-20261026-merge",
+      "path": "docs/DECISION_LOG.md",
+      "mergeOf": [
+        "decisions-garment-observations-main-869e-20261026-merge",
+        "decisions-delivery-plan-requests-main-anchor-869e-20261026"
+      ],
+      "kind": "document",
+      "recordedAtSha": "9c70eac4325d7517154e07ec973ee04d0d5d7c33",
+      "renderedSourceSha": "62693a8fac3db6aa1d86b73cf812d53395aa0cec",
+      "sha256": "f56ca32460ae88fca84b509d60eaf158ecbd1b3a0684e344b11f7758623a1baa",
+      "changeReason": "Close the actual current-main Server integration and the genuine N-direct D154 witness at their real two-parent merge. Preserve every original decision, source proof, immutable parent object and UI record; no guard or business implementation change."
     }
   ],
   "pages": [
