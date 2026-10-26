@@ -4737,6 +4737,24 @@
       "recordedAtSha": "e56d898286cfd917d9624d9794539727703fc3d7",
       "renderedSourceSha": "60c2a6a2848978af1bb9ebe72184de97f4b14450",
       "sha256": "e0e9ba21bd4fdeab7515250f6b2a2fbf9d381c4946c554c82132c08bb56be288"
+    },
+    {
+      "id": "usd-labor-controller-d166-decision-log-20261027",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "9d287e738d38a9d2a25bfb86a7e74698a29f7be7",
+      "renderedSourceSha": "2c9e321c5a5d0e6ddca85f90f7348c07de955eda",
+      "sha256": "0da0fd0da9176cbd8960e5d7eac5d95e224667a81ea3ebf491aaadea722263d9",
+      "supersedes": "usd-labor-client-d165-decision-log-20261027",
+      "changeReason": "D166 composes the existing original-command protocol without UI or new pricing rules; preserve D165/D164/D162 and unresolved remote/UI boundaries"
+    },
+    {
+      "id": "usd-labor-controller-engineering-20261027",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-27-usd-labor-controller-engineering.md",
+      "recordedAtSha": "9d287e738d38a9d2a25bfb86a7e74698a29f7be7",
+      "renderedSourceSha": "2c9e321c5a5d0e6ddca85f90f7348c07de955eda",
+      "sha256": "8d24d55e7f05e8b2594682c650a7cff4737ea6b5e0aed3b95bf362b42eafd0bc"
     }
   ],
   "pages": [
