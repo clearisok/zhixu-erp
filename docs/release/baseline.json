@@ -4361,6 +4361,19 @@
       "renderedSourceSha": "fc103fb87ed3df294922189b4954c1764903ef22",
       "sha256": "89f7c3d55276d114a7ebb47e42f994f82f5992c853224ce0e8c6ca2c3d221667",
       "changeReason": "Bind the actual direct-parent merge of exact main N and the independent current D155 backend/client stage. Preserve both original Gate histories, all immutable records and verified21-route metadata; no guard exception, business change or manufactured ancestry."
+    },
+    {
+      "id": "decisions-delivery-coverage-main-869e-20261026-merge",
+      "path": "docs/DECISION_LOG.md",
+      "mergeOf": [
+        "decisions-delivery-plan-ui-main-869e-20261026-merge",
+        "decisions-delivery-coverage-main-anchor-869e-20261026"
+      ],
+      "kind": "document",
+      "recordedAtSha": "920ba4200c3200fef8b93a92d0ed9addd38834ed",
+      "renderedSourceSha": "fc103fb87ed3df294922189b4954c1764903ef22",
+      "sha256": "89f7c3d55276d114a7ebb47e42f994f82f5992c853224ce0e8c6ca2c3d221667",
+      "changeReason": "Close the actual current-main cumulative Server branch and genuine N-direct D155 backend/client witness at their real two-parent merge. Preserve both original Gate histories, all immutable records, V0 boundary and21route metadata; no business implementation change or guard exception."
     }
   ],
   "pages": [
