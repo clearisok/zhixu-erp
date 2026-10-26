@@ -1,0 +1,24 @@
+{
+  "source": "968b9e71267363cb7e224324b306c470c8f7a246",
+  "at": "2026-10-26T09:37:51.884Z",
+  "files": [
+    {
+      "original": "docs/CURRENT_STATE.md",
+      "archive": "docs/tasks/completed/2026-10-26-release-evidence-efficiency-input-state/CURRENT_STATE.md",
+      "gitBlob": "134dba1e3387479e3f31869c43c673a669fbecbc",
+      "sha256": "951cb8a3ec71d42f2fbbb7e92ed63ded0a1a06ed4320e02197c3ce0d8c2dbc7b"
+    },
+    {
+      "original": "docs/AI_HANDOFF.md",
+      "archive": "docs/tasks/completed/2026-10-26-release-evidence-efficiency-input-state/AI_HANDOFF.md",
+      "gitBlob": "9c8073f7a01907e7e19bacea7305fe137879cd2c",
+      "sha256": "07235c551f77b6f39ebce887377de9e3252729d2f9069876647f97f5dce52997"
+    },
+    {
+      "original": "docs/PROJECT_INDEX.md",
+      "archive": "docs/tasks/completed/2026-10-26-release-evidence-efficiency-input-state/PROJECT_INDEX.md",
+      "gitBlob": "acb4b1be086b09315b88112c890a61275807b1d8",
+      "sha256": "a07e30e11a148da1057a68b4ea983b17524e18879d80e092e31c4d3c9a2f587c"
+    }
+  ]
+}

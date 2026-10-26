@@ -1,23 +1,15 @@
-# 当前状态：累计Server与CI成本控制
+# 当前状态：累计Server与发布输入效率
 
-2026-10-26；main 869ee84dd0b31de6161011e4aa560678b244a64d于2026-10-26T08:25:23.082Z独立API核实，open PR 0。codex/ci-cost-main-869e从N建立后显式快进3851936e2fb8d6e3e95b4d47a3e141687a77555f，普通合流原成本分支db683892e7c90df3ea81c4b8162dd2aa36a3d03a（原base9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf），原提交和29保护引用保持。成衣/生产/来源等累计应用源码仍为8cf667f26f191b0ca1d3b31b423dd293d7f2a5b6，只三workflow增加既有成本策略。
+2026-10-26。main 869ee84dd0b31de6161011e4aa560678b244a64d于2026-10-26T08:25:23.082Z经独立API核实；本阶段未刷新原生Git。新分支codex/release-evidence-read-efficiency从该N建立并显式快进干净968b9e71267363cb7e224324b306c470c8f7a246，CI成本分支与此前29条保护引用不移动。
 
-三条必要工作流只加入同PR过时运行取消和npm下载缓存：按workflow/event/PR分组，手动run_id独立，只在PR取消。原pull_request/main与显式workflow_dispatch、检查名称、固定action SHA、contents:read、完整checkout、Node24、npm ci、全部当前测试/构建命令和15/20/20分钟上限保持；没有push重复触发、paths跳过、降低门槛或部署更改。新增成衣三项和此前生产/来源测试步骤完整保留。
+原44103291的发布回归901399ms超时，无汇总，仍不通过；原失败回执不覆盖。单条诊断84890ms完成，其中501次串行Git读取78521ms、独立夹具1725ms、校验3435ms。有界全套诊断361009ms终止，前41条顶层用例、46次校验持续推进，初始化96836ms、校验合计166105ms、最长4850ms；只用于归因，不作完整发布通过或原超时具体位置的证明。
 
-全部应用、API、SQL、UI和测试源码继续精确8cf；与其相比仅三份workflow有原成本增量。原501证据/66能力对象、11页/21路由及全部继承UI记录保持，原db683证据/能力是其完整子集；实际普通merge保留两父历史，不制造新revision。原三成衣Gate及更早源码QA继续按各自来源/范围复用。集中验证后新增一份独立路径QA证明至502/66，不修改原证据或能力状态。
+最小改动：测试夹具用两次有界Git cat-file读取实际不可变对象，验证完整SHA/path、对象类型、大小及二进制边界；4096输入/1MiB请求、单blob16MiB、唯一payload64MiB、每子进程15秒，缺失/越界整体失败，CR/LF/NUL不能注入行协议。只按真实OID去重内容，不使用旧校验结果。每个夹具仍独立复制全部文件，仅将父目录创建去重。原validateBaseline、runCheck、单blob读、全部134项原断言、真实Git夹具、清理约束、证据ID/hash/修订边和必要CI保持；无跨check缓存或hardlink。
 
-当前合流YAML校验去掉两项新增后与3851936e逐字/结构完全相等，并检查6个分组样例；复用既有锁定js-yaml4.1.1，不安装依赖。只在实际source merge S集中跑一次当前发布134；终态后Q冻结精确S/base/计数/时长和边界，R绑定独立证明，再仅运行最终R的exact-N守卫。Q/R仅docs，不把S134冒称exact-R重跑。实际终态以outputs/ci-cost-main-869e-20261026/final.json核定，未来最终PR必要CI仍保留。Hosted0，未实测缓存命中、取消效果或费用节省。
+定向新增9项真实Git/二进制/空/Unicode/重复对象/缺失/树/注入/请求和payload上限测试已通过（2026-10-26，工具输出2e4e62，实际4316.6ms；只选该组，不是全套）。随后在干净源码checkpoint集中运行完整发布回归，预期原134+新增9；计数必须以实际回执为准，不预先PASS。再冻结精确source/base结果并运行最终exact-N守卫和独立复审；不把源码QA冒称后续文档提交的再次运行。
 
-当前实际合流策略校验已通过；最终提交、集中发布回归、精确N守卫和独立复审以outputs/ci-cost-main-869e-20261026/final.json核定，缺终态不记阶段PASS。历史QA与当前验证、远端交付、真实Source激活、运行和人工接受分开记录。
+完整G1–G8/R Goal active。当前应用/SQL/UI继续精确8cf667f26f191b0ca1d3b31b423dd293d7f2a5b6，新增仅CI策略与测试输入效率工具。下一步为当前43份迁移的全新本机隔离候选验收，不能借用旧main31迁移的8/8；使用已审查f03清理保护，不重置旧体验。稳定成衣事件/更正、三项关账业务决定、具体真实采集/激活、人工接受/切换及依赖审计后退役仍分别待条件。
 
-完整G1–G8/R Goal active。后续按累计源码准备受保护的本机候选与当前范围验收；稳定成衣事件/更正、Server关账三项待决、真实来源具体范围/激活、目标切换与人工接受、依赖审计后退役仍分别待条件。可见coverage V2未批准/未实现，不借交期维护批准扩张。
+Push/新PR/Hosted/真实Source/凭据/账号/现有库、卷和备份写入0。NETWORK_DEGRADED及原STOP保留，普通PowerShell同样约5.35秒失败；不重复探测，不改共享代理/TLS/认证，H0d70交付授权仍未消耗。无合并、启用、调度、正式部署、50426切换或旧环境退役。
 
-NETWORK_DEGRADED及原Git STOP保留，普通PowerShell三种Git同样exit128/约5.35秒；不重复探测/推送，不改共享代理/TLS/认证，H0d70授权仍未消耗。本阶段Push/新PR/Hosted/真实Source/凭据/账号/现有业务库、卷或备份操作均0，不合并main、启用来源、调度、部署、切换或退役；3001/50426/59069/62426等既有环境和Browser数据保持。
-
-[阶段](tasks/active/ci-cost-main-869e-2026-10-26.md)、[前阶段](tasks/active/garment-controlled-main-869e-2026-10-26.md)、[输入归档](tasks/completed/2026-10-26-ci-cost-main-input-state/receipt.json)。
-
-## 2026-10-26实际超时恢复点
-
-2026-10-26T08:59:52.446Z，源码S 44103291bbe974069f3476ee81a39b787db3cdcc的唯一发布回归进程在901399ms触发15分钟上限（exit1、timedOut=true、overflow=false），未取得测试汇总，五项counts均未知；不能称134已通过或把未知补0。S/manifest前后稳定、工作树干净，三份YAML策略校验保持。原release-start.json/release.json/release.log完整保留；本轮Hosted/Push/Source/业务库均0。
-
-runCommand按Windows taskkill /T结束自有进程树；终态后只读进程清单无该测试Node残留（仅本次诊断shell匹配），不重启原会话。先做有界本地耗时定位，再决定必要修复；不直接循环重跑。QA证明Q/R尚未生成、最终守卫尚未执行，当前阶段为LOCAL_POLICY_PASS_RELEASE_PENDING_DIAGNOSIS，完整Goal active。
+[阶段](tasks/active/release-evidence-efficiency-2026-10-26.md)；[旧状态原文](tasks/completed/2026-10-26-release-evidence-efficiency-input-state/receipt.json)。

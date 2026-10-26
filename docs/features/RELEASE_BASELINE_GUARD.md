@@ -247,3 +247,10 @@ previous local audit's later time is not represented as new in-repo runtime proo
 
 
 2026-10-14：同一PR可前向保留多代文档checkpoint；每代仍验证精确Git blob/hash，新修订链必须终止于真实base清单记录。循环、无base锚点、分叉覆盖及缺少任一中间blob均阻断，不可通过链条跳过历史证据。详见same-PR checkpoint负向回归。
+
+
+## 2026-10-26 bounded test-input loading
+
+The regression fixture loads actual frozen Git blobs using `readEvidenceBlobs`: one bounded metadata query, then one binary payload query by verified object IDs. It rejects missing/non-blob objects, malformed identities, CR/LF/NUL protocol injection, more than4096 records, more than1MiB request bytes, a blob over16MiB or unique payloads over64MiB. Both child processes have15-second limits; exact binary boundaries and complete output are checked. No textconv/filter, synthetic replacement or cached PASS is used.
+
+Each negative fixture still owns independent real files and Git history; only repeated creation of the same parent directory is deduplicated. There are no shared writable hardlinks or file/result caches across checks. `validateBaseline`, `runCheck`, immutable evidence rules and hosted workflow quality gates are unchanged. The original134 cases remain, with9 new reader checks. The earlier901399ms timeout and bounded progress diagnosis remain explicitly incomplete; current source-attributed results are recorded separately in [the task](../tasks/active/release-evidence-efficiency-2026-10-26.md).
