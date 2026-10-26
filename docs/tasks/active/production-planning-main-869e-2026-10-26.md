@@ -23,3 +23,9 @@ H订单读取链0d70的精确交付授权仍有效，实际Execute/Push/PR/Hoste
 不应用0035到任何现有库，不改变3001/50426/59069/62426、真实账号/业务库/对象/卷/备份或旧Browser记录；没有新真实Source读取、绑定、激活、调度、部署或退役。
 
 完整Goal G1–G8/R保持active；关账原三项业务问题、真实Source范围、目标切换/人工接受、coverage V2与资产退役仍按原独立前置。旧[排单任务](server-production-planning-current-2026-10-24.md)与[工程证明](../completed/2026-10-24-production-planning-current-engineering.md)保留各自日期/source/结果/限制。
+
+## 实际历史合流
+
+第一真实合流B 11c6b0e2099346bcec1903c9508392270b30b541的父为main 869ee84dd0b31de6161011e4aa560678b244a64d与独立原G6B b6af0cd247c1e7ec4406e69526fa672544cce1d8；绑定提交2d43ec2f652de4d09b3261877d556f688a021eb3冻结D150/main决策mergeOf及同路径生产文档forward witness，原证据逐项不变。第二次普通合流保留G6A 910fbd4834336446abadb64c9d617b1ae868424b，也只遇4份汇总/清单冲突；完整非docs继续精确cd737。原G5 F/C链保留，第二真实合流的决定mergeOf随后绑定。清单在新绑定前300证据/50能力，旧runtime/能力/截图不改。
+
+独立策略复审已核两次决定贡献/非冗余及生产文档同路径要求，无剩余P1/P2；该策略复审未运行测试，也不替代最终commit/manifest与当前守卫复审。

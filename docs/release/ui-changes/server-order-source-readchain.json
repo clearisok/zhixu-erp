@@ -1,11 +1,17 @@
 {
-  "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
+  "baselineSha": "869ee84dd0b31de6161011e4aa560678b244a64d",
   "level": "V0",
   "visibleDifference": "none",
   "paths": [
     "features/order-center/server/sales-order-server-model.ts",
     "features/order-center/server/sales-order-server-client.ts"
   ],
-  "pages": ["order-detail"],
-  "evidence": ["docs/tasks/active/order-source-readchain-current-2026-10-24.md"]
+  "pages": [
+    "order-detail"
+  ],
+  "evidence": [
+    "docs/tasks/active/order-readchain-main-9d65-2026-10-25.md",
+    "docs/tasks/active/order-source-readchain-current-2026-10-24.md",
+    "docs/tasks/active/order-context-main-869e-2026-10-26.md"
+  ]
 }
