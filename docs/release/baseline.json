@@ -1,9 +1,355 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "869ee84dd0b31de6161011e4aa560678b244a64d",
-  "verifiedAt": "2026-10-26T00:29:09.520Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
+  "pages": [
+    {
+      "id": "quote-list",
+      "route": "/quote-center",
+      "routeFile": "app/quote-center/page.tsx",
+      "components": [
+        "features/quote-center/components/production-quote-pages.tsx",
+        "components/foundation/data-table.tsx"
+      ],
+      "acceptance": "approved-history",
+      "acceptanceScope": "D-099 PR64 information architecture plus approved PR89 widths/thumbnails and D-102 PR91 auto-fill; preserve personal preferences.",
+      "evidence": [
+        "decisions",
+        "quote-original",
+        "quote-list-acceptance",
+        "quote-pr91",
+        "pr64-list",
+        "quote-list-1280"
+      ]
+    },
+    {
+      "id": "quote-new",
+      "route": "/quote-center/new",
+      "routeFile": "app/quote-center/new/page.tsx",
+      "components": [
+        "features/quote-center/components/production-quote-pages.tsx",
+        "features/quote-center/components/quote-editor.tsx"
+      ],
+      "acceptance": "approved-history",
+      "acceptanceScope": "D-102 click creates and retains one numbered draft; supersedes old two-step cancellation. No complete standalone screenshot baseline claimed.",
+      "evidence": [
+        "decisions",
+        "quote-pr91"
+      ]
+    },
+    {
+      "id": "quote-detail",
+      "route": "/quote-center/detail",
+      "routeFile": "app/quote-center/detail/page.tsx",
+      "components": [
+        "features/quote-center/components/quote-editor.tsx"
+      ],
+      "acceptance": "approved-history",
+      "acceptanceScope": "Original Editor plus PR91 compact sections/PV cards; PR93 grants are security constraints, not new layout approval.",
+      "evidence": [
+        "decisions",
+        "quote-pr91",
+        "security-pr93",
+        "quote-detail-1280",
+        "quote-pv-390"
+      ]
+    },
+    {
+      "id": "quote-settings",
+      "route": "/system-settings/quote-settings",
+      "routeFile": "app/system-settings/quote-settings/page.tsx",
+      "components": [
+        "features/quote-center/components/global-quote-settings-page.tsx"
+      ],
+      "acceptance": "approved-history",
+      "acceptanceScope": "D-102 preset management first, creation defaults second; explicit IDs, no hidden system fees.",
+      "evidence": [
+        "decisions",
+        "quote-pr91",
+        "quote-settings-1536"
+      ]
+    },
+    {
+      "id": "order-list",
+      "route": "/order-center",
+      "routeFile": "app/order-center/page.tsx",
+      "components": [
+        "features/order-center/components/server-order-center-page.tsx",
+        "features/order-center/components/order-alert-tags.tsx"
+      ],
+      "acceptance": "approved-history",
+      "acceptanceScope": "P6 human acceptance with later synthetic integration evidence; production route remains closed. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance. D121 original-history functions have synthetic engineering evidence only; no new human visual acceptance or deployment.",
+      "evidence": [
+        "order-p6",
+        "order-integration",
+        "order-images",
+        "order-list-1440",
+        "order-list-390",
+        "ainuoke-continuous-engineering",
+        "ainuoke-continuous-computed-styles",
+        "unified-demo-engineering",
+        "ainuoke-readiness-engineering",
+        "order-source-history-ui-engineering",
+        "order-alerts-approved-engineering-20261014"
+      ]
+    },
+    {
+      "id": "order-detail",
+      "route": "/order-center/server-detail?id=UUID",
+      "routeFile": "app/order-center/server-detail/page.tsx",
+      "components": [
+        "features/order-center/components/server-sales-order-detail-page.tsx",
+        "features/order-center/components/server-saved-order-sources.tsx"
+      ],
+      "acceptance": "approved-history",
+      "acceptanceScope": "Compact executionOnly, no CCT calls, three/one columns, folded technical facts; production not activated. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance. D121 original-history functions have synthetic engineering evidence only; no new human visual acceptance or deployment. D121 header corrections have synthetic six-width evidence; this is not new human pixel acceptance. D147 Gate4B current 2026-10-24 isolated engineering restores saved size/owned plan reads in default-closed original disclosures; new before/after images and six-width default geometry are engineering evidence only, not renewed human acceptance or deployment.",
+      "evidence": [
+        "order-integration",
+        "order-images",
+        "order-detail-1440",
+        "order-detail-390",
+        "ainuoke-continuous-engineering",
+        "ainuoke-continuous-computed-styles",
+        "unified-demo-engineering",
+        "ainuoke-readiness-engineering",
+        "order-source-history-ui-engineering",
+        "material-order-header-order-header-1440",
+        "material-order-header-order-header-390",
+        "material-order-page-approved-scope",
+        "material-order-header-ui-verification",
+        "order-saved-source-read-engineering-20261024",
+        "order-saved-source-20261024-before-default-1440",
+        "order-saved-source-20261024-before-default-390",
+        "order-saved-source-20261024-after-default-1440",
+        "order-saved-source-20261024-after-default-390",
+        "order-saved-source-20261024-after-sizes-1440",
+        "order-saved-source-20261024-after-sizes-390",
+        "order-saved-source-20261024-after-plan-facts"
+      ]
+    },
+    {
+      "id": "material",
+      "route": "/order-center/style-progress/detail?orderId=UUID",
+      "routeFile": "app/order-center/style-progress/detail/page.tsx",
+      "components": [
+        "features/style-progress/components/style-progress-server-page.tsx"
+      ],
+      "acceptance": "approved-history",
+      "acceptanceScope": "Readonly Control Tower, procurement prices, return to original UUID; synthetic evidence does not activate source. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance. D121 header corrections have synthetic six-width evidence; this is not new human pixel acceptance. D133 adds an explicitly requested independent excess-warehouse column, synthetic validation only; source semantics confirmation is not human pixel or full live-data acceptance. D134 approved team sorting and event drawer have synthetic six-width engineering evidence only; no new human pixel acceptance or deployment. D140 contract-observation panel has synthetic six-width/seven-role engineering evidence only; not material matching, bank-payment confirmation, new human pixel acceptance or live financial activation.",
+      "evidence": [
+        "order-integration",
+        "order-images",
+        "material-1440",
+        "material-390",
+        "ainuoke-continuous-engineering",
+        "ainuoke-continuous-computed-styles",
+        "unified-demo-engineering",
+        "ainuoke-readiness-engineering",
+        "material-order-header-material-header-1440",
+        "material-order-header-material-header-390",
+        "material-order-page-approved-scope",
+        "material-order-header-ui-verification",
+        "excess-warehouse-mapping-results",
+        "excess-warehouse-ui-1440",
+        "excess-warehouse-ui-390",
+        "excess-warehouse-pr-delivery",
+        "material-display-results",
+        "material-display-ui-receipt",
+        "material-display-materials-1440",
+        "material-display-materials-390",
+        "material-display-events-1440",
+        "material-display-events-390",
+        "material-display-inbound-extra-1440",
+        "payment-read-panel-approved-scope",
+        "payment-read-panel-engineering",
+        "payment-read-panel-ui-receipt",
+        "read-panel-payment-1920",
+        "read-panel-payment-1536",
+        "read-panel-payment-1440",
+        "read-panel-payment-1280",
+        "read-panel-payment-900",
+        "read-panel-payment-390",
+        "read-panel-payment-fields-390",
+        "read-panel-payment-fields-1440",
+        "read-panel-payment-expired-1440"
+      ]
+    },
+    {
+      "id": "login",
+      "route": "/login",
+      "routeFile": "app/login/page.tsx",
+      "components": [
+        "features/server-auth/components/animated-login-page.tsx",
+        "features/server-auth/components/login-redirect.tsx",
+        "features/quote-center/components/quote-server-boundary.tsx",
+        "app/login/login.css"
+      ],
+      "acceptance": "approved-history",
+      "acceptanceScope": "User accepted PR101 login visuals on 2026-10-12; does not claim combined order/material or real-account business acceptance. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance.",
+      "evidence": [
+        "animated-login-engineering",
+        "decisions-animated-login",
+        "animated-login-1440",
+        "animated-login-1024",
+        "animated-login-768",
+        "animated-login-390",
+        "animated-login-320",
+        "decisions-combined-local-demo",
+        "unified-demo-engineering",
+        "ainuoke-readiness-engineering"
+      ]
+    },
+    {
+      "id": "navigation",
+      "route": "/ (shared shell)",
+      "routeFile": "app/layout.tsx",
+      "components": [
+        "components/foundation/app-shell.tsx",
+        "components/foundation/responsive.ts",
+        "components/foundation/server-user-menu.tsx"
+      ],
+      "acceptance": "approved-history",
+      "acceptanceScope": "Original shell plus D-097 authority/D-098 Quote-first; order harness is not production navigation approval. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance.",
+      "evidence": [
+        "decisions",
+        "quote-original",
+        "order-images",
+        "responsive-tests",
+        "ainuoke-continuous-engineering",
+        "ainuoke-continuous-computed-styles",
+        "unified-demo-engineering",
+        "ainuoke-readiness-engineering",
+        "server-user-menu-approved-20261014"
+      ]
+    },
+    {
+      "id": "user-permissions",
+      "route": "/basic-settings/user-permissions",
+      "routeFile": "app/basic-settings/user-permissions/page.tsx",
+      "components": [
+        "features/permissions/components/user-permission-page.tsx",
+        "features/permissions/components/server-user-permission-page.tsx"
+      ],
+      "acceptance": "implementation-only",
+      "acceptanceScope": "User-authorized account functionality on existing MasterDetail/Modal. Synthetic UI PASS; no new human visual acceptance.",
+      "evidence": [
+        "team-access-engineering",
+        "decisions-team-access"
+      ]
+    },
+    {
+      "id": "material-progress-settings",
+      "route": "/system-settings/progress-settings",
+      "routeFile": "app/system-settings/progress-settings/page.tsx",
+      "components": [
+        "features/style-progress/components/material-progress-settings-page.tsx"
+      ],
+      "acceptance": "implementation-only",
+      "acceptanceScope": "D121/D134 approved functionality, synthetic engineering candidate only; no human pixel acceptance, deployment or default route activation.",
+      "evidence": [
+        "material-display-approved-scope",
+        "decisions-material-display-settings-events",
+        "material-display-results",
+        "material-display-settings-1440",
+        "material-display-settings-390"
+      ]
+    }
+  ],
+  "css": {
+    "production": {
+      "entry": "app/layout.tsx",
+      "styles": [
+        "app/globals.css",
+        "app/quote-center/quote-center.css",
+        "app/order-center/order-center.css",
+        "app/production-scheduling/production-scheduling.css",
+        "app/closing-center/closing-center.css",
+        "app/ainuoke-sync/ainuoke-sync.css",
+        "app/order-center/style-progress/style-progress.css",
+        "app/foundation.css"
+      ]
+    },
+    "previews": [
+      {
+        "entry": "features/ainuoke-material-progress/integration-preview/main.tsx",
+        "styles": [
+          "app/globals.css",
+          "app/quote-center/quote-center.css",
+          "app/order-center/order-center.css",
+          "app/order-center/style-progress/style-progress.css",
+          "app/foundation.css",
+          "features/ainuoke-material-progress/integration-preview/preview.css"
+        ],
+        "scope": "Reviewed subset in production shared order; synthetic notice CSS follows Foundation. Does not replace real RootLayout/browser acceptance."
+      }
+    ]
+  },
+  "responsive": {
+    "observedBreakpoints": [
+      600,
+      1100,
+      1440
+    ],
+    "decisionReconciliation": "pending-no-behavior-change",
+    "scope": "Current behavior: <600 mobile regardless of pointer; touch/no-hover 600..1099 tablet, otherwise compact; 1100..1439 primary; >=1440 wide. D-023 text reconciliation pending.",
+    "evidence": [
+      "responsive-tests",
+      "decisions"
+    ]
+  },
+  "serverRoutes": [
+    "/",
+    "/quote-center",
+    "/quote-center/new",
+    "/quote-center/detail",
+    "/basic-settings/brands",
+    "/basic-settings/customer-salespeople",
+    "/basic-settings/fabrics",
+    "/basic-settings/trims",
+    "/system-settings/quote-settings",
+    "/system-settings/operation-logs",
+    "/basic-settings/user-permissions",
+    "/order-center",
+    "/order-center/server-detail",
+    "/order-center/style-progress/detail",
+    "/system-settings/progress-settings",
+    "/system-settings/roles",
+    "/system-settings/users",
+    "/basic-settings/production-groups",
+    "/basic-settings/outsource-factories",
+    "/system-settings/production-infrastructure"
+  ],
+  "runtimeSnapshots": [
+    {
+      "id": "trial18443",
+      "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+      "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+      "observedAt": "2026-10-09",
+      "reverifiedByThisTask": false,
+      "observationScope": "Date of the committed deployment record; no live runtime, DB, account or Source verification in PR95. The prior local audit is not used to advance this portable evidence date.",
+      "evidence": [
+        "trial-update"
+      ]
+    },
+    {
+      "id": "preview18444",
+      "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+      "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+      "observedAt": "2026-10-10",
+      "reverifiedByThisTask": false,
+      "observationScope": "Date of the committed deployment record; no live runtime, DB, account or Source verification in PR95. The prior local audit is not used to advance this portable evidence date.",
+      "evidence": [
+        "quote-pr91"
+      ]
+    }
+  ],
+  "limitations": [
+    "Combined synthetic UI and original P6 responsive checks passed. User accepted PR101 login visuals only; order/material and real-account business acceptance remain pending.",
+    "No target Zhixu runtime, ledger, accounts or deployment changed or reverified by this bounded payment diagnostic. The dated upstream first-page observation is not Source activation.",
+    "Static Server allowlist is only the capability ceiling; orderRead defaults disabled and explicit snapshot runtime must match the compiled build and source reader.",
+    "New contracts and existing main/color source mirrors do not automatically refresh. Historical snapshots accumulate without retention automation.",
+    "A manifest/CI green result cannot itself approve a UI redesign, real source activation or deployment."
+  ],
   "evidence": [
     {
       "id": "decisions",
@@ -2255,321 +2601,111 @@
       "sha256": "7f0437a139843e949bc73d300f7ce8457f09daddabf6e0e630952506a2fa0ebd",
       "supersedes": "decisions-order-context-main-9d65-20261026-merge",
       "changeReason": "Genuine two-parent forward merge joins exact approved PR129 main 869ee84dd0b31de6161011e4aa560678b244a64d and independent P0 9f9f87b06a89c2e929c1eab7cb9f4a8f1de6b6b7. Preserve all original decision branches and the real L0 mergeOf closure; this witnesses old D149 against the new actual main without changing business rules, original evidence or runtime claims."
+    },
+    {
+      "id": "production-resources-current-engineering-20261024",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-24-production-resources-current-engineering.md",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+      "sha256": "52fe921eb48af2d73e0c0e72ecd3916768714dbd979314f209cbdef474e593e9"
+    },
+    {
+      "id": "production-resources-current-20261024-before-infrastructure-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-resources-current/before-infrastructure-1440.png",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+      "sha256": "e8397b695fda542f1eb5c1eccf49e3133ff31f742320c91029814176ad21bf86",
+      "changeReason": "New synthetic engineering observations for approved D147 Gate6A Server restoration on three existing resource pages. Keep all previous PNG bytes and evidence; default764 top views are not full page or1440 evidence. No redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-resources-current-20261024-before-infrastructure-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-resources-current/before-infrastructure-390.png",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+      "sha256": "48b0fb2e6072f334ebb45e11684c60186bf2c3fe81aac73f91369975d7fc23be",
+      "changeReason": "New synthetic engineering observations for approved D147 Gate6A Server restoration on three existing resource pages. Keep all previous PNG bytes and evidence; default764 top views are not full page or1440 evidence. No redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-resources-current-20261024-after-factory-form-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-resources-current/after-factory-form-1440.png",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+      "sha256": "77c73bf56dcd1b083be600c61e823974c31471c28b11bc1993e79f65bb6f7afc",
+      "changeReason": "New synthetic engineering observations for approved D147 Gate6A Server restoration on three existing resource pages. Keep all previous PNG bytes and evidence; default764 top views are not full page or1440 evidence. No redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-resources-current-20261024-after-factory-form-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-resources-current/after-factory-form-390.png",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+      "sha256": "24bbb121842f73016f08f7a33acb9a164a0031a707974e7d4eb4f78e7ae061df",
+      "changeReason": "New synthetic engineering observations for approved D147 Gate6A Server restoration on three existing resource pages. Keep all previous PNG bytes and evidence; default764 top views are not full page or1440 evidence. No redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-resources-current-20261024-after-calendar-form-1440",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-resources-current/after-calendar-form-1440.png",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+      "sha256": "ef216a64238fceae0ef8ad7c746e80578add2a6a7f5edcc76fb4d8374c017f89",
+      "changeReason": "New synthetic engineering observations for approved D147 Gate6A Server restoration on three existing resource pages. Keep all previous PNG bytes and evidence; default764 top views are not full page or1440 evidence. No redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-resources-current-20261024-after-calendar-form-390",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-resources-current/after-calendar-form-390.png",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+      "sha256": "9e1ede31b9d6ccbec6864c029f1a5cdfbd2e79dedfb3b4d39e1436cdfcbbe786",
+      "changeReason": "New synthetic engineering observations for approved D147 Gate6A Server restoration on three existing resource pages. Keep all previous PNG bytes and evidence; default764 top views are not full page or1440 evidence. No redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-resources-current-20261024-after-infrastructure-top-764",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-resources-current/after-infrastructure-top-764.png",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+      "sha256": "dc052b939c370661f73e13881688b6f262ffaa332bf6a1fec20536fcf0328c5f",
+      "changeReason": "New synthetic engineering observations for approved D147 Gate6A Server restoration on three existing resource pages. Keep all previous PNG bytes and evidence; default764 top views are not full page or1440 evidence. No redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-resources-current-20261024-after-related-current-top-764",
+      "kind": "screenshot",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-resources-current/after-related-current-top-764.png",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+      "sha256": "7da083714496ef8d6574369ae8d86ab6ca9c5ea2dbbd2c47234752b2974aea1b",
+      "changeReason": "New synthetic engineering observations for approved D147 Gate6A Server restoration on three existing resource pages. Keep all previous PNG bytes and evidence; default764 top views are not full page or1440 evidence. No redesign, human acceptance, Source activation or deployment.",
+      "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "production-resources-current-20261024-before-build-and-geometry",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-resources-current/before-build-and-geometry.json",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+      "sha256": "682026c91226c95753ef59190517c38c77f2d456f1bc83d89d73bc0a9e8ecc2f"
+    },
+    {
+      "id": "production-resources-current-20261024-after-build-and-geometry",
+      "kind": "document",
+      "path": "docs/tasks/completed/evidence/2026-10-24-production-resources-current/after-build-and-geometry.json",
+      "recordedAtSha": "d69fed670404af4c916270419fa94dce04f252a8",
+      "renderedSourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+      "sha256": "dd9675c05a9aefd2e48ff1e29b3b5a4f5d56a78c7f94ef9883b5e66b14629470"
     }
-  ],
-  "pages": [
-    {
-      "id": "quote-list",
-      "route": "/quote-center",
-      "routeFile": "app/quote-center/page.tsx",
-      "components": [
-        "features/quote-center/components/production-quote-pages.tsx",
-        "components/foundation/data-table.tsx"
-      ],
-      "acceptance": "approved-history",
-      "acceptanceScope": "D-099 PR64 information architecture plus approved PR89 widths/thumbnails and D-102 PR91 auto-fill; preserve personal preferences.",
-      "evidence": [
-        "decisions",
-        "quote-original",
-        "quote-list-acceptance",
-        "quote-pr91",
-        "pr64-list",
-        "quote-list-1280"
-      ]
-    },
-    {
-      "id": "quote-new",
-      "route": "/quote-center/new",
-      "routeFile": "app/quote-center/new/page.tsx",
-      "components": [
-        "features/quote-center/components/production-quote-pages.tsx",
-        "features/quote-center/components/quote-editor.tsx"
-      ],
-      "acceptance": "approved-history",
-      "acceptanceScope": "D-102 click creates and retains one numbered draft; supersedes old two-step cancellation. No complete standalone screenshot baseline claimed.",
-      "evidence": [
-        "decisions",
-        "quote-pr91"
-      ]
-    },
-    {
-      "id": "quote-detail",
-      "route": "/quote-center/detail",
-      "routeFile": "app/quote-center/detail/page.tsx",
-      "components": [
-        "features/quote-center/components/quote-editor.tsx"
-      ],
-      "acceptance": "approved-history",
-      "acceptanceScope": "Original Editor plus PR91 compact sections/PV cards; PR93 grants are security constraints, not new layout approval.",
-      "evidence": [
-        "decisions",
-        "quote-pr91",
-        "security-pr93",
-        "quote-detail-1280",
-        "quote-pv-390"
-      ]
-    },
-    {
-      "id": "quote-settings",
-      "route": "/system-settings/quote-settings",
-      "routeFile": "app/system-settings/quote-settings/page.tsx",
-      "components": [
-        "features/quote-center/components/global-quote-settings-page.tsx"
-      ],
-      "acceptance": "approved-history",
-      "acceptanceScope": "D-102 preset management first, creation defaults second; explicit IDs, no hidden system fees.",
-      "evidence": [
-        "decisions",
-        "quote-pr91",
-        "quote-settings-1536"
-      ]
-    },
-    {
-      "id": "order-list",
-      "route": "/order-center",
-      "routeFile": "app/order-center/page.tsx",
-      "components": [
-        "features/order-center/components/server-order-center-page.tsx",
-        "features/order-center/components/order-alert-tags.tsx"
-      ],
-      "acceptance": "approved-history",
-      "acceptanceScope": "P6 human acceptance with later synthetic integration evidence; production route remains closed. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance. D121 original-history functions have synthetic engineering evidence only; no new human visual acceptance or deployment.",
-      "evidence": [
-        "order-p6",
-        "order-integration",
-        "order-images",
-        "order-list-1440",
-        "order-list-390",
-        "ainuoke-continuous-engineering",
-        "ainuoke-continuous-computed-styles",
-        "unified-demo-engineering",
-        "ainuoke-readiness-engineering",
-        "order-source-history-ui-engineering",
-        "order-alerts-approved-engineering-20261014"
-      ]
-    },
-    {
-      "id": "order-detail",
-      "route": "/order-center/server-detail?id=UUID",
-      "routeFile": "app/order-center/server-detail/page.tsx",
-      "components": [
-        "features/order-center/components/server-sales-order-detail-page.tsx",
-        "features/order-center/components/server-saved-order-sources.tsx"
-      ],
-      "acceptance": "approved-history",
-      "acceptanceScope": "Compact executionOnly, no CCT calls, three/one columns, folded technical facts; production not activated. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance. D121 original-history functions have synthetic engineering evidence only; no new human visual acceptance or deployment. D121 header corrections have synthetic six-width evidence; this is not new human pixel acceptance. D147 Gate4B current 2026-10-24 isolated engineering restores saved size/owned plan reads in default-closed original disclosures; new before/after images and six-width default geometry are engineering evidence only, not renewed human acceptance or deployment.",
-      "evidence": [
-        "order-integration",
-        "order-images",
-        "order-detail-1440",
-        "order-detail-390",
-        "ainuoke-continuous-engineering",
-        "ainuoke-continuous-computed-styles",
-        "unified-demo-engineering",
-        "ainuoke-readiness-engineering",
-        "order-source-history-ui-engineering",
-        "material-order-header-order-header-1440",
-        "material-order-header-order-header-390",
-        "material-order-page-approved-scope",
-        "material-order-header-ui-verification",
-        "order-saved-source-read-engineering-20261024",
-        "order-saved-source-20261024-before-default-1440",
-        "order-saved-source-20261024-before-default-390",
-        "order-saved-source-20261024-after-default-1440",
-        "order-saved-source-20261024-after-default-390",
-        "order-saved-source-20261024-after-sizes-1440",
-        "order-saved-source-20261024-after-sizes-390",
-        "order-saved-source-20261024-after-plan-facts"
-      ]
-    },
-    {
-      "id": "material",
-      "route": "/order-center/style-progress/detail?orderId=UUID",
-      "routeFile": "app/order-center/style-progress/detail/page.tsx",
-      "components": [
-        "features/style-progress/components/style-progress-server-page.tsx"
-      ],
-      "acceptance": "approved-history",
-      "acceptanceScope": "Readonly Control Tower, procurement prices, return to original UUID; synthetic evidence does not activate source. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance. D121 header corrections have synthetic six-width evidence; this is not new human pixel acceptance. D133 adds an explicitly requested independent excess-warehouse column, synthetic validation only; source semantics confirmation is not human pixel or full live-data acceptance. D134 approved team sorting and event drawer have synthetic six-width engineering evidence only; no new human pixel acceptance or deployment. D140 contract-observation panel has synthetic six-width/seven-role engineering evidence only; not material matching, bank-payment confirmation, new human pixel acceptance or live financial activation.",
-      "evidence": [
-        "order-integration",
-        "order-images",
-        "material-1440",
-        "material-390",
-        "ainuoke-continuous-engineering",
-        "ainuoke-continuous-computed-styles",
-        "unified-demo-engineering",
-        "ainuoke-readiness-engineering",
-        "material-order-header-material-header-1440",
-        "material-order-header-material-header-390",
-        "material-order-page-approved-scope",
-        "material-order-header-ui-verification",
-        "excess-warehouse-mapping-results",
-        "excess-warehouse-ui-1440",
-        "excess-warehouse-ui-390",
-        "excess-warehouse-pr-delivery",
-        "material-display-results",
-        "material-display-ui-receipt",
-        "material-display-materials-1440",
-        "material-display-materials-390",
-        "material-display-events-1440",
-        "material-display-events-390",
-        "material-display-inbound-extra-1440",
-        "payment-read-panel-approved-scope",
-        "payment-read-panel-engineering",
-        "payment-read-panel-ui-receipt",
-        "read-panel-payment-1920",
-        "read-panel-payment-1536",
-        "read-panel-payment-1440",
-        "read-panel-payment-1280",
-        "read-panel-payment-900",
-        "read-panel-payment-390",
-        "read-panel-payment-fields-390",
-        "read-panel-payment-fields-1440",
-        "read-panel-payment-expired-1440"
-      ]
-    },
-    {
-      "id": "login",
-      "route": "/login",
-      "routeFile": "app/login/page.tsx",
-      "components": [
-        "features/server-auth/components/animated-login-page.tsx",
-        "features/server-auth/components/login-redirect.tsx",
-        "features/quote-center/components/quote-server-boundary.tsx",
-        "app/login/login.css"
-      ],
-      "acceptance": "approved-history",
-      "acceptanceScope": "User accepted PR101 login visuals on 2026-10-12; does not claim combined order/material or real-account business acceptance. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance.",
-      "evidence": [
-        "animated-login-engineering",
-        "decisions-animated-login",
-        "animated-login-1440",
-        "animated-login-1024",
-        "animated-login-768",
-        "animated-login-390",
-        "animated-login-320",
-        "decisions-combined-local-demo",
-        "unified-demo-engineering",
-        "ainuoke-readiness-engineering"
-      ]
-    },
-    {
-      "id": "navigation",
-      "route": "/ (shared shell)",
-      "routeFile": "app/layout.tsx",
-      "components": [
-        "components/foundation/app-shell.tsx",
-        "components/foundation/responsive.ts",
-        "components/foundation/server-user-menu.tsx"
-      ],
-      "acceptance": "approved-history",
-      "acceptanceScope": "Original shell plus D-097 authority/D-098 Quote-first; order harness is not production navigation approval. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance.",
-      "evidence": [
-        "decisions",
-        "quote-original",
-        "order-images",
-        "responsive-tests",
-        "ainuoke-continuous-engineering",
-        "ainuoke-continuous-computed-styles",
-        "unified-demo-engineering",
-        "ainuoke-readiness-engineering",
-        "server-user-menu-approved-20261014"
-      ]
-    },
-    {
-      "id": "user-permissions",
-      "route": "/basic-settings/user-permissions",
-      "routeFile": "app/basic-settings/user-permissions/page.tsx",
-      "components": [
-        "features/permissions/components/user-permission-page.tsx",
-        "features/permissions/components/server-user-permission-page.tsx"
-      ],
-      "acceptance": "implementation-only",
-      "acceptanceScope": "User-authorized account functionality on existing MasterDetail/Modal. Synthetic UI PASS; no new human visual acceptance.",
-      "evidence": [
-        "team-access-engineering",
-        "decisions-team-access"
-      ]
-    },
-    {
-      "id": "material-progress-settings",
-      "route": "/system-settings/progress-settings",
-      "routeFile": "app/system-settings/progress-settings/page.tsx",
-      "components": [
-        "features/style-progress/components/material-progress-settings-page.tsx"
-      ],
-      "acceptance": "implementation-only",
-      "acceptanceScope": "D121/D134 approved functionality, synthetic engineering candidate only; no human pixel acceptance, deployment or default route activation.",
-      "evidence": [
-        "material-display-approved-scope",
-        "decisions-material-display-settings-events",
-        "material-display-results",
-        "material-display-settings-1440",
-        "material-display-settings-390"
-      ]
-    }
-  ],
-  "css": {
-    "production": {
-      "entry": "app/layout.tsx",
-      "styles": [
-        "app/globals.css",
-        "app/quote-center/quote-center.css",
-        "app/order-center/order-center.css",
-        "app/production-scheduling/production-scheduling.css",
-        "app/closing-center/closing-center.css",
-        "app/ainuoke-sync/ainuoke-sync.css",
-        "app/order-center/style-progress/style-progress.css",
-        "app/foundation.css"
-      ]
-    },
-    "previews": [
-      {
-        "entry": "features/ainuoke-material-progress/integration-preview/main.tsx",
-        "styles": [
-          "app/globals.css",
-          "app/quote-center/quote-center.css",
-          "app/order-center/order-center.css",
-          "app/order-center/style-progress/style-progress.css",
-          "app/foundation.css",
-          "features/ainuoke-material-progress/integration-preview/preview.css"
-        ],
-        "scope": "Reviewed subset in production shared order; synthetic notice CSS follows Foundation. Does not replace real RootLayout/browser acceptance."
-      }
-    ]
-  },
-  "responsive": {
-    "observedBreakpoints": [
-      600,
-      1100,
-      1440
-    ],
-    "decisionReconciliation": "pending-no-behavior-change",
-    "scope": "Current behavior: <600 mobile regardless of pointer; touch/no-hover 600..1099 tablet, otherwise compact; 1100..1439 primary; >=1440 wide. D-023 text reconciliation pending.",
-    "evidence": [
-      "responsive-tests",
-      "decisions"
-    ]
-  },
-  "serverRoutes": [
-    "/",
-    "/quote-center",
-    "/quote-center/new",
-    "/quote-center/detail",
-    "/basic-settings/brands",
-    "/basic-settings/customer-salespeople",
-    "/basic-settings/fabrics",
-    "/basic-settings/trims",
-    "/system-settings/quote-settings",
-    "/system-settings/operation-logs",
-    "/basic-settings/user-permissions",
-    "/order-center",
-    "/order-center/server-detail",
-    "/order-center/style-progress/detail",
-    "/system-settings/progress-settings",
-    "/system-settings/roles",
-    "/system-settings/users"
   ],
   "capabilities": [
     {
@@ -7084,37 +7220,93 @@
           ]
         }
       }
-    }
-  ],
-  "runtimeSnapshots": [
-    {
-      "id": "trial18443",
-      "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
-      "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
-      "observedAt": "2026-10-09",
-      "reverifiedByThisTask": false,
-      "observationScope": "Date of the committed deployment record; no live runtime, DB, account or Source verification in PR95. The prior local audit is not used to advance this portable evidence date.",
-      "evidence": [
-        "trial-update"
-      ]
     },
     {
-      "id": "preview18444",
-      "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
-      "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
-      "observedAt": "2026-10-10",
-      "reverifiedByThisTask": false,
-      "observationScope": "Date of the committed deployment record; no live runtime, DB, account or Source verification in PR95. The prior local audit is not used to advance this portable evidence date.",
+      "id": "production-resources-current",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D147 Gate6A Server production calendars, sites, groups and outsource factories on three existing pages; stable identities, CAS, fresh session authority, immutable command receipts and bounded request recovery. Current synthetic API/browser/build engineering only, no scheduling, completion, logistics, target upgrade, merge, deployment or human acceptance.",
       "evidence": [
-        "quote-pr91"
-      ]
+        "production-resources-current-engineering-20261024"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+          "scope": "D147 Gate6A Server production calendars, sites, groups and outsource factories on three existing pages; stable identities, CAS, fresh session authority, immutable command receipts and bounded request recovery. Current synthetic API/browser/build engineering only, no scheduling, completion, logistics, target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "production-resources-current-engineering-20261024"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-24",
+          "sourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+          "scope": "D147 Gate6A Server production calendars, sites, groups and outsource factories on three existing pages; stable identities, CAS, fresh session authority, immutable command receipts and bounded request recovery. Current synthetic API/browser/build engineering only, no scheduling, completion, logistics, target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "production-resources-current-engineering-20261024"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+          "scope": "D147 Gate6A Server production calendars, sites, groups and outsource factories on three existing pages; stable identities, CAS, fresh session authority, immutable command receipts and bounded request recovery. Current synthetic API/browser/build engineering only, no scheduling, completion, logistics, target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "production-resources-current-engineering-20261024"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+          "scope": "D147 Gate6A Server production calendars, sites, groups and outsource factories on three existing pages; stable identities, CAS, fresh session authority, immutable command receipts and bounded request recovery. Current synthetic API/browser/build engineering only, no scheduling, completion, logistics, target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "production-resources-current-engineering-20261024"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+          "scope": "D147 Gate6A Server production calendars, sites, groups and outsource factories on three existing pages; stable identities, CAS, fresh session authority, immutable command receipts and bounded request recovery. Current synthetic API/browser/build engineering only, no scheduling, completion, logistics, target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "production-resources-current-engineering-20261024"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "Current production-resource candidate not deployed. Preserve the historical runtime source/image without re-observation.",
+          "evidence": [
+            "production-resources-current-engineering-20261024"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "Current production-resource candidate not deployed. Preserve the historical runtime source/image without re-observation.",
+          "evidence": [
+            "production-resources-current-engineering-20261024"
+          ]
+        }
+      }
     }
   ],
-  "limitations": [
-    "Combined synthetic UI and original P6 responsive checks passed. User accepted PR101 login visuals only; order/material and real-account business acceptance remain pending.",
-    "No target Zhixu runtime, ledger, accounts or deployment changed or reverified by this bounded payment diagnostic. The dated upstream first-page observation is not Source activation.",
-    "Static Server allowlist is only the capability ceiling; orderRead defaults disabled and explicit snapshot runtime must match the compiled build and source reader.",
-    "New contracts and existing main/color source mirrors do not automatically refresh. Historical snapshots accumulate without retention automation.",
-    "A manifest/CI green result cannot itself approve a UI redesign, real source activation or deployment."
-  ]
+  "baselineSha": "869ee84dd0b31de6161011e4aa560678b244a64d",
+  "verifiedAt": "2026-10-26T01:14:19.128Z"
 }

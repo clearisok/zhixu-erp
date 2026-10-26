@@ -112,6 +112,7 @@ function AppShellFrame({ title, children, onRequestNavigation, onRequestLogout, 
   const formalSystemRoutes = [
     {label:"进度设置",href:"/system-settings/progress-settings"},
     {label:"报价设置",href:"/system-settings/quote-settings"},
+    {label:"生产与运输",href:"/system-settings/production-infrastructure"},
     {label:"角色权限",href:"/system-settings/roles"},
     {label:"用户管理",href:"/system-settings/users"},
     {label:"操作日志",href:"/system-settings/operation-logs"},

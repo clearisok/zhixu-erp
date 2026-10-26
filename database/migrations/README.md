@@ -1,5 +1,14 @@
 # PostgreSQL migrations
 
+0034 adds empty production calendars, date exceptions, sites, groups and outsource
+factories plus immutable actor/request outcomes. Stable resource identity,
+forward versions and disable-instead-of-delete guards do not import Browser
+defaults, create schedules, grant permissions or touch commercial data. Relations
+are explicit calendar -> site -> group. The command service validates current
+availability and authorization transactionally; SQL foreign keys retain history.
+Only disposable synthetic databases have been authorized for this stage. Normal
+startup is still verify-only; existing targets have not been upgraded.
+
 0033 adds an immutable, nonmonetary Quote creation reference to a proven order
 context. It is separate from Quote revision data and commercial adoption, shares
 the existing actor/request receipt identity, and performs no backfill, grants,

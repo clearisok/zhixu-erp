@@ -1,0 +1,76 @@
+# G6A 当前生产资源 Server 前向整合
+
+2026-10-24；执行已批准 D147/G6A，root唯一writer，既有server_convergence_review只读。
+从独立API已核 main `e01a11952b648024c0bd6bf4259de429374981e2` 新建
+`codex/server-production-resources-current`，显式FF到已收口 G5
+`530203b32aa9b237c4b81be285e91be40d4e990e`。开始 clean，无继承用户dirty。
+G5两状态逐字、逐SHA256保留于completed/2026-10-24-production-resources-input-state/。
+起点与范围审计在ignored outputs/server-production-resources-current-20261024/。
+
+## 受控复用与修正
+
+原 aaf→d717 的25个非docs/workflow路径逐Git blob与当前输入完全相同（含新增文件均不存在），
+核完全部路径才复制原 `d7172477b75569165d3a2c1b04ddc58ea24008b4`。
+保留当前 main/#120、G3导航、G5和现行Quote验收修复；不复制旧workflow/manifest/摘要，
+不整包导入后续排单、完成、物流或成衣出货。
+
+独立静态复核确认原后续23278ffc的CAS重新读取disabled谓词应保留；只提这一行，
+并新增真实GET回复屏障，验证目录权限待核期间按钮disabled，放行后一次点击读最新。
+caf062d0的撤权Enter用例只前移真实Drawer初始rAF焦点/原生Enter/一POST403/原编号恢复及
+安全焦点诊断，不带G6D业务。原240s父级/16s轮询/20s CDP/30s端点预算不变。
+清理复用当前stopOwnedChromium：root Browser.close不带sessionId，证据失败仍释放HTTP/PG，
+未确认owned退出保留profile，不使用kill后固定等待删除冒称成功。
+
+## 容量缺陷：先复现后修复
+
+审查发现合法HTTP/outbox命令可能小于1MiB、而回执PostgreSQL jsonb::text超过0034的同一上限。
+本机真实合成PG/HTTP复现：命令1,048,218字节、真实outbox1,048,352字节、结果1,054,445字节，
+原服务返回500；GET为unknown，前端原请求无法编辑，重试仍同样失败。
+原两文件红验收24pass/4fail（含父项、后续审计错误计数连带失败），0取消/跳过，完整日志保留。
+
+窄修复在原resource_apply SAVEPOINT内、apply之后检查真实结果jsonb::text字节，覆盖changed及no-op。
+超出原1MiB时回滚资源/例外/审计，存小型持久化422拒绝回执；原prior直接重放，其他SQL/审计异常
+仍整体回滚。客户端仅接受完整request/kind/hash匹配且422对应静态容量code，裸422/错hash不释放原缓存。
+不放大HTTP/SQL/outbox限额、不截断、不禁止原合法字符、不重写0034。
+
+工作态两文件28/28 PASS（8680ms）：实际HTTP422、零资源/例外/审计新增、恰一回执、
+原请求POST replay及GET known、原缓存确认后释放、已有大日历no-op明确拒绝、实际可容纳的
+1000项例外仍完整保存、原正常no-op/replay与审计失败保护。只是工作态结果，未当作冻结全套验收。
+
+## 行为与边界
+
+四资源为日历→地点→生产组和独立外发厂，稳定身份、版本、启停及同名合法；空库不Seed。
+复用现有表格/同页卡片/抽屉和结构化日期字段，正式Server从不挂载Browser聚合normalizer。
+既有权限、角色锁序、session owner、原命令恢复、已知拒绝/未知结果区分保持；不改真实账号授权。
+0034仅新增空表，接当前0033，不回填、不重写旧迁移、不升级目标；启动仍verify-only。
+Server路由只加这三个已有业务页面，不把资源CRUD称为排单/生产闭环。
+
+## 当前验收计划与成本
+
+先完成独立静态复核并冻结源码，再新canonical archive复用依赖/noinstall。
+执行四资源契约/客户端/outbox/真实PG/HTTP、角色/用户/空库及G5引用回归；类型/Node实际载入/lint、
+双authority构建/原独立产物检查器、当前资源及导航真实浏览器、根非发布与最终发布检查。
+新before/after仅作工程对照，不借旧d717/7b结果当当前；新能力在实际验收/冻结证明后才登记。
+代码未再变化时复用成功结果，不重复全仓扫描、远端CI或Docker网络尝试。
+
+本段原计划现已由f441冻结工程结果落实，见下方收口；发布与最终守卫仍待元数据绑定后执行。
+原G5的68a/53c9/61e/530结果分别保留，完整Goal active。
+#125旧CA及STOP为原日期历史；07:01Z具体API例外已完成至4f，3项CI全绿，不据此交付G6A。
+不自动merge/close/deploy，不读真实凭据/Source，不改现有账号/业务库/卷、旧Browser账本、
+3001/50426/59069/62426等环境、备份或已有验收结果，不绑定/激活/调度或退役。
+
+严格before模式只允许显式RESOURCE_UI_BEFORE及完整旧68a SHA，观察三个旧Server资源路由封闭、零资源API/写入和无Browser账本，1440/390仅截图；后台/测试为当前源。after禁止外部静态目录。两种路径都执行owned finally，不借旧构建冒称after。
+
+## 07:01Z 独立远端操作范围前向更新
+
+用户新答复仅授权#125经原API expected ca05/force=false快进精确4f。执行前重核CA、候选tree/双父、main e01a及本地祖先；仅1次update_ref，独立API核4f送达。临时PR预览dd5700父为e01a/4f、tree等于候选；不等于merge main。Source40072506615、Team40072506633、Baseline40072506617自动各运行一次（attempt1），当前尚待终态，无手动dispatch/rerun。旧Git退出1/STOP及根因unknown作为历史保留；本次特定例外已履行，不是全局通道恢复。G6A新代码未因此上传，真实数据/部署边界不变。
+
+## 冻结工程收口（07:14Z后）
+
+f441实际类型/Node编译与import/lint、73/73相关领域与真实PG/API、97根811/811、before2/after14/导航18、双authority构建/产物全部PASS，0失败/取消/跳过。各45页/1fallback/110assets；Browser1preload提示、Server0。before旧68a、after完整f441，主控查看8图；默认764顶部图不冒称整页1440。proof d69fed670404af4c916270419fa94dce04f252a8，完整时长、红绿与范围见completed证明。独立只读复审无P1/P2，未替其声称运行测试。
+
+清单前向269/49，原258/48与runtime对象不变；按D147新增三条既有资源Server路由，不扩大真实来源/目标激活。元数据提交后仅新跑发布134及精确main守卫，当前不提前PASS。G6A未push/PR/CI；#125三项attempt1 success只属于4f，说明更新且仍草稿。
+
+## 元数据后发布终态
+
+0d22886a1fc35eea0dbebfaabb315b3967f45440实际npm run test:release-baseline为134/134 PASS，进程312533ms，0失败/取消/跳过。f441之后仅文档/证据，97根811源码不变，分阶段联合99根文件945；不重复未改成功范围。269/49及原258/48/runtime保留经独立只读复审无P1/P2，审阅者未运行测试。最终精确main守卫按最后clean HEAD单独运行并保存输出，不制造自证commit循环；尚未发生的远端交付不预写PASS。完整Goal active。
