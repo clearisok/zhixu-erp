@@ -4693,6 +4693,32 @@
       "recordedAtSha": "e12638cc392e5268f56f589e312f067ca2110535",
       "renderedSourceSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
       "sha256": "f95735e1b0acd51224428a6cf2f772d81a7ffe3ee6f943f84210e85f99affebf"
+    },
+    {
+      "id": "usd-labor-d164-decision_log-20261027",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "faa39dee4388d3eba9378a30d7ce925b8231bcec",
+      "renderedSourceSha": "7afc5bb3a38784bd44dc539dbf1104143ae49fb2",
+      "sha256": "97bc4bf661f1b82c682670027269e4c51bc29ddade6b5b6caeecba7759b32768",
+      "supersedes": "closing-commands-d163-decisions-reconciled-20261027",
+      "changeReason": "D164 implements only approved D162 CNY-to-USD adoption; preserve source/product/sale/batch/closing and all historical decisions"
+    },
+    {
+      "id": "usd-labor-d164-order_usd_labor_adoption-20261027",
+      "kind": "document",
+      "path": "docs/features/ORDER_USD_LABOR_ADOPTION.md",
+      "recordedAtSha": "faa39dee4388d3eba9378a30d7ce925b8231bcec",
+      "renderedSourceSha": "7afc5bb3a38784bd44dc539dbf1104143ae49fb2",
+      "sha256": "9a673d87f65155784ea104811c5b004c558d24f4915cdaf859af4a14fb51d24e"
+    },
+    {
+      "id": "usd-labor-d164-2026-10-27-order-usd-labor-adoption-engineering-20261027",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-27-order-usd-labor-adoption-engineering.md",
+      "recordedAtSha": "faa39dee4388d3eba9378a30d7ce925b8231bcec",
+      "renderedSourceSha": "7afc5bb3a38784bd44dc539dbf1104143ae49fb2",
+      "sha256": "bc19e8368b76eb8c0b9e10d5003a9dff63da7dbedaac9d05114b4cb2d1ab1370"
     }
   ],
   "pages": [
@@ -11138,6 +11164,91 @@
           "scope": "This local-only backend was not deployed by this phase; preserve historical runtime source/image identity and selected Docker metadata, without a new business/environment query.",
           "evidence": [
             "closing-commands-d163-2026-10-27-server-closing-commands-engineering-20261027"
+          ]
+        }
+      }
+    },
+    {
+      "id": "order-usd-labor-adoption",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D162 CNY→USD confirmed labor conversion only; same Quote/fixed PV/trusted successor/unchanged product, exact USD no-op only, immutable order commercial versions and separate work provenance, original sale/product/batch/closing preserved. No general USD→USD adoption, free labor price, FX, UI, tax correction, live data, deployment or source activation.",
+      "evidence": [
+        "usd-labor-d164-2026-10-27-order-usd-labor-adoption-engineering-20261027"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-27",
+          "sourceSha": "7afc5bb3a38784bd44dc539dbf1104143ae49fb2",
+          "scope": "D162 CNY→USD confirmed labor conversion only; same Quote/fixed PV/trusted successor/unchanged product, exact USD no-op only, immutable order commercial versions and separate work provenance, original sale/product/batch/closing preserved. No general USD→USD adoption, free labor price, FX, UI, tax correction, live data, deployment or source activation.",
+          "evidence": [
+            "usd-labor-d164-2026-10-27-order-usd-labor-adoption-engineering-20261027"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-27",
+          "sourceSha": "7afc5bb3a38784bd44dc539dbf1104143ae49fb2",
+          "scope": "D162 CNY→USD confirmed labor conversion only; same Quote/fixed PV/trusted successor/unchanged product, exact USD no-op only, immutable order commercial versions and separate work provenance, original sale/product/batch/closing preserved. No general USD→USD adoption, free labor price, FX, UI, tax correction, live data, deployment or source activation.",
+          "evidence": [
+            "usd-labor-d164-2026-10-27-order-usd-labor-adoption-engineering-20261027"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-27",
+          "sourceSha": "7afc5bb3a38784bd44dc539dbf1104143ae49fb2",
+          "scope": "D162 CNY→USD confirmed labor conversion only; same Quote/fixed PV/trusted successor/unchanged product, exact USD no-op only, immutable order commercial versions and separate work provenance, original sale/product/batch/closing preserved. No general USD→USD adoption, free labor price, FX, UI, tax correction, live data, deployment or source activation.",
+          "evidence": [
+            "usd-labor-d164-2026-10-27-order-usd-labor-adoption-engineering-20261027"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-27",
+          "sourceSha": "7afc5bb3a38784bd44dc539dbf1104143ae49fb2",
+          "scope": "D162 CNY→USD confirmed labor conversion only; same Quote/fixed PV/trusted successor/unchanged product, exact USD no-op only, immutable order commercial versions and separate work provenance, original sale/product/batch/closing preserved. No general USD→USD adoption, free labor price, FX, UI, tax correction, live data, deployment or source activation.",
+          "evidence": [
+            "usd-labor-d164-2026-10-27-order-usd-labor-adoption-engineering-20261027"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-27",
+          "sourceSha": "7afc5bb3a38784bd44dc539dbf1104143ae49fb2",
+          "scope": "D162 CNY→USD confirmed labor conversion only; same Quote/fixed PV/trusted successor/unchanged product, exact USD no-op only, immutable order commercial versions and separate work provenance, original sale/product/batch/closing preserved. No general USD→USD adoption, free labor price, FX, UI, tax correction, live data, deployment or source activation.",
+          "evidence": [
+            "usd-labor-d164-2026-10-27-order-usd-labor-adoption-engineering-20261027"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-27",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "This phase performs local synthetic backend validation only and no deployment. Retain historical runtime identity and selected Docker metadata; no new business query.",
+          "evidence": [
+            "usd-labor-d164-2026-10-27-order-usd-labor-adoption-engineering-20261027"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-27",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "This phase performs local synthetic backend validation only and no deployment. Retain historical runtime identity and selected Docker metadata; no new business query.",
+          "evidence": [
+            "usd-labor-d164-2026-10-27-order-usd-labor-adoption-engineering-20261027"
           ]
         }
       }
