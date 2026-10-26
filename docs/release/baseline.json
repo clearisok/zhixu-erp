@@ -4605,6 +4605,50 @@
       "recordedAtSha": "40592075ba805a5fecc9dedb799b4f5e19bc01fc",
       "renderedSourceSha": "6dcea703ccc5372ad1b6d68ad919a287ef975dc6",
       "sha256": "9b932062dbd07b162451a2b7830d9a4bda545db82e5a22fd06e3fe42d0df361f"
+    },
+    {
+      "id": "closing-basis-d162-decision_log-20261026",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "4bc68c6ecabcb3acc5541d0c4fc20aa850242ddf",
+      "renderedSourceSha": "4bc68c6ecabcb3acc5541d0c4fc20aa850242ddf",
+      "sha256": "a95a3f93382d744ec144ab3a6408766b615e14eb541a9103956d625e6c14e10b",
+      "supersedes": "decisions-garment-controlled-main-869e-20261026-merge",
+      "changeReason": "D162 user-confirmed Server closing rules and read-only Gate8A, preserve Browser historical scope and prior evidence"
+    },
+    {
+      "id": "closing-basis-d162-closing_center-20261026",
+      "kind": "document",
+      "path": "docs/features/CLOSING_CENTER.md",
+      "recordedAtSha": "4bc68c6ecabcb3acc5541d0c4fc20aa850242ddf",
+      "renderedSourceSha": "4bc68c6ecabcb3acc5541d0c4fc20aa850242ddf",
+      "sha256": "62c4e50558e8b4ca6ecbe90fc8f3b0aae3a88de469943cbdca2766778a21d3dc",
+      "supersedes": "closing-garment-controlled-main-anchor-869e-20261026",
+      "changeReason": "D162 user-confirmed Server closing rules and read-only Gate8A, preserve Browser historical scope and prior evidence"
+    },
+    {
+      "id": "closing-basis-d162-server_closing-20261026",
+      "kind": "document",
+      "path": "docs/features/SERVER_CLOSING.md",
+      "recordedAtSha": "4bc68c6ecabcb3acc5541d0c4fc20aa850242ddf",
+      "renderedSourceSha": "4bc68c6ecabcb3acc5541d0c4fc20aa850242ddf",
+      "sha256": "a0ce542a137628681af441463ab9064616247abc4146ab839cdc0ce1141f235a"
+    },
+    {
+      "id": "closing-basis-d162-business_rules-20261026",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "4bc68c6ecabcb3acc5541d0c4fc20aa850242ddf",
+      "renderedSourceSha": "4bc68c6ecabcb3acc5541d0c4fc20aa850242ddf",
+      "sha256": "6bce2c017fad7ece3c2d91a2520824d0f480383ce239cae34fd9e9f0523189eb"
+    },
+    {
+      "id": "closing-basis-d162-2026-10-26-server-closing-basis-engineering-20261026",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-26-server-closing-basis-engineering.md",
+      "recordedAtSha": "b5bdd3b8f14cb4f6a6e7aab8e636faf8106e6c9c",
+      "renderedSourceSha": "4bc68c6ecabcb3acc5541d0c4fc20aa850242ddf",
+      "sha256": "89684fe5d1489aabce861bf8c7c938248ab9190f6ec2670497230b3ed2da0029"
     }
   ],
   "pages": [
