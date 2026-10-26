@@ -1,5 +1,5 @@
 # 当前任务入口
 
-2026-10-27；最后核实main 869ee84dd0b31de6161011e4aa560678b244a64d（本轮未fetch）；分支codex/server-closing-commands-main-869e。应用源码S2 1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df，初始S e85107cc6f663f74ede421a1e59e703e8dd2310b；已验收文档/清单HEAD 6aeb603f7b0845033746853699953d78b32ef2e2。原PR130远端仍61704afe22fe9fd0ea9f6625c6092fcbb9575dfc，其原CI3/3不代表本阶段。Git退出1的STOP_AUTH_OR_DIVERGENCE根因UNRESOLVED，远端Git/ref写仍冻结。
+2026-10-27；最后核实main 869ee84dd0b31de6161011e4aa560678b244a64d（本轮未fetch）；分支codex/order-usd-labor-adoption-main-869e。初始源码S 34547801fd818f5f6777809f11c09ddd574688c2；最终源码S4 7afc5bb3a38784bd44dc539dbf1104143ae49fb2，精确归档3043blob/0overlay。父Gate8B f080263ab681afdb79b20df3200ca027a96ec234。PR130原远端仍61704afe22fe9fd0ea9f6625c6092fcbb9575dfc，旧CI不代表本阶段。Git退出1的STOP_AUTH_OR_DIVERGENCE根因UNRESOLVED，远端Git/ref写继续冻结。
 
-先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[Gate8B当前契约](features/SERVER_CLOSING_COMMANDS.md)、[验收](tasks/completed/2026-10-27-server-closing-commands-validation.md)、[证据澄清](tasks/completed/2026-10-27-closing-command-evidence-reconciliation.md)与[完整Gate](tasks/active/server-convergence-gate0-2026-10-20.md)。旧SERVER_CLOSING/BUSINESS_RULES的Gate8A实现状态冻结按原日期理解，D163接续当前实现。
+先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[Gate8C契约](features/ORDER_USD_LABOR_ADOPTION.md)、[冻结工程](tasks/completed/2026-10-27-order-usd-labor-adoption-engineering.md)、[阶段](tasks/active/order-usd-labor-adoption-2026-10-27.md)与[全Gate](tasks/active/server-convergence-gate0-2026-10-20.md)。旧Gate8B独立契约和D163、Gate8A冻结文档、历史失败及证据澄清继续保留，不用历史状态覆盖当前。

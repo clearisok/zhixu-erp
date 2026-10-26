@@ -1,12 +1,11 @@
-# 恢复点：Gate8C USD工价采用核心 checkpoint
+# 恢复点：Gate8C工程通过，待发布门禁与UI
 
-2026-10-27；当前分支 `codex/order-usd-labor-adoption-main-869e`，父提交 `f080263ab681afdb79b20df3200ca027a96ec234`，最后核实main `869ee84dd0b31de6161011e4aa560678b244a64d`（未fetch）。本阶段无继承dirty，当前增量全部本阶段创建，见[阶段](tasks/active/order-usd-labor-adoption-2026-10-27.md)及[契约](features/ORDER_USD_LABOR_ADOPTION.md)。
+2026-10-27；最后核实main 869ee84dd0b31de6161011e4aa560678b244a64d（本轮未fetch）；分支codex/order-usd-labor-adoption-main-869e。初始源码S 34547801fd818f5f6777809f11c09ddd574688c2；最终源码S4 7afc5bb3a38784bd44dc539dbf1104143ae49fb2，精确归档3043blob/0overlay。父Gate8B f080263ab681afdb79b20df3200ca027a96ec234。PR130原远端仍61704afe22fe9fd0ea9f6625c6092fcbb9575dfc，旧CI不代表本阶段。Git退出1的STOP_AUTH_OR_DIVERGENCE根因UNRESOLVED，远端Git/ref写继续冻结。
 
-D162/D164：PV确认保存确认时币种，已确认PV不能直接改币种；原Quote/固定PV/可信后继/相同产品的USD工价显式采用，只追加原商业版本，不改source/product/sale/batch/closing。0046、窄工价HTTP/preview/commands/receipt/history、fresh权限、CAS、幂等、原子审计和未知COMMIT。核心模型8与集成13通过，Server类型通过；完整边界、root工程、发布门禁和独立复审尚待，不是Gate完成。首次失败原文保留，不冒称全绿。
+D162/D164后端：仅CNY→USD明确采用；原USD只能完整凭据及金额相同no-op，混合越界整单拒绝。可信后继/确认时币种、原产品/售价/批次/关账保护、独立工价来源及幂等回执。0046不回填。
 
-原Gate8B f080已完成本地验收，106定向/811项目/144发布，详细证据[Gate8B验收](tasks/completed/2026-10-27-server-closing-commands-validation.md)及[澄清](tasks/completed/2026-10-27-closing-command-evidence-reconciliation.md)保持。本阶段不得用其结果代替新源码验证。
+分源192定向及811项目通过，类型/相关lint/Server与前端构建通过；独立静态复审0剩余P1/P2。初始类型、构建runner路径及旧预升级夹具失败原件保留，修正后只补受影响检查。最终release/精确守卫尚待，未宣称交付完成。[冻结工程证明](tasks/completed/2026-10-27-order-usd-labor-adoption-engineering.md)；[契约](features/ORDER_USD_LABOR_ADOPTION.md)。
 
-STOP_AUTH_OR_DIVERGENCE原push退出1根因UNRESOLVED，远端Git/ref写仍冻结；0新Hosted CI/真实Source/现有库/合并/部署/切换。旧环境与111旧refs保护，Goal保持active。下一步：扩大负控、独立审查、精确源码收口，随后报价工价采用与关账UI。
+完整Goal active；尚无USD采用UI、Server关账UI或税率更正，不是正式业务闭环。本次0Hosted CI/远端写/真实Source/现有库/部署/切换。旧50容器/179卷/27网络及111旧refs元数据保持，不是业务内容审计。Gate8B及旧证据继续保留。
 
-
-当前精确源码S `34547801fd818f5f6777809f11c09ddd574688c2` 的3043 Git blob已归档逐字验证，0overlay；811项目、Server build、changed lint通过，root类型发现新测试的报价预览union未收窄，现只补显式ready断言。应用/SQL不变；原失败保留，待新精确归档补root类型，不重跑已过项目。构建runner最初猜错CLI路径，改用原npm build脚本，结果仍待。
+恢复时先读阶段与冻结工程证明、canonical-terminal.json及canonical.json，原失败不可删除或改称PASS。停止规则未解除，不尝试新Git/ref写；可继续不依赖远端的UI切片。

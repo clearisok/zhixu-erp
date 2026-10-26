@@ -21,4 +21,4 @@
 
 ## 验证恢复
 
-工程结果以精确提交及阶段验收文档为准，见 `docs/tasks/active/order-usd-labor-adoption-2026-10-27.md`。最初核心链路已在 owned 空合成库通过 13 项集成、8 项模型；完整负控、独立复审、发布门禁尚待本切片收口。无新真实 Source/激活、Hosted CI、Git/ref 写、合并、部署或现有数据库操作。
+工程结果以精确提交及阶段验收文档为准，见 `docs/tasks/active/order-usd-labor-adoption-2026-10-27.md`。冻结工程按分源合计192项定向、811项目、类型/lint及构建通过，独立静态复审0 P1/P2，见[冻结证明](../tasks/completed/2026-10-27-order-usd-labor-adoption-engineering.md)。发布门禁与远端状态按独立收口记录核对，不以工程通过替代。无新真实 Source/激活、Hosted CI、Git/ref 写、合并、部署或现有数据库操作。
