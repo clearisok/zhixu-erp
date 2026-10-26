@@ -4773,6 +4773,24 @@
       "recordedAtSha": "94ba0322be2e454a1f4ed838428a135cc5eb53d4",
       "renderedSourceSha": "45a5b087b4b3ed19ae448188257146a516d75bf4",
       "sha256": "d9f46408419d6c09193b062295009f71edb96cd20b17575a7d3adfda8b60ec22"
+    },
+    {
+      "id": "server-closing-controller-d168-decision-log-20261027",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "dc7f8c07646535206277021ac658c120563ff209",
+      "renderedSourceSha": "4dfcd44e03b2c6949fa9140aadd4d9b0471f2719",
+      "sha256": "c0206ae21b7cfab052f07cb594607f58b10b8dbb30a69d6980e5d413ed1d4338",
+      "supersedes": "server-closing-interface-d167-decision-log-20261027",
+      "changeReason": "D168 composes the existing Server closing original-command protocol without new business, pricing or UI rules; retain D162/D163/D167 and unresolved remote/UI boundaries"
+    },
+    {
+      "id": "server-closing-controller-engineering-20261027",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-27-server-closing-controller-engineering.md",
+      "recordedAtSha": "dc7f8c07646535206277021ac658c120563ff209",
+      "renderedSourceSha": "4dfcd44e03b2c6949fa9140aadd4d9b0471f2719",
+      "sha256": "8e491fda6790a657dd72378906fbe5243ca7c030266d26dc78e46bda76d04f9d"
     }
   ],
   "pages": [
