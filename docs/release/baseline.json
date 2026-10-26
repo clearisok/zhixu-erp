@@ -4589,6 +4589,14 @@
       "recordedAtSha": "5f2f529b700e455755bfcee64aa9ebf6d30c4e21",
       "renderedSourceSha": "12477a1fa58f1cff0182974e0894671585a4824f",
       "sha256": "529afe1148325b9c2e1ebacb222ddd362612bf18a125cd035aaf7a2800f3a9a7"
+    },
+    {
+      "id": "source-ledger-nonempty-recovery-20261026",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-26-source-ledger-recovery-validation.md",
+      "recordedAtSha": "ea3581234f52cdca8cd10f0ce308063aee6cb978",
+      "renderedSourceSha": "6dcea703ccc5372ad1b6d68ad919a287ef975dc6",
+      "sha256": "73479ca2f7722b90c892dfefdbd3e5316197db54eeb88b1dac1305e8f9735e8b"
     }
   ],
   "pages": [

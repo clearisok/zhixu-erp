@@ -11,3 +11,5 @@
 原件outputs/source-ledger-recovery-20261026；[逐字输入归档](../completed/2026-10-26-source-ledger-input-state/receipt.json)。
 
 实际runtime：source 6dcea703ccc5372ad1b6d68ad919a287ef975dc6＋原6d镜像，新9/9、488736ms，55表非空；0040–44八表、两代观察/精确数量和新增5份原回执通过。原13份继续有效。外层TAP汇总初次失败，原件保留；实际Node三项校准后仅离线生成独立reconciled结果，未重跑DB。旧50/179/27所选元数据changes=[]；[冻结证明](../completed/2026-10-26-source-ledger-recovery-validation.md)。最终守卫/终审待实际回执。
+
+证明Q ea3581234f52cdca8cd10f0ce308063aee6cb978；后续R只追加独立根至507/66，原506记录及全部能力/UI字段保留。最终守卫/复审按实际回执。
