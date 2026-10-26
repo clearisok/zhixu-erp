@@ -4565,6 +4565,14 @@
       "recordedAtSha": "1a2a5fa7d699509bd4a81d087d8c07edf296f6e8",
       "renderedSourceSha": "6d27d1e7fa1079f1830511068ff070791df310ab",
       "sha256": "ed23e4a4679c68be31dabad112c707e6d434ad48e6cd37b6b59864aa5e930afb"
+    },
+    {
+      "id": "payment-panel-ci-selector-validation-20261026",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-26-payment-panel-ci-validation.md",
+      "recordedAtSha": "45a4c2324f5e8a792fe69fd157b7d09b230842aa",
+      "renderedSourceSha": "6d27d1e7fa1079f1830511068ff070791df310ab",
+      "sha256": "7f651799992dfce52470759a8ab5e2edda68e5a30a14e766c1e1b78b6d3c88da"
     }
   ],
   "pages": [

@@ -19,3 +19,5 @@
 正式QA准备首次在逐blob校验.dockerignore时发现Windows换行转换，尚未启动测试/数据库；目录保留，改用已有进程级core.autocrlf=false归档方式，不修改共享配置。后续正式runner必须逐blob一致，诊断旧结果仍只用于定位、不计QA PASS。
 
 实际修后终态：test source 01d112b98e02d8aaacb4af14b4fa4522d6d3c207 / actualParent 49ff169b09e22f3891beab17ed2b6b605d168e31 / phaseBase f8ed7f33c911cc1ec52cf3b3d9432912ac5aa80f，renderSource 6d27d1e7fa1079f1830511068ff070791df310ab；canonical 2983 tracked files/0 overlay，复用dist 1211字节匹配文件。实际9/9、23202ms、0 fail/cancel/skip/timeout/overflow；语法/lint/YAML/8原phase体校验通过，旧50/179/27元数据changes=[]。完整原件hash见[证明](../completed/2026-10-26-payment-panel-ci-validation.md)。下一步最终守卫/复审后仅更新原PR130，未交付新修，不称新CI通过。
+
+实际Q 45a4c2324f5e8a792fe69fd157b7d09b230842aa冻结证明；R只追加独立根至504证据/66能力，旧503与其他manifest/UI字段不变。最终同HEAD门禁与复审待实际结果。
