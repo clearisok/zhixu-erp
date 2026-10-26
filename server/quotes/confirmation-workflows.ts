@@ -39,6 +39,7 @@ export function applyQuoteConfirmation(quote: ServerQuote, command: QuoteConfirm
   const next = structuredClone(quote);
   const target = next.revisions.find(r => r.revisionId === revision.revisionId)!;
   target.priceVersions.find(p => p.id === pv.id)!.confirmation = {
+    laborCurrencyAtConfirmation: pv.pricingParameters.laborCurrency,
     quotedGarmentPrice: revision.baseInfo.quoteType==='processing'?(pv.confirmation?.quotedGarmentPrice??'0'):canonicalDecimal(String(metrics!.garmentSellingPrice)),
     quotedLaborPrice: pv.labor.value!, confirmedLaborPrice: command.confirmedLaborPrice,
     confirmedGarmentPrice: revision.baseInfo.quoteType==='processing'?(pv.confirmation?.confirmedGarmentPrice??null):command.confirmedGarmentPrice, note: command.note, confirmedAt: now,

@@ -1,11 +1,9 @@
-# 恢复点：关账后端收口，继续USD采用与UI
+# 恢复点：Gate8C USD工价采用核心 checkpoint
 
-2026-10-27；最后核实main 869ee84dd0b31de6161011e4aa560678b244a64d（本轮未fetch）；分支codex/server-closing-commands-main-869e。应用源码S2 1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df，初始S e85107cc6f663f74ede421a1e59e703e8dd2310b；已验收文档/清单HEAD 6aeb603f7b0845033746853699953d78b32ef2e2。原PR130远端仍61704afe22fe9fd0ea9f6625c6092fcbb9575dfc，其原CI3/3不代表本阶段。Git退出1的STOP_AUTH_OR_DIVERGENCE根因UNRESOLVED，远端Git/ref写仍冻结。
+2026-10-27；当前分支 `codex/order-usd-labor-adoption-main-869e`，父提交 `f080263ab681afdb79b20df3200ca027a96ec234`，最后核实main `869ee84dd0b31de6161011e4aa560678b244a64d`（未fetch）。本阶段无继承dirty，当前增量全部本阶段创建，见[阶段](tasks/active/order-usd-labor-adoption-2026-10-27.md)及[契约](features/ORDER_USD_LABOR_ADOPTION.md)。
 
-D162/D163后端切片：0045七张空增量表、唯一月份、手工数量/颜色/执行方与不可变商业快照、成衣CNY/经销工价USD/加工服务USD分别统计、原子复核/确认/锁定/重开、幂等审计和原请求回执。没有自动换汇或生产分月；CNY工价阻断其工价渠道，复核不重价/改数量，原locked历史保持。
+D162/D164：PV确认保存确认时币种，已确认PV不能直接改币种；原Quote/固定PV/可信后继/相同产品的USD工价显式采用，只追加原商业版本，不改source/product/sale/batch/closing。0046、窄工价HTTP/preview/commands/receipt/history、fresh权限、CAS、幂等、原子审计和未知COMMIT。核心模型8与集成13通过，Server类型通过；完整边界、root工程、发布门禁和独立复审尚待，不是Gate完成。首次失败原文保留，不冒称全绿。
 
-106定向及811项目通过，root类型/Server构建/相关lint通过。修正清单的精确守卫PASS，发布回归144/144（403163ms）；独立只读终审0剩余P1/P2。两条无main根的候选永久退休并归档，原513证据逐字保留，当前518/67。原始失败、缺失raw、旧hash归属及不同source结果均有永久澄清，未重跑已过业务/项目。最终收口HEAD守卫另按outputs/server-closing-commands-20261026/final.json核对。
+原Gate8B f080已完成本地验收，106定向/811项目/144发布，详细证据[Gate8B验收](tasks/completed/2026-10-27-server-closing-commands-validation.md)及[澄清](tasks/completed/2026-10-27-closing-command-evidence-reconciliation.md)保持。本阶段不得用其结果代替新源码验证。
 
-完整G1–G8/R继续active；本阶段未连接关账UI、USD新工价采用或税率更正，不是正式关账闭环。下一切片先复用报价中心CCT/商业版本完成明确USD采用，再接Server关账UI与浏览器验收。旧50容器/179卷/27网络和110分支元数据保持；无真实Source/激活、现有业务数据操作、Hosted CI、合并、部署、切换或退役。
-
-[当前契约](features/SERVER_CLOSING_COMMANDS.md)；[验收收口](tasks/completed/2026-10-27-server-closing-commands-validation.md)；[证据澄清](tasks/completed/2026-10-27-closing-command-evidence-reconciliation.md)；[阶段](tasks/active/server-closing-commands-2026-10-26.md)。旧恢复点在tasks/completed/2026-10-26-pre-closing-commands，前来源恢复9/9与Gate8A证据保持，不重跑。
+STOP_AUTH_OR_DIVERGENCE原push退出1根因UNRESOLVED，远端Git/ref写仍冻结；0新Hosted CI/真实Source/现有库/合并/部署/切换。旧环境与111旧refs保护，Goal保持active。下一步：扩大负控、独立审查、精确源码收口，随后报价工价采用与关账UI。

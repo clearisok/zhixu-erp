@@ -67,6 +67,7 @@ import { routeProductionResources } from "./production-resources/routes.js";
 import { routeProductionScheduling } from "./production-scheduling/routes.js";
 import { routeMaterialArrivals } from "./material-arrivals/routes.js";
 import { routeClosing } from "./closing/routes.js";
+import { routeLaborAdoptions } from "./sales-orders/labor-adoption-routes.js";
 import type { SourceReadConfig } from "./ainuoke-source/reader.js";
 import type { PaymentSnapshotReader } from './ainuoke-source/payment-request-store.js';
 import type { GarmentShipmentReader } from './ainuoke-source/garment-shipment-store.js';
@@ -370,6 +371,7 @@ async function route(
   if (await routeProductionScheduling(request, response, dependencies)) return;
   if (await routeMaterialArrivals(request, response, dependencies)) return;
   if (await routeClosing(request, response, dependencies)) return;
+  if (await routeLaborAdoptions(request, response, dependencies)) return;
   const creationReceipt = /^\/api\/v1\/quotes\/creation-receipts\/([^/]+)$/.exec(path);
   const creationOrder = /^\/api\/v1\/quotes\/creation-order-context\/([^/]+)$/.exec(path);
   const creationOrigin = /^\/api\/v1\/quotes\/([^/]+)\/creation-origin$/.exec(path);

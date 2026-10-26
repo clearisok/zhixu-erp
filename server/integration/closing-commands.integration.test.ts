@@ -27,7 +27,7 @@ test('Gate8B manual closing: nonempty upgrade, immutable snapshots, trusted HTTP
   const before = await digests();
   const ledger = (await pool.query('SELECT * FROM schema_migrations ORDER BY version')).rows;
   const upgrade = await runMigrations(pool, resolve('database/migrations'));
-  assert.deepEqual(upgrade.applied, ['0045_server_closing_snapshots.sql']);
+  assert.deepEqual(upgrade.applied, ['0045_server_closing_snapshots.sql', '0046_order_usd_labor_adoptions.sql']);
   assert.deepEqual(await digests(), before); assert.deepEqual((await pool.query('SELECT * FROM schema_migrations WHERE version<=44 ORDER BY version')).rows, ledger);
   await t.test('0045 adds empty tables without changing old nonempty rows and is idempotent', async () => {
     assert.deepEqual(CURRENT_MIGRATION_FILES, (await readdir(resolve('database/migrations'))).filter(name => /^\d+_.*\.sql$/u.test(name)).sort());

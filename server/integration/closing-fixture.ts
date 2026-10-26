@@ -25,9 +25,10 @@ import { previewClosingCommand, executeClosingCommand } from '../closing/service
 import { readClosingOrderBasis } from '../closing/basis-service.js';
 import { startDisposablePostgres } from './postgres-container.js';
 import { createSyntheticQuoteFixture } from './quote-fixture.js';
+import { summarizeRevisionConfirmations } from '../../features/quote-center/model/quote-workflows.js';
 
 export const closingCode = (code: string) => (error: unknown) => (error as { code: string }).code === code;
-export async function closingFixture(t: TestContext, legacy44 = false) {
+export async function closingFixture(t: TestContext, legacy44: boolean | 45 = false, completeQuotes = false) {
   const postgres = await startDisposablePostgres();
   const pool = new pg.Pool({ connectionString: await postgres.createDatabase('closing_commands'), max: 14, application_name: 'synthetic-closing-commands' });
   const origins: string[] = [], errors: unknown[] = [], server = createServer(createApp({ pool, allowedOrigins: origins, security: { secureCookies: false, sessionTtlSeconds: 3600 }, logger: { error: value => errors.push(value) } }));
@@ -35,7 +36,7 @@ export async function closingFixture(t: TestContext, legacy44 = false) {
   if (legacy44) {
     const parent = await realpath(tmpdir()), directory = await mkdtemp(join(parent, 'zhixu-closing-upgrade-'));
     t.after(async () => { const path = await realpath(directory); assert.equal(dirname(path), parent); assert.ok(basename(path).startsWith('zhixu-closing-upgrade-')); await rm(path, { recursive: true }); });
-    for (const file of await readdir(resolve('database/migrations'))) if (/^\d+_.*\.sql$/u.test(file) && Number(file.slice(0, 4)) <= 44) await copyFile(resolve('database/migrations', file), join(directory, file));
+    for (const file of await readdir(resolve('database/migrations'))) if (/^\d+_.*\.sql$/u.test(file) && Number(file.slice(0, 4)) <= (legacy44 === 45 ? 45 : 44)) await copyFile(resolve('database/migrations', file), join(directory, file));
     await runMigrations(pool, directory);
   } else await runMigrations(pool, resolve('database/migrations'));
   await synchronizePermissionCatalog(pool);
@@ -55,11 +56,14 @@ export async function closingFixture(t: TestContext, legacy44 = false) {
     const q = createSyntheticQuoteFixture(id, type);
     for (const revision of q.revisions) { revision.imageAttachmentIds = []; revision.fileAttachmentIds = []; revision.styleImageAttachmentId = null; }
     const revision = q.revisions.find(row => row.revisionId === q.defaultRevisionId)!;
+    if (completeQuotes) { revision.baseInfo.quoteStyleNo = 'SYN-USD'; revision.baseInfo.styleName = 'Synthetic USD'; }
     for (const [index, version] of revision.priceVersions.entries()) {
       version.quantity = 50; version.pricingParameters.laborCurrency = index ? 'CNY' : currency;
+      if (completeQuotes) for (const trim of version.trims) trim.usage = 0;
       version.confirmation = { quotedGarmentPrice: 999, quotedLaborPrice: 999, confirmedGarmentPrice: type === 'processing' ? null : 113 * (index + 1),
         confirmedLaborPrice: type === 'processing' ? 0 : 2.5 + index, note: 'Synthetic confirmed terms', confirmedAt: '2026-10-26T00:00:00Z' };
     }
+    if (completeQuotes) for (const row of q.revisions) row.confirmationSummary = summarizeRevisionConfirmations(row);
     await repository.create(quoteSnapshotFromBrowser(q)); return { q, revision };
   }
   const distribution = await quote('closing-shared'); let serial = 0;

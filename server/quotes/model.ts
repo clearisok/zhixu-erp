@@ -49,6 +49,8 @@ export function validateQuoteReplacement(previous: ServerQuote, next: ServerQuot
   for (const [index, revision] of previous.revisions.entries()) {
     const replacement = next.revisions[index];
     requireInvariant(replacement?.revisionId === revision.revisionId, "Revision removal/reordering forbidden");
+    for (const key of ["parentRevisionId", "basedOnConfirmedRevisionId", "createdAt", "createdBy", "mainlineVersion", "branchSequence", "revisionLabel"] as const)
+      requireInvariant(isDeepStrictEqual(revision[key], replacement[key]), "Revision creation provenance immutable");
     if (revision.readOnly) requireInvariant(isDeepStrictEqual(revision, replacement), "Historical Revision immutable");
     else if (next.defaultRevisionId !== revision.revisionId) requireInvariant(isDeepStrictEqual({ ...revision, readOnly: true }, replacement), "Frozen Revision content immutable");
   }

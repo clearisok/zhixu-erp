@@ -23,6 +23,13 @@
 
 ## Active
 
+### D-164 明确采用 USD 工价复用原商业版本与可信报价确认
+
+- 日期：2026-10-27；Active engineering，实施 D162，不改变其币种、手工关账和历史冻结规则。只在报价中心显式选择当前订单/颜色，不提供自由工价、自动换汇、不同产品/Quote/PV 换绑或订单侧写入口。
+- 新 PV 确认保存服务端观察的确认时币种，旧缺失不推断；已有确认不得直接改 PV 币种。CCT（包括空值）优先，其关联规则保持。新采用要求可证明 USD，零有效，缺失拒绝。可信后继逐步匹配专用创建审计，创建身份不可改；普通 PUT/版本名称不能伪造后继。
+- 原 source/product/hash、售价、未选颜色、数量快照、加工批次/消费与关账历史保持。新工价只追加原订单商业版本并独立保存精确确认来源，后续售价调整不得丢失；加工原统一版按精确消费证据转换订单级行，不重建 SO/批次。
+- 0046 空增量、fresh RBAC、共享商业请求锁、CAS、真实 jsonb 字节预算、原子审计/回执、未知 COMMIT 核对及暂停边界见 [Gate8C 契约](features/ORDER_USD_LABOR_ADOPTION.md)。当前本地核心通过，完整验收/独立复审与 UI 后续；不代表远端、部署或真实来源授权。
+
 ### D-163 Server关账持久快照、渠道与原子命令
 
 2026-10-27接续：[Gate8B独立契约](features/SERVER_CLOSING_COMMANDS.md)为当前入口；原SERVER_CLOSING/BUSINESS_RULES中的Gate8A实现状态按原日期冻结保存，不表示当前仍无写入。两条无main根的未验证修订候选永久退休，原对象和bcab历史保留，规则与守卫不放宽，见[证据澄清](tasks/completed/2026-10-27-closing-command-evidence-reconciliation.md)。
