@@ -1,0 +1,26 @@
+{
+  "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
+  "level": "V1",
+  "paths": [
+    "app/basic-settings/outsource-factories/page.tsx",
+    "app/basic-settings/production-groups/page.tsx",
+    "app/system-settings/production-infrastructure/page.tsx",
+    "components/foundation/app-shell.tsx",
+    "features/operations-settings/components/operations-settings-pages.tsx",
+    "features/operations-settings/components/production-resource-fields.tsx",
+    "features/operations-settings/components/production-resource-settings-page.tsx",
+    "features/operations-settings/components/server-production-reference-picker.tsx",
+    "features/operations-settings/components/server-production-resource-page.tsx",
+    "features/operations-settings/server/production-resource-client.ts",
+    "features/operations-settings/server/production-resource-outbox.ts",
+    "features/quote-center/authority/quote-authority.ts"
+  ],
+  "pages": [
+    "navigation"
+  ],
+  "visibleDifference": "Restore the approved D147 Gate6A Server wiring for existing production-groups, outsource-factories and production-infrastructure routes. Preserve the existing table, same-page cards, shared fields, drawers and navigation hierarchy; no logistics, schedule or closing UI. Resource selectors use bounded paging and explicit current facts; original request recovery is session scoped. Preserve later CAS reload-authority correction. No Browser business storage/default seed, pricing change, redesign or automatic write. Current engineering evidence follows actual frozen builds, not old d717 results.",
+  "evidence": [
+    "docs/tasks/active/server-production-resources-current-2026-10-24.md",
+    "docs/tasks/completed/2026-10-24-production-resources-current-engineering.md"
+  ]
+}

@@ -2,7 +2,7 @@
 
 root唯一writer、既有独立审查者只读。
 
-2026-10-26；main 869ee84dd0b31de6161011e4aa560678b244a64d于2026-10-26T03:27:24.484Z独立API核实，开放PR为0。branch codex/logistics-resources-main-869e从该main干净建立，普通合流原G6D 4f3fd6e20a2f9e0e848ff352ee73cfdf7610740f，随后保留已审生产执行81f131c993087012689981b86d74d0bb1dff20c5的完整依赖历史。全部非docs逐blob等于已验收源码07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9。
+2026-10-26；main 869ee84dd0b31de6161011e4aa560678b244a64d于2026-10-26T03:27:24.484Z独立API核实，开放PR为0。branch codex/logistics-resources-main-869e从该main干净建立，普通合流原G6D 4f3fd6e20a2f9e0e848ff352ee73cfdf7610740f，已普通合流并保留已审生产执行81f131c993087012689981b86d74d0bb1dff20c5的完整依赖历史。全部非docs逐blob等于已验收源码07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9。
 
 ## 范围与业务保护
 
@@ -25,3 +25,7 @@ H订单读取链0d70的精确交付授权仍保留，Execute/Push/新PR/Hosted�
 本阶段不读写现有账号、业务数据库、config、凭据、Source私密报告或对象内容；不应用0037、不替换3001/50426/59069/62426入口、不改Browser存储/卷/备份、不部署或退役。原38580精确main镜像8/8是另一分支的已验证候选，保留其历史，不推定本物流分支部署。
 
 完整G1–G8/R仍active。后续0038订单跟踪、0039物料到仓、0040成衣出运观察、0041刷新前缀再到0042交期，不跳号或重排旧迁移。目标切换、真实Source额度/激活、coverage V2、人验、退役和Server关账待决事项仍分别受控。
+
+## 实际历史合流
+
+第一真实合流B 572d4368c8f9fede5958d3f5bcb888efd75ae034父为main 869ee84dd0b31de6161011e4aa560678b244a64d与独立物流4f3fd6e20a2f9e0e848ff352ee73cfdf7610740f，绑定提交15460f55a240b0bdaf9273ec7c4fede7f93cd9f6已保留两侧决定贡献。第二普通合流保留执行81f131c993087012689981b86d74d0bb1dff20c5及其完整规划、资源、G5和生产文档11c6 witness。两次实际只遇四份状态/清单冲突；全部非docs保持精确07d，最终决定记录绑定前350证据/52能力全部保留。新决定合流随后绑定真实第二merge SHA，不使用未来身份。

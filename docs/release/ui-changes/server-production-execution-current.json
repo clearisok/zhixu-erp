@@ -1,5 +1,5 @@
 {
-  "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
+  "baselineSha": "869ee84dd0b31de6161011e4aa560678b244a64d",
   "level": "V1",
   "paths": [
     "app/production-scheduling/production-scheduling.css",
@@ -17,6 +17,7 @@
   "visibleDifference": "Restore approved D147/G6C actual execution on the existing Server queue, order pool, completion dialog and history drawer. Keep original quantity/date/attribution rules and explicit next-order preview, including the previously reviewed mobile footer and before/after labels. No new navigation, V2/V3 density, prices, shipments, closing or Browser business persistence. New exact before/after evidence follows current frozen builds.",
   "evidence": [
     "docs/tasks/active/server-production-execution-current-2026-10-24.md",
-    "docs/tasks/completed/2026-10-24-production-execution-current-engineering.md"
+    "docs/tasks/completed/2026-10-24-production-execution-current-engineering.md",
+    "docs/tasks/active/production-execution-main-869e-2026-10-26.md"
   ]
 }

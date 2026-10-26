@@ -1,6 +1,6 @@
 # 恢复点：G6D物流基础资料当前main整合
 
-2026-10-26；main 869ee84dd0b31de6161011e4aa560678b244a64d于2026-10-26T03:27:24.484Z独立API核实，开放PR为0。branch codex/logistics-resources-main-869e从该main干净建立，普通合流原G6D 4f3fd6e20a2f9e0e848ff352ee73cfdf7610740f，随后保留已审生产执行81f131c993087012689981b86d74d0bb1dff20c5的完整依赖历史。全部非docs逐blob等于已验收源码07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9。
+2026-10-26；main 869ee84dd0b31de6161011e4aa560678b244a64d于2026-10-26T03:27:24.484Z独立API核实，开放PR为0。branch codex/logistics-resources-main-869e从该main干净建立，普通合流原G6D 4f3fd6e20a2f9e0e848ff352ee73cfdf7610740f，已普通合流并保留已审生产执行81f131c993087012689981b86d74d0bb1dff20c5的完整依赖历史。全部非docs逐blob等于已验收源码07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9。
 
 先读[阶段](tasks/active/logistics-resources-main-869e-2026-10-26.md)及outputs/logistics-resources-main-869e-20261026的inspection/plan/start和同HEAD终态。先真实B冻结并绑定main/原D151的决定贡献，再合81f并关闭两侧决定分叉；保留现有11c6同路径witness、所有原证据对象与冻结媒体。
 

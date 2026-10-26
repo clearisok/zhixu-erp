@@ -1,0 +1,11 @@
+{
+  "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
+  "level": "V0",
+  "visibleDifference": "none",
+  "paths": [
+    "features/order-center/server/sales-order-server-model.ts",
+    "features/order-center/server/sales-order-server-client.ts"
+  ],
+  "pages": ["order-detail"],
+  "evidence": ["docs/tasks/active/order-source-readchain-current-2026-10-24.md"]
+}
