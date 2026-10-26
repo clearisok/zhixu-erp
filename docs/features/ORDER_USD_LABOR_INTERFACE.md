@@ -1,6 +1,6 @@
-# USD 工价采用：查询与浏览器原请求基础
+# USD 工价采用：查询、原请求与恢复控制器
 
-2026-10-27，Gate8D1，实施 D162/D164 的配套读取与客户端协议；当前没有接入新操作界面。报价中心仍是唯一采用 owner，订单商业版本及原 CNY→USD 命令不另建模型。前置后端契约见 [Gate8C](ORDER_USD_LABOR_ADOPTION.md)，其冻结状态与历史证据保留。
+2026-10-27，Gate8D1/D2，实施 D162/D164 的配套读取与客户端协议；当前没有接入新操作界面。报价中心仍是唯一采用 owner，订单商业版本及原 CNY→USD 命令不另建模型。前置后端契约见 [Gate8C](ORDER_USD_LABOR_ADOPTION.md)，其冻结状态与历史证据保留。
 
 ## 查询与确认来源
 
@@ -21,9 +21,20 @@
 
 `features/quote-center/server/labor-adoption-client.ts`为浏览器安全的严格白名单协议层。只用同源session、no-store、有限响应读取及owner lease；不导入Node/PG运行时、业务计算、Browser仓储或旧价格。字符串枚举和数字状态不强制转换，原样数组/嵌套数组/错摘要/旧owner响应不能冒充结果。POST不会自动重试；202、网络错误或坏响应继续保留原请求，随后只GET核对。
 
-`zhixu.server.usd-labor.pending.v1.<public-user-id>`只在sessionStorage保存同actor/tab的一条未核实原命令，含Quote上下文、原订单/颜色、版本、目标修订、用户确认/原因、请求UUID与previewHash。不保存结构化金额、CCT/报价响应、密码或token；用户主动输入的原因按原文保存。未来UI调用者须在完整写入并读回后才调用POST；低层client.submit本身不操作sessionStorage，本切片没有页面controller，不冒称调用顺序已做UI验收。不同订单/Quote不能覆盖未决命令；损坏/未来版本/非规范化字节/不可写保留并阻止新发送。只有匹配的终态回执才能显式确认并移除此精确键。
+`zhixu.server.usd-labor.pending.v1.<public-user-id>`只在sessionStorage保存同actor/tab的一条未核实原命令，含Quote上下文、原订单/颜色、版本、目标修订、用户确认/原因、请求UUID与previewHash。不保存结构化金额、CCT/报价响应、密码或token；用户主动输入的原因按原文保存。低层client.submit本身不操作sessionStorage；Gate8D2控制器串联完整写入读回→POST→GET原回执→精确终态释放，但没有页面hook或实际UI验收。不同订单/Quote不能覆盖未决命令；损坏/未来版本/非规范化字节/不可写保留并阻止新发送。只有匹配的终态回执才能显式确认并移除此精确键。
 
 这不是离线业务库、跨标签页/设备备份或自动重发队列；关闭标签页可能丢失本机地址，Server命令和历史仍保留。没有localStorage/IndexedDB/Seed、旧namespace、Browser schema或备份迁移变化。现有体验站点未读取或清理。
+
+## 无界面控制器（Gate8D2）
+
+labor-adoption-controller.ts仅编排原client/pending/Server命令，不另建价格、权限或幂等系统。构造只恢复本actor/tab的原命令，不发请求。新的预览先清旧预览，即使新意图非法也不能回用旧选择；快照与通知是副本。
+
+- 首次采用生成一个UUID，完整保存读回后只POST一次，再GET原回执。POST失败不自动重发；unknown不等于未提交。刷新后先GET核对，只有明确unknown、原slot精确仍在且用户明确确认时，才允许原UUID/body重试；缺失或不同slot不重建覆盖。
+- 每个实际session/权限/Quote代际须由未来调用者提供新owner对象并在离开时dispose，包括A→B→A。撤write仍可只读核对原回执，撤read隐藏状态；超时/销毁/晚响应不能清pending或触发旧owner刷新、登出回调。
+- 操作串行，默认60秒超时，AbortSignal与代际检查共同保护不响应取消的传输。终态ack失败保留原请求和核实结果，继续核对；坏bytes不清理。订阅异常不改变Server事实。
+- navigationBlocked只表达预览、在途或未决状态，尚未安装页面导航拦截器或接真实session provider。没有DOM/CSS/入口，不能据此声称可体验。
+
+Gate8D2精确源码、定向/实际HTTP、编译、复审及守卫见[本阶段](../tasks/active/usd-labor-controller-2026-10-27.md)，实际完成前不预报PASS。以下Gate8D1结果固定其原切片，不冒充D2。
 
 ## 当前状态与界面边界
 

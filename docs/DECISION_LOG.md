@@ -23,6 +23,13 @@
 
 ## Active
 
+### D-166 USD采用无界面原请求控制器
+
+- 日期：2026-10-27；Active engineering，实施D165恢复约束，不新增业务/价格规则、权限、schema或页面设计。复用原client/pending与同一Server命令、商业版本和回执。
+- 构造只恢复不请求；先清旧预览再校验新意图。完整存储读回后POST一次，再GET精确原终态；unknown仅在显式确认且slot精确存在时允许原UUID/body重试，不以新命令绕过未决。损坏/未来版本原字节保留。
+- 实际session/权限/Quote代际须新owner对象，包括A→B→A；read撤回隐藏，write撤回保留只读核对。串行、取消和超时lease保护晚响应，业务回调前再次核owner；终态ack失败保留待核。
+- 具体三步UI批准仍pending，只提供状态/navigationBlocked，未接React、真实session或导航。见[契约](features/ORDER_USD_LABOR_INTERFACE.md)、[阶段](tasks/active/usd-labor-controller-2026-10-27.md)；验证按精确源码另记，原冻结证据保留，远端STOP不因新SHA解除。
+
 ### D-165 USD采用查询、原请求核对与历史身份
 
 - 日期：2026-10-27；Active engineering，D162/D164配套协议，不改变仅CNY→USD、报价中心owner、原产品/售价/批次/关账保护及写权限。
