@@ -53,3 +53,5 @@ GET /api/v1/sales-orders/:uuid/payment-requests仅Session/正式SO UUID；默认
 恢复tasks/active/ainuoke-payment-read-panel.md。本阶段150项客户端/原探测与实际一次性PG/API回归通过，类型、Server/显式Server UI串行构建、完整源码lint通过；新财务UI9/原物料UI9项实际Chromium通过，六宽度/七角色、展开字段、过期/撤权/取消及精确数字已验。源码cefe951d、build20261015-231629；新截图及receipt另存，非像素人工验收。后续root898/898、发布基线94/94、默认Browser构建及精确main守卫已通过（11页/41能力/56累计UI路径）；当前dist最后是默认Browser（quote/master browser、orderRead disabled）。此前存储证据按c235ca6e/931492af/b75bc7a9原阶段阅读。
 
 真实读取额度已用完，当前无新增真实查询许可；不得凭本地代码、wire complete、目标verification hash或自动Goal继续推定授权。需要单独核实真实过滤/分页、具体SO/合同清单、备份与迁移/写入/激活范围。UI功能范围已批准不等于新像素人工验收；不操作宁波18443/18444、真实账号/业务DB或现有演示，不自动合并部署。
+
+实际修后终态：test source 01d112b98e02d8aaacb4af14b4fa4522d6d3c207 / actualParent 49ff169b09e22f3891beab17ed2b6b605d168e31 / phaseBase f8ed7f33c911cc1ec52cf3b3d9432912ac5aa80f，renderSource 6d27d1e7fa1079f1830511068ff070791df310ab；canonical 2983 tracked files/0 overlay，复用dist 1211字节匹配文件。实际9/9、23202ms、0 fail/cancel/skip/timeout/overflow；语法/lint/YAML/8原phase体校验通过，旧50/179/27元数据changes=[]。完整原件hash见[证明](../tasks/completed/2026-10-26-payment-panel-ci-validation.md)。下一步最终守卫/复审后仅更新原PR130，未交付新修，不称新CI通过。

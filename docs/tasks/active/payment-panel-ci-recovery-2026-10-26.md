@@ -17,3 +17,5 @@
 保留3001/50426等原环境、账号/库/卷/备份、Browser与原43迁移8项证据；无真实Source请求，不合并、正式部署、切换或退役。完整G1–G8/R继续，关账三项等待决边界不变。原状态逐字归档见[输入](../completed/2026-10-26-payment-panel-ci-input-state/receipt.json)。
 
 正式QA准备首次在逐blob校验.dockerignore时发现Windows换行转换，尚未启动测试/数据库；目录保留，改用已有进程级core.autocrlf=false归档方式，不修改共享配置。后续正式runner必须逐blob一致，诊断旧结果仍只用于定位、不计QA PASS。
+
+实际修后终态：test source 01d112b98e02d8aaacb4af14b4fa4522d6d3c207 / actualParent 49ff169b09e22f3891beab17ed2b6b605d168e31 / phaseBase f8ed7f33c911cc1ec52cf3b3d9432912ac5aa80f，renderSource 6d27d1e7fa1079f1830511068ff070791df310ab；canonical 2983 tracked files/0 overlay，复用dist 1211字节匹配文件。实际9/9、23202ms、0 fail/cancel/skip/timeout/overflow；语法/lint/YAML/8原phase体校验通过，旧50/179/27元数据changes=[]。完整原件hash见[证明](../completed/2026-10-26-payment-panel-ci-validation.md)。下一步最终守卫/复审后仅更新原PR130，未交付新修，不称新CI通过。

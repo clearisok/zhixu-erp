@@ -9,3 +9,5 @@
 完整G1–G8/R继续，非空新增域恢复、稳定跨次成衣事件/更正、关账三项、真实Source具体授权/激活、目标人工接受与切换、依赖审计后退役仍有后续。不把当前候选称main或正式上线。3001/50426及全部旧账号、库、对象、卷、备份与Browser数据保持。
 
 [当前阶段](tasks/active/payment-panel-ci-recovery-2026-10-26.md)。
+
+实际修后终态：test source 01d112b98e02d8aaacb4af14b4fa4522d6d3c207 / actualParent 49ff169b09e22f3891beab17ed2b6b605d168e31 / phaseBase f8ed7f33c911cc1ec52cf3b3d9432912ac5aa80f，renderSource 6d27d1e7fa1079f1830511068ff070791df310ab；canonical 2983 tracked files/0 overlay，复用dist 1211字节匹配文件。实际9/9、23202ms、0 fail/cancel/skip/timeout/overflow；语法/lint/YAML/8原phase体校验通过，旧50/179/27元数据changes=[]。完整原件hash见[证明](tasks/completed/2026-10-26-payment-panel-ci-validation.md)。下一步最终守卫/复审后仅更新原PR130，未交付新修，不称新CI通过。
