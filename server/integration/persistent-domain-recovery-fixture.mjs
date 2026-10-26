@@ -22,6 +22,22 @@ async function json(state,cookie,path,body){
   assert.equal(r.status,200,`synthetic_domain_http:${path}:${r.status}:${r.bytes.toString().slice(0,200)}`);
   return r.json();
 }
+function storedResult(result){
+  const copy={...result};delete copy.replayed;delete copy.payloadHash;return copy;
+}
+
+export async function readPersistentDomainReceipts(state,cookie,receipts){
+  const responses={};
+  for(const expected of receipts){
+    const reply=await json(state,cookie,expected.path);
+    assert.equal(reply.state,'known','original request must be known, never unknown/pending');
+    assert.equal(reply.requestId,expected.requestId);
+    assert.equal(reply.result?.status,'applied');
+    assert.deepEqual(storedResult(reply.result),expected.result,'receipt must describe the same originally applied result');
+    responses[expected.path]=reply;
+  }
+  return responses;
+}
 
 export async function seedPersistentDomainRecovery(state,cookie,run){
   assert.equal(state.prepared,true,'domain fixture requires successful owned preparation');
@@ -59,7 +75,7 @@ export async function seedPersistentDomainRecovery(state,cookie,run){
     const command={requestId:randomUUID(),action:'create',kind,resourceId:null,expectedVersion:0,data};
     const result=await json(state,cookie,'/api/v1/production-resources/commands',command);
     assert.equal(result.status,'applied');
-    fixture.receipts.push('/api/v1/production-resources/commands/'+command.requestId);
+    fixture.receipts.push({path:'/api/v1/production-resources/commands/'+command.requestId,requestId:command.requestId,result:storedResult(result)});
     return result.resource;
   }
   async function save(prefix,intent){
@@ -67,7 +83,7 @@ export async function seedPersistentDomainRecovery(state,cookie,run){
     const command={requestId:randomUUID(),intent:preview.intent,previewHash:preview.previewHash};
     const result=await json(state,cookie,prefix+'/commands',command);
     assert.equal(result.status,'applied');
-    fixture.receipts.push((prefix===arrival?arrival:production)+'/commands/'+command.requestId);
+    fixture.receipts.push({path:(prefix===arrival?arrival:production)+'/commands/'+command.requestId,requestId:command.requestId,result:storedResult(result)});
     return result;
   }
   const calendar=await resource('calendars',{name:'恢复合成日历',enabled:true,remark:'仅隔离验收',workingWeekdays:[1,2,3,4,5],exceptions:[{date:'2027-01-05',type:'non_working',name:'合成例外'}]});
@@ -113,7 +129,7 @@ export async function snapshotPersistentDomainDatabase(state,includeTechnical=fa
   const database={};
   for(const name of tables){
     assert.match(name,/^[a-z_]+$/);
-    const raw=await state.sql(`SELECT json_build_object('count',count(*),'sha256',encode(digest(COALESCE(jsonb_agg(payload ORDER BY payload::text),'[]'::jsonb)::text,'sha256'),'hex'))::text FROM (SELECT to_jsonb(t) AS payload FROM ${name} t) rows`);
+    const raw=await state.sql(`SELECT json_build_object('count',count(*),'sha256',encode(digest(COALESCE(jsonb_agg(payload ORDER BY payload::text),'[]'::jsonb)::text,'sha256'),'hex'))::text FROM (SELECT to_jsonb(t) AS payload FROM ${name} t) owned_rows`);
     database[name]=JSON.parse(raw);
   }
   for(const name of requiredNonempty)assert.ok(database[name]?.count>0,'nonempty_recovery_fixture_required:'+name);
@@ -124,7 +140,8 @@ export async function snapshotPersistentDomainDatabase(state,includeTechnical=fa
 export async function snapshotPersistentDomains(state,cookie,fixture){
   const database=await snapshotPersistentDomainDatabase(state);
   const responses={};
-  for(const path of [...fixture.readPaths,...fixture.receipts])responses[path]=await json(state,cookie,path);
+  for(const path of fixture.readPaths)responses[path]=await json(state,cookie,path);
+  Object.assign(responses,await readPersistentDomainReceipts(state,cookie,fixture.receipts));
   return {database,responses};
 }
 

@@ -13,3 +13,5 @@ source checkpoint后canonical archive逐blob校验，复用现有依赖不安装
 3001/50426/59069/62426及旧账号、库、对象、卷、网络、备份和Browser数据保持；不使用真实凭据或发起Ainuoke请求，不绑定/激活真实Source，不push/API改ref、新PR、CI、merge、正式部署、入口切换或退役。仅本地checkpoint。完整G1–G8/R继续；跨次成衣稳定事件/更正、关账三项口径、真实Source授权和人工接受仍待后续，不把本阶段缩作整个目标。
 
 结果原件：outputs/domain-recovery-20261026；原[逐字输入归档](../completed/2026-10-26-domain-recovery-input-state/receipt.json)。前阶段[货款CI兼容证明](../completed/2026-10-26-payment-panel-ci-validation.md)和[6d镜像原8项](../completed/2026-10-26-persistent-cumulative-43-validation.md)分别按原source保留。前阶段末尾准备措辞以本次核实的终态前向替代，旧字节不删除。
+
+预审eb176a3e发现1项P2：仅HTTP200不能证明回执known，unknown→unknown会假阳性。已前向修正为逐请求known/原UUID/applied，并比对原POST结果（仅剥离transport replayed/payloadHash）。新增4项正负回归；首次测试fake response缺bytes导致TypeError，不能将其3项拒绝当有效负向结果；修正stub并限定AssertionError后实际4/4。初次继承函数比较只因CRLF/LF失败，按Git canonical行尾核对后4函数/原8名称/新增1名称通过。无runtime/DB尝试已消耗，原archive保留。
