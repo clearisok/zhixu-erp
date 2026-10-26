@@ -1,0 +1,15 @@
+{
+  "build": {
+    "environment": "production",
+    "buildId": "resources-f441e70d-server-20261024",
+    "gitCommit": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+    "buildTime": "2026-10-24T07:07:52.823Z",
+    "masterSettingsAuthority": "server",
+    "identityMode": "session",
+    "quoteWriterMode": "writable",
+    "quoteAuthority": "server",
+    "orderRead": "snapshot"
+  },
+  "geometry": [],
+  "errors": []
+}

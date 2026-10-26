@@ -1,0 +1,19 @@
+{
+  "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
+  "level": "V1",
+  "paths": [
+    "features/ainuoke-garment-shipments/client.ts",
+    "features/ainuoke-garment-shipments/garment-shipment-section.tsx",
+    "features/ainuoke-garment-shipments/model.ts",
+    "features/ainuoke-garment-shipments/use-garment-shipments.ts",
+    "features/order-center/components/server-sales-order-detail-page.tsx"
+  ],
+  "pages": [
+    "order-detail"
+  ],
+  "visibleDifference": "Approved D147/D152/D153 read-only garment observations within the existing Server order detail, collapsed current view and history drawer using existing Foundation styles. Exact Num/outdate and independent fields, unmatched colors/empty/stale states, no totals or writes. Current snapshot expiry and owner-scoped client are part of the same read boundary. No navigation/global CSS redesign, pricing/production/closing mutation, real collection or deployment. New before/after six-width exact build evidence is required separately.",
+  "evidence": [
+    "docs/tasks/active/server-garment-read-ui-current-2026-10-24.md",
+    "docs/features/SERVER_GARMENT_SHIPMENT_UI.md"
+  ]
+}

@@ -1,5 +1,5 @@
-import { OutsourceFactorySettingsPage } from "@/features/operations-settings";
+import { ProductionResourceSettingsPage } from "@/features/operations-settings/components/production-resource-settings-page";
 
 export default function Page() {
-  return <OutsourceFactorySettingsPage />;
+  return <ProductionResourceSettingsPage kind="factories" />;
 }

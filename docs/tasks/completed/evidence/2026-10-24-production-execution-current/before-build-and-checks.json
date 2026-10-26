@@ -1,0 +1,15 @@
+{
+  "build": {
+    "environment": "production",
+    "buildId": "planning-cd73726b-server-20261024",
+    "gitCommit": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+    "buildTime": "2026-10-24T08:03:41.640Z",
+    "masterSettingsAuthority": "server",
+    "identityMode": "session",
+    "quoteWriterMode": "writable",
+    "quoteAuthority": "server",
+    "orderRead": "snapshot"
+  },
+  "geometry": [],
+  "errors": []
+}

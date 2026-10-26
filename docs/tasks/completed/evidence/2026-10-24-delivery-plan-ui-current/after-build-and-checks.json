@@ -1,0 +1,572 @@
+{
+  "driverSourceSha": "0e12c1aa48179dc1da3f699ae9769d031221ce93",
+  "renderedSourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+  "before": false,
+  "build": {
+    "environment": "production",
+    "buildId": "delivery-plan-ui-56b813be-server-20261024",
+    "gitCommit": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+    "buildTime": "2026-10-24T13:46:07.958Z",
+    "masterSettingsAuthority": "server",
+    "identityMode": "session",
+    "quoteWriterMode": "writable",
+    "quoteAuthority": "server",
+    "orderRead": "snapshot"
+  },
+  "headerMetrics": [
+    {
+      "width": 1920,
+      "height": 1080,
+      "touch": false,
+      "dpr": 1,
+      "documentOverflow": false,
+      "actionsBelowIdentity": true,
+      "actionsShareRow": true,
+      "buttons": [
+        {
+          "label": "维护来源",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        },
+        {
+          "label": "维护交期",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        }
+      ]
+    },
+    {
+      "width": 1536,
+      "height": 864,
+      "touch": false,
+      "dpr": 1.25,
+      "documentOverflow": false,
+      "actionsBelowIdentity": true,
+      "actionsShareRow": true,
+      "buttons": [
+        {
+          "label": "维护来源",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        },
+        {
+          "label": "维护交期",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        }
+      ]
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "touch": false,
+      "dpr": 1,
+      "documentOverflow": false,
+      "actionsBelowIdentity": true,
+      "actionsShareRow": true,
+      "buttons": [
+        {
+          "label": "维护来源",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        },
+        {
+          "label": "维护交期",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        }
+      ]
+    },
+    {
+      "width": 1280,
+      "height": 900,
+      "touch": false,
+      "dpr": 1,
+      "documentOverflow": false,
+      "actionsBelowIdentity": true,
+      "actionsShareRow": true,
+      "buttons": [
+        {
+          "label": "维护来源",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        },
+        {
+          "label": "维护交期",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        }
+      ]
+    },
+    {
+      "width": 900,
+      "height": 900,
+      "touch": false,
+      "dpr": 1,
+      "documentOverflow": false,
+      "actionsBelowIdentity": true,
+      "actionsShareRow": true,
+      "buttons": [
+        {
+          "label": "维护来源",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        },
+        {
+          "label": "维护交期",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        }
+      ]
+    },
+    {
+      "width": 736,
+      "height": 900,
+      "touch": false,
+      "dpr": 1,
+      "documentOverflow": false,
+      "actionsBelowIdentity": true,
+      "actionsShareRow": true,
+      "buttons": [
+        {
+          "label": "维护来源",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        },
+        {
+          "label": "维护交期",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        }
+      ]
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "touch": true,
+      "dpr": 1,
+      "documentOverflow": false,
+      "actionsBelowIdentity": true,
+      "actionsShareRow": true,
+      "buttons": [
+        {
+          "label": "维护来源",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        },
+        {
+          "label": "维护交期",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "height": 740,
+      "touch": true,
+      "dpr": 1,
+      "documentOverflow": false,
+      "actionsBelowIdentity": true,
+      "actionsShareRow": true,
+      "buttons": [
+        {
+          "label": "维护来源",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        },
+        {
+          "label": "维护交期",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        }
+      ]
+    },
+    {
+      "width": 320,
+      "height": 740,
+      "touch": false,
+      "dpr": 1,
+      "documentOverflow": false,
+      "actionsBelowIdentity": true,
+      "actionsShareRow": true,
+      "buttons": [
+        {
+          "label": "维护来源",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        },
+        {
+          "label": "维护交期",
+          "visible": true,
+          "disabled": false,
+          "reachable": true,
+          "inside": true,
+          "touchTarget": true
+        }
+      ]
+    }
+  ],
+  "metrics": [
+    {
+      "touch": {
+        "width": 390,
+        "actualTouchEvents": true,
+        "sourceOpen": {
+          "x": 45,
+          "y": 224.8125,
+          "width": 66,
+          "height": 44,
+          "inside": true,
+          "reachable": true
+        },
+        "sourceClose": {
+          "x": 340,
+          "y": 810,
+          "width": 52,
+          "height": 44,
+          "inside": true,
+          "reachable": true
+        },
+        "deliveryOpen": {
+          "x": 119,
+          "y": 224.8125,
+          "width": 66,
+          "height": 44,
+          "inside": true,
+          "reachable": true
+        },
+        "deliveryClose": {
+          "x": 256,
+          "y": 808,
+          "width": 52,
+          "height": 44,
+          "inside": true,
+          "reachable": true
+        },
+        "events": [
+          {
+            "type": "pointerdown",
+            "target": "维护来源",
+            "x": 45,
+            "y": 224.8125
+          },
+          {
+            "type": "touchstart",
+            "target": "维护来源",
+            "x": 45,
+            "y": 224.8125
+          },
+          {
+            "type": "pointerup",
+            "target": "维护来源",
+            "x": 45,
+            "y": 224.8125
+          },
+          {
+            "type": "touchend",
+            "target": "维护来源",
+            "x": 45,
+            "y": 224.8125
+          },
+          {
+            "type": "click",
+            "target": "维护来源",
+            "x": 45,
+            "y": 225
+          },
+          {
+            "type": "pointerdown",
+            "target": "关闭",
+            "x": 340,
+            "y": 810
+          },
+          {
+            "type": "touchstart",
+            "target": "关闭",
+            "x": 340,
+            "y": 810
+          },
+          {
+            "type": "pointerup",
+            "target": "关闭",
+            "x": 340,
+            "y": 810
+          },
+          {
+            "type": "touchend",
+            "target": "关闭",
+            "x": 340,
+            "y": 810
+          },
+          {
+            "type": "click",
+            "target": "关闭",
+            "x": 340,
+            "y": 810
+          },
+          {
+            "type": "pointerdown",
+            "target": "维护交期",
+            "x": 119,
+            "y": 224.8125
+          },
+          {
+            "type": "touchstart",
+            "target": "维护交期",
+            "x": 119,
+            "y": 224.8125
+          },
+          {
+            "type": "pointerup",
+            "target": "维护交期",
+            "x": 119,
+            "y": 224.8125
+          },
+          {
+            "type": "touchend",
+            "target": "维护交期",
+            "x": 119,
+            "y": 224.8125
+          },
+          {
+            "type": "click",
+            "target": "维护交期",
+            "x": 119,
+            "y": 225
+          },
+          {
+            "type": "pointerdown",
+            "target": "取消",
+            "x": 256,
+            "y": 808
+          },
+          {
+            "type": "touchstart",
+            "target": "取消",
+            "x": 256,
+            "y": 808
+          },
+          {
+            "type": "pointerup",
+            "target": "取消",
+            "x": 256,
+            "y": 808
+          },
+          {
+            "type": "touchend",
+            "target": "取消",
+            "x": 256,
+            "y": 808
+          },
+          {
+            "type": "click",
+            "target": "取消",
+            "x": 256,
+            "y": 808
+          }
+        ]
+      }
+    },
+    {
+      "width": 1920,
+      "height": 1080,
+      "touch": false,
+      "dpr": 1,
+      "left": 520,
+      "right": 1400,
+      "top": 243.71875,
+      "bottom": 836.265625,
+      "footerBottom": 836.265625,
+      "viewport": 1920,
+      "documentOverflow": false,
+      "tableOverflow": false,
+      "nestedVerticalScroll": false,
+      "controlsOutside": false,
+      "touchTargets": true
+    },
+    {
+      "width": 1536,
+      "height": 864,
+      "touch": false,
+      "dpr": 1.25,
+      "left": 328,
+      "right": 1208,
+      "top": 135.71875,
+      "bottom": 728.265625,
+      "footerBottom": 728.265625,
+      "viewport": 1536,
+      "documentOverflow": false,
+      "tableOverflow": false,
+      "nestedVerticalScroll": false,
+      "controlsOutside": false,
+      "touchTargets": true
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "touch": false,
+      "dpr": 1,
+      "left": 280,
+      "right": 1160,
+      "top": 203.71875,
+      "bottom": 796.265625,
+      "footerBottom": 796.265625,
+      "viewport": 1440,
+      "documentOverflow": false,
+      "tableOverflow": false,
+      "nestedVerticalScroll": false,
+      "controlsOutside": false,
+      "touchTargets": true
+    },
+    {
+      "width": 1280,
+      "height": 900,
+      "touch": false,
+      "dpr": 1,
+      "left": 200,
+      "right": 1080,
+      "top": 153.71875,
+      "bottom": 746.265625,
+      "footerBottom": 746.265625,
+      "viewport": 1280,
+      "documentOverflow": false,
+      "tableOverflow": false,
+      "nestedVerticalScroll": false,
+      "controlsOutside": false,
+      "touchTargets": true
+    },
+    {
+      "width": 900,
+      "height": 900,
+      "touch": false,
+      "dpr": 1,
+      "left": 24,
+      "right": 884,
+      "top": 153.71875,
+      "bottom": 746.265625,
+      "footerBottom": 746.265625,
+      "viewport": 900,
+      "documentOverflow": false,
+      "tableOverflow": false,
+      "nestedVerticalScroll": false,
+      "controlsOutside": false,
+      "touchTargets": true
+    },
+    {
+      "width": 736,
+      "height": 900,
+      "touch": false,
+      "dpr": 1,
+      "left": 24,
+      "right": 720,
+      "top": 153.71875,
+      "bottom": 746.265625,
+      "footerBottom": 746.265625,
+      "viewport": 736,
+      "documentOverflow": false,
+      "tableOverflow": false,
+      "nestedVerticalScroll": false,
+      "controlsOutside": false,
+      "touchTargets": true
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "touch": true,
+      "dpr": 1,
+      "left": 12,
+      "right": 378,
+      "top": 24,
+      "bottom": 844,
+      "footerBottom": 844,
+      "viewport": 390,
+      "documentOverflow": false,
+      "tableOverflow": false,
+      "nestedVerticalScroll": false,
+      "controlsOutside": false,
+      "touchTargets": true
+    },
+    {
+      "width": 320,
+      "height": 740,
+      "touch": true,
+      "dpr": 1,
+      "left": 12,
+      "right": 308,
+      "top": 24,
+      "bottom": 740,
+      "footerBottom": 740,
+      "viewport": 320,
+      "documentOverflow": false,
+      "tableOverflow": false,
+      "nestedVerticalScroll": false,
+      "controlsOutside": false,
+      "touchTargets": true
+    }
+  ],
+  "errors": [],
+  "diagnostic": {
+    "body": "纫\n织序 ZHIXU\nGARMENT OPERATIONS\n‹\n收起\n织\n当前组织\n尚未配置组织\n报价 UI V1\n¥\n报价中心\n▣\n订单中心\n⚙\n基础设置\n⌄\n⋯\n系统设置\n⌄\n合\n合成演示跟单经理\ndemo.merchandising · Server identity\n‹\n织序 / 业务中心 / 订单中心\n正式订单详情\n合\n合成演示跟单经理\ndemo.merchandising · Server identity\n订单列表\n款式进度\n风险预警\nREAD ONLY · POSTGRESQL\nSYNTHETIC-IN-OLD\n已完成\n\nSO-00000001\n· BillNo SC-SYNTHETIC-001\n\n维护来源\n维护交期\n订单概况\n来源权威 · 不可编辑\n业务款号\nSTYLE-SYNTHETIC-01\n客户\n合成客户\n品牌\n合成品牌\n订单数量（来源只读）\n100\n合同交期（来源）\n2026-11-01\n订单状态\n已完成\n艾诺科状态\n生效\n颜色明细\n1 个颜色 · 来源只读\n查看颜色尺码\n只读\n颜色\t数量\n蓝色\t100\n订单调价历史\n\n暂无订单议价记录。\n\n上一页历史\n下一页历史\nEXECUTION FACTS · READ ONLY\n物料采购汇总\n查看物料跟进 →\n\n读取物料来源…\n\n刷新来源\n历史物料来源\n查看历史物料来源\n成衣出货\n按合同查看已采集的来源记录\n展开出货记录\n出货历史\n来源与技术详情\n只读\nPROD · 56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+    "active": "(()=>{\n  if(window.__zhixuWorkspaceHistory)return;\n  const key='__zhixuWorkspaceNavigation',h=window",
+    "touchEvents": [],
+    "viewport": {
+      "width": 1440,
+      "height": 1000,
+      "scrollX": 0,
+      "scrollY": 0
+    },
+    "dialogs": []
+  }
+}

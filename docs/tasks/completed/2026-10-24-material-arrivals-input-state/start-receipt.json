@@ -1,0 +1,329 @@
+{
+  "at": "2026-10-24T10:24:24.833Z",
+  "branch": "codex/server-material-arrivals-current",
+  "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+  "verifiedMain": {
+    "at": "2026-10-24T10:20:46.250Z",
+    "sha": "e01a11952b648024c0bd6bf4259de429374981e2"
+  },
+  "head": "83a22eb3cff952f70ee209e2515453307cefbaa8",
+  "tree": "4b761f95dd36218ef93672ff55f4226736f9b904",
+  "workingTreeClean": true,
+  "previousGoalTurn": "progress",
+  "previousFinal": {
+    "at": "2026-10-24T10:22:23.329Z",
+    "branch": "codex/server-order-logistics-dialog-current",
+    "head": "83a22eb3cff952f70ee209e2515453307cefbaa8",
+    "tree": "4b761f95dd36218ef93672ff55f4226736f9b904",
+    "source": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+    "sourceTree": "a16c4ac3d199e4763d4bd2df6ae71c896906b920",
+    "driverSource": "2c286f3171ae19dc80cf251e26bf3505844c8f1c",
+    "proof": "54c28cec392a435b1fcffedfa47e32c4b7f5f98b",
+    "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+    "guard": {
+      "at": "2026-10-24T10:22:23.042Z",
+      "head": "83a22eb3cff952f70ee209e2515453307cefbaa8",
+      "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 96789,
+      "result": {
+        "status": "PASS",
+        "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
+        "checkedHead": "83a22eb3cff952f70ee209e2515453307cefbaa8",
+        "historySha": "e01a11952b648024c0bd6bf4259de429374981e2",
+        "pages": 11,
+        "capabilities": 54,
+        "changedUiFiles": 53,
+        "scope": "source/evidence guard only; no browser, runtime, database or user acceptance claim",
+        "errors": []
+      }
+    },
+    "release": {
+      "at": "2026-10-24T10:20:25.831Z",
+      "head": "7f0d4c77f05a0afb12ae36fb0fc71ea51119785c",
+      "productAndNonreleaseSource": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+      "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+      "command": "npm run test:release-baseline",
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 381564,
+      "counts": {
+        "tests": 134,
+        "pass": 134,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "productAndApiSourcesUnchanged": true,
+      "driverSource": "2c286f3171ae19dc80cf251e26bf3505844c8f1c"
+    },
+    "tests": {
+      "api": 386,
+      "rootNonrelease": 811,
+      "browser": {
+        "before": 2,
+        "after": 37,
+        "resources": 23,
+        "navigation": 18
+      },
+      "rootWithReleaseUnion": 945
+    },
+    "workingTreeClean": true,
+    "delivery": {
+      "state": "NOT_ATTEMPTED_NETWORK_DEGRADED",
+      "pushes": 0,
+      "priorTarget": "b6af0cd247c1e7ec4406e69526fa672544cce1d8",
+      "priorState": "TARGET_NOT_DELIVERED"
+    },
+    "hostedActionsTriggeredByThisPhase": 0,
+    "newPr": null,
+    "goal": "active",
+    "deployed": false,
+    "realSourceOrBusinessDatabaseAccess": false,
+    "independentReview": {
+      "at": "2026-10-24T10:21:52.864Z",
+      "reviewer": "/root/server_convergence_review",
+      "mode": "independent read-only static; inspected existing receipts/logs, no own tests/network/writes",
+      "head": "83a22eb3cff952f70ee209e2515453307cefbaa8",
+      "verdict": "no remaining P1/P2",
+      "findings": [],
+      "closed": [
+        {
+          "priority": "P2",
+          "issue": "Product/archive and test-driver context mismatch in AI_HANDOFF",
+          "resolution": "Correct separate context/hash mapping at83a22eb3; product/test/proof/manifest unchanged"
+        }
+      ],
+      "verified": "Only four docs changed since7f0d, clean. Release134/134 PASS381564ms/0 fail cancel skip. Product e2cf and driver2c286f31 and staged QA distinct. Final exact guard pending actual result at review time.",
+      "finalGuardActual": {
+        "status": "PASS",
+        "checkedHead": "83a22eb3cff952f70ee209e2515453307cefbaa8",
+        "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+        "elapsedMs": 96789,
+        "errors": []
+      }
+    },
+    "next": [
+      "G6D material arrival plans0039 and current existing UI",
+      "Garment shipment0040/refresher0041; DeliveryPlan0042 after correct ledger prefix"
+    ],
+    "protected": [
+      "3001",
+      "50426",
+      "59069",
+      "62426",
+      "Browser stores",
+      "backups",
+      "existing volumes"
+    ]
+  },
+  "original": {
+    "base": "bb0ee1768d4d97c26b60458248e305fe5a241a97",
+    "incoming": "cbfd1e65595a05444e632b5bee9e0dec83c8e12b"
+  },
+  "preflight": {
+    "paths": 22,
+    "sameInput": 20,
+    "differing": [
+      "database/migrations/README.md",
+      "package.json"
+    ],
+    "repositoryWrites": 0,
+    "rows": [
+      {
+        "path": "database/migrations/0039_material_arrival_plans.sql",
+        "base": null,
+        "current": null,
+        "incoming": "1fc8d8d89c48420e3a302c317b6673df99e46926",
+        "sameInput": true,
+        "alreadyTarget": false
+      },
+      {
+        "path": "database/migrations/README.md",
+        "base": "9d7d8244e22d9d70b4cf05ce2a39f78906bbef27",
+        "current": "9f901999cafe446ef55e8f4f11d36ae6a9412652",
+        "incoming": "661652ff1ac24f5ef1422c4241b11b8b2ca65f32",
+        "sameInput": false,
+        "alreadyTarget": false
+      },
+      {
+        "path": "features/operation-logs/model/operation-log.ts",
+        "base": "0bceb14d9a45f21d6e8e65c0aedcb16576059473",
+        "current": "0bceb14d9a45f21d6e8e65c0aedcb16576059473",
+        "incoming": "01546bb0be52011d822627f1053cc10e707d1da9",
+        "sameInput": true,
+        "alreadyTarget": false
+      },
+      {
+        "path": "package.json",
+        "base": "d0b6b169768f1f3273da70f31743a834364adda7",
+        "current": "6b2daa88e2753b48ad65d69de8ce2dc153a1360f",
+        "incoming": "2877307f28f3cf370ade195c41ade6625a72c58a",
+        "sameInput": false,
+        "alreadyTarget": false
+      },
+      {
+        "path": "server/ainuoke-source/reader.ts",
+        "base": "215f3e4edfff93faf758ccd860c9f58cba3ac9d4",
+        "current": "215f3e4edfff93faf758ccd860c9f58cba3ac9d4",
+        "incoming": "a151295174c7bcd53112fd27c2154313d5cd495f",
+        "sameInput": true,
+        "alreadyTarget": false
+      },
+      {
+        "path": "server/app.ts",
+        "base": "fe41c30ac21397eb78011f5f8dadc1f18f7d97bd",
+        "current": "fe41c30ac21397eb78011f5f8dadc1f18f7d97bd",
+        "incoming": "df634266743c5a90d42741cd40558840d7354542",
+        "sameInput": true,
+        "alreadyTarget": false
+      },
+      {
+        "path": "server/index.ts",
+        "base": "661e8bf118e004dbb7d91a2c208568fb7d9604aa",
+        "current": "661e8bf118e004dbb7d91a2c208568fb7d9604aa",
+        "incoming": "3b55d93b6c72cd69df4f600ceebb94880252f6bd",
+        "sameInput": true,
+        "alreadyTarget": false
+      },
+      {
+        "path": "server/integration/ainuoke-continuous-fixture.ts",
+        "base": "bf9c733da8529ef5b409c8e3b7ff3d42e245ca0e",
+        "current": "bf9c733da8529ef5b409c8e3b7ff3d42e245ca0e",
+        "incoming": "b717d7ff6b57056338ca05e01cd2ed9f21d2ca5c",
+        "sameInput": true,
+        "alreadyTarget": false
+      },
+      {
+        "path": "server/integration/current-migration-ledger-fixture.ts",
+        "base": "e63cc5bc3093ada8c0886e47ffb9f4ead2ac3fea",
+        "current": "e63cc5bc3093ada8c0886e47ffb9f4ead2ac3fea",
+        "incoming": "8a35139eec06073e25addb0ea3bff9e1f0088d78",
+        "sameInput": true,
+        "alreadyTarget": false
+      },
+      {
+        "path": "server/integration/material-arrivals-upgrade.integration.test.ts",
+        "base": null,
+        "current": null,
+        "incoming": "27dfe6c93f654bf84d929d35485ea92bd5a71902",
+        "sameInput": true,
+        "alreadyTarget": false
+      },
+      {
+        "path": "server/integration/material-arrivals.integration.test.ts",
+        "base": null,
+        "current": null,
+        "incoming": "a12069f4fae268a4417cbf6b7ba54b3f9f8914f8",
+        "sameInput": true,
+        "alreadyTarget": false
+      },
+      {
+        "path": "server/integration/material-confirmations.integration.test.ts",
+        "base": "cc86d37e5422dd727480292ae391b33f01b5fe14",
+        "current": "cc86d37e5422dd727480292ae391b33f01b5fe14",
+        "incoming": "a4c769ba7de92ba38cad579083023d8478ba4ef6",
+        "sameInput": true,
+        "alreadyTarget": false
+      },
+      {
+        "path": "server/integration/order-material-security-audit.test.ts",
+        "base": "66198028f32d9819a4dbff9c9c87e5f3457b839e",
+        "current": "66198028f32d9819a4dbff9c9c87e5f3457b839e",
+        "incoming": "337f6333d85645d8939046b494e5a0ac408c5b3a",
+        "sameInput": true,
+        "alreadyTarget": false
+      },
+      {
+        "path": "server/material-arrivals/contract.test.ts",
+        "base": null,
+        "current": null,
+        "incoming": "8ce736f8b9433d86b4aca045213f4625c1fe5e7e",
+        "sameInput": true,
+        "alreadyTarget": false
+      },
+      {
+        "path": "server/material-arrivals/contract.ts",
+        "base": null,
+        "current": null,
+        "incoming": "9b8f7c1b83eace20a6df3adf9f2d6cc03f9a6007",
+        "sameInput": true,
+        "alreadyTarget": false
+      },
+      {
+        "path": "server/material-arrivals/demand-identity.ts",
+        "base": null,
+        "current": null,
+        "incoming": "18800083e2d1140d2f89ed6c8b43e4f6e3021a8d",
+        "sameInput": true,
+        "alreadyTarget": false
+      },
+      {
+        "path": "server/material-arrivals/routes.ts",
+        "base": null,
+        "current": null,
+        "incoming": "05b1f74061c2a41f95d12f6d7e5b4f945ab540b8",
+        "sameInput": true,
+        "alreadyTarget": false
+      },
+      {
+        "path": "server/material-arrivals/service.ts",
+        "base": null,
+        "current": null,
+        "incoming": "185d2da1974bf2e62ad57bf978e9a9b4ce5c0d0b",
+        "sameInput": true,
+        "alreadyTarget": false
+      },
+      {
+        "path": "server/material-arrivals/source.ts",
+        "base": null,
+        "current": null,
+        "incoming": "c0c089c2cf6ee825229bb28e64e7f17f4531010a",
+        "sameInput": true,
+        "alreadyTarget": false
+      },
+      {
+        "path": "server/material-arrivals/store.ts",
+        "base": null,
+        "current": null,
+        "incoming": "90f33faaf84da7b179962f7a952e6b0cddb909cb",
+        "sameInput": true,
+        "alreadyTarget": false
+      },
+      {
+        "path": "server/sales-orders/normalization-full-evidence.ts",
+        "base": "6bb80f9437198cd49d13be8b2e74ef141af79fd0",
+        "current": "6bb80f9437198cd49d13be8b2e74ef141af79fd0",
+        "incoming": "d009e4ba9319fea540a83e533b654aa6c451e51d",
+        "sameInput": true,
+        "alreadyTarget": false
+      },
+      {
+        "path": "server/sales-orders/normalization-preview.ts",
+        "base": "590c1f2ddb718025c56beddc66c33777b62be11f",
+        "current": "590c1f2ddb718025c56beddc66c33777b62be11f",
+        "incoming": "cbebdb969f57139b07fe7402bfb93672178b8a0c",
+        "sameInput": true,
+        "alreadyTarget": false
+      }
+    ]
+  },
+  "protectedSummaryHashes": [
+    {
+      "path": "docs/tasks/completed/2026-10-24-material-arrivals-input-state/CURRENT_STATE.md",
+      "sha256": "0955267fc878d90355587c3a3c72c6cf7da82db00422fc83b30478ebf95d6c24"
+    },
+    {
+      "path": "docs/tasks/completed/2026-10-24-material-arrivals-input-state/AI_HANDOFF.md",
+      "sha256": "41969b03e23c8dd5640f29dfe2a0a8768e3138d4d4fac5e8ed2417692716ef3c"
+    },
+    {
+      "path": "docs/tasks/completed/2026-10-24-material-arrivals-input-state/PROJECT_INDEX.md",
+      "sha256": "eb0c09f11eb7c45dbf637b651f6f71e717c1bf4d5dad5ebced030610c110b77b"
+    }
+  ],
+  "network": "NETWORK_DEGRADED; no push, API ref mutation or Actions; safe local phase only"
+}
