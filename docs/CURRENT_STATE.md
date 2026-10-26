@@ -1,13 +1,15 @@
-# 当前状态：累计Server的持久化隔离验收准备
+# 当前状态：累计Server已完成本机隔离恢复验证
 
-2026-10-26；main 869ee84dd0b31de6161011e4aa560678b244a64d于2026-10-26T08:25:23.082Z经独立API核实，原生Git仍未刷新。新分支codex/persistent-cumulative-43-main-869e从N建立、显式快进c5f994396203803218c5bb853e316cdf761e83ce，普通合流原已审持久化harness分支38580ae2185cddedb175cdd8fde88fee2eb8443d，两边原提交和全部保护引用保持。仅四共享文档冲突按当前事实解决，原502证据/66能力和UI记录不变。
+2026-10-26；当前main 869ee84dd0b31de6161011e4aa560678b244a64d已由本轮三个原生Git只读对照再次核实；源码分支codex/persistent-cumulative-43-main-869e。实际镜像source 6d27d1e7fa1079f1830511068ff070791df310ab，双父保留c5f994396203803218c5bb853e316cdf761e83ce / 38580ae2185cddedb175cdd8fde88fee2eb8443d；应用/API/SQL/UI仍为8cf667f26f191b0ca1d3b31b423dd293d7f2a5b6，新harness/ops仅按原f03合流。
 
-镜像从本次实际source checkpoint的canonical Git archive单次构建，明确标为未合并累计候选，不能冒称main镜像。43份迁移（最高版本44）只在两个全新、归属可证明且prepared的合成项目中显式初始化；正常启动verify-only。应用/API/SQL/UI源继续8cf，新增仅已审f03 harness和ops说明；原模块QA按各source复用。复用S c1f8e861的144/144与R c5f99439的exact-N守卫，不把它们冒称新harness/镜像结果。原main31迁移8/8仍是历史。
+本轮新镜像首次build 74723ms、实际43迁移持久化/独立恢复8/8、332416ms，零失败/取消/跳过/超时/溢出；2977归档/runner文件匹配且0 overlay。旧50容器/179卷/27网络所选元数据保持；不据此声称审计过旧业务内容。原main31迁移8/8保持历史，不替代本轮。
 
-先逐blob校验archive和43SQL、已审harness f03ac2adcb7aa27695565ade10c788a070161144；独立复审后只build一次，运行一次实际镜像8项持久化/TLS/S3/重启/冷重建/备份/独立恢复。成功后仅清理本轮新项目；失败保留自有现场、不自动循环重试。旧容器所选身份/镜像/状态及既有卷/网络名单在前后只读比对，不读旧业务内容、私密config或凭据。
+原c1f8e861的144/144及c5f99439的exact-N守卫/复审已通过，按各自source复用，不称新运行。新Q/R仅冻结当前43迁移证明和503/66清单，原502及能力/UI记录不变；最终同HEAD守卫/复审按实际回执核对。
 
-构建/实际8项/新最终守卫尚未执行；不提前PASS。
+Git当前只读链路已恢复，未改代理/TLS/认证，历史根因仍未完全确定。新head真实交付须再次走正常预检并核实完整远端SHA，之后仅一次必要PR CI；不批量重跑旧CI、不自动merge。
 
-3001/50426/59069/62426及其他旧入口、账号、库、对象、卷、备份、Browser数据保持；不升级旧库，不读取D:/workspace/ainuoke-key.txt，不登录/采集/绑定/激活/调度真实Source。不合并main、不正式部署、不替换50426或退役。当前NETWORK_DEGRADED及原STOP保持，不重复Git探测/推送，H0d70授权未消耗，Hosted0。完整G1–G8/R继续，关账三项、来源具体授权、人工接受和切换仍待条件。
+完整G1–G8/R继续：G1隔离持久化已验证但未切换50426；G3导航已进main；其余订单/生产/物流/受控来源为工程候选，真实Source未激活。G7稳定跨次事件/更正、G8加工产值/已采用CNY工价/完成更正stale三项待决，以及目标人工接受、切换和依赖审计后退役仍待条件。3001/50426等旧入口、账号、库、卷、备份及Browser数据保持。
 
-[阶段](tasks/active/persistent-cumulative-43-2026-10-26.md)；[前阶段冻结144证据](tasks/completed/2026-10-26-release-evidence-efficiency-validation.md)；[输入归档](tasks/completed/2026-10-26-persistent-cumulative-43-input-state/receipt.json)。
+[阶段](tasks/active/persistent-cumulative-43-2026-10-26.md)。
+
+实际终态：source 6d27d1e7fa1079f1830511068ff070791df310ab、image sha256:6a30bf2e192a27b090a9444244d4c918e09afc07f5f65df1d5ae672c4c1677be，单次build 74723ms；当前43迁移实际8/8通过，332416ms、无fail/skip/cancel/timeout/overflow，runner0 overlay。旧50/179/27所选元数据前后不变；新自有项目已按harness成功清理，未替换旧入口。[永久证明](tasks/completed/2026-10-26-persistent-cumulative-43-validation.md)冻结raw hash。原生Git三只读当前通过并核实main 869ee84dd0b31de6161011e4aa560678b244a64d，未改共享配置；push/PR/CI尚待最终head交付，不因只读成功宣称永久恢复。

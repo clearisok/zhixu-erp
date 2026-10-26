@@ -8,7 +8,7 @@
 
 先逐blob校验archive和43SQL、已审harness f03ac2adcb7aa27695565ade10c788a070161144；独立复审后只build一次，运行一次实际镜像8项持久化/TLS/S3/重启/冷重建/备份/独立恢复。成功后仅清理本轮新项目；失败保留自有现场、不自动循环重试。旧容器所选身份/镜像/状态及既有卷/网络名单在前后只读比对，不读旧业务内容、私密config或凭据。
 
-当前尚未构建镜像、初始化新库或运行8项；缺完整终态不PASS。结果以outputs/persistent-cumulative-43-20261026为准。原[精确main演练](main-persistent-rehearsal-869e-2026-10-26.md)的source/31/8项结果保持。
+准备时尚未构建镜像、初始化新库或运行8项；当前实际终态见下方，不把原准备计划当结果。结果以outputs/persistent-cumulative-43-20261026为准。原[精确main演练](main-persistent-rehearsal-869e-2026-10-26.md)的source/31/8项结果保持。
 
 ## 边界
 
@@ -17,3 +17,5 @@
 前阶段policy-checks.json原件位于outputs/ci-cost-main-869e-20261026，另外四份验证原件位于outputs/release-evidence-efficiency-20261026；其五项raw hash均已冻结验证。
 
 [两输入旧状态原文](../completed/2026-10-26-persistent-cumulative-43-input-state/receipt.json)。
+
+实际终态：source 6d27d1e7fa1079f1830511068ff070791df310ab、image sha256:6a30bf2e192a27b090a9444244d4c918e09afc07f5f65df1d5ae672c4c1677be，单次build 74723ms；当前43迁移实际8/8通过，332416ms、无fail/skip/cancel/timeout/overflow，runner0 overlay。旧50/179/27所选元数据前后不变；新自有项目已按harness成功清理，未替换旧入口。[永久证明](../completed/2026-10-26-persistent-cumulative-43-validation.md)冻结raw hash。原生Git三只读当前通过并核实main 869ee84dd0b31de6161011e4aa560678b244a64d，未改共享配置；push/PR/CI尚待最终head交付，不因只读成功宣称永久恢复。

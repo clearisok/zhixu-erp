@@ -9,3 +9,5 @@
 先逐blob校验archive和43SQL、已审harness f03ac2adcb7aa27695565ade10c788a070161144；独立复审后只build一次，运行一次实际镜像8项持久化/TLS/S3/重启/冷重建/备份/独立恢复。成功后仅清理本轮新项目；失败保留自有现场、不自动循环重试。旧容器所选身份/镜像/状态及既有卷/网络名单在前后只读比对，不读旧业务内容、私密config或凭据。
 
 3001/50426/59069/62426及其他旧入口、账号、库、对象、卷、备份、Browser数据保持；不升级旧库，不读取D:/workspace/ainuoke-key.txt，不登录/采集/绑定/激活/调度真实Source。不合并main、不正式部署、不替换50426或退役。当前NETWORK_DEGRADED及原STOP保持，不重复Git探测/推送，H0d70授权未消耗，Hosted0。完整G1–G8/R继续，关账三项、来源具体授权、人工接受和切换仍待条件。
+
+实际终态：source 6d27d1e7fa1079f1830511068ff070791df310ab、image sha256:6a30bf2e192a27b090a9444244d4c918e09afc07f5f65df1d5ae672c4c1677be，单次build 74723ms；当前43迁移实际8/8通过，332416ms、无fail/skip/cancel/timeout/overflow，runner0 overlay。旧50/179/27所选元数据前后不变；新自有项目已按harness成功清理，未替换旧入口。[永久证明](tasks/completed/2026-10-26-persistent-cumulative-43-validation.md)冻结raw hash。原生Git三只读当前通过并核实main 869ee84dd0b31de6161011e4aa560678b244a64d，未改共享配置；push/PR/CI尚待最终head交付，不因只读成功宣称永久恢复。
