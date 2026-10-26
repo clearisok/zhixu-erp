@@ -29,6 +29,7 @@
 - 原关账回执增加commandHash并复验存储command/request/hash，仍只按当前actor原UUID读取，坏存储不造证明；不返回原命令或金额。历史绑定entityType/entityId，发生时时间统一ISO，原对象/身份/版本不改。
 - 浏览器白名单投影覆盖basis/月份/明细/历史/preview/result；手工归属/CAS/hash/分页和三桶金额独立。1MiB、fresh会话owner lease、无自动POST重试、原UUID终态核对；sessionStorage只保存本actor/tab的一条原命令，坏字节不覆盖，无旧Browser账本/Seed/IndexedDB读写。
 - 当前只有协议和原请求存储函数，低层submit不负责存储，不宣称UI save→POST编排或真实session/provider/导航接线完成。具体[关账UI草图](tasks/active/server-closing-ui-proposal-2026-10-27.md)已征询且仍pending；USD采用UI原问题也不被替代。精确源码及验证见[阶段](tasks/active/server-closing-browser-protocol-2026-10-27.md)。远端STOP未解除，不授予来源、合并、部署或现有库操作。
+- 精确S1 48a41fb6957c7353415e690863af48ec704c9a2e：82受影响、811项目、lint/构建通过，类型失败原件保留；S2 45a5b087b4b3ed19ae448188257146a516d75bf4：38受影响、类型/lint/浏览器编译通过，实际父为S1，不混同阶段基点e5f。独立复审两项P2已修，0剩余P1/P2，见[冻结工程](tasks/completed/2026-10-27-server-closing-interface-engineering.md)。完整关账体验、最终守卫及远端交付分别记录，不因源码验收完成而提升能力状态。
 
 ### D-166 USD采用无界面原请求控制器
 

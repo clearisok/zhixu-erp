@@ -20,7 +20,9 @@ zhixu.server.closing.pending.v1.<public-user-id>只在未来调用者提供的se
 
 ## 状态
 
-WIP模型/client29和新owned合成PG真实HTTP6已通过，最终源码的类型/lint/构建/复审/守卫另记于[本阶段](../tasks/active/server-closing-browser-protocol-2026-10-27.md)，不借旧811/144预报。初次lint两个unused导入已修。关账[页面草图](../tasks/active/server-closing-ui-proposal-2026-10-27.md)已异步征询，尚无答复，等待不构成V2/V3批准；USD采用原UI问题保留。
+精确S1 48a41fb6957c7353415e690863af48ec704c9a2e上82项受影响、811项目、lint及前后端构建通过，类型三处失败原件保留。S2 45a5b087b4b3ed19ae448188257146a516d75bf4仅改一处类型收窄及集成测试，38项（15契约＋15客户端＋8真实HTTP含父项）、类型/lint/Vite浏览器编译通过；未重复811/构建，不将两轮相加。两项独立复审P2已闭合，0剩余P1/P2。详见[冻结工程证明](../tasks/completed/2026-10-27-server-closing-interface-engineering.md)与[本阶段](../tasks/active/server-closing-browser-protocol-2026-10-27.md)。本阶段未重跑144发布负控，最终精确守卫另记，实际交付前仍需当前候选的必要完整检查。
+
+关账[页面草图](../tasks/active/server-closing-ui-proposal-2026-10-27.md)已异步征询，尚无答复，等待不构成V2/V3批准；USD采用原UI问题保留。当前basis读取兼容最多1000当前颜色和1000历史残留行的联合诊断；稳定颜色歧义行只可只读阻断，不可变成可关账依据。1MiB及服务端原规则不放宽。
 
 原Gate8B冻结文档及本机失败记录保留。无schema迁移、现有库/账号、真实Source/激活/调度、合并、部署、旧环境切换/退役。最后核实main869ee84dd0b31de6161011e4aa560678b244a64d沿用同日既有证据，本阶段未重复fetch/API；远端Git/ref STOP根因UNRESOLVED。
 
