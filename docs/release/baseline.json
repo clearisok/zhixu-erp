@@ -4275,6 +4275,19 @@
       "renderedSourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
       "sha256": "36226e6246fdebb9d3d3e83762a8ccc9055a5e19353611f1dff036b051434605",
       "changeReason": "Bind the actual direct-parent merge of exact main N and the independent approved D156 delivery UI stage. Preserve all original evidence and business behavior; this is a genuine forward ancestry witness, not a guard exception or replacement history."
+    },
+    {
+      "id": "decisions-delivery-plan-ui-main-869e-20261026-merge",
+      "path": "docs/DECISION_LOG.md",
+      "mergeOf": [
+        "decisions-delivery-plan-requests-main-869e-20261026-merge",
+        "decisions-delivery-plan-ui-main-anchor-869e-20261026"
+      ],
+      "kind": "document",
+      "recordedAtSha": "10a25decc49bcf7b1f02a5bd13eb4de73071b515",
+      "renderedSourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+      "sha256": "36226e6246fdebb9d3d3e83762a8ccc9055a5e19353611f1dff036b051434605",
+      "changeReason": "Close the actual cumulative Server dependency and genuine N-direct D156 UI witness at their real two-parent merge. Preserve all original approval, screenshots, decision revisions and parent manifest records; no business change or guard exception."
     }
   ],
   "pages": [
