@@ -461,6 +461,12 @@ necessary screenshot. These cards are **not** automated or user acceptance PASS.
 
 ## Evidence and next action
 
+The CLI reports only safe fixed failure codes. A nonzero Docker child failure
+whose bounded stderr contains the known daemon address-pool exhaustion message
+is classified as `docker_address_pool_exhausted`; raw command/configuration
+output is never forwarded. Unknown failures remain generic. This diagnostic
+does not retry startup, remove networks or change Docker address pools.
+
 Executable sources: `server/integration/quote-trial-release.integration.test.mjs`,
 `s3-runtime-bounds.test.ts`, `scripts/__tests__/quote-trial-config.test.mjs`,
 `git-delivery-state.test.mjs`. Current execution numbers belong in AI_HANDOFF/

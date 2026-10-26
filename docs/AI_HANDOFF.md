@@ -1,7 +1,7 @@
-# 恢复点：Gate8F首次失败已修，待新修正验证
+# 恢复点：Gate8F修后7/9，诊断恢复启动失败
 
-2026-10-27，branch codex/financial-recovery-fixture-main-869e，首次S/image 22fe4e84f08441f6a0c849540871e56b44d8aa9f、父d68c25663ac42a8746e15f44f610653e7d6cba06；main869ee84dd0b31de6161011e4aa560678b244a64d沿用同日核实，Git/ref STOP根因UNRESOLVED。先读[失败/修正](tasks/completed/2026-10-27-financial-recovery-first-attempt.md)及[阶段](tasks/active/financial-recovery-2026-10-27.md)。
+2026-10-27，branch codex/financial-recovery-fixture-main-869e，修后test S2 774264574191801147e2151b2b77ef5dc4d30f93，image仍22fe4e84f08441f6a0c849540871e56b44d8aa9f；main869ee84dd0b31de6161011e4aa560678b244a64d沿用同日核实，Git/ref STOP根因UNRESOLVED。先读[第二次失败](tasks/completed/2026-10-27-financial-recovery-startup-failure.md)、[首次失败](tasks/completed/2026-10-27-financial-recovery-first-attempt.md)及[阶段](tasks/active/financial-recovery-2026-10-27.md)。
 
-镜像一次构建PASS；首次实际6项4PASS/2FAIL，财务输入generator前TDZ。五容器/四卷停留保留，不清理。只改process→processingRow，新增边界回归准确先红后7绿、lint绿，独立0P1/P2；须新S2 checkpoint/精确归档后，生产TS/SQL/ops/依赖不变可复用S1 image，只进行一次新nonce修后演练，区分test/image source。原失败和一次尝试原件保留，不重跑原工具、不预报新结果。
+一次镜像build保留；修后全流程9项7PASS/2FAIL，恢复后start失败，无最终DOMAIN诊断。一次单独有界start也code1，无READY，已用完；现场和备份保留。32网络、缺ingress仅支持默认地址池耗尽推断，不能写confirmed。先补原safeFailure固定分类/负控，23相关及lint通过。审查发现新archive会改bind/hash，禁止直接换路径启动；拟仅在原ops目录增加明记的两个诊断文件，原字节不改，先核五服务hash并窄审，再单独记账一次同目标诊断start。不重跑备份/全流程、不先改IPAM；test/image/tool及2extra overlays分别记录。
 
-旧276refs和50/179/27所选Docker元数据保持（非内容审计）。UI具体批准pending，68能力不改；0Hosted/远端写/真实Source/旧库/merge/deploy/cutover/retirement，完整Goal active。
+旧276refs和55/183/29所选Docker元数据保持（非内容审计）。私密原件outputs/financial-recovery-corrected-20261027，诊断代码/日志outputs/financial-recovery-diagnostics-20261027；不要运行仍假设成功的旧proof/finalize脚本。UI具体批准pending，68能力不改；0Hosted/远端写/真实Source/旧库/merge/deploy/cutover/retirement，完整Goal active。

@@ -19,3 +19,11 @@ WIP14项回执正负测试及四文件lint已通过；随后只补完整labor命
 ## 首次实际失败及独立修正验证边界
 
 原22fe4e84镜像构建通过，actual6项4PASS/2FAIL，财务generator前TDZ中止；原件保留，未完成恢复。局部变量仅改名、新边界回归先红后7绿，独立复审0P1/P2。失败项目已停五容器/四卷保留；原276ref及50/179/27所选元数据保持。详见[准确记录](../completed/2026-10-27-financial-recovery-first-attempt.md)。后续新source checkpoint/归档并证明生产字节未变后，复用已构建镜像进行一次新nonce修正验证；testSource/imageSource分别记录，不直接重跑原工具、不重建镜像、不预报PASS。
+
+## 修后全流程及诊断接续
+
+S2 774264574191801147e2151b2b77ef5dc4d30f93修后唯一运行9项7PASS/2FAIL，非空财务、重启/冷重建和离线备份通过，恢复启动失败。一次单独有界补start同样code1/6289ms；所有原件和现场保留，见[冻结失败记录](../completed/2026-10-27-financial-recovery-startup-failure.md)。32网络和缺ingress支持容量推断，尚无明确daemon错误；不删旧网络/不改全局配置。
+
+新增最小safeFailure分类只检查非零子进程的有界stderr，返回固定docker_address_pool_exhausted，不转发原文；身份错误优先，未知继续泛化。负控先红，23相关和两文件lint通过。独立审查指出新archive路径会改变bind/configHash，已停止该方案；不放宽身份校验。
+
+新checkpoint后拟保留原S2全部tracked字节，仅在其ops目录增两个明确记账的唯一诊断文件：新Git blob分类器、只替换该import的原CLI拷贝。dirname/Compose/bind路径不变，执行前核对五服务hash、原容器/卷身份及全部原字节；不宣称诊断runner为0overlay。须完成窄审后仅对同一成功prepared的owned合成恢复目标单独记账一次start，区分tool/image来源，保留旧7/9；不重跑初始化/备份/完整演练，不先改IPAM或预报结果。

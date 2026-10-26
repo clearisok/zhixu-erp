@@ -1,9 +1,9 @@
-# 当前状态：Gate8F恢复夹具修正，实际验证待继续
+# 当前状态：Gate8F恢复启动失败，正在补安全诊断
 
-2026-10-27；branch codex/financial-recovery-fixture-main-869e，父d68c25663ac42a8746e15f44f610653e7d6cba06，首次S/image 22fe4e84f08441f6a0c849540871e56b44d8aa9f。main869ee84dd0b31de6161011e4aa560678b244a64d沿用同日核实，无fetch/API；PR130旧61704afe22fe9fd0ea9f6625c6092fcbb9575dfc非增量，Git/ref STOP根因未定。
+2026-10-27；branch codex/financial-recovery-fixture-main-869e，修后test S2 774264574191801147e2151b2b77ef5dc4d30f93，首次S/image 22fe4e84f08441f6a0c849540871e56b44d8aa9f。main869ee84dd0b31de6161011e4aa560678b244a64d沿用同日核实，无fetch/API；PR130旧61704afe22fe9fd0ea9f6625c6092fcbb9575dfc非增量，Git/ref STOP根因未定。
 
-一次新镜像已成功（45迁移文件/最高0046、含前后端build），实际owned演练6项4PASS/2FAIL：财务夹具局部process遮蔽全局，generator前TDZ中止，尚未备份/恢复。原失败现场停止保留；[准确失败与修正记录](tasks/completed/2026-10-27-financial-recovery-first-attempt.md)。
+一次镜像已成功（45迁移文件/最高0046、含前后端build）；[首次6项4PASS/2FAIL及TDZ修正](tasks/completed/2026-10-27-financial-recovery-first-attempt.md)保留。修后唯一全流程9项7PASS/2FAIL：非空财务输入、重启及备份通过，恢复后start失败，不能称整套恢复通过。
 
-仅改名processingRow，边界回归先红后7/7、两文件lint绿；独立0剩余P1/P2。后续新checkpoint归档后，复用原生产镜像对新nonce作一次修后验证，分别记录testSource/imageSource，不重建、不覆盖失败、不预报PASS。原控制15PASS/1SKIP和旧811/144不冒充修后实际恢复。
+一次同目标补start仍失败，原件/所有owned现场保留。32网络及缺ingress支持地址池耗尽推断，但日志未证实；[修后失败准确记录](tasks/completed/2026-10-27-financial-recovery-startup-failure.md)。先补纯安全错误分类，不改IPAM/全局配置、不删网络、不重跑全流程。新增分类回归先红，readiness/config/local-objects 23/23及两文件lint通过；精确源码/现场诊断后续分别记账，旧811/144不重跑或冒用。
 
-原276refs和50/179/27所选Docker元数据保持，非内容审计；失败项目五容器/四卷保留。UI两项批准pending；0Hosted/远端写/Source/既有账号业务库/合并/正式部署/切换/退役。68能力不改、Goal active。
+原276refs和55/183/29所选Docker元数据保持，非内容审计；三次尝试及失败项目/卷/备份保留。UI两项批准pending；0Hosted/远端写/Source/既有账号业务库/合并/正式部署/切换/退役。68能力不改、Goal active。
