@@ -159,8 +159,9 @@ test('Gate8B manual closing: nonempty upgrade, immutable snapshots, trusted HTTP
     const oldRows = await readClosingPeriodDetail(pool, editor.actor, periodId, new URLSearchParams({ version: String(lockedVersion) }));
     assert.equal(oldRows.items.find(row => row.id === allocationId)!.snapshot.outputs.garmentSale?.price, '113');
     const history = await readClosingHistory(pool, editor.actor, 'allocation', allocationId, new URLSearchParams({ limit: '1', version: '1' }));
-    assert.equal(history.items[0].snapshot.quantity, '3'); assert.equal(history.items[0].snapshot.outputs.garmentSale?.price, '113');
-    assert.equal(history.items[0].executionReview.requiresReview, false);
+    const oldRow = history.items[0]; assert.ok('snapshot' in oldRow);
+    assert.equal(oldRow.snapshot.quantity, '3'); assert.equal(oldRow.snapshot.outputs.garmentSale?.price, '113');
+    assert.equal(oldRow.executionReview.requiresReview, false);
   });
   await t.test('lost COMMIT acknowledgement is unknown until the original receipt proves exactly one mutation', async () => {
     const otherBlue = b.basis.priceLines.find(row => row.colorName === 'Blue')!.colorId!;

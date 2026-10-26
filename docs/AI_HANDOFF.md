@@ -9,3 +9,6 @@ D162/D163手工口径保持：0045空新增七表、唯一月份、不可变商�
 当前只有Server后端候选，无关账UI/用户体验、USD新工价采用、税率更正、部署、切换或旧路径退役，完整G1–G8/R继续active。无真实Source/激活、Hosted CI或现有业务库操作；旧环境/Browser/备份/卷与110条旧分支保护保持。前阶段失败与证据不覆盖，不重跑无关已过检查。
 
 [阶段](tasks/active/server-closing-commands-2026-10-26.md)；[契约](features/SERVER_CLOSING.md)；[前恢复点](tasks/completed/2026-10-26-pre-closing-commands/AI_HANDOFF.md)。本机原件outputs/server-closing-commands-20261026。
+
+
+2026-10-27续验：初次精确归档e85107cc6f663f74ede421a1e59e703e8dd2310b的811项目、Server构建、相关lint与7完整性测试通过；根类型发现关账历史测试的union缺少收窄，已加实际snapshot断言，应用代码不变。保留初次失败并只补根类型/该测试lint；发布守卫及终态待完成。
