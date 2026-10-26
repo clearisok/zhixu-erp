@@ -36,12 +36,66 @@ test("Estimate trusted commands: disposable PostgreSQL exact snapshots and atomi
   let record = await repo.create(value);
   const post = async (body: object, id = value.id, method = "POST", suffix = "/estimate-workflows") => {
     const response = await fetch(`${origin}/api/v1/quotes/${id}${suffix}`, { method, headers: { "Content-Type": "application/json", "X-Zhixu-Request": "1", Origin: "http://127.0.0.1:39991" }, body: JSON.stringify(body) });
-    return { status: response.status, body: await response.json() as { quote: QuoteRecord } };
+    return { status: response.status, body: await response.json() as { quote: QuoteRecord; error?: { code: string } } };
   };
   const generate = () => ({ action: "estimate.generate", expectedVersion: record.version, sourceRevisionId: value.defaultRevisionId });
   const commit = async (body: object) => { const result = await post({ ...body, expectedVersion: record.version }); assert.equal(result.status, 200); record = result.body.quote; assert.deepEqual(await repo.getById(value.id), record); };
   const countLogs = async (id = value.id) => (await pool.query("SELECT count(*)::int AS n FROM operation_logs WHERE quote_id=$1", [id])).rows[0].n;
   try {
+    await t.test("current processing default cannot mutate hidden Estimate through any command or historical selector", async t => {
+      for (const action of ["estimate.generate", "estimate.regenerate", "estimate.update", "estimate.restore", "estimate.ignore"] as const) {
+        await t.test(action, async () => {
+          const q = quoteSnapshotFromBrowser(createSyntheticQuoteFixture(`processing-api-${action}`, "processing"));
+          q.revisions[0].baseInfo.quoteType = "distribution"; q.currentRevisionId = q.revisions[0].revisionId;
+          if (action === "estimate.generate") q.activeEstimateCost = null;
+          const before = await repo.create(q), logs = await countLogs(q.id);
+          const command = action === "estimate.generate" || action === "estimate.regenerate" ? { action, sourceRevisionId: q.revisions[0].revisionId }
+            : action === "estimate.update" ? { action, estimate: structuredClone(q.activeEstimateCost!) }
+              : { action, estimateId: action === "estimate.restore" ? q.estimateCostHistory[0].id : q.activeEstimateCost!.id };
+          const result = await post({ ...command, expectedVersion: before.version }, q.id);
+          assert.equal(result.status, 409); assert.equal(result.body.error?.code, "estimate_not_applicable");
+          assert.deepEqual(await repo.getById(q.id), before); assert.equal(await countLogs(q.id), logs);
+          const read = await fetch(`${origin}/api/v1/quotes/${q.id}`); assert.equal(read.status, 200);
+          const response: { quote: QuoteResponseRecord } = await read.json();
+          assert.ok("estimateVisibility" in response.quote);
+          assert.equal(response.quote.estimateVisibility, "restricted");
+          assert.equal(Object.hasOwn(response.quote.quote, "activeEstimateCost"), false);
+          assert.equal(Object.hasOwn(response.quote.quote, "estimateCostHistory"), false);
+        });
+      }
+    });
+    await t.test("processing ordinary save preserves hidden Estimate; aggregate injection cannot bypass command rejection", async () => {
+      const q = quoteSnapshotFromBrowser(createSyntheticQuoteFixture("processing-estimate-save", "processing"));
+      const before = await repo.create(q), logs = await countLogs(q.id);
+      const injected = { ...structuredClone(q), activeEstimateCost: null };
+      const rejected = await post({ quote: injected, expectedVersion: before.version }, q.id, "PUT", "");
+      assert.equal(rejected.status, 409); assert.equal(rejected.body.error?.code, "estimate_command_required");
+      assert.deepEqual(await repo.getById(q.id), before); assert.equal(await countLogs(q.id), logs);
+      const view = await fetch(`${origin}/api/v1/quotes/${q.id}`).then(response => response.json()) as { quote: QuoteResponseRecord };
+      const content = structuredClone(view.quote.quote);
+      content.revisions.find(revision => revision.revisionId === q.defaultRevisionId)!.baseInfo.note = "Authorized metadata only";
+      const saved = await post({ quote: content, expectedVersion: before.version }, q.id, "PUT", "");
+      assert.equal(saved.status, 200);
+      const after = (await repo.getById(q.id))!;
+      assert.deepEqual(after.quote.activeEstimateCost, before.quote.activeEstimateCost);
+      assert.deepEqual(after.quote.estimateCostHistory, before.quote.estimateCostHistory);
+      assert.deepEqual(after.quote.revisions.at(-1)!.priceVersions, before.quote.revisions.at(-1)!.priceVersions);
+    });
+    await t.test("distribution default keeps historical processing Estimate restore after source PV removal", async () => {
+      const q = quoteSnapshotFromBrowser(createSyntheticQuoteFixture("distribution-processing-history", "processing"));
+      q.revisions.find(revision => revision.revisionId === q.defaultRevisionId)!.baseInfo.quoteType = "distribution";
+      const historical = structuredClone(q.estimateCostHistory[0]);
+      const source = q.revisions.find(revision => revision.revisionId === historical.basedOnRevisionId)!;
+      source.priceVersions = source.priceVersions.filter(price => price.id !== historical.sourcePriceVersionId);
+      const before = await repo.create(q);
+      const result = await post({ action: "estimate.restore", expectedVersion: before.version, estimateId: historical.id }, q.id);
+      assert.equal(result.status, 200);
+      const after = (await repo.getById(q.id))!;
+      assert.deepEqual(after.quote.revisions, before.quote.revisions);
+      assert.deepEqual(after.quote.estimateCostHistory[0], historical);
+      assert.equal(after.quote.activeEstimateCost!.sourcePriceVersionId, historical.sourcePriceVersionId);
+      assert.notEqual(after.quote.activeEstimateCost!.id, historical.id);
+    });
     await t.test("trusted A/B/C/D identities: Quote access independent of empty/active/history Estimate; protected writes and CAS", async () => {
       const identities: TrustedIdentity[] = [];
       const sets: TrustedIdentity["permissions"][] = [

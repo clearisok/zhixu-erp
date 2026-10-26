@@ -19,6 +19,7 @@ import {createQuoteRepository} from '../quotes/repository.js';
 import {quoteSnapshotFromBrowser} from '../quotes/model.js';
 import {adoptColorSource,previewColorSource} from '../sales-orders/color-commercial.js';
 import {commitSaleAdjustment,previewSaleAdjustment} from '../sales-orders/sale-adjustment-service.js';
+import {createQuoteCreationService} from '../quotes/creation-workflows.js';
 
 test('strict attribution commands cannot inject authorization or counts',()=>{
  const a=randomUUID(),b=randomUUID();const proposal={changeType:'normalize',caseVersion:1,assignments:[{originalOrderId:a,effectiveOrderId:a},{originalOrderId:b,effectiveOrderId:a}],reason:'Synthetic',recoveryPlanHash:'a'.repeat(64)};
@@ -52,6 +53,22 @@ test('full normalization evidence fingerprints every declared row and frozen sou
  await t.test('frozen empty domain is distinct from unknown and exposes no protected business payload',async()=>{
   const result=await read(frozen());assert.deepEqual(result.blockers,[]);assert.deepEqual(result.requiredReviews,[]);assert.equal(result.external.coverage,'frozen_adapter_inventory');assert.equal(result.executionAuthorized,false);
   assert.equal(JSON.stringify(result).includes('confirmed_sale_price'),false);assert.equal(result.hashScope,'all-bounded-declared-server-reference-rows-and-locked-adapter-inventory');
+ });
+ await t.test('creation context contributes every immutable row to full evidence without becoming execution',async()=>{
+  const prior=await read(frozen()),service=createQuoteCreationService(pool),context=await service.orderContext(actor,a);
+  const result=await service.executeDefaults(actor,randomUUID(),{}, {salesOrderId:a,fingerprint:context.fingerprint});
+  assert.equal(result.receipt.state,'committed');
+  const after=await read(frozen());assert.deepEqual(after.unknownReferences,[]);
+  const oldReference=prior.references.find(row=>row.relation==='quote_creation_order_contexts'&&row.orderId===a);
+  const newReference=after.references.find(row=>row.relation==='quote_creation_order_contexts'&&row.orderId===a);
+  assert.equal(oldReference?.count,0);assert.equal(newReference?.count,1);
+  assert.notEqual(newReference?.fingerprint,oldReference?.fingerprint);assert.notEqual(after.evidenceHash,prior.evidenceHash);
+  assert.deepEqual(after.external,prior.external);assert.equal(after.executionAuthorized,false);
+  assert.equal(JSON.stringify(after).includes('snapshot_hash'),false,'Only the full-row digest is exposed');
+  assert.deepEqual((await pool.query('SELECT row_to_json(o) AS row FROM sales_orders o ORDER BY id')).rows,before);
+  const locked=await pool.connect();
+  try{await locked.query('BEGIN');const observed=await collectFullNormalizationEvidence(locked,caseId,proposal,frozen(),undefined,true);assert.equal(observed.evidenceHash,after.evidenceHash);}
+  finally{await locked.query('ROLLBACK');locked.release();}
  });
  await t.test('color identities and commercial lines are counted and fingerprinted without exposing prices',async()=>{
   const quote=createSyntheticQuoteFixture('normalization-color-reference','distribution');

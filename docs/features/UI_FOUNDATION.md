@@ -47,6 +47,12 @@ D-099 Quote UI convergence: PR #64 is the visual/IA baseline, current Server the
 
 ## Business / interaction rules
 
+2026-10-24 Gate4B本地前向候选：订单详情仅以现有P6样式/默认折叠details恢复保存的颜色尺码、
+在原技术详情内懒读织序计划，不改原列布局、导航或密度。只读回复按committed session/owner归属，
+不含写入、自动采集/重试或Browser fallback；工程构建/截图/人工接受分别记。
+6ef当前after9、原P6/来源20与双构建/产物已隔离PASS；新增冻结证据不替代用户人工接受。
+见[范围与新验收](../tasks/active/order-source-disclosure-current-2026-10-24.md)。
+
 - 局部用户填写型表单使用真正的 `<form onSubmit>` 和 `button type="submit"`。
 - 单行 input 的 Enter 提交当前主操作。
 - Textarea 普通 Enter 换行；Ctrl/Cmd+Enter 可触发提交。

@@ -39,6 +39,7 @@ export const NORMALIZATION_REFERENCES = [
  ['sales_order_business_source_snapshots','reference_order_id','commercial_version_id'],
  ['processing_order_batches','reference_order_id','id'],
  ['processing_order_batch_consumptions','sales_order_id','batch_id'],
+ ['quote_creation_order_contexts','sales_order_id','quote_id'],
 ] as const;
 const references=NORMALIZATION_REFERENCES;
 /** Optional only for an unupgraded rehearsal. A partial financial schema fails
@@ -48,6 +49,7 @@ export async function normalizationReferences(client:PoolClient){
   WHERE n.nspname='public' AND c.relkind='r' AND c.relname IN ('ainuoke_payment_source_targets','ainuoke_payment_snapshots','ainuoke_payment_heads')`)).rows[0].n;
  if(present!==0&&present!==3)throw new HttpError(503,'payment_reference_schema_incomplete','Financial source reference schema is incomplete');
  const sourceReady=(await client.query("SELECT to_regclass('sales_order_business_source_snapshots') IS NOT NULL ready")).rows[0].ready;
+ const creationContextReady=(await client.query("SELECT to_regclass('quote_creation_order_contexts') IS NOT NULL ready")).rows[0].ready;
  const colorTables=['sales_order_color_identities','sales_order_commercial_lines'];
  const colorCount=(await client.query<{n:number}>(`SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
   WHERE n.nspname='public' AND c.relkind='r' AND c.relname=ANY($1::text[])`,[colorTables])).rows[0].n;
@@ -55,7 +57,7 @@ export async function normalizationReferences(client:PoolClient){
  const adjustmentCount=(await client.query<{n:number}>(`SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
   WHERE n.nspname='public' AND c.relkind='r' AND c.relname IN ('order_sale_adjustment_operations','order_sale_adjustment_receipts')`)).rows[0].n;
  if(adjustmentCount!==0&&adjustmentCount!==2)throw new HttpError(503,'adjustment_reference_schema_incomplete','Sale adjustment reference schema is incomplete');
- return references.filter(([table])=>(present===3||!table.startsWith('ainuoke_payment_'))&&(sourceReady||table!=='sales_order_business_source_snapshots')&&(colorCount===colorTables.length||!colorTables.includes(table))&&(adjustmentCount===2||table!=='order_sale_adjustment_receipts'));
+ return references.filter(([table])=>(present===3||!table.startsWith('ainuoke_payment_'))&&(sourceReady||table!=='sales_order_business_source_snapshots')&&(creationContextReady||table!=='quote_creation_order_contexts')&&(colorCount===colorTables.length||!colorTables.includes(table))&&(adjustmentCount===2||table!=='order_sale_adjustment_receipts'));
 }
 export function validateNormalizationPair(ids: readonly string[]) {
  if(ids.length!==2 || ids.some(id=>typeof id!=='string'||!identityUuid.test(id)) || ids[0].toLowerCase()===ids[1].toLowerCase()) throw new HttpError(400,'invalid_normalization_pair','Two distinct order IDs required');

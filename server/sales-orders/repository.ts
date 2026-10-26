@@ -1,6 +1,7 @@
 import type { Pool, PoolClient } from "pg";
 import { supportsEffectiveAttribution, requireEffectiveOrderForWrite, lockEffectiveAttribution } from "./effective-attribution.js";
 import { effectiveOrderJoins, sourceOwnerSql } from "./effective-order-sql.js";
+import { projectColorSizeEvidence, projectColorSourceEvidence } from "./source-evidence.js";
 import type {
   AinuokeColorMirrorInput,
   AinuokeContractMirrorInput,
@@ -45,7 +46,10 @@ type ReadModelRow = SalesOrderRow & {
   attribution_change_id: string|null;
   attribution_version: number;
   source_owner_order_id: string;
-  colors: SalesOrderDetailReadModel["colors"];
+  colors: Array<Omit<SalesOrderDetailReadModel["colors"][number], "sizeEvidence"> & { sourceMetadata: unknown }>;
+  source_identity_trusted: boolean | null;
+  source_batch_at: Date | null;
+  color_source_evidence: unknown;
   business_type: "ainuoke_contract"|"processing"|"unclassified";
   owner_name:string|null;
   business_source: "quote"|"reorder"|null;
@@ -161,8 +165,13 @@ const PROCESSING_READ_JOINS = `LEFT JOIN processing_order_batch_consumptions pro
 function readModelFrom(includeIdentity:boolean,attributed:boolean):string {
  const owner=sourceOwnerSql(attributed);
  return `FROM sales_orders so ${effectiveOrderJoins(attributed)}
- LEFT JOIN sales_order_source_links sl ON sl.sales_order_id=${owner} AND sl.source_system='ainuoke' AND sl.source_entity_type='sales_contract'
  LEFT JOIN ainuoke_sales_order_contract_mirrors mirror ON mirror.sales_order_id=${owner}
+ LEFT JOIN LATERAL (SELECT link.* FROM sales_order_source_links link
+   WHERE link.sales_order_id=${owner} AND link.source_system='ainuoke' AND link.source_entity_type='sales_contract'
+     AND ((mirror.source_id=link.external_id AND mirror.sales_contract_no=link.sales_contract_no)
+       OR NOT EXISTS (SELECT 1 FROM sales_order_source_links other_link WHERE other_link.sales_order_id=link.sales_order_id
+         AND other_link.source_system='ainuoke' AND other_link.source_entity_type='sales_contract' AND other_link.id<>link.id))
+   ORDER BY link.id LIMIT 1) sl ON true
  ${includeIdentity?PROCESSING_READ_JOINS:''}
  ${includeIdentity?'LEFT JOIN sales_order_identity_profiles profile ON profile.sales_order_id=so.id LEFT JOIN app_users owner_user ON owner_user.id=profile.owner_id':''}`;
 }
@@ -186,7 +195,14 @@ function readModelSelect(includeIdentity:boolean,attributed:boolean,colors=false
  (SELECT count(*)::int FROM ainuoke_sales_order_color_mirrors c WHERE c.sales_order_id=${owner}) AS color_count,
  (SELECT count(*)::int FROM ainuoke_sales_order_color_mirrors c WHERE c.sales_order_id=${owner} AND c.quantity=0) AS zero_color_count,
  (SELECT count(*)::int FROM ainuoke_sales_order_color_mirrors c WHERE c.sales_order_id=${owner} AND c.quantity=0 AND c.source_metadata->>'quantityPendingConfirmation'='true') AS pending_color_count
- ${colors?`,COALESCE((SELECT jsonb_agg(jsonb_build_object('sourceLineIdentity',c.source_line_identity,'colorName',c.color_name,'quantity',c.quantity,'deliveryDate',to_char(c.delivery_date,'YYYY-MM-DD')) ORDER BY c.color_name,c.source_line_identity) FROM ainuoke_sales_order_color_mirrors c WHERE c.sales_order_id=${owner}),'[]'::jsonb) AS colors`:''}
+ ${colors?`,(${trusted}) AS source_identity_trusted,mirror.fetched_at AS source_batch_at,
+ CASE WHEN jsonb_typeof(mirror.source_metadata->'colorDetail')='object' THEN jsonb_build_object(
+   'reportId',mirror.source_metadata#>'{colorDetail,reportId}',
+   'schemaVersion',mirror.source_metadata#>'{colorDetail,schemaVersion}',
+   'status',mirror.source_metadata#>'{colorDetail,status}',
+   'insideOrderNoDrift',mirror.source_metadata#>'{colorDetail,insideOrderNoDrift}')
+ ELSE mirror.source_metadata->'colorDetail' END AS color_source_evidence,
+ COALESCE((SELECT jsonb_agg(jsonb_build_object('sourceLineIdentity',c.source_line_identity,'colorName',c.color_name,'quantity',c.quantity,'deliveryDate',to_char(c.delivery_date,'YYYY-MM-DD'),'sourceMetadata',c.source_metadata) ORDER BY c.color_name,c.source_line_identity) FROM ainuoke_sales_order_color_mirrors c WHERE c.sales_order_id=${owner}),'[]'::jsonb) AS colors`:''}
  ${readModelFrom(includeIdentity,attributed)}`;
 }
 /** Pool reads use one RR snapshot for count, identities and details. Transaction callers retain ownership. */
@@ -478,6 +494,17 @@ async function readSalesOrderDetail(client:Queryable,id:string,includeIdentity:b
   const attributed=await supportsEffectiveAttribution(client);
   try {
     const result=await client.query<ReadModelRow>(`${readModelSelect(includeIdentity,attributed,true,(await client.query("SELECT to_regclass('sales_order_business_source_snapshots') IS NOT NULL ready")).rows[0].ready)} WHERE so.id=$1::uuid`,[id]);
-    const row=result.rows[0];return row?{...mapReadModel(row),colors:row.colors}:null;
+    const row=result.rows[0];
+    if (!row) return null;
+    const context={businessType:row.business_type,trustedSource:row.source_identity_trusted===true,salesContractNo:row.sales_contract_no};
+    return {
+      ...mapReadModel(row),
+      colors:row.colors.map(color=>({
+        sourceLineIdentity:color.sourceLineIdentity,colorName:color.colorName,
+        quantity:color.quantity,deliveryDate:color.deliveryDate,
+        sizeEvidence:projectColorSizeEvidence(color.sourceMetadata,color.quantity,context),
+      })),
+      colorSource:projectColorSourceEvidence(row.color_source_evidence,row.source_batch_at,context),
+    };
   }catch(error){if((error as {code?:string}).code==='22P02')return null;throw error;}
 }

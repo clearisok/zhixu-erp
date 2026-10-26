@@ -1,9 +1,5 @@
-# Project recovery index
+# 当前任务入口
 
-2026-10-25 Asia/Shanghai; actual main 9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf. Read AGENTS, [current state](CURRENT_STATE.md), [handoff](AI_HANDOFF.md) and[current navigation delivery](tasks/active/navigation-pr-main-9d65-2026-10-25.md) before continuing. This PR contains only the original navigation input plus its three Quote acceptance drivers.
+实际main 869ee84dd0b31de6161011e4aa560678b244a64d，branch codex/order-context-main-869e从完整新main对象建立并普通合流P0 9f9f87b06a89c2e929c1eab7cb9f4a8f1de6b6b7，保留全部原提交。PR129已获明确批准并合并，双父/tree/原分支已核对，原三CI成功且未重跑。 先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[G5当前main整合](tasks/active/order-context-main-869e-2026-10-26.md)。原Git STOP保持，PR129具体合并授权已完成，其他合并仍未授权。
 
-The complete prior project/module/source/recovery index and historical evidence are preserved byte-for-byte in[input PROJECT_INDEX](tasks/completed/2026-10-25-navigation-pr-input-state/PROJECT_INDEX.md). Product facts still come from code, BUSINESS_RULES and Active decisions. Relevant current contracts: [UI Foundation](features/UI_FOUNDATION.md), [release guard](features/RELEASE_BASELINE_GUARD.md), [D-148](DECISION_LOG.md), [original navigation forward QA](tasks/active/server-navigation-main-forward-2026-10-24.md), [Quote acceptance](tasks/active/quote-server-current-acceptance-2026-10-24.md).
-
-Later cumulative target-control work remains on codex/server-garment-target-current at d4060b60a52db766c548b20a5974b43a224784a8; its protected state/receipts are outside this narrow PR. No reset, migration, dependency install, real-data operation or automatic merge/deployment follows from navigation delivery. Full Goal remains active.
-
-[Navigation engineering proof](tasks/completed/2026-10-25-navigation-main-9d65-engineering.md): original0698 named guard and134PASS; rejected6c evidence-root revision preserved, corrected as an independent proof with old240/main230/input237 intact. Final corrected guard/review and delivery/PR CI remain pending. The original integration task is frozen history; current state/handoff owns recovery status.
+业务事实：[规则](BUSINESS_RULES.md)、[Active决策](DECISION_LOG.md)、[报价](features/QUOTE_CENTER.md)、[订单](features/SALES_ORDER_PERSISTENCE.md)、[发布守卫](features/RELEASE_BASELINE_GUARD.md)。原阶段：[旧G5证据修复](tasks/active/order-context-main-9d65-2026-10-25.md)、[4B](tasks/active/order-source-display-main-9d65-2026-10-25.md)、[4A](tasks/active/order-readchain-main-9d65-2026-10-25.md)。原完整模块索引保留于[导航输入索引](tasks/completed/2026-10-25-navigation-pr-input-state/PROJECT_INDEX.md)。完整G1–G8/R不缩减。
