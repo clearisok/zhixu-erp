@@ -3094,6 +3094,18 @@
         "decisions-production-planning-resources-main-869e-20261026-merge"
       ],
       "changeReason": "Freeze the genuine execution-witness and reviewed-planning-history merge. The real parents contribute independent decision integrations; retain D149/D150/D151, original F/C and planning B/L, same-path production witness and every parent evidence object. No business, permission, formula or runtime-status change."
+    },
+    {
+      "id": "decisions-logistics-resources-execution-main-869e-20261026-merge",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "756e206b7525de05b0e50b19376a40409d654abb",
+      "sha256": "284471f207dafc1c05cf9b9d65653a1f5ce1cc740b22cb90a4baab043300a22c",
+      "mergeOf": [
+        "decisions-logistics-resources-main-869e-20261026-merge",
+        "decisions-production-execution-planning-main-869e-20261026-merge"
+      ],
+      "changeReason": "Freeze the genuine logistics-witness and current execution-history merge. The real parents contribute separate decision integrations; retain original source snapshots, all F/C/B/L witnesses, production document witness and every parent evidence object. No new business rule, price, formula, source or environment claim."
     }
   ],
   "pages": [
