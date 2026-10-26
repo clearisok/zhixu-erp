@@ -8,6 +8,7 @@ import { lockProductionResourceScope } from "../production-resources/snapshot-lo
 import { lockEffectiveAttribution } from "../sales-orders/effective-attribution.js";
 import { executionRequiredPermissions, parseExecutionCommand } from "./execution-contract.js";
 import { parsePlanCommand } from "./contract.js";
+import { ORDER_TRACKING_WRITE_PERMISSIONS, parseOrderTrackingCommand } from "./tracking-contract.js";
 import { planFail, planHash, productionPlansAvailable } from "./repository.js";
 
 export type RejectedProductionCommand = { requestId: string; status: "rejected"; error: { status: number; code: string } };
@@ -20,6 +21,7 @@ export function requireProductionPermissions(actor: TrustedIdentity, permissions
 export function savedCommandPermissions(raw: unknown): PermissionKey[] {
   const action = (raw as { intent?: { action?: unknown } } | null)?.intent?.action;
   if (action === "record_execution") return executionRequiredPermissions(parseExecutionCommand(raw).intent);
+  if (action === "set_order_tracking") { parseOrderTrackingCommand(raw); return [...ORDER_TRACKING_WRITE_PERMISSIONS]; }
   const command = parsePlanCommand(raw);
   return ["order.view", "schedule.view", command.intent.action === "create" ? "schedule.create" : "schedule.edit"];
 }

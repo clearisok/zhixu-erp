@@ -7,6 +7,8 @@ import { sendJson } from "../http/responses.js";
 import { executeProductionPlan, listProductionPlanGroups, listProductionPlanOrders, previewProductionPlan, readOrderProductionPlans, readProductionAssignment, readProductionPlanReceipt, readProductionQueue } from "./service.js";
 import { parsePlanHistoryQuery } from "./read-contract.js";
 import { executeProductionExecution, previewProductionExecution, readProductionExecutionHistory } from "./execution-service.js";
+import { executeOrderTracking, previewOrderTracking, readOrderTracking, readOrderTrackingHistory } from "./tracking-service.js";
+import { parseOrderTrackingHistoryQuery } from "./tracking-contract.js";
 
 export async function routeProductionScheduling(request: IncomingMessage, response: ServerResponse, dependencies: {
   pool: Pool; identityAuthority: IdentityAuthority; allowedOrigins: readonly string[];
@@ -16,16 +18,32 @@ export async function routeProductionScheduling(request: IncomingMessage, respon
   if (dependencies.identityAuthority.mode !== "session") throw new HttpError(404, "not_found", "Route not found");
   const actor = await dependencies.identityAuthority.resolve(request);
   if (!actor) throw new HttpError(401, "authentication_required", "Authentication required");
-  if ([prefix + "/preview", prefix + "/commands", prefix + "/execution/preview", prefix + "/execution/commands"].includes(url.pathname) && request.method === "POST") {
+  if ([prefix + "/preview", prefix + "/commands", prefix + "/execution/preview", prefix + "/execution/commands", prefix + "/order-tracking/preview", prefix + "/order-tracking/commands"].includes(url.pathname) && request.method === "POST") {
     if (url.search) throw new HttpError(400, "invalid_production_plan_query", "Unexpected query");
     assertMutationBoundary(request, dependencies.allowedOrigins);
     const body = await readJsonBody(request, 1024 * 1024);
+    if (url.pathname.startsWith(prefix + "/order-tracking/")) {
+      if (url.pathname.endsWith("/preview")) sendJson(response, 200, await previewOrderTracking(dependencies.pool, actor, body));
+      else { const result = await executeOrderTracking(dependencies.pool, actor, body); sendJson(response, result.status === "rejected" ? result.error.status : 200, result); }
+      return true;
+    }
     const execution = url.pathname.startsWith(prefix + "/execution/");
     if (url.pathname.endsWith("/preview")) sendJson(response, 200, await (execution ? previewProductionExecution : previewProductionPlan)(dependencies.pool, actor, body));
     else { const result = await (execution ? executeProductionExecution : executeProductionPlan)(dependencies.pool, actor, body); sendJson(response, result.status === "rejected" ? result.error.status : 200, result); }
     return true;
   }
   if (request.method !== "GET") throw new HttpError(405, "method_not_allowed", "Method not allowed");
+  const tracking = /^\/api\/v1\/production-scheduling\/order-tracking\/(orders|history)\/([^/]+)$/u.exec(url.pathname);
+  if (tracking) {
+    if (tracking[1] === "orders") {
+      if (url.search) throw new HttpError(400, "invalid_production_plan_query", "Unexpected query");
+      sendJson(response, 200, await readOrderTracking(dependencies.pool, actor, tracking[2]));
+    } else {
+      const query = parseOrderTrackingHistoryQuery(url.searchParams);
+      sendJson(response, 200, await readOrderTrackingHistory(dependencies.pool, actor, tracking[2], query.offset, query.asOfVersion));
+    }
+    return true;
+  }
   if (url.pathname === prefix + "/orders") { sendJson(response, 200, await listProductionPlanOrders(dependencies.pool, actor, url.searchParams)); return true; }
   if (url.pathname === prefix + "/groups") { sendJson(response, 200, await listProductionPlanGroups(dependencies.pool, actor, url.searchParams)); return true; }
   const match = /^\/api\/v1\/production-scheduling\/(orders|groups|assignments|commands|executions)\/([^/]+)$/u.exec(url.pathname);

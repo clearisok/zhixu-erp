@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "869ee84dd0b31de6161011e4aa560678b244a64d",
-  "verifiedAt": "2026-10-26T03:27:24.484Z",
+  "verifiedAt": "2026-10-26T03:50:09.022Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -3106,6 +3106,22 @@
         "decisions-production-execution-planning-main-869e-20261026-merge"
       ],
       "changeReason": "Freeze the genuine logistics-witness and current execution-history merge. The real parents contribute separate decision integrations; retain original source snapshots, all F/C/B/L witnesses, production document witness and every parent evidence object. No new business rule, price, formula, source or environment claim."
+    },
+    {
+      "id": "order-tracking-current-engineering-20261024",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-24-order-tracking-current-engineering.md",
+      "recordedAtSha": "f676b85dd644ffb6ab1877b414e6bb05223671fe",
+      "renderedSourceSha": "45f30070abeb1d70211eb10eab7841be10e8f894",
+      "sha256": "645ebb0f42c2d306ac017ea987f432d40f51b7b331533163fbe091616ca36d63"
+    },
+    {
+      "id": "server-order-logistics-context-current-20261024",
+      "kind": "document",
+      "path": "docs/features/SERVER_ORDER_LOGISTICS_CONTEXT.md",
+      "recordedAtSha": "f676b85dd644ffb6ab1877b414e6bb05223671fe",
+      "renderedSourceSha": "45f30070abeb1d70211eb10eab7841be10e8f894",
+      "sha256": "18388841540973db3506c716b0c8aa01c5adeb2314feceba77dbfcf64c27d238"
     }
   ],
   "pages": [
@@ -8276,6 +8292,91 @@
           "scope": "Current logistics resource candidate not deployed. Preserve historical runtime source/image without re-observation.",
           "evidence": [
             "logistics-resources-current-engineering-20261024"
+          ]
+        }
+      }
+    },
+    {
+      "id": "order-logistics-context-current",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D054/D147 current Server backend physical-order SupplyHub/remark context, independent immutable history and version, no defaults, same production command/request/permissions and physical ownership. Synthetic SQL/HTTP/0037 nonempty upgrade engineering only. No UI wiring, material dates, production quantities, prices, garment shipment, closing, target upgrade, merge, deployment or human acceptance.",
+      "evidence": [
+        "order-tracking-current-engineering-20261024"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "45f30070abeb1d70211eb10eab7841be10e8f894",
+          "scope": "D054/D147 current Server backend physical-order SupplyHub/remark context, independent immutable history and version, no defaults, same production command/request/permissions and physical ownership. Synthetic SQL/HTTP/0037 nonempty upgrade engineering only. No UI wiring, material dates, production quantities, prices, garment shipment, closing, target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "order-tracking-current-engineering-20261024"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-24",
+          "sourceSha": "45f30070abeb1d70211eb10eab7841be10e8f894",
+          "scope": "D054/D147 current Server backend physical-order SupplyHub/remark context, independent immutable history and version, no defaults, same production command/request/permissions and physical ownership. Synthetic SQL/HTTP/0037 nonempty upgrade engineering only. No UI wiring, material dates, production quantities, prices, garment shipment, closing, target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "order-tracking-current-engineering-20261024"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "45f30070abeb1d70211eb10eab7841be10e8f894",
+          "scope": "D054/D147 current Server backend physical-order SupplyHub/remark context, independent immutable history and version, no defaults, same production command/request/permissions and physical ownership. Synthetic SQL/HTTP/0037 nonempty upgrade engineering only. No UI wiring, material dates, production quantities, prices, garment shipment, closing, target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "order-tracking-current-engineering-20261024"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "45f30070abeb1d70211eb10eab7841be10e8f894",
+          "scope": "D054/D147 current Server backend physical-order SupplyHub/remark context, independent immutable history and version, no defaults, same production command/request/permissions and physical ownership. Synthetic SQL/HTTP/0037 nonempty upgrade engineering only. No UI wiring, material dates, production quantities, prices, garment shipment, closing, target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "order-tracking-current-engineering-20261024"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "45f30070abeb1d70211eb10eab7841be10e8f894",
+          "scope": "D054/D147 current Server backend physical-order SupplyHub/remark context, independent immutable history and version, no defaults, same production command/request/permissions and physical ownership. Synthetic SQL/HTTP/0037 nonempty upgrade engineering only. No UI wiring, material dates, production quantities, prices, garment shipment, closing, target upgrade, merge, deployment or human acceptance.",
+          "evidence": [
+            "order-tracking-current-engineering-20261024"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "Current order logistics context backend not deployed. Preserve historical runtime source/image without re-observation.",
+          "evidence": [
+            "order-tracking-current-engineering-20261024"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-24",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "Current order logistics context backend not deployed. Preserve historical runtime source/image without re-observation.",
+          "evidence": [
+            "order-tracking-current-engineering-20261024"
           ]
         }
       }

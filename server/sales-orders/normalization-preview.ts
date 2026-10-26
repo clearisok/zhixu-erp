@@ -46,6 +46,8 @@ export const NORMALIZATION_REFERENCES = [
  ['production_schedule_command_orders','sales_order_id','request_id'],
  ['production_schedule_executions','sales_order_id','assignment_id'],
  ['production_schedule_execution_versions','sales_order_id','assignment_id'],
+ ['production_order_execution_trackings','sales_order_id','id'],
+ ['production_order_execution_tracking_versions','sales_order_id','tracking_id'],
 ] as const;
 const references=NORMALIZATION_REFERENCES;
 /** Optional only for an unupgraded rehearsal. A partial financial schema fails
@@ -69,7 +71,10 @@ export async function normalizationReferences(client:PoolClient){
  const executionTables=['production_schedule_executions','production_schedule_execution_versions','production_schedule_execution_epochs'];
  const executionCount=(await client.query<{n:number}>(`SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r' AND c.relname=ANY($1::text[])`,[executionTables])).rows[0].n;
  if(executionCount!==0&&executionCount!==executionTables.length)throw new HttpError(503,'production_execution_reference_schema_incomplete','Production execution reference schema is incomplete');
- return references.filter(([table])=>(present===3||!table.startsWith('ainuoke_payment_'))&&(sourceReady||table!=='sales_order_business_source_snapshots')&&(creationContextReady||table!=='quote_creation_order_contexts')&&(colorCount===colorTables.length||!colorTables.includes(table))&&(adjustmentCount===2||table!=='order_sale_adjustment_receipts')&&(planningCount===planningTables.length||!planningTables.includes(table))&&(executionCount===executionTables.length||!executionTables.includes(table)));
+ const trackingTables=['production_order_execution_trackings','production_order_execution_tracking_versions'];
+ const trackingCount=(await client.query<{n:number}>(`SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r' AND c.relname=ANY($1::text[])`,[trackingTables])).rows[0].n;
+ if(trackingCount!==0&&trackingCount!==trackingTables.length)throw new HttpError(503,'production_tracking_reference_schema_incomplete','Production tracking reference schema is incomplete');
+ return references.filter(([table])=>(present===3||!table.startsWith('ainuoke_payment_'))&&(sourceReady||table!=='sales_order_business_source_snapshots')&&(creationContextReady||table!=='quote_creation_order_contexts')&&(colorCount===colorTables.length||!colorTables.includes(table))&&(adjustmentCount===2||table!=='order_sale_adjustment_receipts')&&(planningCount===planningTables.length||!planningTables.includes(table))&&(executionCount===executionTables.length||!executionTables.includes(table))&&(trackingCount===trackingTables.length||!trackingTables.includes(table)));
 }
 export function validateNormalizationPair(ids: readonly string[]) {
  if(ids.length!==2 || ids.some(id=>typeof id!=='string'||!identityUuid.test(id)) || ids[0].toLowerCase()===ids[1].toLowerCase()) throw new HttpError(400,'invalid_normalization_pair','Two distinct order IDs required');

@@ -429,3 +429,5 @@ D-102 第二轮用户确认：制作方案复用 ManufacturingPreset，代表不
 未知结果只核对原receipt，刷新不自动写入；当前实现/验收见本轮G5任务，真实激活另有授权。
 
 2026-10-24 D147/G6D当前候选的集货仓/运输方案复用同一Server资源命令，完整方式稳定身份与启用父关系/活跃hub-site唯一保护见[物流资料](features/SERVER_LOGISTICS_RESOURCES.md)。只维护基础资料，不产生物流订单、到仓事实或修改生产排期；历史Browser段落不因接线而改owner。
+
+2026-10-24 D054/D147当前Server后台候选将物理SO明确选择的SupplyHub与备注独立持久化，未记录null、无变化不造版本；发生时仓快照与当前主数据分开，原计划/实际数量/商业信息保持。详见[订单物流上下文](features/SERVER_ORDER_LOGISTICS_CONTEXT.md)，页面与逐物料到仓后续独立接线，不据此宣称完整物流闭环。
