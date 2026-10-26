@@ -13,3 +13,5 @@ D156是既有决定文档修订，原pre-N记录需要真实N-direct父见证。
 原70765755ab7dc3524a93090fffd3008df9be5993的134/134（464627ms）是历史发布回归；本轮动态manifest/docs已变，不称当前134/945新PASS。最终累计PR前仍须当时main精确守卫、新发布134及必要三CI。此次只新增同HEAD源码/证据守卫与独立复审；无新业务测试、SQL、构建、浏览器、Python或Docker运行。既有Windows未执行Linux Source CLI的缺口保持。
 
 NETWORK_DEGRADED保持；普通PowerShell与Codex同样约5秒TLS中断，不能归因仅Codex，确切根因未定。不重复旧Git通道，不改共享代理/TLS/认证，不消耗付费CI；H0d70原精确恢复授权与STOP记录保留。Push/PR/Hosted/真实Source/凭据/账号/现有业务数据库或卷/备份操作均0，不切换3001、50426、59069、62426及其他入口，不部署、激活、调度、merge main、close或退役。完整G1–G8/R Goal active。
+
+实际A d9f2478db193eb4020ce8638e0e3b91282a80fea（tree b87a2cfb4667cd0768829fc7ba371e83740d56f4，父[869ee84dd0b31de6161011e4aa560678b244a64d,0a086a912b4077c3dfc08438235e27ea448816a1]），R绑定decisions-delivery-plan-ui-main-anchor-869e-20261026，规范hash 36226e6246fdebb9d3d3e83762a8ccc9055a5e19353611f1dff036b051434605；后续仍需真实L/P与同HEAD守卫，不预写最终PASS。
