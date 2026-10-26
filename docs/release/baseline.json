@@ -2898,6 +2898,18 @@
         "decisions-order-context-main-869e-20261026-forward"
       ],
       "changeReason": "Freeze the genuine planning-witness and reviewed-resource-history merge. Each parent contributes an independent decision integration; preserve original D149/D150, F/C, current main and every parent evidence object. No product, permission, formula, runtime or deployment claim changes."
+    },
+    {
+      "id": "decisions-production-execution-planning-main-869e-20261026-merge",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "3e743402f01b1d4e338f14354901c692a595a949",
+      "sha256": "284471f207dafc1c05cf9b9d65653a1f5ce1cc740b22cb90a4baab043300a22c",
+      "mergeOf": [
+        "decisions-production-execution-main-869e-20261026-merge",
+        "decisions-production-planning-resources-main-869e-20261026-merge"
+      ],
+      "changeReason": "Freeze the genuine execution-witness and reviewed-planning-history merge. The real parents contribute independent decision integrations; retain D149/D150/D151, original F/C and planning B/L, same-path production witness and every parent evidence object. No business, permission, formula or runtime-status change."
     }
   ],
   "pages": [
