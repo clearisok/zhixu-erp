@@ -236,12 +236,12 @@ test('invalid new intent revokes the old preview before parsing and cannot submi
 
 test('callbacks after state publication cannot affect a replacement owner or disposed controller', async () => {
   for (const result of ['saved', 'unauthorized']) for (const action of ['replace', 'dispose']) {
-    const r = rig(); let controller: Controller | undefined;
+    const r = rig(), lifecycle: { controller?: Controller } = {};
     const c = r.make({ onChange(state) {
       if (result === 'saved' ? state.stage === 'saved' : Boolean(state.error)) {
-        if (action === 'replace') r.setOwner({}); else controller?.dispose();
+        if (action === 'replace') r.setOwner({}); else lifecycle.controller?.dispose();
       }
-    } }); controller = c;
+    } }); lifecycle.controller = c;
     if (result === 'unauthorized') r.handlers.post = async () => response({ error: { code: 'authentication_required' } }, 401);
     await ready(c); await c.apply(); assert.equal(c.snapshot().stage, 'inactive'); assert.equal(r.applied.length, 0); assert.equal(r.unauthorized(), 0);
     assert.equal(Boolean(readLaborPending(r.storage, { userId: actor })), result === 'unauthorized');
