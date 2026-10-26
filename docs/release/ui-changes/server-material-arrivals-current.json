@@ -1,0 +1,15 @@
+{
+  "baselineSha": "9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf",
+  "level": "V0",
+  "paths": [
+    "features/operation-logs/model/operation-log.ts"
+  ],
+  "pages": [
+    "navigation"
+  ],
+  "visibleDifference": "none",
+  "evidence": [
+    "docs/tasks/active/server-material-arrivals-current-2026-10-24.md",
+    "docs/features/SERVER_MATERIAL_ARRIVALS.md"
+  ]
+}

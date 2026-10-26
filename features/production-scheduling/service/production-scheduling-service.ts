@@ -30,20 +30,34 @@ export function deriveRequiredWorkdays(plannedQuantity: number, durationMode: Sc
   return { requiredWorkdays, averageDailyOutputSnapshot: plannedQuantity > 0 ? Math.ceil(plannedQuantity / requiredWorkdays) : 0 };
 }
 
-export function isCalendarWorkingDate(calendar: ProductionCalendar, value: string): boolean {
+export type SchedulingCalendar = Pick<ProductionCalendar, "workingWeekdays"> & {
+  exceptions: Pick<ProductionCalendar["exceptions"][number], "date" | "type">[];
+};
+
+export class ScheduleScanLimitError extends Error {
+  constructor() { super("排期日期超出本次扫描范围，请缩小排期范围"); this.name = "ScheduleScanLimitError"; }
+}
+
+export function isCalendarWorkingDate(calendar: SchedulingCalendar, value: string): boolean {
   const exception = calendar.exceptions.find((item) => item.date === value);
   if (exception) return exception.type === "working";
   return calendar.workingWeekdays.includes(date(value).getUTCDay());
 }
 
-export function calculateScheduleDates(input: { startDate: string; requiredWorkdays: number; calendar: ProductionCalendar; handoffStart?: boolean }) {
+export function calculateScheduleDates(input: { startDate: string; requiredWorkdays: number; calendar: SchedulingCalendar; handoffStart?: boolean; scanLimit?: number }) {
   const required = positiveInteger(input.requiredWorkdays, "工作日");
+  if (input.scanLimit !== undefined && (!Number.isSafeInteger(input.scanLimit) || input.scanLimit < 1)) throw new ScheduleScanLimitError();
   let cursor = input.startDate;
   let remaining = required;
   let nonWorkingDayCount = 0;
   let firstProductionDate: string | null = null;
+  let scanned = 0;
   if (input.handoffStart) cursor = plusDays(cursor, 1);
   while (remaining > 0) {
+    // Server callers supply a whole-preview budget. Existing Browser calls keep
+    // their original calculation and do not acquire a new persistence path.
+    if (input.scanLimit !== undefined && (scanned >= input.scanLimit || !/^\d{4}-\d{2}-\d{2}$/u.test(cursor))) throw new ScheduleScanLimitError();
+    scanned += 1;
     if (isCalendarWorkingDate(input.calendar, cursor)) { firstProductionDate ??= cursor; remaining -= 1; }
     else nonWorkingDayCount += 1;
     if (remaining > 0) cursor = plusDays(cursor, 1);

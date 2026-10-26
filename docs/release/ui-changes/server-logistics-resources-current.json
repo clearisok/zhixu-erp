@@ -1,0 +1,21 @@
+{
+  "baselineSha": "9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf",
+  "level": "V1",
+  "paths": [
+    "app/globals.css",
+    "features/operations-settings/components/operations-settings-pages.tsx",
+    "features/operations-settings/components/production-resource-fields.tsx",
+    "features/operations-settings/components/server-production-reference-picker.tsx",
+    "features/operations-settings/components/server-production-resource-page.tsx",
+    "features/operations-settings/server/production-resource-client.ts",
+    "features/operations-settings/server/production-resource-outbox.ts"
+  ],
+  "pages": [
+    "navigation"
+  ],
+  "visibleDifference": "Restore approved D147/G6D Server ownership for existing hubs and transport plans in the existing production-infrastructure page, cards and wide drawer. Keep prior four resources, CAS reload authority and exact actor/request recovery. Shared Browser fields retain existing persistence and null policy. No new navigation, redesign, price, arrival, shipment, closing or real Source operation. Exact current before/after evidence follows frozen builds.",
+  "evidence": [
+    "docs/tasks/active/server-logistics-resources-current-2026-10-24.md",
+    "docs/tasks/completed/2026-10-24-logistics-resources-current-engineering.md"
+  ]
+}

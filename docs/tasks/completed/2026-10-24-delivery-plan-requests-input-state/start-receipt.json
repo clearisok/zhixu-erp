@@ -1,0 +1,434 @@
+{
+  "at": "2026-10-24T13:08:31.172Z",
+  "branch": "codex/server-delivery-plan-requests-current",
+  "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+  "verifiedMain": {
+    "at": "2026-10-24T13:00:21.354Z",
+    "code": 0,
+    "timedOut": false,
+    "sha": "e01a11952b648024c0bd6bf4259de429374981e2"
+  },
+  "reusedRecentReadOnlyMain": true,
+  "head": "9a16c28b53becc4c16671f6beb4e9285e128e19f",
+  "tree": "a3f08e9a27f609c0505dee65d0675b44e7e2a07f",
+  "clean": true,
+  "previousGoalTurnClassification": "progress: closed garment read UI source/proof/release/final guard/review",
+  "previousFinal": {
+    "at": "2026-10-24T13:06:07.649Z",
+    "branch": "codex/server-garment-read-ui-current",
+    "head": "9a16c28b53becc4c16671f6beb4e9285e128e19f",
+    "tree": "a3f08e9a27f609c0505dee65d0675b44e7e2a07f",
+    "source": "922488b9474daeed8abc2204e21f6ffeefc39955",
+    "sourceTree": "fe1d57f11002e72af496133ce3474bf25b849bb3",
+    "driverSource": "922488b9474daeed8abc2204e21f6ffeefc39955",
+    "proof": "c71052ea51efd9a28e3fe15b39e65d72faaa72c6",
+    "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+    "guard": {
+      "at": "2026-10-24T13:06:07.357Z",
+      "head": "9a16c28b53becc4c16671f6beb4e9285e128e19f",
+      "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 102122,
+      "result": {
+        "status": "PASS",
+        "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
+        "checkedHead": "9a16c28b53becc4c16671f6beb4e9285e128e19f",
+        "historySha": "e01a11952b648024c0bd6bf4259de429374981e2",
+        "pages": 11,
+        "capabilities": 59,
+        "changedUiFiles": 68,
+        "scope": "source/evidence guard only; no browser, runtime, database or user acceptance claim",
+        "errors": []
+      }
+    },
+    "release": {
+      "at": "2026-10-24T12:59:58.512Z",
+      "head": "1ae89745c148e03272e7e8f17bc3b1475010650d",
+      "productAndNonreleaseSource": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+      "command": "npm run test:release-baseline",
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 432059,
+      "counts": {
+        "tests": 134,
+        "pass": 134,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "sourcePathsUnchanged": true
+    },
+    "tests": {
+      "relatedApi": {
+        "tests": 102,
+        "pass": 102,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "rootNonrelease": 811,
+      "rootWithReleaseUnion": 945,
+      "before": {
+        "tests": 3,
+        "pass": 3,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "after": {
+        "tests": 14,
+        "pass": 14,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "materialAndNavigation": {
+        "tests": 28,
+        "pass": 28,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "browserTotal": 45,
+      "newPython": 0,
+      "reusedPython": 139,
+      "newVite": 2,
+      "initialLintFailurePreserved": true,
+      "onlyLintRerunAfterGeneratedFixtureMoved": true
+    },
+    "platformBoundary": "Existing Linux-only Source CLI coverage remains unverified on Windows; current102 no skip is not full source CLI coverage",
+    "builds": {
+      "at": "2026-10-24T12:46:41.305Z",
+      "source": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "cwd": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\zhixu-garment-read-ui-6huEvd\\context",
+      "results": [
+        {
+          "name": "browser-build",
+          "source": "922488b9474daeed8abc2204e21f6ffeefc39955",
+          "cwd": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\zhixu-garment-read-ui-6huEvd\\context",
+          "code": 0,
+          "timedOut": false,
+          "overflow": false,
+          "elapsedMs": 17755
+        },
+        {
+          "name": "browser-artifact",
+          "code": 0,
+          "timedOut": false,
+          "elapsedMs": 4598,
+          "verifierSource": "1028a5bb5e5e12f31e5747414dec9405838d786c",
+          "build": {
+            "environment": "production",
+            "buildId": "garment-read-ui-922488b9-browser-20261024",
+            "gitCommit": "922488b9474daeed8abc2204e21f6ffeefc39955",
+            "buildTime": "2026-10-24T12:46:02.417Z",
+            "masterSettingsAuthority": "browser",
+            "identityMode": "session",
+            "quoteWriterMode": "writable",
+            "quoteAuthority": "browser",
+            "orderRead": "disabled"
+          },
+          "result": {
+            "status": "PASS",
+            "pages": 45,
+            "fallbackPages": 1,
+            "assets": 114,
+            "buildId": "garment-read-ui-922488b9-browser-20261024",
+            "gitCommit": "922488b9474daeed8abc2204e21f6ffeefc39955",
+            "quoteAuthority": "browser",
+            "warningCount": 1,
+            "warnings": [
+              {
+                "code": "unresolved_modulepreload",
+                "route": "/system-settings/users",
+                "asset": "assets/admin-settings-CudNgtpY.js"
+              }
+            ],
+            "scope": "required static artifacts only; preload hints may warn; not browser, API, database, deployment or user acceptance"
+          }
+        },
+        {
+          "name": "server-build",
+          "source": "922488b9474daeed8abc2204e21f6ffeefc39955",
+          "cwd": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\zhixu-garment-read-ui-6huEvd\\context",
+          "code": 0,
+          "timedOut": false,
+          "overflow": false,
+          "elapsedMs": 13777
+        },
+        {
+          "name": "server-artifact",
+          "code": 0,
+          "timedOut": false,
+          "elapsedMs": 2741,
+          "verifierSource": "1028a5bb5e5e12f31e5747414dec9405838d786c",
+          "build": {
+            "environment": "production",
+            "buildId": "garment-read-ui-922488b9-server-20261024",
+            "gitCommit": "922488b9474daeed8abc2204e21f6ffeefc39955",
+            "buildTime": "2026-10-24T12:46:24.781Z",
+            "masterSettingsAuthority": "server",
+            "identityMode": "session",
+            "quoteWriterMode": "writable",
+            "quoteAuthority": "server",
+            "orderRead": "snapshot"
+          },
+          "result": {
+            "status": "PASS",
+            "pages": 45,
+            "fallbackPages": 1,
+            "assets": 114,
+            "buildId": "garment-read-ui-922488b9-server-20261024",
+            "gitCommit": "922488b9474daeed8abc2204e21f6ffeefc39955",
+            "quoteAuthority": "server",
+            "warningCount": 0,
+            "warnings": [],
+            "scope": "required static artifacts only; preload hints may warn; not browser, API, database, deployment or user acceptance"
+          }
+        }
+      ]
+    },
+    "evidence": {
+      "png": 23,
+      "json": 3,
+      "viewedPng": 9,
+      "beforeRendered": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "afterRendered": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "touch": "Actual CDP touchStart/touchEnd; open60x40/close96x44, not all44px or physical-phone human acceptance"
+    },
+    "workingTreeClean": true,
+    "delivery": {
+      "state": "NOT_ATTEMPTED_NETWORK_DEGRADED",
+      "pushes": 0,
+      "priorTarget": "b6af0cd247c1e7ec4406e69526fa672544cce1d8",
+      "priorState": "TARGET_NOT_DELIVERED"
+    },
+    "hostedActionsTriggeredByThisPhase": 0,
+    "newPr": null,
+    "goal": "active",
+    "deployed": false,
+    "realSourceOrBusinessDatabaseAccess": false,
+    "independentReview": {
+      "at": "2026-10-24T13:08:26.242Z",
+      "reviewer": "/root/server_convergence_review",
+      "mode": "independent read-only; no own tests/network/writes",
+      "verdict": "no new P1/P2",
+      "verified": [
+        "exact9a/tree/branch/clean",
+        "only impact page order->order-detail and4 state docs after178; product922/proofc710/UIfeature/baseline42159/screenshots unchanged",
+        "exact9a/e01a guard PASS102122ms,11pages59cap68cumulativeUI/errors[]",
+        "final receipt retains initial178FAIL,134 at1ae and scope reuse, same main verification time"
+      ],
+      "limits": [
+        "Local engineering only, not Hosted CI/real Source/activation/deployment/human acceptance",
+        "Old Linux CLI platform gap and offline Python139 scope reuse remain"
+      ]
+    },
+    "next": [
+      "DeliveryPlan0042 reliable request receipts then approved maintenance UI",
+      "Coverage and controlled collector0043; closing decisions pending"
+    ],
+    "protected": [
+      "3001",
+      "50426",
+      "59069",
+      "62426",
+      "Browser stores",
+      "backups",
+      "existing volumes"
+    ],
+    "initialFinalGuard": {
+      "at": "2026-10-24T13:02:09.775Z",
+      "head": "178ee3a3d83646756be3fa9eac7166e57d332bf2",
+      "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+      "code": 1,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 108416,
+      "result": {
+        "status": "FAIL",
+        "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
+        "checkedHead": "178ee3a3d83646756be3fa9eac7166e57d332bf2",
+        "historySha": "e01a11952b648024c0bd6bf4259de429374981e2",
+        "pages": 11,
+        "capabilities": 59,
+        "changedUiFiles": 68,
+        "scope": "source/evidence guard only; no browser, runtime, database or user acceptance claim",
+        "errors": [
+          {
+            "code": "UI_CHANGE_PAGE",
+            "detail": "docs/release/ui-changes/server-garment-read-ui-current.json:order"
+          }
+        ]
+      }
+    },
+    "finalCorrection": {
+      "commit": "9a16c28b53becc4c16671f6beb4e9285e128e19f",
+      "scope": "Only V1 impact page registration order -> order-detail and4 state documents after178ee3; product922/proofc710/feature/baseline42159/screenshots/tool implementation and fixtures unchanged",
+      "releaseReuse": {
+        "head": "1ae89745c148e03272e7e8f17bc3b1475010650d",
+        "passed": 134,
+        "elapsedMs": 432059,
+        "scope": "134 at1ae actual PASS, not rerun on9a; exact9a current-commit guard newly passed"
+      },
+      "sameVerifiedMainReuse": {
+        "at": "2026-10-24T13:00:21.354Z",
+        "code": 0,
+        "timedOut": false,
+        "sha": "e01a11952b648024c0bd6bf4259de429374981e2"
+      },
+      "initialFailureRetained": true
+    },
+    "metadataReview": {
+      "reviewer": "/root/server_convergence_review",
+      "verdict": "no new P1/P2",
+      "scope": "1ae/c710 evidence hashes,102/811/45UI and initial lint preservation checked read-only; later impact correction strategy independently approved"
+    }
+  },
+  "preflight": {
+    "name": "0042-backend",
+    "base": "d59a05e0e7fe5540322485c39a6756a9ba81ab6f",
+    "incoming": "12cfaf18867fea94f6733389851191afc29f31a4",
+    "paths": [
+      {
+        "path": ".github/workflows/ainuoke-server-source.yml",
+        "before": "dca0014e701db1fd42a60cf84dd0eadaf3790df3",
+        "after": "f732ca7ec5ebd360290d38141bfdb77f8bad4850",
+        "current": "75de0ae084a29f44b1283b756fc565260994983a",
+        "strategy": "three-way-required"
+      },
+      {
+        "path": "database/migrations/0042_delivery_plan_request_receipts.sql",
+        "before": null,
+        "after": "964fa74a0ca955d1b713cca87243a479328a48aa",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "package.json",
+        "before": "58916c8af41d2dac9f677d7943a54647c1af5407",
+        "after": "566824cbac5085bd61ae0250a80bff4eabc5ac5d",
+        "current": "60644dfaefd25ca44a62e37434af2e0084886a68",
+        "strategy": "three-way-required"
+      },
+      {
+        "path": "server/app.ts",
+        "before": "f072acbb282a228a1165ebf2e15575d2d2b42f4d",
+        "after": "83ebe6b29b5ac05b3c0395c283d42efd5f8758da",
+        "current": "f072acbb282a228a1165ebf2e15575d2d2b42f4d",
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/integration/bound-order-refresh.integration.test.ts",
+        "before": "0e8d613a56a2232c433b3196e64542cf5fd80eec",
+        "after": "503797eb581c4965e5ec309cd4684fdb36ac059c",
+        "current": "503797eb581c4965e5ec309cd4684fdb36ac059c",
+        "strategy": "already-present"
+      },
+      {
+        "path": "server/integration/current-migration-ledger-fixture.ts",
+        "before": "18bef306aa89f03add38567c116609bc50c52dca",
+        "after": "e7f4adcd65d0b4fdee8aa94201a59edd432d13af",
+        "current": "18bef306aa89f03add38567c116609bc50c52dca",
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/integration/delivery-plan-requests.integration.test.ts",
+        "before": null,
+        "after": "da17460ffac33257bd8b79eccbbe963870f2d167",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/integration/delivery-plans.integration.test.ts",
+        "before": "6dabf10162f0791cf6c583b83110a50c3e4480ea",
+        "after": "9272a33be3035638874191ea91b5cc65abae91f3",
+        "current": "6dabf10162f0791cf6c583b83110a50c3e4480ea",
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/sales-orders/delivery-plan-model.ts",
+        "before": "8c26f65f7ff2ee3111b6356074af7d3d8726f7ac",
+        "after": "6f852cc47e471ab023ca04e2d1fbf64e0083d8b8",
+        "current": "8c26f65f7ff2ee3111b6356074af7d3d8726f7ac",
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/sales-orders/delivery-plan-request.test.ts",
+        "before": null,
+        "after": "d01de36f83a73ac86c230911b9c8dd749f63c188",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/sales-orders/delivery-plan-request.ts",
+        "before": null,
+        "after": "9d809edfa18751eaa2e72438741cd9f4480b0322",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/sales-orders/delivery-plan-service.ts",
+        "before": "115ea5767c0b1b28d657739edb7f44a1be7acce9",
+        "after": "af33c8f70ac4225d8bc965bdd024ebb790d79a89",
+        "current": "115ea5767c0b1b28d657739edb7f44a1be7acce9",
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/sales-orders/normalization-preview.ts",
+        "before": "cae601f608eb19fd387c438d7c5389465db1d634",
+        "after": "81dfed7ce94b0f1acdf63592fe78cdd7074f902b",
+        "current": "cae601f608eb19fd387c438d7c5389465db1d634",
+        "strategy": "exact-input"
+      }
+    ]
+  },
+  "preflightReview": {
+    "at": "2026-10-24T13:05:35.701Z",
+    "reviewer": "/root/server_convergence_review",
+    "mode": "independent read-only preflight, no tests/network/writes",
+    "scope": "0042 backend only; 12cf after d59, UI899->2a later",
+    "verdict": "no blocking P1/P2",
+    "evidence": [
+      "12cf:server/sales-orders/delivery-plan-service.ts20-47: effective fence/fresh actor/request then original SO/set; original receipt before new CAS/alias, no Source/commercial/production writes",
+      "12cf:server/integration/delivery-plan-requests.integration.test.ts132-146: real COMMIT followed by synthetic lost acknowledgement and original receipt/no-duplicate verification; catch rollback attempt does not guarantee failed COMMIT was rolled back",
+      "357a88e5: replace upgrade literal0042 list with migrationFilesAfter(41), do not import later0043 command-table assertions",
+      "normalization-full-evidence.ts39-40 automatically includes new original SO reference in complete row fingerprints"
+    ],
+    "preserve": [
+      "D083/D100/D147 date/quantity/source-derived/default zero/manual positive/irreversible ownership and lifecycle",
+      "compact and actual PG JSONB16MiB capacity, savepoint rollback then small422 receipt",
+      "da5b frozen SALES_ORDER_PERSISTENCE.md; use meaningful independent DeliveryPlan feature",
+      "old Source quota/real environment/account/volume/50426 boundaries and NETWORK_DEGRADED"
+    ],
+    "minimumNewTests": [
+      "pure request",
+      "old and new DeliveryPlan API",
+      "bound refresh",
+      "effective attribution/full normalization references",
+      "0041->0042 and missing0042 fail closed",
+      "concurrent original request/fresh permission waits/lost COMMIT acknowledgement/252 full-history receipt/two capacity rejections/real lock timeout"
+    ],
+    "upgradeLimits": "Original fixture does not prepopulate nonempty0040 observations or0041 receipts; no claim of full nonempty coverage for those domains.",
+    "laterProductFixesFound": []
+  },
+  "protectedSummaryHashes": [
+    {
+      "path": "docs/tasks/completed/2026-10-24-delivery-plan-requests-input-state/CURRENT_STATE.md",
+      "sha256": "d43881ebe3625d4cf0af3918d0927a5bfe2455d55141183645b12bb52f1b4663"
+    },
+    {
+      "path": "docs/tasks/completed/2026-10-24-delivery-plan-requests-input-state/AI_HANDOFF.md",
+      "sha256": "0543aa076d114a08e9745c98229ac163f7d7887f41263b09c8cc77efcc315ff3"
+    },
+    {
+      "path": "docs/tasks/completed/2026-10-24-delivery-plan-requests-input-state/PROJECT_INDEX.md",
+      "sha256": "431851a61f03d718e994b664ef7933ecd8cb324ac68457efde73a9938413a8aa"
+    }
+  ],
+  "network": "NETWORK_DEGRADED; no push/remote mutation/Actions"
+}

@@ -1,0 +1,16 @@
+{
+  "baselineSha": "9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf",
+  "level": "V0",
+  "paths": [
+    "features/production-scheduling/server/production-plan-client.ts",
+    "features/production-scheduling/server/delivery-coverage-projection.ts"
+  ],
+  "pages": [
+    "navigation"
+  ],
+  "visibleDifference": "none",
+  "evidence": [
+    "docs/tasks/active/server-delivery-coverage-client-current-2026-10-24.md",
+    "docs/features/SERVER_DELIVERY_COVERAGE_UI.md"
+  ]
+}

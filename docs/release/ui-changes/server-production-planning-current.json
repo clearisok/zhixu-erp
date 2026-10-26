@@ -1,0 +1,26 @@
+{
+  "baselineSha": "9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf",
+  "level": "V1",
+  "paths": [
+    "app/production-scheduling/page.tsx",
+    "app/production-scheduling/production-scheduling.css",
+    "components/foundation/app-shell.tsx",
+    "features/operations-settings/components/server-production-reference-picker.tsx",
+    "features/production-scheduling/components/production-scheduling-authority-page.tsx",
+    "features/production-scheduling/components/server-production-plan-fields.tsx",
+    "features/production-scheduling/components/server-production-scheduling-page.tsx",
+    "features/production-scheduling/server/production-plan-client.ts",
+    "features/production-scheduling/server/production-plan-form.ts",
+    "features/production-scheduling/server/production-plan-outbox.ts",
+    "features/production-scheduling/service/production-scheduling-service.ts",
+    "features/quote-center/authority/quote-authority.ts"
+  ],
+  "pages": [
+    "navigation"
+  ],
+  "visibleDifference": "Restore approved D147 Gate6B Server ownership on the existing production-scheduling route using the existing MasterDetail, queue/order-pool tables and Foundation dialogs. Preserve exact quantities, calendar/queue formulas, fixed dates, stable resource snapshots and explicit preview. Retain the prior Server mobile search/views separation. No execution/completion, logistics, pricing, Browser storage/defaults or V2/V3 redesign. Current before/after engineering proof follows new frozen builds, never old919 screenshots.",
+  "evidence": [
+    "docs/tasks/active/server-production-planning-current-2026-10-24.md",
+    "docs/tasks/completed/2026-10-24-production-planning-current-engineering.md"
+  ]
+}

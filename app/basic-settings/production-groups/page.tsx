@@ -1,5 +1,5 @@
-import { ProductionGroupSettingsPage } from "@/features/operations-settings";
+import { ProductionResourceSettingsPage } from "@/features/operations-settings/components/production-resource-settings-page";
 
 export default function Page() {
-  return <ProductionGroupSettingsPage />;
+  return <ProductionResourceSettingsPage kind="groups" />;
 }

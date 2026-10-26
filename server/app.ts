@@ -44,12 +44,13 @@ import {
 import { getSalesOrderById, listSalesOrders } from "./sales-orders/repository.js";
 import type { SalesOrderCreationSource, SalesOrderLifecycleState } from "./sales-orders/model.js";
 import { readDeliveryPlanSet } from "./sales-orders/delivery-plan-repository.js";
-import { updateDeliveryPlans } from "./sales-orders/delivery-plan-service.js";
+import { updateDeliveryPlans, readDeliveryPlanRequestReceipt } from "./sales-orders/delivery-plan-service.js";
 import { UUID_PATTERN } from "./sales-orders/delivery-plan-model.js";
 import { QuoteConflictError, QuoteInvariantError } from "./quotes/model.js";
 import { createTrustedQuoteService } from "./quotes/service.js";
 import { createQuoteCreationService } from "./quotes/creation-workflows.js";
 import { creationId, parseCreationInput, parseCreationCommand } from "./quotes/creation-contract.js";
+import { parseCreationOrderSelection } from "./quotes/creation-order-context.js";
 import { parseQuoteVersionCommand } from "./quotes/version-workflows.js";
 import { parseQuoteConfirmationCommand } from "./quotes/confirmation-workflows.js";
 import { createCustomerExportService, parseCustomerExport } from "./quotes/customer-export.js";
@@ -62,7 +63,12 @@ import { serveStatic } from "./static-files.js";
 import { routeMaterialProgressSettings } from "./material-progress-settings/routes.js";
 import { routeTeamAccess } from "./auth/team-access-routes.js";
 import { routeManagedRoles } from "./auth/managed-role-routes.js";
+import { routeProductionResources } from "./production-resources/routes.js";
+import { routeProductionScheduling } from "./production-scheduling/routes.js";
+import { routeMaterialArrivals } from "./material-arrivals/routes.js";
+import type { SourceReadConfig } from "./ainuoke-source/reader.js";
 import type { PaymentSnapshotReader } from './ainuoke-source/payment-request-store.js';
+import type { GarmentShipmentReader } from './ainuoke-source/garment-shipment-store.js';
 
 export type ServerLogger = {
   error(event: Record<string, unknown>): void;
@@ -77,12 +83,14 @@ export type AppDependencies = {
   identityAuthority?: IdentityAuthority;
   attachmentStorage?: AttachmentStorage;
   orderMaterialRead?: MaterialReadPorts;
+  materialArrivalSource?: SourceReadConfig | null;
   orderMaterialHistory?: MaterialHistoryReader;
   orderPaymentRead?: PaymentSnapshotReader;
+  orderGarmentShipmentRead?: GarmentShipmentReader;
   normalizationExecution?: NormalizationExecutionOptions;
   orderCommandMode?: OrderCommandMode;
 };
-type ResolvedAppDependencies = Required<Omit<AppDependencies, "attachmentStorage" | "orderMaterialRead" | "orderMaterialHistory" | "orderPaymentRead" | "normalizationExecution">> & Pick<AppDependencies, "attachmentStorage" | "orderMaterialRead" | "orderMaterialHistory" | "orderPaymentRead" | "normalizationExecution">;
+type ResolvedAppDependencies = Required<Omit<AppDependencies, "attachmentStorage" | "orderMaterialRead" | "materialArrivalSource" | "orderMaterialHistory" | "orderPaymentRead" | "orderGarmentShipmentRead" | "normalizationExecution">> & Pick<AppDependencies, "attachmentStorage" | "orderMaterialRead" | "materialArrivalSource" | "orderMaterialHistory" | "orderPaymentRead" | "orderGarmentShipmentRead" | "normalizationExecution">;
 
 const defaultLogger: ServerLogger = {
   error(event) {
@@ -233,7 +241,7 @@ function quoteBody(body: Record<string, unknown>): { quote: import("./quotes/quo
   if (!body.quote || typeof body.quote !== "object" || Array.isArray(body.quote)) {
     throw new HttpError(400, "invalid_quote_request", "quote must be an object");
   }
-  const authorityKeys = new Set(["actor", "actorUserId", "internalUserId", "userId", "role", "permissions", "estimateVisibility", "costVisibility"]);
+  const authorityKeys = new Set(["actor", "actorUserId", "internalUserId", "userId", "role", "permissions", "estimateVisibility", "costVisibility", "creationOrderContext", "creationOrigin", "orderContext"]);
   const containsAuthorityField = (value: unknown): boolean => {
     if (Array.isArray(value)) return value.some(containsAuthorityField);
     if (!value || typeof value !== "object") return false;
@@ -357,19 +365,27 @@ async function route(
   if (await routeTeamAccess(request, response, dependencies)) return;
   if (await routeManagedRoles(request, response, dependencies)) return;
   if (await routeMaterialProgressSettings(request, response, dependencies)) return;
+  if (await routeProductionResources(request, response, dependencies)) return;
+  if (await routeProductionScheduling(request, response, dependencies)) return;
+  if (await routeMaterialArrivals(request, response, dependencies)) return;
   const creationReceipt = /^\/api\/v1\/quotes\/creation-receipts\/([^/]+)$/.exec(path);
-  if ((request.method === "GET" && (path === "/api/v1/quotes/creation-options" || creationReceipt))
+  const creationOrder = /^\/api\/v1\/quotes\/creation-order-context\/([^/]+)$/.exec(path);
+  const creationOrigin = /^\/api\/v1\/quotes\/([^/]+)\/creation-origin$/.exec(path);
+  if ((request.method === "GET" && (path === "/api/v1/quotes/creation-options" || creationReceipt || creationOrder || creationOrigin))
     || (request.method === "POST" && ["/api/v1/quotes/creation-preview", "/api/v1/quotes/creation-workflows", "/api/v1/quotes/creation-defaults"].includes(path))) {
     if (request.method === "POST") assertMutationBoundary(request, dependencies.allowedOrigins);
     const identity = await dependencies.identityAuthority.resolve(request);
     if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
     const creation = createQuoteCreationService(dependencies.pool, dependencies.identityAuthority.mode);
     if (creationReceipt) sendJson(response, 200, await creation.receipt(identity, creationId(creationReceipt[1])));
+    else if (creationOrder) sendJson(response, 200, await creation.orderContext(identity, creationId(creationOrder[1])));
+    else if (creationOrigin) sendJson(response, 200, await creation.origin(identity, decodeURIComponent(creationOrigin[1])));
     else if (path === "/api/v1/quotes/creation-defaults") {
       const body = await readJsonBody(request, 1024);
-      if(Object.keys(body).length!==1 || !("clientRequestId" in body)) throw new HttpError(400,"invalid_creation_input","Only clientRequestId is accepted");
+      if(Object.keys(body).some(key => !["clientRequestId", "orderContext"].includes(key)) || !("clientRequestId" in body)) throw new HttpError(400,"invalid_creation_input","Invalid creation command");
       const id=creationId(body.clientRequestId);
-      const result=await creation.executeDefaults(identity,id,{requestId:correlationId,method:request.method,path});
+      const orderContext = Object.hasOwn(body, "orderContext") ? parseCreationOrderSelection(body.orderContext) : undefined;
+      const result=await creation.executeDefaults(identity,id,{requestId:correlationId,method:request.method,path},orderContext);
       sendJson(response,result.replayed?200:201,{receiptId:id,...result.receipt});
     }
     else if (request.method === "GET") {
@@ -445,6 +461,27 @@ async function route(
     return;
   }
 
+  const garmentMatch = /^\/api\/v1\/sales-orders\/([^/]+)\/garment-shipments(?:\/(history|[^/]+))?$/.exec(path);
+  if (garmentMatch) {
+    response.setHeader('Cache-Control', 'no-store');
+    if (dependencies.identityAuthority.mode !== 'session') throw new HttpError(503, 'garment_read_requires_session', '需要可信会话。');
+    const identity = await dependencies.identityAuthority.resolve(request);
+    if (!identity) throw new HttpError(401, 'authentication_required', '需要登录。');
+    if (request.method !== 'GET') throw new HttpError(405, 'method_not_allowed', '仅支持读取。');
+    if (!dependencies.orderGarmentShipmentRead) throw new HttpError(503, 'garment_read_not_connected', '成衣出货来源尚未接通。');
+    const query = new URL(request.url ?? '/', 'http://local').searchParams;
+    if (garmentMatch[2] === 'history') {
+      const raw = query.get('beforeGeneration');
+      if ([...query.keys()].some(key => key !== 'beforeGeneration') || query.getAll('beforeGeneration').length > 1 || raw !== null && !/^[1-9]\d{0,9}$/.test(raw))
+        throw new HttpError(400, 'invalid_garment_history_query', '历史分页参数无效。');
+      sendJson(response, 200, await dependencies.orderGarmentShipmentRead.history(identity, garmentMatch[1], raw === null ? undefined : Number(raw)));
+    } else {
+      if (query.size) throw new HttpError(400, 'invalid_garment_source_request', '仅接受正式订单UUID。');
+      sendJson(response, 200, await dependencies.orderGarmentShipmentRead.read(identity, garmentMatch[1], garmentMatch[2]));
+    }
+    return;
+  }
+
   const paymentMatch = /^\/api\/v1\/sales-orders\/([^/]+)\/payment-requests$/.exec(path);
   if (paymentMatch) {
     response.setHeader('Cache-Control', 'no-store');
@@ -470,6 +507,20 @@ async function route(
     response.setHeader('Cache-Control', 'no-store');
     if (result.status !== 200) throw new HttpError(result.status, result.error.code, result.error.message);
     sendJson(response, 200, result.body);
+    return;
+  }
+
+  const deliveryPlanReceiptMatch = /^\/api\/v1\/sales-orders\/([^/]+)\/delivery-plans\/receipt$/.exec(path);
+  if (deliveryPlanReceiptMatch && request.method === "POST") {
+    assertMutationBoundary(request, dependencies.allowedOrigins);
+    const identity = await dependencies.identityAuthority.resolve(request);
+    if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
+    requirePermission(identity.permissions, "order.view");
+    requirePermission(identity.permissions, "order.edit");
+    const salesOrderId = requiredPathIdentity(deliveryPlanReceiptMatch[1], "salesOrderId");
+    if (new URL(request.url ?? '/', 'http://local').search) throw new HttpError(400, 'invalid_delivery_plan_receipt_query', 'No query selectors are accepted');
+    const receipt = await readDeliveryPlanRequestReceipt(dependencies.pool, identity, salesOrderId, await readJsonBody(request));
+    sendJson(response, 200, { receipt });
     return;
   }
 

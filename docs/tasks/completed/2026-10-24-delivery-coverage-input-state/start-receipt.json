@@ -1,0 +1,354 @@
+{
+  "at": "2026-10-24T14:13:31.123Z",
+  "branch": "codex/server-delivery-coverage-current",
+  "baseline": {
+    "branch": "codex/server-delivery-plan-ui-current",
+    "head": "0a086a912b4077c3dfc08438235e27ea448816a1",
+    "tree": "a7ee7ba58cb488f2b180b8af61d3e71fa3c296dd",
+    "clean": true,
+    "main": "e01a11952b648024c0bd6bf4259de429374981e2"
+  },
+  "verifiedMain": {
+    "at": "2026-10-24T14:09:09.468Z",
+    "code": 0,
+    "timedOut": false,
+    "sha": "e01a11952b648024c0bd6bf4259de429374981e2"
+  },
+  "originals": [
+    {
+      "path": "docs/CURRENT_STATE.md",
+      "preserved": "docs/tasks/completed/2026-10-24-delivery-coverage-input-state/CURRENT_STATE.md",
+      "sha256": "67ada7594be375ca9583a1471dbd9c1401e3290ff9d58a022b055b0421e67fdb",
+      "gitBlob": "24cdc9949a6d64b278389508ec0f896ee6e9bdba"
+    },
+    {
+      "path": "docs/AI_HANDOFF.md",
+      "preserved": "docs/tasks/completed/2026-10-24-delivery-coverage-input-state/AI_HANDOFF.md",
+      "sha256": "f222472f3fe1bf7e7f6e0b5f2c1270f788f5e90f85c089cd897268bf4edebeb3",
+      "gitBlob": "47b2f9ae69cfe669e5abc19871b81108ec239d79"
+    },
+    {
+      "path": "docs/PROJECT_INDEX.md",
+      "preserved": "docs/tasks/completed/2026-10-24-delivery-coverage-input-state/PROJECT_INDEX.md",
+      "sha256": "c4c96d9e9933149945c9a9192fd0e2ede85e6bff06ea5edc0c6d0cbe29815bb9",
+      "gitBlob": "971a07771c8e6c2362b08ff74c50ad38f0b6355f"
+    }
+  ],
+  "priorFinal": {
+    "at": "2026-10-24T14:11:07.807Z",
+    "branch": "codex/server-delivery-plan-ui-current",
+    "head": "0a086a912b4077c3dfc08438235e27ea448816a1",
+    "tree": "a7ee7ba58cb488f2b180b8af61d3e71fa3c296dd",
+    "source": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+    "sourceTree": "c5c7a15d7bfd3b7cc07b7fc1361399770c2d3b6e",
+    "driverSource": "0e12c1aa48179dc1da3f699ae9769d031221ce93",
+    "driverTree": "9d32426a5d31659e6b6d124596340b4d759ae880",
+    "proof": "869aa11d4270d591c7299de149ff60d13a9189b5",
+    "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+    "guard": {
+      "at": "2026-10-24T14:11:07.474Z",
+      "head": "0a086a912b4077c3dfc08438235e27ea448816a1",
+      "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 118001,
+      "result": {
+        "status": "PASS",
+        "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
+        "checkedHead": "0a086a912b4077c3dfc08438235e27ea448816a1",
+        "historySha": "e01a11952b648024c0bd6bf4259de429374981e2",
+        "pages": 11,
+        "capabilities": 61,
+        "changedUiFiles": 75,
+        "scope": "source/evidence guard only; no browser, runtime, database or user acceptance claim",
+        "errors": []
+      }
+    },
+    "release": {
+      "at": "2026-10-24T14:08:35.927Z",
+      "head": "70765755ab7dc3524a93090fffd3008df9be5993",
+      "productAndNonreleaseSource": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+      "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+      "command": "npm run test:release-baseline",
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 464627,
+      "counts": {
+        "tests": 134,
+        "pass": 134,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "sourcePathsUnchanged": true
+    },
+    "tests": {
+      "relatedApi": {
+        "tests": 57,
+        "pass": 57,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "rootNonrelease": 811,
+      "rootWithReleasePhasedUnion": 945,
+      "before": {
+        "tests": 3,
+        "pass": 3,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "after": {
+        "tests": 14,
+        "pass": 14,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "initialRelatedUi": {
+        "counts": {
+          "tests": 24,
+          "pass": 23,
+          "fail": 1,
+          "cancelled": 0,
+          "skipped": 0
+        },
+        "originalFailurePreserved": true,
+        "reason": "Missing mandatory exact build env; before fixture startup."
+      },
+      "affectedMaterial": {
+        "tests": 17,
+        "pass": 17,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "relatedUiPhasedPassingUnion": 40,
+      "browserPhasedPassingUnion": 57,
+      "initialTouchRunsPreserved": true,
+      "newPython": 0,
+      "reusedPython": 139,
+      "newVite": 2
+    },
+    "builds": {
+      "at": "2026-10-24T13:46:21.326Z",
+      "source": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+      "cwd": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\zhixu-delivery-plan-ui-A8M3bL\\context",
+      "results": [
+        {
+          "name": "browser-build",
+          "source": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+          "cwd": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\zhixu-delivery-plan-ui-A8M3bL\\context",
+          "code": 0,
+          "timedOut": false,
+          "overflow": false,
+          "elapsedMs": 10345
+        },
+        {
+          "name": "browser-artifact",
+          "code": 0,
+          "timedOut": false,
+          "elapsedMs": 2721,
+          "verifierSource": "1028a5bb5e5e12f31e5747414dec9405838d786c",
+          "build": {
+            "environment": "production",
+            "buildId": "delivery-plan-ui-56b813be-browser-20261024",
+            "gitCommit": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+            "buildTime": "2026-10-24T13:45:54.885Z",
+            "masterSettingsAuthority": "browser",
+            "identityMode": "session",
+            "quoteWriterMode": "writable",
+            "quoteAuthority": "browser",
+            "orderRead": "disabled"
+          },
+          "result": {
+            "status": "PASS",
+            "pages": 45,
+            "fallbackPages": 1,
+            "assets": 116,
+            "buildId": "delivery-plan-ui-56b813be-browser-20261024",
+            "gitCommit": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+            "quoteAuthority": "browser",
+            "warningCount": 1,
+            "warnings": [
+              {
+                "code": "unresolved_modulepreload",
+                "route": "/system-settings/users",
+                "asset": "assets/admin-settings-PIGc8ys0.js"
+              }
+            ],
+            "scope": "required static artifacts only; preload hints may warn; not browser, API, database, deployment or user acceptance"
+          }
+        },
+        {
+          "name": "server-build",
+          "source": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+          "cwd": "C:\\Users\\Administrator\\AppData\\Local\\Temp\\zhixu-delivery-plan-ui-A8M3bL\\context",
+          "code": 0,
+          "timedOut": false,
+          "overflow": false,
+          "elapsedMs": 10691
+        },
+        {
+          "name": "server-artifact",
+          "code": 0,
+          "timedOut": false,
+          "elapsedMs": 2672,
+          "verifierSource": "1028a5bb5e5e12f31e5747414dec9405838d786c",
+          "build": {
+            "environment": "production",
+            "buildId": "delivery-plan-ui-56b813be-server-20261024",
+            "gitCommit": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+            "buildTime": "2026-10-24T13:46:07.958Z",
+            "masterSettingsAuthority": "server",
+            "identityMode": "session",
+            "quoteWriterMode": "writable",
+            "quoteAuthority": "server",
+            "orderRead": "snapshot"
+          },
+          "result": {
+            "status": "PASS",
+            "pages": 45,
+            "fallbackPages": 1,
+            "assets": 116,
+            "buildId": "delivery-plan-ui-56b813be-server-20261024",
+            "gitCommit": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+            "quoteAuthority": "server",
+            "warningCount": 0,
+            "warnings": [],
+            "scope": "required static artifacts only; preload hints may warn; not browser, API, database, deployment or user acceptance"
+          }
+        }
+      ]
+    },
+    "evidence": {
+      "png": 23,
+      "json": 4,
+      "viewedPng": 10,
+      "manifestEvidence": 455,
+      "capabilities": 61,
+      "beforeRendered": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "beforeDriver": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+      "afterRendered": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+      "afterDriver": "0e12c1aa48179dc1da3f699ae9769d031221ce93",
+      "touch": "Actual CDP four touches390, each one touchStart/end plus click, four44px targets; not physical phone/all-width touch"
+    },
+    "workingTreeClean": true,
+    "delivery": {
+      "state": "NOT_ATTEMPTED_NETWORK_DEGRADED",
+      "pushes": 0,
+      "newPr": null
+    },
+    "hostedActionsTriggeredByThisPhase": 0,
+    "goal": "active",
+    "deployed": false,
+    "realSourceOrBusinessDatabaseAccess": false,
+    "independentReview": "closed; no new P1/P2",
+    "next": [
+      "Current registered-fact delivery coverage only",
+      "Controlled collector0043; closing decisions pending"
+    ],
+    "protected": [
+      "3001",
+      "50426",
+      "59069",
+      "62426",
+      "Browser stores",
+      "backups",
+      "existing volumes"
+    ],
+    "closedAt": "2026-10-24T14:13:26.892Z",
+    "review": {
+      "at": "2026-10-24T14:13:26.892Z",
+      "reviewer": "/root/server_convergence_review",
+      "head": "0a086a912b4077c3dfc08438235e27ea448816a1",
+      "tree": "a7ee7ba58cb488f2b180b8af61d3e71fa3c296dd",
+      "mode": "independent read-only; no tests/network/writes",
+      "result": "closed; no new P1/P2",
+      "verified": [
+        "Exact0a/tree/clean",
+        "Only four state docs after707; product/tests/455evidence61cap/proof/images unchanged",
+        "134 belongs707;464627ms process,463368.5795ms test duration; zero failures/cancel/skip",
+        "Exact0a/e01a guard PASS118001ms,11pages61cap75UI/errors[]"
+      ],
+      "limits": "Local engineering only, not HostedCI, human acceptance, realSource or deployment"
+    }
+  },
+  "priorReview": {
+    "at": "2026-10-24T14:13:26.892Z",
+    "reviewer": "/root/server_convergence_review",
+    "head": "0a086a912b4077c3dfc08438235e27ea448816a1",
+    "tree": "a7ee7ba58cb488f2b180b8af61d3e71fa3c296dd",
+    "mode": "independent read-only; no tests/network/writes",
+    "result": "closed; no new P1/P2",
+    "verified": [
+      "Exact0a/tree/clean",
+      "Only four state docs after707; product/tests/455evidence61cap/proof/images unchanged",
+      "134 belongs707;464627ms process,463368.5795ms test duration; zero failures/cancel/skip",
+      "Exact0a/e01a guard PASS118001ms,11pages61cap75UI/errors[]"
+    ],
+    "limits": "Local engineering only, not HostedCI, human acceptance, realSource or deployment"
+  },
+  "preflight": {
+    "at": "2026-10-24T14:01:55.489Z",
+    "head": "70765755ab7dc3524a93090fffd3008df9be5993",
+    "base": "144f2a269affb41207566557f09ed06e8decf49a",
+    "incoming": "0e546e2a653c1285d15b4321b105936eeaa9cbf3",
+    "paths": [
+      {
+        "path": ".github/workflows/ainuoke-server-source.yml",
+        "before": "f732ca7ec5ebd360290d38141bfdb77f8bad4850",
+        "after": "dbc25c22d08413bca4c3744fbe3c900f7201eb80",
+        "current": "a539dda9a7b85382ee2e394314ac2d2d5494e31b",
+        "strategy": "three-way-required"
+      },
+      {
+        "path": "package.json",
+        "before": "566824cbac5085bd61ae0250a80bff4eabc5ac5d",
+        "after": "654c3533915e61428f7f1f33e944c357259b06cc",
+        "current": "18b82573f3245c7e6b1f8af311405ec3575e5fbb",
+        "strategy": "three-way-required"
+      },
+      {
+        "path": "server/integration/delivery-coverage.integration.test.ts",
+        "before": null,
+        "after": "93addb70a64d9ec0f258f96a62a69a628074e7ae",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/production-scheduling/delivery-coverage.test.ts",
+        "before": null,
+        "after": "1ed32bcf3265846f4a74d2de45e7d16647578fc2",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/production-scheduling/delivery-coverage.ts",
+        "before": null,
+        "after": "beb137cef0fdf4d0fa336d1f0223a0e76d161783",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/production-scheduling/service.ts",
+        "before": "2932ad7743d99567eb904a7f47968f3baf1bcc36",
+        "after": "6f41229b9f70c9b3349e92c23de64f85b2b004b5",
+        "current": "2932ad7743d99567eb904a7f47968f3baf1bcc36",
+        "strategy": "exact-input"
+      }
+    ],
+    "writes": 0,
+    "testsRun": 0,
+    "pushes": 0,
+    "realSourceRequests": 0
+  },
+  "networkMode": "NETWORK_DEGRADED",
+  "fetches": 0,
+  "pushes": 0,
+  "hostedActionsTriggered": 0,
+  "realSourceRequests": 0
+}

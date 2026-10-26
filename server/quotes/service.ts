@@ -263,6 +263,8 @@ export function createTrustedQuoteService(pool: Pool, dependencies: QuoteRuntime
     },
     async saveAggregate(actor: TrustedIdentity, content: QuoteSaveContent, expectedVersion: number, context: QuoteMutationContext = {}) {
       requirePermission(actor.permissions, "quote.edit");
+      if (["creationOrderContext", "creationOrigin", "orderContext"].some(key => Object.hasOwn(content, key)))
+        throw new HttpError(400, "invalid_quote_request", "Creation references are not aggregate fields");
       const inputId = content.id;
       const before = await repository.getById(inputId);
       if (!before) throw new HttpError(404, "quote_not_found", "Quote was not found");

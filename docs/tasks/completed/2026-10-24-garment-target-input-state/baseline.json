@@ -1,0 +1,187 @@
+{
+  "at": "2026-10-24T15:32:15.677Z",
+  "priorBranch": "codex/server-garment-collector-current",
+  "priorHead": "4b8efa166c6c5af48dc954d4bac7d080bdd8d294",
+  "priorTree": "df6afb9bc7f0cf81d30fe8dbbf005f489f2fb698",
+  "startClean": true,
+  "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+  "mainVerifiedAt": "2026-10-24T15:32:15.936Z",
+  "openPrs": [
+    {
+      "draft": true,
+      "head": "4f721ecd7ec1a0e31805d7d2a5bdb8600d8a477d",
+      "number": 125,
+      "ref": "codex/server-persistent-empty-target"
+    },
+    {
+      "draft": true,
+      "head": "652fed6464b5aea144689480c936a0c5f2d62d90",
+      "number": 124,
+      "ref": "codex/server-convergence-baseline"
+    }
+  ],
+  "branch": "codex/server-garment-target-current",
+  "incoming": "5fac2326634375ded9935782df947ce5871eab43",
+  "paths": [
+    {
+      "path": ".github/workflows/ainuoke-server-source.yml",
+      "existing": true,
+      "beforeExact": false,
+      "manualIncrement": true,
+      "currentSha256": "829405f35b084e38e49a4b19a959597ea26ba1aef078b6cd375f0f2985106990",
+      "incomingGitBlob": "10083316ca9466f69a2b3b07e2384286c6af9964"
+    },
+    {
+      "path": "database/migrations/0044_garment_target_commands.sql",
+      "existing": false,
+      "beforeExact": true,
+      "manualIncrement": false,
+      "currentSha256": null,
+      "incomingGitBlob": "6c08d5dc59664d70cbc4b4f1834b1c68a81a816e"
+    },
+    {
+      "path": "features/operation-logs/model/operation-log.ts",
+      "existing": true,
+      "beforeExact": true,
+      "manualIncrement": false,
+      "currentSha256": "4b01932fddc6b67764c4e2f2d25f56cc2e8bc55447010858dd2ec4c40100a627",
+      "incomingGitBlob": "c748fb58d7b699b29bd57adeff51a403e67d15ec"
+    },
+    {
+      "path": "package.json",
+      "existing": true,
+      "beforeExact": false,
+      "manualIncrement": true,
+      "currentSha256": "abe516f49046a5d915d6d5ea9932c822296fff0e489df411ad88cd978e230e1d",
+      "incomingGitBlob": "55de7c69b1a1897938e85eb5c3193cdde93ae120"
+    },
+    {
+      "path": "server/ainuoke-source/garment-target-control.ts",
+      "existing": false,
+      "beforeExact": true,
+      "manualIncrement": false,
+      "currentSha256": null,
+      "incomingGitBlob": "87b8c7dd0f80aabd48aafa6fbd24b9093184dbec"
+    },
+    {
+      "path": "server/integration/current-migration-ledger-fixture.ts",
+      "existing": true,
+      "beforeExact": true,
+      "manualIncrement": false,
+      "currentSha256": "0671b7705bb9916f4e95856293cc0e7a268680ed45fa675e7a491396c66b0beb",
+      "incomingGitBlob": "f24c428aa29fb97e789343edd9d0d1cb738652ea"
+    },
+    {
+      "path": "server/integration/garment-target-control.integration.test.ts",
+      "existing": false,
+      "beforeExact": true,
+      "manualIncrement": false,
+      "currentSha256": null,
+      "incomingGitBlob": "954d8a99b6dde4f3fbb6bbf8202b9d7d6182c5be"
+    },
+    {
+      "path": "server/integration/garment-target-upgrade.integration.test.ts",
+      "existing": false,
+      "beforeExact": true,
+      "manualIncrement": false,
+      "currentSha256": null,
+      "incomingGitBlob": "315aea954c84402a975640c21092279cb21d5cee"
+    },
+    {
+      "path": "server/sales-orders/normalization-preview.ts",
+      "existing": true,
+      "beforeExact": true,
+      "manualIncrement": false,
+      "currentSha256": "1a56cb030fcc26bec8ee356a3f26cab316634257f29c4edda5876d70dfea620e",
+      "incomingGitBlob": "7cc067dba1f3bdc544bb2ef80717141b0fc1ddf5"
+    }
+  ],
+  "unchangedPriorSql": {
+    "database/migrations/0001_trusted_auth_rbac_operation_logs.sql": "a56d6e22f875adced50f4cb89f40c490b3e55735a4ffbe8b842fff14159a7695",
+    "database/migrations/0002_sales_order_foundation.sql": "10e94fb08f89507cdfe8639b41f20a3b3ac91828960671af9e4c0536a3b6637b",
+    "database/migrations/0003_sales_order_number_sequence.sql": "0a387db3bd28fe570c47ce765c64a67264b66ca906e97dcb253170802b1c64f8",
+    "database/migrations/0004_confirmed_commercial_terms.sql": "b37c554fc2ecbf5b2ee51ef5f37ad022904cb3a9f073bfa0db634f133f118d55",
+    "database/migrations/0005_quote_foundation.sql": "a2d62b13a4bdaa2d2ad516dfe9649df3e3fa65de7403256eda0f732eeef83973",
+    "database/migrations/0006_quote_number_sequence.sql": "22a78832ec3bf64af78148e48d2302983a460c31ef8dc339e0f12b90f1cedaa4",
+    "database/migrations/0007_quote_master_settings.sql": "628f5030bc6f8623f06db8d7edd24205ad4df8247d32c3a947e1f5b919f63919",
+    "database/migrations/0008_quote_attachments.sql": "4f5752ad5c4db5e6de163ae8861092892a4a09a16512e85f3c027bb49f8175ae",
+    "database/migrations/0009_sales_order_delivery_plans.sql": "40ed840823a19dada349c1e68e7e286b04a768eaf2dfe69c007cc03733303fe6",
+    "database/migrations/0010_quote_creation_receipts.sql": "5e43601397fce0fdd1b591a4851cf8b6c6c3b40681cd10a6a816798b51a0064f",
+    "database/migrations/0011_quote_creation_defaults.sql": "88c49a525959bfcc74a8d6d12150615950bb580b2a368efba037c73bba86c541",
+    "database/migrations/0012_ainuoke_server_source.sql": "0468adddfb68951c742c72a9752d143a5c207b0427116785a60bc3c8a7365d39",
+    "database/migrations/0014_order_identity.sql": "b2a32ccbe258d91026ed6cbb6167f1499ef4997bee9c30ed74918aa5ccc5eb48",
+    "database/migrations/0015_order_commercial_versions.sql": "f92942b26f1ddd5e718a3f23d9b9ad6494b4019afb22a04cafa4d15d987fec01",
+    "database/migrations/0016_processing_order_batches.sql": "ec393503785923229705c483c66c8f6d595a0e02597ebf4a0275a7edc4e4810f",
+    "database/migrations/0017_order_normalization_cases.sql": "8e6170572d7b90dd98de43a7f5b99bb5436ccbae7b338a52ffbc0bc113c217e9",
+    "database/migrations/0018_order_effective_attribution.sql": "0d5749d9952373264e0d04bc2516d03a0f56a0aff0bcfdb924951c05ce936dfe",
+    "database/migrations/0019_order_normalization_reviews.sql": "2cfee87279a2ce56848f6bbebeb93106c25e63ae0a1608fa80f299b8a9f3fe5c",
+    "database/migrations/0020_order_attribution_write_guards.sql": "9d30263ac704964dace3292bd0226839fb7391f3c6edb9c5a03c4a10ed8a5298",
+    "database/migrations/0021_order_command_control.sql": "143020e4a9b9114a99e54b14baadc5e2b1fff1b04a20469f4d038964325c051b",
+    "database/migrations/0022_source_history_context.sql": "c9b5802a73f7e0882fa6d800be47cd4b97bd1fea95e5731e7df8953d7e899a0d",
+    "database/migrations/0023_order_preparation_adoption.sql": "c6fa7d17bebe32f6569cdc3f7c3387a44f44feccd10ea97be52710d933756576",
+    "database/migrations/0024_material_progress_settings.sql": "1be3c2e6059f0245632bd0c277967068e009e160866952b8cd320f430383f3e0",
+    "database/migrations/0025_ainuoke_payment_snapshots.sql": "ffe185274951edd71adfa09c98dbfa6a03f017b8bcb4d9e97c99bc47cb91da9c",
+    "database/migrations/0026_ainuoke_payment_operator_commands.sql": "f12df2c5107dc9e139aec3f7ca10c1be7f4acd0804be09acaaf3af7d92c4330b",
+    "database/migrations/0027_order_business_source_snapshots.sql": "2081f808485c8a4729764b32b95503946ea399950388b3b0ff235fa0e3f517dc",
+    "database/migrations/0028_order_color_commercial_versions.sql": "045ffa8be72e8e946db25f83d5aac01b9dc8f4338d4451e376d13f6668c83c70",
+    "database/migrations/0029_order_sale_adjustment_operations.sql": "d6649ad9a015db9edec71cfe7565facc9aec5d57b5834666528beb565c99622b",
+    "database/migrations/0030_processing_quote_push_receipts.sql": "1a3cc6d3fb44b65baf193cd5608c23f44685176d25b2f6c949d2eda2000e78a8",
+    "database/migrations/0031_managed_roles.sql": "a078cba3e12b1b831e171b975b0992895f4273bdd376e11cc51138bd1d1a5784",
+    "database/migrations/0032_user_lifecycle.sql": "9f0a88e875d64aa13a9082ebab374fbc5cd5246dd2d401146e419dd0dba69911",
+    "database/migrations/0033_quote_creation_order_context.sql": "92f2e19be9251fc2156ccb3d3000297395b2a73191f1ce6a752861d59340514f",
+    "database/migrations/0034_production_resources.sql": "ab544150f1e9c8b9c06603ec68bc610024837e2e0882d5fd850551a975417330",
+    "database/migrations/0035_production_schedule_plans.sql": "750878eac1794129c20fe48c043a11dfdd229f0eaf93716efa058cbd919778ec",
+    "database/migrations/0036_production_execution_facts.sql": "3907615b07c7778d74b684a5ee91730ba194e30a6daa427380659245f8694bc2",
+    "database/migrations/0037_production_logistics_resources.sql": "197efcc3b004e2f09ae43d445c3f59942edc2118afd799f5b9e1a26ea4002d4a",
+    "database/migrations/0038_production_order_tracking.sql": "7c4159a3625394ec5326eac37f6d7d80a837a97717e5abd59d84f595d2a7105e",
+    "database/migrations/0039_material_arrival_plans.sql": "6c534c4db8e962e28e603f815b5d52949bdeb687a61146e1933d908156989614",
+    "database/migrations/0040_garment_shipment_observations.sql": "5b4f2768f00475f7f1a8bd9f0ebe9de2bdbdb03b56f746c2219beef3cbb6dc81",
+    "database/migrations/0041_bound_order_source_refresh_receipts.sql": "434baf3b4ea1158b60cc33808199a674ee08ae453ce48a73575f90a2d4c69d0c",
+    "database/migrations/0042_delivery_plan_request_receipts.sql": "2cdebf4c3cfeffe6ef26c0820ed4696c61b73a1cf67bb9dc68cfe2d1aa99125a",
+    "database/migrations/0043_garment_collection_commands.sql": "5ffc88aa76037dc7b0dff30742a220bc82048a3810cb17293dda20445cc59f43"
+  },
+  "sourceActivation": false,
+  "realSourceReads": 0,
+  "existingDatabaseWrites": 0,
+  "gitPushes": 0,
+  "hostedActions": 0,
+  "network": "NETWORK_DEGRADED; no Git fetch/retry",
+  "reviewer": "/root/server_convergence_review",
+  "preserved": [
+    "3001",
+    "50426",
+    "59069",
+    "62426",
+    "Browser stores",
+    "backups",
+    "existing volumes"
+  ],
+  "saved": [
+    {
+      "path": "docs/CURRENT_STATE.md",
+      "copy": "docs/tasks/completed/2026-10-24-garment-target-input-state/CURRENT_STATE.md",
+      "sha256": "84a9f4f6f3829a618d9f3846beae40bccf5e1c9cd3024607d07bbfa868c9176e",
+      "gitBlob": "cbcb5f0bba1e08b75e92ecd38dfdae762cf8c226"
+    },
+    {
+      "path": "docs/AI_HANDOFF.md",
+      "copy": "docs/tasks/completed/2026-10-24-garment-target-input-state/AI_HANDOFF.md",
+      "sha256": "98c8e0b72e8542e2e27a8b45ca424247b5cba2a32429689dfc874a18b2e0cdcb",
+      "gitBlob": "a21a57a87a0799102146c008e110c0b111c2b326"
+    },
+    {
+      "path": "docs/PROJECT_INDEX.md",
+      "copy": "docs/tasks/completed/2026-10-24-garment-target-input-state/PROJECT_INDEX.md",
+      "sha256": "e49cc4a2953a81659b2735b301ddcead2df14318251b5c1a2ecad9ccbc0ddbae",
+      "gitBlob": "79039d1047c7d196429668b3c97c0b06e2ed9002"
+    },
+    {
+      "copy": "docs/tasks/completed/2026-10-24-garment-target-input-state/final-checkpoint.json",
+      "sha256": "f660886db8b1e2243fd809ed1a9fb1e4789c32c5a1a3864d18b7908ed05e3dd5"
+    },
+    {
+      "copy": "docs/tasks/completed/2026-10-24-garment-target-input-state/final-review.json",
+      "sha256": "331831ab300404fa4a1cb935a9c41b0b0b6e5151173950861951d92753f911f4"
+    }
+  ]
+}

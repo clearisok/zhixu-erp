@@ -1,0 +1,22 @@
+{
+  "baselineSha": "9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf",
+  "level": "V1",
+  "paths": [
+    "app/production-scheduling/production-scheduling.css",
+    "features/operations-settings/components/server-production-reference-picker.tsx",
+    "features/production-scheduling/components/server-production-scheduling-page.tsx",
+    "features/production-scheduling/components/server-production-tracking-fields.tsx",
+    "features/production-scheduling/server/production-command.ts",
+    "features/production-scheduling/server/production-plan-client.ts",
+    "features/production-scheduling/server/production-plan-outbox.ts",
+    "features/production-scheduling/server/production-tracking-projection.ts"
+  ],
+  "pages": [
+    "navigation"
+  ],
+  "visibleDifference": "Restore approved D054/D147 existing order material-and-transport modal, preview and history on the existing Server planning page. Explicit hub/remark only, no defaults or quantity/price duplication. Reuse the same actor/request client, pending slot, layout ownership and current wide/small-screen modal patterns. Preserve planning/actual execution and capacity/owned-driver fixes. No new navigation, redesign, material-arrival facts, Source or deployment. New exact before/after follows current frozen builds.",
+  "evidence": [
+    "docs/tasks/active/server-order-logistics-dialog-current-2026-10-24.md",
+    "docs/tasks/completed/2026-10-24-order-logistics-dialog-current-engineering.md"
+  ]
+}

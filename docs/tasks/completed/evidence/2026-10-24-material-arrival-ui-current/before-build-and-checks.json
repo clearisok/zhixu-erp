@@ -1,0 +1,54 @@
+{
+  "renderedSourceSha": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+  "build": {
+    "environment": "production",
+    "buildId": "order-logistics-dialog-e2cf2bb4-server-20261024",
+    "gitCommit": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+    "buildTime": "2026-10-24T10:06:22.314Z",
+    "masterSettingsAuthority": "server",
+    "identityMode": "session",
+    "quoteWriterMode": "writable",
+    "quoteAuthority": "server",
+    "orderRead": "snapshot"
+  },
+  "before": true,
+  "metrics": [
+    {
+      "width": 1920,
+      "overflow": false,
+      "cards": 8,
+      "arrivalActions": 0
+    },
+    {
+      "width": 1536,
+      "overflow": false,
+      "cards": 8,
+      "arrivalActions": 0
+    },
+    {
+      "width": 1440,
+      "overflow": false,
+      "cards": 8,
+      "arrivalActions": 0
+    },
+    {
+      "width": 1280,
+      "overflow": false,
+      "cards": 8,
+      "arrivalActions": 0
+    },
+    {
+      "width": 900,
+      "overflow": false,
+      "cards": 8,
+      "arrivalActions": 0
+    },
+    {
+      "width": 390,
+      "overflow": false,
+      "cards": 8,
+      "arrivalActions": 0
+    }
+  ],
+  "errors": []
+}
