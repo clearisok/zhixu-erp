@@ -1,6 +1,6 @@
 # Server关账：浏览器契约与原请求协议
 
-2026-10-27，Gate8E1，D167。复用[Gate8B命令](SERVER_CLOSING_COMMANDS.md)、D162手工关账与既有价格快照，不另建价格、关账或日志系统。当前未接页面/真实session/provider/导航，不能称可体验。
+2026-10-27，Gate8E1/D167协议与Gate8E2/D168操作编排。复用[Gate8B命令](SERVER_CLOSING_COMMANDS.md)、D162手工关账与既有价格快照，不另建价格、关账或日志系统。当前未接页面/真实session/provider/导航，不能称可体验。
 
 ## 协议
 
@@ -16,7 +16,13 @@ preview绑定原规范意图、期间/归属版本和手工数量；receipt绑�
 
 zhixu.server.closing.pending.v1.<public-user-id>只在未来调用者提供的sessionStorage保存本actor/tab一条原规范ClosingCommand及schemaVersion/userId/savedAt。包含手工数量、期间税率、归属、用户原因与请求/hash，不含价格/CCT/成本/原响应、密码或token；用户自由文字按原意保留。131072字节上限、完整保存并读回、损坏/未来/非规范化原字节保留，不覆盖另一未决命令。
 
-低层client.submit不会读写sessionStorage；本阶段没有页面controller，不冒称浏览器已落实保存→POST顺序。调用者将来必须先save/readback再POST，刷新只恢复和GET核对，明确unknown后才能手动原ID/原body重试，精确当前owner终态才ack清本键。不同actor、Quote或旧Browser域不互相清理。关闭标签页可能丢缓存；Server事实/审计/回执持久，不是跨设备队列或离线账本。
+低层client.submit不会读写sessionStorage；D168通过无界面controller串联save/readback→POST→GET原回执→精确终态ack。尚未接真实页面，不能冒称实际浏览器已落实。刷新只恢复不自动请求；明确unknown且原字节精确存在，才可由用户显式原ID/原body重试。不同actor、期间或旧Browser域不互相清理。关闭标签页可能丢缓存；Server事实/审计/回执持久，不是跨设备队列或离线账本。
+
+## 原命令编排
+
+closing-controller.ts复用原九类命令、client/pending/parseClosingPreview/Receipt，不改Server业务。月份列表上下文只预览创建期间，详情上下文只预览本期间命令；当前actor另一期间的未决原请求可只读核对，不能新建命令绕过。编辑/确认/锁定/重开复用原closingActionPermission，手工归属的新渠道检查原金额权限；旧渠道及全期间并集仍由Server原子鉴权，前端不冒充授权权威。读权限撤回隐藏状态；只有写权限撤回仍可核对原回执。金额可见性变化立即撤掉旧价格预览，并阻止使用旧预览提交。
+
+每次真实会话/权限/期间代际须新owner对象，包括A→B→A；离开时dispose。串行操作、timeout/AbortSignal及晚响应lease保护原字节；onChange/onApplied/onUnauthorized前后复核owner，回调不能丢弃命令。提交一次后只GET核对，不因POST回应或HTTP异常直接清缓存。存储失败、损坏/未来原件、竞争slot或ack失败均阻断新写入。snapshot为分离副本，用户输入和渲染回调不能修改正在核对的原命令。navigationBlocked只作为待接线信号，不是已经安装离开提醒。
 
 ## 状态
 
@@ -24,6 +30,10 @@ zhixu.server.closing.pending.v1.<public-user-id>只在未来调用者提供的se
 
 关账[页面草图](../tasks/active/server-closing-ui-proposal-2026-10-27.md)已异步征询，尚无答复，等待不构成V2/V3批准；USD采用原UI问题保留。当前basis读取兼容最多1000当前颜色和1000历史残留行的联合诊断；稳定颜色歧义行只可只读阻断，不可变成可关账依据。1MiB及服务端原规则不放宽。
 
+Gate8E1最终7d6ce0e5ca5011fa693dcaea9e0b93c2642ce5f3精确守卫PASS、clean，527证据/68能力。Gate8E2当前WIP19单元＋8真实HTTP（含父项）及lint通过；固定源码后的质量检查、复审和新守卫见[当前编排阶段](../tasks/active/server-closing-controller-2026-10-27.md)，不将WIP当最终结果或重复挪用811/144。
+
 原Gate8B冻结文档及本机失败记录保留。无schema迁移、现有库/账号、真实Source/激活/调度、合并、部署、旧环境切换/退役。最后核实main869ee84dd0b31de6161011e4aa560678b244a64d沿用同日既有证据，本阶段未重复fetch/API；远端Git/ref STOP根因UNRESOLVED。
 
 V0精确登记三个协议helper，order-detail仅引用既有物理SO依据的保护范围。当前三个文件未被任何app/components页面调用；不表示新增order-detail调用链，也不表示关账页面已有基线、截图、导航或设计批准。未来真实关账UI须按具体批准补对应页面基线，不改guard迁就本阶段。
+
+D168新增controller亦单独V0登记同一保护范围；仍无app/components引用，不扩大为已批准页面或真实运行状态。

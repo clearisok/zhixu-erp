@@ -1,9 +1,9 @@
-# 当前状态：Gate8E1 Server关账浏览器契约
+# 当前状态：Gate8E2 Server关账原命令编排
 
-2026-10-27；分支codex/server-closing-browser-protocol-main-869e，阶段clean基点e5f4d2350e545628761bf6da7f41245f9d49b43c。main869ee84dd0b31de6161011e4aa560678b244a64d沿用同日已核实证据，未重复fetch/API。PR130旧61704afe22fe9fd0ea9f6625c6092fcbb9575dfc不代表本地新代码；Git/ref写STOP_AUTH_OR_DIVERGENCE根因UNRESOLVED。
+2026-10-27；branch codex/server-closing-controller-main-869e，clean父7d6ce0e5ca5011fa693dcaea9e0b93c2642ce5f3。main869ee84dd0b31de6161011e4aa560678b244a64d沿用同日已核实，未重复fetch/API。PR130旧61704afe22fe9fd0ea9f6625c6092fcbb9575dfc非新增本地代码；Git/ref写STOP_AUTH_OR_DIVERGENCE根因UNRESOLVED。
 
-D167复用原关账contract/read-query，绑定原回执hash与历史对象/ISO，提供白名单client和pending。D162/D163手工量/月份/税率、CNY成衣/USD经销工价/USD加工服务及冻结保护不变。[当前契约](features/SERVER_CLOSING_INTERFACE.md)、[阶段](tasks/active/server-closing-browser-protocol-2026-10-27.md)、[冻结工程](tasks/completed/2026-10-27-server-closing-interface-engineering.md)。
+前置Gate8E1最终7d6精确守卫PASS、clean，527证据/68能力；[冻结工程](tasks/completed/2026-10-27-server-closing-interface-engineering.md)/[收口](tasks/completed/2026-10-27-server-closing-interface-validation.md)保留。D168在原client/pending/九类Server命令上串联save/readback→POST→GET核对→精确ack，逐动作权限、金额预览失效、owner/超时/竞争原件保护；不改变D162/D163币种、手工关账、税率固定和冻结。
 
-精确S1 48a41fb6上82受影响、811项目、lint及前后端构建通过，类型三处失败保留。S2 45a5b087仅类型收窄和测试增量，38受影响、类型/lint/浏览器编译通过；不相加、不称S2重跑811/构建。独立复审0剩余P1/P2。本阶段未重跑144发布负控；最终完整HEAD/精确守卫结果以outputs/server-closing-browser-protocol-20261027/final.json为准，生成前不预报PASS；新PR交付前仍需必要完整检查。
+WIP19单元、8真实HTTP（含父项）及lint通过，精确新源码的类型/回归/浏览器编译、独立终审和新守卫后置，不预报PASS。[当前契约](features/SERVER_CLOSING_INTERFACE.md)、[阶段](tasks/active/server-closing-controller-2026-10-27.md)。父811/144不重复挪用；新PR交付前必要完整检查保留。
 
-没有controller/React/session-provider/导航接线。[关账UI草图](tasks/active/server-closing-ui-proposal-2026-10-27.md)及原USD采用UI具体答复均pending；无税率更正/自由价格/FX/新schema。0 Hosted、远端写、真实Source、现有账号/业务库、合并/部署/切换/退役。只用owned合成库，274旧ref及50/179/27 Docker标识保持（非内容审计），旧环境/卷/备份/Browser受保护。68项能力状态不变，完整Goal active。
+未接React/session-provider/导航/离开提醒；[关账草图](tasks/active/server-closing-ui-proposal-2026-10-27.md)及USD采用UI具体批准仍pending。不新增schema/价格/税率更正/FX，0Hosted/远端写/真实Source/既有账号业务库/合并/部署/切换/退役。只用owned合成PG，275旧ref及旧环境/卷/备份/Browser保护，能力状态不变，完整Goal active。

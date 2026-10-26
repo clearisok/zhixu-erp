@@ -23,6 +23,13 @@
 
 ## Active
 
+### D-168 Server关账原请求无界面编排
+
+- 日期：2026-10-27；Active engineering，实施D167原命令恢复，不改变D162/D163手工口径、税率/币种、金额来源和冻结规则。复用原client/pending、同一九类ClosingIntent和回执；不新增价格、税率更正、schema或日志系统。
+- 月份列表仅创建期间，详情仅操作本期间；另一期间未决可核对但不能换新命令绕过。编辑/确认/锁定/重开分别复用原动作权限，渠道并集仍由Server原子鉴权。写撤权可只读核对，读撤权隐藏；金额可见性变化撤掉旧预览，不新增隐式金额授权。
+- 完整保存读回后只POST一次，再GET原hash/CAS终态；unknown需显式确认且原slot完整，才原UUID/body重试。损坏/未来/竞争原件不覆盖，ack失败保留已核结果和原请求。串行、取消/超时、owner对象代际及回调复核保护晚响应和ABA；构造/刷新不发请求。
+- 当前仅renderless controller/state，未接真实session、React、导航或离开提醒。原关账及USD采用具体UI答复仍pending。新owned合成库验收和精确源码另记于[阶段](tasks/active/server-closing-controller-2026-10-27.md)，不凭WIP或父PASS声称新验收。Git/ref STOP根因UNRESOLVED，不授予真实Source、合并、部署、现有库操作或旧资产退役。
+
 ### D-167 Server关账浏览器契约与原命令回执绑定
 
 - 日期：2026-10-27；Active engineering，实施D162/D163，不改变手工数量/月份、CNY成衣/USD工价、快照冻结、税率创建后固定或权限。原contract去除间接Node依赖，同一parseClosingIntent/Command在Server与浏览器共用；Buffer等价Unicode检验保留BOM/未配对代理项语义。read-query规则原样抽出，不另建价格计算或Browser仓储。
