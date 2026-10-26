@@ -1,15 +1,11 @@
-# 当前状态：累计Server已完成本机隔离恢复验证
+# 当前状态：PR130已交付，正在修复旧货款侧栏测试调用者
 
-2026-10-26；当前main 869ee84dd0b31de6161011e4aa560678b244a64d已由本轮三个原生Git只读对照再次核实；源码分支codex/persistent-cumulative-43-main-869e。实际镜像source 6d27d1e7fa1079f1830511068ff070791df310ab，双父保留c5f994396203803218c5bb853e316cdf761e83ce / 38580ae2185cddedb175cdd8fde88fee2eb8443d；应用/API/SQL/UI仍为8cf667f26f191b0ca1d3b31b423dd293d7f2a5b6，新harness/ops仅按原f03合流。
+2026-10-26；main基准869ee84dd0b31de6161011e4aa560678b244a64d，branch codex/persistent-cumulative-43-main-869e。原最终f8ed7f33c911cc1ec52cf3b3d9432912ac5aa80f已一次NORMAL安全推送，独立API精确核SHA/tree/父，唯一草稿[PR130](https://github.com/clearisok/zhixu-erp/pull/130)，未合并；合并预览树与原已验树一致。历史网络STOP/根因未完全确定的限制保持，未改共享配置。
 
-本轮新镜像首次build 74723ms、实际43迁移持久化/独立恢复8/8、332416ms，零失败/取消/跳过/超时/溢出；2977归档/runner文件匹配且0 overlay。旧50容器/179卷/27网络所选元数据保持；不据此声称审计过旧业务内容。原main31迁移8/8保持历史，不替代本轮。
+首次CI baseline与team-access通过；source SQL/API、边界和构建通过，但货款侧栏浏览器旧“第一个按钮”选择器点中新增到货动作，连续超时后达20分钟上限取消，Python未运行。一次owned诊断已复现existing drawer超时；不是付款数据或权限故障。现在仅修测试调用者、依赖失败即停及编译源断言，不延长时限，不立即重跑CI；尚无修后PASS。
 
-原c1f8e861的144/144及c5f99439的exact-N守卫/复审已通过，按各自source复用，不称新运行。新Q/R仅冻结当前43迁移证明和503/66清单，原502及能力/UI记录不变；最终同HEAD守卫/复审按实际回执核对。
+原6d镜像43迁移实际8/8、原c1的144与f8守卫/复审分别按原source保持；后续不重新build/重跑已通过8项，不把其结果归新test commit。新定向检查/实际浏览器、最终守卫和复审完成后才一次集中交付。旧环境未改，工作区原状态已逐字归档。
 
-Git当前只读链路已恢复，未改代理/TLS/认证，历史根因仍未完全确定。新head真实交付须再次走正常预检并核实完整远端SHA，之后仅一次必要PR CI；不批量重跑旧CI、不自动merge。
+完整G1–G8/R继续，非空新增域恢复、稳定跨次成衣事件/更正、关账三项、真实Source具体授权/激活、目标人工接受与切换、依赖审计后退役仍有后续。不把当前候选称main或正式上线。3001/50426及全部旧账号、库、对象、卷、备份与Browser数据保持。
 
-完整G1–G8/R继续：G1隔离持久化已验证但未切换50426；G3导航已进main；其余订单/生产/物流/受控来源为工程候选，真实Source未激活。G7稳定跨次事件/更正、G8加工产值/已采用CNY工价/完成更正stale三项待决，以及目标人工接受、切换和依赖审计后退役仍待条件。3001/50426等旧入口、账号、库、卷、备份及Browser数据保持。
-
-[阶段](tasks/active/persistent-cumulative-43-2026-10-26.md)。
-
-实际终态：source 6d27d1e7fa1079f1830511068ff070791df310ab、image sha256:6a30bf2e192a27b090a9444244d4c918e09afc07f5f65df1d5ae672c4c1677be，单次build 74723ms；当前43迁移实际8/8通过，332416ms、无fail/skip/cancel/timeout/overflow，runner0 overlay。旧50/179/27所选元数据前后不变；新自有项目已按harness成功清理，未替换旧入口。[永久证明](tasks/completed/2026-10-26-persistent-cumulative-43-validation.md)冻结raw hash。原生Git三只读当前通过并核实main 869ee84dd0b31de6161011e4aa560678b244a64d，未改共享配置；push/PR/CI尚待最终head交付，不因只读成功宣称永久恢复。
+[当前阶段](tasks/active/payment-panel-ci-recovery-2026-10-26.md)。

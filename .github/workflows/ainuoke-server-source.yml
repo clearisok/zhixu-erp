@@ -101,6 +101,7 @@ jobs:
         env:
           GARMENT_SHIPMENTS_EXPECTED_SOURCE: ${{ github.sha }}
           DELIVERY_PLAN_EXPECTED_SOURCE: ${{ github.sha }}
+          PAYMENT_PANEL_EXPECTED_SOURCE: ${{ github.sha }}
         run: |
           node --test tests/server-navigation-history.test.mjs
           npx --no-install tsx --test server/integration/server-navigation-continuity.integration.test.mjs
