@@ -109,6 +109,19 @@ test('bulk frozen inputs retain exact Git bytes and reject unsafe or incomplete 
     const recordedAtSha = git(['rev-parse', 'HEAD']);
     assert.throws(() => readEvidenceBlobs(root, [{ recordedAtSha, path: 'large.bin' }]), /evidence_batch_limit/);
   });
+  await t.test('the unique payload budget accepts duplicate OIDs at 64MiB and rejects one extra object', () => {
+    const files = Array.from({ length: 4 }, (_, index) => `budget-${index}.bin`);
+    for (const [index, file] of files.entries()) writeFileSync(path.join(root, file), Buffer.alloc(16 * 1024 * 1024, index + 1));
+    copyFileSync(path.join(root, files[0]), path.join(root, 'budget-duplicate.bin'));
+    git(['add', '--', ...files, 'budget-duplicate.bin']); git(['commit', '-q', '-m', 'owned exact batch budget']);
+    const recordedAtSha = git(['rev-parse', 'HEAD']);
+    const records = [...files, 'budget-duplicate.bin'].map(file => ({ recordedAtSha, path: file }));
+    const loaded = readEvidenceBlobs(root, records);
+    assert.equal(loaded.size, 5);
+    for (const [index, file] of files.entries()) assert.equal(hash(loaded.get(`${recordedAtSha}:${file}`)), hash(Buffer.alloc(16 * 1024 * 1024, index + 1)));
+    assert.deepEqual(loaded.get(`${recordedAtSha}:budget-duplicate.bin`), loaded.get(`${recordedAtSha}:${files[0]}`));
+    assert.throws(() => readEvidenceBlobs(root, [...records, { recordedAtSha, path: 'same.bin' }]), /evidence_batch_limit/);
+  });
   await t.test('an empty batch does not require repository access', () => {
     assert.deepEqual(readEvidenceBlobs('not-an-owned-repository', []), new Map());
   });
