@@ -15,3 +15,9 @@
 NETWORK_DEGRADED及原Git STOP保留，普通PowerShell三种Git同样exit128/约5.35秒；不重复探测/推送，不改共享代理/TLS/认证，H0d70授权仍未消耗。本阶段Push/新PR/Hosted/真实Source/凭据/账号/现有业务库、卷或备份操作均0，不合并main、启用来源、调度、部署、切换或退役；3001/50426/59069/62426等既有环境和Browser数据保持。
 
 [阶段](tasks/active/ci-cost-main-869e-2026-10-26.md)、[前阶段](tasks/active/garment-controlled-main-869e-2026-10-26.md)、[输入归档](tasks/completed/2026-10-26-ci-cost-main-input-state/receipt.json)。
+
+## 2026-10-26实际超时恢复点
+
+2026-10-26T08:59:52.446Z，源码S 44103291bbe974069f3476ee81a39b787db3cdcc的唯一发布回归进程在901399ms触发15分钟上限（exit1、timedOut=true、overflow=false），未取得测试汇总，五项counts均未知；不能称134已通过或把未知补0。S/manifest前后稳定、工作树干净，三份YAML策略校验保持。原release-start.json/release.json/release.log完整保留；本轮Hosted/Push/Source/业务库均0。
+
+runCommand按Windows taskkill /T结束自有进程树；终态后只读进程清单无该测试Node残留（仅本次诊断shell匹配），不重启原会话。先做有界本地耗时定位，再决定必要修复；不直接循环重跑。QA证明Q/R尚未生成、最终守卫尚未执行，当前阶段为LOCAL_POLICY_PASS_RELEASE_PENDING_DIAGNOSIS，完整Goal active。
