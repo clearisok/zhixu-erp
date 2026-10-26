@@ -4791,6 +4791,14 @@
       "recordedAtSha": "dc7f8c07646535206277021ac658c120563ff209",
       "renderedSourceSha": "4dfcd44e03b2c6949fa9140aadd4d9b0471f2719",
       "sha256": "8e491fda6790a657dd72378906fbe5243ca7c030266d26dc78e46bda76d04f9d"
+    },
+    {
+      "id": "financial-nonempty-recovery-engineering-20261027",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-27-financial-recovery-engineering.md",
+      "recordedAtSha": "394e2ae4b671f9a51b40fa4e7d3039b811590e08",
+      "renderedSourceSha": "545fe97ad1eb14302c2d87ae3b975b9434414a2d",
+      "sha256": "7e1fa943d5fb3387ddeef43f8a89689c55a5fafb18b69f4801bb2acc22d11737"
     }
   ],
   "pages": [
