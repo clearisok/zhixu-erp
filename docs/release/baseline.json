@@ -2832,6 +2832,18 @@
       "sha256": "a803b2b2af0c1a88497b3c8f40c399ade0650efd7ee4a0f6b4500b22ab324f33",
       "changeReason": "New exact synthetic before/after observations for approved D147 Gate6C actual execution on the existing queue/completion/history UI. Preserve all prior PNG bytes/IDs. Six widths, DPR1.25 and default764 history top are described accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
       "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "decisions-production-execution-main-869e-20261026-merge",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "76a38a6f0d7af18d56c2246d6d411582edf7d16c",
+      "sha256": "284471f207dafc1c05cf9b9d65653a1f5ce1cc740b22cb90a4baab043300a22c",
+      "mergeOf": [
+        "decisions-navigation-pr125-convergence-20261024-forward-main-9d65-20261025",
+        "decisions-production-execution-current-20261024"
+      ],
+      "changeReason": "Freeze the real two-parent current-main plus independent G6C merge. Retain both original decision histories including D149/D150/D151 and every parent evidence object, without changing original hashes, approved rules or runtime claims."
     }
   ],
   "pages": [
