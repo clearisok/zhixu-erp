@@ -21,3 +21,5 @@ source checkpoint后canonical archive逐blob校验，复用现有依赖不安装
 证明由Q 8e6068b4894fd4d5417edc8ba02fc154f77a1f2d冻结；后续R只追加独立根至505证据/66能力，原504和全部UI/能力字段保持。最终守卫/复审另据实际回执。
 
 终审精度P2：e3读取pg_sequences后JSON.parse会舍入bigint元数据；原演练last_value为安全小整数/null，不冒称完整64位字段逐字证明。新增同一读取分支回归已先红（object非string），现只取消JSON.parse，原SQL/排序/调用位置/全表hash/恢复流程不变；后续新自有PG边界核验，原9项不重复。原proof“到仓60.25显式断言”需精确限定：直接断言计划100/完成20.25，到仓60.25是提交输入和POST/恢复回执一致比较；原冻结文档保留，将追加独立补充证明。
+
+精度修后终态：source 12477a1fa58f1cff0182974e0894671585a4824f，canonical2993/0overlay，直接序列分支和实际新PG 2/2、2841ms，先红回执保留。原e3 9/9继续按原source；60.25及旧sequence投影范围由[精确补充](../completed/2026-10-26-nonempty-domain-sequence-precision.md)前向澄清。旧50/179/27元数据再次changes=[]；不重复完整9项或CI。
