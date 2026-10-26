@@ -8,10 +8,13 @@ D162/D163手工口径保持：0045空新增七表、唯一月份、不可变商�
 
 当前只有Server后端候选，无关账UI/用户体验、USD新工价采用、税率更正、部署、切换或旧路径退役，完整G1–G8/R继续active。无真实Source/激活、Hosted CI或现有业务库操作；旧环境/Browser/备份/卷与110条旧分支保护保持。前阶段失败与证据不覆盖，不重跑无关已过检查。
 
-[阶段](tasks/active/server-closing-commands-2026-10-26.md)；[契约](features/SERVER_CLOSING.md)；[前恢复点](tasks/completed/2026-10-26-pre-closing-commands/AI_HANDOFF.md)。本机原件outputs/server-closing-commands-20261026。
+[阶段](tasks/active/server-closing-commands-2026-10-26.md)；[契约](features/SERVER_CLOSING_COMMANDS.md)；[前恢复点](tasks/completed/2026-10-26-pre-closing-commands/AI_HANDOFF.md)。本机原件outputs/server-closing-commands-20261026。
 
 
 2026-10-27续验：初次精确归档e85107cc6f663f74ede421a1e59e703e8dd2310b的811项目、Server构建、相关lint与7完整性测试通过；根类型发现关账历史测试的union缺少收窄，已加实际snapshot断言，应用代码不变。保留初次失败并只补根类型/该测试lint；发布守卫及终态待完成。
 
 
 2026-10-27：精确源码S2 1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df；初始S e85107cc6f663f74ede421a1e59e703e8dd2310b。106定向检查及811项目、Server构建、相关lint通过；初次根类型测试收窄失败保留并在3028blob/0overlay新归档补足，不重跑已过业务/项目项。独立静态复审0剩余P1/P2，待发布守卫/终态。[冻结工程证明](tasks/completed/2026-10-27-server-closing-commands-engineering.md)。
+
+
+证据终审P2：bcab两条无main根修订候选已永久退休，原对象与历史保留；旧根文档恢复，Gate8B改独立契约，D163合法接续。144/144只归原bcab；本机缺失raw与继承hash归属已永久澄清。新HEAD精确守卫及发布回归待验，不提前收口。

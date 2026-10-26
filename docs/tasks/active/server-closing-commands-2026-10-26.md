@@ -6,7 +6,10 @@ D162五项口径保持。0045空增量表、唯一月份、不可变手工归属
 
 定向15模型、14命令PG/HTTP、7并发/恢复及70原依据/归一回归通过。真实锁等待与非空恢复使用本轮新owned空库；全部旧数据库、容器卷、备份、浏览器与3001/50426/59069/62426保持。Server类型与相关lint通过；独立静态复审发现JSONB预算和ledger清单两项P2已修复，当前无剩余P1/P2；根canonical检查、精确源码冻结及最终证据复核继续，不提前报完整PASS。
 
-[契约](../../features/SERVER_CLOSING.md)；[D163](../../DECISION_LOG.md)；[前一阶段](server-closing-basis-2026-10-26.md)。本机原件`outputs/server-closing-commands-20261026`；前阶段旧失败与证据保留，既有检查不借为本次PASS。无新真实Source/激活、Hosted CI、合并、部署、正式数据操作、切换或退役。
+[契约](../../features/SERVER_CLOSING_COMMANDS.md)；[D163](../../DECISION_LOG.md)；[前一阶段](server-closing-basis-2026-10-26.md)。本机原件`outputs/server-closing-commands-20261026`；前阶段旧失败与证据保留，既有检查不借为本次PASS。无新真实Source/激活、Hosted CI、合并、部署、正式数据操作、切换或退役。
 
 
 2026-10-27：精确源码S2 1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df；初始S e85107cc6f663f74ede421a1e59e703e8dd2310b。106定向检查及811项目、Server构建、相关lint通过；初次根类型测试收窄失败保留并在3028blob/0overlay新归档补足，不重跑已过业务/项目项。独立静态复审0剩余P1/P2，待发布守卫/终态。[冻结工程证明](../completed/2026-10-27-server-closing-commands-engineering.md)。
+
+
+证据终审P2：bcab两条无main根修订候选已永久退休，原对象与历史保留；旧根文档恢复，Gate8B改独立契约，D163合法接续。144/144只归原bcab；本机缺失raw与继承hash归属已永久澄清。新HEAD精确守卫及发布回归待验，不提前收口。

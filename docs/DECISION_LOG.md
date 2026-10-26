@@ -25,6 +25,8 @@
 
 ### D-163 Server关账持久快照、渠道与原子命令
 
+2026-10-27接续：[Gate8B独立契约](features/SERVER_CLOSING_COMMANDS.md)为当前入口；原SERVER_CLOSING/BUSINESS_RULES中的Gate8A实现状态按原日期冻结保存，不表示当前仍无写入。两条无main根的未验证修订候选永久退休，原对象和bcab历史保留，规则与守卫不放宽，见[证据澄清](tasks/completed/2026-10-27-closing-command-evidence-reconciliation.md)。
+
 - 日期：2026-10-26；Active engineering，实施D-162已批准口径；不替代其业务公式、币种或手工确认。D162下文Gate8A“尚无写入”是原切片事实，当前本地Gate8B进展由本条及独立契约接续。
 - 一份归属一份手工数量，销售/工价/两项渠道显式选择；加工仅工价，单列服务产值。BigInt有理数精确计算，汇总后half-up显示6位；不自动换汇、不以累计生产分月、不回写报价/订单/排单。税率创建时显式确认，本切片固定；税率更正、USD新工价采用与UI后续，不能以SQL替代。
 - 0045只加七张空Server表，版本/身份不可变，head前进；精确商业、稳定颜色、原计划/执行版本与请求FK。既有实际采用价格为唯一金额来源，新建/修改预览采用当前版本；复核只更新reviewBasis，作废保留原快照。无跨期搬移命令、历史导入、seed或旧迁移改写。
