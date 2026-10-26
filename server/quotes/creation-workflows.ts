@@ -11,6 +11,8 @@ import { createServerQuoteDraft } from "./draft.js";
 import { createTrustedQuoteService, type QuoteMutationContext } from "./service.js";
 import type { ServerQuote } from "./model.js";
 import { creationId, parseCreationInput, type CreationCommand, type CreationInput, type CreationReceipt, type CreationResult } from "./creation-contract.js";
+import { lockEffectiveAttribution } from "../sales-orders/effective-attribution.js";
+import { readCreationOrderContext, saveCreationOrderContext, type CreationOrderContext, type CreationOrderSelection } from "./creation-order-context.js";
 
 type Parameters = ServerQuote["revisions"][number]["priceVersions"][number]["pricingParameters"];
 type Review = { versions: { brand: number | null; salesperson: number | null; preset: number | null; settings: number | null }; parameters: Parameters; names: { brand: string; salesperson: string }; defaults?: {laborDescription:string;otherCost:mastersDefaultOtherCost} };
@@ -26,19 +28,19 @@ async function transaction<T>(pool: Pool, readOnly: boolean, run: (client: PoolC
     const result = await run(client); await client.query("COMMIT"); return result;
   } catch (error) { await client.query("ROLLBACK"); throw error; } finally { client.release(); }
 }
-async function currentActor(client: PoolClient, actor: TrustedIdentity, identityMode: IdentityMode): Promise<TrustedIdentity> {
+async function currentActor(client: PoolClient, actor: TrustedIdentity, identityMode: IdentityMode, permission: "quote.create" | "quote.view" = "quote.create"): Promise<TrustedIdentity> {
   // A permission revocation / user deactivation cannot commit through this serialisation point.
   const user = (await client.query("SELECT active,public_id::text FROM app_users WHERE id=$1 FOR SHARE", [actor.internalUserId])).rows[0];
   if (!user?.active || user.public_id !== actor.userId) failure(401, "authentication_required");
   // The mode is bound by createApp's server-owned IdentityAuthority, never request data.
   // Its local compatibility actor has no role links by design. Still lock/check its FK row.
   if (identityMode === "local-single-user") {
-    requirePermission(actor.permissions, "quote.create");
+    requirePermission(actor.permissions, permission);
     return { ...actor, permissions: [...actor.permissions] };
   }
   await client.query("SELECT ur.user_id FROM app_user_roles ur JOIN app_role_permissions rp ON rp.role_id=ur.role_id WHERE ur.user_id=$1 FOR SHARE OF ur,rp", [actor.internalUserId]);
   const permissions = await permissionsForUser(client, actor.internalUserId);
-  requirePermission(permissions, "quote.create");
+  requirePermission(permissions, permission);
   return { ...actor, permissions };
 }
 function ensureOverrides(actor: TrustedIdentity, input: CreationInput) {
@@ -84,38 +86,88 @@ async function review(client: PoolClient, actor: TrustedIdentity, input: Creatio
 }
 export function createQuoteCreationService(pool: Pool, identityMode: IdentityMode = "session") {
   return {
+    async orderContext(actor: TrustedIdentity, orderId: string): Promise<CreationOrderContext> {
+      return transaction(pool, false, async client => {
+        await lockEffectiveAttribution(client);
+        const trusted = await currentActor(client, actor, identityMode);
+        requirePermission(trusted.permissions, "order.view");
+        return readCreationOrderContext(client, orderId);
+      });
+    },
+    async origin(actor: TrustedIdentity, quoteId: string): Promise<{ context: CreationOrderContext | null }> {
+      if (!quoteId || quoteId.length > 256) failure(400, "invalid_quote_id");
+      return transaction(pool, false, async client => {
+        const trusted = await currentActor(client, actor, identityMode, "quote.view");
+        if (!(await client.query("SELECT 1 FROM quote_center_quotes WHERE id=$1", [quoteId])).rowCount) failure(404, "quote_not_found");
+        const row = (await client.query("SELECT snapshot,snapshot_hash FROM quote_creation_order_contexts WHERE quote_id=$1", [quoteId])).rows[0];
+        if (!row) return { context: null };
+        requirePermission(trusted.permissions, "order.view");
+        return { context: { fingerprint: row.snapshot_hash, snapshot: row.snapshot } };
+      });
+    },
     /** Explicit user command only. Shares the existing receipt and Quote writer. */
-    async executeDefaults(actor: TrustedIdentity, clientRequestId: string, context: QuoteMutationContext = {}): Promise<{receipt: CreationReceipt; replayed: boolean}> {
+    async executeDefaults(actor: TrustedIdentity, clientRequestId: string, context: QuoteMutationContext = {}, orderSelection?: CreationOrderSelection): Promise<{receipt: CreationReceipt; replayed: boolean}> {
       requirePermission(actor.permissions, "quote.create"); creationId(clientRequestId);
-      const payloadHash = createHash("sha256").update("quote.create.defaults.v1").digest("hex");
-      await transaction(pool, false, async client => {
+      // Preserve the exact ordinary-creation hash; context is a distinct payload.
+      const payloadHash = createHash("sha256").update(orderSelection
+        ? JSON.stringify(["quote.create.order_context.v1", orderSelection.salesOrderId, orderSelection.fingerprint])
+        : "quote.create.defaults.v1").digest("hex");
+      const registrationRejection = await transaction(pool, false, async client => {
+        if (orderSelection) await lockEffectiveAttribution(client);
         await client.query("SELECT pg_advisory_xact_lock(hashtextextended($1,0))", [`quote-create:${actor.internalUserId}:${clientRequestId}`]);
         const trusted = await currentActor(client, actor, identityMode);
+        if (orderSelection) requirePermission(trusted.permissions, "order.view");
         const existing = (await client.query("SELECT payload_hash FROM quote_creation_receipts WHERE actor_id=$1 AND client_request_id=$2", [actor.internalUserId,clientRequestId])).rows[0];
         if (existing) { if (existing.payload_hash !== payloadHash) failure(409,"idempotency_payload_mismatch"); return; }
-        const settings = await masters.getGlobalSettings(client,true);
-        const input: CreationInput = { source:null,quoteType:settings?.defaultQuoteType??"distribution",
-          selection:{country:settings?.defaultManufacturingCountry??null,presetId:settings?.defaultManufacturingPresetId??null},
-          fields:{brandId:null,salespersonId:null,styleNo:"",styleName:"",quantity:null,garmentLeadDate:null,note:""},parameterOverrides:{} };
-        const reviewed = await review(client,trusted,input,true,true);
         const previewId=randomUUID();
-        await client.query("INSERT INTO quote_creation_previews(id,actor_id,payload_hash,reviewed,expires_at) VALUES($1,$2,$3,$4,$5)",[previewId,actor.internalUserId,payloadHash,{input,reviewed},new Date(Date.now()+10*60_000)]);
-        await client.query("INSERT INTO quote_creation_receipts(actor_id,client_request_id,preview_id,payload_hash,state) VALUES($1,$2,$3,$4,'pending')",[actor.internalUserId,clientRequestId,previewId,payloadHash]);
+        if (orderSelection) {
+          // Register before semantic source checks. A proven rejection must not
+          // become an absent/pending receipt that traps refresh recovery.
+          await client.query("INSERT INTO quote_creation_previews(id,actor_id,payload_hash,reviewed,expires_at) VALUES($1,$2,$3,$4,$5)", [previewId,actor.internalUserId,payloadHash,{orderContext:{selection:orderSelection}},new Date(Date.now()+10*60_000)]);
+          await client.query("INSERT INTO quote_creation_receipts(actor_id,client_request_id,preview_id,payload_hash,state) VALUES($1,$2,$3,$4,'pending')", [actor.internalUserId,clientRequestId,previewId,payloadHash]);
+        }
+        try {
+          const orderContext = orderSelection ? await readCreationOrderContext(client, orderSelection.salesOrderId) : null;
+          if (orderContext && orderContext.fingerprint !== orderSelection!.fingerprint) failure(409, "creation_order_context_changed");
+          const settings = await masters.getGlobalSettings(client,true);
+          const input: CreationInput = { source:null,quoteType:orderContext?.snapshot.quoteType??settings?.defaultQuoteType??"distribution",
+            selection:{country:settings?.defaultManufacturingCountry??null,presetId:settings?.defaultManufacturingPresetId??null},
+            fields:{brandId:null,salespersonId:null,styleNo:orderContext?.snapshot.fields.styleNo.trim()??"",styleName:"",quantity:orderContext?.snapshot.fields.quantity??null,garmentLeadDate:orderContext?.snapshot.fields.garmentLeadDate??null,note:""},parameterOverrides:{} };
+          const reviewed = await review(client,trusted,input,true,true);
+          if (orderContext) reviewed.parameters.configuration!.sources.find(item => item.field === "quoteType")!.source = "explicit";
+          if (orderSelection) await client.query("UPDATE quote_creation_previews SET reviewed=$2 WHERE id=$1", [previewId,{input,reviewed,orderContext}]);
+          else {
+            await client.query("INSERT INTO quote_creation_previews(id,actor_id,payload_hash,reviewed,expires_at) VALUES($1,$2,$3,$4,$5)", [previewId,actor.internalUserId,payloadHash,{input,reviewed},new Date(Date.now()+10*60_000)]);
+            await client.query("INSERT INTO quote_creation_receipts(actor_id,client_request_id,preview_id,payload_hash,state) VALUES($1,$2,$3,$4,'pending')", [actor.internalUserId,clientRequestId,previewId,payloadHash]);
+          }
+        } catch (error) {
+          if (!orderSelection || !(error instanceof HttpError) || ![400,404,409,410,422].includes(error.status)) throw error;
+          await client.query("UPDATE quote_creation_receipts SET state='rejected',error_code=$3 WHERE actor_id=$1 AND client_request_id=$2", [actor.internalUserId,clientRequestId,error.code]);
+          return error;
+        }
       });
+      if (registrationRejection) throw registrationRejection;
       try {
         return await transaction(pool,false,async client=>{
+          if (orderSelection) await lockEffectiveAttribution(client);
           const receipt=(await client.query("SELECT * FROM quote_creation_receipts WHERE actor_id=$1 AND client_request_id=$2 FOR UPDATE",[actor.internalUserId,clientRequestId])).rows[0];
           const trusted=await currentActor(client,actor,identityMode);
+          if (orderSelection) requirePermission(trusted.permissions, "order.view");
           if(receipt.payload_hash!==payloadHash) failure(409,"idempotency_payload_mismatch");
           if(receipt.state==="committed") return {replayed:true,receipt:{state:"committed" as const,result:receipt.result as CreationResult,retryable:false as const}};
           if(receipt.state==="rejected") failure(409,"creation_rejected");
           const preview=(await client.query("SELECT reviewed,expires_at FROM quote_creation_previews WHERE id=$1 AND actor_id=$2",[receipt.preview_id,actor.internalUserId])).rows[0];
           if(new Date(preview.expires_at).getTime()<=Date.now()) failure(409,"preview_expired");
           const input=parseCreationInput(preview.reviewed.input);
+          const orderContext: CreationOrderContext | null = orderSelection ? await readCreationOrderContext(client, orderSelection.salesOrderId) : null;
+          if (orderContext && (orderContext.fingerprint !== orderSelection!.fingerprint
+            || !isDeepStrictEqual(orderContext, preview.reviewed.orderContext))) failure(409, "creation_order_context_changed");
           let current: Review;
           try {current=await review(client,trusted,input,true,true);} catch(error){if(error instanceof HttpError&&error.status===400)failure(409,"stale_parameters");throw error;}
+          if (orderContext) current.parameters.configuration!.sources.find(item => item.field === "quoteType")!.source = "explicit";
           if(!isDeepStrictEqual(current,preview.reviewed.reviewed)) failure(409,"stale_parameters");
-          const record=await createTrustedQuoteService(pool).createPreparedDraftInTransaction(client,trusted,input,current.parameters,current.names,{...context,workflowAction:"quote.create.defaults"},current.defaults);
+          const record=await createTrustedQuoteService(pool).createPreparedDraftInTransaction(client,trusted,input,current.parameters,current.names,{...context,workflowAction:orderContext?"quote.create.order_context":"quote.create.defaults"},current.defaults);
+          if (orderContext) await saveCreationOrderContext(client, record.quote.id, trusted.internalUserId, clientRequestId, orderContext);
           const result={quoteId:record.quote.id,revisionId:record.quote.defaultRevisionId,priceVersionId:record.quote.revisions[0].priceVersions[0].id,version:record.version};
           await client.query("UPDATE quote_creation_receipts SET state='committed',result=$3 WHERE actor_id=$1 AND client_request_id=$2",[actor.internalUserId,clientRequestId,result]);
           return {replayed:false,receipt:{state:"committed" as const,result,retryable:false as const}};
@@ -154,9 +206,13 @@ export function createQuoteCreationService(pool: Pool, identityMode: IdentityMod
     },
     async receipt(actor: TrustedIdentity, requestId: string): Promise<CreationReceipt> {
       requirePermission(actor.permissions, "quote.create"); creationId(requestId);
-      const row = (await pool.query("SELECT state,result,error_code FROM quote_creation_receipts WHERE actor_id=$1 AND client_request_id=$2", [actor.internalUserId, requestId])).rows[0];
-      // Absence cannot prove that an in-flight request will not commit. Never authorise a new token/re-POST here.
-      return row ? { state: row.state, ...(row.result ? { result: row.result } : {}), ...(row.error_code ? { errorCode: row.error_code } : {}), retryable: false } : { state: "pending", retryable: false };
+      return transaction(pool, false, async client => {
+        const trusted = await currentActor(client, actor, identityMode);
+        const row = (await client.query("SELECT r.state,r.result,r.error_code,p.reviewed ? 'orderContext' AS has_order FROM quote_creation_receipts r JOIN quote_creation_previews p ON p.id=r.preview_id WHERE r.actor_id=$1 AND r.client_request_id=$2", [actor.internalUserId, requestId])).rows[0];
+        if (row?.has_order) requirePermission(trusted.permissions, "order.view");
+        // Absence cannot prove that an in-flight request will not commit. Never authorise a new token/re-POST here.
+        return row ? { state: row.state, ...(row.result ? { result: row.result } : {}), ...(row.error_code ? { errorCode: row.error_code } : {}), retryable: false } : { state: "pending", retryable: false };
+      });
     },
     async execute(actor: TrustedIdentity, command: CreationCommand, context: QuoteMutationContext = {}): Promise<{ receipt: CreationReceipt; replayed: boolean }> {
       requirePermission(actor.permissions, "quote.create");

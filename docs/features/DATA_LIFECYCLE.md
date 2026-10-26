@@ -4,6 +4,27 @@
 
 新系统使用独立 DB/volume/origin，从空业务数据开始；不读取旧备份执行导入，不自动同步艾诺科，不发现/接管已有 COS 对象。旧 Browser namespace/IndexedDB、旧库、备份及对象全部保留，无 clear/reset/换 key。本文后续历史导入资产分类与 Q5 freeze 是保留的历史兼容路径，不是当前上线前置条件；已发生 Q3 import 与验收不被否定。详见 `FRESH_START_FOUNDATION.md`。
 
+## Server 生产资料原请求（2026-10-24，D147 G6A）
+
+`zhixu.server.production-resource.pending.v1.<public-user-id>.<kind>` 仅sessionStorage临时保存
+该用户主动填写的资料原命令（schemaVersion/userId/kind/savedAt/command），含名称、启停、备注、
+联系人/电话、日期及关系ID/版本；不含密码、令牌、金额、Browser账本、来源凭据或返回快照。
+最多1MiB，完整写入并读回成功后才POST，不以内存假装可恢复。刷新只恢复核对，不自动POST；
+回执身份/类型/既有规范化SHA-256匹配后才删除本键，已知超界拒绝同样核对；未知/损坏/未来版本/
+摘要冲突不清理、不生成新ID。原ID重试须用户明确操作。会话切换不消费另一owner缓存。
+这是单标签页临时请求地址，关闭页可能丢失；服务端业务、审计及回执仍保留，不是跨设备同步、
+Browser备份或资料权威库。无localStorage/IndexedDB/Seed读写、换key、迁移或清库。
+
+## Server 排单原请求（2026-10-24，D147 G6B）
+
+`zhixu.server.production-plan.pending.v1.<public-user-id>` 只在sessionStorage保存本actor/tab的一条
+原requestId、精确intent、previewHash及schemaVersion/userId/savedAt。数量、日期、执行方ID、
+原因属于用户待核命令，不含报价价格、资源返回快照、密码或token。完整写入并读回成功后才POST。
+刷新/重新登录先GET核对，不自动POST；仅同会话同命令明确unknown后可手动原ID重试。
+已验证身份/hash的applied/rejected才释放；未知/损坏/未来版本/错摘要或ABA旧响应不清理。
+关闭标签页可能丢缓存，但Server计划/不可变历史/审计/回执仍持久存在；不是离线业务权威或跨设备恢复。
+无Browser账本namespace、IndexedDB、Seed、备份格式、迁移或clear变化。
+
 ## Server 准备请求恢复（D-130，2026-10-15）
 
 正式Server准备流程新增独立临时sessionStorage key：`zhixu.server.order-preparation.pending.v1.<publicUserUUID>.<orderUUID>.<create|adopt>`。它只保存未核实命令（请求ID、原参考或准备ID、数量/日期/变化、可选精确报价三ID或采用CAS/原因），不保存账号密码、token、CCT或价格。与Browser业务账本、schema v13、IndexedDB、Seed及备份格式无读写/迁移关系；不是离线Server订单或Browser回退。
@@ -150,3 +171,7 @@ manifest 记录 product、schemaVersion、environment、initializedAt 和 update
 - 大量附件会使 JSON 备份体积较大；未来对象存储阶段应升级为流式归档格式。
 
 2026-10-17 D-145 Server会话恢复：新增sessionStorage zhixu.server.order-price.pending.v1.<public-user-id>仅请求UUID、zhixu.server.processing-push.pending.v1.<public-user-id>仅请求UUID/Quote IDs；不存金额/原因/令牌，不读写Browser业务namespace/IndexedDB或Seed。原载荷仅当前组件内存保存。只显式重试原命令/核对服务端回执；已确认完成或明确受理前拒绝时删除本组件恢复标记。不同用户不能复用标记，切换授权范围重新加载投影。没有服务端记录且原内存稿已丢失时保持核对状态，不冒称未执行或自动重新下单。
+
+2026-10-24 G6C：原production-plan.pending.v1的key/schemaVersion/四字段包装保持，只前向扩展record_execution解析；旧计划原字节兼容，计划/执行共用未决槽。未知新命令在旧客户端明确阻断，不删除/覆盖；新客户端同lease/精确回执才清槽。仅sessionStorage技术请求，不触碰Browser业务namespace/Seed/IndexedDB，见SERVER_PRODUCTION_EXECUTION。
+
+2026-10-24 D147/G6D候选0037只增加空Server物流资料，复用0034回执并保留0034–0036及原四类payload/hash。共享hub/运输表单不改Browser Repository/key/schema/Seed或null政策；Server不读取或写入Browser账本。升级仅一次性PG演练，真实目标未升级，见[当前契约](SERVER_LOGISTICS_RESOURCES.md)。

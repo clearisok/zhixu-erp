@@ -1,0 +1,15 @@
+{
+  "build": {
+    "environment": "production",
+    "buildId": "execution-9c2f5bc5-server-20261024",
+    "gitCommit": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+    "buildTime": "2026-10-24T08:39:23.185Z",
+    "masterSettingsAuthority": "server",
+    "identityMode": "session",
+    "quoteWriterMode": "writable",
+    "quoteAuthority": "server",
+    "orderRead": "snapshot"
+  },
+  "geometry": [],
+  "errors": []
+}

@@ -1,0 +1,316 @@
+{
+  "build": {
+    "environment": "production",
+    "buildId": "logistics-resources-07d481af-server-20261024",
+    "gitCommit": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+    "buildTime": "2026-10-24T09:13:55.381Z",
+    "masterSettingsAuthority": "server",
+    "identityMode": "session",
+    "quoteWriterMode": "writable",
+    "quoteAuthority": "server",
+    "orderRead": "snapshot"
+  },
+  "geometry": [
+    {
+      "width": 1920,
+      "scroll": 1920,
+      "drawer": {
+        "x": 1360,
+        "y": 0,
+        "width": 560,
+        "height": 1000,
+        "top": 0,
+        "right": 1920,
+        "bottom": 1000,
+        "left": 1360
+      }
+    },
+    {
+      "width": 1536,
+      "scroll": 1536,
+      "drawer": {
+        "x": 976,
+        "y": 0,
+        "width": 560,
+        "height": 1000,
+        "top": 0,
+        "right": 1536,
+        "bottom": 1000,
+        "left": 976
+      }
+    },
+    {
+      "width": 1440,
+      "scroll": 1440,
+      "drawer": {
+        "x": 880,
+        "y": 0,
+        "width": 560,
+        "height": 1000,
+        "top": 0,
+        "right": 1440,
+        "bottom": 1000,
+        "left": 880
+      }
+    },
+    {
+      "width": 1280,
+      "scroll": 1280,
+      "drawer": {
+        "x": 720,
+        "y": 0,
+        "width": 560,
+        "height": 1000,
+        "top": 0,
+        "right": 1280,
+        "bottom": 1000,
+        "left": 720
+      }
+    },
+    {
+      "width": 900,
+      "scroll": 900,
+      "drawer": {
+        "x": 340,
+        "y": 0,
+        "width": 560,
+        "height": 1000,
+        "top": 0,
+        "right": 900,
+        "bottom": 1000,
+        "left": 340
+      }
+    },
+    {
+      "width": 390,
+      "scroll": 390,
+      "drawer": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 1000,
+        "top": 0,
+        "right": 390,
+        "bottom": 1000,
+        "left": 0
+      }
+    },
+    {
+      "page": "calendar",
+      "width": 1440,
+      "scroll": 1425,
+      "drawer": {
+        "x": 945,
+        "y": 0,
+        "width": 480,
+        "height": 1000,
+        "top": 0,
+        "right": 1425,
+        "bottom": 1000,
+        "left": 945
+      }
+    },
+    {
+      "page": "calendar",
+      "width": 390,
+      "scroll": 390,
+      "drawer": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 1000,
+        "top": 0,
+        "right": 390,
+        "bottom": 1000,
+        "left": 0
+      }
+    },
+    {
+      "page": "transport-plan",
+      "width": 1920,
+      "scroll": 1905,
+      "drawer": {
+        "x": 1145,
+        "y": 0,
+        "width": 760,
+        "height": 1000,
+        "top": 0,
+        "right": 1905,
+        "bottom": 1000,
+        "left": 1145
+      },
+      "overflow": []
+    },
+    {
+      "page": "hub",
+      "width": 1920,
+      "scroll": 1905,
+      "drawer": {
+        "x": 1145,
+        "y": 0,
+        "width": 760,
+        "height": 1000,
+        "top": 0,
+        "right": 1905,
+        "bottom": 1000,
+        "left": 1145
+      }
+    },
+    {
+      "page": "transport-plan",
+      "width": 1536,
+      "scroll": 1521,
+      "drawer": {
+        "x": 761,
+        "y": 0,
+        "width": 760,
+        "height": 1000,
+        "top": 0,
+        "right": 1521,
+        "bottom": 1000,
+        "left": 761
+      },
+      "overflow": []
+    },
+    {
+      "page": "hub",
+      "width": 1536,
+      "scroll": 1521,
+      "drawer": {
+        "x": 761,
+        "y": 0,
+        "width": 760,
+        "height": 1000,
+        "top": 0,
+        "right": 1521,
+        "bottom": 1000,
+        "left": 761
+      }
+    },
+    {
+      "page": "transport-plan",
+      "width": 1440,
+      "scroll": 1425,
+      "drawer": {
+        "x": 665,
+        "y": 0,
+        "width": 760,
+        "height": 1000,
+        "top": 0,
+        "right": 1425,
+        "bottom": 1000,
+        "left": 665
+      },
+      "overflow": []
+    },
+    {
+      "page": "hub",
+      "width": 1440,
+      "scroll": 1425,
+      "drawer": {
+        "x": 665,
+        "y": 0,
+        "width": 760,
+        "height": 1000,
+        "top": 0,
+        "right": 1425,
+        "bottom": 1000,
+        "left": 665
+      }
+    },
+    {
+      "page": "transport-plan",
+      "width": 1280,
+      "scroll": 1265,
+      "drawer": {
+        "x": 505,
+        "y": 0,
+        "width": 760,
+        "height": 1000,
+        "top": 0,
+        "right": 1265,
+        "bottom": 1000,
+        "left": 505
+      },
+      "overflow": []
+    },
+    {
+      "page": "hub",
+      "width": 1280,
+      "scroll": 1265,
+      "drawer": {
+        "x": 505,
+        "y": 0,
+        "width": 760,
+        "height": 1000,
+        "top": 0,
+        "right": 1265,
+        "bottom": 1000,
+        "left": 505
+      }
+    },
+    {
+      "page": "transport-plan",
+      "width": 900,
+      "scroll": 885,
+      "drawer": {
+        "x": 125,
+        "y": 0,
+        "width": 760,
+        "height": 1000,
+        "top": 0,
+        "right": 885,
+        "bottom": 1000,
+        "left": 125
+      },
+      "overflow": []
+    },
+    {
+      "page": "hub",
+      "width": 900,
+      "scroll": 885,
+      "drawer": {
+        "x": 125,
+        "y": 0,
+        "width": 760,
+        "height": 1000,
+        "top": 0,
+        "right": 885,
+        "bottom": 1000,
+        "left": 125
+      }
+    },
+    {
+      "page": "transport-plan",
+      "width": 390,
+      "scroll": 390,
+      "drawer": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 1000,
+        "top": 0,
+        "right": 390,
+        "bottom": 1000,
+        "left": 0
+      },
+      "overflow": []
+    },
+    {
+      "page": "hub",
+      "width": 390,
+      "scroll": 390,
+      "drawer": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 1000,
+        "top": 0,
+        "right": 390,
+        "bottom": 1000,
+        "left": 0
+      }
+    }
+  ],
+  "errors": []
+}

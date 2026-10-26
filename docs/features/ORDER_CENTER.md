@@ -4,6 +4,16 @@
 
 # 新订单中心
 
+## 2026-10-24 Server保存来源展示（Gate4B本地前向候选）
+
+既有详情在原分码未接线提示处新增默认折叠“查看颜色尺码”，只读已保存的6087105槽位证据，
+区分未知、待确认0、明确0及原matrix异常；不自动合计。原颜色/价格表不变。
+“来源与技术详情”展开后才GET织序交付计划，保留自有计划的精度、空日期、作废历史及与合同的独立对照。
+回复绑定当前订单和登录会话；迟到旧成功/401不覆盖新身份。加工没有伪艾诺科对照；没有计划编辑或来源刷新。
+6ef当前双构建/产物、after9与原P6/来源20已隔离PASS；新冻结证明6d53，未获新人工接受或部署。
+新构建/浏览器/人工接受维度分别记录于[当前任务](../tasks/active/order-source-disclosure-current-2026-10-24.md)，
+下面旧PR阶段叙述仍按原日期保留，不能当当前Server价格或来源规则。
+
 ## PR93 联合整合 — 2026-10-12 / PR92 Draft
 
 基于 main 070d958 普通 merge，原正式列表/P6结构保持；executionOnly 严格不发 CCT GET/PATCH、不挂载商业卡片/编辑器。非执行模式解析 commercial-terms-read.v1，sale/labor 各自 view+edit 才挂载对应输入并提交部分 PATCH，缺失字段不清空。单一请求 epoch 加订单/身份/权限/模式 scope，清理旧状态及草稿并忽略过期回应；按 scope 重新挂载物料摘要。实际合成 session/HTTP及私有 Chromium 已覆盖撤权、可控延迟和A→B→A，不接真实 Source或扩大普通角色权限。[本轮完整报告](../tasks/active/order-material-pr93-integration.md) / [原 UI 联合截图与computed styles](../tasks/active/evidence/order-material-pr93-integration/README.md)。

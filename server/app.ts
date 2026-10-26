@@ -50,6 +50,7 @@ import { QuoteConflictError, QuoteInvariantError } from "./quotes/model.js";
 import { createTrustedQuoteService } from "./quotes/service.js";
 import { createQuoteCreationService } from "./quotes/creation-workflows.js";
 import { creationId, parseCreationInput, parseCreationCommand } from "./quotes/creation-contract.js";
+import { parseCreationOrderSelection } from "./quotes/creation-order-context.js";
 import { parseQuoteVersionCommand } from "./quotes/version-workflows.js";
 import { parseQuoteConfirmationCommand } from "./quotes/confirmation-workflows.js";
 import { createCustomerExportService, parseCustomerExport } from "./quotes/customer-export.js";
@@ -62,6 +63,8 @@ import { serveStatic } from "./static-files.js";
 import { routeMaterialProgressSettings } from "./material-progress-settings/routes.js";
 import { routeTeamAccess } from "./auth/team-access-routes.js";
 import { routeManagedRoles } from "./auth/managed-role-routes.js";
+import { routeProductionResources } from "./production-resources/routes.js";
+import { routeProductionScheduling } from "./production-scheduling/routes.js";
 import type { PaymentSnapshotReader } from './ainuoke-source/payment-request-store.js';
 
 export type ServerLogger = {
@@ -233,7 +236,7 @@ function quoteBody(body: Record<string, unknown>): { quote: import("./quotes/quo
   if (!body.quote || typeof body.quote !== "object" || Array.isArray(body.quote)) {
     throw new HttpError(400, "invalid_quote_request", "quote must be an object");
   }
-  const authorityKeys = new Set(["actor", "actorUserId", "internalUserId", "userId", "role", "permissions", "estimateVisibility", "costVisibility"]);
+  const authorityKeys = new Set(["actor", "actorUserId", "internalUserId", "userId", "role", "permissions", "estimateVisibility", "costVisibility", "creationOrderContext", "creationOrigin", "orderContext"]);
   const containsAuthorityField = (value: unknown): boolean => {
     if (Array.isArray(value)) return value.some(containsAuthorityField);
     if (!value || typeof value !== "object") return false;
@@ -357,19 +360,26 @@ async function route(
   if (await routeTeamAccess(request, response, dependencies)) return;
   if (await routeManagedRoles(request, response, dependencies)) return;
   if (await routeMaterialProgressSettings(request, response, dependencies)) return;
+  if (await routeProductionResources(request, response, dependencies)) return;
+  if (await routeProductionScheduling(request, response, dependencies)) return;
   const creationReceipt = /^\/api\/v1\/quotes\/creation-receipts\/([^/]+)$/.exec(path);
-  if ((request.method === "GET" && (path === "/api/v1/quotes/creation-options" || creationReceipt))
+  const creationOrder = /^\/api\/v1\/quotes\/creation-order-context\/([^/]+)$/.exec(path);
+  const creationOrigin = /^\/api\/v1\/quotes\/([^/]+)\/creation-origin$/.exec(path);
+  if ((request.method === "GET" && (path === "/api/v1/quotes/creation-options" || creationReceipt || creationOrder || creationOrigin))
     || (request.method === "POST" && ["/api/v1/quotes/creation-preview", "/api/v1/quotes/creation-workflows", "/api/v1/quotes/creation-defaults"].includes(path))) {
     if (request.method === "POST") assertMutationBoundary(request, dependencies.allowedOrigins);
     const identity = await dependencies.identityAuthority.resolve(request);
     if (!identity) throw new HttpError(401, "authentication_required", "Authentication is required");
     const creation = createQuoteCreationService(dependencies.pool, dependencies.identityAuthority.mode);
     if (creationReceipt) sendJson(response, 200, await creation.receipt(identity, creationId(creationReceipt[1])));
+    else if (creationOrder) sendJson(response, 200, await creation.orderContext(identity, creationId(creationOrder[1])));
+    else if (creationOrigin) sendJson(response, 200, await creation.origin(identity, decodeURIComponent(creationOrigin[1])));
     else if (path === "/api/v1/quotes/creation-defaults") {
       const body = await readJsonBody(request, 1024);
-      if(Object.keys(body).length!==1 || !("clientRequestId" in body)) throw new HttpError(400,"invalid_creation_input","Only clientRequestId is accepted");
+      if(Object.keys(body).some(key => !["clientRequestId", "orderContext"].includes(key)) || !("clientRequestId" in body)) throw new HttpError(400,"invalid_creation_input","Invalid creation command");
       const id=creationId(body.clientRequestId);
-      const result=await creation.executeDefaults(identity,id,{requestId:correlationId,method:request.method,path});
+      const orderContext = Object.hasOwn(body, "orderContext") ? parseCreationOrderSelection(body.orderContext) : undefined;
+      const result=await creation.executeDefaults(identity,id,{requestId:correlationId,method:request.method,path},orderContext);
       sendJson(response,result.replayed?200:201,{receiptId:id,...result.receipt});
     }
     else if (request.method === "GET") {

@@ -112,6 +112,7 @@ function AppShellFrame({ title, children, onRequestNavigation, onRequestLogout, 
   const formalSystemRoutes = [
     {label:"进度设置",href:"/system-settings/progress-settings"},
     {label:"报价设置",href:"/system-settings/quote-settings"},
+    {label:"生产与运输",href:"/system-settings/production-infrastructure"},
     {label:"角色权限",href:"/system-settings/roles"},
     {label:"用户管理",href:"/system-settings/users"},
     {label:"操作日志",href:"/system-settings/operation-logs"},
@@ -176,7 +177,8 @@ function AppShellFrame({ title, children, onRequestNavigation, onRequestLogout, 
     { label: "订单中心", symbol: "▣", href: "/order-center", active: pathname.startsWith("/order-center") || pathname.startsWith("/ainuoke-sync") },
     { label: "生产排单", symbol: "▦", href: "/production-scheduling", active: pathname.startsWith("/production-scheduling") },
     { label: "关账中心", symbol: "结", href: "/closing-center", active: pathname.startsWith("/closing-center") },
-  ].filter((route) => !freshServer || route.href === "/quote-center" || route.href === "/order-center" && isEnabledServerRoute(route.href));
+  ].filter((route) => !freshServer || route.href === "/quote-center" || route.href === "/order-center" && isEnabledServerRoute(route.href)
+    || route.href === "/production-scheduling" && isEnabledServerRoute(route.href) && serverSession.hasPermission("order.view") && serverSession.hasPermission("schedule.view"));
 
   const basicMenuItems = <>
     {visibleBasicRoutes.map((item) => <button key={item.href} type="button" role="menuitem" className={pathname === item.href ? "active" : ""} onClick={() => navigate(item.href)}>{item.label}</button>)}

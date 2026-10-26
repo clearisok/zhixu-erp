@@ -1,0 +1,14 @@
+{
+  "build": {
+    "environment": "production",
+    "buildId": "saved-sources-6ef9e374-server-canonical-20261024",
+    "gitCommit": "6ef9e37493127661a9d805979660378f6340ad5f",
+    "buildTime": "2026-10-24T05:40:06.885Z",
+    "masterSettingsAuthority": "server",
+    "identityMode": "session",
+    "quoteWriterMode": "writable",
+    "quoteAuthority": "server",
+    "orderRead": "snapshot"
+  },
+  "metrics": []
+}
