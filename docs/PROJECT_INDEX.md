@@ -1,9 +1,5 @@
-# Project recovery index
+# 当前任务入口
 
-2026-10-25 Asia/Shanghai; actual main 9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf. Read AGENTS, [current state](CURRENT_STATE.md), [handoff](AI_HANDOFF.md) and[current navigation delivery](tasks/active/navigation-pr-main-9d65-2026-10-25.md) before continuing. This PR contains only the original navigation input plus its three Quote acceptance drivers.
+2026-10-26；main 869ee84dd0b31de6161011e4aa560678b244a64d于2026-10-26T03:01:20.985Z独立API核实。branch codex/main-persistent-rehearsal-869e从该main干净建立，普通合流已审harness分支fbfecb5753138406404df0307e7c15318cebd73e并保留原历史。镜像仅从精确main canonical archive构建，测试runner第二副本仅覆盖原已审harness；未合并的H/4B/G5/资源/计划/执行/物流/出货代码不进入本镜像。 先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[main隔离演练](tasks/active/main-persistent-rehearsal-869e-2026-10-26.md)。
 
-The complete prior project/module/source/recovery index and historical evidence are preserved byte-for-byte in[input PROJECT_INDEX](tasks/completed/2026-10-25-navigation-pr-input-state/PROJECT_INDEX.md). Product facts still come from code, BUSINESS_RULES and Active decisions. Relevant current contracts: [UI Foundation](features/UI_FOUNDATION.md), [release guard](features/RELEASE_BASELINE_GUARD.md), [D-148](DECISION_LOG.md), [original navigation forward QA](tasks/active/server-navigation-main-forward-2026-10-24.md), [Quote acceptance](tasks/active/quote-server-current-acceptance-2026-10-24.md).
-
-Later cumulative target-control work remains on codex/server-garment-target-current at d4060b60a52db766c548b20a5974b43a224784a8; its protected state/receipts are outside this narrow PR. No reset, migration, dependency install, real-data operation or automatic merge/deployment follows from navigation delivery. Full Goal remains active.
-
-[Navigation engineering proof](tasks/completed/2026-10-25-navigation-main-9d65-engineering.md): original0698 named guard and134PASS; rejected6c evidence-root revision preserved, corrected as an independent proof with old240/main230/input237 intact. Final corrected guard/review and delivery/PR CI remain pending. The original integration task is frozen history; current state/handoff owns recovery status.
+业务与运维：[规则](BUSINESS_RULES.md)、[Active决定](DECISION_LOG.md)、[Server持久化](features/SERVER_PERSISTENCE.md)、[数据保护](features/DATA_LIFECYCLE.md)、[运维说明](../ops/quote-trial/README.md)、[发布守卫](features/RELEASE_BASELINE_GUARD.md)。原[M演练](tasks/active/main-persistent-rehearsal-2026-10-25.md)保持原事实。当前未合并业务工程按保护ref恢复，不从此候选镜像推定交付；完整G1–G8/R不缩减。
