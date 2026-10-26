@@ -4719,6 +4719,24 @@
       "recordedAtSha": "faa39dee4388d3eba9378a30d7ce925b8231bcec",
       "renderedSourceSha": "7afc5bb3a38784bd44dc539dbf1104143ae49fb2",
       "sha256": "bc19e8368b76eb8c0b9e10d5003a9dff63da7dbedaac9d05114b4cb2d1ab1370"
+    },
+    {
+      "id": "usd-labor-client-d165-decision-log-20261027",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "e56d898286cfd917d9624d9794539727703fc3d7",
+      "renderedSourceSha": "60c2a6a2848978af1bb9ebe72184de97f4b14450",
+      "sha256": "3373ecac540a87dd96537c7f54284e7bc9a0670829f2b5a2f16be063be50cfb0",
+      "supersedes": "usd-labor-d164-decision_log-20261027",
+      "changeReason": "D165 adds narrow work query and original-command protocol; preserve D162/D164 prices, scopes, history and pending UI approval"
+    },
+    {
+      "id": "usd-labor-client-d165-engineering-20261027",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-27-order-usd-labor-interface-engineering.md",
+      "recordedAtSha": "e56d898286cfd917d9624d9794539727703fc3d7",
+      "renderedSourceSha": "60c2a6a2848978af1bb9ebe72184de97f4b14450",
+      "sha256": "e0e9ba21bd4fdeab7515250f6b2a2fbf9d381c4946c554c82132c08bb56be288"
     }
   ],
   "pages": [
