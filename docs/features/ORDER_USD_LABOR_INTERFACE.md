@@ -27,7 +27,7 @@
 
 ## 当前状态与界面边界
 
-客户端、数据库/HTTP及类型/lint/构建的实际归属以[阶段记录](../tasks/active/order-usd-labor-interface-2026-10-27.md)和后续精确验收为准，不预报最终结果。已保存初次真实HTTP解析失败原件；它揭示operationId实际为operation-UUID，修复不改变服务端流水。
+精确S 60c2a6a2848978af1bb9ebe72184de97f4b14450的41项受影响检查、811项目、类型/lint/前后端构建及项目Vite浏览器bundle通过，静态终审0P1/P2；[冻结工程](../tasks/completed/2026-10-27-order-usd-labor-interface-engineering.md)保留初次38/36/2、附加构建器误选失败与精确分源。不是新UI交互验收；最终发布检查另记录。[阶段记录](../tasks/active/order-usd-labor-interface-2026-10-27.md)。
 
 报价详情“关联订单”三步USD采用页签的具体交互确认仍pending，不能将已批准后端规则或等待时间冒称V2界面批准。因此本切片无DOM、CSS、导航入口或新UI像素/人工接受声明。后续界面和Server关账/税率更正继续独立推进。
 

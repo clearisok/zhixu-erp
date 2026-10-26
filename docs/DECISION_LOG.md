@@ -29,7 +29,7 @@
 - 新查询仅按当前采用Quote列物理订单，含加工；稳定颜色与原消费依据，20条分页、字面搜索、fresh工价读取授权、1MiB投影。候选与写入共用CCT包括null优先的USD解析；候选不能替代可信后继/产品/CAS预览，也不代替用户确认产品未变化。
 - 回执绑定原订单及完整命令摘要；history以actor/request区分合法同UUID，发生时姓名只读匹配的不可变审计，缺失不借当前姓名补造。客户端协议不做枚举强转，坏响应/错owner/未知提交保留原命令且无自动重发。
 - sessionStorage仅存每actor/tab的原身份/意图/hash及用户原因，完整读回才允许POST，不保存价格/CCT快照或凭据；损坏/未来版本不覆盖，无Browser账本/Seed/IndexedDB迁移或清理。见[配套契约](features/ORDER_USD_LABOR_INTERFACE.md)。
-- 具体V2采用页签仍待本轮三步交互答复；本切片没有DOM/CSS/导航变化。工程、独立终审和发布门禁按[阶段](tasks/active/order-usd-labor-interface-2026-10-27.md)记录，不预报通过，不等同远端、部署、来源激活或完整Goal完成。
+- 具体V2采用页签仍待本轮三步交互答复；本切片没有DOM/CSS/导航变化。精确S60c2a6a2848978af1bb9ebe72184de97f4b14450的41项受影响/811项目、类型/lint/构建与Vite浏览器编译通过，独立静态复审0P1/P2，见[冻结工程](tasks/completed/2026-10-27-order-usd-labor-interface-engineering.md)。发布门禁及远端另记，不等同部署、来源激活或完整Goal完成。
 
 ### D-164 明确采用 USD 工价复用原商业版本与可信报价确认
 
