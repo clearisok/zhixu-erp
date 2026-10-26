@@ -19,3 +19,5 @@
 [两输入旧状态原文](../completed/2026-10-26-persistent-cumulative-43-input-state/receipt.json)。
 
 实际终态：source 6d27d1e7fa1079f1830511068ff070791df310ab、image sha256:6a30bf2e192a27b090a9444244d4c918e09afc07f5f65df1d5ae672c4c1677be，单次build 74723ms；当前43迁移实际8/8通过，332416ms、无fail/skip/cancel/timeout/overflow，runner0 overlay。旧50/179/27所选元数据前后不变；新自有项目已按harness成功清理，未替换旧入口。[永久证明](../completed/2026-10-26-persistent-cumulative-43-validation.md)冻结raw hash。原生Git三只读当前通过并核实main 869ee84dd0b31de6161011e4aa560678b244a64d，未改共享配置；push/PR/CI尚待最终head交付，不因只读成功宣称永久恢复。
+
+证明由真实Q 1a2a5fa7d699509bd4a81d087d8c07edf296f6e8冻结，R只追加独立根至503证据/66能力；原502和其余manifest/UI字段不变。最终同HEAD守卫/复审以实际回执核定。
