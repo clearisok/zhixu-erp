@@ -5,6 +5,32 @@
 
 # SalesOrder PostgreSQL Persistence Foundation
 
+## 当前已绑定合同明确离线刷新（2026-10-24，D083/D100/D147）
+
+`bound-order-refresh.ts`只消费已完整采集的正式Discovery/6087105 bundle。先只读预览、后原actor/request UUID与精确hash明确提交；profile/账号、数据库连接目标指纹、可信合同/link、有效归属、全部物理SO、原owner/current镜像/颜色和DeliveryPlan集合进入预览。scope不以款号或InsideOrderNo决定，不创建SO。
+
+缺失/非法/空颜色拒绝替换，不删除旧切片。当前来源数量/日期更新保留人工计划、稳定颜色身份、独立商业版本和实际执行历史；新增/改名颜色不继承旧价。历史来源只写原owner，已证明绑定只UPDATE inside_order_no，不尝试UPSERT或搬绑定；0018继续保护alias和有效root人工计划。原内部wrapper复用同一事务helper，不公开HTTP writer。
+
+0041只新增空的不可变成功回执。原actor/request锁、精确payload和DB目标指纹防重；原回执经fresh权限后先于当前CAS/时效核对，不重写镜像；unknown不证明未提交。mirror/集合版本/回执与关联OperationLog同事务，不写原始bundle/价格到公开回执。两个物理/有效SO引用进入原归一盘点，不恢复公开归一写入口。
+
+`source:ainuoke:bound-refresh`是私密离线plan/apply/receipt工具，job/evidence绝对受保护忽略路径及精确SHA；apply另需明确execute、请求UUID和预览hash。启动核clean精确源码、verify-only迁移；无Source HTTP/凭据loader/自动采集/绑定/调度/部署。只合成一次性PG验收，真实执行须具体目标授权。当前[本轮证明](../tasks/completed/2026-10-24-bound-refresh-current-engineering.md)记录精确source隔离验收；旧81a结果不作本轮PASS。
+
+升级夹具已有合同/来源非空，但不含已发布0040出货快照；不能称该数据恢复已覆盖。原丢回复覆盖重放及提交后私密报告落盘失败，不等于数据库COMMIT确认丢失模拟。
+
+## 2026-10-24 G5创建报价参考（本地候选）
+
+可信合同SO可为新经销报价提供一次不可变创建参考，0033只保存quote/actor/request/原SO及当时上下文，
+不是订单商业采用或第二套价格。创建不更新SO/Source/执行流水；后续Quote或Source变化不覆盖参考。
+新增外键纳入现有历史引用指纹/升级前可选检查，未恢复公开归一操作。现有默认创建、合同/加工身份、
+颜色价格与交付计划读取保持；实际验收见[G5当前任务](../tasks/active/order-context-quote-current-2026-10-24.md)。
+
+## 2026-10-24 Gate4A 保存来源读取链（本地前向候选）
+
+订单颜色/尺码只投影可信保存证据，DeliveryPlan来源比较同时验证来源link的ID与合同号。
+多个历史link不复制订单结果；无匹配来源不拿mirror冒充可信比较，自有计划及价格保持。
+新增GET客户端与DTO不开放计划编辑、不改变schema、实际来源或商业采用；
+证据及当前验收见[前移任务](../tasks/active/order-source-readchain-current-2026-10-24.md)。
+
 ## PR93 integration verification — 2026-10-12
 
 Ordinary main merge 070d958 preserves both optional Material GET and the commercial-terms-read.v1 CCT projection/partial PATCH. New Material HTTP negative audit reuses the shared synthetic security fixture and covers 401, viewer/cost/sale/labor/full read grants, no-store, read-only write rejection, immediate session revocation and default unconfigured Material503. CCT null/zero, exact provenance, linked/unlinked currencies, CAS and trustworthy audit/transaction behavior remain intact. No migration, roles policy change, live Source or production activation occurred. [Joint verification and current counts](../tasks/active/order-material-pr93-integration.md).
@@ -252,3 +278,5 @@ The server read model now exposes aggregate/current mirror facts plus list-only 
 This does not make the full Browser `SalesOrder` type a server DTO. PO, customer/brand IDs, salesperson/merchandiser, business delivery, quantity changes, delivery plans, price versions, execution snapshots, attachments and audit display fields remain absent or separately owned. See `SALES_ORDER_BROWSER_CUTOVER.md` for the exhaustive matrix.
 
 Real authenticated shadow GET is currently blocked: existing users are active/password-backed, but the permission catalog, roles and assignments are empty and `order.view` cannot resolve. C0 did not run the write-capable server startup or synchronize RBAC. Browser list/detail/write cutover remain NO.
+
+当前source `df5bedaddd2f9e54f8c66f578e32f06859878104`实际19相关API文件184/185（1既有Windows平台跳过，未称PASS）、97根811、类型Node实际load/lint通过。前端/Python未变范围复用，不称新Vite/browser/Python执行；发布与最终精确main守卫由后置实际回执单列。

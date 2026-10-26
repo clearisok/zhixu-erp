@@ -1,0 +1,568 @@
+{
+  "build": {
+    "environment": "production",
+    "buildId": "planning-cd73726b-server-20261024",
+    "gitCommit": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+    "buildTime": "2026-10-24T08:03:41.640Z",
+    "masterSettingsAuthority": "server",
+    "identityMode": "session",
+    "quoteWriterMode": "writable",
+    "quoteAuthority": "server",
+    "orderRead": "snapshot"
+  },
+  "geometry": [
+    {
+      "page": "queue",
+      "width": 1920,
+      "scroll": 1920,
+      "search": {
+        "x": 292.5,
+        "y": 184.859375,
+        "width": 1238,
+        "height": 40,
+        "top": 184.859375,
+        "right": 1530.5,
+        "bottom": 224.859375,
+        "left": 292.5
+      },
+      "views": {
+        "x": 1540.5,
+        "y": 182.859375,
+        "width": 258,
+        "height": 44,
+        "top": 182.859375,
+        "right": 1798.5,
+        "bottom": 226.859375,
+        "left": 1540.5
+      }
+    },
+    {
+      "page": "form",
+      "width": 1920,
+      "scroll": 1920,
+      "panel": {
+        "x": 650,
+        "y": 24,
+        "width": 620,
+        "height": 952,
+        "top": 24,
+        "right": 1270,
+        "bottom": 976,
+        "left": 650
+      },
+      "fields": [
+        {
+          "label": "生产组织",
+          "left": 670,
+          "right": 1235
+        },
+        {
+          "label": "搜索生产组",
+          "left": 670,
+          "right": 1235
+        },
+        {
+          "label": "生产组选择",
+          "left": 670,
+          "right": 1235
+        },
+        {
+          "label": "排单颜色",
+          "left": 670,
+          "right": 1235
+        },
+        {
+          "label": "排单数量",
+          "left": 670,
+          "right": 1131
+        },
+        {
+          "label": "平均日产",
+          "left": 670,
+          "right": 1235
+        },
+        {
+          "label": "所需工作日",
+          "left": 670,
+          "right": 1235
+        },
+        {
+          "label": "日期安排",
+          "left": 670,
+          "right": 1235
+        },
+        {
+          "label": "计划开始",
+          "left": 670,
+          "right": 1235
+        },
+        {
+          "label": "排单备注",
+          "left": 670,
+          "right": 1235
+        }
+      ]
+    },
+    {
+      "page": "queue",
+      "width": 1536,
+      "scroll": 1536,
+      "search": {
+        "x": 232.78125,
+        "y": 184.859375,
+        "width": 973.4375,
+        "height": 40,
+        "top": 184.859375,
+        "right": 1206.21875,
+        "bottom": 224.859375,
+        "left": 232.78125
+      },
+      "views": {
+        "x": 1216.21875,
+        "y": 182.859375,
+        "width": 258,
+        "height": 44,
+        "top": 182.859375,
+        "right": 1474.21875,
+        "bottom": 226.859375,
+        "left": 1216.21875
+      }
+    },
+    {
+      "page": "form",
+      "width": 1536,
+      "scroll": 1536,
+      "panel": {
+        "x": 458,
+        "y": 24,
+        "width": 620,
+        "height": 952,
+        "top": 24,
+        "right": 1078,
+        "bottom": 976,
+        "left": 458
+      },
+      "fields": [
+        {
+          "label": "生产组织",
+          "left": 478,
+          "right": 1043
+        },
+        {
+          "label": "搜索生产组",
+          "left": 478,
+          "right": 1043
+        },
+        {
+          "label": "生产组选择",
+          "left": 478,
+          "right": 1043
+        },
+        {
+          "label": "排单颜色",
+          "left": 478,
+          "right": 1043
+        },
+        {
+          "label": "排单数量",
+          "left": 478,
+          "right": 939
+        },
+        {
+          "label": "平均日产",
+          "left": 478,
+          "right": 1043
+        },
+        {
+          "label": "所需工作日",
+          "left": 478,
+          "right": 1043
+        },
+        {
+          "label": "日期安排",
+          "left": 478,
+          "right": 1043
+        },
+        {
+          "label": "计划开始",
+          "left": 478,
+          "right": 1043
+        },
+        {
+          "label": "排单备注",
+          "left": 478,
+          "right": 1043
+        }
+      ]
+    },
+    {
+      "page": "queue",
+      "width": 1440,
+      "scroll": 1440,
+      "search": {
+        "x": 230.671875,
+        "y": 184.859375,
+        "width": 881.65625,
+        "height": 40,
+        "top": 184.859375,
+        "right": 1112.328125,
+        "bottom": 224.859375,
+        "left": 230.671875
+      },
+      "views": {
+        "x": 1122.328125,
+        "y": 182.859375,
+        "width": 258,
+        "height": 44,
+        "top": 182.859375,
+        "right": 1380.328125,
+        "bottom": 226.859375,
+        "left": 1122.328125
+      }
+    },
+    {
+      "page": "form",
+      "width": 1440,
+      "scroll": 1440,
+      "panel": {
+        "x": 410,
+        "y": 24,
+        "width": 620,
+        "height": 952,
+        "top": 24,
+        "right": 1030,
+        "bottom": 976,
+        "left": 410
+      },
+      "fields": [
+        {
+          "label": "生产组织",
+          "left": 430,
+          "right": 995
+        },
+        {
+          "label": "搜索生产组",
+          "left": 430,
+          "right": 995
+        },
+        {
+          "label": "生产组选择",
+          "left": 430,
+          "right": 995
+        },
+        {
+          "label": "排单颜色",
+          "left": 430,
+          "right": 995
+        },
+        {
+          "label": "排单数量",
+          "left": 430,
+          "right": 891
+        },
+        {
+          "label": "平均日产",
+          "left": 430,
+          "right": 995
+        },
+        {
+          "label": "所需工作日",
+          "left": 430,
+          "right": 995
+        },
+        {
+          "label": "日期安排",
+          "left": 430,
+          "right": 995
+        },
+        {
+          "label": "计划开始",
+          "left": 430,
+          "right": 995
+        },
+        {
+          "label": "排单备注",
+          "left": 430,
+          "right": 995
+        }
+      ]
+    },
+    {
+      "page": "queue",
+      "width": 1280,
+      "scroll": 1280,
+      "search": {
+        "x": 227.15625,
+        "y": 184.859375,
+        "width": 728.6875,
+        "height": 40,
+        "top": 184.859375,
+        "right": 955.84375,
+        "bottom": 224.859375,
+        "left": 227.15625
+      },
+      "views": {
+        "x": 965.84375,
+        "y": 182.859375,
+        "width": 258,
+        "height": 44,
+        "top": 182.859375,
+        "right": 1223.84375,
+        "bottom": 226.859375,
+        "left": 965.84375
+      }
+    },
+    {
+      "page": "form",
+      "width": 1280,
+      "scroll": 1280,
+      "panel": {
+        "x": 330,
+        "y": 24,
+        "width": 620,
+        "height": 952,
+        "top": 24,
+        "right": 950,
+        "bottom": 976,
+        "left": 330
+      },
+      "fields": [
+        {
+          "label": "生产组织",
+          "left": 350,
+          "right": 915
+        },
+        {
+          "label": "搜索生产组",
+          "left": 350,
+          "right": 915
+        },
+        {
+          "label": "生产组选择",
+          "left": 350,
+          "right": 915
+        },
+        {
+          "label": "排单颜色",
+          "left": 350,
+          "right": 915
+        },
+        {
+          "label": "排单数量",
+          "left": 350,
+          "right": 811
+        },
+        {
+          "label": "平均日产",
+          "left": 350,
+          "right": 915
+        },
+        {
+          "label": "所需工作日",
+          "left": 350,
+          "right": 915
+        },
+        {
+          "label": "日期安排",
+          "left": 350,
+          "right": 915
+        },
+        {
+          "label": "计划开始",
+          "left": 350,
+          "right": 915
+        },
+        {
+          "label": "排单备注",
+          "left": 350,
+          "right": 915
+        }
+      ]
+    },
+    {
+      "page": "queue",
+      "width": 900,
+      "scroll": 900,
+      "search": {
+        "x": 110.796875,
+        "y": 184.859375,
+        "width": 473.40625,
+        "height": 40,
+        "top": 184.859375,
+        "right": 584.203125,
+        "bottom": 224.859375,
+        "left": 110.796875
+      },
+      "views": {
+        "x": 594.203125,
+        "y": 182.859375,
+        "width": 258,
+        "height": 44,
+        "top": 182.859375,
+        "right": 852.203125,
+        "bottom": 226.859375,
+        "left": 594.203125
+      }
+    },
+    {
+      "page": "form",
+      "width": 900,
+      "scroll": 900,
+      "panel": {
+        "x": 140,
+        "y": 24,
+        "width": 620,
+        "height": 952,
+        "top": 24,
+        "right": 760,
+        "bottom": 976,
+        "left": 140
+      },
+      "fields": [
+        {
+          "label": "生产组织",
+          "left": 160,
+          "right": 725
+        },
+        {
+          "label": "搜索生产组",
+          "left": 160,
+          "right": 725
+        },
+        {
+          "label": "生产组选择",
+          "left": 160,
+          "right": 725
+        },
+        {
+          "label": "排单颜色",
+          "left": 160,
+          "right": 725
+        },
+        {
+          "label": "排单数量",
+          "left": 160,
+          "right": 621
+        },
+        {
+          "label": "平均日产",
+          "left": 160,
+          "right": 725
+        },
+        {
+          "label": "所需工作日",
+          "left": 160,
+          "right": 725
+        },
+        {
+          "label": "日期安排",
+          "left": 160,
+          "right": 725
+        },
+        {
+          "label": "计划开始",
+          "left": 160,
+          "right": 725
+        },
+        {
+          "label": "排单备注",
+          "left": 160,
+          "right": 725
+        }
+      ]
+    },
+    {
+      "page": "queue",
+      "width": 390,
+      "scroll": 390,
+      "search": {
+        "x": 21,
+        "y": 159.8125,
+        "width": 348,
+        "height": 44,
+        "top": 159.8125,
+        "right": 369,
+        "bottom": 203.8125,
+        "left": 21
+      },
+      "views": {
+        "x": 21,
+        "y": 213.8125,
+        "width": 210,
+        "height": 44,
+        "top": 213.8125,
+        "right": 231,
+        "bottom": 257.8125,
+        "left": 21
+      }
+    },
+    {
+      "page": "form",
+      "width": 390,
+      "scroll": 390,
+      "panel": {
+        "x": 0,
+        "y": 0,
+        "width": 390,
+        "height": 1000,
+        "top": 0,
+        "right": 390,
+        "bottom": 1000,
+        "left": 0
+      },
+      "fields": [
+        {
+          "label": "生产组织",
+          "left": 16,
+          "right": 374
+        },
+        {
+          "label": "搜索生产组",
+          "left": 16,
+          "right": 374
+        },
+        {
+          "label": "生产组选择",
+          "left": 16,
+          "right": 374
+        },
+        {
+          "label": "排单颜色",
+          "left": 16,
+          "right": 374
+        },
+        {
+          "label": "排单数量",
+          "left": 16,
+          "right": 270
+        },
+        {
+          "label": "平均日产",
+          "left": 16,
+          "right": 374
+        },
+        {
+          "label": "所需工作日",
+          "left": 16,
+          "right": 374
+        },
+        {
+          "label": "日期安排",
+          "left": 16,
+          "right": 374
+        },
+        {
+          "label": "计划开始",
+          "left": 16,
+          "right": 374
+        },
+        {
+          "label": "排单备注",
+          "left": 16,
+          "right": 374
+        }
+      ]
+    }
+  ],
+  "errors": []
+}

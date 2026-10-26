@@ -1,9 +1,9 @@
-# Handoff: navigation evidence correction, final validation pending
+# 恢复点：交期回执真实N直接父见证
 
-2026-10-25 Asia/Shanghai; actual main 9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf. Branch codex/navigation-pr-main-9d65 preserves navigation input 7cf7238b93b309cc736b473eeedaba394e6a47b7 through genuine merge 85072a26ab40906fbffa37e3facf7326c33eac5c. PR125 approved merge/history retained; PR124 auto-marked merged after inclusion. No other merge/close is authorized.
+2026-10-26；main 869ee84dd0b31de6161011e4aa560678b244a64d于2026-10-26T06:15:59.217Z独立API核实、open PR 0。本branch codex/delivery-plan-requests-main-anchor-869e真实从N普通合流原当前阶段c70aa15b69640c48ba001e1bbbbbef119365303a，全部非docs精确source 62693a8fac3db6aa1d86b73cf812d53395aa0cec，原当前依赖1c5fc49a62541573584ee5b0686366a4ca39e619及其他受保护分支不动。
 
-0698f5eb2c1ac8644328cc2b826aefbc3c9d98ab named main guard PASS73799ms and named release134/134 PASS292141ms (0fail/cancel/skip,stable HEAD/manifest). Final6c documentation revision then failed the evidence-root anchor guard; no push followed. The original task root is restored exactly and observed results are bound to a distinct proof path; all prior240 valid objects/main230/input237 stay. Corrected final exact-HEAD guard and final review remain PENDING; do not call6c PASS or rerun successful134 without a new reason. See[engineering proof](tasks/completed/2026-10-25-navigation-main-9d65-engineering.md).
+D154是已有决定文档的真正修订，原pre-N记录需要实际N-direct ancestry见证。A真实父为[N,c70]，冻结main与D154组合文本；R绑定两真实叶的mergeOf。然后另建最终分支与1c5普通合流，冻结L并闭叉，不以单叶图替代真实父、不改guard或旧ID/hash。此中间分支不是独立最终PASS或业务交付。
 
-64 total paths/33 non-document files, no SQL or later domain code. ca53/2bd original QA is reused only for unchanged scopes after210 retained build files and archive hash were checked;66 UI is phased,87 Quote is local,old90/44/2 retained. No new build/browser/install. The[original frozen integration input](tasks/active/navigation-pr-main-9d65-2026-10-25.md) records its earlier pending state; current outcome is here and in the separate proof.
+[本见证阶段](tasks/active/delivery-plan-requests-main-anchor-869e-2026-10-26.md)；[可靠交期契约](features/SERVER_DELIVERY_PLAN_REQUESTS.md)；[发布守卫](features/RELEASE_BASELINE_GUARD.md)。
 
-REMOTE PENDING at this local checkpoint; exact finalSHA/guard/delivery/PR receipts remain in ignored outputs/navigation-pr-main-9d65-20261025. No new Hosted CI yet. Protect later d406 target branch,3001/50426/59069/62426,Browser,real accounts/business DB/volumes,backups and old evidence. No realSource/credentials,activation/scheduling,deployment or50426 cutover/retirement. Standing safe recovery never waives auth/divergence/certificate/unknown-dirty STOPs. Closing questions,real quotas,visible coverageV2 remain separate; full Goal active.
+0042只为原交期命令增加不可变技术回执，fresh权限、actor/request防重、集合CAS、完整历史与unknown核对保持；无UI、真实Source或数据库升级操作。原626归档167+cleanGit根18分组联合185/185、根811/类型NodeLint按原日期复用，旧1ae134仅工具范围不称当前134或945，215前端及139Python未新跑。必要CI/最终源码守卫/后续交期UI与完整Goal独立。

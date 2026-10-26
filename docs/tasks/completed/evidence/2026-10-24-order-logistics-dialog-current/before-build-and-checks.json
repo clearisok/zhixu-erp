@@ -1,0 +1,15 @@
+{
+  "build": {
+    "environment": "production",
+    "buildId": "logistics-resources-07d481af-server-20261024",
+    "gitCommit": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+    "buildTime": "2026-10-24T09:13:55.381Z",
+    "masterSettingsAuthority": "server",
+    "identityMode": "session",
+    "quoteWriterMode": "writable",
+    "quoteAuthority": "server",
+    "orderRead": "snapshot"
+  },
+  "geometry": [],
+  "errors": []
+}

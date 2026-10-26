@@ -21,9 +21,10 @@ import { createQuoteService } from "../quotes/service.js";
 import { MemoryAttachmentStorage } from "../attachments/storage.js";
 import { createPaymentSnapshotReader, preparePaymentPublication, publishPaymentSnapshot } from '../ainuoke-source/payment-request-store.js';
 import { hash } from '../ainuoke-source/contract.js';
+import { createGarmentShipmentReader, prepareGarmentPublication, publishGarmentObservation } from '../ainuoke-source/garment-shipment-store.js';
 /** Always generates its own loopback tmpfs PostgreSQL; never reads DATABASE_URL or source credentials. */
 import type { NormalizationExecutionOptions } from '../sales-orders/normalization-execution-service.js';
-export async function startContinuousFixture(staticDirectory:string,options: NormalizationExecutionOptions & {orderAlerts?:boolean;excessWarehouse?:boolean;materialDisplay?:boolean;paymentRequests?:boolean} = {}) {
+export async function startContinuousFixture(staticDirectory:string,options: NormalizationExecutionOptions & {orderAlerts?:boolean;excessWarehouse?:boolean;materialDisplay?:boolean;paymentRequests?:boolean;materialArrivals?:boolean;garmentShipments?:boolean} = {}) {
  const normalizationExecution:NormalizationExecutionOptions=options;
  const db=await startDisposablePostgres();const pool=new pg.Pool({connectionString:await db.createDatabase("continuous_demo")});
  const server=createServer();const origins:string[]=[];const errors:unknown[]=[];
@@ -87,15 +88,33 @@ export async function startContinuousFixture(staticDirectory:string,options: Nor
       [source.sourceKey,bound.orderIds[0],source.accountFingerprint,hash('synthetic-financial-query-proof')]);
     await publishPayments();
   }
+  let garmentOffset=0;
+  const garments=createGarmentShipmentReader(pool,{sourceKey:source.sourceKey},()=>Date.now()+garmentOffset);
+  const publishGarments=async(total=127)=>{
+    const context=await prepareGarmentPublication(pool,actor,source.sourceKey,bound.orderIds[0],Date.now()-5000);
+    const color=(await pool.query('SELECT color_name FROM ainuoke_sales_order_color_mirrors WHERE sales_order_id=$1 ORDER BY color_name LIMIT 1',[bound.orderIds[0]])).rows[0].color_name as string;
+    const page=(pass:number,n:number)=>({schemaVersion:'ainuoke-garment-shipment-page.v1',reportId:'6086979',sourceFingerprint:source.accountFingerprint,
+      queryContext:{match:'exact',salesContractNo:context.salesContractNo},capturedAt:new Date(context.preparedAt+pass*1000+n).toISOString(),page:n,pageSize:100,reportedTotal:total,rawResponseSha256:hash(['garment',context.preparedAt,pass,n]),
+      rows:Array.from({length:Math.min(100,Math.max(0,total-(n-1)*100))},(_,i)=>({id:'SYN-GARMENT-'+((n-1)*100+i),ExpContractNo:context.salesContractNo,billno:'SYN-OUT-1',CnColor:color,QtyUnit:'件',Num:i===1?'0':i===2?'-2.5':i===3?null:i===4?'not-a-number':'9007199254740993.000000000001',outdate:i===3?'':i===4?'2026-02-30':'2026-10-11',FDate:'2026-10-07',indate:'2026-10-07',wxprice:'PRIVATE-GARMENT-PRICE',remark:'PRIVATE-GARMENT-NOTES'}))});
+    const pages=Math.max(1,Math.ceil(total/100)),input={schemaVersion:'ainuoke-garment-shipment-input.v1',firstPass:Array.from({length:pages},(_,i)=>page(1,i+1)),secondPass:Array.from({length:pages},(_,i)=>page(2,i+1))};
+    return publishGarmentObservation(pool,actor,context,input,{sourceFingerprint:source.accountFingerprint,salesContractNo:context.salesContractNo},Date.now());
+  };
+  if(options.garmentShipments){
+    await pool.query('INSERT INTO ainuoke_garment_shipment_targets(source_key,sales_order_id,account_fingerprint,freshness_ms,enabled,verification_sha256) VALUES($1,$2,$3,60000,true,$4)',[source.sourceKey,bound.orderIds[0],source.accountFingerprint,hash('synthetic-garment-filter-proof')]);
+    await publishGarments();
+  }
   let materialReads=0;
   const ports=createPersistedMaterialPorts(pool,{sourceKey:source.sourceKey,maxAgeMs:1800000},()=>Date.now()+(mode==="stale"?1800001:0));
   server.on("request",(req,res)=>{if(req.url?.includes("/material-progress"))materialReads++;app(req,res);});
   const app=createApp({pool,staticDirectory,normalizationExecution,attachmentStorage:new MemoryAttachmentStorage(),allowedOrigins:origins,security:{secureCookies:false,sessionTtlSeconds:7200},logger:{error:e=>errors.push(e)},orderMaterialRead:ports,orderMaterialHistory:createPersistedMaterialHistoryReader(pool,{sourceKey:source.sourceKey,maxAgeMs:1800000}),
+    ...(options.materialArrivals?{materialArrivalSource:{sourceKey:source.sourceKey,maxAgeMs:1800000}}:{}),
+    ...(options.garmentShipments?{orderGarmentShipmentRead:garments}:{}),
     ...(options.paymentRequests?{orderPaymentRead:async(identity:Parameters<typeof readPayments>[0],id:string)=>{paymentReads++;const result=await readPayments(identity,id);if(paymentDelay)await new Promise(done=>setTimeout(done,paymentDelay));return result;}}:{})});
   await new Promise<void>(done=>server.listen(0,"127.0.0.1",done));
   const address=server.address();if(!address||typeof address!=="object")throw Error("loopback fixture failed");
   const base="http://127.0.0.1:"+address.port;origins.push(base);
   return{pool,base,orderId:bound.orderIds[0],users,password,errors,capture,generation:()=>generation,materialReads:()=>materialReads,
+    garments:{publish:publishGarments,setOffset:(value:number)=>{garmentOffset=value;},setEnabled:async(enabled:boolean)=>{await pool.query('UPDATE ainuoke_garment_shipment_targets SET enabled=$2,version=version+1 WHERE source_key=$1',[source.sourceKey,enabled]);}},
     payments:{reads:()=>paymentReads,publish:publishPayments,setOffset:(value:number)=>{paymentOffset=value;},setDelay:(value:number)=>{paymentDelay=value;},
       setEnabled:async(enabled:boolean)=>{await pool.query('UPDATE ainuoke_payment_source_targets SET enabled=$2,version=version+1 WHERE source_key=$1',[source.sourceKey,enabled]);}},
     setMode:(value:typeof mode)=>{mode=value;},containerName:db.containerName,

@@ -1,0 +1,91 @@
+{
+  "schemaVersion": "garment-shipment-ui.v1",
+  "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+  "buildId": "garment-read-ui-922488b9-server-20261024",
+  "before": false,
+  "synthetic": true,
+  "realSourceRequests": 0,
+  "sourceActivation": "not-activated",
+  "metrics": [
+    {
+      "width": 1920,
+      "overflow": false,
+      "inside": true,
+      "drawer": {
+        "inside": true,
+        "overflow": false,
+        "footer": true
+      }
+    },
+    {
+      "width": 1536,
+      "overflow": false,
+      "inside": true,
+      "drawer": {
+        "inside": true,
+        "overflow": false,
+        "footer": true
+      }
+    },
+    {
+      "width": 1440,
+      "overflow": false,
+      "inside": true,
+      "drawer": {
+        "inside": true,
+        "overflow": false,
+        "footer": true
+      }
+    },
+    {
+      "width": 1280,
+      "overflow": false,
+      "inside": true,
+      "drawer": {
+        "inside": true,
+        "overflow": false,
+        "footer": true
+      }
+    },
+    {
+      "width": 900,
+      "overflow": false,
+      "inside": true,
+      "drawer": {
+        "inside": true,
+        "overflow": false,
+        "footer": true
+      }
+    },
+    {
+      "width": 390,
+      "overflow": false,
+      "inside": true,
+      "drawer": {
+        "inside": true,
+        "overflow": false,
+        "footer": true
+      }
+    },
+    {
+      "touch": {
+        "width": 390,
+        "openTarget": {
+          "x": 149,
+          "y": 697.6875,
+          "width": 60,
+          "height": 40,
+          "inside": true
+        },
+        "closeTarget": {
+          "x": 326,
+          "y": 966,
+          "width": 96,
+          "height": 44,
+          "inside": true
+        },
+        "actualTouchEvents": true
+      }
+    }
+  ]
+}

@@ -19,6 +19,10 @@ export async function readDeliveryPlanSet(client: Queryable, salesOrderId: strin
         WHEN p.total < m.quantity THEN 'short' WHEN p.total > m.quantity THEN 'excess' ELSE 'matched' END AS quantity_status
     FROM sales_orders so ${effectiveOrderJoins(attributed)} LEFT JOIN sales_order_delivery_plan_sets ds ON ds.sales_order_id = so.id
     LEFT JOIN ainuoke_sales_order_contract_mirrors m ON m.sales_order_id = ${sourceOwnerSql(attributed)}
+      AND EXISTS (SELECT 1 FROM sales_order_source_links source_link
+        WHERE source_link.sales_order_id = m.sales_order_id AND source_link.source_system = 'ainuoke'
+          AND source_link.source_entity_type = 'sales_contract' AND m.source_id = source_link.external_id
+          AND m.sales_contract_no = source_link.sales_contract_no)
     LEFT JOIN LATERAL (
       SELECT jsonb_agg(jsonb_build_object('id', id, 'deliveryDate', to_char(delivery_date, 'YYYY-MM-DD'),
           'quantity', quantity::text, 'isDerivedDefault', is_derived_default, 'voidedAt', voided_at)

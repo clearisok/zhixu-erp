@@ -74,6 +74,12 @@ D-102 第二轮用户确认：制作方案复用 ManufacturingPreset，代表不
 - **QI-05 成衣交期**：目标交期是成衣完成/应交付日期，转换到 `QuoteRevision.baseInfo.garmentLeadDate`；不自动修改 SalesOrder source date、DeliveryPlan、ScheduleAssignment 或其他订单交付事实。空值保留 null，按合法日历日期校验，不因时区偏移一天。
 - **QI-06 无预设草稿**：无有效制作预设时允许正式 Quote 草稿，参数待完善；不擅自选国家、预设、汇率、加成或运费。非空 laborCurrency 技术默认值不代表用户选择，必须有真正配置完成的判断契约；旧 Quote/PV 快照、币种、公式不受损。
 
+## Server排单计划候选（D150，2026-10-24）
+
+2026-10-24 G6C候选按[执行契约](features/SERVER_PRODUCTION_EXECUTION.md)扩展独立实际head/history与技术epoch；本单完成登记和明确联动后续重排的双权限、原产出归属/剩余另建及更正原因均依用户已批准规则。不借计划量补造实际，不将本轮候选写成已验收/部署；以下G6B及Browser段落保留其阶段边界。
+
+当前G6B候选以可信合同/已消费加工批次SO为owner，计划量、客户交付需求、未来实际完成及关账量独立；不要求订单负责人或先采用报价金额。稳定颜色、不可变资源事实、单条/订单集合/组队列版本、明确预览及原请求回执保护见[Server排单](features/SERVER_PRODUCTION_PLANNING.md)。只恢复既有页面的Server owner，不挂Browser账本或Seed；尚无真实开工/完成、物流/关账闭环或部署声明。下文Browser规则和历史日期保留，不据同名字段混用权威。
+
 ## 新生产计划与排单路径
 
 - 一张 SalesOrder 只允许一个款式，但可直接拥有多个 ScheduleAssignment；ProductionPlan 已退出正式 Runtime。
@@ -414,3 +420,30 @@ D-102 第二轮用户确认：制作方案复用 ManufacturingPreset，代表不
 
 用户批准分阶段实施：报价为唯一新业务来源，历史翻单保留；报价中心操作指定订单的成衣成交价，订单商业版本独立且不可变，不修改报价CCT或原价格方案。加工仅工价，合同/批次创建身份保持。当前Phase1已统一确认来源：已有CCT（含空值）优先，否则可信保存PV确认；订单关联不决定金额权威。后续颜色映射/议价/加工UI仍待实施，见tasks/active/quote-order-price-coordination-2026-10-17.md。
 
+
+## D149可信订单创建报价参考（2026-10-24本地候选）
+
+可信合同订单首次维护来源可明确创建经销报价草稿；使用稳定SO和保存合同身份，只预填可证明字段，品牌/人员不猜ID。
+创建参考与报价、actor/request、审计同事务且不可变，不是商业采用，不改SO/Source/执行事实或价格。
+报价可继续服务其他订单；完成/取消、已采用、历史alias及加工订单不能经此换绑。普通D102默认创建保持，
+未知结果只核对原receipt，刷新不自动写入；当前实现/验收见本轮G5任务，真实激活另有授权。
+
+2026-10-24 D147/G6D当前候选的集货仓/运输方案复用同一Server资源命令，完整方式稳定身份与启用父关系/活跃hub-site唯一保护见[物流资料](features/SERVER_LOGISTICS_RESOURCES.md)。只维护基础资料，不产生物流订单、到仓事实或修改生产排期；历史Browser段落不因接线而改owner。
+
+2026-10-24 D054/D147当前Server后台候选将物理SO明确选择的SupplyHub与备注独立持久化，未记录null、无变化不造版本；发生时仓快照与当前主数据分开，原计划/实际数量/商业信息保持。详见[订单物流上下文](features/SERVER_ORDER_LOGISTICS_CONTEXT.md)，页面与逐物料到仓后续独立接线，不据此宣称完整物流闭环。
+
+2026-10-24 D054/D147当前候选在既有生产页“物料与运输”对话框接通独立Server tracking：明确仓/备注、预览和历史，共用原production命令与未决槽；无默认仓或到仓/数量/金额推断。只读/冻结展示已存事实，未保存草稿与迟到异步隔离见[界面契约](features/SERVER_ORDER_LOGISTICS_DIALOG.md)。
+
+2026-10-24 D054/D065–069/D147当前Server人工ExpectedArrivalBatch/Allocation独立保存物理SO和Canonical物料内多批日期/精确数量、稳定需求身份及发生时Source/Hub证据；不猜配四流、不换单位、不补齐、不过写来源/实际/排单/金额。后台契约见[Server预计到仓](features/SERVER_MATERIAL_ARRIVALS.md)，页面和唯一逐批物流算法接线后续独立。
+
+2026-10-24 D054/D065–069/D147当前Server物料页按独立人工计划owner接线原分批Modal和历史Drawer；每批依最早未取消排单采用地点与已存Hub复用唯一物流算法。Source日期、人工计划、Actual分离；source失败保留计划/历史，命令原请求恢复不自动POST，权限白名单/owner保护见[当前UI契约](features/SERVER_MATERIAL_ARRIVAL_UI.md)。当前工程验收独立记录，不据源码接线宣称部署或用户接受。
+
+## Server成衣出货观察（D152/D153，2026-10-24前移）
+
+6086979 Num与outdate分别为逐笔数量与业务日期；其他日期/累计列独立，缺失/非法/零/负值不混同。当前0040不可变指定合同观察复用可信合同和稳定颜色，不跨次累加、不将消失作取消、不写生产完成/价格/收入或关账。默认关闭的独立target不代表真实采集/激活；完整边界见[Server成衣观察](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)。本轮工程结果待按精确source验证，原b652结果不借用。
+
+2026-10-24 D083/D100/D147合同来源更新先核既有可信合同及DB目标的完整证据预览，明确原请求命令；既有身份不变，缺失/非法/空颜色不清旧来源。人工计划/独立价格/生产完成保留，历史原owner不搬移。0041离线工具不采集/绑定或激活；[当前实现契约](features/SALES_ORDER_PERSISTENCE.md)按新source另验，不扩大真实执行许可。
+
+2026-10-24 D147/D152/D153成衣出货只读区块按原0040观察展示Num/outdate、单位/原单据/未知和历史，不跨快照合计，不改完成/价格/关账。时效按原快照策略，不用当前target延长；可信session及layout owner保护，见[当前UI契约](features/SERVER_GARMENT_SHIPMENT_UI.md)。本轮新UI验收仍待，不宣称真实Source激活。
+
+2026-10-24 D154为现有DeliveryPlan的原命令/完整结果不可变回执和fresh权限核对，不改变D083/D100日期数量/集合所有权/CAS。unknown不证明未提交；COMMIT异常只尝试回滚，核对原请求，不自动重发。0042不回填/改Source/生产/价格，见[独立后台契约](features/SERVER_DELIVERY_PLAN_REQUESTS.md)。

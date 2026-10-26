@@ -245,16 +245,18 @@ test("生产地点、可读工作日历、集货仓和组合运输方案继续�
 });
 
 test("生产与运输页面按三个业务问题组织，不暴露工作日数字串或例外 JSON 编辑", async () => {
-  const [page, css] = await Promise.all([
+  const [page, css, fields] = await Promise.all([
     readFile(new URL("../features/operations-settings/components/operations-settings-pages.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/globals.css", import.meta.url), "utf8"),
+    readFile(new URL("../features/operations-settings/components/production-resource-fields.tsx", import.meta.url), "utf8"),
   ]);
-  for (const label of ["在哪里生产", "物料从哪里发", "仓库到工厂怎么走", "新增运输方案", "系统如何选择运输方式", "特殊日期", "周一", "周日"]) assert.match(page, new RegExp(label));
+  for (const label of ["在哪里生产", "物料从哪里发", "仓库到工厂怎么走", "新增运输方案", "系统如何选择运输方式", "特殊日期", "周一", "周日"]) assert.match(page + fields, new RegExp(label));
   assert.match(page, /upsertTransportPlan/);
   assert.match(page, /missingRoutePairs/);
   assert.match(page, /缺少路线/);
-  assert.match(page, /当前被 \{groupCountFor\(draft\.value\.id\)\} 个生产组使用/);
-  assert.doesNotMatch(page, /例外日期 JSON|workingWeekdays\.join\(","\)|0=周日|＋ 路线|＋ 运输方式/);
+  assert.match(page, /referenceCount=\{groupCountFor\(draft\.value\.id\)\}/);
+  assert.match(fields, /当前被 \$\{referenceCount\} 个生产组使用/);
+  assert.doesNotMatch(page + fields, /例外日期 JSON|workingWeekdays\.join\(","\)|0=周日|＋ 路线|＋ 运输方式/);
   assert.doesNotMatch(page, /calculateLogisticsRisk|newRiskThreshold|运输风险算法/);
   assert.match(css, /qc-infrastructure-business-section/);
   assert.match(css, /@media \(max-width:699px\)/);

@@ -50,6 +50,15 @@ test('normalization preview reads only synthetic disposable database', {timeout:
    assert.equal((await normalizationReferences(client)).some(([table])=>table==='order_sale_adjustment_receipts'),false);
   }finally{await client.query('ROLLBACK');client.release();}
  });
+ await t.test('creation references are optional before their forward migration',async()=>{
+  const client=await pool.connect();
+  try{
+   await client.query('BEGIN');
+   assert.equal((await normalizationReferences(client)).some(([table])=>table==='quote_creation_order_contexts'),true);
+   await client.query('ALTER TABLE quote_creation_order_contexts RENAME TO synthetic_hidden_creation_contexts');
+   assert.equal((await normalizationReferences(client)).some(([table])=>table==='quote_creation_order_contexts'),false);
+  }finally{await client.query('ROLLBACK');client.release();}
+ });
  await t.test('new unclassified FK is surfaced without pretending an empty table is safe',async()=>{
   await pool.query('CREATE TABLE synthetic_external_execution(id uuid PRIMARY KEY, owner uuid REFERENCES sales_orders(id))');
   const result=await previewOrderNormalization(pool,actor,[a.id,b.id]);

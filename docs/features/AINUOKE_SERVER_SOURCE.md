@@ -22,6 +22,10 @@
 
 # 艾诺科 Server Source：正式订单与持续物料展示
 
+## 当前已有合同离线刷新（2026-10-24）
+
+0041复用正式Discovery/6087105映射与原合同/颜色/DeliveryPlan事务writer，明确预览/原请求提交/回执。只消费已采集证据，不读取来源凭据、不发Source请求，不改变既有物料采集/调度，也不新建订单。缺失/非法颜色保留旧来源；人工计划、商业/生产快照不回写，历史owner不搬移。live-preflight私密报告只新增bound-order-refresh类别，不引入后续garment采集范围。完整边界见[订单持久化](SALES_ORDER_PERSISTENCE.md#当前已绑定合同明确离线刷新2026-10-24d083d100d147)及[本轮任务](../tasks/active/server-bound-refresh-current-2026-10-24.md)。新QA见[本轮证明](../tasks/completed/2026-10-24-bound-refresh-current-engineering.md)，不据旧81a或源码接线宣称真实刷新/激活/部署。
+
 ## 当前恢复摘要（2026-10-15）
 
 main064e3afaf7d08b3cb62907d4402f97d9c292f1e5。6086941首页100/17675与49字段、D136两行含义/个/CNY确认及精确只读观察模型已本地完成，原报告/数值/未知值/重复行不改。金额币种只限定cgGoodsAmount/PayAmount/GoodsAmount，不扩张到报关/开票/预付或收款。
@@ -136,3 +140,5 @@ npm run source:ainuoke -- --bind-selected=<source-key> --contracts=<same-BillNo,
 2026-10-14 PR108诊断入口必须提供`-PreflightFile`，真实核验原文件与请求身份后才允许收集。原报告不因历史hash有效而变为新鲜；不重复全量读取。[修复证据](../tasks/active/quality-preflight-lineage-fix-2026-10-14.md)。
 
 金额币种边界复核：仅cgGoodsAmount/PayAmount/GoodsAmount采用本轮确认的采购合同币种，其余金额币种保持unknown；不提供通用行currency。详见../tasks/active/evidence/ainuoke-payment-request-probe/observations-amount-currency-2026-10-15.md。
+
+当前source `df5bedaddd2f9e54f8c66f578e32f06859878104`实际19相关API文件184/185（1既有Windows平台跳过，未称PASS）、97根811、类型Node实际load/lint通过。前端/Python未变范围复用，不称新Vite/browser/Python执行；发布与最终精确main守卫由后置实际回执单列。
