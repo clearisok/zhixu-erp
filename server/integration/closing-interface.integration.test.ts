@@ -50,13 +50,29 @@ test('closing browser contract reads exact Server snapshots and recovers origina
     await apply({ action: 'create_allocation', periodId, expectedPeriodVersion: detail.period.version, orderId: processing.id,
       data: { quantity: '3', colorId: null, channels: { sales: false, work: true }, assignmentId: null, executor: null, remark: '' } });
     detail = await editor.period(periodId, reads, () => true); assert.equal(detail.total, 2); assert.equal(detail.summary.registeredQuantity, '13');
-    assert.equal(detail.summary.garmentSalesCny.visibility, 'allowed'); if (detail.summary.garmentSalesCny.visibility !== 'allowed') assert.fail(); assert.equal(detail.summary.garmentSalesCny.amount.decimal, '1000');
-    assert.equal(detail.summary.processingServiceUsd.visibility, 'allowed'); if (detail.summary.processingServiceUsd.visibility !== 'allowed') assert.fail(); assert.equal(detail.summary.processingServiceUsd.amount.decimal, '0');
+    assert.equal(detail.summary.garmentSalesCny.visibility, 'allowed'); assert.ok(detail.summary.garmentSalesCny.amount); assert.equal(detail.summary.garmentSalesCny.amount.decimal, '1000');
+    assert.equal(detail.summary.processingServiceUsd.visibility, 'allowed'); assert.ok(detail.summary.processingServiceUsd.amount); assert.equal(detail.summary.processingServiceUsd.amount.decimal, '0');
     assert.equal(detail.automaticMonthAllocation, false);
     const first = await editor.periods(new URLSearchParams('limit=1&year=2026&status=open'), () => true); assert.equal(first.items[0].id, periodId); assert.equal(first.total, 1);
   });
+  await t.test('update, explicit review and void previews bind the original allocation and preserve manual facts', async () => {
+    let detail = await editor.period(periodId, reads, () => true), original = detail.items.find(row => row.id === allocationId)!;
+    const data = { quantity: '11', colorId: original.snapshot.colorId, channels: original.snapshot.channels, assignmentId: null, executor: { type: 'internal' as const, id: x.group.id }, remark: 'PRIVATE UPDATED NOTE' };
+    await apply({ action: 'update_allocation', periodId, expectedPeriodVersion: detail.period.version, allocationId, expectedVersion: original.version, reason: 'Explicit manual correction', data });
+    detail = await editor.period(periodId, reads, () => true); original = detail.items.find(row => row.id === allocationId)!;
+    await apply({ action: 'review_allocation', periodId, expectedPeriodVersion: detail.period.version, allocationId, expectedVersion: original.version, reason: 'Explicit basis review' });
+    detail = await editor.period(periodId, reads, () => true); assert.equal(detail.items.find(row => row.id === allocationId)!.snapshot.quantity, '11');
+    const extra = await apply({ action: 'create_allocation', periodId, expectedPeriodVersion: detail.period.version, orderId: contract.id,
+      data: { ...data, quantity: '1', channels: { sales: false, work: true }, remark: '' } });
+    detail = await editor.period(periodId, reads, () => true);
+    await apply({ action: 'void_allocation', periodId, expectedPeriodVersion: detail.period.version, allocationId: extra.result.allocationId!, expectedVersion: 1, reason: 'Explicit void, keep history' });
+    detail = await editor.period(periodId, new URLSearchParams('includeVoided=true'), () => true); assert.equal(detail.total, 3); assert.equal(detail.summary.voidedCount, 1);
+    assert.equal(detail.items.find(row => row.id === extra.result.allocationId)!.executionReview.status, 'not_evaluated_voided');
+  });
   await t.test('confirmed and locked reads preserve version anchors, exact history envelopes and frozen amounts', async () => {
     let detail = await editor.period(periodId, reads, () => true);
+    await apply({ action: 'confirm_period', periodId, expectedPeriodVersion: detail.period.version, reason: '' }); detail = await editor.period(periodId, reads, () => true);
+    await apply({ action: 'unconfirm_period', periodId, expectedPeriodVersion: detail.period.version, reason: 'Explicit cancellation of confirmation' }); detail = await editor.period(periodId, reads, () => true);
     await apply({ action: 'confirm_period', periodId, expectedPeriodVersion: detail.period.version, reason: '' }); detail = await editor.period(periodId, reads, () => true);
     await apply({ action: 'lock_period', periodId, expectedPeriodVersion: detail.period.version, reason: '' }); detail = await editor.period(periodId, reads, () => true); assert.equal(detail.period.status, 'locked');
     const history = await editor.history('period', periodId, new URLSearchParams('limit=2'), () => true); assert.equal(history.entityId, periodId); assert.equal(history.entityType, 'period'); assert.equal(history.items.length, 2); assert.equal(history.hasMore, true);
@@ -65,6 +81,11 @@ test('closing browser contract reads exact Server snapshots and recovers origina
     const allocationHistory = await editor.history('allocation', allocationId, reads, () => true); assert.equal(allocationHistory.entityId, allocationId);
     assert.ok(detail.items.every(row => new Date(row.recordedAt).toISOString() === row.recordedAt));
     const count = posts; await assert.rejects(() => editor.preview({ action: 'void_allocation', periodId, expectedPeriodVersion: detail.period.version, allocationId, expectedVersion: 1, reason: 'Cannot edit locked' }, () => true)); assert.equal(posts, count);
+  });
+  await t.test('explicit reopening keeps the original locked manifest and snapshot readable by exact version', async () => {
+    const locked = await editor.period(periodId, reads, () => true); await apply({ action: 'reopen_period', periodId, expectedPeriodVersion: locked.period.version, reason: 'Explicit synthetic reopening' });
+    const old = await editor.period(periodId, new URLSearchParams({ version: String(locked.period.version) }), () => true);
+    assert.equal(old.period.status, 'locked'); assert.deepEqual(old.items.map(row => row.snapshot), locked.items.map(row => row.snapshot)); assert.equal((await editor.period(periodId, reads, () => true)).period.status, 'open');
   });
   await t.test('fresh independent sale/work permission projection also covers history and old actor receipt isolation', async () => {
     const user = await x.user('closing.interface.reader', [...CLOSING_READ_PERMISSIONS, 'commercial.sale.view']), reader = client(user, { sale: true, work: false });

@@ -158,7 +158,7 @@ export function parseClosingPreview(value: unknown, intent: ClosingIntent, view:
   if (intent.action === 'create_period') { same(row.period, null); same(row.before, null); same(row.after, null); same(row.allocationCount, 0); }
   else { const p = obj(row.period); keys(p, ['id', 'month', 'version', 'status', 'taxRatePercent']); same(p.id, intent.periodId); same(p.version, intent.expectedPeriodVersion); str(p.month); tax(p.taxRatePercent); member(p.status, ['open', 'confirmed', 'locked']); }
   const allocationAction = intent.action.endsWith('_allocation');
-  if (row.before !== null) { if (!('allocationId' in intent)) invalidClosingResponse(); const b = obj(row.before); keys(b, ['version', 'status', 'snapshot']); same(b.version, intent.expectedVersion); same(b.status, 'active'); snapshot(b.snapshot, view); }
+  if (row.before !== null) { if (!('allocationId' in intent)) return invalidClosingResponse(); const b = obj(row.before); keys(b, ['version', 'status', 'snapshot']); same(b.version, intent.expectedVersion); same(b.status, 'active'); snapshot(b.snapshot, view); }
   else if ('allocationId' in intent) invalidClosingResponse();
   if (allocationAction) { const a = obj(row.after); keys(a, ['status', 'snapshot']); same(a.status, intent.action === 'void_allocation' ? 'voided' : 'active'); const s = snapshot(a.snapshot, view).row;
     if (intent.action === 'create_allocation') same(obj(s.order).id, intent.orderId);
