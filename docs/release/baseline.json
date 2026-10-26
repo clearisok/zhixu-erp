@@ -4649,6 +4649,44 @@
       "recordedAtSha": "b5bdd3b8f14cb4f6a6e7aab8e636faf8106e6c9c",
       "renderedSourceSha": "4bc68c6ecabcb3acc5541d0c4fc20aa850242ddf",
       "sha256": "89684fe5d1489aabce861bf8c7c938248ab9190f6ec2670497230b3ed2da0029"
+    },
+    {
+      "id": "closing-commands-d163-decision_log-20261027",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
+      "renderedSourceSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
+      "sha256": "cf17a5090337a4d69eed871a543f159892e50d49ecd88db59e6c7e0a2ab255dd",
+      "supersedes": "closing-basis-d162-decision_log-20261026",
+      "changeReason": "D163 implements D162 Server closing snapshots and atomic commands; preserve all historical Browser/Server evidence and uncompleted UI/live boundaries"
+    },
+    {
+      "id": "closing-commands-d163-server_closing-20261027",
+      "kind": "document",
+      "path": "docs/features/SERVER_CLOSING.md",
+      "recordedAtSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
+      "renderedSourceSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
+      "sha256": "43d9774122b66cc13189227595d2acdf129975bed6d90dd69e660f1607c3d8d9",
+      "supersedes": "closing-basis-d162-server_closing-20261026",
+      "changeReason": "D163 implements D162 Server closing snapshots and atomic commands; preserve all historical Browser/Server evidence and uncompleted UI/live boundaries"
+    },
+    {
+      "id": "closing-commands-d163-business_rules-20261027",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
+      "renderedSourceSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
+      "sha256": "e08d3e037403139e06e4602d7bd936d5b6cca903b1a2ea71e92136df833bd592",
+      "supersedes": "closing-basis-d162-business_rules-20261026",
+      "changeReason": "D163 implements D162 Server closing snapshots and atomic commands; preserve all historical Browser/Server evidence and uncompleted UI/live boundaries"
+    },
+    {
+      "id": "closing-commands-d163-2026-10-27-server-closing-commands-engineering-20261027",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-27-server-closing-commands-engineering.md",
+      "recordedAtSha": "8830f086d3b4a8c04c0f247e2a61aa10bb4d45ca",
+      "renderedSourceSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
+      "sha256": "2135f3b48392a0abc952ecf017b52c8cb7e5e000501363f5ab34719cf1a9839f"
     }
   ],
   "pages": [
@@ -11009,6 +11047,91 @@
           "scope": "No operator deployment or real activation. Preserve original dated runtime and all existing environments without probing or modifying them.",
           "evidence": [
             "garment-operator-current-engineering-20261025"
+          ]
+        }
+      }
+    },
+    {
+      "id": "server-closing-commands",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D162/D163 Server backend only: manual month/quantity/color/executor, immutable adopted commercial snapshots, CNY sales and separate USD labor/processing-service, no FX, atomic review/confirm/lock/reopen and original receipts. No closing UI, USD-new-price adoption, tax-rate correction, live database, cutover, Source activation or deployment.",
+      "evidence": [
+        "closing-commands-d163-2026-10-27-server-closing-commands-engineering-20261027"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-27",
+          "sourceSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
+          "scope": "D162/D163 Server backend only: manual month/quantity/color/executor, immutable adopted commercial snapshots, CNY sales and separate USD labor/processing-service, no FX, atomic review/confirm/lock/reopen and original receipts. No closing UI, USD-new-price adoption, tax-rate correction, live database, cutover, Source activation or deployment.",
+          "evidence": [
+            "closing-commands-d163-2026-10-27-server-closing-commands-engineering-20261027"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-27",
+          "sourceSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
+          "scope": "D162/D163 Server backend only: manual month/quantity/color/executor, immutable adopted commercial snapshots, CNY sales and separate USD labor/processing-service, no FX, atomic review/confirm/lock/reopen and original receipts. No closing UI, USD-new-price adoption, tax-rate correction, live database, cutover, Source activation or deployment.",
+          "evidence": [
+            "closing-commands-d163-2026-10-27-server-closing-commands-engineering-20261027"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-27",
+          "sourceSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
+          "scope": "D162/D163 Server backend only: manual month/quantity/color/executor, immutable adopted commercial snapshots, CNY sales and separate USD labor/processing-service, no FX, atomic review/confirm/lock/reopen and original receipts. No closing UI, USD-new-price adoption, tax-rate correction, live database, cutover, Source activation or deployment.",
+          "evidence": [
+            "closing-commands-d163-2026-10-27-server-closing-commands-engineering-20261027"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-27",
+          "sourceSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
+          "scope": "D162/D163 Server backend only: manual month/quantity/color/executor, immutable adopted commercial snapshots, CNY sales and separate USD labor/processing-service, no FX, atomic review/confirm/lock/reopen and original receipts. No closing UI, USD-new-price adoption, tax-rate correction, live database, cutover, Source activation or deployment.",
+          "evidence": [
+            "closing-commands-d163-2026-10-27-server-closing-commands-engineering-20261027"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-27",
+          "sourceSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
+          "scope": "D162/D163 Server backend only: manual month/quantity/color/executor, immutable adopted commercial snapshots, CNY sales and separate USD labor/processing-service, no FX, atomic review/confirm/lock/reopen and original receipts. No closing UI, USD-new-price adoption, tax-rate correction, live database, cutover, Source activation or deployment.",
+          "evidence": [
+            "closing-commands-d163-2026-10-27-server-closing-commands-engineering-20261027"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-27",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "This local-only backend was not deployed by this phase; preserve historical runtime source/image identity and selected Docker metadata, without a new business/environment query.",
+          "evidence": [
+            "closing-commands-d163-2026-10-27-server-closing-commands-engineering-20261027"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-27",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "This local-only backend was not deployed by this phase; preserve historical runtime source/image identity and selected Docker metadata, without a new business/environment query.",
+          "evidence": [
+            "closing-commands-d163-2026-10-27-server-closing-commands-engineering-20261027"
           ]
         }
       }
