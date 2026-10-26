@@ -4168,6 +4168,19 @@
       "recordedAtSha": "85e9360c3aee704f42f2d711b910d0070c6929d8",
       "renderedSourceSha": "fc103fb87ed3df294922189b4954c1764903ef22",
       "sha256": "cbe80b57942c2a6da83c80f0fcffd2b6e32b3656a53748e4cf4791f52453561a"
+    },
+    {
+      "id": "decisions-delivery-coverage-main-anchor-869e-20261026",
+      "path": "docs/DECISION_LOG.md",
+      "mergeOf": [
+        "decisions-navigation-pr125-convergence-20261024-forward-main-9d65-20261025",
+        "decisions-delivery-coverage-client-current-20261024"
+      ],
+      "kind": "document",
+      "recordedAtSha": "c7f1c14f73d7247660cfbab307763cdbe759151c",
+      "renderedSourceSha": "fc103fb87ed3df294922189b4954c1764903ef22",
+      "sha256": "89f7c3d55276d114a7ebb47e42f994f82f5992c853224ce0e8c6ca2c3d221667",
+      "changeReason": "Bind the actual direct-parent merge of exact main N and the independent current D155 backend/client stage. Preserve both original Gate histories, all immutable records and verified21-route metadata; no guard exception, business change or manufactured ancestry."
     }
   ],
   "pages": [
