@@ -27,6 +27,7 @@
     "test:quote-version-workflows": "tsx --test --test-concurrency=1 server/integration/quote-version-workflows.integration.test.ts",
     "test:estimate-workflows": "tsx --test --test-concurrency=1 server/integration/estimate-workflows.integration.test.ts",
     "test:database-ops": "node --test scripts/__tests__/database-ops-safety.test.mjs && tsx --test server/db/migration-evidence.test.ts",
+    "test:persistent-recovery": "node --test server/integration/persistent-domain-recovery-fixture.test.mjs server/integration/persistent-source-ledger-recovery-fixture.test.mjs server/integration/persistent-financial-recovery-fixture.test.mjs server/integration/persistent-local-trial.integration.test.mjs",
     "preview:quote-master-settings": "tsx scripts/preview-quote-master-settings-backup.ts",
     "rehearse:quote-master-settings": "tsx scripts/rehearse-quote-master-settings.ts",
     "preview:quote-history": "tsx scripts/preview-quote-history-backup.ts",

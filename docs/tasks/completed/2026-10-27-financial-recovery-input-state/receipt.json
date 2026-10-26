@@ -1,0 +1,26 @@
+{
+  "at": "2026-10-26T20:42:57.162Z",
+  "files": [
+    {
+      "source": "d68c25663ac42a8746e15f44f610653e7d6cba06",
+      "path": "docs/CURRENT_STATE.md",
+      "archive": "docs/tasks/completed/2026-10-27-financial-recovery-input-state/CURRENT_STATE.md",
+      "gitBlob": "c5445c35ef64ce6bd99852e2caf271f2f404f550",
+      "sha256": "794b901f862b84757b02ceb356709809bb53fc8033886e813bbff81ed011cb04"
+    },
+    {
+      "source": "d68c25663ac42a8746e15f44f610653e7d6cba06",
+      "path": "docs/AI_HANDOFF.md",
+      "archive": "docs/tasks/completed/2026-10-27-financial-recovery-input-state/AI_HANDOFF.md",
+      "gitBlob": "b483c091c75fc1f1a109d88e01cfc518949d7724",
+      "sha256": "f2b10a886a1e37a892ae533f7117ef1f0198a92cd23ee319fbdc477e8af1819c"
+    },
+    {
+      "source": "d68c25663ac42a8746e15f44f610653e7d6cba06",
+      "path": "docs/PROJECT_INDEX.md",
+      "archive": "docs/tasks/completed/2026-10-27-financial-recovery-input-state/PROJECT_INDEX.md",
+      "gitBlob": "0cad0f71ddfbbca8839a29a2b44e0ac8db20fc3c",
+      "sha256": "82d16a63cfec1970df8ff7e29b7959675670b9bfbebaba94fc6f174e2dcec64e"
+    }
+  ]
+}

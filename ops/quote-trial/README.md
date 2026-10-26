@@ -113,6 +113,23 @@ protocol, including the complete delivery command; it never reapplies them in
 the new database. This does not establish stable shipment event IDs, cancellation
 or financial semantics.
 
+Also set `ZHIXU_LOCAL_TRIAL_FINANCIAL_RECOVERY=true` with domain recovery to
+exercise the existing 0045/0046 financial records. It creates synthetic confirmed
+quotes, adopts CNY sales/CNY work, locks a manually selected sales-only month,
+then explicitly confirms/adopts a trusted USD work successor in Quote Center.
+A second manually selected month contains distribution work and a separate
+zero-USD processing service. Period tax is explicitly supplied, not defaulted;
+the new quote sale must not overwrite the original order sale or locked history.
+The eight closing/adoption tables must be nonempty. Readbacks bind each original
+request UUID, command hash, order/period identity and applied result. Restart,
+cold recreation and independent recovery use the same existing full-table,
+pre-start sequence and object-byte checks. No command is replayed after restore.
+Use an exact image containing these migrations; the older 43-file image cannot
+prove this coverage. `npm run test:persistent-recovery` runs the receipt controls
+and skips the actual-image rehearsal unless its explicit image inputs are set.
+This remains synthetic engineering evidence, not financial acceptance, Source
+activation, a user-target upgrade or permission to deploy.
+
 ## Historical Quote trial candidate (2026-10-09)
 
 The candidate engineering evidence below is **not deployment evidence**. D-098 locks the merged Quote-first
