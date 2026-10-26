@@ -1,4 +1,4 @@
-import type { Pool } from 'pg';
+import type { Pool, PoolClient } from 'pg';
 import { readCurrentActor } from '../auth/current-actor.js';
 import { requirePermission } from '../auth/permissions.js';
 import type { TrustedIdentity } from '../auth/session.js';
@@ -9,13 +9,10 @@ import { assignmentsForOrder, productionPlansAvailable, readOrderPlanFacts } fro
 import { closingBasisFail, closingExecutionFingerprint, projectClosingPriceBasis,
   type ClosingCommercialBasis, type ClosingExecutionReference, type ClosingPriceLine, type ClosingBusinessType } from './basis-model.js';
 
-/** One physical SO and one REPEATABLE READ snapshot. This endpoint writes nothing. */
-export async function readClosingOrderBasis(pool: Pool, identity: TrustedIdentity, rawId: string) {
+/** Internal read primitive: caller owns the transaction and fresh identity. */
+export async function readClosingBasisInTransaction(client: PoolClient, actor: TrustedIdentity, rawId: string) {
   if (!identityUuid.test(rawId)) closingBasisFail(400, 'invalid_closing_order_id');
-  const id = rawId.toLowerCase(), client = await pool.connect();
-  try {
-    await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
-    const actor = await readCurrentActor(client, identity);
+  const id = rawId.toLowerCase();
     for (const permission of ['closing.view', 'order.view', 'schedule.view'] as const) requirePermission(actor.permissions, permission);
     await productionPlansAvailable(client); await productionExecutionsAvailable(client);
     const business = await requireVerifiedOrderBusiness(client, id), order = await readOrderPlanFacts(client, id);
@@ -52,6 +49,16 @@ export async function readClosingOrderBasis(pool: Pool, identity: TrustedIdentit
       executionFactsMeaning: 'cumulative_actual_not_monthly_events' as const,
       unperformed: ['period_assignment', 'tax_calculation', 'foreign_exchange', 'output_recognition', 'closing_confirmation', 'closing_lock'] as const };
     if (Buffer.byteLength(JSON.stringify(result)) > 1024 * 1024) closingBasisFail(422, 'closing_basis_response_too_large');
+    return result;
+}
+export type ClosingOrderBasis = Awaited<ReturnType<typeof readClosingBasisInTransaction>>;
+/** One physical SO and one REPEATABLE READ snapshot. This endpoint writes no business facts. */
+export async function readClosingOrderBasis(pool: Pool, identity: TrustedIdentity, rawId: string) {
+  if (!identityUuid.test(rawId)) closingBasisFail(400, 'invalid_closing_order_id');
+  const client = await pool.connect();
+  try {
+    await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
+    const result = await readClosingBasisInTransaction(client, await readCurrentActor(client, identity), rawId);
     await client.query('COMMIT'); return result;
   } catch (error) { await client.query('ROLLBACK').catch(() => undefined); throw error; } finally { client.release(); }
 }

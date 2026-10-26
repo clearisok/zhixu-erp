@@ -23,6 +23,16 @@
 
 ## Active
 
+### D-163 Server关账持久快照、渠道与原子命令
+
+- 日期：2026-10-26；Active engineering，实施D-162已批准口径；不替代其业务公式、币种或手工确认。D162下文Gate8A“尚无写入”是原切片事实，当前本地Gate8B进展由本条及独立契约接续。
+- 一份归属一份手工数量，销售/工价/两项渠道显式选择；加工仅工价，单列服务产值。BigInt有理数精确计算，汇总后half-up显示6位；不自动换汇、不以累计生产分月、不回写报价/订单/排单。税率创建时显式确认，本切片固定；税率更正、USD新工价采用与UI后续，不能以SQL替代。
+- 0045只加七张空Server表，版本/身份不可变，head前进；精确商业、稳定颜色、原计划/执行版本与请求FK。既有实际采用价格为唯一金额来源，新建/修改预览采用当前版本；复核只更新reviewBasis，作废保留原快照。无跨期搬移命令、历史导入、seed或旧迁移改写。
+- open/confirmed/locked独立，确认和锁定以完整版本清单冻结。重开需原权限与原因，原locked版本仍可读。生产更正后未锁须复核；锁等待后READ COMMITTED重新核对实际事实，不使用陈旧RR预览。旧新渠道权限并集用于间接修改及期间状态操作；独立金额投影覆盖摘要、历史、备注/原因与回执。
+- 复用原effective fence、生产/resource锁、fresh身份、OperationLog、expected版本和actor/request幂等。快照/head/审计/回执原子提交；稳定拒绝有回执，未知COMMIT保持unverified，原请求读取等待在途锁。已有真实执行方停用不妨碍作废/重开，不改原执行方事实。preview/execute在任何领域应用前核对真实PG jsonb字节预算，SQL限额不放宽；NUL和不可表示Unicode拒绝。
+- 归一引用清单包含closing直接引用及heads/period/history/commands/audit全行摘要；旧锁定历史仍要求财务核对，不启用归一执行。新owned合成库演练非空44→45及完整备份恢复，未碰现有库或Docker卷。
+- 代码证据：`database/migrations/0045_server_closing_snapshots.sql`、`server/closing/{contract,snapshot,repository,service,read-service,routes}.ts`及三组新测试；[契约](features/SERVER_CLOSING.md)。本地工程、精确守卫/独立复审、远端交付、UI/人工接受分别记录；无新真实Source/激活、Hosted CI、合并、部署或旧路径退役。
+
 ### D-162 Server 关账口径、手工确认与依据更正保护
 
 - 日期：2026-10-26；Active approved target。补齐 D-147/D-152 当时保留的关账口径；D-042 及下列 Browser 描述仍为历史路径，不作为 Server 的默认值或迁移来源。
