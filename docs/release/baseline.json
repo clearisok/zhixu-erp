@@ -2560,6 +2560,27 @@
       "sha256": "93e8f0dc02ae304d2c529b74937c94305002539f34e81a85ee94041e5b9259c5",
       "changeReason": "New synthetic before/after observations for approved D147 Gate6B Server restoration of the existing production-scheduling route. Keep all previous PNG bytes/IDs. DPR1.25 and default764 top views are stated accurately; no V2/V3 redesign, human acceptance, Source activation or deployment.",
       "approvalEvidence": "decisions-server-convergence-20261020"
+    },
+    {
+      "id": "decisions-production-planning-main-869e-20261026-merge",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "11c6b0e2099346bcec1903c9508392270b30b541",
+      "sha256": "be3c04a00cc2bb1ab56df2a8b48f212ba948140eca4c0d4953e0802ff2596190",
+      "mergeOf": [
+        "decisions-navigation-pr125-convergence-20261024-forward-main-9d65-20261025",
+        "decisions-production-planning-current-20261024"
+      ],
+      "changeReason": "Freeze the real two-parent current-main plus independent G6B merge. Retain both original decision branches, D149/D150 history and all parent evidence without changing business rules, original hashes or runtime states."
+    },
+    {
+      "id": "production-scheduling-server-main-869e-20261026-forward",
+      "kind": "document",
+      "path": "docs/features/PRODUCTION_SCHEDULING.md",
+      "recordedAtSha": "11c6b0e2099346bcec1903c9508392270b30b541",
+      "sha256": "dee7fa43ee13c40875f4086e6ed9b6628e37dd08ffa7b2a48c29fc3c81df33e7",
+      "supersedes": "production-scheduling-server-current-20261024",
+      "changeReason": "Genuine current-main and independent G6B merge witnesses the unchanged Server production-scheduling feature revision against the new main. Preserve the original 692774 record and original source/QA limits; this is not a new product or deployment claim."
     }
   ],
   "pages": [
