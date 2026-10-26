@@ -21,3 +21,5 @@
 实际修后终态：test source 01d112b98e02d8aaacb4af14b4fa4522d6d3c207 / actualParent 49ff169b09e22f3891beab17ed2b6b605d168e31 / phaseBase f8ed7f33c911cc1ec52cf3b3d9432912ac5aa80f，renderSource 6d27d1e7fa1079f1830511068ff070791df310ab；canonical 2983 tracked files/0 overlay，复用dist 1211字节匹配文件。实际9/9、23202ms、0 fail/cancel/skip/timeout/overflow；语法/lint/YAML/8原phase体校验通过，旧50/179/27元数据changes=[]。完整原件hash见[证明](../completed/2026-10-26-payment-panel-ci-validation.md)。下一步最终守卫/复审后仅更新原PR130，未交付新修，不称新CI通过。
 
 实际Q 45a4c2324f5e8a792fe69fd157b7d09b230842aa冻结证明；R只追加独立根至504证据/66能力，旧503与其他manifest/UI字段不变。最终同HEAD门禁与复审待实际结果。
+
+首次最终候选2c055e3f2c5b4f434a619601f4af2f3ee9714543的exact-main守卫131615ms FAIL，仅AI_HANDOFF/PROJECT_INDEX漏写完整main基线SHA。补齐两份状态文档的同一已核实869ee84dd0b31de6161011e4aa560678b244a64d，不改证据/业务/测试；原guard.json/log保留，新文档提交另做精确守卫，不重跑9项或构建。
