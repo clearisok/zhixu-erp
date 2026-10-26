@@ -2,7 +2,7 @@
 
 2026-10-26；main 869ee84dd0b31de6161011e4aa560678b244a64d于2026-10-26T07:40:09.751Z独立API核实，open PR 0。codex/garment-controlled-main-869e从N建立后显式快进2509b7cb0cda644ae4dbb2d87d442fadea706085，普通合流实际N-direct A 52afadf649d36bf54a715b878ba2db153f9d2a90的绑定R 9505704aae6c32b532ab8fc7c143a41431138e91。collector 4b8efa166c6c5af48dc954d4bac7d080bdd8d294 → target d4060b60a52db766c548b20a5974b43a224784a8 → operator 7da954545bd9b720bfc28edbd313bc387dd5c195均真实祖先，三原Gate历史完整保留；全部非docs精确source 8cf667f26f191b0ca1d3b31b423dd293d7f2a5b6。
 
-先读[本阶段](tasks/active/garment-controlled-main-869e-2026-10-26.md)、[N见证](tasks/active/garment-controlled-main-anchor-869e-2026-10-26.md)和outputs/garment-controlled-main-869e-20261026。13项新冻结document逐Git blob/hash核对，52份继承UI记录保持；新V0仅operation-log model一条路径，原JSON及三摘要逐字归档，只前向base和阶段链接。A/R保留Dlog、同字节closing与production完整修订，production单叶不伪造merge；L/P只关闭Dlog和production两真实剩余叉。全部父记录和11页/21路由metadata保持。实际中间499/66，保存L后绑定两见证至501/66。
+先读[本阶段](tasks/active/garment-controlled-main-869e-2026-10-26.md)、[N见证](tasks/active/garment-controlled-main-anchor-869e-2026-10-26.md)和outputs/garment-controlled-main-869e-20261026。13项新冻结document逐Git blob/hash核对，52份继承UI记录保持；新V0仅operation-log model一条路径，原JSON及三摘要逐字归档，只前向base和阶段链接。A/R保留Dlog、同字节closing与production完整修订，production单叶不伪造merge；L/P只关闭Dlog和production两真实剩余叉。全部父记录和11页/21路由metadata保持。实际L冻结三文档组合，P绑定Dlog/production两真实剩余叉至501/66；closing仅沿A/R单叶保留。最终同HEAD守卫及终审按回执核定。
 
 D158复用0040观察发布，0043只增加空的actor/request技术账本；采前确认started提交，网络期间不持DB锁，采后fresh权限/合同/颜色/target/CAS核对与快照、审计、终态同事务。原回执未知不回收、不换UUID重采。worker固定6086979单合同两遍完整首页，各100行；最多1登录+2报表、4MiB单响应/8MiB报表/180秒，零重试或翻页；严格原文hash/无损JSON/完整计数/精确合同及两遍校验保持。
 
@@ -17,3 +17,5 @@ D160/161沿原0040目标、0043采集及0044启停回执提供唯一原源码CLI
 后续仍须累计范围验证、稳定成衣事件身份及更正、Server关账三项待决、真实Source具体额度/目标激活、目标环境切换与人工验收、依赖审计后退役。可见交期覆盖V2未批准也未实现；完整G1–G8/R Goal active，三个受控工程入口不等于运行激活或人类授权。
 
 NETWORK_DEGRADED保持：用户普通PowerShell三种只读Git均exit128/uncertain_transport、约5.35秒，可排除仅Codex会失败，仍不能据JSON断定相同TLS环节或根因。不重复原Git探测/推送，不改共享代理/TLS/认证，原H0d70授权及STOP保留。本阶段Push/新PR/Hosted/真实Source/凭据/账号/现有业务库/卷备份操作均0；不启用、绑定、调度、部署、merge main、切换或退役，3001/50426/59069/62426等旧对象与Browser数据保护。
+
+实际L 63cfab62f31677560631373b4892f91b5ddbfd57（tree 8f2f2e39b5212ea2d90752b9b5ff9bda4940841d，父[2509b7cb0cda644ae4dbb2d87d442fadea706085,9505704aae6c32b532ab8fc7c143a41431138e91]）绑定decisions-garment-controlled-main-869e-20261026-merge、production-garment-controlled-main-869e-20261026-merge，hash各取实际L Git blob；A 52afadf649d36bf54a715b878ba2db153f9d2a90、R 9505704aae6c32b532ab8fc7c143a41431138e91及三原Gate历史保持。501/66证据/能力、11页/21路由完整，最终守卫与复审后置。
