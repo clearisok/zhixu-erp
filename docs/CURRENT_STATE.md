@@ -4,7 +4,7 @@
 
 已按D169前向退役服务层新手工create/update，保留历史成功回执、原hash/fresh权限、读取、review/void、原manifest和带原因重开。确认/锁定阻断所有active未linked记录，缺0049 schema明确503。新量只由已初始化月份计划和明确sync供给，无SQL更改、历史回填或业务重算。[契约](features/SERVER_CLOSING_WRITE_RETIREMENT.md)。
 
-6组owned PG/HTTP56项和恢复夹具8项，共64项通过；覆盖并发、权限、两个SO混合期间持久拒绝、缺schema、COMMIT未知、审计回滚、冻结历史和全表/序列非空dump恢复。规范副本根类型/Server构建、14文件lint均PASS；失败与OOM原件及逐源检查见[阶段](tasks/active/closing-write-retirement-2026-10-27.md)。新镜像恢复尚未运行，累计守卫另记，不能冒充Hosted/完整发布或新浏览器验收。
+源码2be72168de24977625ad3bb40d0d4678671e3bd6：6组owned PG/HTTP56项和恢复夹具8项，共64项通过；含并发、两个SO混合期间持久拒绝、COMMIT未知、审计回滚、冻结历史及全表/序列非空dump恢复。规范副本根类型/Server构建、14文件lint、独立窄审与累计main源码守卫PASS，547证据/12页/68能力；失败、OOM原件及逐源限制见[阶段](tasks/active/closing-write-retirement-2026-10-27.md)。新镜像恢复尚未运行，不冒充Hosted/完整发布或新浏览器验收。
 
 G2e正式UI已真实构建Chromium9/9、响应式20/20及独立复审；新owned演示保持READY和用户后续输入，不替换为本片后端。已实际演示SO1外发10件2→11月，全年2000CNY/50USD不变。旧环境、Browser namespace、卷和备份保留。
 

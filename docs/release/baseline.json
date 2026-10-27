@@ -4941,6 +4941,25 @@
       "sha256": "b2e92986aa8f811a81dac2b97333f89580c9125d355ba20530fceec6347d461a",
       "changeReason": "Specifically approved formal Server closing adjustment UI, actual exact-source synthetic Chromium and a new owned live demonstration. No legacy evidence replacement, capability promotion, user acceptance, source activation or deployment.",
       "approvalEvidence": "closing-adjustment-ui-approval-20261027"
+    },
+    {
+      "id": "closing-write-retirement-d173-decisions-20261027",
+      "path": "docs/DECISION_LOG.md",
+      "supersedes": "closing-annual-read-d172-decisions-20261027",
+      "kind": "document",
+      "recordedAtSha": "2be72168de24977625ad3bb40d0d4678671e3bd6",
+      "renderedSourceSha": "2be72168de24977625ad3bb40d0d4678671e3bd6",
+      "sha256": "8a01c5bba96c7cf1d446d9ed2655f2b0fc951d1a83ac9457ffcfec69cb74e58c",
+      "changeReason": "D173 implements approved D169: service-level retirement of new manual quantities, strict linked-month confirmation/locking and preservation of historical snapshots, original receipts and explicit recovery. Synthetic local checks only; no capability promotion, new deployment or live demo replacement."
+    },
+    {
+      "id": "closing-write-retirement-contract-20261027",
+      "path": "docs/features/SERVER_CLOSING_WRITE_RETIREMENT.md",
+      "kind": "document",
+      "recordedAtSha": "2be72168de24977625ad3bb40d0d4678671e3bd6",
+      "renderedSourceSha": "2be72168de24977625ad3bb40d0d4678671e3bd6",
+      "sha256": "d35f70d9979c1ea1dc6984e20672dce778c86de7571a41878db30cc87ab46f03",
+      "changeReason": "D173 implements approved D169: service-level retirement of new manual quantities, strict linked-month confirmation/locking and preservation of historical snapshots, original receipts and explicit recovery. Synthetic local checks only; no capability promotion, new deployment or live demo replacement."
     }
   ],
   "pages": [

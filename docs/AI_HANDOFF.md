@@ -4,7 +4,7 @@
 
 [契约](features/SERVER_CLOSING_WRITE_RETIREMENT.md)、[阶段](tasks/active/closing-write-retirement-2026-10-27.md)、[输入原件](tasks/completed/2026-10-27-closing-write-retirement-input-state/README.md)。服务层先回放既有原命令/fresh权限，再拒绝新create/update；无schema时新confirm/lock503、所有active无link409。review不改量价，旧unlinked void和reasoned reopen保留，linked只能sync作废。
 
-实际64项相关验收、根类型/Server构建和最终lint通过；production静态复审0P1/P2。旧测试改为真实move/match/sync，不开兼容开关；仅历史夹具受owned容器/库名双约束。新持久镜像夹具转为月份命令与完整link盘点，8项单元不代表新镜像恢复通过。累计守卫及本片commit另收口；新PR交付前仍需必要完整发布门禁和CI，不因旧PASS跳过。
+源码2be72168de24977625ad3bb40d0d4678671e3bd6已独立提交。实际64项相关验收、根类型/Server构建、最终lint与两次独立窄审通过（0P1/P2）。1157代码/配置输入与规范副本hash匹配；main869累计源码守卫PASS（checkedHead2be加工作清单、547证据/12页/68能力/83UI路径），元数据提交不冒称另一次运行。旧测试走真实move/match/sync，仅历史夹具受owned容器/库名双约束。新镜像夹具的8项单元不代表镜像恢复；新PR交付前仍需必要完整发布门禁和CI。
 
 保留运行中的G2e实机演示及后续用户输入：本机准确URL/PID见outputs/closing-adjustment-ui-current-20261027/demo-runtime.json，源码4107aea1，不是G2f热更新。不要停止、重seed或替换。旧环境/Browser/卷/备份保持，无新Source读取或付费Actions。
 
