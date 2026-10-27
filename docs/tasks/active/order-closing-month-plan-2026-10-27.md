@@ -15,3 +15,5 @@
 未改UI文件/页面能力状态/真实来源/账号及现有库；合成一次性PG通过原fixture创建清理。不借Gate8F原恢复/811/144结果充当本片验收。相关测试并入原`test:closing-backend`命令，复用既有CI job，不新增push/PR触发器或付费run。
 
 旧状态及原草图逐字保留于[input-state](../completed/2026-10-27-closing-month-plan-input-state/README.md)。修订草图是交互原型，不是页面批准；见[新草图](server-closing-ui-proposal-2026-10-27.md)。目标Goal仍active，后续正式UI与远端交付分别收口。
+
+源码S已冻结为0969d74c5d5f6dabbd2d095c42824f80be090ab7。最后规范副本类型通过，914类型输入与S文本核对、751非integration类型输入与原Server构建副本字节核对均一致；全部旧SQL与三个冻结根文档保持原blob。独立窄审0P1/P2；新清单530→532且旧记录/68能力/其他字段不变。[分源工程证明](../completed/2026-10-27-order-closing-month-plan-engineering.md)承接本阶段，最终元数据HEAD守卫与发布测试按本机final.json核对，不借旧结果。

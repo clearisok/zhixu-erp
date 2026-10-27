@@ -4799,6 +4799,25 @@
       "recordedAtSha": "394e2ae4b671f9a51b40fa4e7d3039b811590e08",
       "renderedSourceSha": "545fe97ad1eb14302c2d87ae3b975b9434414a2d",
       "sha256": "7e1fa943d5fb3387ddeef43f8a89689c55a5fafb18b69f4801bb2acc22d11737"
+    },
+    {
+      "id": "order-closing-month-plan-d169-decisions-20261027",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "0969d74c5d5f6dabbd2d095c42824f80be090ab7",
+      "renderedSourceSha": "0969d74c5d5f6dabbd2d095c42824f80be090ab7",
+      "sha256": "e17dd5e61c15cd4179a6ef5cad99514de849c9e561b66e9ceaa4733482f639c9",
+      "supersedes": "server-closing-controller-d168-decision-log-20261027",
+      "changeReason": "D169 user-revised order delivery-month planning and two-output target; preserve immutable price/production history and all earlier evidence. Gate8G1 is internal unpriced backend only, not UI approval or activation."
+    },
+    {
+      "id": "order-closing-month-plan-d169-contract-20261027",
+      "kind": "document",
+      "path": "docs/features/SERVER_CLOSING_MONTH_PLAN.md",
+      "recordedAtSha": "0969d74c5d5f6dabbd2d095c42824f80be090ab7",
+      "renderedSourceSha": "0969d74c5d5f6dabbd2d095c42824f80be090ab7",
+      "sha256": "bb244512b6a111fd5af5fdeaa2ee47573a9f78933e1fe39ce4dfa97cc6e73432",
+      "changeReason": "D169 user-revised order delivery-month planning and two-output target; preserve immutable price/production history and all earlier evidence. Gate8G1 is internal unpriced backend only, not UI approval or activation."
     }
   ],
   "pages": [
