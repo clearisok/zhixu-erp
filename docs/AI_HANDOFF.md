@@ -12,6 +12,8 @@
 
 ## 实机与环境保护
 
+2026-10-28后续实机诊断（clean输入ae77c8597ea3b95c2886fc8877053af97a9978f2）：tab5按钮enabled、无inert/遮挡，真实渲染器complete/focused/visible；范围切换后实际回到登录页，当前会话不可用，过期/多入口cookie影响等具体原因未证明。表单两个输入有效，未读取或记录密码内容；普通点击、键盘和已核对坐标的CDP输入均未完成提交。仅在显式Network.enable后的输入段捕获0请求/响应/失败事件，buffer无截断；此前未启用的空事件不能证明无请求。诊断Network已disable，不留临时页面修改。当前停在已填合成账号的登录表单，等待用户手动点击登录并试调月；不能据此修业务代码或宣称人工验收通过。没有业务Save、reload/reseed/clear、DB/Source/Hosted/远端操作。新截图及脱敏receipt位于outputs/closing-live-control-diagnostic-20261028；旧四个tab均已重新markDeliverable。
+
 - 用户实机http://localhost:62411/closing-center?year=2027，合成closing.editor / synthetic-closing，source fde8b0f1f467edfc864cbd616756ad1778c9f40e、build closing-chain-fde8b0f1-20261028；产品/SQL与cf77相同，owned tmpfsPG zhixu-pg-it-49b6fa3d9241，child46344/launcher20724，非正式持久目标。三处旧demo保持，不reseed/reload用户页；旧61104输入/5件预览、tab4整单预览和53001保留。
 - Cua browser2，demoTab(tab1)、closingDemoTab(tab3)、currentClosingDemo(tab4)、deliveredClosingDemo(tab5)本片已markDeliverable；下一轮需要保留时重新标记。tab5“仅外发”2月/11月各10件/CNY1000/USD25、全年2000/50已实际读取。旧click三方式及本片Return均未打开调整弹窗，无新Save；tab4仍CDP focus timeout，停止重复。不要把自动尝试算PASS或直接认定产品bug，用户可手动体验。最新live-demo.jpg在本片outputs，open_in_codex显示请求queued不等于已在前台。
 - 新持久空候选https://localhost:62428，project zhixu-quote-trial-server-g8-7ab874a33c，私密root D:/zhixu-server-convergence/gate8-empty-cf77-7ab874a33c。cf77image ID ec2987de1be1dd31435a766081bafcbd11b98fe9efbc24333b236c5811ac74a6，50迁移/0051、五服务/四持久卷、111业务表0/唯一local.admin、READY/restart原通过。不要读取/输出secrets，不安装系统信任或越过浏览器警告。start-reviewed一次额度已用，不能重新完整执行；无需操作该目标。
