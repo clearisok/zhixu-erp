@@ -1,13 +1,13 @@
-# 恢复点：source125镜像恢复与浏览器通过，继续配套UI/复审
+# 恢复点：配套入口提案已完成，等待具体UI批准
 
-2026-10-28；branch `feat/order-closing-month-plan`；核实main869ee84dd0b31de6161011e4aa560678b244a64d沿用，无fetch/远端写；原Git/ref STOP未解。G2i clean/source12520f425a4171095495f740ca129df38c61b085；本片只追加工程记录/状态校准，源码与旧资产保持。
+2026-10-28；branch `feat/order-closing-month-plan`，G2j clean输入ff2cf62eed273d56116bb81ffbbea532b322513d；核实main869ee84dd0b31de6161011e4aa560678b244a64d沿用，无fetch/远端写。Git/ref STOP_AUTH_OR_DIVERGENCE原退出1根因仍UNRESOLVED，PR130旧61704afe，不能自行push或移动ref。
 
-D174/0050原工程与失败/修复、类型/lint、549守卫、发布112/127后42/42均归ee84/125，保留[原证明](tasks/completed/2026-10-27-closing-source-reconciliation-engineering.md)，不重复旧成功检查。本轮source125规范archive3202blob/0overlay，新镜像zhixu-closing-final:12520f42-20261027-aae2a970dd，ID sha256:d84fef13481d4ba940e40863c6f1f30a1b768fc690746f7be30068d41f001916；49迁移/0050及前后端identity一致。
+本片只有[三处配套入口具体提案](tasks/active/closing-support-interfaces-proposal-2026-10-28.md)、私密合成草图及文档阶段校准，没有正式UI/API/schema增量。核心关账调整已有[人类批准](tasks/completed/2026-10-27-closing-adjustment-ui-approval.md)，不得重问；新Source复核、执行方匹配、Quote USD采用/历史的具体UI仍待本提案批准，不把等待或Goal继续视为答复。
 
-一次build76375ms、完整非空恢复519484ms 9/9、镜像静态产物＋同source host合成API实际Chromium15462ms 9/9。恢复前121张public表与序列一致；13张财务表非空、18读取/18原回执，8条月份命令含Source复核。两新nonce项目成功后已按原harness清理；旧66容器/191卷/33网络/278refs两次检查changes=[]。私密原件outputs/closing-final-image-recovery-20261027；[当前精确证明](tasks/completed/2026-10-28-closing-current-image-recovery-engineering.md)。原78准备仍0build/0run，不能挪用新证明。
+草图位于thread可视化根closing-support-interfaces.html，SHA256 12c7d56bad06970775ae4a8bdbce21e435a44a0c5fa8e6661021750ed024b50a；原型9组PASS，736浅色/320深色触屏、无错误/网络请求。初次状态回显、窄屏切换及重渲染目标冲突失败原件和截图保留在outputs/closing-support-ui-proposal-20261028，不混作产品验收。BUSINESS_RULES保留D162原段落并明确D169替代的手工/三项与旧只读状态，不新增业务规则。
 
-最终独立复审因模型额度仍未完成，不能写0P1/P2；不反复撞同一限制。Git/ref STOP根因仍UNRESOLVED，PR130旧617，未推送/Hosted。核心关账UI已由人类明确批准且接线，旧proposal的pending标记已校正，不再重问；新Source复核/执行匹配/Quote USD采用UI仍需具体方案与范围批准，可先准备原型，不能借旧批准扩展。
+已核实显示读取缺口：月份state缺颜色/执行方名称及全部所引用期间状态；计划用现有stable identity、immutable resource hash及期间读取补有界无金额投影，缺证据不猜。USD页签须独立于旧sale allowed集合，采用原labor client/controller；不能因此取得sale/cost权限。批准后按显示投影+Source UI、执行方UI、USD采用/历史UI三片推进，保留原CAS/回执/权限/冻结；现有归属漂移恢复命令未完成，不假称匹配能覆盖它。
 
-61104/source4107演示HTTP200、旧5件调月预览未确认；tab3及旧tab1/用户输入保留，禁止停止/重seed/替换。旧环境/Browser/卷/备份/真实Source/账号业务库保持。完整Goal未完成；UI、独立复审、远端/必要CI、显式合并/目标切换分别处理，不自动部署或退役。
+上一片source12520f425a4171095495f740ca129df38c61b085的3202blob/0overlay、49迁移/0050、一次镜像构建、完整非空恢复9/9、镜像静态产物＋同source合成API Chromium9/9，见[精确证明](tasks/completed/2026-10-28-closing-current-image-recovery-engineering.md)。证明checkpoint41451b95为第550证据，守卫PASS base869/checked414，旧549记录及状态截图保持。原ee84定向检查、旧发布112/127后定向42/42和原78未运行准备稿仍按各自source归档；不重跑成功未变检查或冒称新正式UI通过。
 
-工程证明checkpoint41451b9523c546f73a2d99dc836c96398cce9f1d；清单仅追加`closing-current-image-recovery-engineering-20261028`，旧549证据及页面/能力/截图原样保留。550证据精确守卫PASS：base869ee84、checkedHead41451b95、12页面/68能力/累计83 UI路径，working manifest冻结本次source125证明；未重复无改动的类型、lint、全量发布负控或已成功恢复/浏览器。本片最终HEAD仅元数据收口，不冒称镜像source变化。实机tab3已重新展示并保留，5件2月→10月仍仅预览。
+61104/source4107演示、tab3中蓝色外发5件2月→10月未保存预览、tab1用户输入及其他旧环境/Browser/卷/备份保持，禁止停止/重seed/替换。最终独立复审因额度未完成，不反复尝试、不写0P1/P2。本片Hosted/真实Source/远端写0，无现有账号/业务库、merge、正式部署、目标切换或退役。完整Goal active未完成：配套UI批准/实施、独立复审、精确远端/必要CI、显式合并/目标切换分别收口。
