@@ -1,9 +1,9 @@
-# 当前状态：来源复核本地实现，最终恢复仍待验证
+# 当前状态：当前关账镜像恢复与浏览器验收通过
 
-2026-10-27；branch `feat/order-closing-month-plan`；main869ee84dd0b31de6161011e4aa560678b244a64d沿用核实，无fetch/远端写；Git/ref STOP未解，PR130仍旧61704afe。
+2026-10-28；branch `feat/order-closing-month-plan`；main869ee84dd0b31de6161011e4aa560678b244a64d沿用核实，无fetch/远端写；Git/ref STOP未解，PR130仍旧61704afe。
 
-D174源码ee84db5b5891d66e571214a35666370018a8a271已保存：同一月份命令/CAS/原回执，旧行只减量、增量待分月/未分配、逐色精确、同色不能先减再加；0050保留旧历史/冻结行/basis。没有新Source复核UI、价格或财务写入。[契约](features/SERVER_CLOSING_SOURCE_RECONCILIATION.md)、[本地证明](tasks/completed/2026-10-27-closing-source-reconciliation-engineering.md)。相关PG、严格客户端、类型与lint通过；最终独立复审因额度未完成，不能声称0剩余P1/P2。
+D174/0050来源显式复核已随source12520f425a4171095495f740ca129df38c61b085进入本次镜像：3202blob/0overlay，一次构建76375ms，49迁移/最高0050。新镜像ID d84fef13481d4ba940e40863c6f1f30a1b768fc690746f7be30068d41f001916。完整非空恢复9/9、519484ms；启动/登录前121张public表及序列一致，18份财务回执恢复。镜像静态产物＋同source合成API实际Chromium9/9、15462ms。[精确证明](tasks/completed/2026-10-28-closing-current-image-recovery-engineering.md)。
 
-源码ee84及549证据精确守卫通过（12页面/68能力/83累计UI路径）；发布首次112/127，前向证据修复后只补验原失败入口及子项42/42，原失败与包装计数误判保留，不冒称新全量。新source完整镜像/恢复尚未build/run。G2g source78的3193blob准备与24PASS/1设计SKIP只证明原准备；[原证明](tasks/completed/2026-10-27-closing-current-image-preparation.md)保留。
+旧资产66容器/191卷/33网络及278本地refs所核对信息无变化；本轮新owned成功项目已清理，旧卷/备份不动。原78准备稿仍build/run0；旧发布112/127及补验42/42按原来源保留，不重跑成功未变检查。核心关账修订草图已批准并接线，过期pending说明已校正；Source复核、执行匹配、独立USD采用具体UI仍是不同范围。
 
-61104/source4107aea1关账演示已实际登录并打开5件调月预览，未点击确认；用户数据保持，不停止、重seed或替换。旧环境/Browser/卷/备份、真实Source与账号业务库不动。完整目标未完成；待独立复审、当前镜像非空恢复、执行匹配UI、独立USD采用UI及远端/CI/显式合并部署。Hosted0，无自动切换或资产退役。
+61104/source4107aea1演示保持、HTTP200，不停止/重seed/替换，原预览未确认；没有真实Source、现有账号或业务库操作。最终独立复审因额度未完成，不声称0剩余P1/P2。完整目标未完成：后续配套UI具体方案/批准、独立复审、远端交付与必要CI、显式合并/目标切换。Hosted0，无自动部署或资产退役。

@@ -1,5 +1,7 @@
 # Gate8G2g：当前月份关联的镜像非空恢复
 
+2026-10-28后续入口：[source125完整恢复及浏览器证明](../completed/2026-10-28-closing-current-image-recovery-engineering.md)已完成。下文继续保留G2g/source78的原准备事实，其build/rehearsal仍为0；不能将新结果改绑旧候选。Source明确复核已在D174实现，最终独立复审仍待完成。
+
 2026-10-27；branch `feat/order-closing-month-plan`，clean输入63c57892ae79385282c81d800e10e0c3020151fc；沿用核实main869ee84dd0b31de6161011e4aa560678b244a64d，无fetch/远端写。原Git/ref STOP未解。G2f的64项与源码守卫属于其原精确来源，不重跑或冒称当前镜像已验。
 
 ## 范围与原环境问题

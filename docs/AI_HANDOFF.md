@@ -1,11 +1,11 @@
-# 恢复点：Source复核ee84本地证据已收口，独立复审/镜像仍待完成
+# 恢复点：source125镜像恢复与浏览器通过，继续配套UI/复审
 
-2026-10-27；branch `feat/order-closing-month-plan`；核实main869ee84dd0b31de6161011e4aa560678b244a64d沿用，无fetch/远端写；原Git/ref STOP未解。clean阶段输入51e393614ad8418745175793aa3f66d3a0a15326；所有本片dirty均已核实为本片增量。
+2026-10-28；branch `feat/order-closing-month-plan`；核实main869ee84dd0b31de6161011e4aa560678b244a64d沿用，无fetch/远端写；原Git/ref STOP未解。G2i clean/source12520f425a4171095495f740ca129df38c61b085；本片只追加工程记录/状态校准，源码与旧资产保持。
 
-D174/0050实现来源明确复核，服务/严格客户端/延迟SQL/审计与原回执共用。模型16、客户端/回执控制31、旧move/match模型8通过；PG组合31/33，两个旧升级比较仅因新增nullable列失败，明确验证SQL NULL后定向2/2。早期别名、测试表名、JSON null、lint失败日志均保留。canonical根类型32651ms/server7713ms通过；后续只改一测试文件两处const并通过13文件lint。不可冒称新全仓、浏览器或镜像验收。
+D174/0050原工程与失败/修复、类型/lint、549守卫、发布112/127后42/42均归ee84/125，保留[原证明](tasks/completed/2026-10-27-closing-source-reconciliation-engineering.md)，不重复旧成功检查。本轮source125规范archive3202blob/0overlay，新镜像zhixu-closing-final:12520f42-20261027-aae2a970dd，ID sha256:d84fef13481d4ba940e40863c6f1f30a1b768fc690746f7be30068d41f001916；49迁移/0050及前后端identity一致。
 
-源码ee84db5b5891d66e571214a35666370018a8a271，新增D174前向证据与契约，549证据精确main守卫通过（12页面/68能力/83累计UI路径）。发布首次127项112PASS/15FAIL均为尚未前向冻结；修复后15入口含27子项42/42通过。私密wrapper误期望15，实际子进程code0/42PASS已离线验证，不重跑或覆盖。独立最终复审因模型额度失败，不能写0P1/P2；原评审P2按负控修复，仍需最终review。[完整证明](tasks/completed/2026-10-27-closing-source-reconciliation-engineering.md)，原件outputs/closing-source-reconciliation-20261027。
+一次build76375ms、完整非空恢复519484ms 9/9、镜像静态产物＋同source host合成API实际Chromium15462ms 9/9。恢复前121张public表与序列一致；13张财务表非空、18读取/18原回执，8条月份命令含Source复核。两新nonce项目成功后已按原harness清理；旧66容器/191卷/33网络/278refs两次检查changes=[]。私密原件outputs/closing-final-image-recovery-20261027；[当前精确证明](tasks/completed/2026-10-28-closing-current-image-recovery-engineering.md)。原78准备仍0build/0run，不能挪用新证明。
 
-Source-ledger真实合成刷新primary100→120后，金融seed现显式reconcile_source，不换SO或覆盖计划。只有最终新source规范候选可用于下一次有界镜像/恢复。G2g source78的prepared/archive保持build=0/rehearsal=0，不冒用；Docker默认池满，复用已验新nonce私有IPAM harness，失败保留本轮owned现场。
+最终独立复审因模型额度仍未完成，不能写0P1/P2；不反复撞同一限制。Git/ref STOP根因仍UNRESOLVED，PR130旧617，未推送/Hosted。核心关账UI已由人类明确批准且接线，旧proposal的pending标记已校正，不再重问；新Source复核/执行匹配/Quote USD采用UI仍需具体方案与范围批准，可先准备原型，不能借旧批准扩展。
 
-61104/source4107演示HTTP200，已实际登录并打开5件从2月到10月的预览（未确认/未改订单数据），deliverable tab3和截图已保留；禁止停止/重seed/替换，旧tab1及用户输入不动。旧环境/Browser/卷/备份/真实Source/账号业务库保持。完整目标未完成；新Source UI、执行匹配UI、USD采用UI、独立复审、当前镜像、远端/CI与合并部署边界分别处理，不缩小Goal。
+61104/source4107演示HTTP200、旧5件调月预览未确认；tab3及旧tab1/用户输入保留，禁止停止/重seed/替换。旧环境/Browser/卷/备份/真实Source/账号业务库保持。完整Goal未完成；UI、独立复审、远端/必要CI、显式合并/目标切换分别处理，不自动部署或退役。
