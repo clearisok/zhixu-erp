@@ -2,6 +2,8 @@
 
 2026-10-28；branch feat/order-closing-month-plan；沿用核实main869ee84dd0b31de6161011e4aa560678b244a64d，无fetch/远端写，原Git/ref STOP未解。
 
+当前推进[关账核心业务链终审修复](tasks/active/closing-chain-correctness-review-2026-10-28.md)，clean输入f37b612e。只读终审2项P2：未选冻结月被全局归并、年度资源预读无累计预算。前者已实际红测并修模型/0051，10项与加强SQL测试通过，待源码checkpoint后完整质量检查；后者待实施。不是D175增量回归，也不宣称全项目终审。
+
 当前[关账非金额显示读取](tasks/active/closing-month-display-read-2026-10-28.md)本机收口，D175/source de5f7682；模型4、客户端2、6791相关回归47及修复PG/HTTP8通过，规范3214blob/0overlay类型/lint/前后端构建通过，精确复审无剩余P1/P2。[证明](tasks/completed/2026-10-28-closing-month-display-engineering.md)在7e4c15da冻结为560清单后，同main最终守卫PASS（12页面/68能力/84UI路径）；不扩正式UI/schema/归属写入，旧演示保持。
 
 先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、D169–D174及[全Gate](tasks/active/server-convergence-gate0-2026-10-20.md)。61104核心关账实机已展示、用户预览保持；[三处配套入口具体草图](tasks/active/closing-support-interfaces-proposal-2026-10-28.md)仍待批准，不重复询问核心UI，也不把原型验证当正式实现。

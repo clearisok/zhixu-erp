@@ -20,6 +20,19 @@ test('whole-order move coalesces same scope but never combines different colors'
  const result=moveMonthQuantities(f.lines,intent,()=>randomUUID());
  assert.equal(result.lines.length,2);assert(result.lines.every(x=>x.month==='2026-12'));assert.equal(result.movedQuantity,'3001');
 });
+test('moving one scope preserves every original line in unrelated months and colors',()=>{
+ const f=fixture(),assignmentId=randomUUID(),lines:ClosingMonthLine[]=[
+  {id:randomUUID(),colorId:f.lines[0].colorId,assignmentId,month:'2027-02',quantity:'25'},
+  {id:randomUUID(),colorId:f.lines[0].colorId,assignmentId,month:'2027-02',quantity:'5'},
+  {id:randomUUID(),colorId:f.lines[1].colorId,assignmentId:null,month:'2027-03',quantity:'50'},
+ ];
+ const untouched=structuredClone(lines.slice(0,2)).sort((a,b)=>a.id.localeCompare(b.id));
+ const intent=parseClosingMonthMove({...f.intent,targetMonth:'2027-04',selection:{mode:'partial',items:[{lineId:lines[2].id,quantity:'50'}]}});
+ const after=moveMonthQuantities(lines,intent,()=>randomUUID());
+ assert.deepEqual(after.touchedMonths,['2027-03','2027-04']);
+ assert.deepEqual(after.lines.filter(line=>line.month==='2027-02'),untouched);
+ assert.equal(sumMonthQuantities(after.lines),'80');
+});
 test('unassigned month can move, but excess, missing source and no-op are rejected',()=>{
  const f=fixture();f.lines[0].month=null;
  assert.equal(moveMonthQuantities(f.lines,parseClosingMonthMove(f.intent),()=>randomUUID()).lines.length,3);

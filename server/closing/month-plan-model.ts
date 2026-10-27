@@ -158,14 +158,20 @@ export function moveMonthQuantities(lines: readonly ClosingMonthLine[], intent: 
     next.push({ ...line, id: remaining > BigInt(0) ? closingUuid(idForSplit(line.id + ':' + intent.targetMonth)) : line.id,
       month: intent.targetMonth, quantity: unitsQuantity(moved) });
   }
-  // Coalesce identical quantity scopes; same price never merges different colors.
-  const groups = new Map<string, ClosingMonthLine>();
+  // Only the destination scopes receiving moved quantities may coalesce.
+  // Unselected months can contain separately matched, frozen line identities.
+  const destinations = new Set([...selected.keys()].map(id => {
+    const line = byId.get(id)!;return JSON.stringify([line.colorId,line.assignmentId,intent.targetMonth]);
+  }));
+  const groups = new Map<string, ClosingMonthLine>(), untouched: ClosingMonthLine[] = [];
   for (const line of next.sort((a, b) => a.id.localeCompare(b.id))) {
-    const key = JSON.stringify([line.colorId, line.assignmentId, line.month]), prior = groups.get(key);
+    const key = JSON.stringify([line.colorId, line.assignmentId, line.month]);
+    if(!destinations.has(key)){untouched.push(line);continue;}
+    const prior = groups.get(key);
     if (prior) prior.quantity = unitsQuantity(quantityUnits(prior.quantity) + quantityUnits(line.quantity));
     else groups.set(key, { ...line });
   }
-  if (groups.size > 2000) closingFail(422, 'closing_month_plan_too_large');
-  const result = validateMonthLines([...groups.values()], sumMonthQuantities(lines));
+  if (groups.size+untouched.length > 2000) closingFail(422, 'closing_month_plan_too_large');
+  const result = validateMonthLines([...untouched,...groups.values()], sumMonthQuantities(lines));
   return { lines: result, touchedMonths: [...touched].sort(), movedQuantity: sumMonthQuantities([...selected.values()].map(quantity => ({ quantity }))) };
 }
