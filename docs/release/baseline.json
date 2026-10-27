@@ -5026,6 +5026,16 @@
       "sha256": "47ef6f0c7fb7c3de3d19a4819cf4bc517afe4d6ef4939fe458b28822f0ee4021",
       "supersedes": "release-post-base-document-anchor-contract-20261028",
       "changeReason": "Close independently reproduced gaps: every post-base ordinary revision must prove its own committed immediate-parent checkpoint, and every predecessor source must descend from actual base. Retain genuine merge DAG validation and all prior evidence. No product, permission or deployment change."
+    },
+    {
+      "id": "release-post-base-bounded-lineage-contract-20261028",
+      "kind": "document",
+      "path": "docs/features/RELEASE_BASELINE_GUARD.md",
+      "recordedAtSha": "5b9c21547f5c1e48dd467176f79f54a7e25f6e0a",
+      "renderedSourceSha": "5b9c21547f5c1e48dd467176f79f54a7e25f6e0a",
+      "sha256": "553a286c5cd574c030abffb5cf3654f9339003c51621a24edc28b2c302d374c7",
+      "supersedes": "release-post-base-own-checkpoint-contract-20261028",
+      "changeReason": "Memoize shared document predecessors with their longest remaining path, retain active-cycle and depth checks, and bound each witness to256 unique records. Reproduced eight-diamond repeated traversal256 times before fix. Preserve all existing evidence and product/deployment boundaries."
     }
   ],
   "pages": [

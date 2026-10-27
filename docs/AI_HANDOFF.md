@@ -1,25 +1,11 @@
-# 恢复点：发布守卫共享DAG补强已写入，待最终验证
+# 恢复点：关账实机保持，发布工具最终工程完成待精确门禁
 
-2026-10-28；branch `feat/order-closing-month-plan`，G2j clean输入ff2cf62eed273d56116bb81ffbbea532b322513d；核实main869ee84dd0b31de6161011e4aa560678b244a64d沿用，无fetch/远端写。Git/ref STOP_AUTH_OR_DIVERGENCE原退出1根因仍UNRESOLVED，PR130旧61704afe，不能自行push或移动ref。
+2026-10-28；branch feat/order-closing-month-plan。沿用核实main869ee84dd0b31de6161011e4aa560678b244a64d，无fetch/远端写。Git/ref STOP_AUTH_OR_DIVERGENCE原退出1根因未证实，不自行push/ref移动/换认证。PR130本轮未更新，前次核实旧head61704afe22fe9fd0ea9f6625c6092fcbb9575dfc。完整Goal active，不能以本工具完成收窄。
 
-本片只有[三处配套入口具体提案](tasks/active/closing-support-interfaces-proposal-2026-10-28.md)、私密合成草图及文档阶段校准，没有正式UI/API/schema增量。核心关账调整已有[人类批准](tasks/completed/2026-10-27-closing-adjustment-ui-approval.md)，不得重问；新Source复核、执行方匹配、Quote USD采用/历史的具体UI仍待本提案批准，不把等待或Goal继续视为答复。
+本轮工具最终source5b9c21547f5c1e48dd467176f79f54a7e25f6e0a，完整测试输入working555。168/168、0失败/取消/跳过、510297ms，权威session80723退出0；语法与lint通过。精确增量只读复审无剩余P1/P2，仅工具范围；并非整个ERP终审。全部运行已结束。证明先commit再前向冻结，随后同main精确守卫一次；在其终态前不称门禁PASS。[冻结工程](tasks/completed/2026-10-28-release-document-anchor-engineering.md)、[阶段](tasks/active/release-post-base-document-anchor-2026-10-28.md)保留552/红测试/source65中间158PASS/source93主动Ctrl-C非PASS；私密outputs/release-post-base-anchor-20261028。旧555条证据/截图/能力保留，不改base。
 
-草图位于thread可视化根closing-support-interfaces.html，SHA256 12c7d56bad06970775ae4a8bdbce21e435a44a0c5fa8e6661021750ed024b50a；原型9组PASS，736浅色/320深色触屏、无错误/网络请求。初次状态回显、窄屏切换及重渲染目标冲突失败原件和截图保留在outputs/closing-support-ui-proposal-20261028，不混作产品验收。BUSINESS_RULES保留D162原段落并明确D169替代的手工/三项与旧只读状态，不新增业务规则。
+[三处具体配套UI提案](tasks/active/closing-support-interfaces-proposal-2026-10-28.md)及私密可点击草图已准备，尚待人类答复；核心关账UI已批准，不能重问。草图hash12c7d56bad06970775ae4a8bdbce21e435a44a0c5fa8e6661021750ed024b50a，9组合成检查，不是正式DOM/API/schema。批准后沿原service/controller分三片接线：有界名称/期间状态读取＋Source复核、执行方匹配、Quote独立USD采用/历史。金额权限/原回执/CAS/冻结保持；归属漂移恢复命令仍未完成，不能用匹配覆盖它。
 
-已核实显示读取缺口：月份state缺颜色/执行方名称及全部所引用期间状态；计划用现有stable identity、immutable resource hash及期间读取补有界无金额投影，缺证据不猜。USD页签须独立于旧sale allowed集合，采用原labor client/controller；不能因此取得sale/cost权限。批准后按显示投影+Source UI、执行方UI、USD采用/历史UI三片推进，保留原CAS/回执/权限/冻结；现有归属漂移恢复命令未完成，不假称匹配能覆盖它。
+61104关账合成实机已可见，source4107aea1ebf181265b543ad4c25a8afe1168f886，tab3保留蓝色外发5件2月→10月未保存预览，tab1用户输入保留；两tab已markDeliverable。账号closing.editor，既有合成凭据仍在私密演示原件。不停止/重seed/替换/覆盖用户输入。source12520f42新镜像恢复9/9、同source静态＋合成APIChromium9/9只属[原工程证明](tasks/completed/2026-10-28-closing-current-image-recovery-engineering.md)，不是61104升级；旧环境/Browser/卷/备份保持。
 
-上一片source12520f425a4171095495f740ca129df38c61b085的3202blob/0overlay、49迁移/0050、一次镜像构建、完整非空恢复9/9、镜像静态产物＋同source合成API Chromium9/9，见[精确证明](tasks/completed/2026-10-28-closing-current-image-recovery-engineering.md)。证明checkpoint41451b95为第550证据，守卫PASS base869/checked414，旧549记录及状态截图保持。原ee84定向检查、旧发布112/127后定向42/42和原78未运行准备稿仍按各自source归档；不重跑成功未变检查或冒称新正式UI通过。
-
-61104/source4107演示、tab3中蓝色外发5件2月→10月未保存预览、tab1用户输入及其他旧环境/Browser/卷/备份保持，禁止停止/重seed/替换。最终独立复审因额度未完成，不反复尝试、不写0P1/P2。本片Hosted/真实Source/远端写0，无现有账号/业务库、merge、正式部署、目标切换或退役。完整Goal active未完成：配套UI批准/实施、独立复审、精确远端/必要CI、显式合并/目标切换分别收口。
-
-提案checkpoint b7282f94及两项新证据已保存，原550条/页面能力/截图原样保留；552守卫首次FAIL，不是PASS：新路径在main尚无证据，旧D162首次根记录虽已在本分支提交，后续修订无法通过仅认main锚点的校验。原件release-guard.log保留4个revision/anchor/leaf/drift错误。下一安全动作是复现并修复此工具边界、补负控，不能改base、删旧根记录或把失败忽略。具体UI问题已提交给人类，尚未收到答复；本地checkpoint不是PR交付就绪。
-
-工具片clean输入f57945e229414a955723f33ede0749049669e141；[新根前向修订阶段](tasks/active/release-post-base-document-anchor-2026-10-28.md)。真实Git红测试1失败准确复现，补唯一直接父清单及完整已提交线性链见证后定向12/12通过；又加原blob缺失/篡改两个负控。只限PR base尚无该document路径，已有base锚点、merge、旧记录/blob/hash、能力/截图/批准保护不变，无新清单字段。源码与契约即将checkpoint；完整发布套件、当前精确守卫及独立终审仍未完成，不提前PASS。私密outputs/release-post-base-anchor-20261028；UI答复继续等待，不能借工具修复实施新界面。
-
-source65bf13e0完整发布套件158/158、449969ms通过，精确输入为working553；该结果仅属第一版。只读复审发现两代修订可错误借用前代见证、链source缺base下界，须补真实Git负控后修复，不将原PASS冒称最终闭合。本checkpoint只冻结553契约记录及真实状态，使下一版文档修订具备已提交直接父证据；旧记录不改。无运行中测试，未触发Hosted或远端写。
-
-1951b8c7已冻结553；新增两个真实Git红测试均复现（2/2失败，错误地无守卫错误）。补强代码只允许新路径普通修订验证自己的直接父，链source必须在base之后；真实merge保留原DAG验证并增加真实正控。源码/契约待checkpoint并前向冻结后运行定向及最终完整发布、精确守卫和只读复审。未改产品/DB、未重新运行旧镜像验收；61104实机已再次可见，原5件预览和用户输入保持。
-
-source93ed2708＋554定向23/23（128360ms）、lint及同base精确守卫已通过；只读复审关闭原两P2后发现共享菱形祖先无缓存的资源P2。完整发布review-full.log在获知该缺口后主动Ctrl-C停止（退出1、非PASS），不是因等待无输出重启。接下来加共享DAG计数回归、缓存和256唯一节点界限；本checkpoint先冻结554，旧记录不改。不得用source65或93的中间结果替代下一源码完整验证。
-
-19998d26已冻结554；八层共享DAG计数红测试复现256次访问（预期1），已加completed最长路径缓存、active-cycle/深度检查和256唯一节点限制。具体测试模型与真实Git测试区别见阶段文档；源码checkpoint后前向冻结契约并只运行一次最终完整发布套件、精确守卫、lint及只读复审。61104演示不变，三处具体新UI仍待人类答复，Hosted/远端写0。
+下一步：精确门禁/metadata收口→向人类交付已打开实机与可点击草图；具体新UI需明确批准。全业务最终独立复审额度失败的旧限制仍保留，不重试失败reviewer；本工具用既有只读reviewer完成，不新增agent。没有真实Source/现有账号业务库操作，Hosted0，无merge、正式部署、目标切换或资产退役。

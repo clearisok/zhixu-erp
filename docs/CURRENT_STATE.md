@@ -1,21 +1,11 @@
-# 当前状态：配套草图待批准，发布守卫复审补强待验收
+# 当前状态：关账实机可体验，配套界面待具体批准
 
-2026-10-28；branch `feat/order-closing-month-plan`；main869ee84dd0b31de6161011e4aa560678b244a64d沿用核实，无fetch/远端写；Git/ref STOP未解，PR130仍旧61704afe。
+2026-10-28；branch feat/order-closing-month-plan。沿用核实main869ee84dd0b31de6161011e4aa560678b244a64d，未fetch；Git/ref STOP_AUTH_OR_DIVERGENCE原退出1根因仍UNRESOLVED。本轮远端写/Hosted0，PR130未更新，前次已核实head61704afe22fe9fd0ea9f6625c6092fcbb9575dfc。
 
-D174/0050来源显式复核已随source12520f425a4171095495f740ca129df38c61b085进入本次镜像：3202blob/0overlay，一次构建76375ms，49迁移/最高0050。新镜像ID d84fef13481d4ba940e40863c6f1f30a1b768fc690746f7be30068d41f001916。完整非空恢复9/9、519484ms；启动/登录前121张public表及序列一致，18份财务回执恢复。镜像静态产物＋同source合成API实际Chromium9/9、15462ms。[精确证明](tasks/completed/2026-10-28-closing-current-image-recovery-engineering.md)。
+核心关账调整已批准并有Server实现。61104/source4107aea1ebf181265b543ad4c25a8afe1168f886合成演示已再次显示，蓝色外发5件2月→10月仍为未保存预览；用户输入、原10件2月→11月保存结果及旧环境保持，不停服务/重seed/替换。来源复核、执行方匹配、报价详情USD采用三处[具体草图](tasks/active/closing-support-interfaces-proposal-2026-10-28.md)待答复；原型9组验证不是正式接线，不重复询问已批准核心UI。显示读取投影与归属漂移恢复仍有明确待办。
 
-旧资产66容器/191卷/33网络及278本地refs所核对信息无变化；本轮新owned成功项目已清理，旧卷/备份不动。原78准备稿仍build/run0；旧发布112/127及补验42/42按原来源保留，不重跑成功未变检查。核心关账修订草图已批准并接线，过期pending说明已校正；Source复核、执行匹配、独立USD采用具体UI仍是不同范围。
+source12520f425a4171095495f740ca129df38c61b085当前候选镜像工程已完成：3202blob/0overlay、49迁移/0050、一次构建76375ms，镜像d84fef13481d4ba940e40863c6f1f30a1b768fc690746f7be30068d41f001916；完整非空恢复9/9（启动/登录前121表及序列一致、18财务回执），同source静态产物＋合成API实际Chromium9/9。详见[原精确证明](tasks/completed/2026-10-28-closing-current-image-recovery-engineering.md)。它不是61104的运行版本，也不是部署/用户接受；旧资产66容器/191卷/33网络及278refs的当时保护观察保留，不重复未变测试。
 
-61104/source4107aea1演示保持、HTTP200，不停止/重seed/替换，原预览未确认；没有真实Source、现有账号或业务库操作。最终独立复审因额度未完成，不声称0剩余P1/P2。完整目标未完成：后续配套UI具体方案/批准、独立复审、远端交付与必要CI、显式合并/目标切换。Hosted0，无自动部署或资产退役。
+本轮工具source5b9c21547f5c1e48dd467176f79f54a7e25f6e0a＋555工作清单：最终完整发布168/168、0失败/取消/跳过（510297ms）、语法/lint通过，工具增量只读复审无剩余P1/P2。[冻结工程证明](tasks/completed/2026-10-28-release-document-anchor-engineering.md)保留原552失败、两代真实Git红测试、共享DAG计数红测试、source65中间PASS和source93主动中断非PASS。修复仅新增文档的已提交自身见证/base下界/有界缓存，不改base、旧记录、截图/能力/批准或产品/DB代码；精确守卫在证明冻结后另记，不提前PASS。
 
-证明checkpoint41451b95已前向冻结为第550项证据；同base精确源码守卫PASS（12页面/68能力/累计83 UI路径），旧记录/截图/能力状态无变化。ff2cf62e仅记录本次验收；61104实机预览已展示，尚未确认保存。
-
-本片clean输入ff2cf62e，仅[来源复核/执行方匹配/USD采用具体提案](tasks/active/closing-support-interfaces-proposal-2026-10-28.md)、私密可点击合成草图及文档校准；没有正式DOM/API/schema增量。草图9组检查通过，736浅色/320深色触屏、无错误/网络请求；原型初次失败保留，不混作产品验收。发现月份state缺有证据的人类可读名称/完整期间状态，已纳入最小读取投影设计；USD入口权限将与成衣议价分开。BUSINESS_RULES中旧手工/三项/只读阶段标记已按D169–D174校正，原历史保留；待具体新UI批准，不能重复询问已批准核心页面或自动扩大范围。
-
-提案checkpoint b7282f94及552证据已checkpoint；本次守卫FAIL于新文档未进入main时的前向修订锚点边界，原失败保留，不冒称门禁通过。原550记录与状态/截图未改，下一步补工具复现/负控修复；不改比较base或跳过保护。具体UI已征询，仍待答复。
-
-后续工具片输入clean f57945e2：真实Git红测试复现四错误，新增严格的直接父已提交清单/完整无环链见证，定向12/12通过；原blob负控扩展后待完整发布套件及精确守卫。已有main路径不能借新根替换锚点，无清单字段/比较base/产品代码/权限变化；[阶段](tasks/active/release-post-base-document-anchor-2026-10-28.md)保留所有失败和限制，不冒称完整验收或独立复审已完成。
-
-source65第一版完整发布158/158通过；只读复审两项P2由真实Git红测试复现（2/2失败），已补每代自身见证与链source下界，待修后完整验收。553契约在1951b8c7独立冻结，旧ID/源码不改；无产品/DB增量、Hosted0/远端写0。61104再次显示，原预览与用户输入保留。
-
-source93定向23/23及精确守卫通过；完整套件主动停止以处理新发现的共享DAG资源P2，不记PASS。八层计数红测试证明256次共享访问，现加最长路径缓存和256唯一节点限制，待最终源码完整验收。554在19998d26冻结；具体阶段保留原失败及中间结果，不混作正式UI或最终工程完成。
+[完整Gate目标](tasks/active/server-convergence-gate0-2026-10-20.md)仍未完成：三处UI具体批准与实现、归属恢复、全业务最终独立复审、精确远端及必要CI、显式合并/目标切换分别收口。无真实Source/调度、既有账号业务库/Browser数据修改、merge、正式部署或资产退役。详细原状态在5b9c2154与各冻结证明保留；CURRENT_STATE只保留当前事实与下一步。
