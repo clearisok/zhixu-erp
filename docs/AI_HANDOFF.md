@@ -1,4 +1,4 @@
-# 恢复点：当前镜像持久空候选READY，待冻结工程证明
+# 恢复点：当前镜像持久空候选READY，568守卫通过
 
 2026-10-28本片baseline clean f176afb26c7da81573be2a3a008941ab6445cfcb；[新空候选证明](tasks/completed/2026-10-28-current-persistent-empty-target-engineering.md)，私密outputs/convergence-readiness-audit-20261028。连接器main/PR130 GET失败后，gh CLI两次独立有界GET已确认main仍869ee84dd0b31de6161011e4aa560678b244a64d，PR130 open/draft、head61704afe22fe9fd0ea9f6625c6092fcbb9575dfc、base同main；无fetch/写/CI。原实际push退出1的STOP根因依旧UNRESOLVED，不能据读成功解除。
 
@@ -6,7 +6,9 @@
 
 新root的prepared/target/ready回执及新secrets只读保留，密码不输出；自签TLS仅processCA验证，不安装系统信任、不自动越过浏览器警告。不是持久正式切换，也不替换旧62426或演示62411/61104；这些目标与所有用户输入保持。没有cleanup/down/清库或重试。target.mjs的start-reviewed一次额度已使用，attempt wx存在；不得再次完整执行。日后只读status仍用上列immutable runner的ops/quote-trial/trial.mjs与新root/trial.conf，DOCKER_HOST只pin本机pipe；正常start不得init。现阶段不需要再操作此目标。
 
-下一步将本证明checkpoint后只前向冻结一个新document记录，保留567旧记录，同main精确守卫一次，再metadata commit；不重跑未改产品的243/恢复9/浏览器9/168工具或Hosted。完整Goal仍须配套UI和归属恢复规则答复、精确Git交付/CI、显式合并/正式切换、用户验收/具体真实来源激活、旧依赖解除后退役；不能把READY缩为完整目标成功。下文原工程证据和体验恢复点继续有效。
+本证明checkpoint b45a1cab9b0aa8fe1052eea7c9e8a42e5a105af6后只前向冻结一个新document记录，共568、保留567旧记录；同main精确守卫一次PASS，checkedHead b45a1cab＋working568，12页面/68能力/84 UI路径，session96951退出0，log在本片release-guard.log。最终metadata仅保存该结果，不重跑未改产品的243/恢复9/浏览器9/168工具或Hosted。完整Goal仍须配套UI和归属恢复规则答复、精确Git交付/CI、显式合并/正式切换、用户验收/具体真实来源激活、旧依赖解除后退役；不能把READY缩为完整目标成功。下文原工程证据和体验恢复点继续有效。
+
+另做一次本地只读交付范围盘点，私密delivery-scope.json绑定输入f176：PR130原head617为其祖先；main→f176累计276 commits/960路径（docs603、其他357），46个相关Gate refs已列名但未逐一作交付/质量判定。不要盲目把整条累计head覆盖到小范围PR130，也不拆丢原提交历史；后续先按已冻结Gate边界和精确source证据整理顺序/PR描述，再执行授权的单次交付和必要CI。盘点本身不是分支均可合并、用户已批准merge或新远端写授权。
 
 2026-10-28；feat/order-closing-month-plan。本片baseline cf77e1a6d7626808c3ba958137aeb52e5978976b；测试源码de5b1c4cd3b60288624e2823def5e9ce3ee8e331；沿用已核实main869ee84dd0b31de6161011e4aa560678b244a64d。无fetch/远端写/Hosted/真实Source；原Git/ref STOP_AUTH_OR_DIVERGENCE退出1根因未解，不自行push/ref移动/换认证。PR130前次精确远端head61704afe22fe9fd0ea9f6625c6092fcbb9575dfc，本片未送达。
 
