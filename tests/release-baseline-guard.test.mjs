@@ -667,6 +667,59 @@ test('post-base branches with their own checkpoints retain real merge reconcilia
   assert.deepEqual(f.check({ ...s.options, checkedHead: sourceSha }), []);
 });
 
+test('post-base shared DAG validation visits each predecessor once per checkpoint', t => {
+  const f = fixture(t), legacy = new Set(f.knownCommits), graph = new Map(), base = original.baselineSha;
+  const file = 'docs/shared-post-base-checkpoint.md';
+  graph.set(base, []);
+  let next = 0;
+  const commit = parents => { const sha = 'd' + (++next).toString(16).padStart(39, '0'); graph.set(sha, parents); return sha; };
+  const record = (id, parents, edges) => {
+    const sha = commit(parents), bytes = Buffer.from('# ' + id + '\n');
+    f.blobs.set(`${sha}:${file}`, bytes);
+    return { id, kind: 'document', path: file, recordedAtSha: sha, sha256: hash(bytes), ...edges };
+  };
+  const freeze = (source, records) => {
+    const sha = commit([source]);
+    f.blobs.set(`${sha}:${manifestPath}`, Buffer.from(JSON.stringify({ ...f.manifest, evidence: records })));
+    return sha;
+  };
+  const root = record('shared-root', [base], {});
+  let history = [...f.manifest.evidence, root], previous = root, parent = freeze(root.recordedAtSha, history);
+  // Eight valid diamonds have 25 unique predecessor records but 256 paths to
+  // their shared root. Parent manifests and ancestry model actual branch merges.
+  for (let round = 0; round < 8; round++) {
+    const edges = { supersedes: previous.id, changeReason: 'Independently frozen parallel revision' };
+    const left = record(`shared-left-${round}`, [parent], edges), leftHead = freeze(left.recordedAtSha, [...history, left]);
+    const right = record(`shared-right-${round}`, [parent], edges), rightHead = freeze(right.recordedAtSha, [...history, right]);
+    const merged = record(`shared-merge-${round}`, [leftHead, rightHead], { mergeOf: [left.id, right.id], changeReason: 'Real two-parent shared lineage' });
+    history = [...history, left, right, merged]; previous = merged; parent = freeze(merged.recordedAtSha, history);
+  }
+  const final = record('shared-final', [parent], { supersedes: previous.id, changeReason: 'Validate the shared lineage with a bounded traversal' });
+  f.manifest.evidence = [...history, final];
+  f.write(file, f.blobs.get(`${final.recordedAtSha}:${file}`));
+  const normalize = sha => legacy.has(sha) ? base : sha;
+  const ancestry = new Map();
+  const ancestor = (a, b) => {
+    a = normalize(a); b = normalize(b);
+    const key = `${a}:${b}`;
+    if (!ancestry.has(key)) {
+      const pending = [b], visited = new Set(); let found = false;
+      while (pending.length) { const sha = pending.pop(); if (sha === a) { found = true; break; }
+        if (!visited.has(sha)) { visited.add(sha); pending.push(...(graph.get(sha) ?? [])); } }
+      ancestry.set(key, found);
+    }
+    return ancestry.get(key);
+  };
+  let rootVisits = 0;
+  const errors = f.check({ checkedHead: final.recordedAtSha,
+    hasCommit: sha => legacy.has(sha) || graph.has(sha),
+    isAncestor: (a, b) => { if (a === root.recordedAtSha && b === parent) rootVisits++; return ancestor(a, b); },
+    readCommitParents: sha => graph.get(sha) ?? [],
+    readMergeCommits: () => [...graph].filter(([sha, parents]) => parents.length > 1 && ancestor(sha, final.recordedAtSha)).map(([sha]) => sha) });
+  assert.deepEqual(errors, []);
+  assert.equal(rootVisits, 1, 'The final checkpoint must memoize its shared predecessor; paths must not multiply validation work');
+});
+
 test('post-base document checkpoint anchors reject missing, rewritten and forged histories', async t => {
   const s = postBaseDocumentRevision(t), { f } = s;
   const current = structuredClone(f.manifest), prior = structuredClone(f.previousManifest);

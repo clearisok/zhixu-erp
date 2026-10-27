@@ -105,7 +105,11 @@ the actual base and be an ancestor of the parent; every evidence record in the
 parent manifest must remain unchanged. Each ordinary revision must prove its
 own immediate-parent witness; it cannot inherit an older revision's witness.
 The new revision itself cannot already be in that parent. Lineage traversal is
-bounded to256 records and shares the existing64MiB distinct-parent-manifest budget.
+bounded to256 unique records including the new revision and256 records along any
+path. Completed nodes are memoized with their longest remaining path, so shared
+merge ancestors are not revalidated exponentially and cached results cannot
+bypass the depth or cycle bound. The witness shares the existing64MiB
+distinct-parent-manifest budget.
 Missing/corrupt history, forged roots, future or sibling sources, overwritten
 records and missing/tampered original blobs still fail. There is no new manifest
 field or change to the PR comparison base. This witness cannot replace the usual

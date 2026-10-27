@@ -193,17 +193,33 @@ export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths
       || !isAncestor(historyBaseSha, parents[0])) return false;
     const history = parentManifest(parents[0]);
     if (!history.valid || history.limit || history.changed.length || history.ids.has(item.id)) return false;
+    const lineageHeights = new Map(), lineageNodes = new Set([item.id]);
     const lineage = (current, visited) => {
       if (!current || current.kind !== 'document' || current.path !== item.path || visited.has(current.id)
-        || visited.size >= documentAnchorDepthLimit || !same(history.ids.get(current.id), current)
+        || visited.size >= documentAnchorDepthLimit) return 0;
+      const cachedHeight = lineageHeights.get(current.id);
+      if (cachedHeight !== undefined) return visited.size + cachedHeight <= documentAnchorDepthLimit ? cachedHeight : 0;
+      if (!lineageNodes.has(current.id) && lineageNodes.size >= documentAnchorDepthLimit) return 0;
+      lineageNodes.add(current.id);
+      if (!same(history.ids.get(current.id), current)
         || !fullSha(current.recordedAtSha) || !isAncestor(historyBaseSha, current.recordedAtSha)
-        || !isAncestor(current.recordedAtSha, parents[0])) return false;
+        || !isAncestor(current.recordedAtSha, parents[0])) return 0;
       const predecessors = parentsOf(current);
-      if (!predecessors.length) return current.supersedes === undefined && current.mergeOf === undefined;
+      if (!predecessors.length) {
+        if (current.supersedes !== undefined || current.mergeOf !== undefined) return 0;
+        lineageHeights.set(current.id, 1); return 1;
+      }
       const next = new Set(visited).add(current.id);
-      return predecessors.every(id => lineage(revisions.get(id), next));
+      let height = 1;
+      for (const id of predecessors) {
+        const predecessorHeight = lineage(revisions.get(id), next);
+        if (!predecessorHeight) return 0;
+        height = Math.max(height, predecessorHeight + 1);
+      }
+      if (visited.size + height > documentAnchorDepthLimit) return 0;
+      lineageHeights.set(current.id, height); return height;
     };
-    const valid = lineage(revisions.get(item.supersedes), new Set([item.id]));
+    const valid = lineage(revisions.get(item.supersedes), new Set([item.id])) > 0;
     committedDocumentAnchors.set(item.id, valid);
     return valid;
   }
