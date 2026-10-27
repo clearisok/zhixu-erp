@@ -37,3 +37,5 @@ USD组实际全库dump/restore覆盖0047新增的非空初始化计划/版本/he
 后续仍有Source/执行方对账、年度两项金额、0045财务消费/冻结关联、旧写入口收紧及HTTP/UI。修订关账调整草图、USD采用UI均待具体批准；外发范围答复不是整体UI批准。当前旧HTTP仍在，不能把新分月与旧归属重复求和或称退役完成。
 
 0 Hosted CI、远端Git/ref写、真实Source、现有账号业务库、合并、正式部署、切换及资产退役。完整Goal保持active；本片不是全项目完成。
+
+2026-10-27最终回执：完整HEAD `582ef02a543794a0e6e7c720c0b533bbfaa178b0` 的精确main守卫PASS（150565ms），`test:release-baseline` 144/144（761861ms）；结束时同HEAD且clean。11页/68能力，累计base→HEAD包含68个历史UI路径，不称本片改动68个UI。原件final.json，state=LOCAL_G8G1_PASS_REMOTE_PENDING。随后用户明确批准修订关账UI，见[独立批准](2026-10-27-closing-adjustment-ui-approval.md)；该后续记录不改写S的原pending事实，也不把本次后端门禁当作新页面通过。
