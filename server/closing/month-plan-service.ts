@@ -10,6 +10,7 @@ import { ensureStableOrderColor, readStableOrderColors } from '../sales-orders/c
 import { readPlanOrderSummaries } from '../production-scheduling/read-model.js';
 import { planHash } from '../production-scheduling/repository.js';
 import { assignmentsForOrder } from '../production-scheduling/repository.js';
+import { SCHEDULE_PLANNING_LIMITS } from '../production-scheduling/planning-preview.js';
 import { executionsForAssignments, executionFacts } from '../production-scheduling/execution-store.js';
 import {canonicalDecimal} from '../quotes/decimal-projection.js';
 import { CLOSING_READ_PERMISSIONS, closingFail, closingUuid, compareDecimals } from './contract.js';
@@ -255,6 +256,14 @@ export async function readOrderClosingMonthPlan(pool: Pool, identity: TrustedIde
  * annual aggregation keep their old payload and perform no extra label queries. */
 export async function readOrderClosingMonthDisplay(pool:Pool,identity:TrustedIdentity,rawId:string){
   return readMonthSnapshot(pool,identity,rawId,async(client,actor,orderId)=>{
+    requireRead(actor);await available(client);
+    // The existing state reader loads facts once per assignment, including
+    // repeated hashes. Budget that actual transfer before invoking it.
+    const initial=(await client.query<{rows:number;bytes:string}>(`SELECT count(*)::int AS rows,COALESCE(sum(octet_length(s.facts::text)),0)::text AS bytes
+      FROM (SELECT resource_snapshot_hash FROM production_schedule_assignments WHERE sales_order_id=$1 ORDER BY created_at,id LIMIT $2) a
+      JOIN production_schedule_resource_snapshots s ON s.hash=a.resource_snapshot_hash`,[orderId,SCHEDULE_PLANNING_LIMITS.queueRows+1])).rows[0];
+    const loadedSnapshotBytes=BigInt(initial.bytes);
+    if(initial.rows>SCHEDULE_PLANNING_LIMITS.queueRows||loadedSnapshotBytes>BigInt(MONTH_DISPLAY_LIMITS.snapshotBytes))closingFail(422,'closing_month_display_too_large');
     const {state,colors}=await monthStateContext(client,actor,orderId),scope=closingMonthDisplayScope(state.plan,colors,state.executorCandidates);
     const identities=scope.colorIds.length?(await client.query<{id:string;name:string}>(`SELECT id::text,color_name AS name
       FROM sales_order_color_identities WHERE sales_order_id=$1 AND id=ANY($2::uuid[]) ORDER BY id`,[orderId,scope.colorIds])).rows:[];
@@ -262,7 +271,7 @@ export async function readOrderClosingMonthDisplay(pool:Pool,identity:TrustedIde
     if(scope.hashes.length){
       const size=(await client.query<{bytes:string}>(`SELECT COALESCE(sum(octet_length(facts::text)),0)::text AS bytes
         FROM production_schedule_resource_snapshots WHERE hash=ANY($1::text[])`,[scope.hashes])).rows[0].bytes;
-      if(BigInt(size)>BigInt(MONTH_DISPLAY_LIMITS.snapshotBytes))closingFail(422,'closing_month_display_too_large');
+      if(loadedSnapshotBytes+BigInt(size)>BigInt(MONTH_DISPLAY_LIMITS.snapshotBytes))closingFail(422,'closing_month_display_too_large');
       snapshots=(await client.query<{hash:string;facts:unknown}>('SELECT hash,facts FROM production_schedule_resource_snapshots WHERE hash=ANY($1::text[]) ORDER BY hash',[scope.hashes])).rows;
     }
     const periods=scope.months.length?(await client.query<DisplayPeriod>(`SELECT p.month,p.id::text,v.status,h.version FROM server_closing_periods p

@@ -2,7 +2,7 @@
 
 2026-10-28；branch feat/order-closing-month-plan；沿用核实main869ee84dd0b31de6161011e4aa560678b244a64d，无fetch/远端写，原Git/ref STOP未解。
 
-当前新切片是[关账非金额显示读取](tasks/active/closing-month-display-read-2026-10-28.md)，clean输入80398cb2，D175；模型/客户端及修正后隔离HTTP通过，待源码checkpoint后的类型/构建/回归与门禁。只扩显式display读取，没有正式UI、schema或归属更正写入。
+当前新切片是[关账非金额显示读取](tasks/active/closing-month-display-read-2026-10-28.md)，clean输入80398cb2，D175；模型/客户端、6791类型/lint及47回归通过，复审P2预算已修，真实PG含负控8/8。待修复checkpoint类型/构建、门禁及增量复审。只扩显式display读取，没有正式UI、schema或归属更正写入。
 
 先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、D169–D174及[全Gate](tasks/active/server-convergence-gate0-2026-10-20.md)。61104核心关账实机已展示、用户预览保持；[三处配套入口具体草图](tasks/active/closing-support-interfaces-proposal-2026-10-28.md)仍待批准，不重复询问核心UI，也不把原型验证当正式实现。
 

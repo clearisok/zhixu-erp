@@ -2,7 +2,7 @@
 
 2026-10-28；branch feat/order-closing-month-plan。沿用核实main869ee84dd0b31de6161011e4aa560678b244a64d，未fetch；Git/ref STOP_AUTH_OR_DIVERGENCE原退出1根因仍UNRESOLVED。本轮远端写/Hosted0，PR130未更新，前次已核实head61704afe22fe9fd0ea9f6625c6092fcbb9575dfc。
 
-当前新片[非金额显示读取](tasks/active/closing-month-display-read-2026-10-28.md)从clean80398cb2推进D175：显式view=display、原GET保持、同RR身份/Source/快照名称和全部所涉期间状态。模型4/4、客户端2/2、修正后PG/HTTP7/7；初次测试错设“同执行方更新刷新旧快照”的失败保留，未改生产规则。待源码checkpoint后类型/构建/相关回归与发布门禁，不提前交付PASS；无正式DOM/schema或新恢复写命令。
+当前新片[非金额显示读取](tasks/active/closing-month-display-read-2026-10-28.md)从clean80398cb2推进D175：显式view=display、原GET保持、同RR身份/Source/快照名称和全部所涉期间状态。模型4/4、客户端2/2、6791类型/lint及相关回归47/47通过。只读复审的P2重复资源载荷预算已前置并累计，真实PG/HTTP含负控8/8；初次错误快照测试和中间结果保留。待修复checkpoint类型/构建、发布门禁和精确增量复审，不提前交付PASS；无正式DOM/schema或新恢复写命令。
 
 核心关账调整已批准并有Server实现。61104/source4107aea1ebf181265b543ad4c25a8afe1168f886合成演示已再次显示，蓝色外发5件2月→10月仍为未保存预览；用户输入、原10件2月→11月保存结果及旧环境保持，不停服务/重seed/替换。来源复核、执行方匹配、报价详情USD采用三处[具体草图](tasks/active/closing-support-interfaces-proposal-2026-10-28.md)待答复；原型9组验证不是正式接线，不重复询问已批准核心UI。显示读取投影与归属漂移恢复仍有明确待办。
 

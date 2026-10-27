@@ -7,6 +7,8 @@ import { createClosingClient } from '../../features/closing-center/server/closin
 import { previewClosingMonthMove, executeClosingMonthMove, readOrderClosingMonthDisplay } from '../closing/month-plan-service.js';
 import { previewProductionPlan, executeProductionPlan, readOrderProductionPlans } from '../production-scheduling/service.js';
 import type { Pool } from 'pg';
+import { planHash } from '../production-scheduling/repository.js';
+import { MONTH_DISPLAY_LIMITS } from '../closing/month-display-model.js';
 
 test('owned PostgreSQL/HTTP: opt-in month labels are read-only, evidence-bound and permission-safe', { timeout: 180000 }, async t => {
   const f = await closingFixture(t), order = await f.order(false), reader = await f.user('closing.labels.reader', CLOSING_READ_PERMISSIONS);
@@ -98,5 +100,57 @@ test('owned PostgreSQL/HTTP: opt-in month labels are read-only, evidence-bound a
     await assert.rejects(client.monthDisplay(order.id, () => true), { status: 403 });
     await assert.rejects(readOrderClosingMonthDisplay(f.pool, reader.actor, order.id), { status: 403 });
   });
+  assert.deepEqual(f.errors, []);
+});
+
+test('owned PostgreSQL: repeated resource facts exceed the budget before any full-facts read', { timeout: 180000 }, async t => {
+  const f = await closingFixture(t), order = await f.order(false), original = await f.assignment(order.id, null);
+  const facts = (await f.pool.query(`SELECT s.facts FROM production_schedule_assignments a
+    JOIN production_schedule_resource_snapshots s ON s.hash=a.resource_snapshot_hash WHERE a.id=$1`, [original])).rows[0].facts;
+  // The SQL snapshot contract permits up to 1 MiB. Ten references to this one
+  // immutable synthetic snapshot are small when deduplicated, but not on the wire.
+  const largeFacts = { ...facts, syntheticBudgetEvidence: 'x'.repeat(900000) }, hash = planHash(largeFacts);
+  await f.pool.query('INSERT INTO production_schedule_resource_snapshots(hash,facts) VALUES($1,$2)', [hash, JSON.stringify(largeFacts)]);
+  const size = (await f.pool.query('SELECT octet_length(facts::text)::int AS bytes FROM production_schedule_resource_snapshots WHERE hash=$1', [hash])).rows[0].bytes;
+  assert(size < 1048576); assert(size < MONTH_DISPLAY_LIMITS.snapshotBytes); assert(size * 10 > MONTH_DISPLAY_LIMITS.snapshotBytes);
+  async function copies(targetOrderId: string, count: number) {
+    const owned = await f.pool.connect();
+    try {
+      await owned.query('BEGIN');
+      await owned.query(`WITH inserted AS (INSERT INTO production_schedule_assignments
+      SELECT copied.* FROM production_schedule_assignments a CROSS JOIN unnest($3::uuid[]) n(id)
+      CROSS JOIN LATERAL jsonb_populate_record(NULL::production_schedule_assignments,
+        to_jsonb(a)||jsonb_build_object('id',n.id,'resource_snapshot_hash',$2::text,'sales_order_id',$4::uuid)) copied
+      WHERE a.id=$1 RETURNING *)
+      INSERT INTO production_schedule_plan_versions(assignment_id,sales_order_id,version,snapshot,actor_id,request_id,operation_id,reason)
+      SELECT id,sales_order_id,version,production_plan_row_snapshot(inserted),created_by,gen_random_uuid(),'synthetic-display-budget:'||id::text,'' FROM inserted`, [original, hash, Array.from({ length: count }, () => randomUUID()), targetOrderId]);
+      await owned.query('COMMIT');
+    } catch (error) { await owned.query('ROLLBACK'); throw error; } finally { owned.release(); }
+  }
+  await copies(order.id, 10);
+  const queries: string[] = [];
+  const traced = { connect: async () => {
+    const connection = await f.pool.connect();
+    return new Proxy(connection, { get(target, key, receiver) {
+      if (key === 'query') return async (...args: unknown[]) => {
+        if (typeof args[0] === 'string') queries.push(args[0]);
+        return Reflect.apply(target.query, target, args);
+      };
+      const value = Reflect.get(target, key, receiver); return typeof value === 'function' ? value.bind(target) : value;
+    } });
+  } } as unknown as Pool;
+  await assert.rejects(readOrderClosingMonthDisplay(traced, f.editor.actor, order.id), { status: 422, code: 'closing_month_display_too_large' });
+  assert(queries.some(sql => sql.includes('sum(octet_length(s.facts::text))')));
+  assert.equal(queries.some(sql => sql.includes('s.facts AS "resourceFacts"') || sql.includes('SELECT hash,facts')), false);
+  assert.equal(queries.at(-1), 'ROLLBACK');
+  assert.equal((await f.request('/orders/' + order.id + '/month-plan?view=display')).response.status, 422);
+  // Both load stages share one budget: the first repeated transfer alone fits,
+  // but adding the deduplicated label read would exceed the same 8 MiB limit.
+  const combined = await f.order(false); await copies(combined.id, 9); queries.length = 0;
+  assert(size * 9 < MONTH_DISPLAY_LIMITS.snapshotBytes);
+  await assert.rejects(readOrderClosingMonthDisplay(traced, f.editor.actor, combined.id), { status: 422, code: 'closing_month_display_too_large' });
+  assert(queries.some(sql => sql.includes('s.facts AS "resourceFacts"')));
+  assert.equal(queries.some(sql => sql.includes('SELECT hash,facts')), false);
+  assert.equal(queries.at(-1), 'ROLLBACK');
   assert.deepEqual(f.errors, []);
 });
