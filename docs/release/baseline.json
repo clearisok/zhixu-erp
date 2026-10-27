@@ -5083,6 +5083,54 @@
       "renderedSourceSha": "de5f7682b32eb159bdabb824a273a4de4d385ca1",
       "sha256": "a5e9e58226038d2c24efb8775285875e88f39f7060c468b1c77c1b99bbe9dc71",
       "changeReason": "Freeze exact scoped model/client/owned PostgreSQL, repeated-resource budget negative controls, tracked archive type/lint/frontend/backend builds and readonly review. Preserve original failures and scope-separated reuse; no new formal UI, real data, remote delivery, hosted CI, image recovery or overall-goal completion claim."
+    },
+    {
+      "id": "closing-chain-d176-decisions-20261028",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "dbc969ac12f309b8a9bb98f9a57d0a86b543b0c7",
+      "renderedSourceSha": "fde8b0f1f467edfc864cbd616756ad1778c9f40e",
+      "sha256": "85456fb859fb578cb6b9bc89ce382de773710e902dd4ce17b89056dee5324ecb",
+      "supersedes": "closing-month-display-d175-decisions-20261028",
+      "changeReason": "D176 corrective chain review: preserve untouched frozen line identities with forward 0051 and preflight annual repeated resource budgets. Exact source fde8, 243 affected regressions and nine actual Chromium checks; retain red tests, earlier evidence, pending support UI and unresolved remote boundaries. No capability, deployment or business acceptance promotion."
+    },
+    {
+      "id": "closing-chain-frozen-month-contract-20261028",
+      "kind": "document",
+      "path": "docs/features/SERVER_CLOSING_MONTH_PLAN.md",
+      "recordedAtSha": "dbc969ac12f309b8a9bb98f9a57d0a86b543b0c7",
+      "renderedSourceSha": "fde8b0f1f467edfc864cbd616756ad1778c9f40e",
+      "sha256": "20774fb5a16751b1c5911de187f495c1cd28aef423dd97b33d9e246570b06122",
+      "supersedes": "order-closing-month-plan-d169-contract-20261027",
+      "changeReason": "D176 corrective chain review: preserve untouched frozen line identities with forward 0051 and preflight annual repeated resource budgets. Exact source fde8, 243 affected regressions and nine actual Chromium checks; retain red tests, earlier evidence, pending support UI and unresolved remote boundaries. No capability, deployment or business acceptance promotion."
+    },
+    {
+      "id": "closing-chain-annual-budget-contract-20261028",
+      "kind": "document",
+      "path": "docs/features/SERVER_CLOSING_ANNUAL_READ.md",
+      "recordedAtSha": "dbc969ac12f309b8a9bb98f9a57d0a86b543b0c7",
+      "renderedSourceSha": "fde8b0f1f467edfc864cbd616756ad1778c9f40e",
+      "sha256": "398126784c5416b933b515cfa7682f393487f664932b64d6ee483414b87c038c",
+      "supersedes": "closing-annual-read-d172-contract-20261027",
+      "changeReason": "D176 corrective chain review: preserve untouched frozen line identities with forward 0051 and preflight annual repeated resource budgets. Exact source fde8, 243 affected regressions and nine actual Chromium checks; retain red tests, earlier evidence, pending support UI and unresolved remote boundaries. No capability, deployment or business acceptance promotion."
+    },
+    {
+      "id": "closing-chain-correctness-stage-20261028",
+      "kind": "document",
+      "path": "docs/tasks/active/closing-chain-correctness-review-2026-10-28.md",
+      "recordedAtSha": "dbc969ac12f309b8a9bb98f9a57d0a86b543b0c7",
+      "renderedSourceSha": "fde8b0f1f467edfc864cbd616756ad1778c9f40e",
+      "sha256": "3f07c59e9d50a3c1cb295491ed2592492f02425d81848f985e9fa696e54f9326",
+      "changeReason": "D176 corrective chain review: preserve untouched frozen line identities with forward 0051 and preflight annual repeated resource budgets. Exact source fde8, 243 affected regressions and nine actual Chromium checks; retain red tests, earlier evidence, pending support UI and unresolved remote boundaries. No capability, deployment or business acceptance promotion."
+    },
+    {
+      "id": "closing-chain-correctness-engineering-20261028",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-28-closing-chain-correctness-engineering.md",
+      "recordedAtSha": "dbc969ac12f309b8a9bb98f9a57d0a86b543b0c7",
+      "renderedSourceSha": "fde8b0f1f467edfc864cbd616756ad1778c9f40e",
+      "sha256": "a8269fd01b33ea4a72d56ca11b800e505167522443ff7cbad696afcf7b11fa4e",
+      "changeReason": "D176 corrective chain review: preserve untouched frozen line identities with forward 0051 and preflight annual repeated resource budgets. Exact source fde8, 243 affected regressions and nine actual Chromium checks; retain red tests, earlier evidence, pending support UI and unresolved remote boundaries. No capability, deployment or business acceptance promotion."
     }
   ],
   "pages": [

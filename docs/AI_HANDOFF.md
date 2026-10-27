@@ -1,12 +1,12 @@
-# 恢复点：两项关账P2已修，当前同源工程通过，待证据守卫收口
+# 恢复点：两项关账P2及565精确守卫收口，新同源实机已展示
 
 2026-10-28；branch feat/order-closing-month-plan。当前业务源码fde8b0f1f467edfc864cbd616756ad1778c9f40e，clean阶段baseline f37b612e09dc44721fe8204c82e45976020b283e。沿用已核实main869ee84dd0b31de6161011e4aa560678b244a64d，无fetch/Hosted/远端写。原Git/ref STOP_AUTH_OR_DIVERGENCE退出1根因未证实，不自行push/ref移动/换认证。PR130未更新，前次核实旧head61704afe22fe9fd0ea9f6625c6092fcbb9575dfc。
 
 [阶段](tasks/active/closing-chain-correctness-review-2026-10-28.md)/[工程证明](tasks/completed/2026-10-28-closing-chain-correctness-engineering.md)，D176。既有只读reviewer发现2P2：全局归并触及冻结行、年度重复资源缺加载前预算；提交1c64664a8aa16000908850156d431e8194dbe31a及fde8分别修复。两项组合静态复审无剩余P1/P2，审查者未跑测试。主控真实红测10中2fail、年度1fail；绿10/10、加强SQL1/1、年度PG1/1；0050非空升级11表逐行保持。最终3220blobs/0overlay规范runner类型/lint/默认前端及server build通过；另显式Server/session/snapshot精确fde8构建通过。相关TS模型/客户端/API/SQL243/243（221997ms），实际Chromium9/9（14708ms），0fail/cancel/skip。所有session已终止退出0，没有仍在运行的测试。
 
-私密outputs/closing-chain-static-review-20261028保存start.json、red/green、prepare/prepared及各质量/回归日志。规范runner D:/zhixu-server-convergence/candidates/closing-chain-fde8b0f1-f74e448601/source。下一步：提交本轮工程证明，前向冻结D176/两契约/阶段/证明，再对同main跑一次check:release-baseline；不重跑未改守卫168或付费CI。不得把尚未执行的最终守卫预写为PASS。
+私密outputs/closing-chain-static-review-20261028保存start.json、red/green、prepare/prepared及各质量/回归日志。规范runner D:/zhixu-server-convergence/candidates/closing-chain-fde8b0f1-f74e448601/source。工程证明checkpoint dbc969ac12f309b8a9bb98f9a57d0a86b543b0c7后，D176/两契约/阶段/证明前向冻结为565，原560条逐项保持；同main精确守卫PASS，checkedHead dbc969ac＋working565，12页面/68能力/84 UI路径，session27311退出0。当前metadata只保存结果，未改业务源码；不重跑未改168或付费CI。所有测试和守卫已结束。
 
-新合成体验localhost:62411/closing-center?year=2027，build closing-chain-fde8b0f1-20261028；owned tmpfs PG zhixu-pg-it-49b6fa3d9241，childPID46344/launcher20724。它不是持久正式目标。私密runner outputs/closing-chain-demo-20261028/localhost-runtime.json和launcher。预备53001实例未交给用户，保留不清理。旧61104/source4107、tab1用户订单输入/tab3未保存预览必须保留；新入口用localhost避免覆盖其127.0.0.1会话，未重启或重seed旧服务。Cua旧句柄demoBrowser/demoTab/closingDemoTab及新currentClosingDemo(tab4)；每轮重新markDeliverable，不reload同URL丢输入。
+新合成体验localhost:62411/closing-center?year=2027，build closing-chain-fde8b0f1-20261028；owned tmpfs PG zhixu-pg-it-49b6fa3d9241，childPID46344/launcher20724。它不是持久正式目标。私密runner outputs/closing-chain-demo-20261028/localhost-runtime.json和launcher。预备53001实例未交给用户，保留不清理。旧61104/source4107、tab1用户订单输入/tab3未保存预览必须保留；新入口用localhost避免覆盖其127.0.0.1会话，未重启或重seed旧服务。Cua旧句柄demoBrowser/demoTab/closingDemoTab及新currentClosingDemo(tab4)；每轮重新markDeliverable，不reload同URL丢输入。新实机已实际保存蓝色外发10件2月→11月，两月各10件/CNY1000/USD25，全年不变。随后整单100件→3月仅预览、未点击确认；取消时浏览器CDP输入/焦点控制超时，已读troubleshooting并停止重复操作，当前模态是否已关闭未核实，服务仍无错误。保持标签，下一轮先只读恢复，不宣称最后取消成功。实机截图live-demo-after-save.jpg保留原保存结果。
 
 [三处配套具体UI](tasks/active/closing-support-interfaces-proposal-2026-10-28.md)仍待此前问题答复；核心UI已批准不能重问。归属漂移目前明确409，恢复writer未完成。旧[D175工程](tasks/completed/2026-10-28-closing-month-display-engineering.md)、[工具168工程](tasks/completed/2026-10-28-release-document-anchor-engineering.md)、[source125镜像](tasks/completed/2026-10-28-closing-current-image-recovery-engineering.md)分别保持原source，不称本片新验收。
 

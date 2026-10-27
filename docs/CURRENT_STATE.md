@@ -2,7 +2,7 @@
 
 2026-10-28；branch feat/order-closing-month-plan。沿用已核实本地main869ee84dd0b31de6161011e4aa560678b244a64d，未fetch，不称最新main。Git/ref STOP_AUTH_OR_DIVERGENCE原退出1根因未解，本轮远端写/Hosted0；PR130未更新，前次核实head61704afe22fe9fd0ea9f6625c6092fcbb9575dfc。
 
-[核心链终审阶段](tasks/active/closing-chain-correctness-review-2026-10-28.md)发现2P2、0P1，均已实际红测并修复。源码fde8b0f1f467edfc864cbd616756ad1778c9f40e：冻结行只归并实际目标scope，0051保护confirmed/locked月完整行集合；年度完整facts读取前，对全候选按最多live3次/frozen2次保守预留8MiB。非空0050升级11张关账表逐行保持。规范3220blob/0overlay完整type/lint/前后端build通过，相关模型/客户端/API/SQL243/243；显式Server/session/snapshot同源实际Chromium9/9。两项修复组合只读终审无剩余P1/P2，非全ERP终审。详见[工程证明](tasks/completed/2026-10-28-closing-chain-correctness-engineering.md)；证明checkpoint后前向冻结并执行精确发布守卫，未提前称其通过。
+[核心链终审阶段](tasks/active/closing-chain-correctness-review-2026-10-28.md)发现2P2、0P1，均已实际红测并修复。源码fde8b0f1f467edfc864cbd616756ad1778c9f40e：冻结行只归并实际目标scope，0051保护confirmed/locked月完整行集合；年度完整facts读取前，对全候选按最多live3次/frozen2次保守预留8MiB。非空0050升级11张关账表逐行保持。规范3220blob/0overlay完整type/lint/前后端build通过，相关模型/客户端/API/SQL243/243；显式Server/session/snapshot同源实际Chromium9/9。两项修复组合只读终审无剩余P1/P2，非全ERP终审。详见[工程证明](tasks/completed/2026-10-28-closing-chain-correctness-engineering.md)；工程证明checkpoint dbc969ac12f309b8a9bb98f9a57d0a86b543b0c7后，原560条逐项保持、前向冻结565条；同main精确守卫PASS，checkedHead dbc969ac＋working565（12页面/68能力/84 UI路径，session27311退出0）。最终metadata仅保存结果，不称新源码重新验收。
 
 新实机http://localhost:62411/closing-center?year=2027，source fde8、合成账号closing.editor、新owned临时PG。它是体验实例，不是持久正式目标；独立localhost避免覆盖61104的127.0.0.1会话。旧61104/source4107aea1ebf181265b543ad4c25a8afe1168f886、订单输入/未保存预览及旧服务保持，未重seed、替换或升级。
 
