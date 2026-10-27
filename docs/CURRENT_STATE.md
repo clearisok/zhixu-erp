@@ -8,4 +8,4 @@ D172新增session-only全年GET，返回12月成衣CNY/加工USD两项与同范�
 
 [修订关账UI已批准](tasks/completed/2026-10-27-closing-adjustment-ui-approval.md)，不重复询问。下一步年度严格客户端、月份HTTP/原请求恢复、正式Server owner页面及像素验收；再做旧写入口整体收紧、Source异常更正和新镜像非空恢复。此片无React/导航接线或用户业务接受，独立USD采用UI仍pending，68能力不提升，Goal active。
 
-G2b源码0547bf16/元数据81879ad6的163项和精确守卫仅属其[工程](tasks/completed/2026-10-27-closing-month-financial-engineering.md)，不冒充本片。当前[输入原件](tasks/completed/2026-10-27-annual-read-input-state/README.md)、旧失败/备份和体验环境保留。0远端/Hosted/真实Source/既有账号业务库/合并部署/切换退役。
+本片源码bdfc531ba5a334e6854903e85a5ec966d653e2ad及[冻结工程](tasks/completed/2026-10-27-closing-annual-read-engineering.md)分源记录，最终HEAD守卫以本机final.json为准。G2b源码0547bf16/元数据81879ad6的163项仅属其[工程](tasks/completed/2026-10-27-closing-month-financial-engineering.md)，不冒充本片。当前[输入原件](tasks/completed/2026-10-27-annual-read-input-state/README.md)、旧失败/备份和体验环境保留。0远端/Hosted/真实Source/既有账号业务库/合并部署/切换退役。

@@ -4856,6 +4856,25 @@
       "renderedSourceSha": "0547bf16d74c2991a40a9b45f32038c8c18098b5",
       "sha256": "ce4e8946f92b38e27d1ce9be2f512025fc53001a7eb2cbc816141a0601d79d9f",
       "changeReason": "D171 explicitly adopts server-owned month portions into the existing 0045 financial snapshots. Independent channels, immutable origin, legacy-write duplicate protection, strict period coverage and amount redaction; no annual projection, mounted UI, source activation or deployment claim."
+    },
+    {
+      "id": "closing-annual-read-d172-decisions-20261027",
+      "path": "docs/DECISION_LOG.md",
+      "supersedes": "closing-month-financial-d171-decisions-20261027",
+      "kind": "document",
+      "recordedAtSha": "bdfc531ba5a334e6854903e85a5ec966d653e2ad",
+      "renderedSourceSha": "bdfc531ba5a334e6854903e85a5ec966d653e2ad",
+      "sha256": "39ae252529a8cbf8d626464c758c31052b6559b0abbe88621b2a1d2def35adb7",
+      "changeReason": "D172 annual same-scope two-output reference read reuses adopted commercial lines and frozen financial manifests. Explicit unknown/zero, fresh grants, current production correction flags and bounded complete totals; no mounted UI, price write, source activation or deployment claim."
+    },
+    {
+      "id": "closing-annual-read-d172-contract-20261027",
+      "path": "docs/features/SERVER_CLOSING_ANNUAL_READ.md",
+      "kind": "document",
+      "recordedAtSha": "bdfc531ba5a334e6854903e85a5ec966d653e2ad",
+      "renderedSourceSha": "bdfc531ba5a334e6854903e85a5ec966d653e2ad",
+      "sha256": "3f2e0a114cd47308ae87a3be348937fce5b64dcc8b9ffc4eb60b9fcab385083a",
+      "changeReason": "D172 annual same-scope two-output reference read reuses adopted commercial lines and frozen financial manifests. Explicit unknown/zero, fresh grants, current production correction flags and bounded complete totals; no mounted UI, price write, source activation or deployment claim."
     }
   ],
   "pages": [

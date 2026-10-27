@@ -8,4 +8,6 @@ GET /api/v1/closing/year是RR只读，year明确；scope all/internal/outsource/
 
 下一片年度严格client、月份服务HTTP/原请求outbox、正式Server owner页面；勿直挂Browser hooks。已批准UI无需再问；Quote USD采用UI独立pending。全年总额与明细同范围，整单移动即使隐藏部分也完整预览；未决请求核对原ID，不自动重试。旧手工入口未整体退役，Source/归属更正仍后续，新镜像非空回执恢复和实际浏览器后才改能力。
 
+源码S bdfc531ba5a334e6854903e85a5ec966d653e2ad；[冻结工程](tasks/completed/2026-10-27-closing-annual-read-engineering.md)保存实际11/23/37集合及最后规范副本，不叠加。清单536→538只追加D172前向决策与契约；最终元数据HEAD/精确守卫/clean由本机final.json核对。
+
 当前68能力不变，Goal active。0真实Source/现有账号业务库/远端/Hosted/合并部署/切换退役；保留3001/50426/59069/62426/18443/18444、Browser数据、旧卷和备份。原Git/ref STOP原因未定，不在后续Gate重复推送。
