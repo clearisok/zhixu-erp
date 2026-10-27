@@ -4837,6 +4837,25 @@
       "renderedSourceSha": "21526976a1d07c5122ad71651f8e12e1cb820311",
       "sha256": "2e5a2e5c3ef45978be46cbeb5d704c044c2e391bd4f59498fa47b872dcee5c25",
       "changeReason": "D170 explicit executor matching preserves color/month quantities, historical attribution, fresh observation provenance and original request recovery. Reference quantities warn only; annual money/financial materialization/HTTP/UI remain subsequent work."
+    },
+    {
+      "id": "closing-month-financial-d171-decisions-20261027",
+      "path": "docs/DECISION_LOG.md",
+      "supersedes": "closing-executor-matching-d170-decisions-20261027",
+      "kind": "document",
+      "recordedAtSha": "0547bf16d74c2991a40a9b45f32038c8c18098b5",
+      "renderedSourceSha": "0547bf16d74c2991a40a9b45f32038c8c18098b5",
+      "sha256": "3cd03f357c00efcb68c09703ab5abf2a1ed7d95f7426f0fe835d1db6c7464916",
+      "changeReason": "D171 explicitly adopts server-owned month portions into the existing 0045 financial snapshots. Independent channels, immutable origin, legacy-write duplicate protection, strict period coverage and amount redaction; no annual projection, mounted UI, source activation or deployment claim."
+    },
+    {
+      "id": "closing-month-financial-d171-contract-20261027",
+      "path": "docs/features/SERVER_CLOSING_MONTH_FINANCIAL.md",
+      "kind": "document",
+      "recordedAtSha": "0547bf16d74c2991a40a9b45f32038c8c18098b5",
+      "renderedSourceSha": "0547bf16d74c2991a40a9b45f32038c8c18098b5",
+      "sha256": "ce4e8946f92b38e27d1ce9be2f512025fc53001a7eb2cbc816141a0601d79d9f",
+      "changeReason": "D171 explicitly adopts server-owned month portions into the existing 0045 financial snapshots. Independent channels, immutable origin, legacy-write duplicate protection, strict period coverage and amount redaction; no annual projection, mounted UI, source activation or deployment claim."
     }
   ],
   "pages": [

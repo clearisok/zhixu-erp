@@ -1,5 +1,7 @@
 # 恢复点：Gate8G2b月份财务关联
 
+源码S0547bf16d74c2991a40a9b45f32038c8c18098b5已独立提交，独立复审0P1/P2；[冻结工程](tasks/completed/2026-10-27-closing-month-financial-engineering.md)保留分源失败、当前结果及容量内存夹具限制。最终Q/守卫看本机final.json。
+
 2026-10-27；branch `feat/order-closing-month-plan`，clean输入e975cba8820b5ae1e1b92f29324e83492d26d286。main869ee84dd0b31de6161011e4aa560678b244a64d对象/祖先已核实，本片未fetch/远端写，原STOP根因未定；PR130旧head不含增量。先读D171、[契约](features/SERVER_CLOSING_MONTH_FINANCIAL.md)和[阶段](tasks/active/closing-month-financial-2026-10-27.md)，上一状态原件已逐字归档。
 
 0049仅关联0047当前片段与0045原财务allocation；不另建价格，不能传SO/数量/价格/汇率。sync_month_outputs复用旧preview/commands/receipt，fresh渠道授权、期间CAS、全局锁与审计同事务。片段每渠道一行，数量不相加；整体匹配换lineId后单渠道同步导致集合不一致，registeredQuantity=null/requires_sync。纯sales先剔除可信processing，不被无关加工归属漂移阻断；work仍核对。linked reason双金额可见，金额字段分别投影。

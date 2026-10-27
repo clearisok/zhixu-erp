@@ -1,5 +1,7 @@
 # 当前状态：月份数量与财务快照衔接本地通过
 
+源码S0547bf16d74c2991a40a9b45f32038c8c18098b5已独立提交，复审0P1/P2；[冻结工程](tasks/completed/2026-10-27-closing-month-financial-engineering.md)及本机final.json分别记录源码/最终元数据与守卫。
+
 2026-10-27；branch `feat/order-closing-month-plan`，Gate8G2b clean输入e975cba8820b5ae1e1b92f29324e83492d26d286。沿用只读核实main869ee84dd0b31de6161011e4aa560678b244a64d；无fetch/远端写，原Git/ref STOP根因未定。PR130旧61704afe22fe9fd0ea9f6625c6092fcbb9575dfc不含本片。
 
 D171通过0049不可变引用，把当前月份片段显式采用到原0045财务版本，复用商业源、事务、fresh权限、CAS、审计和原请求恢复。成衣/工价分别采用；加工不参与sales，CNY工价不换汇。开放调月不改旧金额，确认/锁定核对当前完整覆盖；已关联SO的旧手工写入口不能重复计量。跨渠道片段不一致时总件数未知，linked自由文本历史要求双金额权限。[契约](features/SERVER_CLOSING_MONTH_FINANCIAL.md)。
