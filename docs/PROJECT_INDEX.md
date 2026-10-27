@@ -4,7 +4,7 @@
 
 先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[业务规则](BUSINESS_RULES.md)、DECISION_LOG D169–D176及[全Gate](tasks/active/server-convergence-gate0-2026-10-20.md)。
 
-当前[0051镜像恢复](tasks/active/closing-frozen-image-recovery-2026-10-28.md)/[工程证明](tasks/completed/2026-10-28-closing-frozen-image-recovery-engineering.md)：image cf77一次build，harness de5为test-only独立源码，产品/SQL字节相同；catalog/target两项验收P2已补。28控制、owned PG1、完整非空恢复9、当前image静态包实际Chromium9通过。121表/sequence/0051 catalog及18财务GET/18回执保持；原68容器/191卷/33网络/278旧refs保护、三处demo身份保持。四领域有界静态终审无新增可证实P1/P2，非全量UI/真实环境/人工验收。最终冻结/守卫状态见CURRENT_STATE。
+当前[0051镜像恢复](tasks/active/closing-frozen-image-recovery-2026-10-28.md)/[工程证明](tasks/completed/2026-10-28-closing-frozen-image-recovery-engineering.md)：image cf77一次build，harness de5为test-only独立源码，产品/SQL字节相同；catalog/target两项验收P2已补。28控制、owned PG1、完整非空恢复9、当前image静态包实际Chromium9通过。121表/sequence/0051 catalog及18财务GET/18回执保持；原68容器/191卷/33网络/278旧refs保护、三处demo身份保持。四领域有界静态终审无新增可证实P1/P2，非全量UI/真实环境/人工验收。证明在9bb9179264ef04e9f84aa5c99ac8c9d8f01cf57d冻结567条，原565不变；同main精确守卫PASS，12页面/68能力/84 UI路径。完整状态及实机自动点击限制见CURRENT_STATE。
 
 [D176核心链终审](tasks/active/closing-chain-correctness-review-2026-10-28.md)/[工程证明](tasks/completed/2026-10-28-closing-chain-correctness-engineering.md)：业务源码fde8b0f1f467edfc864cbd616756ad1778c9f40e；0051冻结scope与年度重复facts预算两项P2已修复，真实红绿、非空升级、相关243/实际Chromium9、构建及565守卫原证据保留。
 

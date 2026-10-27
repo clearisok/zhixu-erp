@@ -5131,6 +5131,24 @@
       "renderedSourceSha": "fde8b0f1f467edfc864cbd616756ad1778c9f40e",
       "sha256": "a8269fd01b33ea4a72d56ca11b800e505167522443ff7cbad696afcf7b11fa4e",
       "changeReason": "D176 corrective chain review: preserve untouched frozen line identities with forward 0051 and preflight annual repeated resource budgets. Exact source fde8, 243 affected regressions and nine actual Chromium checks; retain red tests, earlier evidence, pending support UI and unresolved remote boundaries. No capability, deployment or business acceptance promotion."
+    },
+    {
+      "id": "closing-frozen-image-recovery-stage-20261028",
+      "kind": "document",
+      "path": "docs/tasks/active/closing-frozen-image-recovery-2026-10-28.md",
+      "recordedAtSha": "9bb9179264ef04e9f84aa5c99ac8c9d8f01cf57d",
+      "renderedSourceSha": "de5b1c4cd3b60288624e2823def5e9ce3ee8e331",
+      "sha256": "461d4222d7db8ceb5d5a5784be9eae5ba5ed16d23bacced7d1b1597180f5fa3f",
+      "changeReason": "Freeze exact cf77 image / de5 test-only harness recovery proof: 0051 enabled catalog and source function body, 121-table pre-start restoration equality, 18 financial reads/receipts, image-static actual Chromium and preservation. Retain original failures and separate image/harness identities; no capability, hosted CI, remote delivery, real-data, deployment or human acceptance promotion."
+    },
+    {
+      "id": "closing-frozen-image-recovery-engineering-20261028",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-28-closing-frozen-image-recovery-engineering.md",
+      "recordedAtSha": "9bb9179264ef04e9f84aa5c99ac8c9d8f01cf57d",
+      "renderedSourceSha": "de5b1c4cd3b60288624e2823def5e9ce3ee8e331",
+      "sha256": "54b47bf83265ae86e6e4a7b7fc110fb35156678baf9f49366e1f7e3024b840fc",
+      "changeReason": "Freeze exact cf77 image / de5 test-only harness recovery proof: 0051 enabled catalog and source function body, 121-table pre-start restoration equality, 18 financial reads/receipts, image-static actual Chromium and preservation. Retain original failures and separate image/harness identities; no capability, hosted CI, remote delivery, real-data, deployment or human acceptance promotion."
     }
   ],
   "pages": [
