@@ -15,10 +15,10 @@
 
 - 模型及真实链红测10项：8PASS/2FAIL、7577ms，准确复现两条25+5被归并为30，原frozen-red.log保留。
 - 模型修复＋owned 0050非空升级0051：10/10（8399ms）；增加SQL confirmed/locked换ID、合并和新增冻结行负控及重开后允许调月、原manifest保持检查后，该完整PG测试1/1（7880ms）。11张非空关账表升级前后逐行JSON完全一致，迁移记录只增加1条；文件数量与version51分开核对。
-- 尚待此修复源码checkpoint的类型/lint/构建、相关API/SQL回归、精确增量复审与门禁，不借前D175/镜像/发布结果冒称通过。
+- 最终业务源码fde8b0f1f467edfc864cbd616756ad1778c9f40e：规范3220 tracked blobs/0 overlays，完整类型、lint、前后端构建通过；所有受影响关账TS模型/客户端/PG/HTTP回归243/243，221997ms。另以显式Server/session/snapshot构建、精确source核对后实际Chromium9/9（14708ms）。默认配置构建也通过，但不是Server验收输入；两者分开记录。
 - 年度预算真实PG红测1FAIL（6683ms）：合法900KB快照分散在多个SO的累计载荷旧代码未拒绝。修复后1/1（7685ms），同一hash逐assignment重复计数；单live三份可读、跨候选超预算在任何完整facts SELECT前拒绝，frozen四份按2次可读，fresh撤权在预算查询前拒绝，HTTP只给固定无金额错误。
-- 冻结修复精确f37→1c64664只读复审无剩余P1/P2，尚不代表年度增量或完整回归。共享显式测试迁移清单遗漏0050已随0051补齐，保留原文件和顺序，不修改生产迁移发现逻辑。
+- 冻结修复精确f37→1c64664、年度预算1c64664→fde8及两项组合只读复审无剩余P1/P2；审查者未运行测试，上述243/9由主控实际执行。共享显式测试迁移清单遗漏0050已随0051补齐，保留原文件和顺序，不修改生产迁移发现逻辑。
 
-私密outputs/closing-chain-static-review-20261028保留clean baseline与原日志。未重启、重seed或替换61104；原预览、旧环境、Browser、卷/备份均保持。Hosted/远端0、未操作真实Source/既有账号业务库、未合并/部署/切换或退役。
+私密outputs/closing-chain-static-review-20261028保留clean baseline、原失败与完整日志。[工程证明](../completed/2026-10-28-closing-chain-correctness-engineering.md)区分工程、实机、发布门禁和远端。新同源localhost:62411合成演示使用新的owned临时PG和独立hostname，避免覆盖61104的127.0.0.1会话；不替换或重seed61104，旧预览、Browser、卷/备份保持。Hosted/远端0，未操作真实Source/既有账号业务库，未合并、正式部署、切换或退役。
 
 稳定执行归属漂移仍明确409，其恢复写命令未实现；配套三处UI仍待具体答复，核心关账UI已批准不能重问。没有借终审新建一套价格系统或扩大已批准业务规则。
