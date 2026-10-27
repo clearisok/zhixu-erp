@@ -4,7 +4,7 @@
 
 > 按修订草图实施（推荐）
 
-批准对象是源码`0969d74c5d5f6dabbd2d095c42824f80be090ab7`中`docs/tasks/active/server-closing-ui-proposal-2026-10-27.md`的修订草图；[文档入口](../../active/server-closing-ui-proposal-2026-10-27.md)的后续版本不得冒用本次范围。已展示的本机交互原型SHA256为`2aaf9490b54924317f02912f6f7a92e75879b5ae0125e042f8fcad4c5cb770bd`，当前文件再次核对一致；它是合成示意，不是实际页面验收或新税率默认值。
+批准对象是源码`0969d74c5d5f6dabbd2d095c42824f80be090ab7`中`docs/tasks/active/server-closing-ui-proposal-2026-10-27.md`的修订草图；[文档入口](../active/server-closing-ui-proposal-2026-10-27.md)的后续版本不得冒用本次范围。已展示的本机交互原型SHA256为`2aaf9490b54924317f02912f6f7a92e75879b5ae0125e042f8fcad4c5cb770bd`，当前文件再次核对一致；它是合成示意，不是实际页面验收或新税率默认值。
 
 明确批准的接线范围：
 
