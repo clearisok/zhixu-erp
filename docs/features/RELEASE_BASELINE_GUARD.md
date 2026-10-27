@@ -89,10 +89,26 @@ the same path, `supersedes: <old-id>` and a nonempty `changeReason`. Only the la
 document version must match the working file; earlier blobs stay readable in Git.
 Do not remove the old ID or reuse it for a different assertion.
 Multiple committed revisions in one stacked branch may form a forward chain.
-Every chain must reach an ID in the actual PR-base manifest; intermediate Git
-blobs remain hash-checked. Missing links, cycles, unclosed forks, same-commit document
+For paths already represented in the actual PR-base manifest, every chain must
+reach that base's evidence ID. Intermediate Git blobs remain hash-checked.
+Missing links, cycles, unclosed forks, same-commit document
 revisions and path/kind changes fail closed. This does not authorize overwriting
 any original evidence or advance deployment/acceptance status.
+
+A document path first frozen after the actual PR base has no base evidence ID.
+Its next linear revision instead needs a committed checkpoint witness: the
+revision's exact source commit must be in the checked branch, descend from the
+actual base and have exactly one Git parent. That immediate parent's Git-loaded
+manifest must already contain the exact predecessor and its complete same-path,
+acyclic frozen lineage. Every source commit in that lineage must be an ancestor
+of the parent; every evidence record in the parent manifest must remain unchanged.
+The new revision itself cannot already be in that parent. Lineage traversal is
+bounded to256 records and shares the existing64MiB distinct-parent-manifest budget.
+Missing/corrupt history, forged roots, future or sibling sources, overwritten
+records and missing/tampered original blobs still fail. There is no new manifest
+field or change to the PR comparison base. This witness cannot replace the usual
+base anchor for a path already represented there, cannot stand in for a merge,
+and does not grant UI/approval/capability/deployment status.
 
 Parallel reviewed document branches can converge through an explicit document-only
 `mergeOf: [<predecessor-id>, <predecessor-id>, ...]` record, mutually exclusive with
@@ -102,7 +118,8 @@ The guard reads that checkpoint's actual Git parents: two parent branches must
 contribute different predecessor histories. All predecessor commits must be strict
 ancestors of the checkpoint and the checkpoint must be in the checked head.
 
-Every branch must trace back to the actual PR base; cycles and multiple final leaves
+Every branch must trace back to the actual PR base or the restricted committed
+post-base checkpoint above; cycles and multiple final leaves
 remain errors. All evidence records in the Git parents' manifests must be retained
 unchanged, including records not yet on main. A merge cannot hide missing intermediate
 blobs or modify old hashes/edges. Its own `mergeOf` is immutable in later PRs. A normal
@@ -130,8 +147,9 @@ unrelated paths. This also applies when H has no document record or its author
 freezes a later ordinary checkpoint. Missing/invalid Git history is not an empty
 manifest. Discovery is bounded to256 corridor merges,8 parents per merge and64MiB
 of distinct parent manifests; exceeding a bound fails explicitly without a
-truncated PASS. Parent manifests are cached, and ordinary commits do not add
-manifest reads. This protects history actually merged into the inspected corridor,
+truncated PASS. Parent manifests are cached; ordinary corridor commits are not
+scanned. Only an eligible post-base document revision may separately load its
+immediate source-parent checkpoint as described above. This protects history actually merged into the inspected corridor,
 not unmerged branches outside it. Default local/dispatch inspection still compares
 working changes to HEAD; it cannot replace the explicit actual-main PR gate.
 

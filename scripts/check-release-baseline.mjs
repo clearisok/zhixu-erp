@@ -11,6 +11,7 @@ export const initialReviewSha = 'b5411b68618e663d97ca50ac5bb9f49bc688193e';
 const integrationMergeLimit = 256;
 const integrationParentLimit = 8;
 const integrationManifestBytes = 64 * 1024 * 1024;
+const documentAnchorDepthLimit = 256;
 const fullSha = value => typeof value === 'string' && /^[0-9a-f]{40}$/.test(value);
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
 const same = (left, right) => JSON.stringify(left) === JSON.stringify(right);
@@ -90,6 +91,7 @@ export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths
   const evidence = new Map();
   const historicalHashes = new Map();
   const priorEvidence = new Map((previousManifest?.evidence ?? []).map(item => [item.id, item]));
+  const priorDocumentPaths = new Set([...priorEvidence.values()].filter(item => item.kind === 'document').map(item => item.path));
   if (!previousManifest || ![1, 2].includes(previousManifest.schemaVersion)) fail('HISTORY_REQUIRED', 'A Git-loaded prior manifest is required.');
   const superseded = new Set();
   const revisions = new Map((manifest.evidence ?? []).map(item => [item.id, item]));
@@ -100,17 +102,19 @@ export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths
     candidates.set(item.id, item);
   }
   const parentsOf = item => Array.isArray(item.mergeOf) ? item.mergeOf : item.supersedes ? [item.supersedes] : [];
-  // Every branch, not just one selected predecessor, must reach the immutable
-  // actual PR base. A merge node never excuses an orphan or a cycle.
+  // Every branch must reach actual PR-base evidence, or a proven committed
+  // checkpoint for a document path first frozen after that base. A merge node
+  // never excuses an orphan, overwritten intermediate or cycle.
   const anchoredRevision = item => {
     const visit = (current, visited) => {
       if (!current || current.kind !== item.kind || current.path !== item.path || visited.has(current.id)) return false;
       if (priorEvidence.has(current.id)) return true;
+      if (committedDocumentAnchor(current)) return true;
       const parents = parentsOf(current);
       const next = new Set(visited).add(current.id);
       return parents.length > 0 && parents.every(id => visit(revisions.get(id), next));
     };
-    return parentsOf(item).length > 0 && parentsOf(item).every(id => visit(revisions.get(id), new Set([item.id])));
+    return committedDocumentAnchor(item) || parentsOf(item).length > 0 && parentsOf(item).every(id => visit(revisions.get(id), new Set([item.id])));
   };
   // Screenshot replacements keep distinct paths, so they use the original
   // single-predecessor anchor/cycle rule rather than the document path DAG.
@@ -166,6 +170,37 @@ export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths
     }
     return valid;
   };
+  const committedDocumentAnchors = new Map();
+  function committedDocumentAnchor(item) {
+    if (committedDocumentAnchors.has(item.id)) return committedDocumentAnchors.get(item.id);
+    committedDocumentAnchors.set(item.id, false);
+    // A path first frozen after the actual PR base has no base evidence ID to
+    // reach. Its next linear revision must prove that its predecessor and the
+    // complete frozen lineage already exist in the source commit's immediate
+    // Git parent. A caller-owned root, sibling branch, merge declaration or
+    // rewritten intermediate cannot substitute for that committed checkpoint.
+    if (item.kind !== 'document' || priorDocumentPaths.has(item.path) || item.mergeOf !== undefined
+      || !nonempty(item.supersedes) || !fullSha(item.recordedAtSha)
+      || !isAncestor(historyBaseSha, item.recordedAtSha) || !isAncestor(item.recordedAtSha, checkedHead)) return false;
+    let parents;
+    try { parents = readCommitParents(item.recordedAtSha); } catch { return false; }
+    if (!Array.isArray(parents) || parents.length !== 1 || !fullSha(parents[0]) || parents[0] === item.recordedAtSha
+      || !isAncestor(historyBaseSha, parents[0])) return false;
+    const history = parentManifest(parents[0]);
+    if (!history.valid || history.limit || history.changed.length || history.ids.has(item.id)) return false;
+    const lineage = (current, visited) => {
+      if (!current || current.kind !== 'document' || current.path !== item.path || visited.has(current.id)
+        || visited.size >= documentAnchorDepthLimit || !same(history.ids.get(current.id), current)
+        || !fullSha(current.recordedAtSha) || !isAncestor(current.recordedAtSha, parents[0])) return false;
+      const predecessors = parentsOf(current);
+      if (!predecessors.length) return current.supersedes === undefined && current.mergeOf === undefined;
+      const next = new Set(visited).add(current.id);
+      return predecessors.every(id => lineage(revisions.get(id), next));
+    };
+    const valid = lineage(revisions.get(item.supersedes), new Set([item.id]));
+    committedDocumentAnchors.set(item.id, valid);
+    return valid;
+  }
   // Inspect the actual Git integration corridor, independently of which
   // recordedAt a document author chooses (or whether a new record exists).
   const integrations = new Map();

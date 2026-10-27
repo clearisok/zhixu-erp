@@ -570,6 +570,70 @@ function realEvidenceMerge(t) {
   return {f,git,commit,options,base,old,left,right,side,merged,mergedBytes,leftHead,rightHead};
 }
 
+function postBaseDocumentRevision(t) {
+  const s = realEvidenceMerge(t), { f, commit } = s;
+  const save = () => f.write(manifestPath, JSON.stringify(f.manifest, null, 2) + '\n');
+  save();
+  const anchorHead = commit('freeze original post-base root before its revision', [manifestPath]);
+  const body = Buffer.from('# Explicit forward revision of a post-base document\n');
+  f.write(s.side.path, body);
+  const sourceSha = commit('revise post-base document on its actual branch', [s.side.path]);
+  const revised = { ...s.side, id: 'post-base-first', recordedAtSha: sourceSha, sha256: hash(body),
+    supersedes: s.side.id, changeReason: 'Preserve the committed original root while updating its current document' };
+  f.manifest.evidence.push(revised);
+  return { ...s, save, anchorHead, sourceSha, revised, options: { ...s.options, checkedHead: sourceSha } };
+}
+
+test('post-base document roots can be revised through committed linear checkpoints', t => {
+  const s = postBaseDocumentRevision(t), { f } = s;
+  assert.deepEqual(f.check(s.options), []);
+  s.save(); s.commit('freeze first post-base successor', [manifestPath]);
+  const body = Buffer.from('# Second explicit revision preserves both earlier blobs\n');
+  f.write(s.side.path, body);
+  const sourceSha = s.commit('second post-base document update', [s.side.path]);
+  f.manifest.evidence.push({ ...s.revised, id: 'post-base-second', recordedAtSha: sourceSha, sha256: hash(body),
+    supersedes: s.revised.id, changeReason: 'Second committed linear revision' });
+  assert.deepEqual(f.check({ ...s.options, checkedHead: sourceSha }), []);
+});
+
+test('post-base document checkpoint anchors reject missing, rewritten and forged histories', async t => {
+  const s = postBaseDocumentRevision(t), { f } = s;
+  const current = structuredClone(f.manifest), prior = structuredClone(f.previousManifest);
+  const committed = JSON.parse(s.options.readBlob(s.anchorHead, manifestPath).toString('utf8'));
+  const parentRead = transform => ({ ...s.options, readBlob: (sha, file) => sha === s.anchorHead && file === manifestPath
+    ? transform(structuredClone(committed)) : s.options.readBlob(sha, file) });
+  const encoded = value => Buffer.from(JSON.stringify(value));
+  for (const mode of ['missing', 'malformed', 'missing-root', 'rewritten-root', 'rewritten-other-history', 'merge-parent', 'outside-base', 'future-predecessor', 'cycle', 'base-path-root', 'missing-blob', 'tampered-blob']) {
+    await t.test(mode, () => {
+      Object.assign(f.manifest, structuredClone(current)); Object.assign(f.previousManifest, structuredClone(prior));
+      let options = s.options;
+      if (mode === 'missing') options = parentRead(() => null);
+      if (mode === 'malformed') options = parentRead(() => Buffer.from('{not-json'));
+      if (mode === 'missing-root') options = parentRead(m => { m.evidence = m.evidence.filter(item => item.id !== s.side.id); return encoded(m); });
+      if (mode === 'rewritten-root') options = parentRead(m => { m.evidence.find(item => item.id === s.side.id).sha256 = '0'.repeat(64); return encoded(m); });
+      if (mode === 'rewritten-other-history') options = parentRead(m => { m.evidence[0].sha256 = '0'.repeat(64); return encoded(m); });
+      if (mode === 'merge-parent') options = { ...s.options, readCommitParents: sha => sha === s.sourceSha ? [s.anchorHead, s.rightHead] : s.options.readCommitParents(sha) };
+      if (mode === 'outside-base') options = { ...s.options, isAncestor: (a, b) => b === s.anchorHead && a === original.baselineSha ? false : s.options.isAncestor(a, b) };
+      if (mode === 'missing-blob' || mode === 'tampered-blob') options = { ...s.options, readBlob: (sha, file) => sha === s.side.recordedAtSha && file === s.side.path
+        ? mode === 'missing-blob' ? null : Buffer.from('tampered original document') : s.options.readBlob(sha, file) };
+      if (mode === 'future-predecessor') {
+        f.manifest.evidence.find(item => item.id === s.side.id).recordedAtSha = s.sourceSha;
+        options = parentRead(m => { m.evidence.find(item => item.id === s.side.id).recordedAtSha = s.sourceSha; return encoded(m); });
+      }
+      if (mode === 'cycle') {
+        f.manifest.evidence.find(item => item.id === s.side.id).supersedes = s.revised.id;
+        options = parentRead(m => { m.evidence.find(item => item.id === s.side.id).supersedes = s.revised.id; return encoded(m); });
+      }
+      if (mode === 'base-path-root') {
+        const body = Buffer.from('# Existing base evidence cannot be replaced by a new root\n');
+        const old = { id: 'post-base-path-original-main', kind: 'document', path: s.side.path, recordedAtSha: original.baselineSha, sha256: hash(body) };
+        f.previousManifest.evidence.push(old); f.manifest.evidence.push(old); f.blobs.set(`${old.recordedAtSha}:${old.path}`, body);
+      }
+      has(f.check(options), mode === 'missing-blob' ? 'EVIDENCE_BLOB' : mode === 'tampered-blob' ? 'EVIDENCE_BLOB_HASH' : 'EVIDENCE_REVISION_ANCHOR');
+    });
+  }
+});
+
 function advancedMainEvidenceMerge(t, doubleSided = false) {
   const s = realEvidenceMerge(t), { f, git, commit } = s;
   const save = () => f.write(manifestPath, JSON.stringify(f.manifest, null, 2) + '\n');
