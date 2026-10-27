@@ -4875,6 +4875,15 @@
       "renderedSourceSha": "bdfc531ba5a334e6854903e85a5ec966d653e2ad",
       "sha256": "3f2e0a114cd47308ae87a3be348937fce5b64dcc8b9ffc4eb60b9fcab385083a",
       "changeReason": "D172 annual same-scope two-output reference read reuses adopted commercial lines and frozen financial manifests. Explicit unknown/zero, fresh grants, current production correction flags and bounded complete totals; no mounted UI, price write, source activation or deployment claim."
+    },
+    {
+      "id": "closing-month-interface-contract-20261027",
+      "kind": "document",
+      "path": "docs/features/SERVER_CLOSING_MONTH_INTERFACE.md",
+      "recordedAtSha": "aba4719038b0de05804a397c44f49e32a6fc9162",
+      "renderedSourceSha": "aba4719038b0de05804a397c44f49e32a6fc9162",
+      "sha256": "61ca2fd9dd20b55c55ebf7ef3043606128e5f2828b091f9ffe72f249d6457781",
+      "changeReason": "Existing month services exposed through session HTTP, strict annual/month DTOs and one shared renderless request recovery core. Old financial key/envelope preserved. No mounted UI, Browser fallback, deployment or remote delivery claim."
     }
   ],
   "pages": [
