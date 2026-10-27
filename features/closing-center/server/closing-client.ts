@@ -1,7 +1,11 @@
 import { parseClosingCommand, parseClosingIntent, closingUuid, type ClosingCommand, type ClosingIntent } from '../../../server/closing/contract';
 import { parseClosingReadQuery } from '../../../server/closing/read-contract';
-import { canonicalPlanJson } from '../../../server/production-scheduling/canonical-json';
+import { parseClosingMonthCommand, parseClosingMonthIntent, type ClosingMonthCommand, type ClosingMonthIntent } from '../../../server/closing/month-plan-model';
+import { parseClosingYearQuery } from '../../../server/closing/annual-contract';
 import type { ClosingOutcome } from '../../../server/closing/service';
+import { closingRequestHash } from './closing-request-hash';
+import { parseClosingYear } from './closing-year-projection';
+import { parseClosingMonthOutcome, parseClosingMonthPreview, parseClosingMonthReceipt, parseClosingMonthState } from './closing-month-projection';
 import { ClosingClientError, CLOSING_RESPONSE_LIMIT, bool, hash, invalidClosingResponse, keys, member, messages, obj,
   parseClosingBasis, parseClosingDetail, parseClosingHistory, parseClosingPeriods, parseClosingPreview, same, str, uid, type ClosingVisibility } from './closing-projection';
 
@@ -10,10 +14,7 @@ export type { ClosingIntent, ClosingCommand, ClosingVisibility };
 export type ClosingLease = () => boolean;
 export type ClosingReceipt = { state: 'unknown'; requestId: string } | { state: 'recorded'; requestId: string; commandHash: string; result: ClosingOutcome };
 export function closingCommand(value: unknown): ClosingCommand { return parseClosingCommand(value); }
-export async function closingCommandHash(value: ClosingCommand) {
-  const bytes = new TextEncoder().encode(canonicalPlanJson(closingCommand(value)));
-  return [...new Uint8Array(await crypto.subtle.digest('SHA-256', bytes))].map(value => value.toString(16).padStart(2, '0')).join('');
-}
+export const closingCommandHash = (value: ClosingCommand) => closingRequestHash(closingCommand(value));
 function outcome(value: unknown, command: ClosingCommand): ClosingOutcome {
   const row = obj(value); same(row.requestId, command.requestId);
   if (row.status === 'rejected') {
@@ -62,6 +63,26 @@ export function createClosingClient(options: { visibility: () => ClosingVisibili
     const raw = await request(path, undefined, lease, signal); owned(lease); const result = parse(raw, visibility()); owned(lease); return result;
   }
   return {
+    async year(params: URLSearchParams, lease: ClosingLease, signal?: AbortSignal) {
+      const raw = new URLSearchParams(params), q = parseClosingYearQuery(raw);
+      return query('/year?' + raw, lease, signal, (value, view) => parseClosingYear(value, q, view));
+    },
+    async monthPlan(orderId: string, lease: ClosingLease, signal?: AbortSignal) {
+      const id = closingUuid(orderId); return query('/orders/' + id + '/month-plan', lease, signal, value => parseClosingMonthState(value, id));
+    },
+    async monthPreview(value: ClosingMonthIntent, lease: ClosingLease, signal?: AbortSignal) {
+      const intent = parseClosingMonthIntent(value), raw = await request('/month-plans/preview', intent, lease, signal); owned(lease);
+      const result = parseClosingMonthPreview(raw, intent); owned(lease); return result;
+    },
+    async monthSubmit(value: ClosingMonthCommand, lease: ClosingLease, signal?: AbortSignal) {
+      const command = parseClosingMonthCommand(value), row = await request('/month-plans/commands', command, lease, signal);
+      if (row.status === 'unverified') { keys(row, ['requestId', 'status']); same(row.requestId, command.requestId); return { status: 'unverified' as const, requestId: command.requestId }; }
+      bool(row.replayed); const { replayed, ...clean } = row; void replayed; return parseClosingMonthOutcome(clean, command);
+    },
+    async monthReceipt(value: ClosingMonthCommand, lease: ClosingLease, signal?: AbortSignal) {
+      const command = parseClosingMonthCommand(value), raw = await request('/month-plans/commands/' + command.requestId, undefined, lease, signal);
+      const result = await parseClosingMonthReceipt(raw, command); owned(lease); return result;
+    },
     async periods(params: URLSearchParams, lease: ClosingLease, signal?: AbortSignal) {
       const raw = new URLSearchParams(params), q = parseClosingReadQuery(raw, 'list');
       return query('/periods?' + raw, lease, signal, (value, view) => parseClosingPeriods(value, q, view));

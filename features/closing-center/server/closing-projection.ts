@@ -27,6 +27,15 @@ export const messages: Record<string, string> = {
   closing_period_not_open: '月份当前不开放，请先取消确认或按权限重开。', closing_period_state_conflict: '月份状态已变化，请重新读取。',
   closing_usd_work_basis_required: '缺少已采用的 USD 工价，请先在报价中心明确确认和采用。', closing_sale_basis_required: '缺少可用的已采用 CNY 成交价。',
   closing_details_restricted: '当前无权查看原拒绝的金额详情，原请求未被采用。', closing_period_already_exists: '该月份已存在，请打开已有月份。',
+  invalid_closing_year_query: '请选择有效年份和筛选范围。', closing_year_order_limit: '匹配订单较多，请缩小搜索范围。',
+  closing_year_portion_limit: '月份片段较多，请缩小搜索范围。', closing_year_response_too_large: '记录较多，请缩小范围后读取。',
+  invalid_closing_month_command: '请核对原月份片段、调整数量、目标月份和原因。', closing_month_version_conflict: '本单月份已更新，请重新读取并预览。',
+  closing_month_preview_changed: '月份或执行依据已变化，请重新读取并预览。', closing_month_request_conflict: '原请求内容不一致，请保留现场并核对。',
+  closing_month_source_changed: '订单来源数量或颜色已变化，请先核对月份依据。', closing_month_period_not_open: '源月或目标月已确认或锁定，请先按权限处理。',
+  closing_month_quantity_unknown: '来源数量尚未明确，暂不能调月。', closing_month_quantity_unrepresentable: '来源数量超出当前调月范围，请先核对。',
+  closing_month_quantity_exceeded: '本次调入数量超过原片段的可调数量。', closing_month_no_change: '本次选择没有改变月份或执行归属。',
+  closing_month_executor_review_required: '执行归属已变化，请先核对，原月份量保持。', closing_month_not_initialized: '本单没有正式月份计划，未自动补造历史记录。',
+  closing_month_legacy_allocations_require_review: '本单有既有手工关账记录，请先核对，不能重复计量。',
 };
 export const invalidClosingResponse = (): never => { throw new ClosingClientError(502, 'closing_response_invalid'); };
 export function obj(value: unknown): Record<string, unknown> { if (!value || typeof value !== 'object' || Array.isArray(value)) return invalidClosingResponse(); return value as Record<string, unknown>; }
@@ -46,10 +55,10 @@ export function same(left: unknown, right: unknown) { if (canonicalPlanJson(left
 export function uid(value: unknown) { try { const id = closingUuid(value); if (id !== value) return invalidClosingResponse(); return id; } catch { return invalidClosingResponse(); } }
 export function hash(value: unknown) { if (typeof value !== 'string' || !/^[a-f0-9]{64}$/u.test(value)) return invalidClosingResponse(); return value; }
 export function decimal(value: unknown) { const text = str(value, false, CLOSING_RESPONSE_LIMIT); if (!/^\d+(?:\.\d+)?$/u.test(text)) return invalidClosingResponse(); return text; }
-function tax(value: unknown) { try { same(closingTaxRate(value), value); } catch { invalidClosingResponse(); } }
-function date(value: unknown) { const text = str(value); if (!/^\d{4}-\d{2}-\d{2}$/u.test(text) || !Number.isFinite(Date.parse(text)) || new Date(text).toISOString().slice(0, 10) !== text) invalidClosingResponse(); }
+export function tax(value: unknown) { try { same(closingTaxRate(value), value); } catch { invalidClosingResponse(); } }
+export function date(value: unknown) { const text = str(value); if (!/^\d{4}-\d{2}-\d{2}$/u.test(text) || !Number.isFinite(Date.parse(text)) || new Date(text).toISOString().slice(0, 10) !== text) invalidClosingResponse(); }
 function time(value: unknown) { const text = str(value); if (!Number.isFinite(Date.parse(text)) || new Date(text).toISOString() !== text) invalidClosingResponse(); }
-function exactAmount(value: unknown) {
+export function exactAmount(value: unknown) {
   const row = obj(value); keys(row, ['numerator', 'denominator', 'decimal', 'scale', 'rounding']);
   if (!/^(0|[1-9]\d*)$/u.test(str(row.numerator, false, CLOSING_RESPONSE_LIMIT)) || !/^[1-9]\d*$/u.test(str(row.denominator, false, CLOSING_RESPONSE_LIMIT))) invalidClosingResponse();
   decimal(row.decimal); same(row.scale, 6); same(row.rounding, 'half_up');
@@ -60,7 +69,7 @@ function output(value: unknown, allowed: boolean, currency: string, withPrice = 
   keys(row, ['visibility', 'currency', 'amount', ...(withPrice ? ['price'] : []), ...(bucket ? ['bucket'] : [])]);
   same(row.currency, currency); if (bucket) same(row.bucket, bucket); if (withPrice) decimal(row.price); exactAmount(row.amount); return true;
 }
-function references(value: unknown, ownerId: string, max = 500) {
+export function references(value: unknown, ownerId: string, max = 500) {
   const seen = new Set<string>(); for (const item of arr(value, max)) {
     const row = obj(item); keys(row, ['assignmentId', 'salesOrderId', 'assignmentVersion', 'colorId', 'executionType', 'executorId', 'resourceSnapshotHash', 'plannedQuantity', 'planStatus', 'execution']);
     const id = uid(row.assignmentId); if (seen.has(id)) invalidClosingResponse(); seen.add(id); same(row.salesOrderId, ownerId);
