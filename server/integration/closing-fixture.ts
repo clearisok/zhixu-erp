@@ -28,10 +28,10 @@ import { createSyntheticQuoteFixture } from './quote-fixture.js';
 import { summarizeRevisionConfirmations } from '../../features/quote-center/model/quote-workflows.js';
 
 export const closingCode = (code: string) => (error: unknown) => (error as { code: string }).code === code;
-export async function closingFixture(t: TestContext, legacy44: boolean | 45 | 47 | 48 = false, completeQuotes = false) {
+export async function closingFixture(t: TestContext, legacy44: boolean | 45 | 47 | 48 = false, completeQuotes = false, ui: { staticDirectory?: string } = {}) {
   const postgres = await startDisposablePostgres();
   const pool = new pg.Pool({ connectionString: await postgres.createDatabase('closing_commands'), max: 14, application_name: 'synthetic-closing-commands' });
-  const origins: string[] = [], errors: unknown[] = [], server = createServer(createApp({ pool, allowedOrigins: origins, security: { secureCookies: false, sessionTtlSeconds: 3600 }, logger: { error: value => errors.push(value) } }));
+  const origins: string[] = [], errors: unknown[] = [], server = createServer(createApp({ pool, ...ui, allowedOrigins: origins, security: { secureCookies: false, sessionTtlSeconds: 3600 }, logger: { error: value => errors.push(value) } }));
   t.after(async () => { await new Promise<void>(done => server.close(() => done())); try { await pool.end(); } finally { await postgres.stop(); } });
   if (legacy44) {
     const parent = await realpath(tmpdir()), directory = await mkdtemp(join(parent, 'zhixu-closing-upgrade-'));

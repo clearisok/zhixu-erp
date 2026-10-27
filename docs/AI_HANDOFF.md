@@ -1,11 +1,11 @@
-# 恢复点：Gate8G2d关账严格客户端与原请求协议
+# 恢复点：Gate8G2e正式关账调整UI
 
-2026-10-27；branch `feat/order-closing-month-plan`，clean输入4525a74c554a77a70a74277fad5d88d49a1767ed，核实main869ee84dd0b31de6161011e4aa560678b244a64d本地对象/祖先可用。无fetch或远端写，原STOP未定；PR130旧head不含增量。
+2026-10-27；branch `feat/order-closing-month-plan`，clean输入cf96ae106d6d2c0c4ce324548bf00d8f35d48c98；沿用核实main869ee84dd0b31de6161011e4aa560678b244a64d，无fetch/远端写，原STOP未解。
 
-先读[本片契约](features/SERVER_CLOSING_MONTH_INTERFACE.md)、[阶段](tasks/active/closing-interface-current-2026-10-27.md)及D169–D172。新HTTP：orders/:id/month-plan、month-plans/preview、month-plans/commands、month-plans/commands/:id，都复用既有服务。client新增year/month方法，严格验证完整性/量/权限/owner；financial与month controller共用closing-command-controller。旧financial pending key/envelope保持，月份key为zhixu.server.closing-month.pending.v1.<userId>，只原请求地址，无自动重放或Browser账本。
+用户明确批准修订草图且最新要求尽快本机实演；不要重复审批或先扩后续范围。[UI契约](features/SERVER_CLOSING_ADJUSTMENT_UI.md)、[阶段](tasks/active/closing-adjustment-ui-current-2026-10-27.md)、[批准](tasks/completed/2026-10-27-closing-adjustment-ui-approval.md)。Server authority selector先选owner再挂Browser hooks；新page复用year/month/financial现有服务和controller，两个独立pending地址仅原请求，不自动POST。
 
-协议范围69/69；独立复审指出年度basis双向绑定、月/年计数阻断和既有小计关联两项P2，现都修并由受影响13/13验证，最终只读0P1/P2。不把旧69冒充修后全跑；初版TDZ/generic类型/测试union和负控别名12/13原件保留。规范副本仅最后测试fixture前向替换后补根类型，runtime/Server构建不变；14输入绑定、lint、源码与exact HEAD守卫看本片final.json，不借旧Gate结果。
+当前范围含全年两项/同范围筛选、部分整单完整调月、只读受影响月两项差异、月份税率空值显式确认/采用/确认/锁定/重开，以及独立原请求恢复。未分配不默认内制，冻结无关月不重算，金额权限和owner阻断保持。Executor名称以保存basis及精确资源hash取名，变更后用历史提示。
 
-下一片正式Server owner页面；勿直挂Browser closing/order/production hooks。已批准修订UI无需再问，整单预览包含当前隐藏范围，scope/year改变使预览失效；原请求恢复构造不fetch/POST，unknown需用户明确原ID重试，当前session/权限/上下文新owner阻断晚结果。Quote USD采用UI独立pending。旧手工入口尚未整体退役，Source/归属更正、新镜像非空回执恢复和实际浏览器后再改能力。
+修后类型/Server构建、引用测试、actual built Chromium和发布守卫以本片outputs及冻结工程为准；未取得不报PASS。首次类型失败和失败浏览器原件均保留。测试fixture只新owned PG、独立Chrome profile/127.0.0.1端口，JS输入持续焦点、丢失回执/撤权恢复和390px几何必须实测。构建完整SHA绑定，不测试旧dist冒充新UI。
 
-本片S aba4719038b0de05804a397c44f49e32a6fc9162；[冻结工程](tasks/completed/2026-10-27-closing-interface-engineering.md)逐项记录类型/构建、14输入与失败保留。清单538→539仅新契约，精确main守卫留到正式UI累计收口，本片不称新PASS。当前68能力不变，Goal active。0真实Source/现有账号业务库/远端/Hosted/合并部署/切换退役；保留3001/50426/59069/62426/18443/18444、Browser数据、旧卷和备份。G2c S bdfc531b/Q4525守卫PASS仅属其独立工程。
+执行方匹配UI未接，演示预先经服务匹配；独立USD采用UI仍pending。旧手工入口退役、Source更正及镜像非空恢复另Gate。旧共享状态[归档](tasks/completed/2026-10-27-closing-adjustment-ui-input-state/README.md)。不重复旧全套/Hosted、不碰旧环境/真实Source/账号业务库/合并部署，68能力不提升，Goal active。
