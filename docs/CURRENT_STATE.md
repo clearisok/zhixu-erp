@@ -1,13 +1,13 @@
-# 当前状态：关账核心链修复通过，新同源实机可体验
+# 当前状态：关账调整可体验，0051镜像恢复通过
 
-接续[当前0051镜像恢复](tasks/active/closing-frozen-image-recovery-2026-10-28.md)：clean baseline cf77e1a6，新同源镜像一次构建通过（50迁移/0051，ID ec2987de），未替换62411/61104。只读复审发现catalog恢复/本机daemon预检两项验收缺口，现仅补测试harness和私密执行保护；真实红2FAIL、定向28/28、owned PG1/1及lint/语法通过，原测试cleanup中断和本机读取失败保留。产品、SQL和API不变；测试源码checkpoint后仅做一次完整非空恢复，当前未宣称其通过。
+2026-10-28；branch feat/order-closing-month-plan。沿用已核实本地main869ee84dd0b31de6161011e4aa560678b244a64d，未fetch，不称最新main。Git/ref STOP_AUTH_OR_DIVERGENCE原退出1根因未解；本轮远端写/Hosted/真实Source均0，PR130未更新，前次核实head61704afe22fe9fd0ea9f6625c6092fcbb9575dfc。
 
-2026-10-28；branch feat/order-closing-month-plan。沿用已核实本地main869ee84dd0b31de6161011e4aa560678b244a64d，未fetch，不称最新main。Git/ref STOP_AUTH_OR_DIVERGENCE原退出1根因未解，本轮远端写/Hosted0；PR130未更新，前次核实head61704afe22fe9fd0ea9f6625c6092fcbb9575dfc。
+[本片0051镜像恢复](tasks/active/closing-frozen-image-recovery-2026-10-28.md)/[工程证明](tasks/completed/2026-10-28-closing-frozen-image-recovery-engineering.md)：image source cf77e1a6d7626808c3ba958137aeb52e5978976b，imageID ec2987de1be1dd31435a766081bafcbd11b98fe9efbc24333b236c5811ac74a6；一次build，50迁移/0051。测试harness de5b1c4cd3b60288624e2823def5e9ce3ee8e331，3223blobs/0overlays，全部产品/SQL与image相同。catalog恢复与本机Docker target两项验收P2已关闭；28控制、实际PG1、完整非空恢复9/9及image静态包实际Chromium9/9通过。恢复启动/登录前121表/sequence/0051 catalog完全保持，18财务GET/18回执一致。原失败和中断保留，不冒充PASS。
 
-[核心链终审阶段](tasks/active/closing-chain-correctness-review-2026-10-28.md)发现2P2、0P1，均已实际红测并修复。源码fde8b0f1f467edfc864cbd616756ad1778c9f40e：冻结行只归并实际目标scope，0051保护confirmed/locked月完整行集合；年度完整facts读取前，对全候选按最多live3次/frozen2次保守预留8MiB。非空0050升级11张关账表逐行保持。规范3220blob/0overlay完整type/lint/前后端build通过，相关模型/客户端/API/SQL243/243；显式Server/session/snapshot同源实际Chromium9/9。两项修复组合只读终审无剩余P1/P2，非全ERP终审。详见[工程证明](tasks/completed/2026-10-28-closing-chain-correctness-engineering.md)；工程证明checkpoint dbc969ac12f309b8a9bb98f9a57d0a86b543b0c7后，原560条逐项保持、前向冻结565条；同main精确守卫PASS，checkedHead dbc969ac＋working565（12页面/68能力/84 UI路径，session27311退出0）。最终metadata仅保存结果，不称新源码重新验收。
+既有只读reviewer对精确de5的创建/商业、生产/关账、Source/物料/成衣观察及Server authority四链完成有界静态终审，无新增可证实P1/P2；未重跑负控，不覆盖全量UI/全部并发/真实环境或人工验收。原68容器/191卷/33网络/278旧refs在恢复后与浏览器后保护检查无变化，三处demo身份保持；仅任务checkpoint正常前进。工程证明待本片前向冻结及最终精确守卫，未预写该结果。
 
-新实机http://localhost:62411/closing-center?year=2027，source fde8、合成账号closing.editor、新owned临时PG。它是体验实例，不是持久正式目标；独立localhost避免覆盖61104的127.0.0.1会话。旧61104/source4107aea1ebf181265b543ad4c25a8afe1168f886、订单输入/未保存预览及旧服务保持，未重seed、替换或升级。
+**当前实机：http://localhost:62411/closing-center?year=2027**。source fde8b0f1f467edfc864cbd616756ad1778c9f40e、显式Server/session/snapshot，合成账号closing.editor；产品/SQL与当前image相同。新owned临时PG，不是持久正式目标。可查看全年成衣CNY/加工USD、内外发范围、部分/整单调月、预览/原回执/冻结边界。旧61104、用户输入和未保存预览保持，未reload/reseed/替换；53001预备实例保留。
 
-沿用而不重复的前阶段证据：[D175非金额显示](tasks/completed/2026-10-28-closing-month-display-engineering.md)source de5f7682、PG8/相关47及规范构建、清单560同base守卫PASS；[守卫工具](tasks/completed/2026-10-28-release-document-anchor-engineering.md)source5b9、完整168/168及556守卫PASS；[source125镜像恢复](tasks/completed/2026-10-28-closing-current-image-recovery-engineering.md)非空恢复9/9、实际Chromium9/9。它们不是本片新测试、0051镜像或现有实机源码。
+前阶段[D176核心修复工程](tasks/completed/2026-10-28-closing-chain-correctness-engineering.md)：业务源码fde8、证明dbc969ac12f309b8a9bb98f9a57d0a86b543b0c7；两项P2修复、相关243/243、实际Chromium9/9、规范type/lint/前后端build及565清单同main守卫PASS。该原结果不冒称本片重跑。[D175显示](tasks/completed/2026-10-28-closing-month-display-engineering.md)、[守卫168](tasks/completed/2026-10-28-release-document-anchor-engineering.md)、[旧source125镜像](tasks/completed/2026-10-28-closing-current-image-recovery-engineering.md)保留各自日期/source/限制。
 
-[完整Gate目标](tasks/active/server-convergence-gate0-2026-10-20.md)仍active：三处[具体配套UI](tasks/active/closing-support-interfaces-proposal-2026-10-28.md)待既有问题答复，归属漂移恢复写命令、全业务独立复审、精确远端及必要CI、显式合并/目标切换分别待办。核心关账UI已批准，不能重复问。无真实Source/调度、既有账号业务库/Browser修改、自动合并、正式部署或资产退役；旧环境、卷、备份保护保持。
+[整体Gate](tasks/active/server-convergence-gate0-2026-10-20.md)继续active：三处[配套UI](tasks/active/closing-support-interfaces-proposal-2026-10-28.md)待既有问题答复；无产出改色/换执行方后的归属恢复规则待业务答复，当前明确409不擅自恢复。精确远端/必要CI、显式合并/持久目标切换分别待办。核心UI已批准，无需重复确认。无真实Source/调度、既有账号业务库/Browser修改、自动合并、正式部署或资产退役。
