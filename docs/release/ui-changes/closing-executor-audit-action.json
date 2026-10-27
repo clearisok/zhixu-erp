@@ -1,0 +1,9 @@
+{
+  "baselineSha": "869ee84dd0b31de6161011e4aa560678b244a64d",
+  "level": "V0",
+  "visibleDifference": "none",
+  "paths": ["features/operation-logs/model/operation-log.ts"],
+  "pages": ["order-detail"],
+  "evidence": ["docs/features/SERVER_CLOSING_EXECUTOR_MATCHING.md"],
+  "reason": "Only extends the existing audit action TypeScript union for an internal Server command. No component, layout, route, table column or browser owner is changed."
+}

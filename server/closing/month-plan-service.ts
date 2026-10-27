@@ -9,13 +9,16 @@ import { lockEffectiveAttribution } from '../sales-orders/effective-attribution.
 import { ensureStableOrderColor, readStableOrderColors } from '../sales-orders/color-identities.js';
 import { readPlanOrderSummaries } from '../production-scheduling/read-model.js';
 import { planHash } from '../production-scheduling/repository.js';
+import { assignmentsForOrder } from '../production-scheduling/repository.js';
+import { executionsForAssignments, executionFacts } from '../production-scheduling/execution-store.js';
 import {canonicalDecimal} from '../quotes/decimal-projection.js';
-import { CLOSING_READ_PERMISSIONS, closingFail, closingUuid } from './contract.js';
-import { monthQuantity, moveMonthQuantities, parseClosingMonthCommand, parseClosingMonthMove, quantityUnits, validateMonthLines,
-  type ClosingMonthCommand, type ClosingMonthLine, type ClosingMonthMove } from './month-plan-model.js';
+import { CLOSING_READ_PERMISSIONS, closingFail, closingUuid, compareDecimals } from './contract.js';
+import { closingExecutionFingerprint, type ClosingExecutionReference } from './basis-model.js';
+import { matchMonthExecutors, monthQuantity, moveMonthQuantities, parseClosingMonthCommand, parseClosingMonthIntent, quantityUnits, sumMonthQuantities, validateMonthLines,
+  type ClosingMonthCommand, type ClosingMonthIntent, type ClosingMonthLine } from './month-plan-model.js';
 
-type MonthPlan = { orderId: string; defaultMonth: string | null; sourceDeliveryDate: string | null; versionId: string; version: number;
-  sourceQuantity: string | null; quantityState:'ready'|'unknown'|'unsupported'; sourceFingerprint: string; lines: ClosingMonthLine[] };
+export type MonthPlan = { orderId: string; defaultMonth: string | null; sourceDeliveryDate: string | null; versionId: string; version: number;
+  sourceQuantity: string | null; quantityState:'ready'|'unknown'|'unsupported'; sourceFingerprint: string; lines: ClosingMonthLine[]; executorBasis: ClosingExecutionReference[] };
 type Outcome = { requestId: string; status: 'applied'; orderId: string; version: number; versionId: string; operationId: string }
   | { requestId: string; status: 'rejected'; error: { status: number; code: string } };
 const lockName = 'production-planning-write-v1';
@@ -30,6 +33,33 @@ export async function lockOrderClosingMonthCreation(client:PoolClient){
 const plannableQuantity=(value:string|null):value is string=>value!==null&&/^\d{1,12}(?:\.\d{1,6})?$/u.test(value);
 async function lineBytes(client: PoolClient, lines: ClosingMonthLine[]) {
   return (await client.query<{bytes:number}>('SELECT octet_length($1::jsonb::text)::int AS bytes',[JSON.stringify(lines)])).rows[0].bytes;
+}
+async function requireExecutorSchema(client: PoolClient) {
+  const row = (await client.query<{ present: boolean }>(`SELECT EXISTS(SELECT 1 FROM information_schema.columns
+    WHERE table_schema='public' AND table_name='server_closing_month_plan_versions' AND column_name='executor_basis') AS present`)).rows[0];
+  if (!row.present) closingFail(503, 'closing_executor_schema_unavailable');
+}
+async function executorReferences(client: PoolClient, orderId: string): Promise<ClosingExecutionReference[]> {
+  const assignments = await assignmentsForOrder(client, orderId), executions = await executionsForAssignments(client, assignments.map(row => row.id));
+  return assignments.map(row => ({ assignmentId: row.id, salesOrderId: orderId, assignmentVersion: row.version, colorId: row.colorId,
+    executionType: row.executionType, executorId: row.productionGroupId ?? row.outsourceFactoryId!, resourceSnapshotHash: row.resourceSnapshotHash,
+    plannedQuantity: row.plannedQuantity, planStatus: row.status, execution: executionFacts(executions[row.id]) }));
+}
+const executorAttribution = (ref: ClosingExecutionReference) => ({ assignmentId: ref.assignmentId, salesOrderId: ref.salesOrderId, colorId: ref.colorId,
+  executionType: ref.executionType, executorId: ref.executorId, resourceSnapshotHash: ref.resourceSnapshotHash });
+function executorCapacity(ref: ClosingExecutionReference) {
+  const planned = ref.planStatus === 'planned' ? ref.plannedQuantity : '0', actual = ref.execution?.completedQuantity ?? '0';
+  return compareDecimals(planned, actual) >= 0 ? planned : actual;
+}
+function executorWarnings(lines: ClosingMonthLine[], references: ClosingExecutionReference[]) {
+  return references.flatMap(ref => {
+    const portions = lines.filter(line => line.assignmentId === ref.assignmentId);
+    if (!portions.length) return [];
+    const quantity = sumMonthQuantities(portions), referenceQuantity = executorCapacity(ref);
+    const codes = [...(ref.planStatus === 'cancelled' ? ['executor_plan_cancelled'] : []),
+      ...(compareDecimals(quantity, referenceQuantity) > 0 ? ['executor_quantity_exceeds_reference'] : [])];
+    return codes.map(code => ({ assignmentId: ref.assignmentId, code, quantity, referenceQuantity }));
+  });
 }
 function requireRead(actor: TrustedIdentity) { for (const key of CLOSING_READ_PERMISSIONS) requirePermission(actor.permissions, key); }
 function derivedId(seed: string) {
@@ -63,11 +93,16 @@ async function plan(client: PoolClient, orderId: string, freeze = false): Promis
   if (freeze) await client.query('SELECT sales_order_id FROM server_closing_month_plan_heads WHERE sales_order_id=$1 FOR UPDATE', [orderId]);
   const row = (await client.query<MonthPlan>(`SELECT p.sales_order_id::text AS "orderId",p.default_month AS "defaultMonth",
     p.source_delivery_date::text AS "sourceDeliveryDate",v.id::text AS "versionId",v.version,v.source_quantity::text AS "sourceQuantity",
-    v.quantity_state AS "quantityState",v.source_fingerprint AS "sourceFingerprint",v.lines FROM server_closing_month_plans p
+    v.quantity_state AS "quantityState",v.source_fingerprint AS "sourceFingerprint",v.lines,
+    COALESCE(to_jsonb(v)->'executor_basis','[]'::jsonb) AS "executorBasis" FROM server_closing_month_plans p
     JOIN server_closing_month_plan_heads h ON h.sales_order_id=p.sales_order_id JOIN server_closing_month_plan_versions v ON v.id=h.current_version_id
     WHERE p.sales_order_id=$1`, [orderId])).rows[0];
   if (!row) return null;
   try { row.lines = validateMonthLines(row.lines, row.quantityState==='ready'?row.sourceQuantity:null); } catch { closingFail(503, 'closing_month_plan_invalid'); }
+  if (!Array.isArray(row.executorBasis)) closingFail(503, 'closing_month_plan_invalid');
+  closingExecutionFingerprint(row.executorBasis);
+  const assigned = new Set(row.lines.flatMap(line => line.assignmentId === null ? [] : [line.assignmentId]));
+  if (assigned.size !== row.executorBasis.length || row.executorBasis.some(ref => !assigned.has(ref.assignmentId) || ref.salesOrderId !== orderId)) closingFail(503, 'closing_month_plan_invalid');
   return row;
 }
 /** New trusted SO transaction only. No lazy initialization, price, or tax dependency. */
@@ -99,7 +134,8 @@ export async function initializeOrderClosingMonth(client: PoolClient, actor: Tru
     current.quantityState==='unsupported'?'Source quantity is preserved exactly but exceeds month-plan precision/range':blocked ? 'Default month is confirmed or locked; quantity awaits an open month' : '',actor.internalUserId,'closing-month-init:'+orderId])).rows[0];
   await client.query('INSERT INTO server_closing_month_plan_heads VALUES($1,$2,1)', [orderId,version.id]);
 }
-async function build(client: PoolClient, intent: ClosingMonthMove, freeze = false) {
+async function build(client: PoolClient, intent: ClosingMonthIntent, freeze = false) {
+  await requireExecutorSchema(client);
   const prior = await plan(client, intent.orderId, freeze);
   if (!prior) closingFail(409, 'closing_month_not_initialized');
   if (prior.version !== intent.expectedVersion) closingFail(409, 'closing_month_version_conflict');
@@ -109,12 +145,37 @@ async function build(client: PoolClient, intent: ClosingMonthMove, freeze = fals
   const legacy = await client.query(`SELECT 1 FROM server_closing_allocations a JOIN server_closing_allocation_heads h ON h.allocation_id=a.id
     JOIN server_closing_allocation_versions v ON v.id=h.current_version_id WHERE a.sales_order_id=$1 AND v.status='active' LIMIT 1`,[intent.orderId]);
   if (legacy.rowCount) closingFail(409,'closing_month_legacy_allocations_require_review');
-  const next = moveMonthQuantities(prior.lines,intent,seed=>derivedId(prior.versionId+':'+seed));
+  const references = await executorReferences(client, intent.orderId);
+  if (prior.executorBasis.some(saved => {
+    const now = references.find(ref => ref.assignmentId === saved.assignmentId);
+    return !now || planHash(executorAttribution(saved)) !== planHash(executorAttribution(now));
+  })) closingFail(409, 'closing_month_executor_review_required');
+  let executorBasis = prior.executorBasis;
+  const next = intent.action === 'move_months' ? moveMonthQuantities(prior.lines,intent,seed=>derivedId(prior.versionId+':'+seed))
+    : matchMonthExecutors(prior.lines,intent,seed=>derivedId(prior.versionId+':'+seed));
+  if (intent.action === 'match_executors') {
+    await requireExecutorSchema(client);
+    const added = new Set(intent.items.flatMap(item => item.parts.flatMap(part => part.assignmentId === null ? [] : [part.assignmentId])));
+    for (const id of added) {
+      const ref = references.find(ref => ref.assignmentId === id), saved = prior.executorBasis.find(ref => ref.assignmentId === id);
+      if (!ref || ref.salesOrderId !== intent.orderId) closingFail(409, 'closing_month_executor_unavailable');
+      if (saved && planHash(executorAttribution(saved)) !== planHash(executorAttribution(ref))) closingFail(409, 'closing_month_executor_changed');
+      const portions = next.lines.filter(line => line.assignmentId === id);
+      if (portions.some(line => ref.colorId !== null && line.colorId !== ref.colorId)) closingFail(409, 'closing_month_executor_color_mismatch');
+    }
+    // A new month version records this matching observation. Older versions keep
+    // their exact evidence; ordinary month moves never refresh these references.
+    executorBasis = [...prior.executorBasis.filter(ref => !added.has(ref.assignmentId)), ...references.filter(ref => added.has(ref.assignmentId))]
+      .sort((a,b) => a.assignmentId.localeCompare(b.assignmentId));
+    if ((await client.query<{bytes:number}>('SELECT octet_length($1::jsonb::text)::int AS bytes',[JSON.stringify(executorBasis)])).rows[0].bytes > 262144) closingFail(422, 'closing_month_plan_too_large');
+  }
   if(await lineBytes(client,next.lines)>262144)closingFail(422,'closing_month_plan_too_large');
   const states = await periodStates(client,next.touchedMonths);
   if (states.some(row=>row.status!=='open')) closingFail(409,'closing_month_period_not_open');
-  const previewHash = planHash({intent,prior,sourceFingerprint:current.fingerprint,currentDeliveryDate:current.order.deliveryDate,states,next});
-  return {intent,prior,...next,previewHash,orderNo:current.order.orderNo};
+  const warnings = executorWarnings(next.lines,references);
+  const previewHash = planHash({intent,prior,sourceFingerprint:current.fingerprint,currentDeliveryDate:current.order.deliveryDate,states,next,warnings,
+    executorBasis,executionFingerprint:closingExecutionFingerprint(references)});
+  return {intent,prior,...next,executorBasis,warnings,previewHash,orderNo:current.order.orderNo};
 }
 async function budget(client: PoolClient, command: ClosingMonthCommand) {
   const bytes=(await client.query<{bytes:number}>('SELECT octet_length($1::jsonb::text)::int AS bytes',[JSON.stringify(command)])).rows[0].bytes;
@@ -125,21 +186,26 @@ export async function readOrderClosingMonthPlan(pool: Pool, identity: TrustedIde
   try {
     await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
     const actor=await readCurrentActor(client,identity);requireRead(actor);await available(client);
-    const current=await source(client,orderId),record=await plan(client,orderId);
+    const current=await source(client,orderId),record=await plan(client,orderId),references=await executorReferences(client,orderId);
+    const executorChanges = record?.executorBasis.flatMap(saved => {
+      const now = references.find(ref => ref.assignmentId === saved.assignmentId);
+      return !now || planHash(executorAttribution(saved)) !== planHash(executorAttribution(now)) ? [{assignmentId:saved.assignmentId,reason:'attribution_changed' as const}] : [];
+    }) ?? [];
     await client.query('COMMIT');
     return {plan:record,currentDeliveryDate:current.order.deliveryDate,sourceChanged:record!==null&&record.sourceFingerprint!==current.fingerprint,
-      meaning:'unpriced_quantity_month_plan' as const};
+      executorChanges,executorWarnings:executorWarnings(record?.lines??[],references),executorCandidates:references,meaning:'unpriced_quantity_month_plan' as const};
   } catch(error){await client.query('ROLLBACK').catch(()=>undefined);throw error;}finally{client.release();}
 }
 export async function previewClosingMonthMove(pool: Pool, identity: TrustedIdentity, raw: unknown) {
-  const intent=parseClosingMonthMove(raw),client=await pool.connect();
+  const intent=parseClosingMonthIntent(raw),client=await pool.connect();
   try {
     await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
     const actor=await readCurrentActor(client,identity);requireRead(actor);requirePermission(actor.permissions,'closing.edit');await available(client);
     await budget(client,{requestId:'00000000-0000-0000-0000-000000000000',intent,previewHash:'0'.repeat(64)});
     const result=await build(client,intent);await client.query('COMMIT');
-    return {intent,version:result.prior.version,before:result.prior.lines,after:result.lines,movedQuantity:result.movedQuantity,
-      touchedMonths:result.touchedMonths,previewHash:result.previewHash};
+    return {intent,version:result.prior.version,before:result.prior.lines,after:result.lines,
+      ...('movedQuantity' in result?{movedQuantity:result.movedQuantity}:{matchedQuantity:result.matchedQuantity}),
+      beforeExecutorBasis:result.prior.executorBasis,executorBasis:result.executorBasis,warnings:result.warnings,touchedMonths:result.touchedMonths,previewHash:result.previewHash};
   } catch(error){await client.query('ROLLBACK').catch(()=>undefined);throw error;}finally{client.release();}
 }
 export async function executeClosingMonthMove(pool: Pool, identity: TrustedIdentity, raw: unknown) {
@@ -157,14 +223,16 @@ export async function executeClosingMonthMove(pool: Pool, identity: TrustedIdent
       const change=await build(client,command.intent,true);
       if(change.previewHash!==command.previewHash)closingFail(409,'closing_month_preview_changed');
       const operationId='closing-month:'+actor.userId+':'+command.requestId;
-      const row=(await client.query<{id:string}>(`INSERT INTO server_closing_month_plan_versions(sales_order_id,version,source_quantity,quantity_state,source_fingerprint,lines,action,reason,actor_id,request_id,operation_id)
-        VALUES($1,$2,$3,$4,$5,$6,'move_months',$7,$8,$9,$10) RETURNING id::text`,[command.intent.orderId,change.prior.version+1,change.prior.sourceQuantity,
-        change.prior.quantityState,change.prior.sourceFingerprint,JSON.stringify(change.lines),command.intent.reason,actor.internalUserId,command.requestId,operationId])).rows[0];
+      await requireExecutorSchema(client);
+      const row=(await client.query<{id:string}>(`INSERT INTO server_closing_month_plan_versions(sales_order_id,version,source_quantity,quantity_state,source_fingerprint,lines,action,reason,actor_id,request_id,operation_id,executor_basis)
+        VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) RETURNING id::text`,[command.intent.orderId,change.prior.version+1,change.prior.sourceQuantity,
+        change.prior.quantityState,change.prior.sourceFingerprint,JSON.stringify(change.lines),command.intent.action,command.intent.reason,actor.internalUserId,command.requestId,operationId,JSON.stringify(change.executorBasis)])).rows[0];
       if((await client.query('UPDATE server_closing_month_plan_heads SET current_version_id=$2,version=$3 WHERE sales_order_id=$1 AND version=$4',
         [command.intent.orderId,row.id,change.prior.version+1,change.prior.version])).rowCount!==1)closingFail(409,'closing_month_version_conflict');
-      await appendOperationLog(client,actor,{operationId,module:'关账中心',action:'调整关账月份',entityType:'SalesOrder',entityId:command.intent.orderId,
-        afterData:{objectName:change.orderNo,values:{调入月份:command.intent.targetMonth,数量:change.movedQuantity,版本:change.prior.version+1}},
-        metadata:{requestId:command.requestId,action:'move_months',touchedMonths:change.touchedMonths}});
+      await appendOperationLog(client,actor,{operationId,module:'关账中心',action:command.intent.action==='move_months'?'调整关账月份':'匹配关账执行方',entityType:'SalesOrder',entityId:command.intent.orderId,
+        afterData:{objectName:change.orderNo,values:{...(command.intent.action==='move_months'?{调入月份:command.intent.targetMonth,数量:'movedQuantity' in change?change.movedQuantity:null}
+          :{匹配数量:'matchedQuantity' in change?change.matchedQuantity:null}),版本:change.prior.version+1}},
+        metadata:{requestId:command.requestId,action:command.intent.action,touchedMonths:change.touchedMonths}});
       result={requestId:command.requestId,status:'applied',orderId:command.intent.orderId,version:change.prior.version+1,versionId:row.id,operationId};
     }catch(error){
       if(!(error instanceof HttpError)||![404,409,422].includes(error.status))throw error;

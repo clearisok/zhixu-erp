@@ -28,7 +28,7 @@ import { createSyntheticQuoteFixture } from './quote-fixture.js';
 import { summarizeRevisionConfirmations } from '../../features/quote-center/model/quote-workflows.js';
 
 export const closingCode = (code: string) => (error: unknown) => (error as { code: string }).code === code;
-export async function closingFixture(t: TestContext, legacy44: boolean | 45 = false, completeQuotes = false) {
+export async function closingFixture(t: TestContext, legacy44: boolean | 45 | 47 = false, completeQuotes = false) {
   const postgres = await startDisposablePostgres();
   const pool = new pg.Pool({ connectionString: await postgres.createDatabase('closing_commands'), max: 14, application_name: 'synthetic-closing-commands' });
   const origins: string[] = [], errors: unknown[] = [], server = createServer(createApp({ pool, allowedOrigins: origins, security: { secureCookies: false, sessionTtlSeconds: 3600 }, logger: { error: value => errors.push(value) } }));
@@ -36,7 +36,7 @@ export async function closingFixture(t: TestContext, legacy44: boolean | 45 = fa
   if (legacy44) {
     const parent = await realpath(tmpdir()), directory = await mkdtemp(join(parent, 'zhixu-closing-upgrade-'));
     t.after(async () => { const path = await realpath(directory); assert.equal(dirname(path), parent); assert.ok(basename(path).startsWith('zhixu-closing-upgrade-')); await rm(path, { recursive: true }); });
-    for (const file of await readdir(resolve('database/migrations'))) if (/^\d+_.*\.sql$/u.test(file) && Number(file.slice(0, 4)) <= (legacy44 === 45 ? 45 : 44)) await copyFile(resolve('database/migrations', file), join(directory, file));
+    for (const file of await readdir(resolve('database/migrations'))) if (/^\d+_.*\.sql$/u.test(file) && Number(file.slice(0, 4)) <= (typeof legacy44 === 'number' ? legacy44 : 44)) await copyFile(resolve('database/migrations', file), join(directory, file));
     await runMigrations(pool, directory);
   } else await runMigrations(pool, resolve('database/migrations'));
   await synchronizePermissionCatalog(pool);

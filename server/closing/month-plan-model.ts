@@ -7,7 +7,12 @@ export type ClosingMonthMove = {
   action: 'move_months'; orderId: string; expectedVersion: number; targetMonth: string; reason: string;
   selection: { mode: 'whole' } | { mode: 'partial'; items: { lineId: string; quantity: string }[] };
 };
-export type ClosingMonthCommand = { requestId: string; intent: ClosingMonthMove; previewHash: string };
+export type ClosingMonthReconcile = {
+  action: 'match_executors'; orderId: string; expectedVersion: number; reason: string;
+  items: { lineId: string; parts: { assignmentId: string | null; quantity: string }[] }[];
+};
+export type ClosingMonthIntent = ClosingMonthMove | ClosingMonthReconcile;
+export type ClosingMonthCommand = { requestId: string; intent: ClosingMonthIntent; previewHash: string };
 const invalid = (): never => closingFail(400, 'invalid_closing_month_command');
 function object(value: unknown, keys: string[]): Record<string, unknown> {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return invalid();
@@ -56,7 +61,51 @@ export function parseClosingMonthMove(value: unknown): ClosingMonthMove {
 export function parseClosingMonthCommand(value: unknown): ClosingMonthCommand {
   const row = object(value, ['requestId', 'intent', 'previewHash']);
   if (typeof row.previewHash !== 'string' || !/^[a-f0-9]{64}$/u.test(row.previewHash)) return invalid();
-  return { requestId: closingUuid(row.requestId), intent: parseClosingMonthMove(row.intent), previewHash: row.previewHash };
+  return { requestId: closingUuid(row.requestId), intent: parseClosingMonthIntent(row.intent), previewHash: row.previewHash };
+}
+export function parseClosingMonthIntent(value: unknown): ClosingMonthIntent {
+  if ((value as { action?: unknown } | null)?.action !== 'match_executors') return parseClosingMonthMove(value);
+  const row = object(value, ['action', 'orderId', 'expectedVersion', 'reason', 'items']);
+  if (!Number.isSafeInteger(row.expectedVersion) || Number(row.expectedVersion) < 1 || Number(row.expectedVersion) >= 2147483647) return invalid();
+  // Reuse the exact existing reason/owner/version validation without accepting a caller's month.
+  const base = parseClosingMonthMove({ action: 'move_months', orderId: row.orderId, expectedVersion: row.expectedVersion,
+    reason: row.reason, targetMonth: '2000-01', selection: { mode: 'whole' } });
+  if (!Array.isArray(row.items) || !row.items.length || row.items.length > 100) return invalid();
+  const items = row.items.map(value => {
+    const item = object(value, ['lineId', 'parts']);
+    if (!Array.isArray(item.parts) || !item.parts.length || item.parts.length > 100) return invalid();
+    const parts = item.parts.map(value => {
+      const part = object(value, ['assignmentId', 'quantity']);
+      return { assignmentId: part.assignmentId === null ? null : closingUuid(part.assignmentId), quantity: monthQuantity(part.quantity) };
+    });
+    if (new Set(parts.map(part => part.assignmentId)).size !== parts.length) return invalid();
+    return { lineId: closingUuid(item.lineId), parts };
+  });
+  if (new Set(items.map(item => item.lineId)).size !== items.length || items.reduce((sum, item) => sum + item.parts.length, 0) > 100) return invalid();
+  return { action: 'match_executors', orderId: base.orderId, expectedVersion: base.expectedVersion, reason: base.reason, items };
+}
+
+/** Only explicitly selected unassigned portions may acquire an actual assignment.
+ * No production proportions, month changes, recoloring or reassignment of history. */
+export function matchMonthExecutors(lines: readonly ClosingMonthLine[], intent: ClosingMonthReconcile, idForSplit: (seed: string) => string) {
+  const items = new Map(intent.items.map(item => [item.lineId, item]));
+  for (const item of intent.items) {
+    const line = lines.find(line => line.id === item.lineId);
+    if (!line) closingFail(409, 'closing_month_line_changed');
+    if (line.assignmentId !== null) closingFail(409, 'closing_month_executor_already_matched');
+    if (sumMonthQuantities(item.parts) !== line.quantity) closingFail(409, 'closing_month_executor_quantity_mismatch');
+    if (item.parts.every(part => part.assignmentId === null)) closingFail(409, 'closing_month_no_change');
+  }
+  const next = lines.flatMap(line => {
+    const item = items.get(line.id);
+    if (!item) return [{ ...line }];
+    return item.parts.map(part => ({ ...line, assignmentId: part.assignmentId, quantity: part.quantity,
+      id: part.assignmentId === null ? line.id : closingUuid(idForSplit(line.id + ':' + part.assignmentId)) }));
+  });
+  if (next.length > 2000) closingFail(422, 'closing_month_plan_too_large');
+  const result = validateMonthLines(next, sumMonthQuantities(lines));
+  return { lines: result, touchedMonths: [...new Set(lines.filter(line => items.has(line.id)).flatMap(line => line.month === null ? [] : [line.month]))].sort(),
+    matchedQuantity: sumMonthQuantities(intent.items.flatMap(item => item.parts.filter(part => part.assignmentId !== null))) };
 }
 export function validateMonthLines(value: unknown, quantity: string | null): ClosingMonthLine[] {
   if (!Array.isArray(value) || value.length > 2000) return invalid();

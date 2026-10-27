@@ -1,11 +1,13 @@
-# 恢复点：Gate8G1订单月份计划
+# 恢复点：Gate8G2a关账执行方匹配
 
-2026-10-27；branch `feat/order-closing-month-plan`，源码S0969d74c5d5f6dabbd2d095c42824f80be090ab7，直接父a98fa0cf8511e04b99d0aba943b799a0cecce8d0，main869ee84dd0b31de6161011e4aa560678b244a64d本轮只读复核。无fetch/远端写；原STOP根因未明。先读D169、[独立契约](features/SERVER_CLOSING_MONTH_PLAN.md)、[冻结工程](tasks/completed/2026-10-27-order-closing-month-plan-engineering.md)。
+2026-10-27；branch `feat/order-closing-month-plan`，clean输入f00c20bfff1688c6911f240d58efe42b1b0c4a5e。main869ee84dd0b31de6161011e4aa560678b244a64d对象/祖先已核实；本片无fetch/远端写。原STOP根因未定，PR130旧head不含新片。先读D170、[契约](features/SERVER_CLOSING_EXECUTOR_MATCHING.md)、[分源阶段](tasks/active/closing-executor-matching-2026-10-27.md)。
 
-用户最新规则：两项产值，新SO按交期默认全量归月；部分/整单跨月原子守恒；生产状态与全年两项月度金额参考；加工包括内外发，范围筛选同步明细/汇总。旧三项/手工新增目标已被替代。**修订关账草图现已明确批准**，见[精确范围](tasks/completed/2026-10-27-closing-adjustment-ui-approval.md)，不再询问；USD采用独立UI仍pending。
+0048为0047版本增加executor_basis/action/SQL约束，无新业务表/数据回填。match_executors共用原move服务的fresh权限、CAS/全局锁、预览hash、原请求回执；只拆选中未分配行，颜色/月不变，保存真实同单/颜色执行归属。计划/完成数量独立，仅warning。新增量在新版本记录本次所选生产观察；旧版本、未选中观察、普通调月依据不变。既有归属漂移先409/持久拒绝，不触发旧当前颜色SQL500；异常归属更正仍后续。
 
-本片0047/新SO初始化/内部preview-execute-receipt及完整历史引用已实现，无HTTP/UI/年度金额。五项实现P2和文档证据P2关闭，独立窄审0P1/P2。811项目、15文件lint、最终规范副本类型/Server构建通过；原失败与修后29/29、34/34分源保留。532清单保留旧530记录，三个旧冻结根文档不改。最终完整582ef02a543794a0e6e7c720c0b533bbfaa178b0精确守卫PASS（150565ms）、发布144/144（761861ms）、clean；final.json已生成，state=LOCAL_G8G1_PASS_REMOTE_PENDING，不重跑这些成功组。
+本片定向34/34，追加未选中观察SQL负控后11/11；中间52/52既有回归分开。最终规范副本根类型/Server构建、7文件lintPASS；首次类型/审计action错误记录保留。已有ignored冲突TS样本未清理，规范副本只复制tracked/new源码且共享依赖junction，无安装。只读实现复审0P1/P2，V0页面ID元数据P2已修。G1旧811/144与Gate8F0046镜像不冒称本片或0048恢复验证。
 
-下一Delivery Phase基点为验收582（当前后续提交仅批准/状态文档，不冒称新页面通过）。先Source/执行方对账与0045消费/冻结关联，再两项年度API、原请求客户端和已批准Server界面；现有closing-center直挂Browser组件、Server allowlist/Nav未开，须挂载前选择owner，参照production authority，不挂旧Browser hooks。basis-service已有readClosingBasisInTransaction/价格资格，contract已有精确有理数，应复用。月计划assignment初始为null，不能静默按排单比例把多月量分摊或猜内制；详细预查outputs/closing-adjustment-server-20261027/next-phase.md。历史/旧环境/卷/备份保持，当前旧HTTP尚未退役，完整Goal未完成。
+用户修订关账UI已明确[批准](tasks/completed/2026-10-27-closing-adjustment-ui-approval.md)，不再询问；USD采用独立UI仍pending。下一步Source变化对账、0045财务消费/冻结、全年12月两项金额/内外发同范围、HTTP+原请求客户端、正式Server owner挂载、旧手工写入口收紧。不要直接把月份计划加旧allocations重复求和；确认/锁定用不可变0045快照，open参考价格只读当前已采用商业版本，未知不补0。保持数量/颜色/资源历史，未分配不猜内制。
 
-0Hosted/真实Source/既有账号业务库/merge/deploy/cutover/retirement；68能力不改、完整Goal active。远端恢复独立于本机工程，不能凭新提交解除STOP。
+实际UI接线仍须挂载前选择owner：closing-center当前直挂Browser hooks，Server allowlist/Nav尚未开；参照production authority，使用fresh Server session。新镜像非空命令恢复/像素验收后才改能力状态。旧HTTP未退役、68能力不变，完整Goal active。
+
+原[输入原件](tasks/completed/2026-10-27-executor-matching-input-state/README.md)及旧工程/失败/备份保留。无Hosted CI/真实Source/既有账号业务库/merge/deploy/cutover/retirement；远端恢复与本机工程分别记录。

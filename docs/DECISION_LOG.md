@@ -23,6 +23,13 @@
 
 ## Active
 
+### D-170 关账月份执行归属与本次匹配观察
+
+- 日期：2026-10-27；Active engineering，承接D169，不改变两项产值、数量独立、精确商业源或期间冻结。用户已[明确批准修订UI](tasks/completed/2026-10-27-closing-adjustment-ui-approval.md)，替代D169记录时仍pending的界面状态；独立USD采用UI不在此次范围。
+- `match_executors`仅明确拆分未分配数量，保持每个颜色/月量和已有执行归属。真实同单assignment与颜色校验；未分配不猜内制，不按排单比例摊月。计划/完成量超量或取消仅warning，不能成为独立关账数量的上限。
+- 0048为月份版本增加原生产观察证据。首次匹配固定稳定归属；再次追加在新版本保存本次观察，旧版本和未选中观察不变；调月不刷新。当前归属漂移明确409/回执，避免合法未开工改色触发数据库500；后续异常归属更正不冒称已完成。
+- 与0047共用fresh RBAC、全局锁、CAS、幂等、审计及COMMIT未知恢复，无新价格/财务账本。全年金额、0045一次性消费/冻结、Source更正、HTTP/客户端、正式UI及旧写入口收紧仍后续。见[契约](features/SERVER_CLOSING_EXECUTOR_MATCHING.md)与[分源阶段](tasks/active/closing-executor-matching-2026-10-27.md)。无远端写、真实Source、现有账号业务库、部署、合并或退役，Git原STOP独立保留。
+
 ### D-169 订单默认归月、两项产值与关账调整
 
 - 日期：2026-10-27；Active approved target / Gate8G1 local engineering。用户否定旧三项/手工新增方案，并确认加工产值包括内制及外发，切换范围时明细与汇总同步。仅替代D162/D163/D167/D168的手工归属交互与三项展示目标；成衣CNY公式、显式期间税率、工价USD资格、商业版本唯一价格源、快照冻结和原请求保护保持。
