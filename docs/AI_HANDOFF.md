@@ -9,3 +9,5 @@ D174/0050原工程与失败/修复、类型/lint、549守卫、发布112/127后4
 最终独立复审因模型额度仍未完成，不能写0P1/P2；不反复撞同一限制。Git/ref STOP根因仍UNRESOLVED，PR130旧617，未推送/Hosted。核心关账UI已由人类明确批准且接线，旧proposal的pending标记已校正，不再重问；新Source复核/执行匹配/Quote USD采用UI仍需具体方案与范围批准，可先准备原型，不能借旧批准扩展。
 
 61104/source4107演示HTTP200、旧5件调月预览未确认；tab3及旧tab1/用户输入保留，禁止停止/重seed/替换。旧环境/Browser/卷/备份/真实Source/账号业务库保持。完整Goal未完成；UI、独立复审、远端/必要CI、显式合并/目标切换分别处理，不自动部署或退役。
+
+工程证明checkpoint41451b9523c546f73a2d99dc836c96398cce9f1d；清单仅追加`closing-current-image-recovery-engineering-20261028`，旧549证据及页面/能力/截图原样保留。550证据精确守卫PASS：base869ee84、checkedHead41451b95、12页面/68能力/累计83 UI路径，working manifest冻结本次source125证明；未重复无改动的类型、lint、全量发布负控或已成功恢复/浏览器。本片最终HEAD仅元数据收口，不冒称镜像source变化。实机tab3已重新展示并保留，5件2月→10月仍仅预览。

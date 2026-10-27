@@ -4979,6 +4979,15 @@
       "renderedSourceSha": "ee84db5b5891d66e571214a35666370018a8a271",
       "sha256": "af306f722803105c6143a4fef48ad6ee7a0e16d7a5c605dec75374b36a04415c",
       "changeReason": "D174 implements the approved D169 explicit Source quantity/color reconciliation in the existing unpriced month command/version model. No UI activation, monetary writer, frozen history replacement, capability promotion, real Source access or deployment. Independent final review and current-image recovery remain incomplete."
+    },
+    {
+      "id": "closing-current-image-recovery-engineering-20261028",
+      "path": "docs/tasks/completed/2026-10-28-closing-current-image-recovery-engineering.md",
+      "kind": "document",
+      "recordedAtSha": "41451b9523c546f73a2d99dc836c96398cce9f1d",
+      "renderedSourceSha": "12520f425a4171095495f740ca129df38c61b085",
+      "sha256": "69b32821de2d808cfaf93bda47acd68e586f7b9c2717c8c81209e5681557c210",
+      "changeReason": "Exact source125 synthetic image build, complete nonempty recovery 9/9 and image-static/same-source API Chromium 9/9; existing assets preserved. Independent final review and remote delivery remain pending. No capability promotion, real Source access, live demo replacement, deployment or retirement."
     }
   ],
   "pages": [
