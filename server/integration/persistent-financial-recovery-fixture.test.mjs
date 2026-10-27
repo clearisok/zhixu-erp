@@ -62,3 +62,19 @@ test('owned financial seed reaches the synthetic host generator before any conta
   assert.equal(calls.length, 1); assert.equal(calls[0].binary, process.execPath);
   assert.deepEqual(calls[0].args.slice(0, 4), ['--import', 'tsx', '--input-type=module', '-e']);
 });
+
+test('nonempty rows and successful reads cannot prove recovery without the frozen-month trigger', async () => {
+  let catalogReads = 0;
+  const state = { prepared: true, project: 'zhixu-quote-trial-recovery-0123456789', sql: async query => {
+    if (query.includes('pg_trigger')) { catalogReads++; return '[]'; }
+    return '1';
+  } };
+  await assert.rejects(snapshotPersistentFinancialRecovery(state, 'synthetic', { readPaths: [], receipts: [] }), /frozen_closing_trigger_required/);
+  assert.equal(catalogReads, 1);
+});
+
+test('a disabled frozen-month trigger cannot prove financial recovery', async () => {
+  const state = { prepared: true, project: 'zhixu-quote-trial-recovery-0123456789', sql: async query =>
+    query.includes('pg_trigger') ? JSON.stringify([{ enabled: 'D' }]) : '1' };
+  await assert.rejects(snapshotPersistentFinancialRecovery(state, 'synthetic', { readPaths: [], receipts: [] }), /frozen_closing_trigger_enabled/);
+});

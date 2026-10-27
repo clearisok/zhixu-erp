@@ -215,7 +215,7 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
   const target=s=>['-ExpectedContainerName',s.db,'-ExpectedComposeProject',s.project,'-ExpectedVolumeName',`${s.project}_data`,'-ExpectedDatabaseName','quote_trial','-ExpectedTargetFingerprint',sha(`${s.project}|${s.db}|${s.project}_data|quote_trial|local_socket|5432`)];
   await phase('offline DB and object bundle backup use the existing exact-target tools',async()=>{
     await trial(a,'maintenance');
-    if(domainRecovery)frozenDomainDatabase=await snapshotPersistentDomainDatabase(a,true);
+    if(domainRecovery)frozenDomainDatabase=await snapshotPersistentDomainDatabase(a,true,{closingFrozenProtection:financialRecovery});
     const out=await run('pwsh',['-NoProfile','-File',resolve('Backup-Zhixu.ps1'),...target(a)]);
     const name=/filename=(zhixu-[a-zA-Z0-9-]+\.dump)/.exec(out)?.[1];assert.ok(name);backup=resolve('backups',name);backupHash=sha(await readFile(backup));
     assert.match(await trial(a,'objects-export'),/"integrity":"PASS"/);
@@ -237,7 +237,7 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
     await assert.rejects(run('pwsh',args));assert.equal(await b.sql("SELECT count(*) FROM pg_tables WHERE schemaname='public'"),'0');
     await b.compose(['stop','objects-tls','objects']);
     await run('pwsh',args);
-    if(domainRecovery){assertPersistentDomainRecovery(frozenDomainDatabase,await snapshotPersistentDomainDatabase(b,true));domainVerified.beforeRestoreStartup=true;}
+    if(domainRecovery){assertPersistentDomainRecovery(frozenDomainDatabase,await snapshotPersistentDomainDatabase(b,true,{closingFrozenProtection:financialRecovery}));domainVerified.beforeRestoreStartup=true;domainVerified.closingProtectionBeforeRestoreStartup=financialRecovery;}
     await trial(b,'objects-init');
     const from=a.values.TRIAL_OBJECT_BUNDLE_DIR,to=b.values.TRIAL_OBJECT_BUNDLE_DIR;
     await cp(join(from,'objects.json'),join(to,'objects.json'));await cp(join(from,'objects'),join(to,'objects'),{recursive:true});
@@ -264,7 +264,7 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
   if(domainRecovery)t.diagnostic('DOMAIN_RECOVERY '+JSON.stringify({imageSource:commit,...domainVerified,networkSubnets:states.map(state=>({project:state.project,subnets:state.networkSubnets})),orderId:domainFixture.orderId,assignmentIds:domainFixture.assignments,businessTables:domainSnapshot.database,frozenTables:frozenDomainDatabase,sequences:undefined,readbacks:domainFixture.readPaths.length,receipts:domainFixture.receipts.length,
     ...(financialRecovery?{financial:{orderId:domainFixture.financial.orderId,processingOrderId:domainFixture.financial.processingOrderId,
       periodIds:domainFixture.financial.periodIds,allocationIds:domainFixture.financial.allocationIds,lockedVersions:domainFixture.financial.lockedVersions,
-      counts:domainSnapshot.financial.counts,readbacks:domainFixture.financial.readPaths.length,receipts:domainFixture.financial.receipts.length}}:{}),
+      counts:domainSnapshot.financial.counts,protection:domainSnapshot.financial.protection,readbacks:domainFixture.financial.readPaths.length,receipts:domainFixture.financial.receipts.length}}:{}),
     ...(sourceLedgerRecovery?{sourceLedger:{orderId:domainFixture.sourceLedger.orderId,publications:domainFixture.sourceLedger.publications,
       generations:domainSnapshot.sourceLedger.versions.map(v=>v.generation),fakeWorkerCalls:domainFixture.sourceLedger.fakeWorkerCalls,
       syntheticRequestCounts:true,receiptCount:domainFixture.sourceLedger.receipts.length+1}}:{})}));

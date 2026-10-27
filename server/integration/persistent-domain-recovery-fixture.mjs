@@ -3,7 +3,7 @@
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
 import {seedPersistentSourceLedgers,snapshotPersistentSourceLedgers} from './persistent-source-ledger-recovery-fixture.mjs';
-import {seedPersistentFinancialRecovery,snapshotPersistentFinancialRecovery} from './persistent-financial-recovery-fixture.mjs';
+import {seedPersistentFinancialRecovery,snapshotPersistentFinancialRecovery,readPersistentClosingProtection} from './persistent-financial-recovery-fixture.mjs';
 
 const production='/api/v1/production-scheduling';
 const arrival='/api/v1/material-arrivals';
@@ -126,7 +126,7 @@ export async function seedPersistentDomainRecovery(state,cookie,run,{sourceLedge
   return fixture;
 }
 
-export async function snapshotPersistentDomainDatabase(state,includeTechnical=false){
+export async function snapshotPersistentDomainDatabase(state,includeTechnical=false,{closingFrozenProtection=false}={}){
   assert.equal(state.prepared,true,'domain snapshot requires successful owned preparation');
   assert.match(state.project,/^zhixu-quote-trial-(?:it|recovery)-[0-9a-f]{10}$/);
   const tables=(await state.sql("SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename")).split('\n').filter(name=>includeTechnical||!technical.has(name));
@@ -138,6 +138,7 @@ export async function snapshotPersistentDomainDatabase(state,includeTechnical=fa
   }
   for(const name of requiredNonempty)assert.ok(database[name]?.count>0,'nonempty_recovery_fixture_required:'+name);
   if(includeTechnical)database.sequences=await state.sql("SELECT COALESCE(jsonb_agg(to_jsonb(s) ORDER BY sequencename),'[]'::jsonb)::text FROM pg_sequences s WHERE schemaname='public'");
+  if(closingFrozenProtection)database.closingFrozenProtection=await readPersistentClosingProtection(state);
   return database;
 }
 

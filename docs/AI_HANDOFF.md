@@ -1,4 +1,6 @@
-# 恢复点：两项关账P2及565精确守卫收口，新同源实机已展示
+# 恢复点：0051新镜像已构建，恢复catalog控制已补，待一次完整非空恢复
+
+本片clean cf77e1a6d7626808c3ba958137aeb52e5978976b；[阶段](tasks/active/closing-frozen-image-recovery-2026-10-28.md)，私密outputs/closing-frozen-image-recovery-20261028。镜像cf77/3221blobs/0overlay，一次build75481ms、50迁移/0051，imageID ec2987de1be1dd31435a766081bafcbd11b98fe9efbc24333b236c5811ac74a6。旧prepare/execute已静态复核；发现两项验收P2：恢复未核trigger/function、私密wrapper未先钉本机daemon。现测试财务快照加完整catalog/source0051 body证明，技术全库快照在恢复启动前显式包含同指纹；28控制/owned PG1及语法/lint通过。原红2Fail、PGcleanup中断152858ms非PASS、本机CLI首次读取失败原因未解均保留。新local-target.mjs明确desktop-linux/npipe、显式local info/imageID核实；新恢复入口须再次fresh检查、仅子进程pin DOCKER_HOST，无共享配置修改。实际rehearse=0，未创建runtime-attempt，不重复build。先提交本片测试源码，再规范archive新的harness source，并证明全部产品/SQL字节仍与镜像cf77相同；随后最多一次原9项恢复。旧execute要求HEAD=cf77不能直接沿用，必须用分开imageSource/harnessSource的新有界wrapper。恢复后做原68容器/191卷/33网络和旧refs保护检查，再冻结工程结果/守卫；未执行不能PASS。不要触碰当前62411/61104/53001，三者build-info起始只读核对正常。下文为已收口前阶段准确原事实。
 
 2026-10-28；branch feat/order-closing-month-plan。当前业务源码fde8b0f1f467edfc864cbd616756ad1778c9f40e，clean阶段baseline f37b612e09dc44721fe8204c82e45976020b283e。沿用已核实main869ee84dd0b31de6161011e4aa560678b244a64d，无fetch/Hosted/远端写。原Git/ref STOP_AUTH_OR_DIVERGENCE退出1根因未证实，不自行push/ref移动/换认证。PR130未更新，前次核实旧head61704afe22fe9fd0ea9f6625c6092fcbb9575dfc。
 

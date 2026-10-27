@@ -2,6 +2,7 @@
 // No production recovery implementation, Source IO or existing target is used.
 import assert from 'node:assert/strict';
 import { createHash, randomUUID } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
 
 const closing = '/api/v1/closing', labor = '/api/v1/quotes/order-labor-adoptions', months = closing + '/month-plans';
 export const financialRecoveryTables = [
@@ -12,6 +13,40 @@ export const financialRecoveryTables = [
 function owned(state) {
   assert.equal(state.prepared, true, 'financial recovery requires successful owned preparation');
   assert.match(state.project, /^zhixu-quote-trial-(?:it|recovery)-[0-9a-f]{10}$/);
+}
+
+// Test-only restored-schema evidence. Rows, receipts and a migration ledger do
+// not prove that the exact forward guard is present and fires for ordinary SQL.
+export async function readPersistentClosingProtection(state) {
+  owned(state);
+  const rows = JSON.parse(await state.sql(`SELECT COALESCE(jsonb_agg(jsonb_build_object(
+    'enabled',t.tgenabled,'type',t.tgtype,'hasCondition',t.tgqual IS NOT NULL,'arguments',t.tgnargs,
+    'tableSchema',cn.nspname,'tableName',c.relname,'functionSchema',pn.nspname,'functionName',p.proname,
+    'language',l.lanname,'returnType',p.prorettype::regtype::text,'functionArguments',p.pronargs,
+    'securityDefiner',p.prosecdef,'hasConfiguration',p.proconfig IS NOT NULL,'body',p.prosrc,'triggerDefinition',pg_get_triggerdef(t.oid),
+    'functionDefinition',pg_get_functiondef(p.oid)) ORDER BY t.oid),'[]'::jsonb)::text
+    FROM pg_trigger t JOIN pg_class c ON c.oid=t.tgrelid JOIN pg_namespace cn ON cn.oid=c.relnamespace
+    JOIN pg_proc p ON p.oid=t.tgfoid JOIN pg_namespace pn ON pn.oid=p.pronamespace
+    JOIN pg_language l ON l.oid=p.prolang
+    WHERE cn.nspname='public' AND c.relname='server_closing_month_plan_versions'
+      AND t.tgname='month_frozen_lines_validation' AND NOT t.tgisinternal`));
+  assert.ok(Array.isArray(rows) && rows.length === 1, 'frozen_closing_trigger_required');
+  const row = rows[0];
+  assert.equal(row.enabled, 'O', 'frozen_closing_trigger_enabled');
+  for (const [key, expected] of Object.entries({ type: 7, hasCondition: false, arguments: 0,
+    tableSchema: 'public', tableName: 'server_closing_month_plan_versions', functionSchema: 'public',
+    functionName: 'validate_closing_frozen_month_lines', language: 'plpgsql', returnType: 'trigger',
+    functionArguments: 0, securityDefiner: false, hasConfiguration: false })) assert.equal(row[key], expected, 'frozen_closing_trigger_identity:' + key);
+  const normalize = value => value.replace(/\r\n/gu, '\n');
+  const migration = await readFile(new URL('../../database/migrations/0051_closing_frozen_month_lines.sql', import.meta.url), 'utf8');
+  const expectedBody = /AS \$\$([\s\S]*?)\$\$;/u.exec(migration)?.[1];
+  assert.ok(expectedBody, 'frozen_closing_source_body_required');
+  assert.equal(normalize(row.body), normalize(expectedBody), 'frozen_closing_function_body');
+  for (const key of ['triggerDefinition', 'functionDefinition']) assert.ok(typeof row[key] === 'string' && row[key].length > 0, 'frozen_closing_definition_required');
+  const digest = value => createHash('sha256').update(normalize(value)).digest('hex');
+  return { trigger: 'month_frozen_lines_validation', enabled: row.enabled, type: row.type,
+    table: row.tableSchema + '.' + row.tableName, function: row.functionSchema + '.' + row.functionName,
+    bodySha256: digest(row.body), triggerDefinitionSha256: digest(row.triggerDefinition), functionDefinitionSha256: digest(row.functionDefinition) };
 }
 // These test inputs contain JSON values only. Both existing command digests use
 // this recursively sorted JSON representation; never hash a replacement intent.
@@ -206,9 +241,10 @@ export async function snapshotPersistentFinancialRecovery(state, cookie, fixture
     counts[name] = Number(await state.sql('SELECT count(*) FROM ' + name));
     assert.ok(Number.isSafeInteger(counts[name]) && counts[name] > 0, 'nonempty_financial_recovery_required:' + name);
   }
+  const protection = await readPersistentClosingProtection(state);
   for (const path of fixture.readPaths) responses[path] = await json(state, cookie, path);
   for (const expected of fixture.receipts) {
     const reply = await json(state, cookie, expected.path); assertFinancialRecoveryReceipt(expected, reply); responses[expected.path] = reply;
   }
-  return { counts, responses };
+  return { counts, responses, protection };
 }
