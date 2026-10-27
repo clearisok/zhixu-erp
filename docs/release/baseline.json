@@ -4960,6 +4960,25 @@
       "renderedSourceSha": "2be72168de24977625ad3bb40d0d4678671e3bd6",
       "sha256": "d35f70d9979c1ea1dc6984e20672dce778c86de7571a41878db30cc87ab46f03",
       "changeReason": "D173 implements approved D169: service-level retirement of new manual quantities, strict linked-month confirmation/locking and preservation of historical snapshots, original receipts and explicit recovery. Synthetic local checks only; no capability promotion, new deployment or live demo replacement."
+    },
+    {
+      "id": "closing-source-reconciliation-d174-decisions-20261027",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "supersedes": "closing-write-retirement-d173-decisions-20261027",
+      "recordedAtSha": "ee84db5b5891d66e571214a35666370018a8a271",
+      "renderedSourceSha": "ee84db5b5891d66e571214a35666370018a8a271",
+      "sha256": "e04db243ad9b9ef31b42da9e7c7f9c068f22f937e865764fef99b494fbf1b33d",
+      "changeReason": "D174 implements the approved D169 explicit Source quantity/color reconciliation in the existing unpriced month command/version model. No UI activation, monetary writer, frozen history replacement, capability promotion, real Source access or deployment. Independent final review and current-image recovery remain incomplete."
+    },
+    {
+      "id": "closing-source-reconciliation-contract-20261027",
+      "kind": "document",
+      "path": "docs/features/SERVER_CLOSING_SOURCE_RECONCILIATION.md",
+      "recordedAtSha": "ee84db5b5891d66e571214a35666370018a8a271",
+      "renderedSourceSha": "ee84db5b5891d66e571214a35666370018a8a271",
+      "sha256": "af306f722803105c6143a4fef48ad6ee7a0e16d7a5c605dec75374b36a04415c",
+      "changeReason": "D174 implements the approved D169 explicit Source quantity/color reconciliation in the existing unpriced month command/version model. No UI activation, monetary writer, frozen history replacement, capability promotion, real Source access or deployment. Independent final review and current-image recovery remain incomplete."
     }
   ],
   "pages": [
