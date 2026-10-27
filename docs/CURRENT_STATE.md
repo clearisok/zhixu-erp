@@ -1,9 +1,9 @@
-# 当前状态：当前关账镜像非空恢复准备
+# 当前状态：关账来源数量与颜色复核前置
 
-2026-10-27；branch `feat/order-closing-month-plan`，clean输入63c57892ae79385282c81d800e10e0c3020151fc；main869ee84dd0b31de6161011e4aa560678b244a64d沿用核实，无fetch/远端写。PR130旧61704afe不含本地新链；Git/ref STOP未解。
+2026-10-27；branch `feat/order-closing-month-plan`；main869ee84dd0b31de6161011e4aa560678b244a64d沿用核实，未fetch/远端写，Git/ref STOP未解。PR130仍旧61704afe。
 
-G2f源码2be72168已完成服务层退役新手工数量、保留历史核对与月份权威，64项相关/根类型/Server/lint及累计守卫通过；[原件](tasks/completed/2026-10-27-closing-current-image-input-state/README.md)保留。现在为48迁移文件/最高0049的新精确镜像准备非空重启/冷重建/备份/独立恢复，尚未构建或执行，不借原45文件镜像结果冒称通过。
+G2g网络隔离源码78ba35706429e020d5e613074c94357e72fdef8d已保存；canonical3193blob/0overlay，控制24PASS/1actual-image设计SKIP、lint和只读预审通过。48迁移/0049的新镜像尚未build/run。[准备证明](tasks/completed/2026-10-27-closing-current-image-preparation.md)。
 
-已确认Docker默认池耗尽。本片harness纯、有界规划四个新/28，排除宿主非默认路由及现有Docker网段，prepare前复核，只追加新私密project override；CLI/compose一致。25项控制24PASS/1actual-image设计SKIP，三文件lint通过；实际只读核对18宿主路由/31Docker网段，0写入。[阶段](tasks/active/closing-current-image-recovery-2026-10-27.md)区分后续构建/运行，失败停止保留owned现场。
+执行前确认Source-ledger合成夹具通过真实刷新将primary合同/颜色100→120，月份计划仍100并正确阻断；先补D169已批准的明确Source数量/颜色复核，再集中生成新候选和完整镜像恢复。不能在测试里换SO、覆盖计划或清库掩盖缺口。G2f64项及先前源码守卫各归2be/63，不冒称新结果。
 
-G2e演示61104/source4107aea1及现有用户输入保持，不热替换或重置。旧环境、Browser、卷和备份不动。新Source仅fake worker，不读真实凭据或业务库。Goal active，68能力不提升；无Hosted/push/merge/正式部署/切换/退役。Source更正、执行方匹配UI与独立USD采用UI仍后续。
+61104/source4107aea1演示及用户输入保持，不停止、重seed或替换。旧环境/Browser/卷/备份不动。新复核只调整未定价月份计划，当前可信Source、原执行量、报价金额、冻结manifest与原回执边界保留；后续具体接口/模型检查另记，未实现不预报。Goal active；Source复核、匹配UI、USD采用UI、新镜像、远端/CI/显式合并部署均未整体完成。

@@ -15,3 +15,9 @@ Docker默认地址池在前Gate已实际确诊耗尽，不能再次靠重试或�
 运行中的61104演示保持源码4107aea1和用户后续输入，不停止、热替换或重seed。旧3001/50426/59069/62426/18443/18444、Browser、卷、备份、账号及业务库保持。合成Source worker仍固定fake请求，不触真实凭据文件或网络。
 
 本片检查/镜像/恢复尚未完成，不预报PASS；精确结果及失败原件在outputs/closing-current-image-recovery-20261027。Goal active；不提升能力或宣布正式可用。Source更正、执行方匹配UI、独立USD采用UI、远端核实、必要CI及显式合并/部署/切换授权仍分别处理。
+
+## 精确准备与前置依赖
+
+源码78ba35706429e020d5e613074c94357e72fdef8d已独立提交，canonical3193 Git blob逐字相同、0 tracked overlay、宿主依赖未安装。规范副本controls24PASS/1actual-image设计SKIP、lint通过；只读预审0P1/P2。缓存Node基础镜像ID与新image tag已记账，但**build=0、rehearsal=0**，未创建运行项目或修改演示。prepared.json与archive保留，不能在新source下直接复用其身份。
+
+执行前发现真实输入依赖：source-ledger合成夹具先通过applyBoundOrderRefresh将primary合同/颜色100→120；金融夹具再对同SO调月。当前月份版本仍100并正确source_changed阻断。先完成D169的明确Source数量/颜色复核，再从最终新source创建另一份规范候选，集中构建/恢复一次；不能在测试中清库、覆盖计划、换SO掩盖缺口，或把78准备稿冒称已验镜像。
