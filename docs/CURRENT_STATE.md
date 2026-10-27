@@ -6,6 +6,6 @@
 
 金额/数量未知不补0，税率显式空值确认；共享原请求controller、actor缓存、CAS/幂等/回执与冻结边界复用。刷新/撤权后的恢复入口独立于可见SO及编辑权限。401失效session、403清旧金额；范围/身份变化不接纳晚响应。[契约](features/SERVER_CLOSING_ADJUSTMENT_UI.md)。
 
-当前为源码候选，真实构建、浏览器与累计发布守卫结果见[阶段](tasks/active/closing-adjustment-ui-current-2026-10-27.md)及outputs/closing-adjustment-ui-current-20261027；未取得不预报。G2d协议69及修后13、G2c守卫PASS仍仅各原阶段，见[输入归档](tasks/completed/2026-10-27-closing-adjustment-ui-input-state/README.md)。未跑Hosted或新真实Source。
+最终UI源码4107aea1ebf181265b543ad4c25a8afe1168f886已真实构建、Chromium9/9和只读复审0P1/P2；类型/Server/lint/PG参考逐源见[冻结工程](tasks/completed/2026-10-27-closing-adjustment-ui-engineering.md)。已启动新owned本机演示，实操外发10件2月→11月、全年量值不变。累计守卫以[阶段](tasks/active/closing-adjustment-ui-current-2026-10-27.md)及本机final.json为准，不预报。未跑Hosted、新真实Source或重复旧完整144/811。
 
 只准备新owned合成演示，不重置3001/50426/59069/62426/18443/18444、Browser、卷或备份。执行方匹配由合成服务预置，本片无匹配UI；USD采用UI、旧手工入口整体收紧、Source更正和新镜像恢复仍后续。68能力不提升，Goal active；不自动合并、部署、切换或退役。
