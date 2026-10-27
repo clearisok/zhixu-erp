@@ -4988,6 +4988,25 @@
       "renderedSourceSha": "12520f425a4171095495f740ca129df38c61b085",
       "sha256": "69b32821de2d808cfaf93bda47acd68e586f7b9c2717c8c81209e5681557c210",
       "changeReason": "Exact source125 synthetic image build, complete nonempty recovery 9/9 and image-static/same-source API Chromium 9/9; existing assets preserved. Independent final review and remote delivery remain pending. No capability promotion, real Source access, live demo replacement, deployment or retirement."
+    },
+    {
+      "id": "closing-support-ui-business-rules-20261028",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "supersedes": "closing-basis-d162-business_rules-20261026",
+      "recordedAtSha": "b7282f94a89c28d319338279d6475b7439c20edb",
+      "renderedSourceSha": "b7282f94a89c28d319338279d6475b7439c20edb",
+      "sha256": "20d306e3aed12a05571385b3675780161dd2da0510da28c5effa9e1286c54bbb",
+      "changeReason": "Clarify the already approved D169-D174 replacement of dated manual-quantity/three-output/read-only-stage descriptions, preserving the original D162 paragraph and dates. No new business rule or capability promotion."
+    },
+    {
+      "id": "closing-support-ui-concrete-proposal-20261028",
+      "kind": "document",
+      "path": "docs/tasks/active/closing-support-interfaces-proposal-2026-10-28.md",
+      "recordedAtSha": "b7282f94a89c28d319338279d6475b7439c20edb",
+      "renderedSourceSha": "b7282f94a89c28d319338279d6475b7439c20edb",
+      "sha256": "1892c07b6eab68897001084479414b073fb9aa177bf6fc9ba48127cea6f44666",
+      "changeReason": "Concrete pending proposal for Source reconciliation, executor matching and Quote-owned USD adoption interfaces, with hash-bound private synthetic prototype9 checks. No formal DOM/API/schema implementation, human approval, deployment or remote delivery claim."
     }
   ],
   "pages": [

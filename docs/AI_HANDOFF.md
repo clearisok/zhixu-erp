@@ -11,3 +11,5 @@
 上一片source12520f425a4171095495f740ca129df38c61b085的3202blob/0overlay、49迁移/0050、一次镜像构建、完整非空恢复9/9、镜像静态产物＋同source合成API Chromium9/9，见[精确证明](tasks/completed/2026-10-28-closing-current-image-recovery-engineering.md)。证明checkpoint41451b95为第550证据，守卫PASS base869/checked414，旧549记录及状态截图保持。原ee84定向检查、旧发布112/127后定向42/42和原78未运行准备稿仍按各自source归档；不重跑成功未变检查或冒称新正式UI通过。
 
 61104/source4107演示、tab3中蓝色外发5件2月→10月未保存预览、tab1用户输入及其他旧环境/Browser/卷/备份保持，禁止停止/重seed/替换。最终独立复审因额度未完成，不反复尝试、不写0P1/P2。本片Hosted/真实Source/远端写0，无现有账号/业务库、merge、正式部署、目标切换或退役。完整Goal active未完成：配套UI批准/实施、独立复审、精确远端/必要CI、显式合并/目标切换分别收口。
+
+提案checkpoint b7282f94及两项新证据已保存，原550条/页面能力/截图原样保留；552守卫首次FAIL，不是PASS：新路径在main尚无证据，旧D162首次根记录虽已在本分支提交，后续修订无法通过仅认main锚点的校验。原件release-guard.log保留4个revision/anchor/leaf/drift错误。下一安全动作是复现并修复此工具边界、补负控，不能改base、删旧根记录或把失败忽略。具体UI问题已提交给人类，尚未收到答复；本地checkpoint不是PR交付就绪。
