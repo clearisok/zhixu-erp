@@ -106,15 +106,20 @@ export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths
   // checkpoint for a document path first frozen after that base. A merge node
   // never excuses an orphan, overwritten intermediate or cycle.
   const anchoredRevision = item => {
+    const needsOwnCheckpoint = current => current.kind === 'document'
+      && !priorDocumentPaths.has(current.path) && current.mergeOf === undefined;
     const visit = (current, visited) => {
       if (!current || current.kind !== item.kind || current.path !== item.path || visited.has(current.id)) return false;
       if (priorEvidence.has(current.id)) return true;
-      if (committedDocumentAnchor(current)) return true;
+      // A later ordinary revision cannot borrow an earlier revision's valid
+      // checkpoint when its own immediate-parent witness is absent or invalid.
+      if (needsOwnCheckpoint(current)) return committedDocumentAnchor(current);
       const parents = parentsOf(current);
       const next = new Set(visited).add(current.id);
       return parents.length > 0 && parents.every(id => visit(revisions.get(id), next));
     };
-    return committedDocumentAnchor(item) || parentsOf(item).length > 0 && parentsOf(item).every(id => visit(revisions.get(id), new Set([item.id])));
+    return needsOwnCheckpoint(item) ? committedDocumentAnchor(item)
+      : parentsOf(item).length > 0 && parentsOf(item).every(id => visit(revisions.get(id), new Set([item.id])));
   };
   // Screenshot replacements keep distinct paths, so they use the original
   // single-predecessor anchor/cycle rule rather than the document path DAG.
@@ -191,7 +196,8 @@ export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths
     const lineage = (current, visited) => {
       if (!current || current.kind !== 'document' || current.path !== item.path || visited.has(current.id)
         || visited.size >= documentAnchorDepthLimit || !same(history.ids.get(current.id), current)
-        || !fullSha(current.recordedAtSha) || !isAncestor(current.recordedAtSha, parents[0])) return false;
+        || !fullSha(current.recordedAtSha) || !isAncestor(historyBaseSha, current.recordedAtSha)
+        || !isAncestor(current.recordedAtSha, parents[0])) return false;
       const predecessors = parentsOf(current);
       if (!predecessors.length) return current.supersedes === undefined && current.mergeOf === undefined;
       const next = new Set(visited).add(current.id);

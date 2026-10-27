@@ -2,7 +2,7 @@
 
 2026-10-28；branch `feat/order-closing-month-plan`；main869ee84dd0b31de6161011e4aa560678b244a64d沿用核实，无fetch/远端写，原STOP未解。
 
-当前工程续点是[发布守卫新文档锚点修复](tasks/active/release-post-base-document-anchor-2026-10-28.md)：红测试已复现、定向12/12，源码checkpoint后待完整发布与精确守卫；不改base或忽略原552失败。配套UI具体批准仍待答复，工具片不代表正式接线。
+当前工程续点是[发布守卫新文档锚点修复](tasks/active/release-post-base-document-anchor-2026-10-28.md)：第一版158/158后只读复审两项P2已真实Git复现，补每代自身见证及链source下界，待修后完整发布与精确守卫；不改base或忽略原552失败。配套UI具体批准仍待答复，工具片不代表正式接线。
 
 先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、D169–D174及[三处配套入口具体提案](tasks/active/closing-support-interfaces-proposal-2026-10-28.md)。提案与可点击合成草图已准备，尚待具体UI批准；BUSINESS_RULES的旧D162阶段说明已按现有规则校准，原段落保留。
 

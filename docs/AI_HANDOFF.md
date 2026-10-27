@@ -1,4 +1,4 @@
-# 恢复点：发布守卫第一版已完整测试，复审补强进行中
+# 恢复点：发布守卫两项复审补强已写入，待修后测试
 
 2026-10-28；branch `feat/order-closing-month-plan`，G2j clean输入ff2cf62eed273d56116bb81ffbbea532b322513d；核实main869ee84dd0b31de6161011e4aa560678b244a64d沿用，无fetch/远端写。Git/ref STOP_AUTH_OR_DIVERGENCE原退出1根因仍UNRESOLVED，PR130旧61704afe，不能自行push或移动ref。
 
@@ -17,3 +17,5 @@
 工具片clean输入f57945e229414a955723f33ede0749049669e141；[新根前向修订阶段](tasks/active/release-post-base-document-anchor-2026-10-28.md)。真实Git红测试1失败准确复现，补唯一直接父清单及完整已提交线性链见证后定向12/12通过；又加原blob缺失/篡改两个负控。只限PR base尚无该document路径，已有base锚点、merge、旧记录/blob/hash、能力/截图/批准保护不变，无新清单字段。源码与契约即将checkpoint；完整发布套件、当前精确守卫及独立终审仍未完成，不提前PASS。私密outputs/release-post-base-anchor-20261028；UI答复继续等待，不能借工具修复实施新界面。
 
 source65bf13e0完整发布套件158/158、449969ms通过，精确输入为working553；该结果仅属第一版。只读复审发现两代修订可错误借用前代见证、链source缺base下界，须补真实Git负控后修复，不将原PASS冒称最终闭合。本checkpoint只冻结553契约记录及真实状态，使下一版文档修订具备已提交直接父证据；旧记录不改。无运行中测试，未触发Hosted或远端写。
+
+1951b8c7已冻结553；新增两个真实Git红测试均复现（2/2失败，错误地无守卫错误）。补强代码只允许新路径普通修订验证自己的直接父，链source必须在base之后；真实merge保留原DAG验证并增加真实正控。源码/契约待checkpoint并前向冻结后运行定向及最终完整发布、精确守卫和只读复审。未改产品/DB、未重新运行旧镜像验收；61104实机已再次可见，原5件预览和用户输入保持。

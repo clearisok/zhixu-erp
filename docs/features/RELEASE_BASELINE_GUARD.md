@@ -100,8 +100,10 @@ Its next linear revision instead needs a committed checkpoint witness: the
 revision's exact source commit must be in the checked branch, descend from the
 actual base and have exactly one Git parent. That immediate parent's Git-loaded
 manifest must already contain the exact predecessor and its complete same-path,
-acyclic frozen lineage. Every source commit in that lineage must be an ancestor
-of the parent; every evidence record in the parent manifest must remain unchanged.
+acyclic frozen lineage. Every source commit in that lineage must descend from
+the actual base and be an ancestor of the parent; every evidence record in the
+parent manifest must remain unchanged. Each ordinary revision must prove its
+own immediate-parent witness; it cannot inherit an older revision's witness.
 The new revision itself cannot already be in that parent. Lineage traversal is
 bounded to256 records and shares the existing64MiB distinct-parent-manifest budget.
 Missing/corrupt history, forged roots, future or sibling sources, overwritten
@@ -118,8 +120,10 @@ The guard reads that checkpoint's actual Git parents: two parent branches must
 contribute different predecessor histories. All predecessor commits must be strict
 ancestors of the checkpoint and the checkpoint must be in the checked head.
 
-Every branch must trace back to the actual PR base or the restricted committed
-post-base checkpoint above; cycles and multiple final leaves
+Every branch must trace back to the actual PR base or, for a post-base path, an
+ordinary predecessor's own restricted committed checkpoint above. A real merge
+still requires the actual Git-parent contribution and retention checks below;
+it is not accepted through the single-parent exception. Cycles and multiple final leaves
 remain errors. All evidence records in the Git parents' manifests must be retained
 unchanged, including records not yet on main. A merge cannot hide missing intermediate
 blobs or modify old hashes/edges. Its own `mergeOf` is immutable in later PRs. A normal

@@ -527,7 +527,7 @@ for (const mode of ['cycle', 'unanchored', 'merge']) test(`screenshot revisions 
   has(f.check(), 'EVIDENCE_REVISION');
 });
 
-function realEvidenceMerge(t) {
+function realEvidenceMerge(t, { preBaseSide = false } = {}) {
   const f=fixture(t),legacyCommits=new Set(f.knownCommits),old=f.manifest.evidence.find(e=>e.id==='quote-original');
   const git=(args,allowed=[0])=>{
     const result=spawnSync('git',['-c','core.autocrlf=false','-c','commit.gpgsign=false','-c','user.name=Evidence Fixture','-c','user.email=evidence@example.invalid',...args],{cwd:f.root,encoding:'utf8',windowsHide:true,timeout:15000});
@@ -535,14 +535,18 @@ function realEvidenceMerge(t) {
   };
   const saveManifest=m=>f.write(manifestPath,JSON.stringify(m,null,2)+'\n');
   const commit=(message,files)=>{git(['add','--',...files]);git(['commit','-q','-m',message]);return git(['rev-parse','HEAD']);};
-  git(['init','-q','--initial-branch=main']);saveManifest(f.manifest);
+  const sidePath='docs/left-only-proof.md',sideBytes=Buffer.from('# Side-branch evidence must survive\n');
+  git(['init','-q','--initial-branch=main']);
+  let preBaseSha;
+  if(preBaseSide){f.write(sidePath,sideBytes);preBaseSha=commit('document blob before the actual baseline',[sidePath]);}
+  saveManifest(f.manifest);
   const base=commit('synthetic frozen baseline',[manifestPath,old.path]);
   git(['switch','-q','-c','left']);
-  const leftBytes=Buffer.from('# Left reviewed version\n'),sidePath='docs/left-only-proof.md',sideBytes=Buffer.from('# Side-branch evidence must survive\n');
+  const leftBytes=Buffer.from('# Left reviewed version\n');
   f.write(old.path,leftBytes);f.write(sidePath,sideBytes);
   const leftSha=commit('left document',[old.path,sidePath]);
   const left={id:'real-left',kind:'document',path:old.path,recordedAtSha:leftSha,sha256:hash(leftBytes),supersedes:old.id,changeReason:'Left reviewed change'};
-  const side={id:'real-side-proof',kind:'document',path:sidePath,recordedAtSha:leftSha,sha256:hash(sideBytes)};
+  const side={id:'real-side-proof',kind:'document',path:sidePath,recordedAtSha:preBaseSha??leftSha,sha256:hash(sideBytes)};
   const leftManifest=structuredClone(f.manifest);leftManifest.evidence.push(left,side);saveManifest(leftManifest);
   const leftHead=commit('freeze left evidence',[manifestPath]);
   git(['switch','-q','main']);git(['switch','-q','-c','right']);
@@ -570,8 +574,8 @@ function realEvidenceMerge(t) {
   return {f,git,commit,options,base,old,left,right,side,merged,mergedBytes,leftHead,rightHead};
 }
 
-function postBaseDocumentRevision(t) {
-  const s = realEvidenceMerge(t), { f, commit } = s;
+function postBaseDocumentRevision(t, options) {
+  const s = realEvidenceMerge(t, options), { f, commit } = s;
   const save = () => f.write(manifestPath, JSON.stringify(f.manifest, null, 2) + '\n');
   save();
   const anchorHead = commit('freeze original post-base root before its revision', [manifestPath]);
@@ -593,6 +597,73 @@ test('post-base document roots can be revised through committed linear checkpoin
   const sourceSha = s.commit('second post-base document update', [s.side.path]);
   f.manifest.evidence.push({ ...s.revised, id: 'post-base-second', recordedAtSha: sourceSha, sha256: hash(body),
     supersedes: s.revised.id, changeReason: 'Second committed linear revision' });
+  assert.deepEqual(f.check({ ...s.options, checkedHead: sourceSha }), []);
+});
+
+test('post-base revisions require their own frozen predecessor, not an earlier revision anchor', t => {
+  const s = postBaseDocumentRevision(t), { f } = s;
+  // The first revision is deliberately not frozen into any Git manifest.
+  const body = Buffer.from('# A later revision cannot retroactively freeze its predecessor\n');
+  f.write(s.side.path, body);
+  const sourceSha = s.commit('second update before freezing the first revision', [s.side.path]);
+  f.manifest.evidence.push({ ...s.revised, id: 'post-base-unfrozen-second', recordedAtSha: sourceSha, sha256: hash(body),
+    supersedes: s.revised.id, changeReason: 'Negative control: both records added after both source commits' });
+  const errors = f.check({ ...s.options, checkedHead: sourceSha });
+  assert.ok(errors.some(error => error.code === 'EVIDENCE_REVISION_ANCHOR' && error.detail === 'post-base-unfrozen-second'), JSON.stringify(errors));
+});
+
+test('post-base revision lineage cannot use a real source commit before the actual baseline', t => {
+  const s = postBaseDocumentRevision(t, { preBaseSide: true });
+  assert.equal(s.options.isAncestor(s.base, s.side.recordedAtSha), false);
+  assert.equal(s.options.isAncestor(s.side.recordedAtSha, s.anchorHead), true);
+  has(s.f.check(s.options), 'EVIDENCE_REVISION_ANCHOR');
+});
+
+test('post-base later revisions reject their own missing or rewritten parent witnesses', async t => {
+  const s = postBaseDocumentRevision(t), { f } = s;
+  s.save(); const parent = s.commit('freeze first revision before own-witness negative controls', [manifestPath]);
+  const committed = JSON.parse(s.options.readBlob(parent, manifestPath).toString('utf8'));
+  const body = Buffer.from('# Later source with a separately required parent witness\n');
+  f.write(s.side.path, body);
+  const sourceSha = s.commit('later source for own-witness negative controls', [s.side.path]);
+  const id = 'post-base-own-witness-second';
+  f.manifest.evidence.push({ ...s.revised, id, recordedAtSha: sourceSha, sha256: hash(body),
+    supersedes: s.revised.id, changeReason: 'The current revision must prove its own immediate parent' });
+  for (const mode of ['missing', 'malformed', 'missing-predecessor', 'rewritten-other-history', 'merge-source']) {
+    await t.test(mode, () => {
+      let bytes = Buffer.from(JSON.stringify(committed));
+      if (mode === 'missing') bytes = null;
+      if (mode === 'malformed') bytes = Buffer.from('{invalid');
+      if (mode === 'missing-predecessor') bytes = Buffer.from(JSON.stringify({ ...committed,
+        evidence: committed.evidence.filter(item => item.id !== s.revised.id) }));
+      if (mode === 'rewritten-other-history') { const modified = structuredClone(committed); modified.evidence[0].sha256 = '0'.repeat(64); bytes = Buffer.from(JSON.stringify(modified)); }
+      const options = { ...s.options, checkedHead: sourceSha,
+        readBlob: (sha, file) => sha === parent && file === manifestPath ? bytes : s.options.readBlob(sha, file),
+        readCommitParents: sha => mode === 'merge-source' && sha === sourceSha ? [parent, s.rightHead] : s.options.readCommitParents(sha) };
+      const errors = f.check(options);
+      assert.ok(errors.some(error => error.code === 'EVIDENCE_REVISION_ANCHOR' && error.detail === id), JSON.stringify(errors));
+    });
+  }
+});
+
+test('post-base branches with their own checkpoints retain real merge reconciliation', t => {
+  const s = postBaseDocumentRevision(t), { f } = s;
+  const left = s.revised;
+  s.save(); const leftHead = s.commit('freeze post-base left successor', [manifestPath]);
+  s.git(['switch', '-q', '-c', 'post-base-right', s.anchorHead]);
+  f.manifest.evidence = f.manifest.evidence.filter(item => item.id !== left.id);
+  const rightBody = Buffer.from('# Parallel right successor of the committed post-base root\n');
+  f.write(s.side.path, rightBody);
+  const rightSha = s.commit('parallel post-base right source', [s.side.path]);
+  const right = { ...left, id: 'post-base-right', recordedAtSha: rightSha, sha256: hash(rightBody), changeReason: 'Parallel independently frozen right revision' };
+  f.manifest.evidence.push(right); s.save(); s.commit('freeze post-base right successor', [manifestPath]);
+  s.git(['merge', '--no-ff', '--no-commit', leftHead], [1]);
+  const body = Buffer.from('# Explicit reconciliation of independently frozen post-base revisions\n');
+  f.write(s.side.path, body); f.manifest.evidence.push(left); s.save();
+  const sourceSha = s.commit('resolve real post-base revision branches', [manifestPath, s.side.path]);
+  const merged = { ...left, id: 'post-base-merged', recordedAtSha: sourceSha, sha256: hash(body), mergeOf: [left.id, right.id], changeReason: 'Retain both actual post-base branch histories' };
+  delete merged.supersedes;
+  f.manifest.evidence.push(merged);
   assert.deepEqual(f.check({ ...s.options, checkedHead: sourceSha }), []);
 });
 
