@@ -4818,6 +4818,25 @@
       "renderedSourceSha": "0969d74c5d5f6dabbd2d095c42824f80be090ab7",
       "sha256": "bb244512b6a111fd5af5fdeaa2ee47573a9f78933e1fe39ce4dfa97cc6e73432",
       "changeReason": "D169 user-revised order delivery-month planning and two-output target; preserve immutable price/production history and all earlier evidence. Gate8G1 is internal unpriced backend only, not UI approval or activation."
+    },
+    {
+      "id": "closing-executor-matching-d170-decisions-20261027",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "21526976a1d07c5122ad71651f8e12e1cb820311",
+      "renderedSourceSha": "21526976a1d07c5122ad71651f8e12e1cb820311",
+      "sha256": "b2c3f39217147974b9cb9365c23ce0ba1d7920baa4ae6039ce6ac995b255fb64",
+      "supersedes": "order-closing-month-plan-d169-decisions-20261027",
+      "changeReason": "D170 explicit executor matching preserves color/month quantities, historical attribution, fresh observation provenance and original request recovery. Reference quantities warn only; annual money/financial materialization/HTTP/UI remain subsequent work."
+    },
+    {
+      "id": "closing-executor-matching-d170-contract-20261027",
+      "kind": "document",
+      "path": "docs/features/SERVER_CLOSING_EXECUTOR_MATCHING.md",
+      "recordedAtSha": "21526976a1d07c5122ad71651f8e12e1cb820311",
+      "renderedSourceSha": "21526976a1d07c5122ad71651f8e12e1cb820311",
+      "sha256": "2e5a2e5c3ef45978be46cbeb5d704c044c2e391bd4f59498fa47b872dcee5c25",
+      "changeReason": "D170 explicit executor matching preserves color/month quantities, historical attribution, fresh observation provenance and original request recovery. Reference quantities warn only; annual money/financial materialization/HTTP/UI remain subsequent work."
     }
   ],
   "pages": [

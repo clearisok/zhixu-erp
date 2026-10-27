@@ -4,7 +4,7 @@
 
 0048为0047版本增加executor_basis/action/SQL约束，无新业务表/数据回填。match_executors共用原move服务的fresh权限、CAS/全局锁、预览hash、原请求回执；只拆选中未分配行，颜色/月不变，保存真实同单/颜色执行归属。计划/完成数量独立，仅warning。新增量在新版本记录本次所选生产观察；旧版本、未选中观察、普通调月依据不变。既有归属漂移先409/持久拒绝，不触发旧当前颜色SQL500；异常归属更正仍后续。
 
-本片定向34/34，追加未选中观察SQL负控后11/11；中间52/52既有回归分开。最终规范副本根类型/Server构建、7文件lintPASS；首次类型/审计action错误记录保留。已有ignored冲突TS样本未清理，规范副本只复制tracked/new源码且共享依赖junction，无安装。只读实现复审0P1/P2，V0页面ID元数据P2已修。G1旧811/144与Gate8F0046镜像不冒称本片或0048恢复验证。
+源码S21526976a1d07c5122ad71651f8e12e1cb820311，直接父f00。本片定向34/34，追加SQL负控后11/11；中间52/52分开。最终规范副本根类型/Server构建、7文件lintPASS；首次类型/审计action错误保留。ignored冲突TS样本未清理，规范副本共享依赖junction、无安装。只读实现复审0P1/P2，V0元数据P2已修。清单532→534，仅D170决策前向链与独立执行方契约，旧记录/68能力不变；精确HEAD守卫看本机final.json和[冻结工程](tasks/completed/2026-10-27-closing-executor-matching-engineering.md)。G1旧811/144与Gate8F0046镜像不冒称本片/0048恢复验证。
 
 用户修订关账UI已明确[批准](tasks/completed/2026-10-27-closing-adjustment-ui-approval.md)，不再询问；USD采用独立UI仍pending。下一步Source变化对账、0045财务消费/冻结、全年12月两项金额/内外发同范围、HTTP+原请求客户端、正式Server owner挂载、旧手工写入口收紧。不要直接把月份计划加旧allocations重复求和；确认/锁定用不可变0045快照，open参考价格只读当前已采用商业版本，未知不补0。保持数量/颜色/资源历史，未分配不猜内制。
 
