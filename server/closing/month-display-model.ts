@@ -1,10 +1,10 @@
-import { closingFail } from './contract.js';
+import { closingFail, CLOSING_RESOURCE_READ_BYTES } from './contract.js';
 import { planHash } from '../production-scheduling/repository.js';
 import type { ClosingExecutionReference } from './basis-model.js';
 import type { MonthPlan } from './month-plan-service.js';
 
 export const MONTH_DISPLAY_LIMITS = { sourceColors: 2000, colors: 4000, executors: 1000, months: 2001,
-  snapshotBytes: 8 * 1024 * 1024, responseBytes: 1024 * 1024 } as const;
+  snapshotBytes: CLOSING_RESOURCE_READ_BYTES, responseBytes: 1024 * 1024 } as const;
 export type DisplaySourceColor = { id: string; colorName: string; ambiguous: boolean };
 export type DisplayPeriod = { month: string; id: string; status: string; version: number };
 const invalid = (): never => closingFail(503, 'closing_month_display_evidence_invalid');

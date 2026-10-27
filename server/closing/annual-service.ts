@@ -4,7 +4,8 @@ import {readCurrentActor} from '../auth/current-actor.js';
 import {requirePermission} from '../auth/permissions.js';
 import {readPlanOrderSummaries,type PlanOrderSummary} from '../production-scheduling/read-model.js';
 import {assignmentsForOrder} from '../production-scheduling/repository.js';
-import {CLOSING_READ_PERMISSIONS,closingAmount,closingFail} from './contract.js';
+import {SCHEDULE_PLANNING_LIMITS} from '../production-scheduling/planning-preview.js';
+import {CLOSING_READ_PERMISSIONS,CLOSING_RESOURCE_READ_BYTES,closingAmount,closingFail} from './contract.js';
 import {parseClosingYearQuery,type ClosingYearQuery} from './annual-contract.js';
 import {closingReferenceStatus,summarizeYearAmounts,type ClosingYearAmount} from './annual-model.js';
 import {readClosingMonthStateInTransaction} from './month-plan-service.js';
@@ -55,6 +56,21 @@ async function candidateIds(client:PoolClient,query:ClosingYearQuery){
    ${filters.length?'WHERE '+filters.join(' AND '):''} ORDER BY o.order_no,o.id LIMIT 501`,args)).rows;
  if(rows.length>500)closingFail(422,'closing_year_order_limit');return rows.map(row=>row.id);
 }
+/** Reserve a conservative bound for all complete-facts reads before any of
+ * them run: live state+basis+labels (3), frozen assignments+references (2).
+ * Production filtering may skip later live reads; this is not actual usage. */
+async function requireYearResourceBudget(client:PoolClient,ids:readonly string[],liveIds:ReadonlySet<string>){
+ if(!ids.length)return;
+ const sizes=(await client.query<{id:string;rows:number;bytes:string}>(`SELECT scope.id::text,count(a.resource_snapshot_hash)::int AS rows,
+  COALESCE(sum(octet_length(s.facts::text)),0)::text AS bytes FROM unnest($1::uuid[]) scope(id)
+  LEFT JOIN LATERAL (SELECT resource_snapshot_hash FROM production_schedule_assignments WHERE sales_order_id=scope.id ORDER BY created_at,id LIMIT $2) a ON true
+  LEFT JOIN production_schedule_resource_snapshots s ON s.hash=a.resource_snapshot_hash GROUP BY scope.id ORDER BY scope.id`,[ids,SCHEDULE_PLANNING_LIMITS.queueRows+1])).rows;
+ let reserved=BigInt(0);
+ for(const row of sizes){
+  reserved+=BigInt(row.bytes)*(liveIds.has(row.id)?BigInt(3):BigInt(2));
+  if(row.rows>SCHEDULE_PLANNING_LIMITS.queueRows||reserved>BigInt(CLOSING_RESOURCE_READ_BYTES))closingFail(422,'closing_year_resource_limit');
+ }
+}
 /** Planning reference and frozen financial history are deliberately distinct. */
 export async function readClosingYear(pool:Pool,identity:TrustedIdentity,params:URLSearchParams){
  const query=parseClosingYearQuery(params),client=await pool.connect();
@@ -73,6 +89,7 @@ export async function readClosingYear(pool:Pool,identity:TrustedIdentity,params:
    WHERE p.sales_order_id=ANY($1::uuid[]) AND (EXISTS(SELECT 1 FROM jsonb_array_elements(v.lines) line
      WHERE line->>'month' IS NULL OR left(line->>'month',4)=$2 AND NOT(line->>'month'=ANY($3::text[])))
     OR v.quantity_state<>'ready' AND (p.default_month IS NULL OR left(p.default_month,4)=$2))`,[ids,query.year,frozenMonths])).rows.map(row=>row.id));
+  await requireYearResourceBudget(client,ids,liveIds);
   const add=(item:Item)=>{if(items.length>=5000)closingFail(422,'closing_year_portion_limit');items.push(item);};
   for(const id of ids){
    const order=summaries[id];if(!order)closingFail(503,'closing_year_order_unavailable');

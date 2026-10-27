@@ -29,6 +29,7 @@ export const messages: Record<string, string> = {
   closing_details_restricted: '当前无权查看原拒绝的金额详情，原请求未被采用。', closing_period_already_exists: '该月份已存在，请打开已有月份。',
   invalid_closing_year_query: '请选择有效年份和筛选范围。', closing_year_order_limit: '匹配订单较多，请缩小搜索范围。',
   closing_year_portion_limit: '月份片段较多，请缩小搜索范围。', closing_year_response_too_large: '记录较多，请缩小范围后读取。',
+  closing_year_resource_limit: '查询涉及的生产资料较多，请按订单号或款号缩小搜索范围，汇总没有截断。',
   invalid_closing_month_command: '请核对原月份片段、调整数量、目标月份和原因。', closing_month_version_conflict: '本单月份已更新，请重新读取并预览。',
   closing_month_preview_changed: '月份或执行依据已变化，请重新读取并预览。', closing_month_request_conflict: '原请求内容不一致，请保留现场并核对。',
   closing_month_source_changed: '订单来源数量或颜色已变化，请先核对月份依据。', closing_month_period_not_open: '源月或目标月已确认或锁定，请先按权限处理。',

@@ -2,7 +2,7 @@
 
 2026-10-28；branch feat/order-closing-month-plan。沿用核实main869ee84dd0b31de6161011e4aa560678b244a64d，未fetch；Git/ref STOP_AUTH_OR_DIVERGENCE原退出1根因仍UNRESOLVED。本轮远端写/Hosted0，PR130未更新，前次已核实head61704afe22fe9fd0ea9f6625c6092fcbb9575dfc。
 
-本轮[关账核心链终审](tasks/active/closing-chain-correctness-review-2026-10-28.md)在f37b612e发现2项P2、无P1：未选冻结行全局归并，及年度资源载荷无预读累计预算。冻结行已由实际红测复现，模型限定目标scope；0051前向SQL保护整月原行集合。10项及加强后PG/SQL1项通过，含0050非空升级11表逐行保持；源码质量、回归、复审与年度修复继续，不提前称终审无阻断。未升级旧环境或修改历史。
+本轮[关账核心链终审](tasks/active/closing-chain-correctness-review-2026-10-28.md)D176在f37b612e发现2P2、0P1，均已红测并修复：冻结行仅目标scope归并及0051完整集合SQL保护，10项与加强PG/SQL1项通过，0050非空升级11表逐行保持；年度全候选最坏3/2次载荷预留8MiB，在完整facts读取前拒绝，PG1项通过。冻结增量1c64664只读复审无剩余P1/P2；待年度源码checkpoint完整类型/lint/构建、相关API/SQL回归及精确终审门禁，不能提前称整链无阻断。旧环境和历史未升级/修改。
 
 当前[非金额显示读取](tasks/active/closing-month-display-read-2026-10-28.md)本机工程已收口，源码de5f7682：模型4/4、客户端2/2、6791相关回归47/47；修复源码PG/HTTP含重复/累计载荷负控8/8、规范3214blob/0overlay完整类型/lint/前后端构建PASS，精确增量只读复审无剩余P1/P2。[证明](tasks/completed/2026-10-28-closing-month-display-engineering.md)在7e4c15dab78f4ebfc3767eb6f96d63ef514be125冻结后，清单前向560条，同main最终守卫PASS（checkedHead7e4c15da＋working560，12页面/68能力/累计84UI路径，session22665退出0）。最终metadata仅保存此结果；原失败和分源复用保留，不将旧168称本片新结果。无正式DOM/schema/新恢复写命令，旧演示未升级为新读取源码。
 

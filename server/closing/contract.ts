@@ -18,6 +18,7 @@ export type ClosingIntent =
   | (PeriodTarget & { action: 'confirm_period' | 'unconfirm_period' | 'lock_period' | 'reopen_period'; reason: string });
 export type ClosingCommand = { requestId: string; intent: ClosingIntent; previewHash: string };
 export const CLOSING_READ_PERMISSIONS = ['closing.view', 'order.view', 'schedule.view'] as const;
+export const CLOSING_RESOURCE_READ_BYTES = 8 * 1024 * 1024;
 /** Browser-safe contract shared with the Server client; no repository or Node runtime. */
 export function closingFail(status: number, code: string): never { throw new HttpError(status, code, code); }
 function invalid(): never { return closingFail(400, 'invalid_closing_command'); }
