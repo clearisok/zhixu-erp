@@ -4884,6 +4884,63 @@
       "renderedSourceSha": "aba4719038b0de05804a397c44f49e32a6fc9162",
       "sha256": "61ca2fd9dd20b55c55ebf7ef3043606128e5f2828b091f9ffe72f249d6457781",
       "changeReason": "Existing month services exposed through session HTTP, strict annual/month DTOs and one shared renderless request recovery core. Old financial key/envelope preserved. No mounted UI, Browser fallback, deployment or remote delivery claim."
+    },
+    {
+      "id": "closing-adjustment-ui-approval-20261027",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-27-closing-adjustment-ui-approval.md",
+      "recordedAtSha": "970aba6c39d59d6b9e1f4e58df5a46f619be0d98",
+      "renderedSourceSha": "4107aea1ebf181265b543ad4c25a8afe1168f886",
+      "sha256": "707bf10a8f2aad3380facf5b56b1763a9d976f55ed829f6dde417fcf48c8d5a0",
+      "changeReason": "Specifically approved formal Server closing adjustment UI, actual exact-source synthetic Chromium and a new owned live demonstration. No legacy evidence replacement, capability promotion, user acceptance, source activation or deployment."
+    },
+    {
+      "id": "closing-adjustment-ui-contract-20261027",
+      "kind": "document",
+      "path": "docs/features/SERVER_CLOSING_ADJUSTMENT_UI.md",
+      "recordedAtSha": "970aba6c39d59d6b9e1f4e58df5a46f619be0d98",
+      "renderedSourceSha": "4107aea1ebf181265b543ad4c25a8afe1168f886",
+      "sha256": "2ec75f077d772b9e9a542cdf0f13c009703803bc4a862d190c1d204cec6b9c18",
+      "changeReason": "Specifically approved formal Server closing adjustment UI, actual exact-source synthetic Chromium and a new owned live demonstration. No legacy evidence replacement, capability promotion, user acceptance, source activation or deployment."
+    },
+    {
+      "id": "closing-adjustment-ui-engineering-20261027",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-27-closing-adjustment-ui-engineering.md",
+      "recordedAtSha": "970aba6c39d59d6b9e1f4e58df5a46f619be0d98",
+      "renderedSourceSha": "4107aea1ebf181265b543ad4c25a8afe1168f886",
+      "sha256": "ae4737f5588681534ac43eed83c31d3400c9cac55a26d2bf90b30f5ca875fceb",
+      "changeReason": "Specifically approved formal Server closing adjustment UI, actual exact-source synthetic Chromium and a new owned live demonstration. No legacy evidence replacement, capability promotion, user acceptance, source activation or deployment."
+    },
+    {
+      "id": "closing-adjustment-desktop-annual-20261027",
+      "kind": "screenshot",
+      "path": "docs/release/screenshots/closing-adjustment-20261027/desktop-annual.png",
+      "recordedAtSha": "970aba6c39d59d6b9e1f4e58df5a46f619be0d98",
+      "renderedSourceSha": "4107aea1ebf181265b543ad4c25a8afe1168f886",
+      "sha256": "8f57505dc1968ad17287bbef6e61dfbb688256bed5f3ef7dd54c670daed6b7c8",
+      "changeReason": "Specifically approved formal Server closing adjustment UI, actual exact-source synthetic Chromium and a new owned live demonstration. No legacy evidence replacement, capability promotion, user acceptance, source activation or deployment.",
+      "approvalEvidence": "closing-adjustment-ui-approval-20261027"
+    },
+    {
+      "id": "closing-adjustment-whole-preview-20261027",
+      "kind": "screenshot",
+      "path": "docs/release/screenshots/closing-adjustment-20261027/whole-preview.png",
+      "recordedAtSha": "970aba6c39d59d6b9e1f4e58df5a46f619be0d98",
+      "renderedSourceSha": "4107aea1ebf181265b543ad4c25a8afe1168f886",
+      "sha256": "b7a65575fae3af5361b4389c374ef9cce45fc434681d736a77b9ee8f6f9322d6",
+      "changeReason": "Specifically approved formal Server closing adjustment UI, actual exact-source synthetic Chromium and a new owned live demonstration. No legacy evidence replacement, capability promotion, user acceptance, source activation or deployment.",
+      "approvalEvidence": "closing-adjustment-ui-approval-20261027"
+    },
+    {
+      "id": "closing-adjustment-mobile-adjust-20261027",
+      "kind": "screenshot",
+      "path": "docs/release/screenshots/closing-adjustment-20261027/mobile-adjust.png",
+      "recordedAtSha": "970aba6c39d59d6b9e1f4e58df5a46f619be0d98",
+      "renderedSourceSha": "4107aea1ebf181265b543ad4c25a8afe1168f886",
+      "sha256": "b2e92986aa8f811a81dac2b97333f89580c9125d355ba20530fceec6347d461a",
+      "changeReason": "Specifically approved formal Server closing adjustment UI, actual exact-source synthetic Chromium and a new owned live demonstration. No legacy evidence replacement, capability promotion, user acceptance, source activation or deployment.",
+      "approvalEvidence": "closing-adjustment-ui-approval-20261027"
     }
   ],
   "pages": [
@@ -5137,6 +5194,24 @@
         "material-display-settings-1440",
         "material-display-settings-390"
       ]
+    },
+    {
+      "id": "closing-adjustment",
+      "route": "/closing-center",
+      "routeFile": "app/closing-center/page.tsx",
+      "components": [
+        "features/closing-center/components/closing-authority-page.tsx",
+        "features/closing-center/components/server-closing-adjustment-page.tsx",
+        "features/closing-center/components/server-closing-move-dialog.tsx"
+      ],
+      "acceptance": "implementation-only",
+      "acceptanceScope": "Specific D169 UI contract approved; formal Server synthetic browser and live demonstration only. No user implementation acceptance or deployment. Explicit snapshot flag and fresh permissions remain required.",
+      "evidence": [
+        "closing-adjustment-ui-approval-20261027",
+        "closing-adjustment-ui-contract-20261027",
+        "closing-adjustment-ui-engineering-20261027",
+        "closing-adjustment-desktop-annual-20261027"
+      ]
     }
   ],
   "css": {
@@ -5202,7 +5277,9 @@
     "/basic-settings/production-groups",
     "/basic-settings/outsource-factories",
     "/system-settings/production-infrastructure",
-    "/production-scheduling"
+    "/production-scheduling",
+    "/closing-center",
+    "/closing-center/detail"
   ],
   "capabilities": [
     {
