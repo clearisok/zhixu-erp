@@ -12,12 +12,24 @@ import { createServer } from 'node:net';
 import { request } from 'node:https';
 import { readTrialConfig } from '../../ops/quote-trial/trial.mjs';
 import { seedPersistentDomainRecovery, snapshotPersistentDomains, snapshotPersistentDomainDatabase, assertPersistentDomainRecovery } from './persistent-domain-recovery-fixture.mjs';
+import { allocateTrialSubnets, assertTrialSubnetsClear, renderOwnedNetworkOverride } from './persistent-network-fixture.mjs';
 const execute=promisify(execFile),sha=b=>createHash('sha256').update(b).digest('hex');
 async function run(bin,args,input){
   if(input!==undefined)return new Promise((yes,no)=>{const p=execFile(bin,args,{encoding:'utf8',windowsHide:true,timeout:180000,maxBuffer:8e6},(e,out)=>e?no(Error('owned_command_failed')):yes(out.trim()));p.stdin.end(input);});
   try{return (await execute(bin,args,{encoding:'utf8',windowsHide:true,timeout:180000,maxBuffer:8e6})).stdout.trim();}catch{throw Error('owned_command_failed');}
 }
 const docker=(args,input)=>run('docker',args,input);
+async function networkReservations(){
+  const rawRoutes=JSON.parse(await run('pwsh',['-NoProfile','-Command','Get-NetRoute -AddressFamily IPv4 | Select-Object -ExpandProperty DestinationPrefix | Sort-Object -Unique | ConvertTo-Json -Compress']));
+  const hostRoutes=typeof rawRoutes==='string'?[rawRoutes]:rawRoutes;
+  assert.ok(Array.isArray(hostRoutes)&&hostRoutes.length<=4096,'bounded_host_ipv4_routes_required');
+  const ids=(await docker(['network','ls','--quiet'])).split(/\r?\n/u).filter(Boolean);assert.ok(ids.length<=256&&ids.every(id=>/^[a-f0-9]{12,64}$/u.test(id)),'bounded_docker_network_inventory_required');
+  const configs=ids.length?(await docker(['network','inspect','--format','{{json .IPAM.Config}}',...ids])).split(/\r?\n/u).filter(Boolean).map(JSON.parse):[];
+  const dockerSubnets=[];
+  for(const config of configs){assert.ok(config===null||Array.isArray(config),'docker_ipam_inventory_required');
+    for(const row of config??[]){assert.ok(row&&typeof row.Subnet==='string','docker_subnet_required');if(!row.Subnet.includes(':'))dockerSubnets.push(row.Subnet);}}
+  return {hostRoutes,dockerSubnets,blocked:[...hostRoutes,...dockerSubnets]};
+}
 function assertNoProjectNetworks(project,networks){
   for(const network of networks){
     const labels=new Map((network.Labels||'').split(',').map(label=>{
@@ -30,6 +42,7 @@ const trial=async(state,action,bundle)=>{
   if(action==='prepare-local'&&state.prepared!==true){
     const networks=(await docker(['network','ls','--format','{{json .}}'])).split('\n').filter(Boolean).map(line=>JSON.parse(line));
     assertNoProjectNetworks(state.project,networks);
+    if(state.networkSubnets)assertTrialSubnetsClear(state.networkSubnets,(await networkReservations()).blocked);
   }
   const result=await run(process.execPath,[resolve('ops/quote-trial/trial.mjs'),action,state.config,`--execute=${state.project}`,...(bundle?[`--bundle-dir=${bundle}`]:[])]);
   if(action==='prepare-local'){
@@ -77,6 +90,9 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
   assert.equal(labels['org.opencontainers.image.revision'],commit);
   const parent=await mkdtemp(join(tmpdir(),'zhixu-persistent-it-')),nonce=randomBytes(5).toString('hex'),states=[];
   const owned=[`zhixu-quote-trial-it-${nonce}`,`zhixu-quote-trial-recovery-${nonce}`];
+  // The daemon's exhausted default pool is a known local condition. Plan only
+  // these four new project networks, never change defaults or remove old ones.
+  const plannedSubnets=allocateTrialSubnets((await networkReservations()).blocked,4);
   const expectedMigrations=(await readdir(resolve('database/migrations'))).filter(n=>/^\d{4}_.+\.sql$/.test(n)).sort();
   let completed=false,backup,backupHash;
   // A failed Node subtest does not reject t.test(). Stop dependent phases and
@@ -98,9 +114,17 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
   async function state(project){
     const folder=join(parent,project),p=await port();
     await run('pwsh',['-NoProfile','-File',resolve('ops/quote-trial/new-local-target.ps1'),'-Root',folder,'-Project',project,'-Port',String(p),'-Image',image,'-Commit',commit,'-BuildId',labels['io.zhixu.build-id'],'-BuildTime',labels['org.opencontainers.image.created'],'-Execute']);
-    const config=join(folder,'trial.conf'),values=readTrialConfig(config);
-    const prefix=['compose','--env-file',config,'-f',resolve('ops/quote-trial/compose.yml'),'-f',resolve('ops/quote-trial/local-objects.compose.yml'),'-f',resolve('ops/quote-trial/objects.compose.yml'),'-p',project];
-    const s={project,folder,config,values,db:`${project}-database-1`,app:`${project}-app-1`,compose:(args,input)=>docker([...prefix,...args],input)};states.push(s);
+    const config=join(folder,'trial.conf'),originalValues=readTrialConfig(config),prepared=JSON.parse(await readFile(join(folder,'prepared.json'),'utf8'));
+    assert.equal(prepared.contract,'zhixu-persistent-local-target.v1');assert.equal(prepared.project,project);assert.equal(prepared.sourceSha,commit);
+    assert.equal(resolve(originalValues.TRIAL_COMPOSE_OVERRIDE),resolve('ops/quote-trial/objects.compose.yml'));
+    const index=owned.indexOf(project);assert.ok(index>=0);const networkSubnets=plannedSubnets.slice(index*2,index*2+2);
+    const override=join(folder,'owned-networks.compose.yml'),original=await readFile(originalValues.TRIAL_COMPOSE_OVERRIDE,'utf8');
+    await writeFile(override,renderOwnedNetworkOverride(original,project,networkSubnets),{flag:'wx',mode:0o600});
+    const text=await readFile(config,'utf8');assert.equal((text.match(/^TRIAL_COMPOSE_OVERRIDE=/gmu)??[]).length,1);
+    await writeFile(config,text.replace(/^TRIAL_COMPOSE_OVERRIDE=.*$/mu,()=>`TRIAL_COMPOSE_OVERRIDE=${override.replaceAll('\\','/')}`));
+    const values=readTrialConfig(config);assert.ok(Object.keys(values).length===Object.keys(originalValues).length&&Object.keys(originalValues).every(key=>key==='TRIAL_COMPOSE_OVERRIDE'||values[key]===originalValues[key]),'only_owned_network_override_may_change');
+    const prefix=['compose','--env-file',config,'-f',resolve('ops/quote-trial/compose.yml'),'-f',resolve('ops/quote-trial/local-objects.compose.yml'),'-f',override,'-p',project];
+    const s={project,folder,config,values,networkSubnets,db:`${project}-database-1`,app:`${project}-app-1`,compose:(args,input)=>docker([...prefix,...args],input)};states.push(s);
     s.sql=q=>docker(['exec','-i',s.db,'psql','-X','-q','-U','quote_trial','-d','quote_trial','-At','-v','ON_ERROR_STOP=1'],q);
     const ca=await readFile(values.TRIAL_TLS_CA_FILE);
     s.request=(path,{method='GET',body,cookie,headers={}}={})=>new Promise((yes,no)=>{
@@ -237,7 +261,7 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
     if(domainRecovery){assertPersistentDomainRecovery(domainSnapshot,await snapshotPersistentDomains(b,restoredCookie,domainFixture));domainVerified.restoredReadbacks=true;}
     await assert.rejects(trial(b,'restore-check'));
   });
-  if(domainRecovery)t.diagnostic('DOMAIN_RECOVERY '+JSON.stringify({imageSource:commit,...domainVerified,orderId:domainFixture.orderId,assignmentIds:domainFixture.assignments,businessTables:domainSnapshot.database,frozenTables:frozenDomainDatabase,sequences:undefined,readbacks:domainFixture.readPaths.length,receipts:domainFixture.receipts.length,
+  if(domainRecovery)t.diagnostic('DOMAIN_RECOVERY '+JSON.stringify({imageSource:commit,...domainVerified,networkSubnets:states.map(state=>({project:state.project,subnets:state.networkSubnets})),orderId:domainFixture.orderId,assignmentIds:domainFixture.assignments,businessTables:domainSnapshot.database,frozenTables:frozenDomainDatabase,sequences:undefined,readbacks:domainFixture.readPaths.length,receipts:domainFixture.receipts.length,
     ...(financialRecovery?{financial:{orderId:domainFixture.financial.orderId,processingOrderId:domainFixture.financial.processingOrderId,
       periodIds:domainFixture.financial.periodIds,allocationIds:domainFixture.financial.allocationIds,lockedVersions:domainFixture.financial.lockedVersions,
       counts:domainSnapshot.financial.counts,readbacks:domainFixture.financial.readPaths.length,receipts:domainFixture.financial.receipts.length}}:{}),

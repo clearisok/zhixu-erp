@@ -1,11 +1,9 @@
-# 当前状态：关账月份权威与手工写入口收口
+# 当前状态：当前关账镜像非空恢复准备
 
-2026-10-27；branch `feat/order-closing-month-plan`，G2f clean输入d3808770f84fbb86c66460ab5e73125d54a5f7e6，main869ee84dd0b31de6161011e4aa560678b244a64d本地已核实，无fetch/远端写。PR130旧61704afe不含本地新链；原Git/ref STOP未解。
+2026-10-27；branch `feat/order-closing-month-plan`，clean输入63c57892ae79385282c81d800e10e0c3020151fc；main869ee84dd0b31de6161011e4aa560678b244a64d沿用核实，无fetch/远端写。PR130旧61704afe不含本地新链；Git/ref STOP未解。
 
-已按D169前向退役服务层新手工create/update，保留历史成功回执、原hash/fresh权限、读取、review/void、原manifest和带原因重开。确认/锁定阻断所有active未linked记录，缺0049 schema明确503。新量只由已初始化月份计划和明确sync供给，无SQL更改、历史回填或业务重算。[契约](features/SERVER_CLOSING_WRITE_RETIREMENT.md)。
+G2f源码2be72168已完成服务层退役新手工数量、保留历史核对与月份权威，64项相关/根类型/Server/lint及累计守卫通过；[原件](tasks/completed/2026-10-27-closing-current-image-input-state/README.md)保留。现在为48迁移文件/最高0049的新精确镜像准备非空重启/冷重建/备份/独立恢复，尚未构建或执行，不借原45文件镜像结果冒称通过。
 
-源码2be72168de24977625ad3bb40d0d4678671e3bd6：6组owned PG/HTTP56项和恢复夹具8项，共64项通过；含并发、两个SO混合期间持久拒绝、COMMIT未知、审计回滚、冻结历史及全表/序列非空dump恢复。规范副本根类型/Server构建、14文件lint、独立窄审与累计main源码守卫PASS，547证据/12页/68能力；失败、OOM原件及逐源限制见[阶段](tasks/active/closing-write-retirement-2026-10-27.md)。新镜像恢复尚未运行，不冒充Hosted/完整发布或新浏览器验收。
+已确认Docker默认池耗尽。本片harness纯、有界规划四个新/28，排除宿主非默认路由及现有Docker网段，prepare前复核，只追加新私密project override；CLI/compose一致。25项控制24PASS/1actual-image设计SKIP，三文件lint通过；实际只读核对18宿主路由/31Docker网段，0写入。[阶段](tasks/active/closing-current-image-recovery-2026-10-27.md)区分后续构建/运行，失败停止保留owned现场。
 
-G2e正式UI已真实构建Chromium9/9、响应式20/20及独立复审；新owned演示保持READY和用户后续输入，不替换为本片后端。已实际演示SO1外发10件2→11月，全年2000CNY/50USD不变。旧环境、Browser namespace、卷和备份保留。
-
-Source更正、执行方匹配UI、独立USD采用UI及新镜像非空恢复继续后续，68能力不提升。Goal active；无Hosted/远端写、真实Source、既有账号/业务库、合并、正式部署、切换或旧资产清理。
+G2e演示61104/source4107aea1及现有用户输入保持，不热替换或重置。旧环境、Browser、卷和备份不动。新Source仅fake worker，不读真实凭据或业务库。Goal active，68能力不提升；无Hosted/push/merge/正式部署/切换/退役。Source更正、执行方匹配UI与独立USD采用UI仍后续。
