@@ -7,6 +7,7 @@ import { assertMutationBoundary, readJsonBody } from '../http/request.js';
 import { readClosingOrderBasis } from './basis-service.js';
 import { executeClosingCommand, previewClosingCommand, readClosingCommandReceipt } from './service.js';
 import { listClosingPeriods, readClosingHistory, readClosingPeriodDetail } from './read-service.js';
+import {readClosingYear} from './annual-service.js';
 
 export async function routeClosing(request: IncomingMessage, response: ServerResponse, dependencies: { pool: Pool; identityAuthority: IdentityAuthority; allowedOrigins: readonly string[] }): Promise<boolean> {
   const url = new URL(request.url ?? '/', 'http://localhost'), prefix = '/api/v1/closing';
@@ -23,6 +24,7 @@ export async function routeClosing(request: IncomingMessage, response: ServerRes
     return true;
   }
   if (request.method !== 'GET') throw new HttpError(405, 'method_not_allowed', 'Method not allowed');
+  if(url.pathname===prefix+'/year'){sendJson(response,200,await readClosingYear(dependencies.pool,actor,url.searchParams));return true;}
   const basis = /^\/api\/v1\/closing\/orders\/([^/]+)\/basis$/u.exec(url.pathname);
   if (basis) {
     if (url.search) throw new HttpError(400, 'invalid_closing_basis_query', 'Unexpected query');

@@ -1,15 +1,11 @@
-# 恢复点：Gate8G2b月份财务关联
+# 恢复点：Gate8G2c年度同范围两项读取
 
-源码S0547bf16d74c2991a40a9b45f32038c8c18098b5已独立提交，独立复审0P1/P2；[冻结工程](tasks/completed/2026-10-27-closing-month-financial-engineering.md)保留分源失败、当前结果及容量内存夹具限制。最终Q/守卫看本机final.json。
+2026-10-27；branch `feat/order-closing-month-plan`，clean输入81879ad66d5cb92088852ecfc0f2e48e3d027c13。main869ee84dd0b31de6161011e4aa560678b244a64d对象/祖先已核实，无fetch/远端写；原STOP未定，PR130旧head不含增量。先读D172、[年度契约](features/SERVER_CLOSING_ANNUAL_READ.md)、[阶段](tasks/active/closing-annual-read-2026-10-27.md)，输入状态逐字归档。
 
-2026-10-27；branch `feat/order-closing-month-plan`，clean输入e975cba8820b5ae1e1b92f29324e83492d26d286。main869ee84dd0b31de6161011e4aa560678b244a64d对象/祖先已核实，本片未fetch/远端写，原STOP根因未定；PR130旧head不含增量。先读D171、[契约](features/SERVER_CLOSING_MONTH_FINANCIAL.md)和[阶段](tasks/active/closing-month-financial-2026-10-27.md)，上一状态原件已逐字归档。
+GET /api/v1/closing/year是RR只读，year明确；scope all/internal/outsource/unassigned、真实production状态和search且条件先筛选，再汇总12月/全年并分页。开放月实际采用价参考，confirmed/locked只取原manifest；不拿当前Quote/Source重算冻结。只两项CNY/USD，不换汇或另建价格；加工没有销售价，未知额null/incomplete与已知小计，confirmed0有效。待分月不塞当前年/月；unsupported默认月冻结的新SO仍pending可见。当前订单信息/生产只是参考，冻结身份另标。
 
-0049仅关联0047当前片段与0045原财务allocation；不另建价格，不能传SO/数量/价格/汇率。sync_month_outputs复用旧preview/commands/receipt，fresh渠道授权、期间CAS、全局锁与审计同事务。片段每渠道一行，数量不相加；整体匹配换lineId后单渠道同步导致集合不一致，registeredQuantity=null/requires_sync。纯sales先剔除可信processing，不被无关加工归属漂移阻断；work仍核对。linked reason双金额可见，金额字段分别投影。
+复审修复：冻结行比较reviewBasis，confirmed更正须复核，locked保留提示；lockedSnapshotPreserved不是发生更正，只在laterCorrection时出issue。实测confirmed/locked同生产状态改量、无更正正控，金额都保留。frozen-only不依赖当前Source/商业资格。新23项、修后年度11项、旧月份37项PASS，重叠不相加；只读复审0P1/P2。初始PriceView bucket类型失败、复审前规范副本PASS与后续精确检查分开。最后规范副本/源码绑定、lint、提交与守卫看本机final.json，不借G2b163/G1发布或旧镜像结果。
 
-开放期调月保留财务，确认/锁定检查新增SO/片段与已采用渠道完整覆盖。旧create/update不能给已关联SO再记量，linked void由新命令；旧未关联有效记录须先核对，旧API并未整体退役。新数量/原颜色/稳定归属对照和生产完成复核保持，锁定manifest不追随议价。
+下一片年度严格client、月份服务HTTP/原请求outbox、正式Server owner页面；勿直挂Browser hooks。已批准UI无需再问；Quote USD采用UI独立pending。全年总额与明细同范围，整单移动即使隐藏部分也完整预览；未决请求核对原ID，不自动重试。旧手工入口未整体退役，Source/归属更正仍后续，新镜像非空回执恢复和实际浏览器后才改能力。
 
-完整关账163/163PASS；相关三组修旧冻结测试后33/33，不叠加统计。新PG/真实HTTP/客户端覆盖SQL错行/重复active/改量/旧void、原请求、并发、审计回滚、COMMIT丢失、非空0048升级。最初测试夹具/类型错误及失败日志保留；最终3122输入规范副本根类型49919ms、Server构建18269msPASS，scoped lintPASS；ignored冲突TS样本与tsconfig/依赖保持，不冒充根工作树直接类型PASS。最终源码/元数据hash和精确main守卫以本机outputs/closing-month-financial-links-20261027/final.json为准；没有新Hosted或144完整发布套件。
-
-下一片全年两项年度读模型，不能把旧三项/空渠道0或不同财务行数量相加。open参考当前已采用价且标明非财务；confirmed/locked必须原manifest。内外发过滤同时作用明细与汇总，未分配独立，状态来自实际生产但不决定关账量。随后月份HTTP/原请求客户端、已批准Server owner页面、旧写入口收紧、新镜像非空恢复/浏览器像素。用户已批准修订UI，不再询问；Quote USD采用UI独立pending。Source更正/归属异常恢复仍后续。
-
-0真实Source/现有账号业务库/远端写/合并/部署/切换/退役；68能力不提升，Goal active。保留3001/50426/59069/62426/18443/18444、Browser、旧卷/备份。不要在STOP通道重复推送或借旧G1/Gate8F结果证明本片。
+当前68能力不变，Goal active。0真实Source/现有账号业务库/远端/Hosted/合并部署/切换退役；保留3001/50426/59069/62426/18443/18444、Browser数据、旧卷和备份。原Git/ref STOP原因未定，不在后续Gate重复推送。

@@ -1,9 +1,9 @@
 # 当前任务入口
 
-2026-10-27；branch `feat/order-closing-month-plan`，Gate8G2b clean输入e975cba8820b5ae1e1b92f29324e83492d26d286。沿用已核实main869ee84dd0b31de6161011e4aa560678b244a64d；无fetch/远端写，旧origin/main不伪装已更新，原Git/ref STOP根因未定。
+2026-10-27；branch `feat/order-closing-month-plan`，Gate8G2c clean输入81879ad66d5cb92088852ecfc0f2e48e3d027c13。沿用已核实main869ee84dd0b31de6161011e4aa560678b244a64d，无fetch/远端写；原Git/ref STOP根因未定。
 
-先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、D169–D171与[月份财务关联](features/SERVER_CLOSING_MONTH_FINANCIAL.md)、[本片分源结果](tasks/active/closing-month-financial-2026-10-27.md)。0049显式采用当前月份量到原0045快照，单渠道独立、旧入口防重、跨渠道总件数和历史自由文本保护；原报价金额所有权、月份量、执行归属和财务冻结各自独立。
+先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、D169–D172、[年度契约](features/SERVER_CLOSING_ANNUAL_READ.md)与[当前阶段](tasks/active/closing-annual-read-2026-10-27.md)。年度GET只读：开放月参考实际已采用商业行，冻结月取manifest；12月两项、同范围筛选/汇总、未知不补0、当前生产更正提示。
 
-修订[具体UI已批准](tasks/completed/2026-10-27-closing-adjustment-ui-approval.md)，不重复询问；全年两项模型/正式页面仍待接线，独立USD采用UI不在该批准范围。68能力状态不变，Goal active，不借旧811/144或旧镜像结果。
+[修订UI已明确批准](tasks/completed/2026-10-27-closing-adjustment-ui-approval.md)，不再询问；正式客户端/页面仍后续，独立USD采用UI不在本批准范围。原[月份财务衔接](features/SERVER_CLOSING_MONTH_FINANCIAL.md)与[工程](tasks/completed/2026-10-27-closing-month-financial-engineering.md)保留；当前[输入原件](tasks/completed/2026-10-27-annual-read-input-state/README.md)记录旧状态。68能力不提升，完整Goal active，不借旧发布或镜像结果。
 
-G1[工程](tasks/completed/2026-10-27-order-closing-month-plan-engineering.md)、G2a[工程](tasks/completed/2026-10-27-closing-executor-matching-engineering.md)、本片[输入原件](tasks/completed/2026-10-27-month-financial-input-state/README.md)与Gate8F[分源证明](tasks/completed/2026-10-27-financial-recovery-engineering.md)保留。持久化工具和[全Gate](tasks/active/server-convergence-gate0-2026-10-20.md)不扩大真实来源、账号/业务库、合并部署或旧资产退役授权。
+[全Gate](tasks/active/server-convergence-gate0-2026-10-20.md)及持久化保护保持；没有真实来源、现有账号业务库、合并部署/切换或旧资产退役授权。

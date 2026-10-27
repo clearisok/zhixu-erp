@@ -198,19 +198,23 @@ async function budget(client: PoolClient, command: ClosingMonthCommand) {
   const bytes=(await client.query<{bytes:number}>('SELECT octet_length($1::jsonb::text)::int AS bytes',[JSON.stringify(command)])).rows[0].bytes;
   if(bytes>16384) closingFail(422,'closing_month_command_too_large');
 }
-export async function readOrderClosingMonthPlan(pool: Pool, identity: TrustedIdentity, rawId: string) {
-  const orderId=closingUuid(rawId),client=await pool.connect();
-  try {
-    await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
-    const actor=await readCurrentActor(client,identity);requireRead(actor);await available(client);
+/** Internal read primitive; the caller owns the snapshot and fresh identity. */
+export async function readClosingMonthStateInTransaction(client:PoolClient,actor:TrustedIdentity,rawId:string){
+    const orderId=closingUuid(rawId);requireRead(actor);await available(client);
     const current=await source(client,orderId),record=await plan(client,orderId),references=await executorReferences(client,orderId);
     const executorChanges = record?.executorBasis.flatMap(saved => {
       const now = references.find(ref => ref.assignmentId === saved.assignmentId);
       return !now || planHash(executorAttribution(saved)) !== planHash(executorAttribution(now)) ? [{assignmentId:saved.assignmentId,reason:'attribution_changed' as const}] : [];
     }) ?? [];
-    await client.query('COMMIT');
     return {plan:record,currentDeliveryDate:current.order.deliveryDate,sourceChanged:record!==null&&record.sourceFingerprint!==current.fingerprint,
       executorChanges,executorWarnings:executorWarnings(record?.lines??[],references),executorCandidates:references,meaning:'unpriced_quantity_month_plan' as const};
+}
+export async function readOrderClosingMonthPlan(pool: Pool, identity: TrustedIdentity, rawId: string) {
+  const orderId=closingUuid(rawId),client=await pool.connect();
+  try {
+    await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
+    const result=await readClosingMonthStateInTransaction(client,await readCurrentActor(client,identity),orderId);
+    await client.query('COMMIT');return result;
   } catch(error){await client.query('ROLLBACK').catch(()=>undefined);throw error;}finally{client.release();}
 }
 export async function previewClosingMonthMove(pool: Pool, identity: TrustedIdentity, raw: unknown) {
