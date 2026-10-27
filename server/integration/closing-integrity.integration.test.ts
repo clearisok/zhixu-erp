@@ -6,6 +6,8 @@ import { promisify } from 'node:util';
 import pg from 'pg';
 import { resolve } from 'node:path';
 import { closingFixture, closingCode } from './closing-fixture.js';
+import { prepareFixtureMonthPortion } from './closing-month-test-setup.js';
+import { restoreHistoricalFixtureAllocation } from './closing-historical-test-fixture.js';
 import { executeClosingCommand, readClosingCommandReceipt } from '../closing/service.js';
 import { readClosingPeriodDetail } from '../closing/read-service.js';
 import { runMigrations } from '../db/migration-runner.js';
@@ -14,33 +16,38 @@ import { collectFullNormalizationEvidence } from '../sales-orders/normalization-
 import { collectNormalizationEvidenceInTransaction, normalizationReferences } from '../sales-orders/normalization-preview.js';
 import { parseAttributionProposal } from '../sales-orders/normalization-execution-model.js';
 import type { ClosingAllocationData } from '../closing/contract.js';
+import { readOrderClosingMonthPlan, previewClosingMonthMove, executeClosingMonthMove } from '../closing/month-plan-service.js';
 
 const execFileAsync = promisify(execFile);
-test('Gate8B closing: race fences, first completion, inventory and exact nonempty restore', { timeout: 180000 }, async t => {
+test('current closing: race fences, first completion, inventory and exact nonempty restore', { timeout: 180000 }, async t => {
   const x = await closingFixture(t), { pool, editor } = x;
   const a = await x.order(), b = await x.order(), colorId = a.basis.priceLines.find(row => row.colorName === 'Blue')!.colorId!;
   const data = (patch: Partial<ClosingAllocationData> = {}): ClosingAllocationData => ({ quantity: '1.000001', colorId,
-    channels: { sales: true, work: true }, assignmentId: null, executor: null, remark: 'Synthetic exact restore', ...patch });
+    channels: { sales: true, work: false }, assignmentId: null, executor: null, remark: 'Synthetic exact restore', ...patch });
   async function period(month: string) { return (await x.apply({ action: 'create_period', month, taxRatePercent: '7.125', taxRateConfirmed: true, remark: '' })).result.periodId; }
   const state = (id: string) => readClosingPeriodDetail(pool, editor.actor, id, new URLSearchParams({ includeVoided: 'true' }));
-  async function add(id: string, values = data()) { return x.apply({ action: 'create_allocation', periodId: id, expectedPeriodVersion: (await state(id)).period.version, orderId: a.id, data: values }); }
+  async function add(id: string, values = data()) {
+    const saved = await x.apply(await prepareFixtureMonthPortion(x, id, a.id, values));
+    const row = (await state(id)).items.find(row => row.status === 'active' && row.snapshot.colorId === values.colorId && row.snapshot.quantity === values.quantity)!;
+    assert.ok(row); return { ...saved, allocationId: row.id };
+  }
   async function transition(id: string, action: 'confirm_period' | 'lock_period' | 'reopen_period') {
     return x.apply({ action, periodId: id, expectedPeriodVersion: (await state(id)).period.version, reason: 'Synthetic explicit action' });
   }
   await t.test('confirm competing with a new allocation cannot approve unseen rows or insert into a confirmed period', async () => {
     const id = await period('2026-11'), version = (await state(id)).period.version;
     const confirm = await x.prepared({ action: 'confirm_period', periodId: id, expectedPeriodVersion: version, reason: '' });
-    const allocation = await x.prepared({ action: 'create_allocation', periodId: id, expectedPeriodVersion: version, orderId: a.id, data: data() });
+    const allocation = await x.prepared(await prepareFixtureMonthPortion(x, id, a.id, data()));
     const results = await Promise.all([executeClosingCommand(pool, editor.actor, confirm), executeClosingCommand(pool, editor.actor, allocation)]);
     assert.deepEqual(results.map(row => row.status).sort(), ['applied', 'rejected']);
     const rejected = results.find(row => row.status === 'rejected')!; if (rejected.status !== 'rejected') assert.fail();
-    assert.equal(rejected.error.code, 'closing_period_version_conflict');
+    assert.ok(['closing_period_version_conflict', 'closing_month_financial_sync_required'].includes(rejected.error.code));
     const after = await state(id); assert.equal(after.period.version, 2);
-    assert.equal(after.total, after.period.status === 'confirmed' ? 0 : 1);
+    assert.equal(after.total, 1); assert.equal(after.period.status, 'open');
     for (const command of [confirm, allocation]) assert.equal((await readClosingCommandReceipt(pool, editor.actor, command.requestId)).state, 'recorded');
   });
   await t.test('a command waiting on the production fence rereads the newly adopted price before writing', async () => {
-    const id = await period('2026-12'), command = await x.prepared({ action: 'create_allocation', periodId: id, expectedPeriodVersion: 1, orderId: a.id, data: data() });
+    const id = await period('2026-12'), intent = await prepareFixtureMonthPortion(x, id, a.id, data()), command = await x.prepared(intent);
     const holder = await pool.connect(); let result: ReturnType<typeof executeClosingCommand> | null = null;
     try {
       await holder.query('BEGIN'); await holder.query("SELECT pg_advisory_xact_lock(hashtextextended('production-planning-write-v1',0))");
@@ -60,12 +67,12 @@ test('Gate8B closing: race fences, first completion, inventory and exact nonempt
     assert.ok(result); const outcome = await result;
     assert.equal(outcome.status, 'rejected'); if (outcome.status !== 'rejected') assert.fail(); assert.equal(outcome.error.code, 'closing_preview_changed');
     assert.equal((await state(id)).total, 0); assert.equal((await state(id)).period.version, 1);
-    const fresh = await add(id); assert.equal((await state(id)).items[0].snapshot.outputs.garmentSale?.price, '114');
-    assert.equal(fresh.result.allocationVersion, 1);
+    await x.apply(intent); assert.equal((await state(id)).items[0].snapshot.outputs.garmentSale?.price, '114');
+    assert.equal((await state(id)).items[0].version, 1);
   });
   const retainedPeriod = await period('2027-01'), assignmentId = await x.assignment(a.id, colorId);
-  const retained = await add(retainedPeriod, data({ assignmentId })); const allocationId = retained.result.allocationId!;
-  await t.test('the first recorded completion is a version change and review never replaces manually confirmed terms', async () => {
+  const retained = await add(retainedPeriod, data({ assignmentId })); const allocationId = retained.allocationId;
+  await t.test('the first recorded completion is a version change and review never replaces adopted terms', async () => {
     const original = (await state(retainedPeriod)).items[0].snapshot;
     assert.equal(original.productionBasis[0].execution, null);
     await x.completion(a.id, assignmentId, '9.005');
@@ -78,17 +85,24 @@ test('Gate8B closing: race fences, first completion, inventory and exact nonempt
     assert.equal(reviewed.quantity, '1.000001'); assert.equal(reviewed.reviewBasis[0].execution?.completedQuantity, '9.005');
     await transition(retainedPeriod, 'confirm_period'); await transition(retainedPeriod, 'lock_period');
   });
-  await t.test('disabled renamed resources reject new manual assignments but never prevent void or reopening old snapshots', async () => {
-    const id = await period('2027-04'), created = await add(id, data({ executor: { type: 'internal', id: x.group.id } }));
+  await t.test('disabled renamed resources do not prevent reasoned reopening or month-owned void; old snapshots retain executor facts', async () => {
+    const id = await period('2027-04'); await add(id, data({ assignmentId }));
     const frozen = (await state(id)).items[0].snapshot;
     await transition(id, 'confirm_period'); await transition(id, 'lock_period');
     await x.resource('groups', { ...x.groupData, name: 'Synthetic renamed disabled group', enabled: false }, x.group.id, x.group.version);
     await transition(id, 'reopen_period');
-    await assert.rejects(() => add(id, data({ executor: { type: 'internal', id: x.group.id } })), closingCode('closing_executor_disabled'));
-    await x.apply({ action: 'void_allocation', periodId: id, expectedPeriodVersion: (await state(id)).period.version,
-      allocationId: created.result.allocationId!, expectedVersion: 1, reason: 'Synthetic cancellation retains executor facts' });
+    await assert.rejects(async () => x.prepared({ action: 'create_allocation', periodId: id, expectedPeriodVersion: (await state(id)).period.version, orderId: a.id, data: data({ executor: { type: 'internal', id: x.group.id } }) }), closingCode('closing_manual_quantity_retired'));
+    const plan = (await readOrderClosingMonthPlan(pool, editor.actor, a.id)).plan!;
+    const line = plan.lines.find(row => row.month === '2027-04')!;
+    const move = await previewClosingMonthMove(pool, editor.actor, { action: 'move_months', orderId: a.id, expectedVersion: plan.version, targetMonth: '2027-02', reason: 'Explicitly remove adopted April portion', selection: { mode: 'partial', items: [{ lineId: line.id, quantity: line.quantity }] } });
+    assert.equal((await executeClosingMonthMove(pool, editor.actor, { requestId: randomUUID(), intent: move.intent, previewHash: move.previewHash })).status, 'applied');
+    await x.apply({ action: 'sync_month_outputs', periodId: id, expectedPeriodVersion: (await state(id)).period.version, channels: { sales: true, work: false }, reason: 'Void only through the current month plan' });
     const after = await state(id); assert.equal(after.items[0].status, 'voided'); assert.deepEqual(after.items[0].snapshot, frozen);
-    assert.equal(frozen.executor?.name, x.groupData.name); assert.equal(frozen.executor?.version, 1);
+    assert.equal(frozen.executor?.name, x.groupData.name); assert.equal(frozen.executor?.version, null); assert.ok(frozen.executor?.resourceSnapshotHash, 'Matched assignment retains its original resource snapshot hash');
+    // Include a pre-existing historical command in the reference audit. This
+    // storage fixture does not re-enable the retired live quantity writer.
+    const historical = await restoreHistoricalFixtureAllocation(x, id, a.id, data({ assignmentId: null, quantity: '0.1' }));
+    await x.apply({ action: 'void_allocation', periodId: id, expectedPeriodVersion: (await state(id)).period.version, allocationId: historical.result.allocationId, expectedVersion: 1, reason: 'Historical recovery fixture only' });
   });
   await t.test('full order inventory includes closing identities, heads, commands and locked history without authorizing normalization', async () => {
     const pair = [a.id, b.id].sort(), caseId = (await pool.query('INSERT INTO sales_order_normalization_cases(first_order_id,second_order_id,created_by,request_id,payload_hash) VALUES($1,$2,$3,$4,$5) RETURNING id',

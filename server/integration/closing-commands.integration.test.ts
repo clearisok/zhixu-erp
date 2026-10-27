@@ -12,12 +12,13 @@ import { previewSaleAdjustment, commitSaleAdjustment } from '../sales-orders/sal
 import type { ClosingAllocationData } from '../closing/contract.js';
 import type { PermissionKey } from '../../features/permissions/model/permissions.js';
 import { closingFixture, closingCode } from './closing-fixture.js';
+import { prepareFixtureMonthPortion } from './closing-month-test-setup.js';
 import { CURRENT_MIGRATION_FILES,migrationFilesAfter } from './current-migration-ledger-fixture.js';
 
-test('Gate8B manual closing: nonempty upgrade, immutable snapshots, trusted HTTP and transactional commands', { timeout: 180000 }, async t => {
+test('current month adoption: nonempty upgrade, immutable snapshots, trusted HTTP and transactional commands', { timeout: 180000 }, async t => {
   const x = await closingFixture(t, true), { pool, editor } = x;
-  const a = await x.order(), b = await x.order(), blue = a.basis.priceLines.find(row => row.colorName === 'Blue')!.colorId!, white = a.basis.priceLines.find(row => row.colorName === 'White')!.colorId!;
-  const assignmentId = await x.assignment(a.id, blue); await x.completion(a.id, assignmentId, '20.125');
+  const legacy = await x.order(); await x.order();
+  const legacyAssignment = await x.assignment(legacy.id, legacy.basis.priceLines.find(row => row.colorName === 'Blue')!.colorId!); await x.completion(legacy.id, legacyAssignment, '20.125');
   const tableNames = (await pool.query("SELECT tablename FROM pg_tables WHERE schemaname='public' AND tablename<>'schema_migrations' ORDER BY tablename")).rows.map(row => row.tablename as string);
   async function digests() {
     const values: Record<string, string> = {};
@@ -40,7 +41,10 @@ test('Gate8B manual closing: nonempty upgrade, immutable snapshots, trusted HTTP
       assert.equal((await pool.query(`SELECT count(*)::int n FROM server_closing_${name}`)).rows[0].n, 0);
     }
     assert.equal((await pool.query('SELECT count(*)::int n FROM production_schedule_execution_versions')).rows[0].n, 1);
+    assert.equal((await pool.query('SELECT count(*)::int n FROM server_closing_month_plans')).rows[0].n, 0, 'Upgrade must not invent month plans for old orders');
   });
+  const a = await x.order(), b = await x.order(), blue = a.basis.priceLines.find(row => row.colorName === 'Blue')!.colorId!, white = a.basis.priceLines.find(row => row.colorName === 'White')!.colorId!;
+  const assignmentId = await x.assignment(a.id, blue); await x.completion(a.id, assignmentId, '20.125');
   const initialIntent = { action: 'create_period', month: '2026-10', taxRatePercent: '13', taxRateConfirmed: true, remark: '合成验收' };
   const initialCommand = await x.prepared(initialIntent);
   const concurrent = await Promise.all([executeClosingCommand(pool, editor.actor, initialCommand), executeClosingCommand(pool, editor.actor, initialCommand)]);
@@ -49,7 +53,9 @@ test('Gate8B manual closing: nonempty upgrade, immutable snapshots, trusted HTTP
   const state = (id = periodId) => readClosingPeriodDetail(pool, editor.actor, id, new URLSearchParams({ includeVoided: 'true' }));
   const makeData = (patch: Partial<ClosingAllocationData> = {}): ClosingAllocationData => ({ quantity: '3', colorId: blue, channels: { sales: true, work: true }, assignmentId, executor: null, remark: 'PRIVATE-CLOSING-MONEY-NOTE', ...patch });
   async function add(orderId: string, data: ClosingAllocationData, id = periodId) {
-    return x.apply({ action: 'create_allocation', periodId: id, expectedPeriodVersion: (await state(id)).period.version, orderId, data });
+    const saved = await x.apply(await prepareFixtureMonthPortion(x, id, orderId, data));
+    const row = (await state(id)).items.find(row => row.status === 'active' && row.snapshot.order.id === orderId && row.snapshot.colorId === data.colorId && row.snapshot.quantity === data.quantity && (data.channels.sales ? row.snapshot.channels.sales : row.snapshot.channels.work));
+    assert.ok(row); return { ...saved, result: { ...saved.result, allocationId: row.id, allocationVersion: row.version } };
   }
   async function mutation(action: 'review_allocation' | 'void_allocation' | 'update_allocation', allocationId: string, data?: ClosingAllocationData) {
     const current = await state(), row = (await pool.query<{ version: number }>('SELECT version FROM server_closing_allocation_heads WHERE allocation_id=$1', [allocationId])).rows[0];
@@ -68,49 +74,50 @@ test('Gate8B manual closing: nonempty upgrade, immutable snapshots, trusted HTTP
     assert.equal((await readClosingCommandReceipt(pool, editor.actor, initialCommand.requestId)).state, 'recorded');
     assert.equal((await state()).period.actorName, editor.actor.username);
   });
-  await t.test('color prices and one manual quantity are frozen, without changing production/month or shared Quote', async () => {
+  await t.test('color prices and adopted plan quantities are frozen without changing production or shared Quote', async () => {
     const quoteBefore = await x.repository.getById(x.distribution.q.id);
     const created = await add(a.id, makeData()); allocationId = created.result.allocationId!; allocationCommand = created.command;
     const detail = await state(), row = detail.items.find(row => row.id === allocationId)!;
     assert.equal(detail.period.month, '2026-10'); assert.equal(row.snapshot.quantity, '3');
     assert.equal(row.snapshot.productionBasis[0].execution?.actualCompletedDate, '2027-01-06');
-    assert.equal(row.snapshot.outputs.garmentSale?.amount?.decimal, '300'); assert.equal(row.snapshot.outputs.work?.amount?.decimal, '7.5');
+    assert.equal(row.snapshot.outputs.garmentSale?.amount?.decimal, '300'); assert.equal(detail.summary.distributionLaborUsd.amount?.decimal, '7.5');
     assert.equal(detail.summary.registeredQuantity, '3'); assert.equal(detail.summary.salesQuantity, '3'); assert.equal(detail.summary.distributionWorkQuantity, '3');
     assert.equal(row.snapshot.commercial.id, a.basis.commercial!.id);
     assert.deepEqual(await x.repository.getById(x.distribution.q.id), quoteBefore);
     assert.equal((await pool.query('SELECT completed_quantity::text q FROM production_schedule_executions WHERE assignment_id=$1', [assignmentId])).rows[0].q, '20.125');
   });
   await t.test('CNY labor blocks work only; processing has a separate USD service amount and no garment sale', async () => {
-    const current = await state(), intent = { action: 'create_allocation', periodId, expectedPeriodVersion: current.period.version, orderId: a.id,
-      data: makeData({ colorId: white, assignmentId: null }) };
+    const other = (await x.apply({ action: 'create_period', month: '2026-11', taxRatePercent: '13', taxRateConfirmed: true, remark: '' })).result.periodId;
+    const intent = await prepareFixtureMonthPortion(x, other, a.id, makeData({ colorId: white, quantity: '2', assignmentId: null }));
     await assert.rejects(() => x.prepared(intent), closingCode('closing_usd_work_basis_required'));
-    await add(a.id, makeData({ colorId: white, quantity: '2', assignmentId: null, channels: { sales: true, work: false } }));
+    await x.apply({ ...intent, channels: { sales: true, work: false } });
     const usd = await x.processing('USD'), cny = await x.processing('CNY');
     await add(usd.id, makeData({ colorId: null, quantity: '10', assignmentId: null, channels: { sales: false, work: true }, remark: '' }));
-    await assert.rejects(async () => x.prepared({ ...intent, expectedPeriodVersion: (await state()).period.version, orderId: cny.id,
-      data: makeData({ colorId: null, assignmentId: null, channels: { sales: false, work: true } }) }), closingCode('closing_usd_work_basis_required'));
-    const detail = await state(); assert.equal(detail.summary.garmentSalesCny.amount?.decimal, '700');
+    const invalid = await prepareFixtureMonthPortion(x, other, cny.id, makeData({ colorId: null, assignmentId: null, channels: { sales: false, work: true } }));
+    await assert.rejects(() => x.prepared(invalid), closingCode('closing_usd_work_basis_required'));
+    const detail = await state(); assert.equal(detail.summary.garmentSalesCny.amount?.decimal, '300');
     assert.equal(detail.summary.distributionLaborUsd.amount?.decimal, '7.5'); assert.equal(detail.summary.processingServiceUsd.amount?.decimal, '0');
     const row = detail.items.find(row => row.snapshot.order.id === usd.id)!;
     assert.equal(Object.hasOwn(row.snapshot.outputs, 'garmentSale'), false); assert.equal(row.snapshot.outputs.work?.bucket, 'processing_service');
-    assert.equal(detail.summary.registeredQuantity, '15');
+    assert.equal(detail.summary.registeredQuantity, '13');
   });
   const common: PermissionKey[] = ['closing.view', 'order.view', 'schedule.view', 'closing.edit', 'closing.confirm', 'closing.lock', 'closing.reopen'];
   const sale = await x.user('closing.sale', [...common, 'commercial.sale.view']), labor = await x.user('closing.labor', [...common, 'commercial.labor.view']), reader = await x.user('closing.reader', common);
   await t.test('old/new channel grants protect indirect changes, confirmations, reads, history and receipts', async () => {
     const update = await mutation('update_allocation', allocationId, makeData({ channels: { sales: true, work: false } }));
-    for (const intent of [update, await mutation('void_allocation', allocationId), await mutation('review_allocation', allocationId),
+    await assert.rejects(() => previewClosingCommand(pool, sale.actor, update), closingCode('closing_manual_quantity_retired'));
+    const workRow = (await state()).items.find(row => row.snapshot.order.id === a.id && row.snapshot.channels.work)!;
+    for (const intent of [await mutation('void_allocation', workRow.id), await mutation('review_allocation', workRow.id),
       { action: 'confirm_period', periodId, expectedPeriodVersion: (await state()).period.version, reason: '' }]) {
       await assert.rejects(() => previewClosingCommand(pool, sale.actor, intent), closingCode('permission_denied'));
     }
     for (const who of [sale, labor, reader]) {
       const result = await x.request('/periods/' + periodId, undefined, who.cookie); assert.equal(result.response.status, 200, result.text);
-      const row = result.body.items.find((row: { id: string }) => row.id === allocationId);
+      const row = result.body.items.find((row: { id: string }) => row.id === allocationId), work = result.body.items.find((row: { id: string }) => row.id === workRow.id);
       if (who !== sale) assert.deepEqual(row.snapshot.outputs.garmentSale, { visibility: 'restricted' });
-      if (who !== labor) assert.deepEqual(row.snapshot.outputs.work, { visibility: 'restricted' });
-      assert.equal(Object.hasOwn(row.snapshot, 'remark'), false);
-      assert.equal(JSON.stringify(row).includes('PRIVATE-CLOSING-MONEY-NOTE'), false);
-      if (who === sale) assert.equal(result.body.items.find((item: { snapshot: { channels: { sales: boolean; work: boolean } } }) => item.snapshot.channels.sales && !item.snapshot.channels.work).snapshot.remark, 'PRIVATE-CLOSING-MONEY-NOTE');
+      if (who !== labor) assert.deepEqual(work.snapshot.outputs.work, { visibility: 'restricted' });
+      if (who !== sale) assert.equal(Object.hasOwn(row.snapshot, 'remark'), false);
+      assert.equal(JSON.stringify(result.body).includes('PRIVATE-CLOSING-MONEY-NOTE'), false);
       const history = await readClosingHistory(pool, who.actor, 'allocation', allocationId);
       assert.equal(Object.hasOwn(history.items[0], 'reason'), false);
     }
@@ -121,7 +128,7 @@ test('Gate8B manual closing: nonempty upgrade, immutable snapshots, trusted HTTP
   await t.test('first/corrected production facts require explicit review; stale previews are durably rejected', async () => {
     const original = (await state()).items.find(row => row.id === allocationId)!.snapshot;
     await x.completion(a.id, assignmentId, '18.005', '2027-01-07', '合成数量日期更正');
-    assert.equal((await state()).reviewRequiredCount, 1);
+    assert.equal((await state()).reviewRequiredCount, 2);
     await assert.rejects(async () => x.prepared({ action: 'confirm_period', periodId, expectedPeriodVersion: (await state()).period.version, reason: '' }), closingCode('closing_execution_review_required'));
     const oldReview = await x.prepared(await mutation('review_allocation', allocationId));
     await x.completion(a.id, assignmentId, '17.005', '2027-01-08', '再次更正');
@@ -129,6 +136,8 @@ test('Gate8B manual closing: nonempty upgrade, immutable snapshots, trusted HTTP
     if (rejected.status !== 'rejected') assert.fail(); assert.equal(rejected.error.code, 'closing_preview_changed');
     assert.equal((await readClosingCommandReceipt(pool, editor.actor, oldReview.requestId)).state, 'recorded');
     await x.apply(await mutation('review_allocation', allocationId));
+    const workRow = (await state()).items.find(row => row.snapshot.order.id === a.id && row.snapshot.channels.work)!;
+    await x.apply(await mutation('review_allocation', workRow.id));
     const reviewed = (await state()).items.find(row => row.id === allocationId)!.snapshot;
     const withoutReview = (value: typeof reviewed) => ({ ...value, reviewBasis: [] });
     assert.deepEqual(withoutReview(reviewed), withoutReview(original));
@@ -139,11 +148,13 @@ test('Gate8B manual closing: nonempty upgrade, immutable snapshots, trusted HTTP
     await assert.rejects(async () => x.prepared(await mutation('void_allocation', allocationId)), closingCode('closing_period_not_open'));
     await x.completion(a.id, assignmentId, '16.005', '2027-01-09', '确认后更正');
     await assert.rejects(async () => x.prepared({ action: 'lock_period', periodId, expectedPeriodVersion: (await state()).period.version, reason: '' }), closingCode('closing_execution_review_required'));
-    await transition('unconfirm_period'); await x.apply(await mutation('review_allocation', allocationId)); await transition('confirm_period'); await transition('lock_period');
+    await transition('unconfirm_period');
+    for (const row of (await state()).items.filter(row => row.executionReview.requiresReview)) await x.apply(await mutation('review_allocation', row.id));
+    await transition('confirm_period'); await transition('lock_period');
     const locked = await state(); lockedVersion = locked.period.version;
     const frozen = locked.items.find(row => row.id === allocationId)!.snapshot;
     await x.completion(a.id, assignmentId, '15.005', '2027-01-10', '锁定后更正');
-    const after = await state(); assert.equal(after.reviewRequiredCount, 0); assert.equal(after.laterCorrectionCount, 1);
+    const after = await state(); assert.equal(after.reviewRequiredCount, 0); assert.equal(after.laterCorrectionCount, 2);
     assert.deepEqual(after.items.find(row => row.id === allocationId)!.snapshot, frozen);
     assert.equal(after.items.find(row => row.id === allocationId)!.executionReview.status, 'locked_snapshot_with_later_changes');
   });
@@ -158,7 +169,8 @@ test('Gate8B manual closing: nonempty upgrade, immutable snapshots, trusted HTTP
     assert.equal(locked.period.status, 'locked'); assert.equal(locked.total, 3);
     const next = await readClosingPeriodDetail(pool, editor.actor, periodId, new URLSearchParams({ version: String(lockedVersion), limit: '1', offset: '1' }));
     assert.notEqual(next.items[0].id, locked.items[0].id);
-    await x.apply(await mutation('update_allocation', allocationId, makeData({ quantity: '4' })));
+    await assert.rejects(async () => x.prepared(await mutation('update_allocation', allocationId, makeData({ quantity: '4' }))), closingCode('closing_manual_quantity_retired'));
+    await x.apply({ action: 'sync_month_outputs', periodId, expectedPeriodVersion: (await state()).period.version, channels: { sales: true, work: true }, reason: 'Explicit adoption after negotiation, quantity remains from plan' });
     assert.equal((await state()).items.find(row => row.id === allocationId)!.snapshot.outputs.garmentSale?.price, '123');
     const oldRows = await readClosingPeriodDetail(pool, editor.actor, periodId, new URLSearchParams({ version: String(lockedVersion) }));
     assert.equal(oldRows.items.find(row => row.id === allocationId)!.snapshot.outputs.garmentSale?.price, '113');
@@ -169,8 +181,8 @@ test('Gate8B manual closing: nonempty upgrade, immutable snapshots, trusted HTTP
   });
   await t.test('lost COMMIT acknowledgement is unknown until the original receipt proves exactly one mutation', async () => {
     const otherBlue = b.basis.priceLines.find(row => row.colorName === 'Blue')!.colorId!;
-    const command = await x.prepared({ action: 'create_allocation', periodId, expectedPeriodVersion: (await state()).period.version, orderId: b.id,
-      data: makeData({ colorId: otherBlue, assignmentId: null, channels: { sales: true, work: false } }) });
+    const command = await x.prepared(await prepareFixtureMonthPortion(x, periodId, b.id,
+      makeData({ colorId: otherBlue, assignmentId: null, channels: { sales: true, work: false } })));
     const original = pool.connect.bind(pool);
     const controlled = new Proxy(pool, { get(target, key) { if (key !== 'connect') { const value = Reflect.get(target, key); return typeof value === 'function' ? value.bind(target) : value; }
       return async () => { const connection = await original(), query = connection.query.bind(connection); let armed = false;
@@ -183,7 +195,7 @@ test('Gate8B manual closing: nonempty upgrade, immutable snapshots, trusted HTTP
     assert.equal((await pool.query('SELECT count(*)::int n FROM server_closing_allocation_versions WHERE actor_id=$1 AND request_id=$2', [editor.actor.internalUserId, command.requestId])).rows[0].n, 1);
   });
   await t.test('audit failure rolls back version, head and receipt; explicit original retry applies once', async () => {
-    const command = await x.prepared(await mutation('update_allocation', allocationId, makeData({ quantity: '5' })));
+    const command = await x.prepared(await mutation('review_allocation', allocationId));
     const version = (await state()).period.version;
     await pool.query("CREATE FUNCTION fail_closing_audit() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN IF NEW.module='关账中心' THEN RAISE EXCEPTION 'synthetic audit failure'; END IF; RETURN NEW; END $$; CREATE TRIGGER fail_closing_audit BEFORE INSERT ON operation_logs FOR EACH ROW EXECUTE FUNCTION fail_closing_audit()");
     try { await assert.rejects(() => executeClosingCommand(pool, editor.actor, command)); }
@@ -208,7 +220,7 @@ test('Gate8B manual closing: nonempty upgrade, immutable snapshots, trusted HTTP
     assert.equal((await x.request('/preview', { ...initialIntent, actorId: editor.actor.userId })).response.status, 400);
     assert.equal((await x.request('/periods?limit=0')).response.status, 400);
     assert.equal((await x.request('/periods/' + periodId + '?quotePrice=1')).response.status, 400);
-    const listed = await listClosingPeriods(pool, editor.actor); assert.equal(listed.total, 1);
+    const listed = await listClosingPeriods(pool, editor.actor); assert.equal(listed.total, 2);
     const history = await x.request('/periods/' + periodId + '/history?limit=1'); assert.equal(history.response.status, 200); assert.equal(history.body.hasMore, true);
     assert.equal((await x.request('/commands/' + initialCommand.requestId)).body.state, 'recorded');
     assert.deepEqual(x.errors, []);

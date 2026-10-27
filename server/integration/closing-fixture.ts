@@ -67,10 +67,10 @@ export async function closingFixture(t: TestContext, legacy44: boolean | 45 | 47
     await repository.create(quoteSnapshotFromBrowser(q)); return { q, revision };
   }
   const distribution = await quote('closing-shared'); let serial = 0;
-  async function adoptQuote(id:string){
+  async function adoptQuote(id:string, unifiedUsd = false){
     const colors = (await readOrderProductionPlans(pool, editor.actor, id)).order.colors;
     const selection = { kind: 'quote', quoteId: distribution.q.id, revisionId: distribution.revision.revisionId,
-      assignments: colors.map(color => ({ colorId: color.id, priceVersionId: distribution.revision.priceVersions[color.colorName === 'Blue' ? 0 : 1].id })) };
+      assignments: colors.map(color => ({ colorId: color.id, priceVersionId: distribution.revision.priceVersions[unifiedUsd || color.colorName === 'Blue' ? 0 : 1].id })) };
     const preview = await previewOrderBusinessSource(pool, editor.actor, id, selection);
     await adoptOrderBusinessSource(pool, editor.actor, id, { selection, requestId: randomUUID(), expectedVersion: 0, fingerprint: preview.fingerprint, reason: 'Synthetic initial adoption' });
   }
@@ -93,6 +93,7 @@ export async function closingFixture(t: TestContext, legacy44: boolean | 45 | 47
     const consumed = (await consumeProcessingBatches(pool, editor.actor, { requestId: randomUUID(), items: [{ batchId: batch.batchId, expectedVersion: confirmed.version }] })).results[0];
     assert.equal(consumed.status, 'created'); if (consumed.status !== 'created') assert.fail(); return { id: String(consumed.salesOrderId), batchId: batch.batchId };
   }
+  async function usdOrder() { const value = await order(false); await adoptQuote(value.id, true); return { id: value.id, basis: await readClosingOrderBasis(pool, editor.actor, value.id) }; }
   async function resource(kind: ProductionResourceType, data: unknown, id: string | null = null, expectedVersion = 0) {
     const result = await executeProductionResourceCommand(pool, editor.actor, parseProductionResourceCommand({ requestId: randomUUID(), action: id ? 'update' : 'create', kind, resourceId: id, expectedVersion, data }));
     assert.equal(result.status, 'applied'); if (result.status !== 'applied') assert.fail(); return result.resource;
@@ -129,5 +130,5 @@ export async function closingFixture(t: TestContext, legacy44: boolean | 45 | 47
       ...(body === undefined ? {} : { Origin: base, 'X-Zhixu-Request': '1', 'Content-Type': 'application/json' }), ...headers }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
     const text = await response.text(); return { response, text, body: JSON.parse(text) };
   }
-  return { postgres, pool, server, base, origins, errors, editor, user, order, adopt:adoptQuote, processing, distribution, repository, resource, group, groupData, assignment, completion, prepared, apply, request };
+  return { postgres, pool, server, base, origins, errors, editor, user, order, usdOrder, adopt:adoptQuote, processing, distribution, repository, resource, group, groupData, assignment, completion, prepared, apply, request };
 }

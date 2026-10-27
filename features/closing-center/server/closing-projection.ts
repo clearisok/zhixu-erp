@@ -36,6 +36,7 @@ export const messages: Record<string, string> = {
   closing_month_quantity_exceeded: '本次调入数量超过原片段的可调数量。', closing_month_no_change: '本次选择没有改变月份或执行归属。',
   closing_month_executor_review_required: '执行归属已变化，请先核对，原月份量保持。', closing_month_not_initialized: '本单没有正式月份计划，未自动补造历史记录。',
   closing_month_legacy_allocations_require_review: '本单有既有手工关账记录，请先核对，不能重复计量。',
+  closing_manual_quantity_retired: '已停止手填关账数量。请在关账调整中分配月份，再明确采用本月数量与价格；原历史记录保持。',
 };
 export const invalidClosingResponse = (): never => { throw new ClosingClientError(502, 'closing_response_invalid'); };
 export function obj(value: unknown): Record<string, unknown> { if (!value || typeof value !== 'object' || Array.isArray(value)) return invalidClosingResponse(); return value as Record<string, unknown>; }

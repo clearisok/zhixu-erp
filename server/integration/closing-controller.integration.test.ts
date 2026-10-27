@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { randomUUID } from 'node:crypto';
 import { closingFixture } from './closing-fixture.js';
+import { prepareFixtureMonthPortion } from './closing-month-test-setup.js';
+import { restoreHistoricalFixtureAllocation } from './closing-historical-test-fixture.js';
 import { PERMISSION_KEYS, type PermissionKey } from '../../features/permissions/model/permissions.js';
 import { readOrderCommercialState } from '../sales-orders/commercial-version-service.js';
 import type { ClosingCommand, ClosingIntent } from '../closing/contract.js';
@@ -51,37 +53,40 @@ test('closing controller uses real Server commits, exact original recovery and i
     const result = await apply({ action: 'create_period', month: '2026-10', taxRatePercent: '13', taxRateConfirmed: true, remark: 'Explicit synthetic period' });
     periodId = result.periodId; assert.equal(posts, 1); assert.equal(gets, 1); assert.equal((await client.period(periodId, reads, () => true)).period.taxRatePercent, '13');
   });
-  await t.test('manual quantity is independent of cumulative completion and processing has only its USD service output', async () => {
+  await t.test('adopted month quantity is independent of cumulative completion and processing has only its USD service output', async () => {
     enter(periodId); assignmentId = await x.assignment(order.id, blue.colorId); await x.completion(order.id, assignmentId, '2');
-    let detail = await client.period(periodId, reads, () => true);
-    allocationId = (await apply({ action: 'create_allocation', periodId, expectedPeriodVersion: detail.period.version, orderId: order.id,
-      data: { quantity: '10', colorId: blue.colorId, channels: { sales: true, work: true }, assignmentId, executor: null, remark: '' } })).allocationId!;
-    detail = await client.period(periodId, reads, () => true);
-    await apply({ action: 'create_allocation', periodId, expectedPeriodVersion: detail.period.version, orderId: processing.id,
-      data: { quantity: '3', colorId: null, channels: { sales: false, work: true }, assignmentId: null, executor: null, remark: '' } });
+    await apply(await prepareFixtureMonthPortion(x, periodId, order.id,
+      { quantity: '10', colorId: blue.colorId, channels: { sales: true, work: false }, assignmentId, executor: null, remark: '' }));
+    let detail = await client.period(periodId, reads, () => true); allocationId = detail.items.find(row => row.snapshot.order.id === order.id && row.snapshot.channels.sales)!.id;
+    await apply(await prepareFixtureMonthPortion(x, periodId, processing.id,
+      { quantity: '3', colorId: null, channels: { sales: false, work: true }, assignmentId: null, executor: null, remark: '' }));
     detail = await client.period(periodId, reads, () => true); assert.equal(detail.summary.registeredQuantity, '13');
     assert.equal(detail.items.find(row => row.id === allocationId)!.snapshot.quantity, '10'); assert.ok(detail.summary.garmentSalesCny.amount); assert.equal(detail.summary.garmentSalesCny.amount.decimal, '1000');
     assert.ok(detail.summary.processingServiceUsd.amount); assert.equal(detail.summary.processingServiceUsd.amount.decimal, '0'); assert.equal(detail.automaticMonthAllocation, false);
     const p = detail.items.find(row => row.snapshot.order.id === processing.id)!; assert.equal(Object.hasOwn(p.snapshot.outputs, 'garmentSale'), false);
   });
-  await t.test('production correction blocks confirmation until explicit review; manual quantity changes only by an explicit update', async () => {
+  await t.test('production correction requires review while retired manual updates cannot change quantity', async () => {
     await x.completion(order.id, assignmentId, '5', '2027-01-07', 'Synthetic actual correction'); let detail = await client.period(periodId, reads, () => true);
-    assert.equal(detail.reviewRequiredCount, 1); const count = posts, ids = generatedIds;
+    assert.equal(detail.reviewRequiredCount, 2); const count = posts, ids = generatedIds;
     await controller!.preview({ action: 'confirm_period', periodId, expectedPeriodVersion: detail.period.version, reason: '' });
     assert.equal(controller!.snapshot().preview, null); assert.ok(controller!.snapshot().error); await controller!.apply(); assert.equal(posts, count); assert.equal(generatedIds, ids);
-    let row = detail.items.find(row => row.id === allocationId)!;
-    await apply({ action: 'review_allocation', periodId, expectedPeriodVersion: detail.period.version, allocationId, expectedVersion: row.version, reason: 'Reviewed actual correction' });
-    detail = await client.period(periodId, reads, () => true); row = detail.items.find(item => item.id === allocationId)!; assert.equal(row.snapshot.quantity, '10'); assert.equal(detail.reviewRequiredCount, 0);
-    await apply({ action: 'update_allocation', periodId, expectedPeriodVersion: detail.period.version, allocationId, expectedVersion: row.version, reason: 'Explicit manual quantity',
-      data: { quantity: '11', colorId: blue.colorId, channels: { sales: true, work: true }, assignmentId, executor: null, remark: '' } });
-    assert.equal((await client.period(periodId, reads, () => true)).items.find(item => item.id === allocationId)!.snapshot.quantity, '11');
+    for (const affected of detail.items.filter(row => row.executionReview.requiresReview)) {
+      detail = await client.period(periodId, reads, () => true);
+      await apply({ action: 'review_allocation', periodId, expectedPeriodVersion: detail.period.version, allocationId: affected.id, expectedVersion: affected.version, reason: 'Reviewed actual correction' });
+    }
+    detail = await client.period(periodId, reads, () => true); const row = detail.items.find(item => item.id === allocationId)!; assert.equal(row.snapshot.quantity, '10'); assert.equal(detail.reviewRequiredCount, 0);
+    const beforePosts = posts, beforeIds = generatedIds;
+    await controller!.preview({ action: 'update_allocation', periodId, expectedPeriodVersion: detail.period.version, allocationId, expectedVersion: row.version, reason: 'Retired manual quantity',
+      data: { quantity: '11', colorId: blue.colorId, channels: { sales: true, work: false }, assignmentId, executor: null, remark: '' } });
+    assert.equal(controller!.snapshot().preview, null); await controller!.apply(); assert.equal(posts, beforePosts); assert.equal(generatedIds, beforeIds);
+    assert.equal((await client.period(periodId, reads, () => true)).items.find(item => item.id === allocationId)!.snapshot.quantity, '10');
   });
   await t.test('void, confirm, unconfirm, lock and reasoned reopen preserve original locked snapshots', async () => {
     let detail = await client.period(periodId, reads, () => true);
-    const extra = await apply({ action: 'create_allocation', periodId, expectedPeriodVersion: detail.period.version, orderId: order.id,
-      data: { quantity: '1', colorId: blue.colorId, channels: { sales: false, work: true }, assignmentId: null, executor: null, remark: '' } });
+    const extra = await restoreHistoricalFixtureAllocation(x, periodId, order.id,
+      { quantity: '1', colorId: blue.colorId, channels: { sales: false, work: true }, assignmentId: null, executor: null, remark: '' });
     detail = await client.period(periodId, reads, () => true);
-    await apply({ action: 'void_allocation', periodId, expectedPeriodVersion: detail.period.version, allocationId: extra.allocationId!, expectedVersion: 1, reason: 'Explicit void' });
+    await apply({ action: 'void_allocation', periodId, expectedPeriodVersion: detail.period.version, allocationId: extra.result.allocationId, expectedVersion: 1, reason: 'Explicit void' });
     for (const action of ['confirm_period', 'unconfirm_period', 'confirm_period', 'lock_period'] as const) {
       detail = await client.period(periodId, reads, () => true); await apply({ action, periodId, expectedPeriodVersion: detail.period.version, reason: 'Explicit synthetic transition' });
     }
@@ -92,10 +97,13 @@ test('closing controller uses real Server commits, exact original recovery and i
     assert.deepEqual(frozen(old.items), frozen(locked.items));
   });
   await t.test('actual CNY work is rejected at preview without new command or currency conversion', async () => {
-    const detail = await client.period(periodId, reads, () => true), count = posts, ids = generatedIds;
-    await controller!.preview({ action: 'create_allocation', periodId, expectedPeriodVersion: detail.period.version, orderId: order.id,
-      data: { quantity: '1', colorId: white.colorId, channels: { sales: false, work: true }, assignmentId: null, executor: null, remark: '' } });
+    enter(null); const other = await apply({ action: 'create_period', month: '2026-11', taxRatePercent: '0', taxRateConfirmed: true, remark: '' }); enter(other.periodId);
+    const intent = await prepareFixtureMonthPortion(x, other.periodId, order.id,
+      { quantity: '1', colorId: white.colorId, channels: { sales: false, work: true }, assignmentId: null, executor: null, remark: '' });
+    const count = posts, ids = generatedIds;
+    await controller!.preview(intent);
     assert.equal(controller!.snapshot().preview, null); await controller!.apply(); assert.equal(posts, count); assert.equal(generatedIds, ids);
+    assert.equal(controller!.snapshot().error?.includes('USD'), true); enter(periodId);
   });
   await t.test('an explicitly checked unknown original retries once with the same ID, body and server receipt', async () => {
     const preview = await client.preview({ action: 'create_period', month: '2027-02', taxRatePercent: '0', taxRateConfirmed: true, remark: '' }, () => true);
@@ -111,7 +119,7 @@ test('closing controller uses real Server commits, exact original recovery and i
     await x.pool.query("DELETE FROM app_role_permissions WHERE role_id=$1 AND permission_key='closing.edit'", [x.editor.role]); permissions = permissions.filter(key => key !== 'closing.edit');
     const restored = enter(periodId), requestCount = posts; assert.equal(restored.snapshot().pending?.requestId, original.requestId); assert.equal(posts, requestCount);
     await restored.retry(true); assert.equal(posts, requestCount); await restored.check(); assert.equal(restored.snapshot().stage, 'saved'); assert.equal(restored.snapshot().terminal?.requestId, original.requestId);
-    assert.equal(readClosingPending(storage, scope), null); assert.equal(posts, requestCount); assert.equal((await client.periods(reads, () => true)).total, 3);
+    assert.equal(readClosingPending(storage, scope), null); assert.equal(posts, requestCount); assert.equal((await client.periods(reads, () => true)).total, 4);
   });
   assert.deepEqual(await Promise.all([order.id, processing.id].map(id => readOrderCommercialState(x.pool, id))), beforeTerms);
   assert.equal(values.get('zhixu.erp.local.closing-center'), 'KEEP'); assert.deepEqual(x.errors, []);

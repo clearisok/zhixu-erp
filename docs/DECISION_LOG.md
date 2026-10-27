@@ -23,6 +23,13 @@
 
 ## Active
 
+### D-173 退役新手工财务数量，历史核对与月份权威保持
+
+- 日期：2026-10-27；Active engineering，实施已批准D169。新create/update allocation在服务层统一409；解析保留用于既有原命令/hash核对，历史成功回执仍先按fresh权限回放，不再执行数量写入。没有新的兼容开关、schema或历史迁移。
+- 新确认/锁定必须有完整月份依据：所有active无link记录均阻断，包含legacy-only及另一SO的混合期间；缺0049 schema明确503。旧manifest、读取、原请求、review/void与带原因重开保持，不能把复核当作月份来源认证。linked作废仍由sync负责。
+- D169/G1和D171/G2b“旧入口尚未整体退役”为原阶段事实，本片前向完成新手工数量写退役。新量只来自已初始化月份计划及明确sync，不改生产、价格、期间税率或冻结历史。[契约](features/SERVER_CLOSING_WRITE_RETIREMENT.md)与[阶段](tasks/active/closing-write-retirement-2026-10-27.md)区分实际检查、旧失败和后续新镜像恢复。
+- 保留G2e运行中的合成演示，不把它冒称当前后端热更新。无真实Source、既有账号/业务库、远端/Hosted、合并、正式部署、切换或旧资产退役授权；Goal继续。
+
 ### D-172 全年两项产值同范围只读投影
 
 - 日期：2026-10-27；Active engineering，实施已批准D169/D171，不改价格、税率、月份、生产或冻结事实。session-only `GET /api/v1/closing/year`明确year，按相同scope、生产参考状态和空格且搜索先过滤，再汇总12月/全年并分页；没有年度写命令、Browser回退、Source网络调用或页面激活。

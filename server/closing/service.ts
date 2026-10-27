@@ -8,13 +8,13 @@ import { lockEffectiveAttribution } from '../sales-orders/effective-attribution.
 import { lockProductionResourceScope } from '../production-resources/snapshot-lock.js';
 import { planHash } from '../production-scheduling/repository.js';
 import { appendOperationLog, createServerOperationId, type ServerOperationLogInput } from '../operation-logs/repository.js';
-import { CLOSING_READ_PERMISSIONS, closingActionPermission, closingChannelPermissions, closingFail, closingUuid, compareDecimals, parseClosingCommand, parseClosingIntent,
+import { CLOSING_READ_PERMISSIONS, closingActionPermission, closingChannelPermissions, closingFail, closingUuid, parseClosingCommand, parseClosingIntent,
   type ClosingChannels, type ClosingCommand, type ClosingIntent } from './contract.js';
 import { compareClosingExecutionReferences } from './basis-model.js';
-import { createClosingSnapshot, closingSnapshotIdentity, currentClosingExecutionReferences, projectClosingSnapshot, requireClosingChannels,
+import { closingSnapshotIdentity, currentClosingExecutionReferences, projectClosingSnapshot, requireClosingChannels,
   type ClosingSnapshot } from './snapshot.js';
 import { appendClosingAllocationVersion, appendClosingPeriodVersion, closingSchemaAvailable, createClosingPeriod,
-  readClosingAllocation, readClosingAllocations, readClosingPeriod, CLOSING_ALLOCATION_LIMIT, type ClosingAllocationRecord, type ClosingPeriodRecord } from './repository.js';
+  readClosingAllocation, readClosingAllocations, readClosingPeriod, type ClosingAllocationRecord, type ClosingPeriodRecord } from './repository.js';
 import {applyMonthFinancialSync,buildMonthFinancialSync,guardLegacyClosingWrite,monthFinancialSyncIdentity,projectMonthFinancialSync,validateMonthFinancialCoverage,
  type BuiltMonthSync} from './month-financial-service.js';
 
@@ -51,15 +51,12 @@ async function lockPhysicalOrders(client: PoolClient, ids: string[]) {
   const rows = await client.query('SELECT id FROM sales_orders WHERE id=ANY($1::uuid[]) ORDER BY id FOR SHARE', [unique]);
   if (rows.rowCount !== unique.length) closingFail(404, 'closing_order_not_found');
 }
-function quantityWarnings(snapshot: ClosingSnapshot) {
-  const warnings: string[] = [];
-  for (const [key, value] of Object.entries(snapshot.quantityBasis)) {
-    if (value !== null && compareDecimals(snapshot.quantity, value) > 0) warnings.push('exceeds_' + key + '_quantity');
-  }
-  if (!snapshot.executor) warnings.push('executor_unassigned');
-  return warnings;
-}
 async function buildClosing(client: PoolClient, actor: TrustedIdentity, intent: ClosingIntent, freeze: boolean): Promise<Built> {
+  // Keep parsing historical commands for exact receipt/hash recovery. They are
+  // no longer a writer: only the order's explicit month plan can supply quantity.
+  // This runs after fresh permission checks and inside the durable-rejection
+  // savepoint; a previously recorded result is replayed before reaching here.
+  if (intent.action === 'create_allocation' || intent.action === 'update_allocation') closingFail(409, 'closing_manual_quantity_retired');
   if (intent.action === 'create_period') {
     if ((await client.query('SELECT id FROM server_closing_periods WHERE month=$1', [intent.month])).rowCount) closingFail(409, 'closing_period_already_exists');
     return { intent, period: null, old: null, snapshot: null, allocations: [], nextStatus: 'open', warnings: [], previewHash: planHash({ intent, period: null }) };
@@ -77,17 +74,10 @@ async function buildClosing(client: PoolClient, actor: TrustedIdentity, intent: 
   if (old && old.periodId !== period.id) closingFail(409, 'closing_allocation_period_conflict');
   if (old && 'expectedVersion' in intent && old.version !== intent.expectedVersion) closingFail(409, 'closing_allocation_version_conflict');
   if (old?.status === 'voided') closingFail(409, 'closing_allocation_voided');
-  if (freeze) await lockPhysicalOrders(client, intent.action === 'create_allocation' ? [intent.orderId] : old ? [old.orderId] : allocations.map(row => row.orderId));
+  if (freeze) await lockPhysicalOrders(client, old ? [old.orderId] : allocations.map(row => row.orderId));
   let snapshot: ClosingSnapshot | null = null, nextStatus = period.status;
   const warnings: string[] = [];
-  if (intent.action === 'create_allocation' || intent.action === 'update_allocation') {
-    if (period.status !== 'open') closingFail(409, 'closing_period_not_open');
-    if (intent.action === 'create_allocation' && allocations.length >= CLOSING_ALLOCATION_LIMIT) closingFail(422, 'closing_period_allocation_limit');
-    if (old) requireClosingChannels(actor, old.snapshot.channels, intent.data.channels);
-    await guardLegacyClosingWrite(client,intent.action==='create_allocation'?intent.orderId:old!.orderId,old?.id??null,intent.action);
-    snapshot = await createClosingSnapshot(client, actor, intent.action === 'create_allocation' ? intent.orderId : old!.orderId, intent.data, period.taxRatePercent, freeze);
-    warnings.push(...quantityWarnings(snapshot));
-  } else if (intent.action === 'void_allocation' || intent.action === 'review_allocation') {
+  if (intent.action === 'void_allocation' || intent.action === 'review_allocation') {
     if (period.status !== 'open') closingFail(409, 'closing_period_not_open');
     snapshot = structuredClone(old!.snapshot); requireClosingChannels(actor, snapshot.channels);
     if(intent.action==='void_allocation')await guardLegacyClosingWrite(client,old!.orderId,old!.id,intent.action);
@@ -152,9 +142,8 @@ async function applyClosing(client: PoolClient, actor: TrustedIdentity, command:
   else {
     period = build.period!;
     if (build.snapshot) {
-      const id = build.old?.id ?? (await client.query<{ id: string }>('INSERT INTO server_closing_allocations(period_id,sales_order_id,created_by) VALUES($1,$2,$3) RETURNING id::text',
-        [period.id, build.snapshot.order.id, actor.internalUserId])).rows[0].id;
-      allocation = await appendClosingAllocationVersion(client, actor, command.requestId, operationId, id, period.id, build.old?.version ?? 0,
+      if (!build.old) closingFail(503, 'closing_historical_allocation_required');
+      allocation = await appendClosingAllocationVersion(client, actor, command.requestId, operationId, build.old.id, period.id, build.old.version,
         build.snapshot, intent.action, 'reason' in intent ? intent.reason : '');
     }
     if(build.monthSync)await applyMonthFinancialSync(client,actor,command.requestId,operationId,period.id,

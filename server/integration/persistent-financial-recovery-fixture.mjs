@@ -3,10 +3,11 @@
 import assert from 'node:assert/strict';
 import { createHash, randomUUID } from 'node:crypto';
 
-const closing = '/api/v1/closing', labor = '/api/v1/quotes/order-labor-adoptions';
+const closing = '/api/v1/closing', labor = '/api/v1/quotes/order-labor-adoptions', months = closing + '/month-plans';
 export const financialRecoveryTables = [
   'server_closing_commands', 'server_closing_periods', 'server_closing_period_versions', 'server_closing_period_heads',
   'server_closing_allocations', 'server_closing_allocation_versions', 'server_closing_allocation_heads', 'order_labor_adoption_commands',
+  'server_closing_month_plans', 'server_closing_month_plan_versions', 'server_closing_month_plan_heads', 'server_closing_month_commands', 'server_closing_month_financial_links',
 ];
 function owned(state) {
   assert.equal(state.prepared, true, 'financial recovery requires successful owned preparation');
@@ -27,13 +28,14 @@ async function json(state, cookie, path, body, method = 'POST') {
 function originalResult(result) { const value = { ...result }; delete value.replayed; return value; }
 
 export function assertFinancialRecoveryReceipt(expected, reply) {
-  assert.ok(['closing', 'labor'].includes(expected.kind));
+  assert.ok(['closing', 'labor', 'month'].includes(expected.kind));
   assert.equal(expected.command.requestId, expected.result.requestId);
   assert.equal(expected.result.status, 'applied');
   assert.equal(reply.state, 'recorded', 'HTTP 200 unknown is not recovery proof');
   assert.equal(reply.requestId, expected.command.requestId);
   assert.equal(reply.commandHash, commandHash(expected.command), 'receipt must bind the exact original command');
   if (expected.kind === 'labor') assert.equal(reply.orderId, expected.command.intent.orderId);
+  else if (expected.kind === 'month') assert.equal(reply.result.orderId, expected.command.intent.orderId);
   else if ('periodId' in expected.command.intent) assert.equal(expected.result.periodId, expected.command.intent.periodId);
   assert.deepEqual(reply.result, expected.result, 'receipt must preserve the original applied IDs, versions and result');
 }
@@ -107,20 +109,39 @@ export async function seedPersistentFinancialRecovery(state, cookie, domain, run
     assertFinancialRecoveryReceipt(receipt, await json(state, cookie, receipt.path)); fixture.receipts.push(receipt); return result;
   }
   const period = async id => json(state, cookie, closing + '/periods/' + id);
+  const plan = async id => (await json(state, cookie, closing + '/orders/' + id + '/month-plan')).plan;
+  const units = value => { const [whole, fraction = ''] = value.split('.'); assert.ok(fraction.length <= 6); return BigInt(whole) * 1000000n + BigInt(fraction.padEnd(6, '0')); };
+  const quantityText = value => { const fraction = (value % 1000000n).toString().padStart(6, '0').replace(/0+$/u, ''); return (value / 1000000n).toString() + (fraction ? '.' + fraction : ''); };
+  // Real unpriced month commands supply every quantity. No retired manual
+  // financial writer, test-only product switch or free amount is involved.
+  for (const orderId of [domain.orderId, processingOrderId]) {
+    const current = await plan(orderId); assert.ok(current);
+    await save(months, { action: 'move_months', orderId, expectedVersion: current.version, targetMonth: '2027-03', selection: { mode: 'whole' }, reason: 'Synthetic explicit preparation month' }, 'month');
+  }
   async function add(periodId, orderId, colorId, quantity, channels, assignmentId = null) {
-    return save(closing, { action: 'create_allocation', periodId, expectedPeriodVersion: (await period(periodId)).period.version,
-      orderId, data: { colorId, quantity, channels, assignmentId, executor: null, remark: 'Manually selected synthetic month/quantity' } }, 'closing');
+    let current = await plan(orderId);
+    const source = current.lines.find(row => row.month === '2027-03' && row.assignmentId === null && row.colorId === colorId && units(row.quantity) >= units(quantity)); assert.ok(source);
+    let lineId = source.id;
+    if (assignmentId !== null) {
+      const rest = units(source.quantity) - units(quantity);
+      await save(months, { action: 'match_executors', orderId, expectedVersion: current.version, reason: 'Synthetic explicit assignment match', items: [{ lineId, parts: [{ assignmentId, quantity }, ...(rest > 0n ? [{ assignmentId: null, quantity: quantityText(rest) }] : [])] }] }, 'month');
+      current = await plan(orderId); lineId = current.lines.find(row => row.month === source.month && row.assignmentId === assignmentId && row.colorId === colorId && row.quantity === quantity).id;
+    }
+    await save(months, { action: 'move_months', orderId, expectedVersion: current.version, targetMonth: (await period(periodId)).period.month, selection: { mode: 'partial', items: [{ lineId, quantity }] }, reason: 'Synthetic explicit month portion' }, 'month');
+    const result = await save(closing, { action: 'sync_month_outputs', periodId, expectedPeriodVersion: (await period(periodId)).period.version, channels, reason: 'Explicitly adopt the complete current month plan' }, 'closing');
+    const rows = (await period(periodId)).items.filter(row => row.status === 'active' && row.snapshot.order.id === orderId && row.snapshot.colorId === colorId);
+    const selected = rows.find(row => channels.sales ? row.snapshot.channels.sales : row.snapshot.channels.work); assert.ok(selected);
+    return { ...result, allocationId: selected.id, allocationIds: rows.map(row => row.id) };
   }
   async function lock(periodId) {
     for (const action of ['confirm_period', 'lock_period']) await save(closing, { action, periodId,
       expectedPeriodVersion: (await period(periodId)).period.version, reason: 'Explicit synthetic confirmation' }, 'closing');
   }
   const before = await save(closing, { action: 'create_period', month: '2027-01', taxRatePercent: '13', taxRateConfirmed: true, remark: 'Explicit synthetic tax' }, 'closing');
-  const blocked = await state.request(closing + '/preview', { cookie, method: 'POST', body: { action: 'create_allocation', periodId: before.periodId,
-    expectedPeriodVersion: before.periodVersion, orderId: domain.orderId,
-    data: { colorId, quantity: '1', channels: { sales: false, work: true }, assignmentId: null, executor: null, remark: '' } } });
-  assert.equal(blocked.status, 409); assert.equal(blocked.json().error.code, 'closing_usd_work_basis_required');
   const oldAllocation = await add(before.periodId, domain.orderId, colorId, '1.125', { sales: true, work: false }, domain.assignments[0]);
+  const blocked = await state.request(closing + '/preview', { cookie, method: 'POST', body: { action: 'sync_month_outputs', periodId: before.periodId,
+    expectedPeriodVersion: (await period(before.periodId)).period.version, channels: { sales: false, work: true }, reason: 'USD adoption is still required' } });
+  assert.equal(blocked.status, 409); assert.equal(blocked.json().error.code, 'closing_usd_work_basis_required');
   await lock(before.periodId);
   const lockedBefore = await period(before.periodId);
   assert.equal(lockedBefore.period.status, 'locked'); assert.equal(lockedBefore.summary.garmentSalesCny.amount.decimal, '112.5');
@@ -156,9 +177,9 @@ export async function seedPersistentFinancialRecovery(state, cookie, domain, run
   assert.equal(lockedAfter.summary.processingServiceUsd.amount.decimal, '0');
   const processingRow = lockedAfter.items.find(row => row.id === processAllocation.allocationId);
   assert.equal(processingRow.snapshot.outputs.work.bucket, 'processing_service'); assert.equal(Object.hasOwn(processingRow.snapshot.outputs, 'garmentSale'), false);
-  fixture.periodIds = [before.periodId, after.periodId]; fixture.allocationIds = [oldAllocation.allocationId, newAllocation.allocationId, processAllocation.allocationId];
+  fixture.periodIds = [before.periodId, after.periodId]; fixture.allocationIds = [...oldAllocation.allocationIds, ...newAllocation.allocationIds, ...processAllocation.allocationIds];
   fixture.lockedVersions = [lockedBefore.period.version, lockedAfter.period.version];
-  fixture.readPaths = [sourcePath, ...[domain.orderId, processingOrderId].map(id => closing + '/orders/' + id + '/basis'),
+  fixture.readPaths = [sourcePath, ...[domain.orderId, processingOrderId].flatMap(id => [closing + '/orders/' + id + '/basis', closing + '/orders/' + id + '/month-plan']),
     ...fixture.periodIds.flatMap((id, index) => [closing + '/periods/' + id, closing + '/periods/' + id + '?version=' + fixture.lockedVersions[index], closing + '/periods/' + id + '/history']),
     ...fixture.allocationIds.map(id => closing + '/allocations/' + id + '/history'), labor + '/history?orderId=' + domain.orderId,
     ...fixture.quoteIds.map(id => '/api/v1/quotes/' + id)];

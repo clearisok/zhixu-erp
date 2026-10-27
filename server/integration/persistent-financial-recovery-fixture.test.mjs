@@ -32,6 +32,14 @@ test('labor receipt also requires the declared original order identity', () => {
   for (const patch of [{ orderId: 'other' }, { result: { ...expected.result, version: 3 } }])
     assert.throws(() => assertFinancialRecoveryReceipt(expected, { ...value, ...patch }), { name: 'AssertionError' });
 });
+test('month recovery binds the original order, version and exact command', () => {
+  const orderId = '053d19a5-e856-4788-9418-f2500780e08c', monthCommand = { ...command, intent: { action: 'move_months', orderId, expectedVersion: 2, targetMonth: '2027-02', selection: { mode: 'whole' }, reason: 'Synthetic' } };
+  const monthResult = { requestId, status: 'applied', orderId, version: 3, versionId: 'original-month-version', operationId: 'original-month-operation' };
+  const canonical = `{"intent":{"action":"move_months","expectedVersion":2,"orderId":"${orderId}","reason":"Synthetic","selection":{"mode":"whole"},"targetMonth":"2027-02"},"previewHash":"${'a'.repeat(64)}","requestId":"${requestId}"}`;
+  const expected = { kind: 'month', command: monthCommand, result: monthResult }, reply = { state: 'recorded', requestId, commandHash: createHash('sha256').update(canonical).digest('hex'), result: monthResult };
+  assert.doesNotThrow(() => assertFinancialRecoveryReceipt(expected, reply));
+  for (const patch of [{ orderId: 'other' }, { version: 2 }, { versionId: 'replacement' }]) assert.throws(() => assertFinancialRecoveryReceipt(expected, { ...reply, result: { ...monthResult, ...patch } }), { name: 'AssertionError' });
+});
 test('financial fixture and reads refuse unprepared or unrelated projects before any IO', async () => {
   const unexpected = () => assert.fail('must not perform IO');
   for (const state of [{ prepared: false, project: 'zhixu-quote-trial-it-0123456789' }, { prepared: true, project: 'existing-user-target' }]) {

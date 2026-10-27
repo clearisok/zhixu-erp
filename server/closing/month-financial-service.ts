@@ -130,11 +130,11 @@ export async function applyMonthFinancialSync(client:PoolClient,actor:TrustedIde
 
 /** Never confirm/lock stale month quantities through the old period endpoint. */
 export async function validateMonthFinancialCoverage(client:PoolClient,period:ClosingPeriodRecord,allocations:ClosingAllocationRecord[],freeze:boolean){
- if(!await monthFinancialLinksAvailable(client))return;
+ await requireSchema(client);
  const channels=await adoptedMonthChannels(client,period.id),ids=await orderIdsForMonth(client,period.month,
   channels.sales||channels.work?channels:{sales:true,work:true}),links=await readMonthFinancialLinks(client,period.id);
  const active=allocations.filter(row=>row.status==='active'),byKey=new Map<string,MonthFinancialLink>();
- for(const row of active)if(!links.some(link=>link.allocationId===row.id)&&(await client.query('SELECT 1 FROM server_closing_month_financial_links WHERE sales_order_id=$1 LIMIT 1',[row.orderId])).rowCount)
+ for(const row of active)if(!links.some(link=>link.allocationId===row.id))
   closingFail(409,'closing_month_legacy_allocations_require_review');
  if(!channels.sales&&!channels.work){if(ids.length)closingFail(409,'closing_month_financial_sync_required');return;}
  const owners=new Map<string,Awaited<ReturnType<typeof readClosingMonthFinancialBasis>>>();

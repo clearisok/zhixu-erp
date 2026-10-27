@@ -5,7 +5,7 @@ import {resolve} from 'node:path';
 import type pg from 'pg';
 import {closingFixture,closingCode} from './closing-fixture.js';
 import {runMigrations} from '../db/migration-runner.js';
-import {CLOSING_READ_PERMISSIONS,type ClosingChannels,type ClosingIntent} from '../closing/contract.js';
+import {CLOSING_READ_PERMISSIONS,parseClosingCommand,type ClosingChannels,type ClosingIntent} from '../closing/contract.js';
 import {executeClosingCommand,previewClosingCommand,readClosingCommandReceipt} from '../closing/service.js';
 import {readClosingPeriodDetail,readClosingHistory} from '../closing/read-service.js';
 import {readOrderClosingMonthPlan,previewClosingMonthMove,executeClosingMonthMove} from '../closing/month-plan-service.js';
@@ -32,7 +32,7 @@ test('owned PostgreSQL/HTTP: month portions explicitly adopt existing immutable 
  const blue=o.basis.priceLines.find(row=>row.colorName==='Blue')!,white=o.basis.priceLines.find(row=>row.colorName==='White')!;
  const legacy={action:'create_allocation',periodId,expectedPeriodVersion:1,orderId:o.id,
   data:{quantity:'100',colorId:blue.colorId,assignmentId:null,executor:null,channels:{sales:true,work:false},remark:''}};
- const staleLegacy=await f.prepared(legacy);let firstCommand:Awaited<ReturnType<typeof sync>>['command'];
+ const staleLegacy=parseClosingCommand({requestId:randomUUID(),intent:legacy,previewHash:'0'.repeat(64)});let firstCommand:Awaited<ReturnType<typeof sync>>['command'];
  await t.test('real HTTP/client adopts all current sales portions, confirmed CNY work does not block sale-only',async()=>{
   const client=createClosingClient({baseUrl:f.base,visibility:()=>({sale:true,work:true}),fetchImpl:(async(url,init)=>{
    const headers=new Headers(init?.headers);headers.set('Cookie',f.editor.cookie);if(init?.body)headers.set('Origin',f.base);return fetch(url,{...init,headers});}) as typeof fetch});
@@ -56,9 +56,9 @@ test('owned PostgreSQL/HTTP: month portions explicitly adopt existing immutable 
   for(const intent of [{...legacy,expectedPeriodVersion:d.period.version},
    {action:'update_allocation',periodId,expectedPeriodVersion:d.period.version,allocationId:a.id,expectedVersion:a.version,reason:'Bypass',data:legacy.data},
    {action:'void_allocation',periodId,expectedPeriodVersion:d.period.version,allocationId:a.id,expectedVersion:a.version,reason:'Bypass'}]){
-   await assert.rejects(previewClosingCommand(f.pool,f.editor.actor,intent),closingCode('closing_month_financial_command_required'));
+   await assert.rejects(previewClosingCommand(f.pool,f.editor.actor,intent),closingCode(intent.action==='void_allocation'?'closing_month_financial_command_required':'closing_manual_quantity_retired'));
    const result=await executeClosingCommand(f.pool,f.editor.actor,{requestId:randomUUID(),intent,previewHash:'0'.repeat(64)});
-   assert.equal(result.status,'rejected');if(result.status==='rejected')assert.equal(result.error.code,'closing_month_financial_command_required');
+   assert.equal(result.status,'rejected');if(result.status==='rejected')assert.equal(result.error.code,intent.action==='void_allocation'?'closing_month_financial_command_required':'closing_manual_quantity_retired');
   }
   const before=(await f.pool.query('SELECT count(*)::int n FROM server_closing_allocation_versions')).rows[0].n;
   await sync({sales:true,work:false});assert.equal((await f.pool.query('SELECT count(*)::int n FROM server_closing_allocation_versions')).rows[0].n,before);

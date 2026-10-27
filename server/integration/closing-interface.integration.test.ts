@@ -2,6 +2,8 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { randomUUID } from 'node:crypto';
 import { closingFixture } from './closing-fixture.js';
+import { prepareFixtureMonthPortion } from './closing-month-test-setup.js';
+import { restoreHistoricalFixtureAllocation } from './closing-historical-test-fixture.js';
 import { CLOSING_READ_PERMISSIONS, type ClosingCommand, type ClosingIntent } from '../closing/contract.js';
 import { createClosingClient, closingCommandHash, type ClosingVisibility } from '../../features/closing-center/server/closing-client.js';
 import { acknowledgeClosingPending, readClosingPending, saveClosingPending } from '../../features/closing-center/server/closing-pending.js';
@@ -40,33 +42,34 @@ test('closing browser contract reads exact Server snapshots and recovers origina
     assert.equal(Object.hasOwn(p.priceLines[0], 'garmentSale'), false); assert.equal(p.priceLines[0].colorId, null);
     assert.equal((await x.pool.query('SELECT count(*)::int n FROM server_closing_commands')).rows[0].n, before);
   });
-  await t.test('explicit month/tax and manual allocations keep separate CNY sales and USD work/service buckets', async () => {
+  await t.test('explicit month/tax and adopted plan portions keep separate CNY sales and USD work/service buckets', async () => {
     const created = await apply({ action: 'create_period', month: '2026-10', taxRatePercent: '13', taxRateConfirmed: true, remark: 'PRIVATE PERIOD NOTE' });
     firstCommand = created.command; periodId = created.result.periodId;
     let detail = await editor.period(periodId, reads, () => true); assert.equal(detail.period.taxRatePercent, '13'); assert.equal(detail.total, 0);
-    const a = await apply({ action: 'create_allocation', periodId, expectedPeriodVersion: detail.period.version, orderId: contract.id,
-      data: { quantity: '10', colorId: contract.basis.priceLines.find(row => row.colorName === 'Blue')!.colorId, channels: { sales: true, work: true }, assignmentId: null, executor: { type: 'internal', id: x.group.id }, remark: 'PRIVATE ALLOCATION NOTE' } });
-    allocationId = a.result.allocationId!; detail = await editor.period(periodId, reads, () => true);
-    await apply({ action: 'create_allocation', periodId, expectedPeriodVersion: detail.period.version, orderId: processing.id,
-      data: { quantity: '3', colorId: null, channels: { sales: false, work: true }, assignmentId: null, executor: null, remark: '' } });
-    detail = await editor.period(periodId, reads, () => true); assert.equal(detail.total, 2); assert.equal(detail.summary.registeredQuantity, '13');
+    await apply(await prepareFixtureMonthPortion(x, periodId, contract.id,
+      { quantity: '10', colorId: contract.basis.priceLines.find(row => row.colorName === 'Blue')!.colorId, channels: { sales: true, work: true }, assignmentId: null, executor: null, remark: 'PRIVATE ALLOCATION NOTE' }));
+    detail = await editor.period(periodId, reads, () => true); allocationId = detail.items.find(row => row.snapshot.order.id === contract.id && row.snapshot.channels.sales)!.id;
+    await apply(await prepareFixtureMonthPortion(x, periodId, processing.id,
+      { quantity: '3', colorId: null, channels: { sales: false, work: true }, assignmentId: null, executor: null, remark: '' }));
+    detail = await editor.period(periodId, reads, () => true); assert.equal(detail.total, 3); assert.equal(detail.summary.registeredQuantity, '13');
     assert.equal(detail.summary.garmentSalesCny.visibility, 'allowed'); assert.ok(detail.summary.garmentSalesCny.amount); assert.equal(detail.summary.garmentSalesCny.amount.decimal, '1000');
     assert.equal(detail.summary.processingServiceUsd.visibility, 'allowed'); assert.ok(detail.summary.processingServiceUsd.amount); assert.equal(detail.summary.processingServiceUsd.amount.decimal, '0');
     assert.equal(detail.automaticMonthAllocation, false);
     const first = await editor.periods(new URLSearchParams('limit=1&year=2026&status=open'), () => true); assert.equal(first.items[0].id, periodId); assert.equal(first.total, 1);
   });
-  await t.test('update, explicit review and void previews bind the original allocation and preserve manual facts', async () => {
+  await t.test('manual updates are retired; explicit review and historical void preserve adopted facts', async () => {
     let detail = await editor.period(periodId, reads, () => true), original = detail.items.find(row => row.id === allocationId)!;
     const data = { quantity: '11', colorId: original.snapshot.colorId, channels: original.snapshot.channels, assignmentId: null, executor: { type: 'internal' as const, id: x.group.id }, remark: 'PRIVATE UPDATED NOTE' };
-    await apply({ action: 'update_allocation', periodId, expectedPeriodVersion: detail.period.version, allocationId, expectedVersion: original.version, reason: 'Explicit manual correction', data });
+    const beforePosts = posts;
+    await assert.rejects(editor.preview({ action: 'update_allocation', periodId, expectedPeriodVersion: detail.period.version, allocationId, expectedVersion: original.version, reason: 'Retired manual correction', data }, () => true)); assert.equal(posts, beforePosts);
     detail = await editor.period(periodId, reads, () => true); original = detail.items.find(row => row.id === allocationId)!;
     await apply({ action: 'review_allocation', periodId, expectedPeriodVersion: detail.period.version, allocationId, expectedVersion: original.version, reason: 'Explicit basis review' });
-    detail = await editor.period(periodId, reads, () => true); assert.equal(detail.items.find(row => row.id === allocationId)!.snapshot.quantity, '11');
-    const extra = await apply({ action: 'create_allocation', periodId, expectedPeriodVersion: detail.period.version, orderId: contract.id,
-      data: { ...data, quantity: '1', channels: { sales: false, work: true }, remark: '' } });
+    detail = await editor.period(periodId, reads, () => true); assert.equal(detail.items.find(row => row.id === allocationId)!.snapshot.quantity, '10');
+    const extra = await restoreHistoricalFixtureAllocation(x, periodId, contract.id,
+      { ...data, quantity: '1', channels: { sales: false, work: true }, remark: '' });
     detail = await editor.period(periodId, reads, () => true);
     await apply({ action: 'void_allocation', periodId, expectedPeriodVersion: detail.period.version, allocationId: extra.result.allocationId!, expectedVersion: 1, reason: 'Explicit void, keep history' });
-    detail = await editor.period(periodId, new URLSearchParams('includeVoided=true'), () => true); assert.equal(detail.total, 3); assert.equal(detail.summary.voidedCount, 1);
+    detail = await editor.period(periodId, new URLSearchParams('includeVoided=true'), () => true); assert.equal(detail.total, 4); assert.equal(detail.summary.voidedCount, 1);
     assert.equal(detail.items.find(row => row.id === extra.result.allocationId)!.executionReview.status, 'not_evaluated_voided');
   });
   await t.test('confirmed and locked reads preserve version anchors, exact history envelopes and frozen amounts', async () => {
