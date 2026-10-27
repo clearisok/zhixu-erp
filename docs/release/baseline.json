@@ -5074,6 +5074,15 @@
       "renderedSourceSha": "de5f7682b32eb159bdabb824a273a4de4d385ca1",
       "sha256": "eaf77f5aeaad54166078d3772fb112d4103f1f13d02d1277e8e6280b10d9a674",
       "changeReason": "D175 opt-in nonmonetary month display: immutable/source names, evidence-bound executor labels and period states. Preserve original reads and all pricing/quantity/freeze rules; budget actual repeated snapshot loads before transfer. Source checkpoint and scoped checks only; final engineering proof remains separate, no UI activation, capability promotion or deployment."
+    },
+    {
+      "id": "closing-month-display-engineering-20261028",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-28-closing-month-display-engineering.md",
+      "recordedAtSha": "7e4c15dab78f4ebfc3767eb6f96d63ef514be125",
+      "renderedSourceSha": "de5f7682b32eb159bdabb824a273a4de4d385ca1",
+      "sha256": "a5e9e58226038d2c24efb8775285875e88f39f7060c468b1c77c1b99bbe9dc71",
+      "changeReason": "Freeze exact scoped model/client/owned PostgreSQL, repeated-resource budget negative controls, tracked archive type/lint/frontend/backend builds and readonly review. Preserve original failures and scope-separated reuse; no new formal UI, real data, remote delivery, hosted CI, image recovery or overall-goal completion claim."
     }
   ],
   "pages": [

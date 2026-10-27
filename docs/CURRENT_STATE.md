@@ -2,7 +2,7 @@
 
 2026-10-28；branch feat/order-closing-month-plan。沿用核实main869ee84dd0b31de6161011e4aa560678b244a64d，未fetch；Git/ref STOP_AUTH_OR_DIVERGENCE原退出1根因仍UNRESOLVED。本轮远端写/Hosted0，PR130未更新，前次已核实head61704afe22fe9fd0ea9f6625c6092fcbb9575dfc。
 
-当前新片[非金额显示读取](tasks/active/closing-month-display-read-2026-10-28.md)源码de5f7682，显式view=display、原GET保持、同RR身份/Source/快照名称和全部所涉期间状态。模型4/4、客户端2/2、6791相关回归47/47；修复源码PG/HTTP含重复载荷和累计预算负控8/8、规范3214blob/0overlay完整类型/lint/前后端构建通过，精确增量只读复审无剩余P1/P2。原失败和中间结果保留，见[本机证明](tasks/completed/2026-10-28-closing-month-display-engineering.md)。新前向清单559条，证明先checkpoint后冻结并做同base最终守卫；不挪用旧168为本片新测试，无正式DOM/schema或新恢复写命令。
+当前[非金额显示读取](tasks/active/closing-month-display-read-2026-10-28.md)本机工程已收口，源码de5f7682：模型4/4、客户端2/2、6791相关回归47/47；修复源码PG/HTTP含重复/累计载荷负控8/8、规范3214blob/0overlay完整类型/lint/前后端构建PASS，精确增量只读复审无剩余P1/P2。[证明](tasks/completed/2026-10-28-closing-month-display-engineering.md)在7e4c15dab78f4ebfc3767eb6f96d63ef514be125冻结后，清单前向560条，同main最终守卫PASS（checkedHead7e4c15da＋working560，12页面/68能力/累计84UI路径，session22665退出0）。最终metadata仅保存此结果；原失败和分源复用保留，不将旧168称本片新结果。无正式DOM/schema/新恢复写命令，旧演示未升级为新读取源码。
 
 核心关账调整已批准并有Server实现。61104/source4107aea1ebf181265b543ad4c25a8afe1168f886合成演示已再次显示，蓝色外发5件2月→10月仍为未保存预览；用户输入、原10件2月→11月保存结果及旧环境保持，不停服务/重seed/替换。来源复核、执行方匹配、报价详情USD采用三处[具体草图](tasks/active/closing-support-interfaces-proposal-2026-10-28.md)待答复；原型9组验证不是正式接线，不重复询问已批准核心UI。显示读取投影与归属漂移恢复仍有明确待办。
 
