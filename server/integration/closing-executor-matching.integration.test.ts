@@ -121,8 +121,10 @@ test('owned PostgreSQL: explicit month/executor matching and immutable productio
   assert.equal((await readOrderClosingMonthPlan(f.pool,f.editor.actor,fresh.id)).plan!.version,2);
  });
  await t.test('confirmed months block executor matching, fresh RBAC cannot be forged, receipts survive removed edit',async()=>{
+  await f.adopt(order.id);
   const created=await f.apply({action:'create_period',month:'2027-03',taxRatePercent:'0',taxRateConfirmed:true,remark:''});
-  await f.apply({action:'confirm_period',periodId:created.result.periodId,expectedPeriodVersion:created.result.periodVersion,reason:''});
+  const adopted=await f.apply({action:'sync_month_outputs',periodId:created.result.periodId,expectedPeriodVersion:created.result.periodVersion,channels:{sales:true,work:false},reason:'Explicit sales basis before freeze'});
+  await f.apply({action:'confirm_period',periodId:created.result.periodId,expectedPeriodVersion:adopted.result.periodVersion,reason:''});
   const rest=(await read()).lines.find(line=>line.colorId===blue.colorId&&line.assignmentId===null)!;
   await assert.rejects(previewClosingMonthMove(f.pool,f.editor.actor,await match([{assignmentId:outsourced,quantity:'5'}],rest.id)),closingCode('closing_month_period_not_open'));
   const viewer=await f.user('matching.viewer',CLOSING_READ_PERMISSIONS);

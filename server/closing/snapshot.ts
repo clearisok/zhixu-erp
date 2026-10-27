@@ -33,8 +33,17 @@ export async function currentClosingExecutionReferences(client: PoolClient, orde
 }
 export async function createClosingSnapshot(client: PoolClient, actor: TrustedIdentity, orderId: string,
   data: ClosingAllocationData, taxRatePercent: string, freeze: boolean): Promise<ClosingSnapshot> {
+  requireClosingChannels(actor,data.channels);
+  return createClosingSnapshotFromBasis(client,actor,await prepareClosingSnapshotBasis(client,actor,orderId),data,taxRatePercent,freeze);
+}
+/** One trusted bounded read per order for a multi-line financial preview. */
+export async function prepareClosingSnapshotBasis(client: PoolClient, actor: TrustedIdentity, orderId: string) {
+  return {basis:await readClosingBasisInTransaction(client,actor,orderId),assignments:await assignmentsForOrder(client,orderId)};
+}
+export async function createClosingSnapshotFromBasis(client: PoolClient, actor: TrustedIdentity,
+  prepared: Awaited<ReturnType<typeof prepareClosingSnapshotBasis>>, data: ClosingAllocationData, taxRatePercent: string, freeze: boolean): Promise<ClosingSnapshot> {
   requireClosingChannels(actor, data.channels);
-  const basis = await readClosingBasisInTransaction(client, actor, orderId);
+  const basis = prepared.basis, orderId=basis.order.id;
   if (!basis.commercial) closingFail(409, 'closing_commercial_basis_required');
   if (basis.order.businessType === 'processing' && data.channels.sales) closingFail(409, 'processing_garment_sales_not_applicable');
   const rows = basis.priceLines.filter(line => line.colorId === data.colorId);
@@ -53,7 +62,7 @@ export async function createClosingSnapshot(client: PoolClient, actor: TrustedId
   let executor: ClosingSnapshot['executor'] = null;
   let productionBasis: ClosingExecutionReference[] = [];
   if (data.assignmentId) {
-    const assignment = (await assignmentsForOrder(client, orderId)).find(item => item.id === data.assignmentId);
+    const assignment = prepared.assignments.find(item => item.id === data.assignmentId);
     const reference = basis.executionReferences.find(item => item.assignmentId === data.assignmentId);
     if (!assignment || !reference || assignment.colorId !== null && assignment.colorId !== data.colorId) closingFail(409, 'closing_assignment_basis_mismatch');
     executor = { type: assignment.executionType, id: reference.executorId, name: assignment.resourceFacts.executionType === 'internal'

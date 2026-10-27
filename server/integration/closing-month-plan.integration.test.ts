@@ -50,10 +50,12 @@ test('owned PostgreSQL: new SO month ownership and atomic moves', {timeout:12000
   const replay=await executeClosingMonthMove(f.pool,f.editor.actor,command);assert('replayed' in replay&&replay.replayed);
  });
  await t.test('confirmed/locked sources and targets block moves; new SO still initializes pending',async()=>{
+  await f.adopt(order.id);
   const source=await f.apply({action:'create_period',month:'2026-12',taxRatePercent:'0',taxRateConfirmed:true,remark:''});
-  await f.apply({action:'confirm_period',periodId:source.result.periodId,expectedPeriodVersion:source.result.periodVersion,reason:''});
+  const adopted=await f.apply({action:'sync_month_outputs',periodId:source.result.periodId,expectedPeriodVersion:source.result.periodVersion,channels:{sales:true,work:false},reason:'Explicit sales basis before freeze'});
+  const frozen=await f.apply({action:'confirm_period',periodId:source.result.periodId,expectedPeriodVersion:adopted.result.periodVersion,reason:''});
   await assert.rejects(previewClosingMonthMove(f.pool,f.editor.actor,await whole('2027-03')),closingCode('closing_month_period_not_open'));
-  await f.apply({action:'unconfirm_period',periodId:source.result.periodId,expectedPeriodVersion:2,reason:'Synthetic correction'});
+  await f.apply({action:'unconfirm_period',periodId:source.result.periodId,expectedPeriodVersion:frozen.result.periodVersion,reason:'Synthetic correction'});
   const created=await f.apply({action:'create_period',month:'2027-02',taxRatePercent:'13',taxRateConfirmed:true,remark:''});
   const confirmed=await f.apply({action:'confirm_period',periodId:created.result.periodId,expectedPeriodVersion:created.result.periodVersion,reason:''});
   await assert.rejects(previewClosingMonthMove(f.pool,f.editor.actor,await whole('2027-02')),closingCode('closing_month_period_not_open'));

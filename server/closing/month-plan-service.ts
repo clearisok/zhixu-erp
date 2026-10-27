@@ -105,6 +105,21 @@ async function plan(client: PoolClient, orderId: string, freeze = false): Promis
   if (assigned.size !== row.executorBasis.length || row.executorBasis.some(ref => !assigned.has(ref.assignmentId) || ref.salesOrderId !== orderId)) closingFail(503, 'closing_month_plan_invalid');
   return row;
 }
+/** Caller owns the transaction, fresh actor, effective fence and write locks.
+ * This reads the current unpriced owner, never initializes a historical SO. */
+export async function readClosingMonthFinancialBasis(client: PoolClient, orderId: string, freeze = false) {
+  await available(client);
+  const record = await plan(client,orderId),current = await source(client,orderId,freeze);
+  if (!record) closingFail(409,'closing_month_not_initialized');
+  if (record.sourceFingerprint !== current.fingerprint) closingFail(409,'closing_month_source_changed');
+  if (record.quantityState !== 'ready') closingFail(409,record.quantityState==='unsupported'?'closing_month_quantity_unrepresentable':'closing_month_quantity_unknown');
+  const references = await executorReferences(client,orderId);
+  if (record.executorBasis.some(saved => {
+    const now=references.find(ref=>ref.assignmentId===saved.assignmentId);
+    return !now || planHash(executorAttribution(saved))!==planHash(executorAttribution(now));
+  })) closingFail(409,'closing_month_executor_review_required');
+  return {plan:record,order:current.order,references};
+}
 /** New trusted SO transaction only. No lazy initialization, price, or tax dependency. */
 export async function initializeOrderClosingMonth(client: PoolClient, actor: TrustedIdentity, orderId: string) {
   if (!await supported(client)) return;
@@ -142,8 +157,10 @@ async function build(client: PoolClient, intent: ClosingMonthIntent, freeze = fa
   const current = await source(client,intent.orderId,freeze);
   if (current.fingerprint !== prior.sourceFingerprint) closingFail(409,'closing_month_source_changed');
   if(prior.quantityState!=='ready')closingFail(409,prior.quantityState==='unsupported'?'closing_month_quantity_unrepresentable':'closing_month_quantity_unknown');
+  const linksReady=(await client.query<{present:boolean}>("SELECT to_regclass('public.server_closing_month_financial_links') IS NOT NULL AS present")).rows[0].present;
   const legacy = await client.query(`SELECT 1 FROM server_closing_allocations a JOIN server_closing_allocation_heads h ON h.allocation_id=a.id
-    JOIN server_closing_allocation_versions v ON v.id=h.current_version_id WHERE a.sales_order_id=$1 AND v.status='active' LIMIT 1`,[intent.orderId]);
+    JOIN server_closing_allocation_versions v ON v.id=h.current_version_id WHERE a.sales_order_id=$1 AND v.status='active'
+    ${linksReady?'AND NOT EXISTS(SELECT 1 FROM server_closing_month_financial_links l WHERE l.allocation_id=a.id)':''} LIMIT 1`,[intent.orderId]);
   if (legacy.rowCount) closingFail(409,'closing_month_legacy_allocations_require_review');
   const references = await executorReferences(client, intent.orderId);
   if (prior.executorBasis.some(saved => {

@@ -28,7 +28,7 @@ import { createSyntheticQuoteFixture } from './quote-fixture.js';
 import { summarizeRevisionConfirmations } from '../../features/quote-center/model/quote-workflows.js';
 
 export const closingCode = (code: string) => (error: unknown) => (error as { code: string }).code === code;
-export async function closingFixture(t: TestContext, legacy44: boolean | 45 | 47 = false, completeQuotes = false) {
+export async function closingFixture(t: TestContext, legacy44: boolean | 45 | 47 | 48 = false, completeQuotes = false) {
   const postgres = await startDisposablePostgres();
   const pool = new pg.Pool({ connectionString: await postgres.createDatabase('closing_commands'), max: 14, application_name: 'synthetic-closing-commands' });
   const origins: string[] = [], errors: unknown[] = [], server = createServer(createApp({ pool, allowedOrigins: origins, security: { secureCookies: false, sessionTtlSeconds: 3600 }, logger: { error: value => errors.push(value) } }));
@@ -67,6 +67,13 @@ export async function closingFixture(t: TestContext, legacy44: boolean | 45 | 47
     await repository.create(quoteSnapshotFromBrowser(q)); return { q, revision };
   }
   const distribution = await quote('closing-shared'); let serial = 0;
+  async function adoptQuote(id:string){
+    const colors = (await readOrderProductionPlans(pool, editor.actor, id)).order.colors;
+    const selection = { kind: 'quote', quoteId: distribution.q.id, revisionId: distribution.revision.revisionId,
+      assignments: colors.map(color => ({ colorId: color.id, priceVersionId: distribution.revision.priceVersions[color.colorName === 'Blue' ? 0 : 1].id })) };
+    const preview = await previewOrderBusinessSource(pool, editor.actor, id, selection);
+    await adoptOrderBusinessSource(pool, editor.actor, id, { selection, requestId: randomUUID(), expectedVersion: 0, fingerprint: preview.fingerprint, reason: 'Synthetic initial adoption' });
+  }
   async function order(adopt = true) {
     const n = ++serial;
     const result = await createAinuokeSalesOrder(pool, editor.actor, { source: { sourceId: 'CLOSE-' + n, sourceRowIdentity: 'ROW-' + n, salesContractNo: 'SYN-CLOSE-' + n,
@@ -74,13 +81,7 @@ export async function closingFixture(t: TestContext, legacy44: boolean | 45 | 47
       companyNameSnapshot: 'Synthetic', customerNameSnapshot: 'Synthetic', brandNameSnapshot: 'Synthetic', quantity: 100, sourceHash: 'HASH-' + n, fetchedAt: '2026-10-26T00:00:00Z' },
     colors: [{ sourceLineIdentity: 'blue', colorName: 'Blue', quantity: 50, deliveryDate: null, sourceHash: 'blue' }, { sourceLineIdentity: 'white', colorName: 'White', quantity: 50, deliveryDate: null, sourceHash: 'white' }] });
     const id = result.salesOrder.id;
-    if (adopt) {
-      const colors = (await readOrderProductionPlans(pool, editor.actor, id)).order.colors;
-      const selection = { kind: 'quote', quoteId: distribution.q.id, revisionId: distribution.revision.revisionId,
-        assignments: colors.map(color => ({ colorId: color.id, priceVersionId: distribution.revision.priceVersions[color.colorName === 'Blue' ? 0 : 1].id })) };
-      const preview = await previewOrderBusinessSource(pool, editor.actor, id, selection);
-      await adoptOrderBusinessSource(pool, editor.actor, id, { selection, requestId: randomUUID(), expectedVersion: 0, fingerprint: preview.fingerprint, reason: 'Synthetic initial adoption' });
-    }
+    if (adopt) await adoptQuote(id);
     return { id, basis: await readClosingOrderBasis(pool, editor.actor, id) };
   }
   async function processing(currency: 'USD' | 'CNY') {
@@ -128,5 +129,5 @@ export async function closingFixture(t: TestContext, legacy44: boolean | 45 | 47
       ...(body === undefined ? {} : { Origin: base, 'X-Zhixu-Request': '1', 'Content-Type': 'application/json' }), ...headers }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
     const text = await response.text(); return { response, text, body: JSON.parse(text) };
   }
-  return { postgres, pool, server, base, origins, errors, editor, user, order, processing, distribution, repository, resource, group, groupData, assignment, completion, prepared, apply, request };
+  return { postgres, pool, server, base, origins, errors, editor, user, order, adopt:adoptQuote, processing, distribution, repository, resource, group, groupData, assignment, completion, prepared, apply, request };
 }

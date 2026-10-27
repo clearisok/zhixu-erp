@@ -132,15 +132,20 @@ export function parseClosingPeriods(value: unknown, query: ClosingReadQuery, vie
   return row as unknown as ClosingPeriods;
 }
 export function parseClosingDetail(value: unknown, periodId: string, query: ClosingReadQuery, view: ClosingVisibility): ClosingDetail {
-  const row = obj(value); keys(row, ['period', 'summary', 'total', 'offset', 'limit', 'reviewRequiredCount', 'laterCorrectionCount', 'items', 'source', 'automaticMonthAllocation', 'currentPeriodVersion']);
+  const row = obj(value); keys(row, ['period', 'summary', 'total', 'offset', 'limit', 'reviewRequiredCount', 'laterCorrectionCount', 'items', 'source', 'automaticMonthAllocation', 'currentPeriodVersion'],['monthFinancial']);
   const p = period(row.period, view); same(p.id, periodId); if (query.version !== null) same(p.version, query.version); num(row.currentPeriodVersion, Number(p.version));
   same(row.source, 'server_closing_snapshots'); same(row.automaticMonthAllocation, false); num(row.reviewRequiredCount); num(row.laterCorrectionCount);
   const seen = new Set<string>(); for (const item of page(row, query)) { const a = allocation(item, view, periodId); if (seen.has(uid(a.id))) invalidClosingResponse(); seen.add(uid(a.id)); if (!query.includeVoided) same(a.status, 'active'); }
   const s = obj(row.summary); keys(s, ['activeCount', 'voidedCount', 'registeredQuantity', 'salesQuantity', 'distributionWorkQuantity', 'processingServiceQuantity', 'quantityMeaning', 'garmentSalesCny', 'distributionLaborUsd', 'processingServiceUsd']);
-  num(s.activeCount); num(s.voidedCount); same(s.quantityMeaning, 'one_manual_quantity_per_record_channels_are_not_added');
+  num(s.activeCount); num(s.voidedCount); member(s.quantityMeaning,['one_manual_quantity_per_record_channels_are_not_added','distinct_month_portions_manual_records_separate','inconsistent_financial_portions_requires_sync']);
   same(row.total, Number(s.activeCount) + (query.includeVoided ? Number(s.voidedCount) : 0)); num(row.reviewRequiredCount, 0, Number(s.activeCount)); num(row.laterCorrectionCount, 0, Number(s.activeCount));
-  for (const key of ['registeredQuantity', 'salesQuantity', 'distributionWorkQuantity', 'processingServiceQuantity']) decimal(s[key]);
+  if(s.quantityMeaning==='inconsistent_financial_portions_requires_sync')same(s.registeredQuantity,null);else decimal(s.registeredQuantity);
+  for (const key of ['salesQuantity', 'distributionWorkQuantity', 'processingServiceQuantity']) decimal(s[key]);
   output(s.garmentSalesCny, view.sale, 'CNY'); output(s.distributionLaborUsd, view.work, 'USD'); output(s.processingServiceUsd, view.work, 'USD');
+  if(Object.hasOwn(row,'monthFinancial')){const m=obj(row.monthFinancial);keys(m,['meaning','adoptedChannels','links']);same(m.meaning,'financial_snapshots_not_live_month_plan');
+    const c=obj(m.adoptedChannels);keys(c,['sales','work']);bool(c.sales);bool(c.work);const ids=new Set<string>();
+    for(const value of arr(m.links,5000)){const link=obj(value);keys(link,['allocationId','lineId','channel']);const id=uid(link.allocationId);if(ids.has(id))invalidClosingResponse();ids.add(id);uid(link.lineId);member(link.channel,['sales','work']);}
+  }else same(s.quantityMeaning,'one_manual_quantity_per_record_channels_are_not_added');
   return row as unknown as ClosingDetail;
 }
 export function parseClosingHistory(value: unknown, kind: 'period' | 'allocation', id: string, query: ClosingReadQuery, view: ClosingVisibility): ClosingHistory {
@@ -151,9 +156,10 @@ export function parseClosingHistory(value: unknown, kind: 'period' | 'allocation
   return row as unknown as ClosingHistory;
 }
 export function parseClosingPreview(value: unknown, intent: ClosingIntent, view: ClosingVisibility): ClosingPreview {
-  const row = obj(value); keys(row, ['intent', 'previewHash', 'period', 'before', 'after', 'nextStatus', 'allocationCount', 'warnings', 'quantityConfirmation', 'productionAndShipments']);
-  same(row.intent, intent); hash(row.previewHash); same(row.quantityConfirmation, 'manual'); same(row.productionAndShipments, 'reference_only'); num(row.allocationCount, 0, 5000);
-  for (const warning of arr(row.warnings, 5)) member(warning, ['exceeds_order_quantity', 'exceeds_color_quantity', 'exceeds_planned_quantity', 'exceeds_completed_quantity', 'executor_unassigned']);
+  const syncing=intent.action==='sync_month_outputs';
+  const row = obj(value); keys(row, ['intent', 'previewHash', 'period', 'before', 'after', 'nextStatus', 'allocationCount', 'warnings', 'quantityConfirmation', 'productionAndShipments',...(syncing?['monthSync']:[])]);
+  same(row.intent, intent); hash(row.previewHash); same(row.quantityConfirmation, syncing?'order_month_plan':'manual'); same(row.productionAndShipments, 'reference_only'); num(row.allocationCount, 0, 5000);
+  for (const warning of arr(row.warnings, 6)) member(warning, ['exceeds_order_quantity', 'exceeds_color_quantity', 'exceeds_planned_quantity', 'exceeds_completed_quantity', 'executor_unassigned','no_applicable_month_portions']);
   same(row.nextStatus, intent.action === 'confirm_period' ? 'confirmed' : intent.action === 'lock_period' ? 'locked' : 'open');
   if (intent.action === 'create_period') { same(row.period, null); same(row.before, null); same(row.after, null); same(row.allocationCount, 0); }
   else { const p = obj(row.period); keys(p, ['id', 'month', 'version', 'status', 'taxRatePercent']); same(p.id, intent.periodId); same(p.version, intent.expectedPeriodVersion); str(p.month); tax(p.taxRatePercent); member(p.status, ['open', 'confirmed', 'locked']); }
@@ -165,6 +171,24 @@ export function parseClosingPreview(value: unknown, intent: ClosingIntent, view:
     if ('data' in intent) { same(s.quantity, intent.data.quantity); same(s.colorId, intent.data.colorId); same(s.assignmentId, intent.data.assignmentId); same(s.channels, intent.data.channels); }
     if (row.before !== null) same(obj(obj(row.before).snapshot).order, s.order);
   } else same(row.after, null);
+  if(syncing){
+    const m=obj(row.monthSync);keys(m,['meaning','channelsAreNotAddedToPhysicalQuantity','counts','items']);
+    same(m.meaning,'explicit_month_plan_adoption');same(m.channelsAreNotAddedToPhysicalQuantity,true);
+    const counts=obj(m.counts);keys(counts,['created','updated','voided','unchanged']);for(const count of Object.values(counts))num(count,0,5000);
+    const items=arr(m.items,10000),seen=new Set<string>(),actual={created:0,updated:0,voided:0,unchanged:0};
+    for(const value of items){const item=obj(value);keys(item,['kind','lineId','channel','before','after']);
+      const kind=member(item.kind,['create','update','void','keep']),lineId=uid(item.lineId),channel=member(item.channel,['sales','work']);
+      if(!intent.channels[channel as 'sales'|'work'])invalidClosingResponse();
+      const identity=JSON.stringify([lineId,channel,kind]);if(seen.has(identity))invalidClosingResponse();seen.add(identity);
+      actual[kind==='create'?'created':kind==='update'?'updated':kind==='void'?'voided':'unchanged']++;
+      if(kind==='create')same(item.before,null);else if(item.before===null)invalidClosingResponse();
+      if(kind==='void')same(item.after,null);else if(item.after===null)invalidClosingResponse();
+      let owner:unknown=null;
+      for(const value of [item.before,item.after])if(value!==null){const parsed=snapshot(value,view).row;
+        same(parsed.channels,{sales:channel==='sales',work:channel==='work'});if(owner!==null)same(parsed.order,owner);owner=parsed.order;}
+    }
+    same(counts,actual);
+  }
   return row as unknown as ClosingPreview;
 }
 

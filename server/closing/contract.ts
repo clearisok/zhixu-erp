@@ -14,6 +14,7 @@ export type ClosingIntent =
   | (PeriodTarget & { action: 'create_allocation'; orderId: string; data: ClosingAllocationData })
   | (AllocationTarget & { action: 'update_allocation'; data: ClosingAllocationData })
   | (AllocationTarget & { action: 'review_allocation' | 'void_allocation' })
+  | (PeriodTarget & { action: 'sync_month_outputs'; channels: ClosingChannels; reason: string })
   | (PeriodTarget & { action: 'confirm_period' | 'unconfirm_period' | 'lock_period' | 'reopen_period'; reason: string });
 export type ClosingCommand = { requestId: string; intent: ClosingIntent; previewHash: string };
 export const CLOSING_READ_PERMISSIONS = ['closing.view', 'order.view', 'schedule.view'] as const;
@@ -77,6 +78,11 @@ export function parseClosingIntent(value: unknown): ClosingIntent {
   if (raw.action === 'create_allocation') {
     exact(raw, ['action', 'periodId', 'expectedPeriodVersion', 'orderId', 'data']);
     return { action: raw.action, periodId: closingUuid(raw.periodId), expectedPeriodVersion: version(raw.expectedPeriodVersion), orderId: closingUuid(raw.orderId), data: allocationData(raw.data) };
+  }
+  if (raw.action === 'sync_month_outputs') {
+    exact(raw, ['action', 'periodId', 'expectedPeriodVersion', 'channels', 'reason']);
+    return { action: raw.action, periodId: closingUuid(raw.periodId), expectedPeriodVersion: version(raw.expectedPeriodVersion),
+      channels: closingChannels(raw.channels), reason: text(raw.reason, true) };
   }
   if (raw.action === 'update_allocation' || raw.action === 'review_allocation' || raw.action === 'void_allocation') {
     exact(raw, ['action', 'periodId', 'expectedPeriodVersion', 'allocationId', 'expectedVersion', 'reason', ...(raw.action === 'update_allocation' ? ['data'] : [])]);

@@ -15,11 +15,13 @@ import { createClosingSnapshot, closingSnapshotIdentity, currentClosingExecution
   type ClosingSnapshot } from './snapshot.js';
 import { appendClosingAllocationVersion, appendClosingPeriodVersion, closingSchemaAvailable, createClosingPeriod,
   readClosingAllocation, readClosingAllocations, readClosingPeriod, CLOSING_ALLOCATION_LIMIT, type ClosingAllocationRecord, type ClosingPeriodRecord } from './repository.js';
+import {applyMonthFinancialSync,buildMonthFinancialSync,guardLegacyClosingWrite,monthFinancialSyncIdentity,projectMonthFinancialSync,validateMonthFinancialCoverage,
+ type BuiltMonthSync} from './month-financial-service.js';
 
 export type ClosingOutcome = { requestId: string; status: 'applied'; periodId: string; periodVersion: number; periodStatus: ClosingPeriodRecord['status'];
   allocationId?: string; allocationVersion?: number; operationId: string } | { requestId: string; status: 'rejected'; error: { status: number; code: string } };
 type Built = { intent: ClosingIntent; period: ClosingPeriodRecord | null; old: ClosingAllocationRecord | null; snapshot: ClosingSnapshot | null;
-  allocations: ClosingAllocationRecord[]; nextStatus: ClosingPeriodRecord['status']; warnings: string[]; previewHash: string };
+  allocations: ClosingAllocationRecord[]; nextStatus: ClosingPeriodRecord['status']; warnings: string[]; previewHash: string; monthSync?:BuiltMonthSync };
 function requirePermissions(actor: TrustedIdentity, permissions: readonly PermissionKey[]) { for (const permission of permissions) requirePermission(actor.permissions, permission); }
 /** The receipt stores PostgreSQL's jsonb representation, whose escaped byte size
  * differs from compact HTTP JSON. Validate the exact representation before writes. */
@@ -30,12 +32,13 @@ async function requireCommandBudget(client: PoolClient, command: ClosingCommand)
 /** Metadata-only union: a hidden old channel may not be indirectly edited or approved. */
 async function commandPermissions(client: PoolClient, intent: ClosingIntent): Promise<PermissionKey[]> {
   const channels: ClosingChannels[] = [];
+  if(intent.action==='sync_month_outputs')channels.push(intent.channels);
   if ('data' in intent) channels.push(intent.data.channels);
   if ('allocationId' in intent) {
     const row = (await client.query<{ sales: boolean; work: boolean }>(`SELECT v.include_sales AS sales,v.include_work AS work FROM server_closing_allocation_heads h
       JOIN server_closing_allocation_versions v ON v.id=h.current_version_id WHERE h.allocation_id=$1`, [intent.allocationId])).rows[0];
     if (row) channels.push(row);
-  } else if ('periodId' in intent && !('data' in intent)) {
+  } else if ('periodId' in intent && !('data' in intent) && intent.action!=='sync_month_outputs') {
     const rows = (await client.query<{ sales: boolean; work: boolean }>(`SELECT DISTINCT v.include_sales AS sales,v.include_work AS work FROM server_closing_allocations a
       JOIN server_closing_allocation_heads h ON h.allocation_id=a.id JOIN server_closing_allocation_versions v ON v.id=h.current_version_id
       WHERE a.period_id=$1 AND v.status='active'`, [intent.periodId])).rows;
@@ -64,6 +67,12 @@ async function buildClosing(client: PoolClient, actor: TrustedIdentity, intent: 
   const period = await readClosingPeriod(client, intent.periodId, freeze);
   if (period.version !== intent.expectedPeriodVersion) closingFail(409, 'closing_period_version_conflict');
   const allocations = await readClosingAllocations(client, period.id);
+  if(intent.action==='sync_month_outputs'){
+    const monthSync=await buildMonthFinancialSync(client,actor,period,intent,allocations,freeze);
+    return {intent,period,old:null,snapshot:null,allocations,nextStatus:'open',warnings:monthSync.warnings,monthSync,
+      previewHash:planHash({intent,period:{id:period.id,version:period.version,status:period.status,taxRatePercent:period.taxRatePercent},
+        monthSync:monthFinancialSyncIdentity(monthSync),manifest:allocations.map(row=>({id:row.id,versionId:row.versionId,version:row.version,status:row.status}))})};
+  }
   const old = 'allocationId' in intent ? await readClosingAllocation(client, intent.allocationId) : null;
   if (old && old.periodId !== period.id) closingFail(409, 'closing_allocation_period_conflict');
   if (old && 'expectedVersion' in intent && old.version !== intent.expectedVersion) closingFail(409, 'closing_allocation_version_conflict');
@@ -75,11 +84,13 @@ async function buildClosing(client: PoolClient, actor: TrustedIdentity, intent: 
     if (period.status !== 'open') closingFail(409, 'closing_period_not_open');
     if (intent.action === 'create_allocation' && allocations.length >= CLOSING_ALLOCATION_LIMIT) closingFail(422, 'closing_period_allocation_limit');
     if (old) requireClosingChannels(actor, old.snapshot.channels, intent.data.channels);
+    await guardLegacyClosingWrite(client,intent.action==='create_allocation'?intent.orderId:old!.orderId,old?.id??null,intent.action);
     snapshot = await createClosingSnapshot(client, actor, intent.action === 'create_allocation' ? intent.orderId : old!.orderId, intent.data, period.taxRatePercent, freeze);
     warnings.push(...quantityWarnings(snapshot));
   } else if (intent.action === 'void_allocation' || intent.action === 'review_allocation') {
     if (period.status !== 'open') closingFail(409, 'closing_period_not_open');
     snapshot = structuredClone(old!.snapshot); requireClosingChannels(actor, snapshot.channels);
+    if(intent.action==='void_allocation')await guardLegacyClosingWrite(client,old!.orderId,old!.id,intent.action);
     if (intent.action === 'review_allocation') {
       const current = await currentClosingExecutionReferences(client, old!.orderId, snapshot.productionBasis.map(row => row.assignmentId));
       if (current.length !== snapshot.productionBasis.length) closingFail(409, 'closing_referenced_assignment_unavailable');
@@ -92,6 +103,7 @@ async function buildClosing(client: PoolClient, actor: TrustedIdentity, intent: 
     nextStatus = next[intent.action];
     for (const allocation of allocations.filter(row => row.status === 'active')) requireClosingChannels(actor, allocation.snapshot.channels);
     if (intent.action === 'confirm_period' || intent.action === 'lock_period') {
+      await validateMonthFinancialCoverage(client,period,allocations,freeze);
       const grouped = new Map<string, Set<string>>();
       for (const allocation of allocations.filter(row => row.status === 'active')) {
         if (!grouped.has(allocation.orderId)) grouped.set(allocation.orderId, new Set());
@@ -117,7 +129,8 @@ function projectBuild(build: Built, actor: TrustedIdentity) {
     before: build.old ? { version: build.old.version, status: build.old.status, snapshot: projectClosingSnapshot(build.old.snapshot, actor) } : null,
     after: build.snapshot ? { status: build.intent.action === 'void_allocation' ? 'voided' : 'active', snapshot: projectClosingSnapshot(build.snapshot, actor) } : null,
     nextStatus: build.nextStatus, allocationCount: build.allocations.length, warnings: build.warnings,
-    quantityConfirmation: 'manual' as const, productionAndShipments: 'reference_only' as const };
+    quantityConfirmation: build.monthSync?'order_month_plan' as const:'manual' as const, productionAndShipments: 'reference_only' as const,
+    ...(build.monthSync?{monthSync:projectMonthFinancialSync(build.monthSync,actor)}:{}) };
   if (Buffer.byteLength(JSON.stringify(result)) > 1024 * 1024) closingFail(422, 'closing_preview_too_large');
   return result;
 }
@@ -144,15 +157,19 @@ async function applyClosing(client: PoolClient, actor: TrustedIdentity, command:
       allocation = await appendClosingAllocationVersion(client, actor, command.requestId, operationId, id, period.id, build.old?.version ?? 0,
         build.snapshot, intent.action, 'reason' in intent ? intent.reason : '');
     }
+    if(build.monthSync)await applyMonthFinancialSync(client,actor,command.requestId,operationId,period.id,
+      'reason' in intent?intent.reason:'',build.monthSync);
     period = await appendClosingPeriodVersion(client, actor, command.requestId, operationId, period, build.nextStatus,
-      build.snapshot ? 'allocation_change' : intent.action, 'reason' in intent ? intent.reason : '');
+      build.snapshot||build.monthSync ? 'allocation_change' : intent.action, 'reason' in intent ? intent.reason : '');
   }
   const labels: Record<ClosingIntent['action'], ServerOperationLogInput['action']> = { create_period: '创建关账月份', create_allocation: '新增关账归属', update_allocation: '修改关账归属',
-    review_allocation: '保留关账快照', void_allocation: '作废关账归属', confirm_period: '确认关账月份', unconfirm_period: '取消确认关账月份', lock_period: '锁定关账月份', reopen_period: '重新打开关账月份' };
+    review_allocation: '保留关账快照', void_allocation: '作废关账归属', confirm_period: '确认关账月份', unconfirm_period: '取消确认关账月份', lock_period: '锁定关账月份', reopen_period: '重新打开关账月份',
+    sync_month_outputs:'采用月份关账依据' };
   await appendOperationLog(client, actor, { operationId, module: '关账中心', entityType: allocation ? 'ClosingAllocation' : 'ClosingPeriod', entityId: allocation?.id ?? period.id,
     action: labels[intent.action], afterData: { objectName: period.month + (build.snapshot ? ' · ' + build.snapshot.order.orderNo : ''),
       ...(build.snapshot ? { orderId: build.snapshot.order.id } : {}),
-      values: { 月份: period.month, 状态: period.status, 版本: period.version, ...(build.snapshot ? { 数量: build.snapshot.quantity, 颜色: build.snapshot.colorName } : {}) } },
+      values: { 月份: period.month, 状态: period.status, 版本: period.version, ...(build.snapshot ? { 数量: build.snapshot.quantity, 颜色: build.snapshot.colorName } : {}),
+        ...(build.monthSync?{依据条数:build.monthSync.changes.length}:{}) } },
     context: { closingPeriodId: period.id, ...(allocation ? { closingAllocationId: allocation.id } : {}) },
     metadata: { requestId: command.requestId, action: intent.action } });
   return { requestId: command.requestId, status: 'applied', periodId: period.id, periodVersion: period.version, periodStatus: period.status,

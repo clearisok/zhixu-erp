@@ -32,6 +32,15 @@ test('strict commands do not accept client price, currency, reassigned SO/period
   assert.throws(() => parseClosingIntent({ ...intent, actorId: 'spoof' }), invalid);
   assert.throws(() => parseClosingIntent({ ...intent, data: { ...intent.data, channels: { sales: false, work: false } } }), invalid);
 });
+
+test('month financial adoption accepts only period, selected channels and an explicit reason',()=>{
+  const intent={action:'sync_month_outputs',periodId:randomUUID(),expectedPeriodVersion:1,channels:{sales:true,work:false},reason:'采用月份依据'};
+  assert.deepEqual(parseClosingIntent(intent),intent);
+  for(const key of ['orderId','quantity','colorId','price','currency','exchangeRate','allocations'])
+    assert.throws(()=>parseClosingIntent({...intent,[key]:'spoof'}),invalid);
+  for(const patch of [{reason:''},{channels:{sales:false,work:false}},{expectedPeriodVersion:0}])
+    assert.throws(()=>parseClosingIntent({...intent,...patch}),invalid);
+});
 test('assignment attribution cannot be overridden by a simultaneous manual executor', () => {
   const intent = create();
   assert.throws(() => parseClosingIntent({ ...intent, data: { ...intent.data, assignmentId: randomUUID(), executor: { type: 'internal', id: randomUUID() } } }), invalid);

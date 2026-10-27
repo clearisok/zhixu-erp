@@ -79,7 +79,7 @@ test('Gate8B closing: race fences, first completion, inventory and exact nonempt
     await transition(retainedPeriod, 'confirm_period'); await transition(retainedPeriod, 'lock_period');
   });
   await t.test('disabled renamed resources reject new manual assignments but never prevent void or reopening old snapshots', async () => {
-    const id = await period('2027-02'), created = await add(id, data({ executor: { type: 'internal', id: x.group.id } }));
+    const id = await period('2027-04'), created = await add(id, data({ executor: { type: 'internal', id: x.group.id } }));
     const frozen = (await state(id)).items[0].snapshot;
     await transition(id, 'confirm_period'); await transition(id, 'lock_period');
     await x.resource('groups', { ...x.groupData, name: 'Synthetic renamed disabled group', enabled: false }, x.group.id, x.group.version);

@@ -69,6 +69,7 @@ export const NORMALIZATION_REFERENCES = [
  ['server_closing_month_plans','sales_order_id','sales_order_id'],
  ['server_closing_month_plan_versions','sales_order_id','id'],
  ['server_closing_month_plan_heads','sales_order_id','sales_order_id'],
+ ['server_closing_month_financial_links','sales_order_id','allocation_id'],
  ['order_labor_adoption_commands','sales_order_id','request_id'],
  ['order_labor_adoption_commands','declared_order_id','request_id'],
 ] as const;
@@ -81,6 +82,7 @@ export async function normalizationReferences(client:PoolClient){
  const refreshReady=(await client.query("SELECT to_regclass('public.ainuoke_order_source_refresh_receipts') IS NOT NULL AS ready")).rows[0].ready;
  const planRequestsReady=(await client.query("SELECT to_regclass('public.sales_order_delivery_plan_requests') IS NOT NULL AS ready")).rows[0].ready;
  const laborAdoptionsReady=(await client.query("SELECT to_regclass('public.order_labor_adoption_commands') IS NOT NULL AS ready")).rows[0].ready;
+ const monthFinancialReady=(await client.query("SELECT to_regclass('public.server_closing_month_financial_links') IS NOT NULL AS ready")).rows[0].ready;
  const laborEvidenceReady=(await client.query("SELECT EXISTS(SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='sales_order_commercial_lines' AND column_name='labor_confirmation_source') AS ready")).rows[0].ready;
  const references=NORMALIZATION_REFERENCES.filter(([table])=>(laborAdoptionsReady||table!=='order_labor_adoption_commands')&&(garmentTargetsReady||table!=='ainuoke_garment_target_commands')&&(garmentCommandsReady||table!=='ainuoke_garment_collection_commands')&&(refreshReady||table!=='ainuoke_order_source_refresh_receipts')&&(planRequestsReady||table!=='sales_order_delivery_plan_requests'));
  const present=(await client.query<{n:number}>(`SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace
@@ -119,6 +121,8 @@ export async function normalizationReferences(client:PoolClient){
  const monthCount=(await client.query<{n:number}>(`SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r' AND c.relname=ANY($1::text[])`,[monthTables])).rows[0].n;
  if(monthCount!==0&&monthCount!==monthTables.length)throw new HttpError(503,'closing_month_reference_schema_incomplete','Order month reference schema is incomplete');
  if(monthCount>0&&closingCount!==closingTables.length)throw new HttpError(503,'closing_month_reference_schema_incomplete','Order month period dependencies are incomplete');
+ if(monthFinancialReady&&(monthCount!==monthTables.length||closingCount!==closingTables.length))throw new HttpError(503,'closing_month_financial_schema_incomplete','Month financial dependencies are incomplete');
+ if(!monthFinancialReady){const index=references.findIndex(([table])=>table==='server_closing_month_financial_links');if(index>=0)references.splice(index,1);}
  return references.filter(([table])=>(present===3||!table.startsWith('ainuoke_payment_'))&&(sourceReady||table!=='sales_order_business_source_snapshots')&&(creationContextReady||table!=='quote_creation_order_contexts')&&(colorCount===colorTables.length||!colorTables.includes(table))&&(adjustmentCount===2||table!=='order_sale_adjustment_receipts')&&(planningCount===planningTables.length||!planningTables.includes(table))&&(executionCount===executionTables.length||!executionTables.includes(table))&&(trackingCount===trackingTables.length||!trackingTables.includes(table))&&(arrivalCount===arrivalTables.length||!arrivalTables.includes(table))&&(garmentCount===garmentTables.length||!garmentTables.includes(table))&&(closingCount===closingTables.length||!closingTables.includes(table))&&(monthCount===monthTables.length||!monthTables.includes(table)));
 }
 export function validateNormalizationPair(ids: readonly string[]) {
