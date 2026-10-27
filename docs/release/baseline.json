@@ -5045,6 +5045,35 @@
       "renderedSourceSha": "5b9c21547f5c1e48dd467176f79f54a7e25f6e0a",
       "sha256": "8b8ee89eeef992e0fb11e1e630c04a2424d9dc898e815807731818476dd1c0fa",
       "changeReason": "Freeze exact-source final168/168 local release tests, syntax/lint and scoped readonly review; retain initial failures, real-Git regressions, interrupted intermediate run and bounded-DAG evidence. Final exact guard is recorded separately after this freeze. No product, real-data, remote, CI, deployment or overall-goal completion claim."
+    },
+    {
+      "id": "closing-month-display-d175-decisions-20261028",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "de5f7682b32eb159bdabb824a273a4de4d385ca1",
+      "renderedSourceSha": "de5f7682b32eb159bdabb824a273a4de4d385ca1",
+      "sha256": "a897114eb6d2345371e9b25e037f1fde34a0db2686c00f3ddf33f0c48ccd46dd",
+      "supersedes": "closing-source-reconciliation-d174-decisions-20261027",
+      "changeReason": "D175 opt-in nonmonetary month display: immutable/source names, evidence-bound executor labels and period states. Preserve original reads and all pricing/quantity/freeze rules; budget actual repeated snapshot loads before transfer. Source checkpoint and scoped checks only; final engineering proof remains separate, no UI activation, capability promotion or deployment."
+    },
+    {
+      "id": "closing-month-display-contract-20261028",
+      "kind": "document",
+      "path": "docs/features/SERVER_CLOSING_EXECUTOR_MATCHING.md",
+      "recordedAtSha": "de5f7682b32eb159bdabb824a273a4de4d385ca1",
+      "renderedSourceSha": "de5f7682b32eb159bdabb824a273a4de4d385ca1",
+      "sha256": "75bec64f3b5f17e2031002979aa3e49585e4ac8e9ef0d890e4fa5e7f4e4687b5",
+      "supersedes": "closing-executor-matching-d170-contract-20261027",
+      "changeReason": "D175 opt-in nonmonetary month display: immutable/source names, evidence-bound executor labels and period states. Preserve original reads and all pricing/quantity/freeze rules; budget actual repeated snapshot loads before transfer. Source checkpoint and scoped checks only; final engineering proof remains separate, no UI activation, capability promotion or deployment."
+    },
+    {
+      "id": "closing-month-display-engineering-task-20261028",
+      "kind": "document",
+      "path": "docs/tasks/active/closing-month-display-read-2026-10-28.md",
+      "recordedAtSha": "de5f7682b32eb159bdabb824a273a4de4d385ca1",
+      "renderedSourceSha": "de5f7682b32eb159bdabb824a273a4de4d385ca1",
+      "sha256": "eaf77f5aeaad54166078d3772fb112d4103f1f13d02d1277e8e6280b10d9a674",
+      "changeReason": "D175 opt-in nonmonetary month display: immutable/source names, evidence-bound executor labels and period states. Preserve original reads and all pricing/quantity/freeze rules; budget actual repeated snapshot loads before transfer. Source checkpoint and scoped checks only; final engineering proof remains separate, no UI activation, capability promotion or deployment."
     }
   ],
   "pages": [
