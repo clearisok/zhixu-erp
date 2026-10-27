@@ -23,6 +23,14 @@
 
 ## Active
 
+### D-174 变化来源的关账数量显式复核
+
+- 日期：2026-10-27；Active engineering，实施D169已批准的数量/颜色复核，不增加业务口径或真实Source额度。复用同一月份preview/commands/原回执，新增`reconcile_source`及无金额当前Source观察；保存时锁后重读、CAS、fresh RBAC与预览指纹核对。
+- 原片段只能减量或零删除，ID/颜色/执行方/月保持；增量始终待分月/未分配。同色不得先减再加覆盖旧归属，每色与全单精确对应可信来源；未知、歧义或不完整来源不能推算。确认/锁定原行保持，开放量不足先按旧权限处理。
+- 0050增加新动作与不可变`source_observation`，旧行SQL NULL、无回填；原版本/basis、创建交期、完成量、报价/商业与财务历史保持。新版本basis只移除无行引用者，保留者原字节不动。延迟SQL约束以version-1重建原命令变换，不读前移head。
+- 原move/match遇来源变化仍阻断；本动作不调月、分配生产、输入价格、换币或同步财务。严格客户端单独验证新预览，未挂载新复核UI。镜像恢复夹具必须对同一真实合成刷新订单显式复核，不换SO/清库绕过。见[契约](features/SERVER_CLOSING_SOURCE_RECONCILIATION.md)及[阶段](tasks/active/closing-source-reconciliation-2026-10-27.md)。
+- 已有61104及用户输入保持；新owned合成库验收不代表用户业务接受、Hosted、远端交付、合并、正式部署或旧资产退役。Git/ref STOP独立保留，完整目标未完成。
+
 ### D-173 退役新手工财务数量，历史核对与月份权威保持
 
 - 日期：2026-10-27；Active engineering，实施已批准D169。新create/update allocation在服务层统一409；解析保留用于既有原命令/hash核对，历史成功回执仍先按fresh权限回放，不再执行数量写入。没有新的兼容开关、schema或历史迁移。

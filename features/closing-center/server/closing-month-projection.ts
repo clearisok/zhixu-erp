@@ -1,5 +1,6 @@
 import type { executeClosingMonthMove, previewClosingMonthMove, readOrderClosingMonthPlan, readClosingMonthReceipt } from '../../../server/closing/month-plan-service';
 import { matchMonthExecutors, moveMonthQuantities, parseClosingMonthCommand, sumMonthQuantities, validateMonthLines, type ClosingMonthCommand, type ClosingMonthIntent, type ClosingMonthLine } from '../../../server/closing/month-plan-model';
+import { reconcileClosingSource, type ObservedClosingSource } from '../../../server/closing/source-reconciliation-model';
 import { closingRequestHash } from './closing-request-hash';
 import { arr, bool, date, decimal, hash, invalidClosingResponse, keys, member, nullable, num, obj, references, same, str, uid } from './closing-projection';
 
@@ -26,9 +27,18 @@ function assignedReferences(value: unknown, owner: string, portions: ClosingMont
   references(value, owner); const assigned = new Set(portions.flatMap(line => line.assignmentId ? [line.assignmentId] : []));
   const refs = arr(value, 500); same(assigned.size, refs.length); for (const ref of refs) if (!assigned.has(uid(obj(ref).assignmentId))) invalidClosingResponse();
 }
+function observedSource(value: unknown): ObservedClosingSource {
+  const row = obj(value); keys(row, ['fingerprint','quantity','quantityState','businessType','colors']); hash(row.fingerprint);
+  member(row.quantityState,['ready','unknown','unsupported']); member(row.businessType,['ainuoke_contract','processing']); nullable(row.quantity,decimal);
+  if (row.quantityState==='unknown') same(row.quantity,null); else if (row.quantity===null) invalidClosingResponse();
+  for (const value of arr(row.colors,2000)) { const color=obj(value); keys(color,['id','quantity','ambiguous']); uid(color.id); decimal(color.quantity); bool(color.ambiguous); }
+  if (row.businessType==='processing') same(row.colors,[]);
+  return row as unknown as ObservedClosingSource;
+}
 export function parseClosingMonthState(value: unknown, orderId: string): ClosingMonthState {
-  const row = obj(value); keys(row, ['plan', 'currentDeliveryDate', 'sourceChanged', 'executorChanges', 'executorWarnings', 'executorCandidates', 'meaning']);
+  const row = obj(value); keys(row, ['plan', 'currentDeliveryDate', 'sourceChanged', 'observedSource', 'executorChanges', 'executorWarnings', 'executorCandidates', 'meaning']);
   same(row.meaning, 'unpriced_quantity_month_plan'); nullable(row.currentDeliveryDate, date); bool(row.sourceChanged); references(row.executorCandidates, orderId);
+  const observed=observedSource(row.observedSource);
   const assigned = new Set<string>();
   if (row.plan !== null) {
     const p = obj(row.plan); keys(p, ['orderId', 'defaultMonth', 'sourceDeliveryDate', 'versionId', 'version', 'sourceQuantity', 'quantityState', 'sourceFingerprint', 'lines', 'executorBasis']);
@@ -37,7 +47,9 @@ export function parseClosingMonthState(value: unknown, orderId: string): Closing
     const portions = lines(p.lines, p.quantityState === 'ready' ? str(p.sourceQuantity) : null); assignedReferences(p.executorBasis, orderId, portions);
     for (const portion of portions) if (portion.assignmentId) assigned.add(portion.assignmentId);
     if (p.sourceDeliveryDate !== null) same(str(p.sourceDeliveryDate).slice(0, 7), p.defaultMonth);
+    same(row.sourceChanged,p.sourceFingerprint!==observed.fingerprint);
   }
+  else same(row.sourceChanged,false);
   const changed = new Set<string>(); for (const value of arr(row.executorChanges, 500)) { const c = obj(value); keys(c, ['assignmentId', 'reason']);
     const id = uid(c.assignmentId); if (!assigned.has(id) || changed.has(id)) invalidClosingResponse(); changed.add(id); same(c.reason, 'attribution_changed'); }
   warnings(row.executorWarnings, row.executorCandidates); return row as unknown as ClosingMonthState;
@@ -49,24 +61,39 @@ function scopes(rows: ClosingMonthLine[]) {
   return [...sums].sort(([a], [b]) => a.localeCompare(b)).map(([key, rows]) => ({ key, quantity: sumMonthQuantities(rows) }));
 }
 export function parseClosingMonthPreview(value: unknown, intent: ClosingMonthIntent): ClosingMonthPreview {
-  const row = obj(value), moving = intent.action === 'move_months';
-  keys(row, ['intent', 'version', 'before', 'after', moving ? 'movedQuantity' : 'matchedQuantity', 'beforeExecutorBasis', 'executorBasis', 'warnings', 'touchedMonths', 'previewHash']);
+  const row = obj(value), moving = intent.action === 'move_months', reconciling=intent.action==='reconcile_source';
+  keys(row, ['intent', 'version', 'before', 'after', reconciling?'sourceReconciliation':moving ? 'movedQuantity' : 'matchedQuantity', 'beforeExecutorBasis', 'executorBasis', 'warnings', 'touchedMonths', 'previewHash']);
   same(row.intent, intent); same(row.version, intent.expectedVersion); hash(row.previewHash);
-  const before = lines(row.before), after = lines(row.after); same(sumMonthQuantities(before), sumMonthQuantities(after));
+  const before = lines(row.before), after = lines(row.after); if (!reconciling) same(sumMonthQuantities(before), sumMonthQuantities(after));
   assignedReferences(row.beforeExecutorBasis, intent.orderId, before); assignedReferences(row.executorBasis, intent.orderId, after); warnings(row.warnings, row.executorBasis);
   try {
     let sequence = 0; const taken = new Set(before.map(line => line.id));
     const id = () => { let id: string; do { id = 'ffffffff-ffff-4fff-8fff-' + String(++sequence).padStart(12, '0'); } while (taken.has(id)); taken.add(id); return id; };
-    const expected = moving ? moveMonthQuantities(before, intent, id) : matchMonthExecutors(before, intent, id);
+    let expected;
+    if (intent.action==='reconcile_source') {
+      const info=obj(row.sourceReconciliation); keys(info,['beforeQuantity','beforeQuantityState','quantityDelta','changedLines','addedLines','source']);
+      nullable(info.beforeQuantity,decimal); member(info.beforeQuantityState,['ready','unknown','unsupported']);
+      const source=observedSource(info.source);
+      expected=reconcileClosingSource({sourceQuantity:info.beforeQuantity as string|null,quantityState:info.beforeQuantityState as ObservedClosingSource['quantityState'],lines:before},intent,source,id);
+      same(info.quantityDelta,expected.quantityDelta); same(info.changedLines,expected.changedLines); same(info.addedLines,expected.addedLines);
+      const originalIds=new Set(before.map(line=>line.id));
+      for (const line of expected.lines) if (originalIds.has(line.id)) same(after.find(value=>value.id===line.id),line);
+      const retained=new Set(expected.lines.filter(line=>originalIds.has(line.id)).map(line=>line.id));
+      if(after.some(line=>originalIds.has(line.id)&&!retained.has(line.id))) invalidClosingResponse();
+    } else expected = moving ? moveMonthQuantities(before, intent, id) : matchMonthExecutors(before, intent, id);
     same(scopes(after), scopes(expected.lines)); same(row.touchedMonths, expected.touchedMonths);
-    if ('movedQuantity' in expected) same(row.movedQuantity, expected.movedQuantity); else same(row.matchedQuantity, expected.matchedQuantity);
+    if ('movedQuantity' in expected) same(row.movedQuantity, expected.movedQuantity); else if ('matchedQuantity' in expected) same(row.matchedQuantity, expected.matchedQuantity);
   } catch { return invalidClosingResponse(); }
   if (moving) same(row.executorBasis, row.beforeExecutorBasis);
-  else {
+  else if (intent.action==='match_executors') {
     const replaced = new Set(intent.items.flatMap(item => item.parts.flatMap(part => part.assignmentId ? [part.assignmentId] : [])));
     for (const value of arr(row.beforeExecutorBasis, 500)) if (!replaced.has(uid(obj(value).assignmentId))) {
       same(arr(row.executorBasis, 500).find(ref => obj(ref).assignmentId === obj(value).assignmentId), value);
     }
+  }
+  else {
+    const used=new Set(after.flatMap(line=>line.assignmentId?[line.assignmentId]:[]));
+    same(row.executorBasis,arr(row.beforeExecutorBasis,500).filter(ref=>used.has(uid(obj(ref).assignmentId))));
   }
   return row as unknown as ClosingMonthPreview;
 }

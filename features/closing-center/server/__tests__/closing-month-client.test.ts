@@ -3,7 +3,8 @@ import assert from 'node:assert/strict';
 import { parseClosingYearQuery } from '../../../../server/closing/annual-contract';
 import { closingAmount } from '../../../../server/closing/contract';
 import { summarizeYearAmounts } from '../../../../server/closing/annual-model';
-import { moveMonthQuantities, type ClosingMonthCommand, type ClosingMonthIntent, type ClosingMonthLine } from '../../../../server/closing/month-plan-model';
+import { moveMonthQuantities, parseClosingSourceReconciliation, type ClosingMonthCommand, type ClosingMonthIntent, type ClosingMonthLine } from '../../../../server/closing/month-plan-model';
+import { reconcileClosingSource } from '../../../../server/closing/source-reconciliation-model';
 import { createClosingClient } from '../closing-client';
 import { parseClosingYear } from '../closing-year-projection';
 import { closingMonthCommandHash, parseClosingMonthPreview, parseClosingMonthReceipt, parseClosingMonthState } from '../closing-month-projection';
@@ -15,7 +16,22 @@ const intent = (): Extract<ClosingMonthIntent, { action: 'move_months' }> => ({ 
 function preview() { const next = moveMonthQuantities(before, intent(), () => id(9)); return { intent: intent(), version: 1, before, after: next.lines, movedQuantity: next.movedQuantity,
   touchedMonths: next.touchedMonths, beforeExecutorBasis: [], executorBasis: [], warnings: [], previewHash: 'a'.repeat(64) }; }
 function monthState() { return { plan: { orderId: id(1), defaultMonth: '2027-02', sourceDeliveryDate: '2027-02-20', versionId: id(10), version: 1, sourceQuantity: '15', quantityState: 'ready',
-  sourceFingerprint: 'b'.repeat(64), lines: before, executorBasis: [] }, currentDeliveryDate: '2027-02-20', sourceChanged: false, executorChanges: [], executorWarnings: [], executorCandidates: [], meaning: 'unpriced_quantity_month_plan' }; }
+  sourceFingerprint: 'b'.repeat(64), lines: before, executorBasis: [] }, currentDeliveryDate: '2027-02-20', sourceChanged: false,
+  observedSource:{fingerprint:'b'.repeat(64),quantity:'15',quantityState:'ready',businessType:'ainuoke_contract',colors:[{id:id(3),quantity:'10',ambiguous:false},{id:id(5),quantity:'5',ambiguous:false}]},
+  executorChanges: [], executorWarnings: [], executorCandidates: [], meaning: 'unpriced_quantity_month_plan' }; }
+
+test('Source reconciliation is a separate strict preview, never a total-preserving move or a free recolor',()=>{
+  const source={fingerprint:'c'.repeat(64),quantity:'20',quantityState:'ready' as const,businessType:'ainuoke_contract' as const,colors:[{id:id(3),quantity:'15',ambiguous:false},{id:id(5),quantity:'5',ambiguous:false}]};
+  const intent=parseClosingSourceReconciliation({action:'reconcile_source',orderId:id(1),expectedVersion:1,reason:'Explicit current Source',observedSourceFingerprint:source.fingerprint,adjustments:[],additions:[{colorId:id(3),quantity:'5'}]});
+  const next=reconcileClosingSource({sourceQuantity:'15',quantityState:'ready',lines:before},intent,source,()=>id(17));
+  const p={intent,version:1,before,after:next.lines,sourceReconciliation:{beforeQuantity:'15',beforeQuantityState:'ready',quantityDelta:'5',changedLines:0,addedLines:1,source},
+    beforeExecutorBasis:[],executorBasis:[],warnings:[],touchedMonths:[],previewHash:'d'.repeat(64)};
+  assert.doesNotThrow(()=>parseClosingMonthPreview(p,intent));
+  for(const changed of [{...p,sourceReconciliation:{...p.sourceReconciliation,quantityDelta:'0'}},{...p,sourceReconciliation:{...p.sourceReconciliation,source:{...source,fingerprint:'e'.repeat(64)}}},
+    {...p,after:p.after.map(line=>line.id===id(17)?{...line,month:'2027-03'}:line)}, {...p,after:p.after.map(line=>line.id===id(2)?{...line,id:id(19)}:line)}, {...p,matchedQuantity:'5'}]) assert.throws(()=>parseClosingMonthPreview(changed,intent));
+  const s=monthState(); assert.throws(()=>parseClosingMonthState({...s,observedSource:{...s.observedSource,price:'100'}},id(1)));
+  assert.throws(()=>parseClosingMonthState({...s,sourceChanged:true},id(1)));
+});
 function annual() {
   const amount = { visibility: 'allowed' as const, state: 'known' as const, currency: 'CNY' as const, price: '113', amount: closingAmount('10', '113', '13') };
   const work = { visibility: 'allowed' as const, state: 'known' as const, currency: 'USD' as const, price: '0', amount: closingAmount('10', '0', null) };

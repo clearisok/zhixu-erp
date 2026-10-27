@@ -11,7 +11,12 @@ export type ClosingMonthReconcile = {
   action: 'match_executors'; orderId: string; expectedVersion: number; reason: string;
   items: { lineId: string; parts: { assignmentId: string | null; quantity: string }[] }[];
 };
-export type ClosingMonthIntent = ClosingMonthMove | ClosingMonthReconcile;
+export type ClosingSourceReconciliation = {
+  action: 'reconcile_source'; orderId: string; expectedVersion: number; observedSourceFingerprint: string; reason: string;
+  adjustments: { lineId: string; quantity: string }[];
+  additions: { colorId: string | null; quantity: string }[];
+};
+export type ClosingMonthIntent = ClosingMonthMove | ClosingMonthReconcile | ClosingSourceReconciliation;
 export type ClosingMonthCommand = { requestId: string; intent: ClosingMonthIntent; previewHash: string };
 const invalid = (): never => closingFail(400, 'invalid_closing_month_command');
 function object(value: unknown, keys: string[]): Record<string, unknown> {
@@ -64,6 +69,7 @@ export function parseClosingMonthCommand(value: unknown): ClosingMonthCommand {
   return { requestId: closingUuid(row.requestId), intent: parseClosingMonthIntent(row.intent), previewHash: row.previewHash };
 }
 export function parseClosingMonthIntent(value: unknown): ClosingMonthIntent {
+  if ((value as { action?: unknown } | null)?.action === 'reconcile_source') return parseClosingSourceReconciliation(value);
   if ((value as { action?: unknown } | null)?.action !== 'match_executors') return parseClosingMonthMove(value);
   const row = object(value, ['action', 'orderId', 'expectedVersion', 'reason', 'items']);
   if (!Number.isSafeInteger(row.expectedVersion) || Number(row.expectedVersion) < 1 || Number(row.expectedVersion) >= 2147483647) return invalid();
@@ -83,6 +89,17 @@ export function parseClosingMonthIntent(value: unknown): ClosingMonthIntent {
   });
   if (new Set(items.map(item => item.lineId)).size !== items.length || items.reduce((sum, item) => sum + item.parts.length, 0) > 100) return invalid();
   return { action: 'match_executors', orderId: base.orderId, expectedVersion: base.expectedVersion, reason: base.reason, items };
+}
+
+export function parseClosingSourceReconciliation(value: unknown): ClosingSourceReconciliation {
+  const row = object(value, ['action', 'orderId', 'expectedVersion', 'observedSourceFingerprint', 'reason', 'adjustments', 'additions']);
+  if (row.action !== 'reconcile_source' || typeof row.observedSourceFingerprint !== 'string' || !/^[a-f0-9]{64}$/u.test(row.observedSourceFingerprint)) return invalid();
+  const base = parseClosingMonthMove({ action: 'move_months', orderId: row.orderId, expectedVersion: row.expectedVersion, reason: row.reason, targetMonth: '2000-01', selection: { mode: 'whole' } });
+  if (!Array.isArray(row.adjustments) || !Array.isArray(row.additions) || row.adjustments.length + row.additions.length > 100) return invalid();
+  const adjustments = row.adjustments.map(value => { const item = object(value, ['lineId', 'quantity']); return { lineId: closingUuid(item.lineId), quantity: monthQuantity(item.quantity, true) }; });
+  const additions = row.additions.map(value => { const item = object(value, ['colorId', 'quantity']); return { colorId: item.colorId === null ? null : closingUuid(item.colorId), quantity: monthQuantity(item.quantity) }; });
+  if (new Set(adjustments.map(item => item.lineId)).size !== adjustments.length || new Set(additions.map(item => item.colorId)).size !== additions.length) return invalid();
+  return { action: 'reconcile_source', orderId: base.orderId, expectedVersion: base.expectedVersion, observedSourceFingerprint: row.observedSourceFingerprint, reason: base.reason, adjustments, additions };
 }
 
 /** Only explicitly selected unassigned portions may acquire an actual assignment.

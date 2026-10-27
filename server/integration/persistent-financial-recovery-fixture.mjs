@@ -115,7 +115,21 @@ export async function seedPersistentFinancialRecovery(state, cookie, domain, run
   // Real unpriced month commands supply every quantity. No retired manual
   // financial writer, test-only product switch or free amount is involved.
   for (const orderId of [domain.orderId, processingOrderId]) {
-    const current = await plan(orderId); assert.ok(current);
+    let statePlan = await json(state, cookie, closing + '/orders/' + orderId + '/month-plan');
+    if (statePlan.sourceChanged) {
+      const oldByColor = new Map(); for (const line of statePlan.plan.lines) oldByColor.set(line.colorId, (oldByColor.get(line.colorId) ?? 0n) + units(line.quantity));
+      const observed = statePlan.observedSource; assert.equal(observed.quantityState, 'ready');
+      const additions = observed.colors.flatMap(color => {
+        assert.equal(color.ambiguous, false); const delta = units(color.quantity) - (oldByColor.get(color.id) ?? 0n);
+        assert.ok(delta >= 0n, 'this synthetic Source refresh only adds quantity');
+        return delta > 0n ? [{ colorId: color.id, quantity: quantityText(delta) }] : [];
+      });
+      await save(months, { action: 'reconcile_source', orderId, expectedVersion: statePlan.plan.version, observedSourceFingerprint: observed.fingerprint,
+        reason: 'Explicitly review the synthetic Source refresh before month ownership', adjustments: [], additions }, 'month');
+      statePlan = await json(state, cookie, closing + '/orders/' + orderId + '/month-plan'); assert.equal(statePlan.sourceChanged, false);
+      assert.equal(statePlan.plan.sourceQuantity, observed.quantity);
+    }
+    const current = statePlan.plan; assert.ok(current);
     await save(months, { action: 'move_months', orderId, expectedVersion: current.version, targetMonth: '2027-03', selection: { mode: 'whole' }, reason: 'Synthetic explicit preparation month' }, 'month');
   }
   async function add(periodId, orderId, colorId, quantity, channels, assignmentId = null) {

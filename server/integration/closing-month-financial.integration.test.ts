@@ -147,7 +147,8 @@ test('0048 nonempty upgrade preserves histories; financial links, rollback and r
  const f=await closingFixture(t,48),o=await f.order(),other=await f.order(false),p=(await readOrderClosingMonthPlan(f.pool,f.editor.actor,o.id)).plan!;
  const before=(await f.pool.query('SELECT to_jsonb(v) value FROM server_closing_month_plan_versions v ORDER BY id')).rows;
  await runMigrations(f.pool,resolve('database/migrations'));await runMigrations(f.pool,resolve('database/migrations'));
- assert.deepEqual((await f.pool.query('SELECT to_jsonb(v) value FROM server_closing_month_plan_versions v ORDER BY id')).rows,before);
+ assert.deepEqual((await f.pool.query("SELECT to_jsonb(v)-'source_observation' value FROM server_closing_month_plan_versions v ORDER BY id")).rows,before);
+ assert.equal((await f.pool.query('SELECT bool_and(source_observation IS NULL) ok FROM server_closing_month_plan_versions')).rows[0].ok,true);
  assert.equal((await f.pool.query('SELECT count(*)::int n FROM server_closing_month_financial_links')).rows[0].n,0);
  const periodId=(await f.apply({action:'create_period',month:'2027-02',taxRatePercent:'0',taxRateConfirmed:true,remark:''})).result.periodId;
  const intent:ClosingIntent={action:'sync_month_outputs',periodId,expectedPeriodVersion:1,channels:{sales:true,work:false},reason:'Atomic adoption'};

@@ -153,7 +153,8 @@ test('0047 nonempty month histories upgrade additively without guessing executor
  const rows=await f.pool.query('SELECT to_jsonb(v) value FROM server_closing_month_plan_versions v ORDER BY id');
  assert.equal(rows.rows.length,1);
  await runMigrations(f.pool,resolve('database/migrations'));
- assert.deepEqual((await f.pool.query("SELECT to_jsonb(v)-'executor_basis' value FROM server_closing_month_plan_versions v ORDER BY id")).rows,rows.rows);
+ assert.deepEqual((await f.pool.query("SELECT to_jsonb(v)-ARRAY['executor_basis','source_observation'] value FROM server_closing_month_plan_versions v ORDER BY id")).rows,rows.rows);
+ assert.equal((await f.pool.query('SELECT bool_and(source_observation IS NULL) ok FROM server_closing_month_plan_versions')).rows[0].ok,true);
  const p=(await readOrderClosingMonthPlan(f.pool,f.editor.actor,order.id)).plan!;assert.deepEqual(p.executorBasis,[]);
  assert(p.lines.every(line=>line.assignmentId===null));assert.equal(p.version,1);
  assert.equal((await f.pool.query('SELECT count(*)::int n FROM server_closing_allocations')).rows[0].n,0);
