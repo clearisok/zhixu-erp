@@ -23,6 +23,13 @@
 
 ## Active
 
+### D-175 关账复核的只读名称与期间状态
+
+- 日期：2026-10-28；Active engineering，实施D170/D174已规划的非金额显示读取，不批准尚待确认的具体UI，不改变归属、价格或冻结规则。
+- 原月份GET仅显式view=display扩展；原无参数/年度读取和严格客户端保持。fresh既有读取权限与单一RR只读事务关联当前Source、不可变颜色身份、assignment/hash/type/executor快照及全部计划/default月份期间；不自动初始化、取Source网络或授予金额权限。
+- 旧identityName与当前Source名分别标记，歧义/缺失保留未知；执行方只取精确hash验证的不可变资源facts名称，不以基础资料当前名伪造历史，不返回联系人/备注等无关字段。显示参考不是冻结财务名称；税率/金额不进入本投影。完整数量、原预览/命令/回执及快照字节不变。
+- 行数/资源facts总bytes/输出大小有界拒绝；新客户端按同单颜色/执行依据/所涉月份完整集合核对，不截断、不写浏览器存储。见[当前读取切片](tasks/active/closing-month-display-read-2026-10-28.md)。初次测试错误假设和修正保留，最终类型/发布/复审另记；无正式DOM/schema、真实数据、Hosted/远端、merge/部署/退役声明。
+
 ### D-174 变化来源的关账数量显式复核
 
 - 日期：2026-10-27；Active engineering，实施D169已批准的数量/颜色复核，不增加业务口径或真实Source额度。复用同一月份preview/commands/原回执，新增`reconcile_source`及无金额当前Source观察；保存时锁后重读、CAS、fresh RBAC与预览指纹核对。

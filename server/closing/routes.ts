@@ -8,7 +8,7 @@ import { readClosingOrderBasis } from './basis-service.js';
 import { executeClosingCommand, previewClosingCommand, readClosingCommandReceipt } from './service.js';
 import { listClosingPeriods, readClosingHistory, readClosingPeriodDetail } from './read-service.js';
 import {readClosingYear} from './annual-service.js';
-import { executeClosingMonthMove, previewClosingMonthMove, readClosingMonthReceipt, readOrderClosingMonthPlan } from './month-plan-service.js';
+import { executeClosingMonthMove, previewClosingMonthMove, readClosingMonthReceipt, readOrderClosingMonthPlan, readOrderClosingMonthDisplay } from './month-plan-service.js';
 
 export async function routeClosing(request: IncomingMessage, response: ServerResponse, dependencies: { pool: Pool; identityAuthority: IdentityAuthority; allowedOrigins: readonly string[] }): Promise<boolean> {
   const url = new URL(request.url ?? '/', 'http://localhost'), prefix = '/api/v1/closing';
@@ -37,8 +37,9 @@ export async function routeClosing(request: IncomingMessage, response: ServerRes
   const monthPlan = /^\/api\/v1\/closing\/orders\/([^/]+)\/month-plan$/u.exec(url.pathname);
   const monthReceipt = /^\/api\/v1\/closing\/month-plans\/commands\/([^/]+)$/u.exec(url.pathname);
   if (monthPlan || monthReceipt) {
-    if (url.search) throw new HttpError(400, 'invalid_closing_query', 'Unexpected query');
-    sendJson(response, 200, monthPlan ? await readOrderClosingMonthPlan(dependencies.pool, actor, monthPlan[1])
+    const display=monthPlan&&url.searchParams.size===1&&url.searchParams.get('view')==='display';
+    if (url.search&&!display) throw new HttpError(400, 'invalid_closing_query', 'Unexpected query');
+    sendJson(response, 200, monthPlan ? display?await readOrderClosingMonthDisplay(dependencies.pool,actor,monthPlan[1]):await readOrderClosingMonthPlan(dependencies.pool, actor, monthPlan[1])
       : await readClosingMonthReceipt(dependencies.pool, actor, monthReceipt![1])); return true;
   }
   const basis = /^\/api\/v1\/closing\/orders\/([^/]+)\/basis$/u.exec(url.pathname);

@@ -17,6 +17,7 @@ import { closingExecutionFingerprint, type ClosingExecutionReference } from './b
 import { matchMonthExecutors, monthQuantity, moveMonthQuantities, parseClosingMonthCommand, parseClosingMonthIntent, quantityUnits, sumMonthQuantities, validateMonthLines,
   type ClosingMonthCommand, type ClosingMonthIntent, type ClosingMonthLine } from './month-plan-model.js';
 import { reconcileClosingSource, type ObservedClosingSource } from './source-reconciliation-model.js';
+import { closingMonthDisplayScope, projectClosingMonthDisplay, MONTH_DISPLAY_LIMITS, type DisplayPeriod } from './month-display-model.js';
 
 export type MonthPlan = { orderId: string; defaultMonth: string | null; sourceDeliveryDate: string | null; versionId: string; version: number;
   sourceQuantity: string | null; quantityState:'ready'|'unknown'|'unsupported'; sourceFingerprint: string; lines: ClosingMonthLine[]; executorBasis: ClosingExecutionReference[] };
@@ -226,23 +227,51 @@ async function budget(client: PoolClient, command: ClosingMonthCommand) {
   if(bytes>16384) closingFail(422,'closing_month_command_too_large');
 }
 /** Internal read primitive; the caller owns the snapshot and fresh identity. */
-export async function readClosingMonthStateInTransaction(client:PoolClient,actor:TrustedIdentity,rawId:string){
+async function monthStateContext(client:PoolClient,actor:TrustedIdentity,rawId:string){
     const orderId=closingUuid(rawId);requireRead(actor);await available(client);
     const current=await source(client,orderId),record=await plan(client,orderId),references=await executorReferences(client,orderId);
     const executorChanges = record?.executorBasis.flatMap(saved => {
       const now = references.find(ref => ref.assignmentId === saved.assignmentId);
       return !now || planHash(executorAttribution(saved)) !== planHash(executorAttribution(now)) ? [{assignmentId:saved.assignmentId,reason:'attribution_changed' as const}] : [];
     }) ?? [];
-    return {plan:record,currentDeliveryDate:current.order.deliveryDate,sourceChanged:record!==null&&record.sourceFingerprint!==current.fingerprint,observedSource:observedSource(current),
-      executorChanges,executorWarnings:executorWarnings(record?.lines??[],references),executorCandidates:references,meaning:'unpriced_quantity_month_plan' as const};
+    return {colors:current.colors,state:{plan:record,currentDeliveryDate:current.order.deliveryDate,sourceChanged:record!==null&&record.sourceFingerprint!==current.fingerprint,observedSource:observedSource(current),
+      executorChanges,executorWarnings:executorWarnings(record?.lines??[],references),executorCandidates:references,meaning:'unpriced_quantity_month_plan' as const}};
 }
-export async function readOrderClosingMonthPlan(pool: Pool, identity: TrustedIdentity, rawId: string) {
+export async function readClosingMonthStateInTransaction(client:PoolClient,actor:TrustedIdentity,rawId:string){
+  return (await monthStateContext(client,actor,rawId)).state;
+}
+async function readMonthSnapshot<T>(pool:Pool,identity:TrustedIdentity,rawId:string,read:(client:PoolClient,actor:TrustedIdentity,id:string)=>Promise<T>){
   const orderId=closingUuid(rawId),client=await pool.connect();
   try {
     await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
-    const result=await readClosingMonthStateInTransaction(client,await readCurrentActor(client,identity),orderId);
+    const result=await read(client,await readCurrentActor(client,identity),orderId);
     await client.query('COMMIT');return result;
   } catch(error){await client.query('ROLLBACK').catch(()=>undefined);throw error;}finally{client.release();}
+}
+export async function readOrderClosingMonthPlan(pool: Pool, identity: TrustedIdentity, rawId: string) {
+  return readMonthSnapshot(pool,identity,rawId,readClosingMonthStateInTransaction);
+}
+/** Opt-in reference labels share the exact state snapshot. Existing reads and
+ * annual aggregation keep their old payload and perform no extra label queries. */
+export async function readOrderClosingMonthDisplay(pool:Pool,identity:TrustedIdentity,rawId:string){
+  return readMonthSnapshot(pool,identity,rawId,async(client,actor,orderId)=>{
+    const {state,colors}=await monthStateContext(client,actor,orderId),scope=closingMonthDisplayScope(state.plan,colors,state.executorCandidates);
+    const identities=scope.colorIds.length?(await client.query<{id:string;name:string}>(`SELECT id::text,color_name AS name
+      FROM sales_order_color_identities WHERE sales_order_id=$1 AND id=ANY($2::uuid[]) ORDER BY id`,[orderId,scope.colorIds])).rows:[];
+    let snapshots:{hash:string;facts:unknown}[]=[];
+    if(scope.hashes.length){
+      const size=(await client.query<{bytes:string}>(`SELECT COALESCE(sum(octet_length(facts::text)),0)::text AS bytes
+        FROM production_schedule_resource_snapshots WHERE hash=ANY($1::text[])`,[scope.hashes])).rows[0].bytes;
+      if(BigInt(size)>BigInt(MONTH_DISPLAY_LIMITS.snapshotBytes))closingFail(422,'closing_month_display_too_large');
+      snapshots=(await client.query<{hash:string;facts:unknown}>('SELECT hash,facts FROM production_schedule_resource_snapshots WHERE hash=ANY($1::text[]) ORDER BY hash',[scope.hashes])).rows;
+    }
+    const periods=scope.months.length?(await client.query<DisplayPeriod>(`SELECT p.month,p.id::text,v.status,h.version FROM server_closing_periods p
+      JOIN server_closing_period_heads h ON h.period_id=p.id JOIN server_closing_period_versions v ON v.id=h.current_version_id
+      WHERE p.month=ANY($1::text[]) ORDER BY p.month`,[scope.months])).rows:[];
+    const result={...state,display:projectClosingMonthDisplay(scope,colors,identities,snapshots,periods)};
+    if(Buffer.byteLength(JSON.stringify(result))>MONTH_DISPLAY_LIMITS.responseBytes)closingFail(422,'closing_month_display_too_large');
+    return result;
+  });
 }
 export async function previewClosingMonthMove(pool: Pool, identity: TrustedIdentity, raw: unknown) {
   const intent=parseClosingMonthIntent(raw),client=await pool.connect();

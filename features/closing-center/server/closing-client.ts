@@ -6,6 +6,7 @@ import type { ClosingOutcome } from '../../../server/closing/service';
 import { closingRequestHash } from './closing-request-hash';
 import { parseClosingYear } from './closing-year-projection';
 import { parseClosingMonthOutcome, parseClosingMonthPreview, parseClosingMonthReceipt, parseClosingMonthState } from './closing-month-projection';
+import { parseClosingMonthDisplay } from './closing-month-display-projection';
 import { ClosingClientError, CLOSING_RESPONSE_LIMIT, bool, hash, invalidClosingResponse, keys, member, messages, obj,
   parseClosingBasis, parseClosingDetail, parseClosingHistory, parseClosingPeriods, parseClosingPreview, same, str, uid, type ClosingVisibility } from './closing-projection';
 
@@ -69,6 +70,9 @@ export function createClosingClient(options: { visibility: () => ClosingVisibili
     },
     async monthPlan(orderId: string, lease: ClosingLease, signal?: AbortSignal) {
       const id = closingUuid(orderId); return query('/orders/' + id + '/month-plan', lease, signal, value => parseClosingMonthState(value, id));
+    },
+    async monthDisplay(orderId: string, lease: ClosingLease, signal?: AbortSignal) {
+      const id = closingUuid(orderId); return query('/orders/' + id + '/month-plan?view=display', lease, signal, value => parseClosingMonthDisplay(value, id));
     },
     async monthPreview(value: ClosingMonthIntent, lease: ClosingLease, signal?: AbortSignal) {
       const intent = parseClosingMonthIntent(value), raw = await request('/month-plans/preview', intent, lease, signal); owned(lease);

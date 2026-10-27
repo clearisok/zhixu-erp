@@ -39,6 +39,8 @@ export const messages: Record<string, string> = {
   closing_month_source_increase_requires_addition: '新增数量须先放入待分月，不能增加原片段。', closing_month_source_scope_replacement_forbidden: '同一颜色不能同时减量再增加，以免覆盖原有归属。',
   closing_month_executor_review_required: '执行归属已变化，请先核对，原月份量保持。', closing_month_not_initialized: '本单没有正式月份计划，未自动补造历史记录。',
   closing_month_legacy_allocations_require_review: '本单有既有手工关账记录，请先核对，不能重复计量。',
+  closing_month_display_too_large: '本单的复核信息较多，暂不能完整读取，未截断或保存。',
+  closing_month_display_evidence_invalid: '名称依据暂时无法完整核对，原记录保持，请稍后核对。',
   closing_manual_quantity_retired: '已停止手填关账数量。请在关账调整中分配月份，再明确采用本月数量与价格；原历史记录保持。',
 };
 export const invalidClosingResponse = (): never => { throw new ClosingClientError(502, 'closing_response_invalid'); };

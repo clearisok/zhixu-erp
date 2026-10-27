@@ -1,6 +1,8 @@
-# 恢复点：关账实机保持，发布工具工程与精确门禁已完成
+# 恢复点：非金额显示读取已实现，待源码checkpoint验收
 
 2026-10-28；branch feat/order-closing-month-plan。沿用核实main869ee84dd0b31de6161011e4aa560678b244a64d，无fetch/远端写。Git/ref STOP_AUTH_OR_DIVERGENCE原退出1根因未证实，不自行push/ref移动/换认证。PR130本轮未更新，前次核实旧head61704afe22fe9fd0ea9f6625c6092fcbb9575dfc。完整Goal active，不能以本工具完成收窄。
+
+新片clean80398cb2：[显示读取阶段](tasks/active/closing-month-display-read-2026-10-28.md)，D175。原月份GET仅显式view=display扩展，同RR只读/fresh权限返回精确颜色身份与当前Source名、原hash执行名、全部所涉期间状态；新monthDisplay严格客户端，不写DOM/存储/schema/价格/归属。模型4、客户端2、修正后隔离PG/HTTP7通过，原错误测试假设失败保留；当前所有dirty均本片已知增量，待独立源码checkpoint后规范tracked拷贝类型/lint/构建/相关回归、复审和发布门禁。没有运行中的测试，旧61104保持。
 
 本轮工具最终source5b9c21547f5c1e48dd467176f79f54a7e25f6e0a，完整测试输入working555。168/168、0失败/取消/跳过、510297ms，权威session80723退出0；语法与lint通过。精确增量只读复审无剩余P1/P2，仅工具范围；并非整个ERP终审。证明checkpoint2a3b82b1abaa1642f6d7d2e5c9990b216cfac8bb前向冻结为556后，同main精确守卫PASS（checkedHead2a3b82b1＋working556，12页面/68能力/累计83 UI路径，session59702退出0）。所有运行已结束；最终metadata仅保存已验证清单和结果，不把metadata称作新测试source。[冻结工程](tasks/completed/2026-10-28-release-document-anchor-engineering.md)、[阶段](tasks/active/release-post-base-document-anchor-2026-10-28.md)保留552/红测试/source65中间158PASS/source93主动Ctrl-C非PASS；私密outputs/release-post-base-anchor-20261028。旧555条证据/截图/能力保留，不改base。
 

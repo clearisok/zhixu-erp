@@ -2,6 +2,8 @@
 
 2026-10-27；Gate8G2a，承接[D169月份计划](SERVER_CLOSING_MONTH_PLAN.md)。本模块保存数量片段的明确执行归属与生产观察证据，不另建价格、生产完成或财务账本。
 
+2026-10-28前向工程：下文“内部命令/暂无HTTP”等是G2a当时切片，后续原月份HTTP/客户端已存在；D175增加显式view=display的非金额读取，详见文末，不将其当作新UI批准或完整归属恢复。
+
 ## 当前内部命令
 
 `match_executors`与`move_months`共用0047的actor/request回执、版本、全局生产锁、fresh RBAC、CAS、事务审计和未知COMMIT恢复。只读及编辑仍使用既有closing/order/schedule权限；不因匹配数量授予任何金额权限。暂没有新的HTTP、导航或React接线。
@@ -25,3 +27,9 @@ SQL再次核对颜色/月总量、已匹配行、Source指纹、稳定执行归�
 合成一次性PG覆盖内外发/未分配、同单颜色、原版本证据、并发、生产取消/改色、COMMIT丢失、fresh权限、冻结、SQL负控及非空0047→0048升级；具体分源结果见[阶段](../tasks/active/closing-executor-matching-2026-10-27.md)。原失败记录保留，不借旧144/811结果冒称本片通过。
 
 已批准的[关账调整具体UI](../tasks/completed/2026-10-27-closing-adjustment-ui-approval.md)不再询问。仍须完成Source变更显式对账、0045财务消费/冻结关联、全年两项金额和范围同步、原请求客户端、正式Server页面及旧写入口收紧，再做新镜像恢复和实际浏览器验收。现有旧HTTP、Browser历史和68项能力状态保持，完整Goal未完成。
+
+## D175非金额显示读取
+
+GET /api/v1/closing/orders/:id/month-plan?view=display返回原状态及带schemaVersion的display；无参数返回保持原样。单一RR只读事务和fresh既有权限覆盖所有依据。颜色分别显示不可变身份名和当前Source名，缺失/歧义不猜；执行方从原hash绑定资源快照提取名称，同一assignment更换执行方时旧basis与当前candidate分别关联，不用新基础资料名代替旧名。所涉月份含全部行和defaultMonth，状态明确not_created/open/confirmed/locked，不输出税率或金额。
+
+行数、资源facts总8MiB与返回1MiB明确有界拒绝；不创建稳定颜色、月份计划或其他数据。新monthDisplay严格客户端保持完整集合/owner核对和原session lease，不使用Browser回退/存储、不新增写命令。正式Source/匹配/USD三处UI仍待具体批准；旧归属漂移409不被读取功能绕过。具体验证及原失败见[读取阶段](../tasks/active/closing-month-display-read-2026-10-28.md)。
