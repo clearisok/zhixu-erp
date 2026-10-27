@@ -5016,6 +5016,16 @@
       "renderedSourceSha": "65bf13e0f30514c4de6e381dfa27448ebc3ea14f",
       "sha256": "cac5682546f62cda916405ef5313e45d168b72983a33289e9e9b8f6299829ff5",
       "changeReason": "Fix a reproduced false rejection for a document path first frozen after the actual PR base. Require an exact committed immediate-parent manifest and complete ancestor lineage; preserve base-path, historical blob, merge, screenshot, approval and capability protections. No UI or deployment permission."
+    },
+    {
+      "id": "release-post-base-own-checkpoint-contract-20261028",
+      "kind": "document",
+      "path": "docs/features/RELEASE_BASELINE_GUARD.md",
+      "recordedAtSha": "93ed270876dfd052e209f29ad259932bed776456",
+      "renderedSourceSha": "93ed270876dfd052e209f29ad259932bed776456",
+      "sha256": "47ef6f0c7fb7c3de3d19a4819cf4bc517afe4d6ef4939fe458b28822f0ee4021",
+      "supersedes": "release-post-base-document-anchor-contract-20261028",
+      "changeReason": "Close independently reproduced gaps: every post-base ordinary revision must prove its own committed immediate-parent checkpoint, and every predecessor source must descend from actual base. Retain genuine merge DAG validation and all prior evidence. No product, permission or deployment change."
     }
   ],
   "pages": [
