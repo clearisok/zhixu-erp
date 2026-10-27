@@ -5036,6 +5036,15 @@
       "sha256": "553a286c5cd574c030abffb5cf3654f9339003c51621a24edc28b2c302d374c7",
       "supersedes": "release-post-base-own-checkpoint-contract-20261028",
       "changeReason": "Memoize shared document predecessors with their longest remaining path, retain active-cycle and depth checks, and bound each witness to256 unique records. Reproduced eight-diamond repeated traversal256 times before fix. Preserve all existing evidence and product/deployment boundaries."
+    },
+    {
+      "id": "release-post-base-document-anchor-engineering-20261028",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-28-release-document-anchor-engineering.md",
+      "recordedAtSha": "2a3b82b1abaa1642f6d7d2e5c9990b216cfac8bb",
+      "renderedSourceSha": "5b9c21547f5c1e48dd467176f79f54a7e25f6e0a",
+      "sha256": "8b8ee89eeef992e0fb11e1e630c04a2424d9dc898e815807731818476dd1c0fa",
+      "changeReason": "Freeze exact-source final168/168 local release tests, syntax/lint and scoped readonly review; retain initial failures, real-Git regressions, interrupted intermediate run and bounded-DAG evidence. Final exact guard is recorded separately after this freeze. No product, real-data, remote, CI, deployment or overall-goal completion claim."
     }
   ],
   "pages": [
