@@ -23,9 +23,19 @@
 
 ## Active
 
+### D-169 订单默认归月、两项产值与关账调整
+
+- 日期：2026-10-27；Active approved target / Gate8G1 local engineering。用户否定旧三项/手工新增方案，并确认加工产值包括内制及外发，切换范围时明细与汇总同步。仅替代D162/D163/D167/D168的手工归属交互与三项展示目标；成衣CNY公式、显式期间税率、工价USD资格、商业版本唯一价格源、快照冻结和原请求保护保持。
+- 新SO在原可信创建事务中按成衣交期默认归属全部量；合同读总交期，加工读确认批次交期。缺交期或默认月已冻结时保留待分月，不猜当前月或阻断SO。未确认价格/税率不补0；没有Source真实请求、历史迁移或收入确认授权。
+- “关账调整”部分/整单跨月须原子守恒，不重写订单/排单/完成量。生产状态和全年12月两项金额作参考；显示开关不写账本，未分配不猜内制。交期变化不覆盖人工分月，数量/颜色变化显式复核。已确认/锁定期间先按旧权限取消确认/重开，原锁定历史保留。
+- 本片0047四张空表只持久未定价月份数量；初始化、preview/execute/receipt复用fresh权限、全局锁、CAS、幂等和既有OperationLog。完整PG结果预算、逐颜色/执行方守恒、COMMIT未知及完整历史引用盘点见[契约](features/SERVER_CLOSING_MONTH_PLAN.md)。无HTTP/UI激活，年度两项金额/执行方对账/0045财务消费关联和旧写入口收紧仍后续；不能声称原三项summary已改完或旧API已退役。
+- 原三项草图已由本需求替代；修订可交互草图仍待具体批准，外发范围答复不等于批准页面。报价中心USD采用UI也仍pending。旧原状态和草图见[input-state](tasks/completed/2026-10-27-closing-month-plan-input-state/README.md)，本轮工程与未来验收分开，Git/ref STOP和真实环境边界不变。
+
 ### D-168 Server关账原请求无界面编排
 
-- 日期：2026-10-27；Active engineering，实施D167原命令恢复，不改变D162/D163手工口径、税率/币种、金额来源和冻结规则。复用原client/pending、同一九类ClosingIntent和回执；不新增价格、税率更正、schema或日志系统。
+2026-10-27状态：Partially Superseded by D169（手工新增/三项展示目标）；原请求存储、核对、会话/权限保护与历史工程证据继续保留。
+
+- 日期：2026-10-27；Partially Superseded by D169，实施D167原命令恢复，不改变D162/D163手工口径、税率/币种、金额来源和冻结规则。复用原client/pending、同一九类ClosingIntent和回执；不新增价格、税率更正、schema或日志系统。
 - 月份列表仅创建期间，详情仅操作本期间；另一期间未决可核对但不能换新命令绕过。编辑/确认/锁定/重开分别复用原动作权限，渠道并集仍由Server原子鉴权。写撤权可只读核对，读撤权隐藏；金额可见性变化撤掉旧预览，不新增隐式金额授权。
 - 完整保存读回后只POST一次，再GET原hash/CAS终态；unknown需显式确认且原slot完整，才原UUID/body重试。损坏/未来/竞争原件不覆盖，ack失败保留已核结果和原请求。串行、取消/超时、owner对象代际及回调复核保护晚响应和ABA；构造/刷新不发请求。
 - 当前仅renderless controller/state，未接真实session、React、导航或离开提醒。原关账及USD采用具体UI答复仍pending。新owned合成库验收和精确源码另记于[阶段](tasks/active/server-closing-controller-2026-10-27.md)，不凭WIP或父PASS声称新验收。Git/ref STOP根因UNRESOLVED，不授予真实Source、合并、部署、现有库操作或旧资产退役。
@@ -33,7 +43,9 @@
 
 ### D-167 Server关账浏览器契约与原命令回执绑定
 
-- 日期：2026-10-27；Active engineering，实施D162/D163，不改变手工数量/月份、CNY成衣/USD工价、快照冻结、税率创建后固定或权限。原contract去除间接Node依赖，同一parseClosingIntent/Command在Server与浏览器共用；Buffer等价Unicode检验保留BOM/未配对代理项语义。read-query规则原样抽出，不另建价格计算或Browser仓储。
+2026-10-27状态：Partially Superseded by D169（手工归属/三项展示目标）；原协议和回执保护保留，新分月协议尚未接浏览器。
+
+- 日期：2026-10-27；Partially Superseded by D169，实施D162/D163，不改变手工数量/月份、CNY成衣/USD工价、快照冻结、税率创建后固定或权限。原contract去除间接Node依赖，同一parseClosingIntent/Command在Server与浏览器共用；Buffer等价Unicode检验保留BOM/未配对代理项语义。read-query规则原样抽出，不另建价格计算或Browser仓储。
 - 原关账回执增加commandHash并复验存储command/request/hash，仍只按当前actor原UUID读取，坏存储不造证明；不返回原命令或金额。历史绑定entityType/entityId，发生时时间统一ISO，原对象/身份/版本不改。
 - 浏览器白名单投影覆盖basis/月份/明细/历史/preview/result；手工归属/CAS/hash/分页和三桶金额独立。1MiB、fresh会话owner lease、无自动POST重试、原UUID终态核对；sessionStorage只保存本actor/tab的一条原命令，坏字节不覆盖，无旧Browser账本/Seed/IndexedDB读写。
 - 当前只有协议和原请求存储函数，低层submit不负责存储，不宣称UI save→POST编排或真实session/provider/导航接线完成。具体[关账UI草图](tasks/active/server-closing-ui-proposal-2026-10-27.md)已征询且仍pending；USD采用UI原问题也不被替代。精确源码及验证见[阶段](tasks/active/server-closing-browser-protocol-2026-10-27.md)。远端STOP未解除，不授予来源、合并、部署或现有库操作。
@@ -63,9 +75,11 @@
 
 ### D-163 Server关账持久快照、渠道与原子命令
 
+2026-10-27状态：Partially Superseded by D169（手工新增与三项汇总目标）；0045过渡命令、不可变价格快照、期间冻结和原历史保持，旧写入口尚未退役。
+
 2026-10-27接续：[Gate8B独立契约](features/SERVER_CLOSING_COMMANDS.md)为当前入口；原SERVER_CLOSING/BUSINESS_RULES中的Gate8A实现状态按原日期冻结保存，不表示当前仍无写入。两条无main根的未验证修订候选永久退休，原对象和bcab历史保留，规则与守卫不放宽，见[证据澄清](tasks/completed/2026-10-27-closing-command-evidence-reconciliation.md)。
 
-- 日期：2026-10-26；Active engineering，实施D-162已批准口径；不替代其业务公式、币种或手工确认。D162下文Gate8A“尚无写入”是原切片事实，当前本地Gate8B进展由本条及独立契约接续。
+- 日期：2026-10-26；Partially Superseded by D169，实施D-162已批准口径；不替代其业务公式、币种或手工确认。D162下文Gate8A“尚无写入”是原切片事实，当前本地Gate8B进展由本条及独立契约接续。
 - 一份归属一份手工数量，销售/工价/两项渠道显式选择；加工仅工价，单列服务产值。BigInt有理数精确计算，汇总后half-up显示6位；不自动换汇、不以累计生产分月、不回写报价/订单/排单。税率创建时显式确认，本切片固定；税率更正、USD新工价采用与UI后续，不能以SQL替代。
 - 0045只加七张空Server表，版本/身份不可变，head前进；精确商业、稳定颜色、原计划/执行版本与请求FK。既有实际采用价格为唯一金额来源，新建/修改预览采用当前版本；复核只更新reviewBasis，作废保留原快照。无跨期搬移命令、历史导入、seed或旧迁移改写。
 - open/confirmed/locked独立，确认和锁定以完整版本清单冻结。重开需原权限与原因，原locked版本仍可读。生产更正后未锁须复核；锁等待后READ COMMITTED重新核对实际事实，不使用陈旧RR预览。旧新渠道权限并集用于间接修改及期间状态操作；独立金额投影覆盖摘要、历史、备注/原因与回执。
@@ -75,7 +89,9 @@
 
 ### D-162 Server 关账口径、手工确认与依据更正保护
 
-- 日期：2026-10-26；Active approved target。补齐 D-147/D-152 当时保留的关账口径；D-042 及下列 Browser 描述仍为历史路径，不作为 Server 的默认值或迁移来源。
+2026-10-27状态：Partially Superseded by D169（手工新建月份/数量归属目标）；币种、公式、显式税率、依据更正和历史冻结继续有效。下文是原日期决定，不覆盖新默认归月要求。
+
+- 日期：2026-10-26；Partially Superseded by D169。补齐 D-147/D-152 当时保留的关账口径；D-042 及下列 Browser 描述仍为历史路径，不作为 Server 的默认值或迁移来源。
 - 用户确认：成衣销售产值为手工确认数量 × 订单实际采用的 CNY 成交单价 ÷（1＋期间税率）；税率每个期间显式填写并确认，不预填 13%、不继承 Browser 设置。月份、数量、颜色和执行方归属由用户确认；累计生产完成与 6086979 成衣出货仅作参考，不自动分月、确认收入或改变四个独立数量口径。
 - 加工订单没有成衣售价；加工服务产值单独统计，不进入成衣销售产值。工价口径要求 USD，实际采用 CNY 的工价先阻断其工价关账，须在报价中心明确确认、采用新的 USD 商业版本后再纳入；不自动换汇、不换币种标签、不覆盖旧商业版本或批次创建依据。加工服务与工价维度引用同一金额事实时不得重复相加。
 - 引用的生产完成数量、日期或依据版本变化后，未锁定记录须复核，复核前不得确认或锁定；已锁定快照保持，只展示后续更正。版本变化后数值回到原值也不视作从未更正；取消剩余排单不删除原执行方的已完成数量。

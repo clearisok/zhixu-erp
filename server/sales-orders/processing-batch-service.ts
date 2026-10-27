@@ -12,6 +12,7 @@ import {identityUuid} from './identity-model.js';
 import {readCommercialCandidate} from './commercial-source.js';
 import {appendCommercialVersion} from './commercial-version-service.js';
 import {createSalesOrder} from './repository.js';
+import { initializeOrderClosingMonth, lockOrderClosingMonthCreation } from '../closing/month-plan-service.js';
 import {parseProcessingBatchDraft,parseProcessingBatchConfirmation,parseProcessingBatchCancellation,parseProcessingBatchConsumption,processingDraftHash,type ProcessingBatchDraft} from './processing-batch-model.js';
 
 function fail(status:number,code:string):never{throw new HttpError(status,code,code);}
@@ -31,6 +32,7 @@ async function transaction<T>(pool:Pool,actor:TrustedIdentity,operation:Operatio
   await c.query('BEGIN');await c.query("SET LOCAL lock_timeout='5s'");
   await lockEffectiveAttribution(c);
   const a=await requireOrderCommandActor(c,actor,operation==='read'?'order.view':operation==='consume'?'order.processing.consume':'order.processing.batch.manage');
+  if(operation==='consume')await lockOrderClosingMonthCreation(c);
   if(operation==='read'&&!a.permissions.includes('order.processing.consume')&&!a.permissions.includes('order.processing.batch.manage'))fail(403,'permission_denied');
   requirePermission(a.permissions,'quote.view');requirePermission(a.permissions,'commercial.labor.view');
   const result=await run(c,a);await c.query('COMMIT');return result;
@@ -121,6 +123,7 @@ export async function cancelProcessingBatch(pool:Pool,actor:TrustedIdentity,id:s
 }
 async function consumeOne(pool:Pool,actor:TrustedIdentity,requestId:string,item:{batchId:string;expectedVersion:number}){return transaction(pool,actor,'consume',(c,a)=>consumeProcessingBatchInTransaction(c,a,requestId,item));}
 export async function consumeProcessingBatchInTransaction(c:PoolClient,a:TrustedIdentity,requestId:string,item:{batchId:string;expectedVersion:number}){
+ await lockOrderClosingMonthCreation(c);
  const payloadHash=hash([item.batchId,item.expectedVersion]);
   const old=await replay(c,a,requestId,'consume',item.batchId,payloadHash);if(old)return old;
   const b=await readBatch(c,item.batchId);
@@ -136,6 +139,7 @@ export async function consumeProcessingBatchInTransaction(c:PoolClient,a:Trusted
   await c.query("INSERT INTO sales_order_identity_profiles(sales_order_id,business_type,lineage,reference_order_id) VALUES($1,'processing',$2,$3)",[order.id,b.referenceOrderId?'reorder':'pending',b.referenceOrderId]);
   const commercial=await appendCommercialVersion(c,{orderId:order.id,version:1,actorId:a.internalUserId,requestId:randomUUID(),payloadHash,candidate,reason:'Confirmed processing batch '+b.id});
   await c.query('INSERT INTO processing_order_batch_consumptions(batch_id,sales_order_id,confirmation_id,commercial_version_id,actor_id) VALUES($1,$2,$3,$4,$5)',[b.id,order.id,b.confirmationId,commercial.id,a.internalUserId]);
+  await initializeOrderClosingMonth(c,a,order.id);
   return record(c,a,requestId,'consume',b.id,payloadHash,{batchId:b.id,salesOrderId:order.id,orderNo:order.orderNo,status:'created'});
 }
 export async function consumeProcessingBatches(pool:Pool,actor:TrustedIdentity,raw:unknown){

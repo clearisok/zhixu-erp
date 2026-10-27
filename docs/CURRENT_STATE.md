@@ -1,9 +1,11 @@
-# 当前状态：Gate8F独立恢复补验通过，待UI和远端收口
+# 当前状态：Gate8G1订单默认归月后端收口中
 
-2026-10-27；branch codex/financial-recovery-fixture-main-869e，S1/image22fe4e84f08441f6a0c849540871e56b44d8aa9f，S2/test774264574191801147e2151b2b77ef5dc4d30f93，S3/tool545fe97ad1eb14302c2d87ae3b975b9434414a2d。main869ee84dd0b31de6161011e4aa560678b244a64d沿用同日核实，无fetch/API；PR130旧61704afe22fe9fd0ea9f6625c6092fcbb9575dfc非增量，Git/ref STOP根因未定。
+2026-10-27；branch `feat/order-closing-month-plan`，clean起点a98fa0cf8511e04b99d0aba943b799a0cecce8d0。本轮只读GitHub确认main869ee84dd0b31de6161011e4aa560678b244a64d，无fetch；原Git/ref STOP根因未定。PR130旧61704afe22fe9fd0ea9f6625c6092fcbb9575dfc不含本片。
 
-一次0046镜像构建及非空财务输入/重启/备份已验证；原全流程首次4/6、修后7/9均保留。S3安全分类明确复现Docker默认地址池耗尽；仅本owned恢复项目缺失ingress使用无宿主/Docker重叠的私有/28，原default/五服务hash/卷不变，独立启动READY。未改全局Docker或清理旧网络。[完整分源工程证明](tasks/completed/2026-10-27-financial-recovery-engineering.md)。
+D169按用户修订替代三项/手工新增目标：两项产值、SO按成衣交期默认归月、部分/整单调整；加工含内制与外发，筛选同步明细与全年汇总。公式、商业价格源、USD资格、显式税率、独立生产量及冻结历史保持。[当前契约](features/SERVER_CLOSING_MONTH_PLAN.md)。
 
-独立补验通过：8非空财务表、10恢复账本回执、15读取路径、原PNG；显式税/手工量、锁定售价113CNY、原CNY历史与USD4.25、加工0USD独立服务保持。27本机HTTP、0领域重放，不是重跑原9/9，不补造原内存快照。23相关/LF文本等价、精确分类器1项及lint通过；旧811/144不重跑或冒用，完整HEAD发布守卫另记。
+0047只加四张空表；合同新增/加工批次首次消费原事务初始化，内部读/预览/原子调月/原回执完成。五项实现P2已修，含所有创建入口前置锁及Source原精度保护。无价格/税率复制、历史补造、HTTP/UI。811项目通过；相关回归分组与原失败分开保留，两个失败组适配后29/29及34/34。规范副本类型/Server构建及15文件lint通过，最后测试清单变更另核类型；精确最终守卫后置。[阶段记录](tasks/active/order-closing-month-plan-2026-10-27.md)。
 
-旧55/183/29所选Docker元数据及276refs保持，非内容审计；3个owned项目15容器已停、12卷及合成备份保留。默认池容量不等于全局修复。UI两项具体批准pending；0Hosted/远端写/Source/既有账号业务库/合并/正式部署/切换/退役。68能力不改、Goal active。
+后续：Source/执行方片段对账、两项年度金额、0045财务消费关联及旧写入口收紧；修订关账调整草图和USD采用UI的具体批准仍pending。旧HTTP尚未退役，不能把新分月和旧归属重复求和。68能力不提升，Goal active。
+
+[原状态/草图](tasks/completed/2026-10-27-closing-month-plan-input-state/README.md)与[Gate8F分源恢复证明](tasks/completed/2026-10-27-financial-recovery-engineering.md)保留，旧4/6、7/9不改写。0Hosted/远端写/真实Source/现有账号业务库/合并/正式部署/切换/退役，旧Docker卷和备份保留。

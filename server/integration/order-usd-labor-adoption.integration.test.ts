@@ -18,13 +18,14 @@ import { updateConfirmedCommercialTermsByQuote } from '../confirmed-commercial-t
 import { applyQuoteVersionCommand } from '../quotes/version-workflows.js';
 import { appendOperationLog } from '../operation-logs/repository.js';
 import { normalizationReferences } from '../sales-orders/normalization-preview.js';
+import {migrationFilesAfter} from './current-migration-ledger-fixture.js';
 
 test('Gate8C explicit USD labor adoption preserves independent order, product, batch and closing facts', { timeout: 240000 }, async t => {
   const x = await closingFixture(t, 45, true), { pool, editor } = x;
   const a = await x.order(), b = await x.order(), process = await x.processing('CNY');
   const prior = (await pool.query("SELECT md5(jsonb_agg(to_jsonb(v) ORDER BY id)::text) hash FROM sales_order_commercial_versions v")).rows[0].hash;
-  await t.test('nonempty 45→46 is additive, idempotent and keeps prior commercial rows byte-equivalent', async () => {
-    assert.deepEqual((await runMigrations(pool, resolve('database/migrations'))).applied, ['0046_order_usd_labor_adoptions.sql']);
+  await t.test('nonempty 45→current is additive, idempotent and keeps prior commercial rows byte-equivalent', async () => {
+    assert.deepEqual((await runMigrations(pool, resolve('database/migrations'))).applied, migrationFilesAfter(45));
     assert.equal((await pool.query("SELECT md5(jsonb_agg(to_jsonb(v) ORDER BY id)::text) hash FROM sales_order_commercial_versions v")).rows[0].hash, prior);
     assert.equal((await pool.query('SELECT count(*)::int n FROM order_labor_adoption_commands')).rows[0].n, 0);
     assert.deepEqual((await runMigrations(pool, resolve('database/migrations'))).applied, []);

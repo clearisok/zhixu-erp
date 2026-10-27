@@ -12,7 +12,7 @@ import { previewSaleAdjustment, commitSaleAdjustment } from '../sales-orders/sal
 import type { ClosingAllocationData } from '../closing/contract.js';
 import type { PermissionKey } from '../../features/permissions/model/permissions.js';
 import { closingFixture, closingCode } from './closing-fixture.js';
-import { CURRENT_MIGRATION_FILES } from './current-migration-ledger-fixture.js';
+import { CURRENT_MIGRATION_FILES,migrationFilesAfter } from './current-migration-ledger-fixture.js';
 
 test('Gate8B manual closing: nonempty upgrade, immutable snapshots, trusted HTTP and transactional commands', { timeout: 180000 }, async t => {
   const x = await closingFixture(t, true), { pool, editor } = x;
@@ -30,7 +30,7 @@ test('Gate8B manual closing: nonempty upgrade, immutable snapshots, trusted HTTP
   const before = await digests();
   const ledger = (await pool.query('SELECT * FROM schema_migrations ORDER BY version')).rows;
   const upgrade = await runMigrations(pool, resolve('database/migrations'));
-  assert.deepEqual(upgrade.applied, ['0045_server_closing_snapshots.sql', '0046_order_usd_labor_adoptions.sql']);
+  assert.deepEqual(upgrade.applied, migrationFilesAfter(44));
   assert.deepEqual(await digests(), before); assert.deepEqual((await pool.query('SELECT * FROM schema_migrations WHERE version<=44 ORDER BY version')).rows, ledger);
   assert.equal((await pool.query('SELECT count(*)::int n FROM sales_order_commercial_lines WHERE labor_confirmation_source IS NOT NULL')).rows[0].n, 0);
   await t.test('0045 adds empty tables without changing old nonempty rows and is idempotent', async () => {

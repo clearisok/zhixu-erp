@@ -1,9 +1,11 @@
-# 恢复点：Gate8F独立恢复补验通过，原失败保留
+# 恢复点：Gate8G1订单月份计划
 
-2026-10-27，branch codex/financial-recovery-fixture-main-869e，S3/tool545fe97ad1eb14302c2d87ae3b975b9434414a2d，S2/test774264574191801147e2151b2b77ef5dc4d30f93，S1/image22fe4e84f08441f6a0c849540871e56b44d8aa9f。main869ee84dd0b31de6161011e4aa560678b244a64d沿用同日核实；Git/ref STOP根因UNRESOLVED，不能因本机修正解除。先读[工程证明](tasks/completed/2026-10-27-financial-recovery-engineering.md)、[第二次失败](tasks/completed/2026-10-27-financial-recovery-startup-failure.md)、[首次失败](tasks/completed/2026-10-27-financial-recovery-first-attempt.md)及[阶段](tasks/active/financial-recovery-2026-10-27.md)。
+2026-10-27；branch `feat/order-closing-month-plan`，clean输入a98fa0cf8511e04b99d0aba943b799a0cecce8d0，main869ee84dd0b31de6161011e4aa560678b244a64d本轮只读复核。无fetch/远端写；原STOP根因未明。先读D169、[独立契约](features/SERVER_CLOSING_MONTH_PLAN.md)、[阶段](tasks/active/order-closing-month-plan-2026-10-27.md)。
 
-原全流程4/6、7/9不改；后续同目标安全分类确认默认池耗尽，仅本owned缺失ingress/28补救，原default/服务hash/卷不变；独立启动及财务读取/PNG补验PASS。原S2 tracked不改，原ops两个诊断extra文件明记；没有S3镜像。27本机HTTP、10账本回执、15财务路径、8非空表；无原POST内存快照重比或领域重放，不能写新全流程9/9。
+用户最新规则：两项产值，新SO按交期默认全量归月；部分/整单跨月原子守恒；生产状态与全年两项月度金额参考；加工包括内外发，范围筛选同步明细/汇总。旧三项/手工新增目标已被替代，不照旧接React。修订草图及USD采用UI均未明确批准；外发范围确认不是整体UI批准。
 
-旧55/183/29元数据及276refs changes=[]，非内容审计；三个owned项目15容器已停、12卷/私密输入/合成dump保留。原件outputs/financial-recovery-diagnostics-20261027；旧失败目录proof/finalize假定成功，禁止运行。新收口器对完整HEAD执行一次精确main守卫，旧811/144等不重跑。
+本片0047/新SO初始化/内部preview-execute-receipt及完整历史引用已实现，无HTTP/UI/年度金额。五项实现P2修复；三方锁序/精度/容量/COMMIT回执有真实PG覆盖。811项目、15文件lint、规范副本类型/Server构建通过；原关账121/124与订单93/95的失败完整保留，定向修后29/29、34/34，不简单相加。下一步最后两个测试清单变更后核类型、source/evidence提交及精确main守卫；不重复已通过未变组。原件outputs/closing-month-plan-20261027，最终准确source与回执另记。
 
-下一依赖仍是原两项具体UI批准：报价中心USD采用三步交互、Server关账总览/详情/归属表单。未答复不接React/provider/导航或提升能力；D162–168保持。远端STOP独立保留，新S1/S2/S3未送达PR130。0Hosted/真实Source/既有账号库/merge/deploy/cutover/retirement，68能力不改、Goal active。
+后续Source/执行方片段复核、0045消费与冻结关联、两项年度投影和旧写收紧；当前旧HTTP仍在，不能算退役/完整闭环。历史0045/0046、商业/生产快照、旧环境/卷/备份与[Gate8F原失败和独立补验](tasks/completed/2026-10-27-financial-recovery-engineering.md)保持；旧4/6、7/9不得改成9/9。[原输入](tasks/completed/2026-10-27-closing-month-plan-input-state/README.md)逐字保留。
+
+0Hosted/真实Source/既有账号业务库/merge/deploy/cutover/retirement；68能力不改、完整Goal active。远端恢复独立于本机工程，不能凭新提交解除STOP。

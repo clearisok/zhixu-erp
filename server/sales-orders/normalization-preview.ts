@@ -66,6 +66,9 @@ export const NORMALIZATION_REFERENCES = [
  ['material_arrival_command_orders','sales_order_id','request_id'],
  ['server_closing_allocations','sales_order_id','id'],
  ['server_closing_allocation_versions','sales_order_id','id'],
+ ['server_closing_month_plans','sales_order_id','sales_order_id'],
+ ['server_closing_month_plan_versions','sales_order_id','id'],
+ ['server_closing_month_plan_heads','sales_order_id','sales_order_id'],
  ['order_labor_adoption_commands','sales_order_id','request_id'],
  ['order_labor_adoption_commands','declared_order_id','request_id'],
 ] as const;
@@ -112,7 +115,11 @@ export async function normalizationReferences(client:PoolClient){
  const closingTables=['server_closing_commands','server_closing_periods','server_closing_period_versions','server_closing_period_heads','server_closing_allocations','server_closing_allocation_versions','server_closing_allocation_heads'];
  const closingCount=(await client.query<{n:number}>(`SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r' AND c.relname=ANY($1::text[])`,[closingTables])).rows[0].n;
  if(closingCount!==0&&closingCount!==closingTables.length)throw new HttpError(503,'closing_reference_schema_incomplete','Server closing reference schema is incomplete');
- return references.filter(([table])=>(present===3||!table.startsWith('ainuoke_payment_'))&&(sourceReady||table!=='sales_order_business_source_snapshots')&&(creationContextReady||table!=='quote_creation_order_contexts')&&(colorCount===colorTables.length||!colorTables.includes(table))&&(adjustmentCount===2||table!=='order_sale_adjustment_receipts')&&(planningCount===planningTables.length||!planningTables.includes(table))&&(executionCount===executionTables.length||!executionTables.includes(table))&&(trackingCount===trackingTables.length||!trackingTables.includes(table))&&(arrivalCount===arrivalTables.length||!arrivalTables.includes(table))&&(garmentCount===garmentTables.length||!garmentTables.includes(table))&&(closingCount===closingTables.length||!closingTables.includes(table)));
+ const monthTables=['server_closing_month_commands','server_closing_month_plans','server_closing_month_plan_versions','server_closing_month_plan_heads'];
+ const monthCount=(await client.query<{n:number}>(`SELECT count(*)::int AS n FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r' AND c.relname=ANY($1::text[])`,[monthTables])).rows[0].n;
+ if(monthCount!==0&&monthCount!==monthTables.length)throw new HttpError(503,'closing_month_reference_schema_incomplete','Order month reference schema is incomplete');
+ if(monthCount>0&&closingCount!==closingTables.length)throw new HttpError(503,'closing_month_reference_schema_incomplete','Order month period dependencies are incomplete');
+ return references.filter(([table])=>(present===3||!table.startsWith('ainuoke_payment_'))&&(sourceReady||table!=='sales_order_business_source_snapshots')&&(creationContextReady||table!=='quote_creation_order_contexts')&&(colorCount===colorTables.length||!colorTables.includes(table))&&(adjustmentCount===2||table!=='order_sale_adjustment_receipts')&&(planningCount===planningTables.length||!planningTables.includes(table))&&(executionCount===executionTables.length||!executionTables.includes(table))&&(trackingCount===trackingTables.length||!trackingTables.includes(table))&&(arrivalCount===arrivalTables.length||!arrivalTables.includes(table))&&(garmentCount===garmentTables.length||!garmentTables.includes(table))&&(closingCount===closingTables.length||!closingTables.includes(table))&&(monthCount===monthTables.length||!monthTables.includes(table)));
 }
 export function validateNormalizationPair(ids: readonly string[]) {
  if(ids.length!==2 || ids.some(id=>typeof id!=='string'||!identityUuid.test(id)) || ids[0].toLowerCase()===ids[1].toLowerCase()) throw new HttpError(400,'invalid_normalization_pair','Two distinct order IDs required');

@@ -29,6 +29,14 @@ test('normalization preview reads only synthetic disposable database', {timeout:
   assert.deepEqual((await pool.query('SELECT row_to_json(o) AS row FROM sales_orders o ORDER BY id')).rows,before);
   assert.equal(result.reviewHash,(await previewOrderNormalization(pool,actor,[a.id,b.id])).reviewHash);
  });
+ await t.test('month ownership references cannot omit a partial schema cohort',async()=>{
+  const client=await pool.connect();try{
+   await client.query('BEGIN');await client.query('ALTER TABLE server_closing_month_commands RENAME TO synthetic_hidden_month_commands');
+   await assert.rejects(()=>normalizationReferences(client),(error:unknown)=>(error as {code:string}).code==='closing_month_reference_schema_incomplete');
+   for(const table of ['server_closing_month_plans','server_closing_month_plan_versions','server_closing_month_plan_heads'])await client.query('ALTER TABLE '+table+' RENAME TO synthetic_hidden_'+table);
+   assert.equal((await normalizationReferences(client)).some(([table])=>table.startsWith('server_closing_month_')),false);
+  }finally{await client.query('ROLLBACK');client.release();}
+ });
  await t.test('color reference schema is optional before upgrade, but a partial upgrade fails closed',async()=>{
   const client=await pool.connect();
   try{
