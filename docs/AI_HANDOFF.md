@@ -1,5 +1,7 @@
 # 恢复点：PR130已是累计包，Gate8独立；实机62411保留
 
+2026-10-28最新人工答复：“能登录，也能打开调月弹窗”，绑定此前62411固定实机问题。登录及打开弹窗已人工确认，不再重复询问或把自动输入失败当产品缺陷。只覆盖这两项，不证明保存/金额/冻结或全业务验收。本轮Cua仍看到原tab5登录页，与人工操作视图不一致；保护用户当前页面/输入，不自动reload、重新登录或尝试追赶其操作。旧诊断作为历史保留，不用其旧画面推翻用户反馈。当前仅记录答复，无产品、SQL、UI、测试、CI或远端变化。
+
 2026-10-28；branch feat/order-closing-month-plan；本阶段baseline clean 855401ba60de2732bb6cc0305390cc79862db958。先读CURRENT_STATE和[本阶段核对](tasks/completed/2026-10-28-pr130-gate8-delivery-reconciliation.md)。旧长接力[逐字归档](tasks/completed/2026-10-28-delivery-reconciliation-input-state/AI_HANDOFF.md)，不能继续沿用其“小范围PR130”假设。
 
 ## 交付事实和下一步
@@ -19,4 +21,4 @@
 - 新持久空候选https://localhost:62428，project zhixu-quote-trial-server-g8-7ab874a33c，私密root D:/zhixu-server-convergence/gate8-empty-cf77-7ab874a33c。cf77image ID ec2987de1be1dd31435a766081bafcbd11b98fe9efbc24333b236c5811ac74a6，50迁移/0051、五服务/四持久卷、111业务表0/唯一local.admin、READY/restart原通过。不要读取/输出secrets，不安装系统信任或越过浏览器警告。start-reviewed一次额度已用，不能重新完整执行；无需操作该目标。
 - 243/Chromium9/fde8、cf77image+de5恢复9/Chromium9及568guard原精确source回执保留在关联证明/旧归档；不重复build、全仓/Hosted/恢复。旧容器/卷/网络/备份/Browser/运行依赖全部保留。
 
-整体Goal active；三处具体配套UI和执行归属漂移恢复规则的既有async问题仍待答复，不因时间/自动Goal继续当作批准。核心关账UI已批准。无新真实Source/调度/既有账号业务库/merge/正式部署/切换/退役授权。
+整体目标未完成，Goal工具当前blocked；三处具体配套UI、执行归属漂移恢复规则与PR130具体合并问题仍待既有答复，不因时间或本次两项人工确认当作批准。核心关账UI已批准，人工登录/打开弹窗已确认，均不重问。无新真实Source/调度/既有账号业务库/merge/正式部署/切换/退役授权。

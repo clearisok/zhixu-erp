@@ -1,5 +1,7 @@
 # 当前状态：累计交付边界已核实，关账实机保留
 
+2026-10-28人工对照已完成：用户对固定62411实机问题明确答复“能登录，也能打开调月弹窗”。只确认登录和打开调月弹窗可用，不扩大为调整保存、金额正确、冻结或完整业务接受。自动控制本轮仍读到原tab5登录页，与用户人工操作视图不一致；不据此推翻人工确认、不再重复登录或修改业务代码。旧自动诊断及不确定根因作为历史保留；下文“等待用户手动点击”已由本答复收口。没有新测试/CI/远端/数据库操作。
+
 2026-10-28；branch feat/order-closing-month-plan；本阶段clean输入855401ba60de2732bb6cc0305390cc79862db958。main只读重核仍869ee84dd0b31de6161011e4aa560678b244a64d，无fetch。
 
 **[PR130](https://github.com/clearisok/zhixu-erp/pull/130)** 实际已是G4–G7累计集成：head61704afe22fe9fd0ea9f6625c6092fcbb9575dfc，180提交/705路径，新增0033–0044、全43迁移。当前远端正文准确，早期本地“小只读PR”草稿/接力假设已纠正。baseline/source/team-access三项既有CI全部成功，未重跑；test-merge双父为main/head，tree与head相同。有界证据复审无阻断P1/P2；不等于全705路径新审计或部署批准。[完整核对](tasks/completed/2026-10-28-pr130-gate8-delivery-reconciliation.md)。
@@ -14,6 +16,6 @@
 
 **当前交付和限制**：原Git/ref STOP_AUTH_OR_DIVERGENCE退出1根因UNRESOLVED，API读成功不解除写STOP；PR130未合并，Gate8未送达。本片远端写/Hosted/真实Source均0；未改产品、SQL、测试、guard或568条manifest历史记录，不重复未变检查。工作区同main精确守卫一次PASS：checkedHead 855401ba＋本阶段working docs，568证据/12页面/68能力/84累计UI路径，190214ms、session79757退出0。仅随后记录结果，不称metadata新源码重测；未改的发布回归沿原source复用。
 
-**下一步**：PR130具体批准后merge commit并核对新main，再前向整合Gate8、按新base验证/精确交付。三处[配套UI](tasks/active/closing-support-interfaces-proposal-2026-10-28.md)及归属恢复规则待既有答复，核心UI不重问；真实源激活、正式切换、人工接受和旧依赖退役独立。88相关refs仅历史归类，没有退役授权。整体Goal继续active。
+**下一步**：PR130具体批准后merge commit并核对新main，再前向整合Gate8、按新base验证/精确交付。三处[配套UI](tasks/active/closing-support-interfaces-proposal-2026-10-28.md)及归属恢复规则待既有答复，核心UI不重问；真实源激活、正式切换、其余人工业务接受和旧依赖退役独立。88相关refs仅历史归类，没有退役授权。整体目标未完成，Goal工具当前blocked；本次人工对照只解除登录/打开弹窗这一项等待，不扩大其余授权。
 
 本阶段前状态[逐字归档](tasks/completed/2026-10-28-delivery-reconciliation-input-state/receipt.json)；所有原日期/hash/失败/结果/限制保持。
