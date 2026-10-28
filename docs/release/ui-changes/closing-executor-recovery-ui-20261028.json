@@ -6,8 +6,7 @@
     "features/closing-center/components/server-closing-executor-dialog.tsx",
     "features/closing-center/server/closing-month-projection.ts",
     "features/closing-center/server/closing-projection.ts",
-    "features/operation-logs/model/operation-log.ts",
-    "server/closing/month-plan-model.ts"
+    "features/operation-logs/model/operation-log.ts"
   ],
   "pages": ["closing-adjustment"],
   "approval": { "status": "user-approved", "reference": "docs/tasks/completed/2026-10-28-closing-support-and-pr130-approval.md" },

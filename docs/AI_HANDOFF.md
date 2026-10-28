@@ -1,23 +1,24 @@
-# 接力：执行方匹配已验，继续D177恢复与报价USD入口
+# 接力：配套界面本地收口，远端写入STOP独立处理
 
-2026-10-28；feat/closing-support-interfaces；main6479a713e2b80228f008049519ebbd50d10601a8，原order-closing-month-plan ref0900保持，153整合checkpoint已锚新分支，不重写历史。用户“全部确认”已批准PR130和三处具体UI/无产出恢复，不再重问。整体Goal/Gate0未完成，不能只完成此片就complete。
+2026-10-28；`feat/closing-support-interfaces`。先读CURRENT_STATE和PROJECT_INDEX。main已核实6479a713e2b80228f008049519ebbd50d10601a8；PR130批准的merge commit已完成，其他PR没有新合并/关闭。原`feat/order-closing-month-plan`仍指向0900c2b0ae9bc875e91c4c124bb101f52d227250；本分支保留153c04a4627f6d78febd79e153d11d7e5cc0cd38的双亲前向整合，不rebase/reset。
 
-产品A=d32912cf7483f42fd42dc28799531c0b1e7fb52d（type/lint/32unit/canonicalbuild/Chromium11）；B=3ac9192cb8720b781d760ef0182de35440d4702e（draft9/type/lint/build/Chromium12）。本checkpoint只补MJS可靠等待、不可变证明/截图与feature后继；B产品未改变。原日志在outputs/approved-support-flow-20261028，新的浏览器资料outputs/closing-adjustment-ui-current-20261027。旧未跟踪outputs起始缺失不声称仍存在；Git冻结证明均保持。
+## 精确代码与证据
 
-工具兼容修正单独dirty scripts/check-release-baseline.mjs需下一片独立提交，不能混入本B收口。原full182=180pass2fail；新16项定向通过，最后抽取统一历史字段兼容比较后需要精确v1检查/最终完整回归。41f的actual-main guard已PASS，新增B路径已经精确impact登记；不要将旧守卫作为B最终检查。当前manifest将本checkpoint后再冻结B工程/feature/截图，旧ID/hash不改。
+- 最终产品a198d1829675092006708727624ee867be0e7b60；其后35bf9de6是实际18项Chromium夹具/证明/四PNG，d54f367c冻结5条证据。后续只收口文档和移除UI清单误列的后端模型路径，没有改产品或覆盖旧hash。
+- D177恢复06980：0052、release_executors同一命令/CAS/hash/原回执；全部受影响且无当前/依据/不可变历史正产出的归属，显式恢复未分配，只清assignment引用，原行ID/颜色/量/月保持。Source同时变化先恢复再单独复核。冻结须先取消确认/重开。
+- USD UI沿用原labor服务/客户端；加工仅工价，独立金额权限；同一大弹窗采用/历史，不自由填价/换汇/新PV。旧sale原件仅在匹配发送前原目标全集的成功recorded回执后自动释放；403撤金额但保留未核实原件，损坏slot保持并阻断。
+- manifest基线6479，旧568证据逐项保留，累计592条；真实H153见证与后继链已建立，能力/人工接受/部署标签未提升。冻结feature及PNG勿原地改；最终证明与源码关系见[收口](tasks/completed/2026-10-28-closing-support-final-validation.md)和[工程证明](tasks/completed/2026-10-28-closing-support-complete-ui-engineering.md)。
 
-本片后继：B证据已在bda641b1冻结，当前工具兼容源码的v1/memo精确检查2/2通过、lint通过，单独工具commit；完整182仍待最终集中检查。接下来D177恢复，当前无其他dirty。
+## 验证与运行恢复点
 
-恢复切片输入e9a2888981542fe07cf4a55a2b273a015c1ccfe8：0052+原month命令新增显式release_executors，所有漂移且无历史产出归属返回未分配，原ID/量/月/Source保持；来源同时变化可先解除归属再复核。新模型1、owned PG/HTTP/SQL6通过，原匹配/客户端相关检查通过，type/lint通过；首轮SQL测试断言被既有FK抢先拒绝已保留并修正。正式最新UI浏览器/最终发布未完成，继续USD采用入口。无远端写/CI/旧数据操作。
+精确a198 canonical 3258个blob构建、非增量typecheck、全仓lint、Chromium18、项目811、发布182均通过。关账原213为212pass/1夹具遗漏0052，补清单后对应文件14pass；其余未改结果复用。不重跑已成功检查、不把分源结果写成一次全绿。原失败、审查修复及所有新raw保存在outputs/approved-support-flow-20261028。main6479精确守卫在d54工作树清单修正后PASS（12页/68能力/38UI）；文档收口后最后精确回执为support-final-commit-guard.log，必须核对实际结果，不预写其通过。
 
-USD UI切片输入76a61516（恢复06980独立提交、两feature后继/真实H锚已冻结）：新增报价关联订单单Modal USD采用/历史，独立工价权限、原PV/选色、未预选产品确认/原因、只读预览及原控制器回执；加工入口仅工价。工价/售价原件互斥，损坏记录不删除；403刷新权限。初步type/lint/34项通过，最新403负控和实际新构建/浏览器待做。只读复审复用原release_safety_review；没有新agent/付费CI。
+当前实机 `http://closing-current.localhost:52251/closing-center?year=2027`；owned合成PG zhixu-pg-it-290e734e433b，子进程31904，source a198；账号closing.editor/labor.editor，合成密码synthetic-closing。Cua browser2/tab2 finalSupportDemo已登录并markDeliverable；不要重载用户正在编辑的表单。旧59846/fbdb、62411以及62428持久空候选等都保持。该新库临时，不冒称持久切换。
 
-9c91产品构建PASS（3256逐blob）；新浏览器两轮已实际通过恢复与USD选色/原GET/CCT/另一单隔离，第一轮夹具误认同单多月份只有一行，第二轮历史切换后完成按钮实际名为关闭而等待错误；都保留原日志，不能称完整浏览器通过。独立复审两处旧sale P2前向修正（401/403保留原件，403撤金额/刷新session），需新精确构建及浏览器负控。项目首次830pass/旧路由断言1fail/主动停止重复guard1，完整182未运行；先冻结feature清单再集中一次必要发布回归。
+## 未完成与安全边界
 
-fbdb canonical产品/浏览器17/17通过，含旧sale已提交丢ACK后撤权403仍保留原件且撤金额；源码/最新MJS分开。复审补出POST成功但GET非终态仍自动释放的旧边界，已加sale-receipt严格校验/2项负控并接线，需最后新产品构建/浏览器。旧route兼容20通过。新演示59846/fbdb已新库就绪并登录；另补传输修正后的最新候选时保留其输入，不复用cookie host；原62411等均不动。闭环后一次完整182门禁/独立复审，远端STOP仍未解除。
+当前main→本分支是包含Gate8的累计交付（0045–0052），322个路径统计绑定d54，不能写成只交付配套按钮。原Git/ref STOP_AUTH_OR_DIVERGENCE退出1根因未解；“全部确认”只含PR130 API元数据/合并例外，没有解除新Git/ref写停止。普通网络恢复常设授权仍有效，不重复索取普通恢复；需要时只问精确新增写入例外，已有本地结果必须先可审阅。新代码尚未push、无新PR/CI；准备好后一次交付并核实完整SHA，再唯一草稿和必要CI，不合并。
 
-80b构建/浏览器18/18通过（含POST成功+GET not_found/pending仍留原件）；独立复审最后发现expected目标仍取POST响应，已改为发送前固定原body.items，新增两个响应同时漏B负控，3项传输检查/lint通过。此后只重建该UI并复用已不变的SQL检查，不扩大审计。backend完整213实际212通过1旧迁移清单未加0052，清单补齐后该文件14项全部通过，其余已通过不重跑。正式发布完整182尚未执行，不能报通过。
+整体Goal继续active，不能因本配套片完成而complete。后续持久最新候选/目标切换、全链最终审计、人工业务接受和旧路径退役独立推进；不读真实Source、不激活/调度、不碰真实账号/旧业务库、无正式部署或资产清理。依赖仅复用已核实的本地junction，无安装/共享Git代理/TLS或认证变更。
 
-后续实现只复用原月份与订单商业服务：先明确恢复所有无产出漂移归属为未分配、保护旧片段量/月/旧版本/生产；再接报价USD单笔采用和历史，独立labor权限/session owner/原请求，不新增换汇或价格账本。期间confirmed/locked先处理；有真实产出拒绝恢复。最后一次必要完整发布/CI和独立复审。
-
-依赖仍为本地node_modules junction→ainuoke-continuous-material-display owner，锁文件仅CRLF差规范内容一致，无安装。canonical archive用子进程core.autocrlf=false保证逐blob，不能改共享Git。Docker仅核实desktop-linux本机npipe后子进程pin；只新owned合成PG/Chrome，绝不操作旧库/卷。原Git/ref STOP未知保持，不擅自remote/auth/proxy/TLS写。62411用户输入/旧环境及62428候选保持，任何真实Source、正式部署切换、其他PR合并和退役仍未授权。
+所有先前接力、日期、hash、失败和限制逐字保存在[本次输入归档](tasks/completed/2026-10-28-support-ui-final-input-state/receipt.json)与既有阶段证明；原始总任务及Gate0仍是后续范围来源。

@@ -1,0 +1,27 @@
+{
+  "inputHead": "d54f367c269620170388dc3ad125ee698d90d889",
+  "knownDirty": [
+    "docs/release/ui-changes/closing-executor-recovery-ui-20261028.json"
+  ],
+  "date": "2026-10-28",
+  "files": [
+    {
+      "sha256": "c0512d932580678e874e45c1ea2a6934bbd299123f9992909f1d3f554c26aae8",
+      "archive": "docs/tasks/completed/2026-10-28-support-ui-final-input-state/CURRENT_STATE.md",
+      "path": "docs/CURRENT_STATE.md"
+    },
+    {
+      "sha256": "adf4529fb3c353b6faea4b9248a1fa70416533c6bd3e8a0bb366a2c58219073d",
+      "archive": "docs/tasks/completed/2026-10-28-support-ui-final-input-state/AI_HANDOFF.md",
+      "path": "docs/AI_HANDOFF.md"
+    },
+    {
+      "sha256": "64b44a2c7423b53ad7acb85fec5439190bc6e0c1df12e2f85fcf4473e0935859",
+      "archive": "docs/tasks/completed/2026-10-28-support-ui-final-input-state/PROJECT_INDEX.md",
+      "path": "docs/PROJECT_INDEX.md"
+    }
+  ],
+  "scope": "Verbatim handoff/state archive before final support UI closure; prior failures and pending claims preserved.",
+  "branch": "feat/closing-support-interfaces",
+  "main": "6479a713e2b80228f008049519ebbd50d10601a8"
+}
