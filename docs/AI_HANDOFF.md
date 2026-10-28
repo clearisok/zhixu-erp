@@ -1,26 +1,22 @@
-# 接力：配套界面本地收口，远端写入STOP独立处理
+# 接力：0052恢复证据已补齐，镜像下载失败不重试
 
-2026-10-28；`feat/closing-support-interfaces`。先读CURRENT_STATE和PROJECT_INDEX。main已核实6479a713e2b80228f008049519ebbd50d10601a8；PR130批准的merge commit已完成，其他PR没有新合并/关闭。原`feat/order-closing-month-plan`仍指向0900c2b0ae9bc875e91c4c124bb101f52d227250；本分支保留153c04a4627f6d78febd79e153d11d7e5cc0cd38的双亲前向整合，不rebase/reset。
+2026-10-28；feat/closing-support-interfaces，main本轮重新核实6479a713e2b80228f008049519ebbd50d10601a8，PR130已批准合并且双父/树已验证。先读CURRENT_STATE/PROJECT_INDEX与D169–D177。完整Goal继续，不把本片完成设为complete。
 
-## 精确代码与证据
+产品a198d1829675092006708727624ee867be0e7b60；最终业务验证a0272a44be9c0f5961bbc2de51477a996815af57，d243a65df9000fc6dc2a85fe8e8252c1031fe109仅交付失败文档。最新本片从d243 clean开始，只改5个集成测试/夹具和状态文档，没有应用/SQL/UI/权限/依赖变化。原feat/order-closing-month-plan仍0900c2b0ae9bc875e91c4c124bb101f52d227250，前向整合153c04及所有原ref保持。
 
-- 最终产品a198d1829675092006708727624ee867be0e7b60；其后35bf9de6是实际18项Chromium夹具/证明/四PNG，d54f367c冻结5条证据。后续只收口文档和移除UI清单误列的后端模型路径，没有改产品或覆盖旧hash。
-- D177恢复06980：0052、release_executors同一命令/CAS/hash/原回执；全部受影响且无当前/依据/不可变历史正产出的归属，显式恢复未分配，只清assignment引用，原行ID/颜色/量/月保持。Source同时变化先恢复再单独复核。冻结须先取消确认/重开。
-- USD UI沿用原labor服务/客户端；加工仅工价，独立金额权限；同一大弹窗采用/历史，不自由填价/换汇/新PV。旧sale原件仅在匹配发送前原目标全集的成功recorded回执后自动释放；403撤金额但保留未核实原件，损坏slot保持并阻断。
-- manifest基线6479，旧568证据逐项保留，累计592条；真实H153见证与后继链已建立，能力/人工接受/部署标签未提升。冻结feature及PNG勿原地改；最终证明与源码关系见[收口](tasks/completed/2026-10-28-closing-support-final-validation.md)和[工程证明](tasks/completed/2026-10-28-closing-support-complete-ui-engineering.md)。
+## 本片实际结果
 
-## 验证与运行恢复点
+- persistent-executor-release-recovery-fixture.mjs检查0052真实目录、延迟属性及源码body；显式ZHIXU_LOCAL_TRIAL_EXECUTOR_RELEASE_RECOVERY只在原financial/domain owned路径加入非空真实HTTP match→合法无产出改外发→release。原resource/production/month回执和全库行/sequence快照继续使用同一实现；恢复后app/login前比较0051和0052目录。
+- 最终独立PG/HTTP8/8，8274.342ms，真实同SO1.25件锁定一月、当前/basis及生产完整相等；最初8项空冻结集合证明边界已修，原日志保留。原financial/local检查11pass1skip、domain回执4pass、MJS解析/定向lintpass。完整持久镜像恢复因没有新镜像SKIP，不是通过。独立终审0P1/P2，未重跑测试。
+- a198 canonical3258 blob唯一Docker构建，目录D:/zhixu-server-convergence/candidates/closing-support-image-a198-757bf06705，tag zhixu-closing-support:a198d182-20261028-757bf06705，USTC APK TLS失败退出1。没有重试/换源/关TLS/宿主安装。build wrapper执行前已按review改为默认隔离网络；原Dockerfile/lock字节未改。全部旧资源集合缺失/变化为空；raw support-linux-image.json/.log和assets-after-failure.json保留。
+- 本片证明[见此](tasks/completed/2026-10-28-closing-executor-recovery-engineering.md)；旧状态逐字/hash在docs/tasks/completed/2026-10-28-executor-recovery-input-state/receipt.json，不覆盖旧日期/source/失败。无需重跑a19818实机/811项目/182发布或不变SQL；新test-only改动不借旧结果当作新镜像验证。
 
-精确a198 canonical 3258个blob构建、非增量typecheck、全仓lint、Chromium18、项目811、发布182均通过。关账原213为212pass/1夹具遗漏0052，补清单后对应文件14pass；其余未改结果复用。不重跑已成功检查、不把分源结果写成一次全绿。原失败、审查修复及所有新raw保存在outputs/approved-support-flow-20261028。main6479精确守卫在d54工作树清单修正后PASS（12页/68能力/38UI）；文档收口后最后精确回执为support-final-commit-guard.log，必须核对实际结果，不预写其通过。
+## 运行与交付
 
-当前实机 `http://closing-current.localhost:52251/closing-center?year=2027`；owned合成PG zhixu-pg-it-290e734e433b，子进程31904，source a198；账号closing.editor/labor.editor，合成密码synthetic-closing。Cua browser2/tab2 finalSupportDemo已登录并markDeliverable；不要重载用户正在编辑的表单。旧59846/fbdb、62411以及62428持久空候选等都保持。该新库临时，不冒称持久切换。
+当前 http://closing-current.localhost:52251/closing-center?year=2027，a198、独立临时合成PG zhixu-pg-it-290e734e433b，Node31904。closing.editor/labor.editor，密码synthetic-closing，后者仅工价。不要刷新用户正编辑表单或重置库。保留59846/62411/62428/3001/50426等全部旧入口、输入、库/卷/备份/Browser。旧62428只到0051，未更新0052。
 
-## 未完成与安全边界
+a027指定一次实际push已耗尽（此前push0预检后，修正仅子进程旧17989→实际7897代理，真正push1次30秒超时）；一次独立连接器未解析到分支，后续没有再推、PR/CI0。原Git退出1全部根因未证实，不能仅API读成功就解除写STOP。新目标/次数需可适用的明确授权，普通网络恢复常设授权保留；不换认证、伪造commit或无限重试。
 
-当前main→本分支是包含Gate8的累计交付（0045–0052），322个路径统计绑定d54，不能写成只交付配套按钮。用户随后明确批准a0272a44be9c0f5961bbc2de51477a996815af57一次写入例外；实际push一次已耗尽该明确次数，30秒超时，独立连接器未解析到分支，无新PR/CI。不得盲目再推或要求用户反复跑相同预检。[新交付回执](tasks/completed/2026-10-28-closing-support-delivery-attempt.md)覆盖完整事实；后续文档HEAD不能冒称本次已发送。
+独立既有工作树git-delivery-preflight，fix/git-delivery-upload-budget，最终c91d904d8751275dd6a7830893ce237efa021905 clean；源码a859b44c。唯一push等待180秒，其余read30秒、一次性/STOP/独立核验不变。Git/state79、发布144与精确6479守卫通过，真实GitHub上传0，无PR/CI。不要把工具分支旧产品页面用于关账演示。
 
-已确认Git旧本机代理17989没有监听，恢复已安装Clash Verge后核心实际在7897；只在本次交付进程覆盖Git/HTTP(S)代理，Git/main和gh matching-refs对照均通过，未动共享Git/节点/认证/TLS。旧Git退出1全历史根因仍未证实。本次上传另被既有工具默认30秒预算中止，不能宣称仅提高预算必定成功；可先离线检查有界push时间预算并做隔离Git测试，再按明确新次数/目标授权交付。普通网络恢复常设授权保持；原安全停止与实际送达分别判定，不换认证/伪造commit/无限重试。
-
-整体Goal继续active，不能因本配套片完成而complete。后续持久最新候选/目标切换、全链最终审计、人工业务接受和旧路径退役独立推进；不读真实Source、不激活/调度、不碰真实账号/旧业务库、无正式部署或资产清理。依赖仅复用已核实的本地junction，无安装/共享Git代理/TLS或认证变更。
-
-所有先前接力、日期、hash、失败和限制逐字保存在[本次输入归档](tasks/completed/2026-10-28-support-ui-final-input-state/receipt.json)与既有阶段证明；原始总任务及Gate0仍是后续范围来源。
+下一步先收口本片精确guard/checkpoint，网络/授权可用后交付两个独立分支、只运行必要CI。新Linux镜像、完整非空恢复及新持久空目标仍待；不能在已确认Docker TLS失败后循环重试，不升级旧62428、不切50426。此后全链最终审计/人工接受、具体来源和依赖退役按Gate0，不自行合并/部署/读新真实Source或删除资产。

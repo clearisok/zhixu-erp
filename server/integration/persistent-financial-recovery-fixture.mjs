@@ -3,6 +3,7 @@
 import assert from 'node:assert/strict';
 import { createHash, randomUUID } from 'node:crypto';
 import { readFile } from 'node:fs/promises';
+import { readPersistentExecutorReleaseProtection, seedPersistentExecutorReleaseRecovery } from './persistent-executor-release-recovery-fixture.mjs';
 
 const closing = '/api/v1/closing', labor = '/api/v1/quotes/order-labor-adoptions', months = closing + '/month-plans';
 export const financialRecoveryTables = [
@@ -75,7 +76,7 @@ export function assertFinancialRecoveryReceipt(expected, reply) {
   assert.deepEqual(reply.result, expected.result, 'receipt must preserve the original applied IDs, versions and result');
 }
 
-export async function seedPersistentFinancialRecovery(state, cookie, domain, run) {
+export async function seedPersistentFinancialRecovery(state, cookie, domain, run, { executorReleaseRecovery = false } = {}) {
   owned(state); assert.match(state.project, /^zhixu-quote-trial-it-[0-9a-f]{10}$/);
   assert.ok(domain.orderId && domain.assignments.length === 2);
   const quoteUrl = new URL('./quote-fixture.ts', import.meta.url).href;
@@ -232,6 +233,7 @@ export async function seedPersistentFinancialRecovery(state, cookie, domain, run
     ...fixture.periodIds.flatMap((id, index) => [closing + '/periods/' + id, closing + '/periods/' + id + '?version=' + fixture.lockedVersions[index], closing + '/periods/' + id + '/history']),
     ...fixture.allocationIds.map(id => closing + '/allocations/' + id + '/history'), labor + '/history?orderId=' + domain.orderId,
     ...fixture.quoteIds.map(id => '/api/v1/quotes/' + id)];
+  if (executorReleaseRecovery) fixture.executorRelease = await seedPersistentExecutorReleaseRecovery(state, cookie, domain, fixture, run, save);
   return fixture;
 }
 
@@ -245,6 +247,11 @@ export async function snapshotPersistentFinancialRecovery(state, cookie, fixture
   for (const path of fixture.readPaths) responses[path] = await json(state, cookie, path);
   for (const expected of fixture.receipts) {
     const reply = await json(state, cookie, expected.path); assertFinancialRecoveryReceipt(expected, reply); responses[expected.path] = reply;
+  }
+  if (fixture.executorRelease) {
+    assert.ok(fixture.receipts.some(row => row.kind === 'month' && row.command.intent.action === 'release_executors'
+      && row.command.requestId === fixture.executorRelease.requestId && row.result.versionId === fixture.executorRelease.versionId), 'original_executor_release_receipt_required');
+    return { counts, responses, protection, executorReleaseProtection: await readPersistentExecutorReleaseProtection(state) };
   }
   return { counts, responses, protection };
 }
