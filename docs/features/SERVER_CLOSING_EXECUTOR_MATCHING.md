@@ -33,3 +33,10 @@ SQL再次核对颜色/月总量、已匹配行、Source指纹、稳定执行归�
 GET /api/v1/closing/orders/:id/month-plan?view=display返回原状态及带schemaVersion的display；无参数返回保持原样。单一RR只读事务和fresh既有权限覆盖所有依据。颜色分别显示不可变身份名和当前Source名，缺失/歧义不猜；执行方从原hash绑定资源快照提取名称，同一assignment更换执行方时旧basis与当前candidate分别关联，不用新基础资料名代替旧名。所涉月份含全部行和defaultMonth，状态明确not_created/open/confirmed/locked，不输出税率或金额。
 
 行数、资源facts总8MiB与返回1MiB明确有界拒绝；显示路径在完整facts读取前按实际排单重复载荷检查，和后续去重标签读取累计共用8MiB。不创建稳定颜色、月份计划或其他数据。新monthDisplay严格客户端保持完整集合/owner核对和原session lease，不使用Browser回退/存储、不新增写命令。正式Source/匹配/USD三处UI仍待具体批准；旧归属漂移409不被读取功能绕过。具体验证及原失败见[读取阶段](../tasks/active/closing-month-display-read-2026-10-28.md)。
+
+
+## 2026-10-28 配套UI已批准并实际验证（D177）
+
+上述“待批准/无UI”保留原日期事实。现以关账调整行“更多→匹配执行方”接同一整单display/原请求命令：选择未分配片段、同SO/颜色排单填写数量，余量精确保留未分配；旧归属只读，参考计划/完成量不作上限。冻结、来源变化和原归属漂移阻断，恢复命令仍独立后续，不以本UI绕过409。
+
+产品3ac9192cb8720b781d760ef0182de35440d4702e构建及owned PG/Chromium12/12、9项draft、typecheck/lint通过；具体源码/测试夹具区分和首轮测试等待失败见[本片工程](../tasks/completed/2026-10-28-closing-executor-support-ui-engineering.md)。完整最终发布门禁/远端CI/独立终审、USD入口和真实业务接受分别记录，不借本片提升能力/部署标签。

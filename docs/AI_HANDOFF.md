@@ -1,28 +1,11 @@
-# 恢复点：PR130已合并，新main前向整合，三处配套UI与恢复可实施
+# 接力：执行方匹配已验，继续D177恢复与报价USD入口
 
-2026-10-28；feat/closing-support-interfaces；本片baseline clean 0900c2b0ae9bc875e91c4c124bb101f52d227250，用户答复“全部确认”。[批准记录](tasks/completed/2026-10-28-closing-support-and-pr130-approval.md)及D177覆盖仅PR130 merge、具体三处UI、推荐无产出执行归属恢复，不重问。核心UI和用户手动登录/打开弹窗均已确认。
+2026-10-28；feat/closing-support-interfaces；main6479a713e2b80228f008049519ebbd50d10601a8，原order-closing-month-plan ref0900保持，153整合checkpoint已锚新分支，不重写历史。用户“全部确认”已批准PR130和三处具体UI/无产出恢复，不再重问。整体Goal/Gate0未完成，不能只完成此片就complete。
 
-main=6479a713e2b80228f008049519ebbd50d10601a8，PR130已merged。双父869ee84dd0b31de6161011e4aa560678b244a64d/61704afe22fe9fd0ea9f6625c6092fcbb9575dfc，tree46900a09200739db4a9e528c33b8fdc5331abac9=head617。重新读3check runs success，无rerun；更新body、ready、merge三次已获准API mutation，无Git网络/认证配置/其他PR操作。新main原始签名对象从API按SHA核实后入本地object库（首次缺空延续行hash失败未写，原失败保留），本地merge --no-ff保留历史。
+产品A=d32912cf7483f42fd42dc28799531c0b1e7fb52d（type/lint/32unit/canonicalbuild/Chromium11）；B=3ac9192cb8720b781d760ef0182de35440d4702e（draft9/type/lint/build/Chromium12）。本checkpoint只补MJS可靠等待、不可变证明/截图与feature后继；B产品未改变。原日志在outputs/approved-support-flow-20261028，新的浏览器资料outputs/closing-adjustment-ui-current-20261027。旧未跟踪outputs起始缺失不声称仍存在；Git冻结证明均保持。
 
-当前shared main基线已前移，568历史证据保持；本片仅文档/基线整合，精确新base guard尚待执行。后续先把本批准文档从本merge checkpoint冻结成新document证据，再给各UI精确path impact记录；不可覆盖旧证据。旧144/168、业务243/恢复9/浏览器9分别绑旧source，不冒充新实现通过。
+工具兼容修正单独dirty scripts/check-release-baseline.mjs需下一片独立提交，不能混入本B收口。原full182=180pass2fail；新16项定向通过，最后抽取统一历史字段兼容比较后需要精确v1检查/最终完整回归。41f的actual-main guard已PASS，新增B路径已经精确impact登记；不要将旧守卫作为B最终检查。当前manifest将本checkpoint后再冻结B工程/feature/截图，旧ID/hash不改。
 
-实施顺序：来源复核UI（D175 display已完成，复用不要重复造投影）→执行方匹配/显式无产出漂移恢复→报价详情USD采用/历史。原三处具体草图[提案](tasks/active/closing-support-interfaces-proposal-2026-10-28.md)仍是原pending日期记录，本次批准覆盖它；HTML实际hash12c7d56bad06970775ae4a8bdbce21e435a44a0c5fa8e6661021750ed024b50a已重核。新动作在原月份命令服务/SQL/CAS/回执内扩展，期间confirmed/locked先取消确认/重开，生产有实际产出不允许移归属。每片对应type/lint/领域/SQL/API/UI负控与checkpoint；最终集中构建/新base guard/必要CI及只读复审。
+后续实现只复用原月份与订单商业服务：先明确恢复所有无产出漂移归属为未分配、保护旧片段量/月/旧版本/生产；再接报价USD单笔采用和历史，独立labor权限/session owner/原请求，不新增换汇或价格账本。期间confirmed/locked先处理；有真实产出拒绝恢复。最后一次必要完整发布/CI和独立复审。
 
-本次起始outputs和node_modules本地链接缺失：旧私密raw未重新读取，不声称存在；Git冻结证明仍在。outputs/approved-support-flow-20261028保存新preflight/postmerge/merge-verified。node_modules只恢复到原ainuoke-continuous-material-display owner的本地junction，package-lock精确相同，未安装/修改共享依赖。做type/build用canonical tracked runner，防旧未跟踪夹具污染。
-
-原Git/ref STOP根因仍UNRESOLVED，PR130批准仅为API元数据/merge例外，不解除其他remote写；普通纯网络恢复常设授权仍在，但遇新认证/拒绝/分歧必须停。不要盲push/换认证。无真实Source新额度、真实账号或既有业务库、自动部署/切换、其他PR合并或退役授权。
-
-实机62411/fde8和原61104用户输入/预览、tab1/3/4/5及53001保持，不reload/reseed/清缓存。Cua自动视图曾停旧登录，不用它否定用户手动确认，不再追赶登录。新62428是cf77/0051持久空候选，不导入、不替换其他入口；旧卷/备份/Browser/运行依赖保护不变。整体Goal继续，用户业务接受和具体来源激活/正式切换仍独立。
-
-
-2026-10-28 来源配套UI checkpoint：输入153c04a4627f6d78febd79e153d11d7e5cc0cd38。旧order-closing-month-plan引用0900保持；detached整合提交153已安全锚定新独立分支feat/closing-support-interfaces，没有重写旧ref。已接入整单来源复核、逐色显式减量/新增待分月、冻结只读、owner/原请求保护；32项相关模型/协议/控制器测试、最新非增量typecheck通过，定向lint通过。实际构建/浏览器与新base精确守卫待下片，执行方恢复及USD入口仍未完成。13份现行UI影响记录前向对齐已核实main6479，568旧证据未变，新增批准证据冻结于153；无远端写/CI/真实数据操作。
-
-本片actual-main守卫已实际运行并FAIL：旧Gate8文档证据在main前移后的anchor/ancestry未闭合，另有当前文档前向修订待冻结；错误原件source-baseline.log保留。产品类型/lint/32测试通过不替代该门禁。下一片只修复真实整合证据链并补负控，不删除旧ID/hash或将FAIL写成PASS。
-
-来源UIA实际收口：产品d32912cf7483f42fd42dc28799531c0b1e7fb52d，canonical Server构建及owned PG/Chromium11/11通过；稳定启动前丢包代理证明两个未知响应均只一次POST。首轮测试代理递归FAIL保留，未盲改应用。见tasks/completed/2026-10-28-closing-source-support-ui-engineering.md。发布工具/文档整合门禁仍待修复，当前未远端交付。
-
-发布证据整合checkpoint：8个H153实际blob见证及来源UI工程/PNG已前向冻结，保留568旧记录。工具改为按M/S共同旧base验证导入段，每段own-parent及S完整成员必须保留；root-only限定历史上下文。旧guard红测、新组13项/根正例1项、lint通过；完整最终回归/新base守卫待文档后继冻结完成。见tasks/active/release-post-base-main-forward-2026-10-28.md，不将中间检查写成最终PASS。
-
-文档source前向收口：H见证已在930b497123f73c4e1860aa661451f64feede8b96冻结，本片在其后更新发布契约和来源UI验收说明；下一metadata把本片精确blob作为H后继，随后只运行一次完整release回归与actual-main守卫。原FAILED日志和旧source记录保持。
-
-执行方UIB产品checkpoint：整单未分配片段→同SO/颜色候选→精确余量/参考warning→原请求服务；9项draft、非增量typecheck和lint通过，实际构建/浏览器待本片checkpoint后。新增UI路径按已批准提案登记，尚不称最终发布/业务接受。阶段见tasks/active/closing-executor-support-ui-20261028.md。
+依赖仍为本地node_modules junction→ainuoke-continuous-material-display owner，锁文件仅CRLF差规范内容一致，无安装。canonical archive用子进程core.autocrlf=false保证逐blob，不能改共享Git。Docker仅核实desktop-linux本机npipe后子进程pin；只新owned合成PG/Chrome，绝不操作旧库/卷。原Git/ref STOP未知保持，不擅自remote/auth/proxy/TLS写。62411用户输入/旧环境及62428候选保持，任何真实Source、正式部署切换、其他PR合并和退役仍未授权。
