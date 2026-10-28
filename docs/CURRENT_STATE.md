@@ -1,5 +1,7 @@
 # 当前状态：候选可用，PR131修复与50426切换仍待收口
 
+最新[50426只读预览工程](tasks/completed/2026-10-28-cutover-preview.md)已完成：固定本机Docker、冻结文件及50426元数据检查；48项相关回归及最后端口加强3项定向通过，独立复审无P1/P2。实际预览正确BLOCKED（候选非最终main），运行写入0。没有execute能力、新CI或Git上传；前一片状态逐字保留在新回执，以下运行/远端观察仍绑定原日期。
+
 2026-10-28；`feat/closing-support-interfaces`。本片只读GitHub再次核实main **6479a713e2b80228f008049519ebbd50d10601a8**；唯一[草稿PR131](https://github.com/clearisok/zhixu-erp/pull/131)仍open/draft、head **4584deb786e0dd2fada0d998a16d166b00ccaadc**、未合并。无fetch/push、PR写入或新CI；API成功不代表Git写通道恢复。
 
 **产品与工程**：产品仍为 **a198d1829675092006708727624ee867be0e7b60**，来源数量复核、执行方匹配/无产出恢复、报价中心USD工价采用及历史已实现。[精确业务证明](tasks/completed/2026-10-28-closing-support-final-validation.md)的18项Chromium、811项目、182发布结果与SQL夹具修正分别绑定原源码，本片未重跑。内容镜像90e、完整非空恢复9/9和空目标111表0的[持久证明](tasks/completed/2026-10-28-closing-support-persistent-runtime.md)保留原日期；TAP汇总误报仅离线纠正。当前本片不读取业务库、不扩大人工接受或Source状态。

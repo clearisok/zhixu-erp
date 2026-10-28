@@ -1,5 +1,55 @@
 # Quote trial operations
 
+## Read-only 50426 cutover preview (2026-10-28)
+
+`cutover-preview.mjs` prepares the concrete target review required by D-147;
+it has **no execute mode**. `new-local-target.ps1` still rejects 50426. A preview
+does not bypass that protection, initialize a database, write credentials or
+authorize a deployment. The guarded target creation/cutover writer is still a
+separate follow-up, subject to the exact-target approval.
+
+Supply a small JSON file containing only `project`, `root`, `opsRoot`,
+`sourceSha`, `imageId`, `buildId` and `buildTime`. `project` must use
+`zhixu-quote-trial-main-` plus ten lowercase hexadecimal characters; `root` is
+a new absolute local directory outside a Git checkout. `opsRoot` is the frozen
+`ops/quote-trial` directory from the exact image source, also outside any checkout.
+`imageId` is a full `sha256:` content ID, not a mutable tag. No secrets belong in
+this request. Invoke on Windows with Node 22.13+ and existing Docker/Git/PowerShell:
+
+```powershell
+node ops/quote-trial/cutover-preview.mjs C:/private/cutover-request.json <independently-verified-main-full-SHA> C:/path/to/repository
+```
+
+The tool only reads selected Docker metadata, fixed-port listeners, IPv4 routes,
+Git objects and exact ops files; it never runs a container or contacts a database,
+Source, remote Git service or business API. Output goes to stdout. Commands have
+10-second limits, a 4MiB output cap and a 120-second collection deadline; failures
+stop without retry and expose only a safe category, not external stderr. Inventory
+counts and files are bounded. Docker environment overrides are rejected without
+printing their values. Every inventory query is pinned to the validated local
+named-pipe endpoint and Linux daemon. Git lazy fetching is disabled in the child
+process, so missing promisor objects fail rather than downloading anything.
+No environment dump, credential file, Docker Env or process command line is read.
+
+The main SHA is a caller-supplied observation, **not verified remotely by this
+tool**. A source/main mismatch produces `BLOCKED` even if the image is healthy.
+Image labels alone do not prove compiled identity: the original `trial.mjs check`
+and fresh main verification remain prerequisites before any future execution.
+The fixed plan uses HTTPS, loopback port 50426, the existing five services and
+four new volumes. Existing project/volume/network identities, occupied ports,
+indirect/existing target paths, modified ops or unknown network ranges block it.
+Stopped containers with an old 50426 binding are listed as protected owners;
+they are not stopped, deleted or treated as live listeners. Recheck immediately
+before execution so a concurrently restarted owner cannot be displaced.
+
+`READY_FOR_REVIEW` is not runtime readiness or approval. The receipt includes
+an observation fingerprint, ten-minute expiry, old asset counts and outstanding
+checks. It reserves no port or subnet. IPv4 /28 selection reuses the pure policy
+also used by the recovery harness, avoiding host routes and all Docker networks;
+IPv6 configuration is untouched. Keep the full observation and request when
+seeking exact-target approval. Same-host session cookies can affect other ports;
+do not clear browser stores or silently change hostnames to resolve this.
+
 ## Local persistent empty target — Gate 1 candidate (2026-10-20)
 
 Approved engineering scope is D-147 / [Gate 0](../../docs/tasks/active/server-convergence-gate0-2026-10-20.md).

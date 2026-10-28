@@ -1,5 +1,7 @@
 # 当前任务入口
 
+最新[50426只读预览工程](tasks/completed/2026-10-28-cutover-preview.md)已完成：固定本机Docker、冻结文件及50426元数据检查；48项相关回归及最后端口加强3项定向通过，独立复审无P1/P2。实际预览正确BLOCKED（候选非最终main），运行写入0。没有execute能力、新CI或Git上传；前一片状态逐字保留在新回执，以下运行/远端观察仍绑定原日期。
+
 最新[50426切换与旧运行资产预检](tasks/active/server-convergence-cutover-preflight-2026-10-28.md)：31工作树/74容器/199卷/37网络及14个依赖junction，旧端口未监听不等于可删；两棵他人dirty树保护。新65139五healthy、无开发树bind，仍不是50426。准备器明确拒绝50426，后续受控preview/execute与具体切换批准分开，不能手改配置或restart绕过。[逐对象清单及原状态档案](tasks/completed/2026-10-28-runtime-cutover-preflight/receipt.json)保留观察时间/hash/失败/限制；本片只有只读盘点和文档，没有环境变更、产品测试或新CI。先读[当前状态](CURRENT_STATE.md)与[接力](AI_HANDOFF.md)。
 
 最新[能力账本与Server owner核对](tasks/completed/2026-10-28-convergence-capability-reconciliation.md)：fresh main仍6479，PR131仍open/draft/head4584；49项仅校正历史实现已合入，六项退役写入口不恢复，关账/USD采用仍未合并。原592证据保留，新冻结document后账本593；部署、Source及人工接受维度不变。本片仅元数据/文档，相关状态与证据负控10/10，最终精确门禁日志由接力指向；不重复业务测试、Docker或失败Git上传。
