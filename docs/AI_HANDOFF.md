@@ -1,7 +1,11 @@
-# 恢复点：PR130货款侧栏测试兼容
+# 接力：上传预算修复本地通过，关账候选在另一工作树保留
 
-2026-10-26；当前核实main 869ee84dd0b31de6161011e4aa560678b244a64d；codex/persistent-cumulative-43-main-869e，baseline f8ed7f33c911cc1ec52cf3b3d9432912ac5aa80f。先读[当前任务](tasks/active/payment-panel-ci-recovery-2026-10-26.md)和outputs/payment-panel-ci-recovery-20261026的start/prepared/diagnostic。原f8已交付唯一PR130，首次CI两通过/source因旧事件按钮选择器连续超时后取消；不要直接重跑或延长上限。
+2026-10-28；fix/git-delivery-upload-budget，C:/Users/Administrator/.codex/worktrees/git-delivery-preflight/zhixu-ainuoke-api。main/manifest基线均6479a713e2b80228f008049519ebbd50d10601a8，旧504 evidence对象保持；旧状态在tasks/completed/2026-10-28-upload-budget-main-input。原PR123 forward分支cb1658保持，不reset/rebase/清理。
 
-本阶段仅测试具名事件按钮/fail-fast/CI expected source；新source checkpoint后在新owned runner复用6d镜像原dist作9项实际浏览器，test/render来源分别记录，不覆盖现有工作树dist。旧失败保留，未完成不PASS。原6d 8/8与f8 Hosted baseline不重跑/不冒称新head。最终守卫/独立复审后一次普通安全交付更新同PR，不自动merge/deploy/Source/旧数据操作。完整G1–G8/R与既有待决/切换/退役限制保持。
+改动仅scripts/git-delivery.mjs内部常量pushTimeoutMs180000、git helper传递第四参数和唯一push显式预算；read runCommand默认30000未变，无CLI/env可任意放宽，无第二次push。新测试先红undefined预算，修后完整Git/state79/79、Node语法/lint通过，独立只读复审0P1/P2。终态、拒绝、证书、并发dirty、精确远端原件及一次性行为保持；并未真实验证超过30秒的GitHub上传。原日志outputs/upload-budget-20261028。最终发布与精确守卫按本片证明实际结果核对，不预写成功。
 
-实际修后终态：test source 01d112b98e02d8aaacb4af14b4fa4522d6d3c207 / actualParent 49ff169b09e22f3891beab17ed2b6b605d168e31 / phaseBase f8ed7f33c911cc1ec52cf3b3d9432912ac5aa80f，renderSource 6d27d1e7fa1079f1830511068ff070791df310ab；canonical 2983 tracked files/0 overlay，复用dist 1211字节匹配文件。实际9/9、23202ms、0 fail/cancel/skip/timeout/overflow；语法/lint/YAML/8原phase体校验通过，旧50/179/27元数据changes=[]。完整原件hash见[证明](tasks/completed/2026-10-26-payment-panel-ci-validation.md)。下一步最终守卫/复审后仅更新原PR130，未交付新修，不称新CI通过。
+这是工具独立分支，不含未合并的Gate8关账。主整合工作树7bf3仍feat/closing-support-interfaces/d243a65df9000fc6dc2a85fe8e8252c1031fe109，源码a198已实机18/项目811/发布182验证；其完整恢复点在对应AI_HANDOFF，不能用本工具分支的旧界面恢复体验。演示http://closing-current.localhost:52251/closing-center?year=2027保留，无变更。
+
+此前明确授权仅a027的一次实际push已耗尽，30秒超时，连接器未解析到该分支，无PR/CI；不再推。已证实本机Git旧代理17989无监听，启动既有Clash Verge后实际7897；仅此前交付子进程覆盖Git和HTTP(S)代理，无共享配置/认证/TLS修改。原全部Git STOP根因仍未解，180秒预算不保证送达；新实际上传需明确可适用目标/次数范围。
+
+下一步：先核对本片最终基线与checkpoint，继续主整合工作树的最新持久候选/恢复。不要重复原成功产品测试、重复CI或创建重复PR；不正式部署/合并/读新真实Source/操作现有账号业务库/退役旧环境。完整Goal未完成。

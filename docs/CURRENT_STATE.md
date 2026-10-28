@@ -1,13 +1,11 @@
-# 当前状态：PR130已交付，正在修复旧货款侧栏测试调用者
+# 当前任务：单次Git上传的有界等待修复
 
-2026-10-26；main基准869ee84dd0b31de6161011e4aa560678b244a64d，branch codex/persistent-cumulative-43-main-869e。原最终f8ed7f33c911cc1ec52cf3b3d9432912ac5aa80f已一次NORMAL安全推送，独立API精确核SHA/tree/父，唯一草稿[PR130](https://github.com/clearisok/zhixu-erp/pull/130)，未合并；合并预览树与原已验树一致。历史网络STOP/根因未完全确定的限制保持，未改共享配置。
+2026-10-28；fix/git-delivery-upload-budget，独立复用git-delivery-preflight工作树。GitHub重新核实main **6479a713e2b80228f008049519ebbd50d10601a8**；从该完整本地对象建分支，原cb1658及其ref保持。进入前无dirty、无运行进程依赖。旧状态逐字保留于[输入归档](tasks/completed/2026-10-28-upload-budget-main-input/receipt.json)。
 
-首次CI baseline与team-access通过；source SQL/API、边界和构建通过，但货款侧栏浏览器旧“第一个按钮”选择器点中新增到货动作，连续超时后达20分钟上限取消，Python未运行。一次owned诊断已复现existing drawer超时；不是付款数据或权限故障。现在仅修测试调用者、依赖失败即停及编译源断言，不延长时限，不立即重跑CI；尚无修后PASS。
+仅交付工具的唯一push等待由默认30秒改为显式180秒，所有本地/远端证据读取仍保留原30秒；不新增CLI开关、自动重试或认证/代理/TLS路径。超时后仍独立核实，精确送达与安全STOP分开。不是承诺三分钟一定能送达，也不证明旧Git退出1的全部根因。
 
-原6d镜像43迁移实际8/8、原c1的144与f8守卫/复审分别按原source保持；后续不重新build/重跑已通过8项，不把其结果归新test commit。新定向检查/实际浏览器、最终守卫和复审完成后才一次集中交付。旧环境未改，工作区原状态已逐字归档。
+新测试先复现旧预算未传递；修后隔离Git/state **79/79 PASS**，0失败/取消/跳过，153246.3653ms；实际PowerShell入口/超时/脱敏/安全拒绝均在该套件。Node语法与定向lint通过，独立只读复审无P1/P2，未重复产品/数据库/浏览器测试。发布清单仅前向对齐当前main，504条旧证据、能力状态及截图保持；本分支最终基线检查结果见[本片证明](tasks/completed/2026-10-28-upload-budget-engineering.md)，不预报PASS。
 
-完整G1–G8/R继续，非空新增域恢复、稳定跨次成衣事件/更正、关账三项、真实Source具体授权/激活、目标人工接受与切换、依赖审计后退役仍有后续。不把当前候选称main或正式上线。3001/50426及全部旧账号、库、对象、卷、备份与Browser数据保持。
+关账配套产品在7bf3工作树feat/closing-support-interfaces的d243a65df9000fc6dc2a85fe8e8252c1031fe109，实际演示source a198d1829675092006708727624ee867be0e7b60。其a027单次GitHub上传已用完并超时；此次修复没有再次上传该分支。两支线分别保留，不因工具本地通过冒称关账已送达/CI或已合并。
 
-[当前阶段](tasks/active/payment-panel-ci-recovery-2026-10-26.md)。
-
-实际修后终态：test source 01d112b98e02d8aaacb4af14b4fa4522d6d3c207 / actualParent 49ff169b09e22f3891beab17ed2b6b605d168e31 / phaseBase f8ed7f33c911cc1ec52cf3b3d9432912ac5aa80f，renderSource 6d27d1e7fa1079f1830511068ff070791df310ab；canonical 2983 tracked files/0 overlay，复用dist 1211字节匹配文件。实际9/9、23202ms、0 fail/cancel/skip/timeout/overflow；语法/lint/YAML/8原phase体校验通过，旧50/179/27元数据changes=[]。完整原件hash见[证明](tasks/completed/2026-10-26-payment-panel-ci-validation.md)。下一步最终守卫/复审后仅更新原PR130，未交付新修，不称新CI通过。
+整体Server收敛Goal仍active：继续最新持久空候选与非空恢复核对、精确远端交付/必要CI、具体合并/目标切换、人工接受和授权来源/依赖退役；不触碰旧3001/50426等环境、用户输入、库/卷/备份、真实账号或Source。本片真实网络push0、新PR0、Hosted CI0；旧精确单次许可不能复用为新上传。

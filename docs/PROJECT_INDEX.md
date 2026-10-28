@@ -1,7 +1,11 @@
-# 当前任务入口
+# 当前任务入口：Git上传预算独立修复
 
-2026-10-26；当前核实main 869ee84dd0b31de6161011e4aa560678b244a64d；先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[PR130货款侧栏测试兼容](tasks/active/payment-panel-ci-recovery-2026-10-26.md)、[财务来源](features/AINUOKE_PAYMENT_REQUESTS.md)。
+2026-10-28；fix/git-delivery-upload-budget；已核实main和清单基线6479a713e2b80228f008049519ebbd50d10601a8。先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)和[本片工程](tasks/completed/2026-10-28-upload-budget-engineering.md)。
 
-原f8已一次精确送达唯一PR130；首轮CI baseline/team-access通过，source旧按钮选择器超时后取消。新修只在测试调用者和expected source，不更改产品/数据；实际修后检查尚待回执。原[43迁移运行证明](tasks/completed/2026-10-26-persistent-cumulative-43-validation.md)及各Gate证据保留并按原源码归属。完整G1–G8/R继续，不自动合并、部署、真实Source或切换/退役。
+- [交付协议与工具历史](tasks/active/git-delivery-resilience.md)：本次仅唯一push最多180秒，所有证据读取原30秒；无重试/身份/证书/祖先核实豁免。
+- [输入逐字归档](tasks/completed/2026-10-28-upload-budget-main-input/receipt.json)：保留旧main日期、hash、失败和限制。
+- [Server总Gate](tasks/active/server-convergence-gate0-2026-10-20.md)、[业务规则](BUSINESS_RULES.md)、[持久化](features/SERVER_PERSISTENCE.md)继续适用；此工具分支不改变业务或UI。
 
-实际修后终态：test source 01d112b98e02d8aaacb4af14b4fa4522d6d3c207 / actualParent 49ff169b09e22f3891beab17ed2b6b605d168e31 / phaseBase f8ed7f33c911cc1ec52cf3b3d9432912ac5aa80f，renderSource 6d27d1e7fa1079f1830511068ff070791df310ab；canonical 2983 tracked files/0 overlay，复用dist 1211字节匹配文件。实际9/9、23202ms、0 fail/cancel/skip/timeout/overflow；语法/lint/YAML/8原phase体校验通过，旧50/179/27元数据changes=[]。完整原件hash见[证明](tasks/completed/2026-10-26-payment-panel-ci-validation.md)。下一步最终守卫/复审后仅更新原PR130，未交付新修，不称新CI通过。
+关账主分支仍在7bf3/feat/closing-support-interfaces，HEAD d243a65df9000fc6dc2a85fe8e8252c1031fe109；实际演示a198的52251和原62411等保持。不要把main工具分支旧界面当作关账目标。其单次上传超时/未送达不因本工具79项本地通过变成PR/CI/正式部署。
+
+本片没有真实push、PR、Hosted CI、Source、账号业务库、Docker/环境或共享代理/TLS操作。后续Gate继续，已耗尽的精确上传许可不复用；不自动合并或资产退役。

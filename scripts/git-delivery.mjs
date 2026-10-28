@@ -6,6 +6,9 @@ import { pathToFileURL } from 'node:url';
 import { deliveryState, isTlsIdentityFailure, isAccessOrRefRejection } from './git-delivery-state.mjs';
 
 export const repository = 'clearisok/zhixu-erp';
+// A cumulative history upload may outlast evidence reads. Keep one bounded push;
+// reads and all safety/verification decisions retain their existing deadlines.
+const pushTimeoutMs = 180000;
 const sha = value => /^[0-9a-f]{40}$/.test(value ?? '');
 export function errorCategory(result) {
   if (isTlsIdentityFailure(result.stderr)) return 'tls_identity_or_configuration';
@@ -147,7 +150,7 @@ export async function deliver(options, dependencies = {}) {
   try {
     const worktree = await realpath(options.worktree);
     options = { ...options, worktree };
-    const git = args => run('git', args, worktree);
+    const git = (args, timeoutMs) => run('git', args, worktree, timeoutMs);
     const root = await git(['rev-parse', '--show-toplevel']);
     if (root.code !== 0 || (await realpath(root.stdout.trim())).toLowerCase() !== worktree.toLowerCase()) return summary('STOP_WORKTREE_IDENTITY');
     const origin = await git(['remote', 'get-url', 'origin']);
@@ -180,7 +183,7 @@ export async function deliver(options, dependencies = {}) {
     const fresh = await workingEvidence(worktree, run);
     if (freshHead.code !== 0 || freshHead.stdout.trim() !== options.expectedHead || JSON.stringify(fresh) !== JSON.stringify(initial)) return summary('STOP_LOCAL_CHANGED');
     pushes++;
-    const pushed = await git(['push', 'origin', `${options.expectedHead}:refs/heads/${options.branch}`]);
+    const pushed = await git(['push', 'origin', `${options.expectedHead}:refs/heads/${options.branch}`], pushTimeoutMs);
     // Always verify after a push, including rejection and response-loss outcomes.
     const after = await remoteEvidence(worktree, options.branch, run, true);
     const final = await workingEvidence(worktree, run);

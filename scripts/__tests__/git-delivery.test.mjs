@@ -47,6 +47,52 @@ test('dry run, normal push and repeated execution never duplicate delivery', asy
   assert.equal(f.pushes(), 1);
 });
 
+test('upload receives a bounded three-minute budget without extending evidence reads', async t => {
+  const f = await fixture(t);
+  const calls = [];
+  const run = async (command, args, cwd, timeoutMs) => {
+    calls.push({ command, operation: args[0], timeoutMs });
+    return f.dependencies.run(command, args, cwd, timeoutMs);
+  };
+  const result = await deliver(f.options, { ...f.dependencies, run });
+  assert.equal(result.state, 'DELIVERED_VERIFIED');
+  assert.equal(result.remoteSha, f.options.expectedHead);
+  assert.equal(f.pushes(), 1);
+  assert.deepEqual(calls.filter(call => call.command === 'git' && call.operation === 'push').map(call => call.timeoutMs), [180000]);
+  assert.ok(calls.filter(call => call.operation !== 'push').every(call => call.timeoutMs === undefined));
+});
+
+test('expired upload budget still verifies once and never starts a second upload', async t => {
+  for (const recorded of [false, true]) {
+    await t.test(recorded ? 'remote recorded the commit' : 'remote has no recorded ref', async child => {
+      const f = await fixture(child);
+      let attempts = 0;
+      const run = async (command, args, cwd, timeoutMs) => {
+        if (command === 'git' && args[0] === 'push') {
+          attempts++;
+          assert.equal(timeoutMs, 180000);
+          if (recorded) await f.dependencies.run(command, args, cwd, timeoutMs);
+          return { code: 1, stdout: '', stderr: 'upload timeout PRIVATE', timedOut: true, elapsedMs: 180000 };
+        }
+        return f.dependencies.run(command, args, cwd, timeoutMs);
+      };
+      const result = await deliver(f.options, { ...f.dependencies, run });
+      assert.equal(result.state, recorded ? 'DELIVERED_VERIFIED' : 'LOCAL_PASS_REMOTE_NOT_DELIVERED');
+      assert.equal(result.remoteStatus, recorded ? 'EXACT_HEAD_VERIFIED' : 'TARGET_NOT_DELIVERED');
+      assert.equal(result.pushes, 1);
+      assert.equal(attempts, 1);
+      assert.equal(result.pushDiagnostic.timedOut, true);
+      assert.equal(result.networkMode, 'NETWORK_DEGRADED');
+      assert.equal(result.retry, false);
+      assert.ok(!JSON.stringify(result).includes('PRIVATE'));
+      if (recorded) {
+        assert.equal((await deliver(f.options, { ...f.dependencies, run })).pushes, 0);
+        assert.equal(attempts, 1);
+      }
+    });
+  }
+});
+
 test('successful push ref names do not impersonate rejected commands', async t => {
   for (const branch of ['chore/conflict-report', 'chore/divergence-proof', 'chore/rejected-marker', 'chore/non-fast-forward-notes']) {
     await t.test(branch, async child => {
