@@ -1,5 +1,7 @@
 # 当前任务入口
 
+最新[能力账本与Server owner核对](tasks/completed/2026-10-28-convergence-capability-reconciliation.md)：fresh main仍6479，PR131仍open/draft/head4584；49项仅校正历史实现已合入，六项退役写入口不恢复，关账/USD采用仍未合并。原592证据保留，新冻结document后账本593；部署、Source及人工接受维度不变。本片仅元数据/文档，相关状态与证据负控10/10，最终精确门禁日志由接力指向；不重复业务测试、Docker或失败Git上传。
+
 最新[0052精确镜像/完整恢复/新持久空候选](tasks/completed/2026-10-28-closing-support-persistent-runtime.md)：原USTC失败保留，官方默认选项一次新构建成功；a198完整非空恢复9/9，TAP汇总误报仅离线纠正、不重跑。新https://localhost:65139 READY，111张非白名单表0、仅新技术管理员，五服务/四卷/重启及完整保护核对。旧52251/62428/50426等全部保留，未切换/部署/登录新库。精简[机器证据](tasks/completed/2026-10-28-support-persistent-runtime/receipt.json)和[原状态档案](tasks/completed/2026-10-28-support-persistence-input-state/receipt.json)区分各自日期/source；本片远端Git写入及新CI0，PR131仍待恢复交付。
 
 当前必要CI接线见[2026-10-28证明](tasks/completed/2026-10-28-closing-ci-integration.md)：只扩展原source job的关账负控/实际浏览器覆盖，不增重复触发或关闭检查，Hosted结果仍独立。

@@ -2,6 +2,8 @@
 
 2026-10-28；分支 `feat/closing-support-interfaces`。最近独立核实main **6479a713e2b80228f008049519ebbd50d10601a8**，批准的PR130已merge commit合并；本片没有fetch或新的远端写入。0045–0052及界面已精确送达 **4584deb786e0dd2fada0d998a16d166b00ccaadc**，创建唯一[草稿PR131](https://github.com/clearisok/zhixu-erp/pull/131)；未合并或正式部署。
 
+**能力账本校准**：新一轮只读API仍确认上述main和PR身份。52项旧未合并声明逐项核对原实现祖先，排除未实现intake后校正49项历史merged；六项旧认领/准备/归一写入口继续退役，关账和USD采用仍false。17条当前代码blob/Server owner边界、原记录与完整SHA见[冻结证明](tasks/completed/2026-10-28-convergence-capability-reconciliation.md)。只追加1条document证据（592→593）、前向更新两个财务scope；其他状态值、历史证据、运行快照、Source/环境/人工接受维度均保持。本片相关状态/证据回归10/10，无产品、SQL、UI、运行环境或新CI变化，不把历史包含当成当前功能全面可用。
+
 **产品与体验**：精确产品 **a198d1829675092006708727624ee867be0e7b60**，来源数量复核、执行方匹配/无产出恢复、报价中心USD工价采用及历史已完成。canonical构建、类型、lint、实际Chromium18、项目811、发布182通过，原SQL夹具遗漏与修复分源记录见[最终证明](tasks/completed/2026-10-28-closing-support-final-validation.md)。[2027关账调整](http://closing-current.localhost:52251/closing-center?year=2027)，closing.editor或labor.editor，合成密码synthetic-closing。该库临时；旧62411/59846/62428及所有环境和输入保留。
 
 **恢复工程**：原0052测试增量8/8、目录负控、11pass/1skip及回执4pass仍绑定[原源码和边界](tasks/completed/2026-10-28-closing-executor-recovery-engineering.md)，不覆盖为新结果。本片新a198精确镜像的完整非空重启、备份及独立恢复实际 **9/9、0skip**，含两个锁定期间、实际采用商业版本、无产出归属恢复、全库行/sequence及启动前0051/0052目录保护。汇总wrapper因TAP转义误记FAIL，原件保留；离线逐字编码往返和原件hash核对已校正，不重跑恢复。见[完整证明](tasks/completed/2026-10-28-closing-support-persistent-runtime.md)。
