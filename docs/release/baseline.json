@@ -5266,6 +5266,26 @@
       "sha256": "b67119733d8a4ee64ed72e5ec4b892cac3ec0d203a88c91c0b31926e28ade4c4",
       "approvalEvidence": "closing-support-approved-20261028",
       "changeReason": "New explicitly approved whole-order Source review preview in actual synthetic Chromium; retain all old screenshots and their independent sources."
+    },
+    {
+      "id": "release-imported-post-base-contract-20261028",
+      "kind": "document",
+      "path": "docs/features/RELEASE_BASELINE_GUARD.md",
+      "recordedAtSha": "85ee6d0ae6996bf2297384e33524b0b595fd7aef",
+      "renderedSourceSha": "930b497123f73c4e1860aa661451f64feede8b96",
+      "sha256": "26b974527f3e729b6d12e1d437a7c259b5f92391f5fdd8af561afa36a7c2bb73",
+      "supersedes": "closing-support-main6479-integration-4-20261028",
+      "changeReason": "Freeze the current contract only after the actual integration witness and full imported history were already present in its immediate parent. Preserve every prior blob, date, failure and scope; no retroactive checkpoint or capability/deployment promotion."
+    },
+    {
+      "id": "closing-source-support-current-contract-20261028",
+      "kind": "document",
+      "path": "docs/features/SERVER_CLOSING_SOURCE_RECONCILIATION.md",
+      "recordedAtSha": "85ee6d0ae6996bf2297384e33524b0b595fd7aef",
+      "renderedSourceSha": "d32912cf7483f42fd42dc28799531c0b1e7fb52d",
+      "sha256": "13653a2f92705ed16b8d70f971345ee1db4c38770c3ac3a56f8395c1c95bde96",
+      "supersedes": "closing-support-main6479-integration-8-20261028",
+      "changeReason": "Freeze the current contract only after the actual integration witness and full imported history were already present in its immediate parent. Preserve every prior blob, date, failure and scope; no retroactive checkpoint or capability/deployment promotion."
     }
   ],
   "pages": [
