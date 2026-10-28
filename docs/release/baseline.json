@@ -5345,6 +5345,55 @@
       "sha256": "35de3efe0bff0134c6734732f346f3ad4293a4434771f15e7bea617413b97874",
       "supersedes": "closing-usd-main6479-integration-20261028",
       "changeReason": "Freeze approved USD support interface and exact original receipt safety. Preserve original side source and genuine main integration anchor; implementation and isolated evidence remain separate from acceptance or deployment."
+    },
+    {
+      "id": "closing-support-complete-engineering-20261028",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-28-closing-support-complete-ui-engineering.md",
+      "recordedAtSha": "35bf9de650d34219b4e1838b768129ce9aa59d4c",
+      "renderedSourceSha": "a198d1829675092006708727624ee867be0e7b60",
+      "sha256": "6b7954d65adeab13d8b380a1374002292cab709ac91244e2b48a250a592ad304",
+      "changeReason": "Freeze exact-source complete support UI and owned synthetic browser verification; preserve every earlier failure, original screenshot and source. No new human acceptance or deployment claim."
+    },
+    {
+      "id": "closing-executor-recovery-preview-20261028",
+      "kind": "screenshot",
+      "path": "docs/release/screenshots/closing-support-complete-20261028/executor-zero-output-recovery.png",
+      "recordedAtSha": "35bf9de650d34219b4e1838b768129ce9aa59d4c",
+      "renderedSourceSha": "a198d1829675092006708727624ee867be0e7b60",
+      "sha256": "2ee835e23c9d79abed103acb726bb30c8d1dc208897cc00f3afae7131dbfd2e3",
+      "approvalEvidence": "closing-support-approved-20261028",
+      "changeReason": "Freeze exact-source complete support UI and owned synthetic browser verification; preserve every earlier failure, original screenshot and source. No new human acceptance or deployment claim."
+    },
+    {
+      "id": "closing-usd-adoption-preview-20261028",
+      "kind": "screenshot",
+      "path": "docs/release/screenshots/closing-support-complete-20261028/usd-color-adoption-preview.png",
+      "recordedAtSha": "35bf9de650d34219b4e1838b768129ce9aa59d4c",
+      "renderedSourceSha": "a198d1829675092006708727624ee867be0e7b60",
+      "sha256": "4a157a0ee11547b8ee204b48fc80b2d5e6f918ad3f96e18314b459ecd38b8e34",
+      "approvalEvidence": "closing-support-approved-20261028",
+      "changeReason": "Freeze exact-source complete support UI and owned synthetic browser verification; preserve every earlier failure, original screenshot and source. No new human acceptance or deployment claim."
+    },
+    {
+      "id": "closing-usd-adoption-history-20261028",
+      "kind": "screenshot",
+      "path": "docs/release/screenshots/closing-support-complete-20261028/usd-adoption-history.png",
+      "recordedAtSha": "35bf9de650d34219b4e1838b768129ce9aa59d4c",
+      "renderedSourceSha": "a198d1829675092006708727624ee867be0e7b60",
+      "sha256": "d552469ff9868b7c44819b2e8a292e13b78c13097fdb80556875307ee2d83e92",
+      "approvalEvidence": "closing-support-approved-20261028",
+      "changeReason": "Freeze exact-source complete support UI and owned synthetic browser verification; preserve every earlier failure, original screenshot and source. No new human acceptance or deployment claim."
+    },
+    {
+      "id": "closing-usd-processing-mobile-20261028",
+      "kind": "screenshot",
+      "path": "docs/release/screenshots/closing-support-complete-20261028/usd-processing-mobile-preview.png",
+      "recordedAtSha": "35bf9de650d34219b4e1838b768129ce9aa59d4c",
+      "renderedSourceSha": "a198d1829675092006708727624ee867be0e7b60",
+      "sha256": "fc54605b8912cfab439f5983563aefa8c186b96a9a11035dc24cbba0157720a8",
+      "approvalEvidence": "closing-support-approved-20261028",
+      "changeReason": "Freeze exact-source complete support UI and owned synthetic browser verification; preserve every earlier failure, original screenshot and source. No new human acceptance or deployment claim."
     }
   ],
   "pages": [
@@ -5397,7 +5446,11 @@
         "quote-pr91",
         "security-pr93",
         "quote-detail-1280",
-        "quote-pv-390"
+        "quote-pv-390",
+        "closing-support-complete-engineering-20261028",
+        "closing-usd-adoption-preview-20261028",
+        "closing-usd-adoption-history-20261028",
+        "closing-usd-processing-mobile-20261028"
       ]
     },
     {
@@ -5622,7 +5675,9 @@
         "closing-source-support-engineering-20261028",
         "closing-source-support-preview-20261028",
         "closing-executor-support-engineering-20261028",
-        "closing-executor-support-preview-20261028"
+        "closing-executor-support-preview-20261028",
+        "closing-support-complete-engineering-20261028",
+        "closing-executor-recovery-preview-20261028"
       ]
     }
   ],
