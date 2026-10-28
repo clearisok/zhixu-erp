@@ -2,7 +2,7 @@
 
 2026-10-28；fix/git-delivery-upload-budget，C:/Users/Administrator/.codex/worktrees/git-delivery-preflight/zhixu-ainuoke-api。main/manifest基线均6479a713e2b80228f008049519ebbd50d10601a8，旧504 evidence对象保持；旧状态在tasks/completed/2026-10-28-upload-budget-main-input。原PR123 forward分支cb1658保持，不reset/rebase/清理。
 
-改动仅scripts/git-delivery.mjs内部常量pushTimeoutMs180000、git helper传递第四参数和唯一push显式预算；read runCommand默认30000未变，无CLI/env可任意放宽，无第二次push。新测试先红undefined预算，修后完整Git/state79/79、Node语法/lint通过，独立只读复审0P1/P2。终态、拒绝、证书、并发dirty、精确远端原件及一次性行为保持；并未真实验证超过30秒的GitHub上传。原日志outputs/upload-budget-20261028。最终发布与精确守卫按本片证明实际结果核对，不预写成功。
+改动仅scripts/git-delivery.mjs内部常量pushTimeoutMs180000、git helper传递第四参数和唯一push显式预算；read runCommand默认30000未变，无CLI/env可任意放宽，无第二次push。新测试先红undefined预算，修后完整Git/state79/79、Node语法/lint通过，独立只读复审0P1/P2。精确a859b44cff57b7a5e7b4f42e6f6348d8d44ce266上完整发布144/144（727061.2761ms）及main守卫PASS（6479、11页66能力0UI），后续仅补三份结果文档，不重复已成功检查。终态、拒绝、证书、并发dirty、精确远端原件及一次性行为保持；并未真实验证超过30秒的GitHub上传。原日志outputs/upload-budget-20261028。
 
 这是工具独立分支，不含未合并的Gate8关账。主整合工作树7bf3仍feat/closing-support-interfaces/d243a65df9000fc6dc2a85fe8e8252c1031fe109，源码a198已实机18/项目811/发布182验证；其完整恢复点在对应AI_HANDOFF，不能用本工具分支的旧界面恢复体验。演示http://closing-current.localhost:52251/closing-center?year=2027保留，无变更。
 

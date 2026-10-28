@@ -14,9 +14,9 @@
 - 修后`git-delivery-state.test.mjs`与`git-delivery.test.mjs`完整 **79/79 PASS**，153246.3653ms；0失败/取消/跳过。包括真实临时bare Git仓库和PowerShell入口、超时/已记录或无ref、仅push延长、真实一次上传/精确回查、认证/证书/拒绝/分歧和dirty保护。
 - Node两文件语法与定向ESLint `--max-warnings 0`通过。仅工具MJS和测试变化，没有应用/SQL/UI/依赖变化，不重复关账产品构建、811项目或18实机测试。
 - 独立只读reviewer核对实际增量与负控，无P1/P2；其未运行测试，不代表增加真实交付次数授权。
-- 最终发布回归与精确main守卫在本地checkpoint后单独核对实际回执，当前不预报通过。后续结果只能绑定具体checkpoint及日志，不借用主整合分支不同guard源码的182项结果。
+- 在精确checkpoint `a859b44cff57b7a5e7b4f42e6f6348d8d44ce266` 上，完整发布回归 **144/144 PASS**，727061.2761ms，0失败/取消/跳过；精确main守卫 **PASS**（基线6479、11页/66能力/0个UI路径、errors为空）。只绑定本工具分支实际日志，不借用主整合分支不同guard源码的182项结果；随后仅补本结果文档。
 
-新raw仅在本工作树outputs/upload-budget-20261028：baseline.json、budget-red.log、budget-green-full.log、budget-lint.log。没有GitHub token/Authorization/Cookie/代理密码、真实业务或raw网络trace进入Git。
+新raw仅在本工作树outputs/upload-budget-20261028：baseline.json、budget-red.log、budget-green-full.log、budget-lint.log、budget-main-guard.log、budget-release-tests.log。没有GitHub token/Authorization/Cookie/代理密码、真实业务或raw网络trace进入Git。
 
 ## 清单与边界
 
