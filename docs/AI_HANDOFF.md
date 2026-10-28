@@ -9,3 +9,5 @@
 - [闭环准备](tasks/active/ningbo-server-closed-loop-readiness-2026-10-28.md)覆盖绑定/新增、四流、独立财务/成衣、生产/关账。65139仍local-empty，不新增真实请求或启用目标。源码operator要求clean/Git/锁定依赖，不能用无Git运行镜像冒充入口。
 
 下一步完成本片commit/一次安全交付、精确核对并更新原PR131、必要CI/独立复审；尚无合并批准。之后冻结main镜像、隔离目标及具体真实首绑/续刷验收单，D105真实四流前置保持。staging就绪时提醒，不自动部署。50426工具/旧资产/完整Gate0保留，不加新功能、清理或自动完成Goal。
+
+后继检查从d38 clean开始：Hosted未到达的normalization旧升级测试模拟pre0047但漏隐藏0049link。只补测试依赖负控及完整旧schema正控，42/42、相关lint/diff通过，不改产品/公开入口；其他后半段命令尚未验收，按新私密回执核对，不将d38首次40/42改写为绿。

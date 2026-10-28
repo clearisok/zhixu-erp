@@ -34,6 +34,9 @@ test('normalization preview reads only synthetic disposable database', {timeout:
    await client.query('BEGIN');await client.query('ALTER TABLE server_closing_month_commands RENAME TO synthetic_hidden_month_commands');
    await assert.rejects(()=>normalizationReferences(client),(error:unknown)=>(error as {code:string}).code==='closing_month_reference_schema_incomplete');
    for(const table of ['server_closing_month_plans','server_closing_month_plan_versions','server_closing_month_plan_heads'])await client.query('ALTER TABLE '+table+' RENAME TO synthetic_hidden_'+table);
+   // A pre-0047 cohort cannot retain the dependent 0049 financial link table.
+   await assert.rejects(()=>normalizationReferences(client),(error:unknown)=>(error as {code:string}).code==='closing_month_financial_schema_incomplete');
+   await client.query('ALTER TABLE server_closing_month_financial_links RENAME TO synthetic_hidden_month_financial_links');
    assert.equal((await normalizationReferences(client)).some(([table])=>table.startsWith('server_closing_month_')),false);
   }finally{await client.query('ROLLBACK');client.release();}
  });

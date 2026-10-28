@@ -31,3 +31,7 @@ Hosted run40666735485 Release成功；40666735476 source在order-usd-labor-adopt
 物料schedule仅刷新已绑定四流，主信息/颜色、6086941、6086979各有既有独立入口；无Git运行镜像不能冒称满足源码operator的clean/原件要求。65139仍local-empty；历史恢复9/9及合成界面不替代精确目标真实首绑/续刷/人工核对。最短顺序见[发布准备](../active/ningbo-server-closed-loop-readiness-2026-10-28.md)。D105四流前置和D147具体许可保持，本片真实Source请求/激活0；就绪提醒不是部署授权。
 
 最终交付只用已有工具一次，独立核实远端后更新原PR131说明和必要CI；不自动merge/deploy，不改真实业务数据或清理旧资产。未实际发生前此处不预报送达或Hosted通过。
+
+## 同批补齐Hosted未到达的旧升级夹具
+
+在干净checkpoint d38c4b7326ec35a6878253fc2b5ad5a7f2ea013d，本地继续Hosted被前置错误阻断的后半段。首个normalization套件40/42：旧pre-0047模拟隐藏月份表，却保留0049财务link，现行服务正确拒绝closing_month_financial_schema_incomplete。只补测试：先断言该依赖错误，再同时隐藏从属link，最后验证完整旧schema可选。修后42/42（25929.8014ms）、相关eslint/diff通过；不修改产品、不恢复已退役的公开归一操作。原失败和后半段日志保留outputs/approved-support-flow-20261028/d38-source-ci-continuation.log/json。其余未到达命令按接下来实际结果分别记录，不预报通过。
