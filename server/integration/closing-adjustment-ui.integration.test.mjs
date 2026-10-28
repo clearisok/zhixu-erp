@@ -44,6 +44,9 @@ test('approved closing UI uses real built Server, owned synthetic PostgreSQL and
   try {
     const target = await command('Target.createTarget', { url: 'about:blank' }, null); session = (await command('Target.attachToTarget', { targetId: target.targetId, flatten: true }, null)).sessionId;
     await command('Page.enable'); await command('Runtime.enable'); await command('Network.enable');
+    // Install once before application clients capture fetch. Mutating a shared
+    // global delegate after mounting can recurse or miss the client entirely.
+    await command('Page.addScriptToEvaluateOnNewDocument', { source: `(()=>{const nativeFetch=window.fetch.bind(window);window.droppedClosingMonthAcks=0;window.fetch=async(...args)=>{const response=await nativeFetch(...args);if(window.dropNextClosingMonthAck&&String(args[0]).endsWith('/month-plans/commands')){window.dropNextClosingMonthAck=false;window.droppedClosingMonthAcks++;await response.text();throw Error('synthetic committed acknowledgement lost')}return response}})()` });
     const i = x.editor.cookie.indexOf('='); await command('Network.setCookie', { name: x.editor.cookie.slice(0, i), value: x.editor.cookie.slice(i + 1), domain: '127.0.0.1', path: '/', httpOnly: true });
     const navigate = async path => { await command('Page.navigate', { url: x.base + path }); await has('全年成衣销售产值'); await until(() => evaluate("document.querySelectorAll('.sc-month-card').length===12"), '12 months'); };
     await phase('desktop annual view has exactly two outputs and isolates Browser stores', async () => {
@@ -66,8 +69,8 @@ test('approved closing UI uses real built Server, owned synthetic PostgreSQL and
     await phase('partial quantity save recovers a committed but lost acknowledgement without a second POST', async () => {
       await field('select[aria-label="关账显示范围"]', 'all', 'HTMLSelectElement'); await has('制作完成'); await click('调整月份'); await has('可调数量');
       await field('input[aria-label="目标月份"]', '2027-03'); await field('input[aria-label="调整原因"]', '合成实机部分调月'); await field('.sc-adjustment-fields tbody input', '10'); await click('预览调整'); await has('调整后完整月份分配');
-      await evaluate("window.realClosingFetch=window.fetch;window.fetch=async(...args)=>{const r=await window.realClosingFetch(...args);if(String(args[0]).endsWith('/month-plans/commands')){window.fetch=window.realClosingFetch;await r.text();throw Error('synthetic lost acknowledgement')}return r}");
-      const before = posts(); await click('确认调整'); await has('原请求已核实'); assert.equal(posts(), before + 1); await click('完成', '[role=dialog] button');
+      const dropped = await evaluate('window.droppedClosingMonthAcks'); await evaluate('window.dropNextClosingMonthAck=true');
+      const before = posts(); await click('确认调整'); await has('原请求已核实'); assert.equal(posts(), before + 1); assert.equal(await evaluate('window.droppedClosingMonthAcks'), dropped + 1); await click('完成', '[role=dialog] button');
       assert.equal(await evaluate("Object.keys(sessionStorage).some(k=>k.startsWith('zhixu.server.closing-month.pending.v1.'))"), false); assert.equal(await evaluate("localStorage.getItem('zhixu.erp.local.closing-center')"), 'KEEP');
     });
     await phase('source review reads the whole order behind an outsource filter and recovers one committed response', async () => {
@@ -84,8 +87,8 @@ test('approved closing UI uses real built Server, owned synthetic PostgreSQL and
       await has('新增待分月 / 未分配'); await field('input[aria-label=来源复核原因]', '全单新增量保持未分配'); await click('预览复核'); await has('复核后完整月份分配');
       assert.equal(await evaluate("/[¥$]|CNY|USD/u.test(document.querySelector('[role=dialog]').innerText)"), false);
       await shot('source-complete-order-preview');
-      await evaluate("window.realClosingFetch=window.fetch;window.fetch=async(...args)=>{const r=await window.realClosingFetch(...args);if(String(args[0]).endsWith('/month-plans/commands')){window.fetch=window.realClosingFetch;await r.text();throw Error('synthetic source response lost')}return r}");
-      const count = posts(); await click('确认复核'); await has('原请求已核实'); assert.equal(posts(), count + 1);
+      const dropped = await evaluate('window.droppedClosingMonthAcks'); await evaluate('window.dropNextClosingMonthAck=true');
+      const count = posts(); await click('确认复核'); await has('原请求已核实'); assert.equal(posts(), count + 1); assert.equal(await evaluate('window.droppedClosingMonthAcks'), dropped + 1);
       const after = (await x.request('/orders/' + seeded.first.id + '/month-plan')).body;
       assert.equal(after.plan.sourceQuantity, '120'); assert.equal(after.sourceChanged, false);
       for (const line of before.lines) assert.deepEqual(after.plan.lines.find(value => value.id === line.id), line);

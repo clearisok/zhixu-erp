@@ -18,3 +18,5 @@ main=6479a713e2b80228f008049519ebbd50d10601a8，PR130已merged。双父869ee84dd
 2026-10-28 来源配套UI checkpoint：输入153c04a4627f6d78febd79e153d11d7e5cc0cd38。旧order-closing-month-plan引用0900保持；detached整合提交153已安全锚定新独立分支feat/closing-support-interfaces，没有重写旧ref。已接入整单来源复核、逐色显式减量/新增待分月、冻结只读、owner/原请求保护；32项相关模型/协议/控制器测试、最新非增量typecheck通过，定向lint通过。实际构建/浏览器与新base精确守卫待下片，执行方恢复及USD入口仍未完成。13份现行UI影响记录前向对齐已核实main6479，568旧证据未变，新增批准证据冻结于153；无远端写/CI/真实数据操作。
 
 本片actual-main守卫已实际运行并FAIL：旧Gate8文档证据在main前移后的anchor/ancestry未闭合，另有当前文档前向修订待冻结；错误原件source-baseline.log保留。产品类型/lint/32测试通过不替代该门禁。下一片只修复真实整合证据链并补负控，不删除旧ID/hash或将FAIL写成PASS。
+
+来源UIA实际收口：产品d32912cf7483f42fd42dc28799531c0b1e7fb52d，canonical Server构建及owned PG/Chromium11/11通过；稳定启动前丢包代理证明两个未知响应均只一次POST。首轮测试代理递归FAIL保留，未盲改应用。见tasks/completed/2026-10-28-closing-source-support-ui-engineering.md。发布工具/文档整合门禁仍待修复，当前未远端交付。
