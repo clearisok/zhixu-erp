@@ -1,5 +1,5 @@
 import type { executeClosingMonthMove, previewClosingMonthMove, readOrderClosingMonthPlan, readClosingMonthReceipt } from '../../../server/closing/month-plan-service';
-import { matchMonthExecutors, moveMonthQuantities, parseClosingMonthCommand, sumMonthQuantities, validateMonthLines, type ClosingMonthCommand, type ClosingMonthIntent, type ClosingMonthLine } from '../../../server/closing/month-plan-model';
+import { matchMonthExecutors, releaseMonthExecutors, moveMonthQuantities, parseClosingMonthCommand, sumMonthQuantities, validateMonthLines, type ClosingMonthCommand, type ClosingMonthIntent, type ClosingMonthLine } from '../../../server/closing/month-plan-model';
 import { reconcileClosingSource, type ObservedClosingSource } from '../../../server/closing/source-reconciliation-model';
 import { closingRequestHash } from './closing-request-hash';
 import { arr, bool, date, decimal, hash, invalidClosingResponse, keys, member, nullable, num, obj, references, same, str, uid } from './closing-projection';
@@ -62,7 +62,7 @@ function scopes(rows: ClosingMonthLine[]) {
 }
 export function parseClosingMonthPreview(value: unknown, intent: ClosingMonthIntent): ClosingMonthPreview {
   const row = obj(value), moving = intent.action === 'move_months', reconciling=intent.action==='reconcile_source';
-  keys(row, ['intent', 'version', 'before', 'after', reconciling?'sourceReconciliation':moving ? 'movedQuantity' : 'matchedQuantity', 'beforeExecutorBasis', 'executorBasis', 'warnings', 'touchedMonths', 'previewHash']);
+  keys(row, ['intent', 'version', 'before', 'after', reconciling?'sourceReconciliation':intent.action==='release_executors'?'releasedQuantity':moving ? 'movedQuantity' : 'matchedQuantity', 'beforeExecutorBasis', 'executorBasis', 'warnings', 'touchedMonths', 'previewHash']);
   same(row.intent, intent); same(row.version, intent.expectedVersion); hash(row.previewHash);
   const before = lines(row.before), after = lines(row.after); if (!reconciling) same(sumMonthQuantities(before), sumMonthQuantities(after));
   assignedReferences(row.beforeExecutorBasis, intent.orderId, before); assignedReferences(row.executorBasis, intent.orderId, after); warnings(row.warnings, row.executorBasis);
@@ -80,9 +80,10 @@ export function parseClosingMonthPreview(value: unknown, intent: ClosingMonthInt
       for (const line of expected.lines) if (originalIds.has(line.id)) same(after.find(value=>value.id===line.id),line);
       const retained=new Set(expected.lines.filter(line=>originalIds.has(line.id)).map(line=>line.id));
       if(after.some(line=>originalIds.has(line.id)&&!retained.has(line.id))) invalidClosingResponse();
-    } else expected = moving ? moveMonthQuantities(before, intent, id) : matchMonthExecutors(before, intent, id);
+    } else expected = intent.action==='release_executors' ? releaseMonthExecutors(before,intent) : moving ? moveMonthQuantities(before, intent, id) : matchMonthExecutors(before, intent, id);
     same(scopes(after), scopes(expected.lines)); same(row.touchedMonths, expected.touchedMonths);
-    if ('movedQuantity' in expected) same(row.movedQuantity, expected.movedQuantity); else if ('matchedQuantity' in expected) same(row.matchedQuantity, expected.matchedQuantity);
+    if ('releasedQuantity' in expected) { same(row.releasedQuantity, expected.releasedQuantity); same(after, expected.lines); }
+    else if ('movedQuantity' in expected) same(row.movedQuantity, expected.movedQuantity); else if ('matchedQuantity' in expected) same(row.matchedQuantity, expected.matchedQuantity);
   } catch { return invalidClosingResponse(); }
   if (moving) same(row.executorBasis, row.beforeExecutorBasis);
   else if (intent.action==='match_executors') {

@@ -15,7 +15,7 @@ import { executionsForAssignments, executionFacts } from '../production-scheduli
 import {canonicalDecimal} from '../quotes/decimal-projection.js';
 import { CLOSING_READ_PERMISSIONS, closingFail, closingUuid, compareDecimals } from './contract.js';
 import { closingExecutionFingerprint, type ClosingExecutionReference } from './basis-model.js';
-import { matchMonthExecutors, monthQuantity, moveMonthQuantities, parseClosingMonthCommand, parseClosingMonthIntent, quantityUnits, sumMonthQuantities, validateMonthLines,
+import { matchMonthExecutors, releaseMonthExecutors, monthQuantity, moveMonthQuantities, parseClosingMonthCommand, parseClosingMonthIntent, quantityUnits, sumMonthQuantities, validateMonthLines,
   type ClosingMonthCommand, type ClosingMonthIntent, type ClosingMonthLine } from './month-plan-model.js';
 import { reconcileClosingSource, type ObservedClosingSource } from './source-reconciliation-model.js';
 import { closingMonthDisplayScope, projectClosingMonthDisplay, MONTH_DISPLAY_LIMITS, type DisplayPeriod } from './month-display-model.js';
@@ -168,11 +168,11 @@ async function build(client: PoolClient, intent: ClosingMonthIntent, freeze = fa
   if (!prior) closingFail(409, 'closing_month_not_initialized');
   if (prior.version !== intent.expectedVersion) closingFail(409, 'closing_month_version_conflict');
   const current = await source(client,intent.orderId,freeze);
-  const reconciling = intent.action === 'reconcile_source';
+  const reconciling = intent.action === 'reconcile_source', releasing = intent.action === 'release_executors';
   if (reconciling) {
     await requireSourceReconciliationSchema(client);
     if (current.fingerprint === prior.sourceFingerprint) closingFail(409, 'closing_month_no_change');
-  } else {
+  } else if (!releasing) {
     if (current.fingerprint !== prior.sourceFingerprint) closingFail(409,'closing_month_source_changed');
     if(prior.quantityState!=='ready')closingFail(409,prior.quantityState==='unsupported'?'closing_month_quantity_unrepresentable':'closing_month_quantity_unknown');
   }
@@ -182,19 +182,34 @@ async function build(client: PoolClient, intent: ClosingMonthIntent, freeze = fa
     ${linksReady?'AND NOT EXISTS(SELECT 1 FROM server_closing_month_financial_links l WHERE l.allocation_id=a.id)':''} LIMIT 1`,[intent.orderId]);
   if (legacy.rowCount) closingFail(409,'closing_month_legacy_allocations_require_review');
   const references = await executorReferences(client, intent.orderId);
-  if (prior.executorBasis.some(saved => {
+  const changed = prior.executorBasis.filter(saved => {
     const now = references.find(ref => ref.assignmentId === saved.assignmentId);
     return !now || planHash(executorAttribution(saved)) !== planHash(executorAttribution(now));
-  })) closingFail(409, 'closing_month_executor_review_required');
+  });
+  if (releasing) {
+    if (!(await client.query<{present:boolean}>("SELECT to_regprocedure('validate_closing_executor_release()') IS NOT NULL AS present")).rows[0].present)
+      closingFail(503, 'closing_executor_recovery_schema_unavailable');
+    if (!changed.length) closingFail(409, 'closing_month_no_change');
+    if (planHash(changed.map(row => row.assignmentId).sort()) !== planHash(intent.assignmentIds)
+      || closingExecutionFingerprint(references) !== intent.observedExecutorFingerprint) closingFail(409, 'closing_month_preview_changed');
+    if (changed.some(saved => !references.some(now => now.assignmentId === saved.assignmentId && now.salesOrderId === intent.orderId)))
+      closingFail(409, 'closing_month_executor_unavailable');
+    const produced = await client.query(`SELECT 1 FROM production_schedule_execution_versions WHERE assignment_id=ANY($1::uuid[])
+      AND (snapshot->>'completed_quantity')::numeric>0 LIMIT 1`, [intent.assignmentIds]);
+    if (produced.rowCount || changed.some(saved => compareDecimals(saved.execution?.completedQuantity ?? '0', '0') > 0)
+      || references.some(now => intent.assignmentIds.includes(now.assignmentId) && compareDecimals(now.execution?.completedQuantity ?? '0', '0') > 0))
+      closingFail(409, 'closing_month_executor_has_output');
+  } else if (changed.length) closingFail(409, 'closing_month_executor_review_required');
   let executorBasis = prior.executorBasis;
-  const next = intent.action === 'move_months' ? moveMonthQuantities(prior.lines,intent,seed=>derivedId(prior.versionId+':'+seed))
+  const next = intent.action === 'release_executors' ? releaseMonthExecutors(prior.lines,intent)
+    : intent.action === 'move_months' ? moveMonthQuantities(prior.lines,intent,seed=>derivedId(prior.versionId+':'+seed))
     : intent.action === 'match_executors' ? matchMonthExecutors(prior.lines,intent,seed=>derivedId(prior.versionId+':'+seed))
     : reconcileClosingSource(prior,intent,observedSource(current),seed=>derivedId(prior.versionId+':source:'+seed));
-  if (reconciling) {
+  if (reconciling || releasing) {
     const used = new Set(next.lines.flatMap(line => line.assignmentId === null ? [] : [line.assignmentId]));
     executorBasis = prior.executorBasis.filter(ref => used.has(ref.assignmentId));
     // Stable identities are created only in the already-owned write transaction.
-    if (freeze) for (const color of current.colors) await ensureStableOrderColor(client,intent.orderId,color);
+    if (reconciling && freeze) for (const color of current.colors) await ensureStableOrderColor(client,intent.orderId,color);
   }
   if (intent.action === 'match_executors') {
     await requireExecutorSchema(client);
@@ -290,7 +305,7 @@ export async function previewClosingMonthMove(pool: Pool, identity: TrustedIdent
     await budget(client,{requestId:'00000000-0000-0000-0000-000000000000',intent,previewHash:'0'.repeat(64)});
     const result=await build(client,intent);await client.query('COMMIT');
     return {intent,version:result.prior.version,before:result.prior.lines,after:result.lines,
-      ...('movedQuantity' in result?{movedQuantity:result.movedQuantity}:'matchedQuantity' in result?{matchedQuantity:result.matchedQuantity}
+      ...('releasedQuantity' in result?{releasedQuantity:result.releasedQuantity}:'movedQuantity' in result?{movedQuantity:result.movedQuantity}:'matchedQuantity' in result?{matchedQuantity:result.matchedQuantity}
         :{sourceReconciliation:{beforeQuantity:result.beforeQuantity,beforeQuantityState:result.prior.quantityState,quantityDelta:result.quantityDelta,changedLines:result.changedLines,addedLines:result.addedLines,source:result.sourceObservation}}),
       beforeExecutorBasis:result.prior.executorBasis,executorBasis:result.executorBasis,warnings:result.warnings,touchedMonths:result.touchedMonths,previewHash:result.previewHash};
   } catch(error){await client.query('ROLLBACK').catch(()=>undefined);throw error;}finally{client.release();}
@@ -318,8 +333,9 @@ export async function executeClosingMonthMove(pool: Pool, identity: TrustedIdent
         ...(reconciling?[JSON.stringify(observation)]:[])])).rows[0];
       if((await client.query('UPDATE server_closing_month_plan_heads SET current_version_id=$2,version=$3 WHERE sales_order_id=$1 AND version=$4',
         [command.intent.orderId,row.id,change.prior.version+1,change.prior.version])).rowCount!==1)closingFail(409,'closing_month_version_conflict');
-      await appendOperationLog(client,actor,{operationId,module:'关账中心',action:command.intent.action==='move_months'?'调整关账月份':command.intent.action==='match_executors'?'匹配关账执行方':'复核关账来源数量',entityType:'SalesOrder',entityId:command.intent.orderId,
+      await appendOperationLog(client,actor,{operationId,module:'关账中心',action:command.intent.action==='release_executors'?'恢复关账未分配归属':command.intent.action==='move_months'?'调整关账月份':command.intent.action==='match_executors'?'匹配关账执行方':'复核关账来源数量',entityType:'SalesOrder',entityId:command.intent.orderId,
         afterData:{objectName:change.orderNo,values:{...(command.intent.action==='move_months'?{调入月份:command.intent.targetMonth,数量:'movedQuantity' in change?change.movedQuantity:null}
+          :command.intent.action==='release_executors'?{恢复未分配数量:'releasedQuantity' in change?change.releasedQuantity:null}
           :command.intent.action==='match_executors'?{匹配数量:'matchedQuantity' in change?change.matchedQuantity:null}
           :{原数量:change.prior.sourceQuantity,来源数量:observation!.quantity,数量变化:'quantityDelta' in change?change.quantityDelta:null}),版本:change.prior.version+1}},
         metadata:{requestId:command.requestId,action:command.intent.action,touchedMonths:change.touchedMonths}});

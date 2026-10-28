@@ -16,7 +16,11 @@ export type ClosingSourceReconciliation = {
   adjustments: { lineId: string; quantity: string }[];
   additions: { colorId: string | null; quantity: string }[];
 };
-export type ClosingMonthIntent = ClosingMonthMove | ClosingMonthReconcile | ClosingSourceReconciliation;
+export type ClosingExecutorRelease = {
+  action: 'release_executors'; orderId: string; expectedVersion: number; reason: string;
+  assignmentIds: string[]; observedExecutorFingerprint: string;
+};
+export type ClosingMonthIntent = ClosingMonthMove | ClosingMonthReconcile | ClosingSourceReconciliation | ClosingExecutorRelease;
 export type ClosingMonthCommand = { requestId: string; intent: ClosingMonthIntent; previewHash: string };
 const invalid = (): never => closingFail(400, 'invalid_closing_month_command');
 function object(value: unknown, keys: string[]): Record<string, unknown> {
@@ -69,6 +73,17 @@ export function parseClosingMonthCommand(value: unknown): ClosingMonthCommand {
   return { requestId: closingUuid(row.requestId), intent: parseClosingMonthIntent(row.intent), previewHash: row.previewHash };
 }
 export function parseClosingMonthIntent(value: unknown): ClosingMonthIntent {
+  if ((value as { action?: unknown } | null)?.action === 'release_executors') {
+    const row = object(value, ['action', 'orderId', 'expectedVersion', 'reason', 'assignmentIds', 'observedExecutorFingerprint']);
+    const base = parseClosingMonthMove({ action: 'move_months', orderId: row.orderId, expectedVersion: row.expectedVersion,
+      reason: row.reason, targetMonth: '2000-01', selection: { mode: 'whole' } });
+    if (!Array.isArray(row.assignmentIds) || !row.assignmentIds.length || row.assignmentIds.length > 500
+      || typeof row.observedExecutorFingerprint !== 'string' || !/^[a-f0-9]{64}$/u.test(row.observedExecutorFingerprint)) return invalid();
+    const assignmentIds = row.assignmentIds.map(closingUuid).sort();
+    if (new Set(assignmentIds).size !== assignmentIds.length) return invalid();
+    return { action: 'release_executors', orderId: base.orderId, expectedVersion: base.expectedVersion, reason: base.reason,
+      assignmentIds, observedExecutorFingerprint: row.observedExecutorFingerprint };
+  }
   if ((value as { action?: unknown } | null)?.action === 'reconcile_source') return parseClosingSourceReconciliation(value);
   if ((value as { action?: unknown } | null)?.action !== 'match_executors') return parseClosingMonthMove(value);
   const row = object(value, ['action', 'orderId', 'expectedVersion', 'reason', 'items']);
@@ -89,6 +104,15 @@ export function parseClosingMonthIntent(value: unknown): ClosingMonthIntent {
   });
   if (new Set(items.map(item => item.lineId)).size !== items.length || items.reduce((sum, item) => sum + item.parts.length, 0) > 100) return invalid();
   return { action: 'match_executors', orderId: base.orderId, expectedVersion: base.expectedVersion, reason: base.reason, items };
+}
+
+/** Explicitly remove only changed attribution. IDs, quantities, colors and months
+ * survive exactly; authoritative service/SQL must prove zero actual output. */
+export function releaseMonthExecutors(lines: readonly ClosingMonthLine[], intent: ClosingExecutorRelease) {
+  const ids = new Set(intent.assignmentIds), affected = lines.filter(line => line.assignmentId !== null && ids.has(line.assignmentId));
+  if (ids.size !== new Set(affected.map(line => line.assignmentId)).size) closingFail(409, 'closing_month_executor_unavailable');
+  return { lines: validateMonthLines(lines.map(line => line.assignmentId !== null && ids.has(line.assignmentId) ? { ...line, assignmentId: null } : { ...line }), sumMonthQuantities(lines)),
+    releasedQuantity: sumMonthQuantities(affected), touchedMonths: [...new Set(affected.flatMap(line => line.month ? [line.month] : []))].sort() };
 }
 
 export function parseClosingSourceReconciliation(value: unknown): ClosingSourceReconciliation {

@@ -6,6 +6,8 @@ import { closingExecutorAllocation, closingExecutorCandidates, closingExecutorDr
 import type { ClosingYear } from '../server/closing-year-projection';
 import { closingNumber, productionLabel } from './closing-ui-owner';
 import { useClosingMonthEditor } from './use-closing-month-editor';
+import { parseClosingMonthIntent } from '../../../server/closing/month-plan-model';
+import { closingRequestHash } from '../server/closing-request-hash';
 
 export function ServerClosingExecutorDialog({ row, context, onClose, onChanged }: {
   row: ClosingYear['items'][number]; context: string; onClose: () => void; onChanged: () => void;
@@ -14,6 +16,7 @@ export function ServerClosingExecutorDialog({ row, context, onClose, onChanged }
   const { data, state, blocked, done, controller } = editor;
   const [selected, setSelected] = useState(''), [quantities, setQuantities] = useState<Record<string, string>>({});
   const [reason, setReason] = useState(''), [error, setError] = useState('');
+  const recovering = Boolean(data?.executorChanges.length);
   const dirty = !done && Boolean(reason || Object.values(quantities).some(Boolean) || state?.preview);
   useServerNavigationProtection({ blocked, dirty, message: '执行方匹配结果尚未核实，请先核对原请求。' });
   const plan = data?.plan, unassigned = plan?.lines.filter(line => line.assignmentId === null) ?? [];
@@ -36,7 +39,11 @@ export function ServerClosingExecutorDialog({ row, context, onClose, onChanged }
   const close = () => { if (blocked || dirty && !window.confirm('放弃本次未保存的执行方匹配输入？')) return; controller.current?.discardPreview(); onClose(); };
   const preview = async () => {
     if (!data || !editor.owns() || blocked || done) return;
-    try { const intent = closingExecutorDraft(data, lineId, quantities, reason); setError(''); await controller.current?.preview(intent); }
+    try {
+      const intent = recovering ? parseClosingMonthIntent({ action: 'release_executors', orderId: row.order.id, expectedVersion: data.plan!.version, reason,
+        assignmentIds: data.executorChanges.map(value => value.assignmentId), observedExecutorFingerprint: await closingRequestHash([...data.executorCandidates].sort((a,b) => a.assignmentId.localeCompare(b.assignmentId))) })
+        : closingExecutorDraft(data, lineId, quantities, reason);
+      if (!editor.owns()) return; setError(''); await controller.current?.preview(intent); }
     catch (value) { if (editor.owns()) setError(closingExecutorDraftError(value)); }
   };
   return <Modal open title="匹配执行方" description={row.order.factoryStyleNo || row.order.styleNo || row.order.orderNo}
@@ -46,15 +53,16 @@ export function ServerClosingExecutorDialog({ row, context, onClose, onChanged }
         {(state?.pending || state?.pendingUnavailable) && <Button variant="secondary" size="compact" disabled={state.busy} onClick={() => void controller.current?.check()}>核对原请求</Button>}
         {state?.retryAllowed && <Button variant="secondary" size="compact" disabled={state.busy} onClick={() => { if (window.confirm('仅重试完全相同的原请求？')) void controller.current?.retry(true); }}>重试原请求</Button>}
       </div><div className="sc-footer-actions"><Button variant="secondary" disabled={blocked} onClick={close}>{done ? '完成' : '取消'}</Button>
-        {!done && (state?.preview ? <Button disabled={blocked} onClick={() => void controller.current?.apply()}>确认匹配</Button>
-          : <Button disabled={blocked || !plan || !line || unavailable || !editor.session.hasPermission('closing.edit')} onClick={() => void preview()}>预览匹配</Button>)}
+        {!done && (state?.preview ? <Button disabled={blocked} onClick={() => void controller.current?.apply()}>{recovering ? '确认恢复未分配' : '确认匹配'}</Button>
+          : <Button disabled={blocked || !plan || (!recovering && (!line || unavailable)) || !editor.session.hasPermission('closing.edit')} onClick={() => void preview()}>{recovering ? '预览恢复未分配' : '预览匹配'}</Button>)}
       </div></>}>
       {!data ? <p role="status">{editor.readError ? '未能读取完整资料，请关闭后重新读取。' : '正在读取整单月份与执行资料…'}</p> : !plan ? <p>本单尚无正式月份计划。</p> : <>
         <p className="sc-scope-note">只匹配原本未分配的数量，不改变颜色、月份或生产。排单量及完成量仅供参考，剩余数量保持未分配。</p>
-        {data.sourceChanged && <p role="alert" className="sc-alert">来源数量或颜色已变化，请先复核来源数量。</p>}
-        {!!data.executorChanges.length && <p role="alert" className="sc-alert">原执行归属需要核对，暂不能新增匹配。</p>}
+        {data.sourceChanged && <p role="alert" className="sc-alert">{recovering ? '执行归属和来源均已变化：先恢复未分配，再复核来源数量，最后重新匹配。' : '来源数量或颜色已变化，请先复核来源数量。'}</p>}
+        {recovering && <section className="sc-alert" aria-label="执行归属恢复"><h3>原执行归属已变化</h3><p>仅将以下变动归属恢复为未分配；原片段、颜色、数量和月份保持。有过实际产出或月份已确认 / 锁定时禁止恢复。</p>
+          {data.executorChanges.map(value => <p key={value.assignmentId}>{executor(value.assignmentId)} → {executor(value.assignmentId, true)}</p>)}</section>}
         <fieldset disabled={blocked || done || !editor.session.hasPermission('closing.edit')} className="sc-adjustment-fields">
-          <FormItem label="未分配片段"><select aria-label="待匹配月份片段" value={lineId} onChange={event => edit(() => { setSelected(event.target.value); setQuantities({}); })}>
+          {!recovering && <><FormItem label="未分配片段"><select aria-label="待匹配月份片段" value={lineId} onChange={event => edit(() => { setSelected(event.target.value); setQuantities({}); })}>
             {unassigned.map(value => <option key={value.id} value={value.id}>{color(value.colorId)} · {value.month ?? '待分月'} · {closingNumber(value.quantity)}{frozen(value.month) ? '（已确认 / 锁定）' : ''}</option>)}
           </select></FormItem>
           {!unassigned.length ? <p>本单数量均已明确归属，此处只读查看。</p> : <>
@@ -66,13 +74,13 @@ export function ServerClosingExecutorDialog({ row, context, onClose, onChanged }
             </tbody></table></div>
             {!candidates.length && <p>暂无本单同颜色的排单，请先建立真实排单。</p>}
             {allocationError ? <p role="alert">{allocationError}</p> : <p>本次匹配 {allocation?.selected ?? '0'}；余量 {allocation?.remainder ?? line?.quantity ?? '0'} 保持未分配。</p>}
-          </>}
-          <FormItem label="匹配原因" required><input aria-label="执行方匹配原因" maxLength={2000} value={reason} onChange={event => edit(() => setReason(event.target.value))} /></FormItem>
+          </>}</>}
+          <FormItem label={recovering ? '恢复原因' : '匹配原因'} required><input aria-label="执行方匹配原因" maxLength={2000} value={reason} onChange={event => edit(() => setReason(event.target.value))} /></FormItem>
         </fieldset>
         {plan.lines.some(value => value.assignmentId !== null) && <details><summary>查看已有归属（只读）</summary><div className="sc-table-scroll"><table><thead><tr><th>颜色</th><th>月份</th><th>执行方</th><th>数量</th></tr></thead><tbody>
           {plan.lines.filter(value => value.assignmentId !== null).map(value => <tr key={value.id}><td>{color(value.colorId)}</td><td>{value.month ?? '待分月'}</td><td>{executor(value.assignmentId)}</td><td>{closingNumber(value.quantity)}</td></tr>)}
         </tbody></table></div></details>}
-        {state?.preview && <section className="sc-preview" aria-label="执行方匹配预览"><h3>匹配后完整月份分配</h3>
+        {state?.preview && <section className="sc-preview" aria-label="执行方匹配预览"><h3>{recovering ? '恢复后完整月份分配' : '匹配后完整月份分配'}</h3>
           {state.preview.warnings.map(value => <p className="sc-alert" key={value.assignmentId + value.code}>{executor(value.assignmentId, true)}：{value.code === 'executor_plan_cancelled' ? '排单已取消' : '归属量超过排单 / 完成参考量'}；参考 {closingNumber(value.referenceQuantity)}，拟归属 {closingNumber(value.quantity)}。仅提示，数量不截断。</p>)}
           <div className="sc-table-scroll"><table><thead><tr><th>颜色</th><th>月份</th><th>执行方</th><th>数量</th></tr></thead><tbody>{state.preview.after.map(value => <tr key={value.id}><td>{color(value.colorId)}</td><td>{value.month ?? '待分月'}</td><td>{executor(value.assignmentId, true)}</td><td>{closingNumber(value.quantity)}</td></tr>)}</tbody></table></div>
         </section>}

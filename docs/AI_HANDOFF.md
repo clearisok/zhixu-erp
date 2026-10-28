@@ -8,6 +8,8 @@
 
 本片后继：B证据已在bda641b1冻结，当前工具兼容源码的v1/memo精确检查2/2通过、lint通过，单独工具commit；完整182仍待最终集中检查。接下来D177恢复，当前无其他dirty。
 
+恢复切片输入e9a2888981542fe07cf4a55a2b273a015c1ccfe8：0052+原month命令新增显式release_executors，所有漂移且无历史产出归属返回未分配，原ID/量/月/Source保持；来源同时变化可先解除归属再复核。新模型1、owned PG/HTTP/SQL6通过，原匹配/客户端相关检查通过，type/lint通过；首轮SQL测试断言被既有FK抢先拒绝已保留并修正。正式最新UI浏览器/最终发布未完成，继续USD采用入口。无远端写/CI/旧数据操作。
+
 后续实现只复用原月份与订单商业服务：先明确恢复所有无产出漂移归属为未分配、保护旧片段量/月/旧版本/生产；再接报价USD单笔采用和历史，独立labor权限/session owner/原请求，不新增换汇或价格账本。期间confirmed/locked先处理；有真实产出拒绝恢复。最后一次必要完整发布/CI和独立复审。
 
 依赖仍为本地node_modules junction→ainuoke-continuous-material-display owner，锁文件仅CRLF差规范内容一致，无安装。canonical archive用子进程core.autocrlf=false保证逐blob，不能改共享Git。Docker仅核实desktop-linux本机npipe后子进程pin；只新owned合成PG/Chrome，绝不操作旧库/卷。原Git/ref STOP未知保持，不擅自remote/auth/proxy/TLS写。62411用户输入/旧环境及62428候选保持，任何真实Source、正式部署切换、其他PR合并和退役仍未授权。
