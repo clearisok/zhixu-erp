@@ -44,3 +44,15 @@
 ## 回退与保护
 
 仅针对新候选关闭写入/停止已批准采集、保留新DB/对象与全部回执；旧环境保留。新版本已有写入时，不能用切回旧空账本代替数据恢复，也不承诺旧镜像兼容新schema。备份必须包含数据库与对象，并在新独立目标实际恢复；历史9/9不替代最终main候选验证。未知COMMIT核对原请求，不换UUID重采。真实凭据/原文不进入聊天、Git或Actions；不自动合并、部署、迁移旧库或退役资产。
+
+## 本机离线交付准备（663后继片）
+
+从干净 `663be51fc4bb41868b2bd96d31d4ed3a2a83a258` 制作一次完整历史Git bundle，并从该bundle实际离线clone，精确HEAD相同、3303个tracked文件、工作区干净。没有远端Git请求或上传。文件位于 `D:/zhixu-server-convergence/ningbo-release-review-663be51f/source-663be51f.bundle`，169327926字节，SHA256 `51ec79e45181bb0b58b1d4b4124e9822811a86e34ac8a0f2ed1b44e2fd00259e`；`git bundle verify`确认完整历史且无外部prerequisite。这是可保留原始提交的离线源码交付备份，不是最终main发布镜像或新的部署批准，也未传到宁波。
+
+同目录 `source-review.json` 冻结51项SQL及21项ops文件的SHA256/长度、工程镜像90e/a198身份、具体待审目标和未通过的发布Gate；其SHA256 `381decb8842b47dc39969b80e777deca16e8d8115a889ede285fe1a603dd90fe`。状态固定 `LOCAL_SOURCE_REVIEW_ONLY_NOT_DEPLOYABLE`；不含凭据、数据库备份、node_modules或未提交工作树。这里的“Git完整历史”只指该分支祖先，不冒称所有本机其他分支均已备份。新提交/合并后必须冻结对应新SHA，不把663源码包标成新main。
+
+本片一次只读SSH补齐source host条件：Linux/x64、Node22.22.1、Python3.14.4、npm9.2.0、GNU tar1.35；原Git2.53.0/Compose5.5.1观察保留。不安装依赖或修改服务器；已具备运行时不等于同SHA锁定依赖已准备，也不证明实际collector成功。应用镜像仍不能直接运行clean源码operator。
+
+另查明 `scripts/isolated-source-window.mjs` 及原demo operator仅接受历史“四合同/10分钟/两小时”固定许可，不能更名或改JSON复用为当前两合同窗口。新两合同有限验收继续复用 `collectSelectedSourceOnce` 的每次1登录/80报表/180秒预算和原 `captureSource` 发布，按明确次数逐次调用，不借原无限schedule/backoff或旧四合同许可增加请求；最终次数/间隔/截止和目标由待批准执行单冻结。此处只核对原入口，没有修改它们或获得新采集额度。
+
+本片验证为bundle verify、实际离线clone、72个冻结文件长度/hash零差异、3303 tracked文件、diff检查及独立只读复审无P1/P2。只增加本节与状态/接力说明，没有产品/SQL/测试或发布manifest变化；不重跑663的8项回归、类型/lint、精确guard或c9的182项完整发布。不把复用结果描述成本片新测试，也不声明新Hosted检查成功。最终远端交付时仍须核对当时精确HEAD及所需发布门禁。
