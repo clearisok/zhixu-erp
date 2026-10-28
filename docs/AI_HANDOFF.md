@@ -1,4 +1,4 @@
-# 接力：0052恢复证据已补齐，镜像下载失败不重试
+# 接力：PR131已交付，CI旧断言已本地修复但网络再次降级
 
 2026-10-28；feat/closing-support-interfaces，main本轮重新核实6479a713e2b80228f008049519ebbd50d10601a8，PR130已批准合并且双父/树已验证。先读CURRENT_STATE/PROJECT_INDEX与D169–D177。完整Goal继续，不把本片完成设为complete。
 
@@ -23,4 +23,8 @@ a027指定一次实际push已耗尽且30秒超时，原事实/STOP边界保留�
 
 PR131首次Hosted：Release40639447810成功；source40639447798失败于production-scheduling.integration.test.ts:126全库颜色2!==1；first-team40639447804失败于server-auth-frontend的quote-editor-persistence.test.ts:51 closing route旧false。不是新排单重复写或权限UI本身失败；原job122653911201/122653911180的失败摘录在pr131-ci-failure-observation.json，后续步骤跳过，未rerun。当前仅两份测试修正：disabled/snapshot显式环境并恢复、closing正式路由和未知路径负控；并发前后全库颜色身份完整JSON不变。原红测47/44pass3fail（含parent同源）、新47/47、类型/相关lint通过，review0P1/P2；产品/SQL/UI/依赖未变。精确新守卫看pr131-ci-fix-final-guard.log。详见tasks/completed/2026-10-28-pr131-delivery-and-test-compatibility.md。
 
-下一步按正常可靠checkpoint协议集中一次更新同PR并核实新SHA/必要CI，不手工重跑旧失败或重建PR；遇到新故障仍按原协议停止，不无限重复。新Linux镜像/非空恢复/持久空目标仍待；唯一后续HEAD对照host和owned只读容器均TLS有效/HTTP403，不能视为GET/APK可用，未再次构建。不升级旧62428、不切50426。此后全链最终审计/人工接受、具体来源和依赖退役按Gate0，不自行合并/部署/读新真实Source或删除资产。
+最新代码checkpoint **136ba1675c54d2ae147fdc50c72a99169aec6495**，精确6479守卫PASS（12/68/38UI/errors[]），47/47/类型/lint仍绑定此代码。4584实际写入正常后按既有普通checkpoint协议集中尝试一次136：preflight Git30.798秒超时/API成功，实际push1次退出128 uncertain_transport64.012秒，未触发180秒预算；工具/API加连接器均确认远端仍4584，TARGET_NOT_DELIVERED、新CI0。已重新NETWORK_DEGRADED，不能在后续Gate撞同一通道；不得再把先前NORMAL当作永久恢复。
+
+随后仅一次原只读diagnose，过程代理仍7897：default/HTTP1.1/OpenSSL+HTTP1.1分别30.807/30.895/30.762秒超时，0push/无配置修改。没有可靠后端差异或全部根因结论，不改共享代理/认证/TLS，不关证书/换认证/文件API重建commit。PR131正文已据实写首次CI及136本地修复待送达；普通网络恢复常设授权保持，下一次先等待具体外部状态变化/适用恢复指示，不重复已失败通道或要求用户再拼相同命令。raw git-delivery-normal-checkpoint-136.log、diagnose-process-proxy-after136.log。最后只收口4份状态/交付文档；源代码/测试/SQL/UI/依赖相对136不变，不能把新文档HEAD称为已上传或新守卫checkedHead。
+
+新Linux镜像/非空恢复/持久空目标仍待；唯一后续HEAD对照host和owned只读容器均TLS有效/HTTP403，不能视为GET/APK可用，未再次构建。不升级旧62428、不切50426。此后全链最终审计/人工接受、具体来源和依赖退役按Gate0，不自行合并/部署/读新真实Source或删除资产。完整Goal保持active，此Turn有真实交付/CI和本地修复进展，不能因两个外部依赖就冒称完成或提前blocked。

@@ -32,3 +32,13 @@
 此前a198唯一镜像构建的USTC APK TLS失败仍保留；没有第二次构建。随后仅做一次同一公开APK索引的host/新owned只读容器HEAD对照，各1次、8秒上限：两边TLS有效但均HTTP403。HEAD拒绝不能证明GET可用，也不能证明APK原因全部解决；没有换源、关闭证书、共享网络改动或Source/DB请求。完整0052镜像恢复及新持久空目标仍未完成，不能用旧cf77/0051代替。
 
 当前52251临时合成演示、旧62428持久空候选与全部旧输入/资产保持。PR继续草稿；新兼容修复的远端提交/必要CI须按实际后续回执分别记录，不把4584的旧成功或失败当作新提交结果。不自动合并、正式部署、切50426、读新真实来源或修改既有账号业务库。
+
+## 136标准checkpoint交付与后续只读对照
+
+本地兼容修复代码checkpoint为 **136ba1675c54d2ae147fdc50c72a99169aec6495**，工作树干净；精确6479守卫实际PASS，12页/68能力/38UI/errors为空。此前4584已实际正常写入、退出0且独立核实，因此按既有可靠checkpoint普通交付及用户常设授权，对这个新checkpoint集中尝试一次；不是再次上传4584或自动合并。
+
+实际preflight Git读取30.798秒超时，既有独立API预检成功后工具只push1次；Git退出128，uncertain_transport、64.012秒，非工具180秒预算超时。工具独立API和随后连接器均核实远端仍为 **4584**，明确TARGET_NOT_DELIVERED；新CI为0。此时重新进入NETWORK_DEGRADED，不在后续Gate重复push。
+
+仅又运行一次原只读诊断工具，继续使用同一进程级7897覆盖：default、HTTP1.1、OpenSSL+HTTP1.1三种只读对照分别30.807/30.895/30.762秒超时，configurationChanged=false、pushSubmitted=false。不能归因为特定TLS后端，也不能据此宣称已查清全部根因；没有共享代理/认证/TLS更改、证书关闭、文件API重建commit或第二次上传。一次读成功不能保证写入可靠，第一次成功5373ms也不是长期恢复承诺。
+
+PR131正文已更新为真实状态：4584已交付、首次CI一过两失败、136本地47/47修复未送达，不误写新CI通过。raw `normal-checkpoint-delivery-136-attempt.json`、`git-delivery-normal-checkpoint-136.log`、`diagnose-process-proxy-after136.log`保留工具状态和次数；没有要求用户重复拼命令。本片最后仅收口交付/网络状态文档，代码/测试/SQL/UI/依赖相对136不变；不为文档再次跑47/811/182或Hosted，精确守卫结果仍准确绑定136。

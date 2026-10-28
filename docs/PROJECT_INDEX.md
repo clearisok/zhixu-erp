@@ -2,7 +2,7 @@
 
 当前必要CI接线见[2026-10-28证明](tasks/completed/2026-10-28-closing-ci-integration.md)：只扩展原source job的关账负控/实际浏览器覆盖，不增重复触发或关闭检查，Hosted结果仍独立。
 
-最新[PR131交付与旧测试兼容](tasks/completed/2026-10-28-pr131-delivery-and-test-compatibility.md)：4584精确送达、唯一草稿；首次Release通过，另两项旧断言失败。两份测试本地47/47、类型/lint通过，下一步同PR集中新提交；不重跑旧失败或把本地修复冒称远端通过。
+最新[PR131交付与旧测试兼容](tasks/completed/2026-10-28-pr131-delivery-and-test-compatibility.md)：4584精确送达、唯一草稿；首次Release通过，另两项旧断言失败。本地136两份测试47/47、类型/lint/精确守卫通过；一次新checkpoint上传发生传输故障，独立核实远端仍4584。NETWORK_DEGRADED，不重推、手工重跑旧CI或把本地修复冒称远端通过；后继仅状态文档，当前HEAD从Git核对。
 
 2026-10-28；`feat/closing-support-interfaces`。main已核实 **6479a713e2b80228f008049519ebbd50d10601a8**，PR130已按批准merge commit合并。先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[业务规则](BUSINESS_RULES.md)及DECISION_LOG D169–D177；整体[Server收敛Gate0](tasks/active/server-convergence-gate0-2026-10-20.md)继续。
 
