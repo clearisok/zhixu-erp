@@ -1,24 +1,15 @@
-# 恢复点：PR130已是累计包，Gate8独立；实机62411保留
+# 恢复点：PR130已合并，新main前向整合，三处配套UI与恢复可实施
 
-2026-10-28最新人工答复：“能登录，也能打开调月弹窗”，绑定此前62411固定实机问题。登录及打开弹窗已人工确认，不再重复询问或把自动输入失败当产品缺陷。只覆盖这两项，不证明保存/金额/冻结或全业务验收。本轮Cua仍看到原tab5登录页，与人工操作视图不一致；保护用户当前页面/输入，不自动reload、重新登录或尝试追赶其操作。旧诊断作为历史保留，不用其旧画面推翻用户反馈。当前仅记录答复，无产品、SQL、UI、测试、CI或远端变化。
+2026-10-28；feat/order-closing-month-plan；本片baseline clean 0900c2b0ae9bc875e91c4c124bb101f52d227250，用户答复“全部确认”。[批准记录](tasks/completed/2026-10-28-closing-support-and-pr130-approval.md)及D177覆盖仅PR130 merge、具体三处UI、推荐无产出执行归属恢复，不重问。核心UI和用户手动登录/打开弹窗均已确认。
 
-2026-10-28；branch feat/order-closing-month-plan；本阶段baseline clean 855401ba60de2732bb6cc0305390cc79862db958。先读CURRENT_STATE和[本阶段核对](tasks/completed/2026-10-28-pr130-gate8-delivery-reconciliation.md)。旧长接力[逐字归档](tasks/completed/2026-10-28-delivery-reconciliation-input-state/AI_HANDOFF.md)，不能继续沿用其“小范围PR130”假设。
+main=6479a713e2b80228f008049519ebbd50d10601a8，PR130已merged。双父869ee84dd0b31de6161011e4aa560678b244a64d/61704afe22fe9fd0ea9f6625c6092fcbb9575dfc，tree46900a09200739db4a9e528c33b8fdc5331abac9=head617。重新读3check runs success，无rerun；更新body、ready、merge三次已获准API mutation，无Git网络/认证配置/其他PR操作。新main原始签名对象从API按SHA核实后入本地object库（首次缺空延续行hash失败未写，原失败保留），本地merge --no-ff保留历史。
 
-## 交付事实和下一步
+当前shared main基线已前移，568历史证据保持；本片仅文档/基线整合，精确新base guard尚待执行。后续先把本批准文档从本merge checkpoint冻结成新document证据，再给各UI精确path impact记录；不可覆盖旧证据。旧144/168、业务243/恢复9/浏览器9分别绑旧source，不冒充新实现通过。
 
-- main最新只读GET：869ee84dd0b31de6161011e4aa560678b244a64d。PR130 open/draft，head61704afe22fe9fd0ea9f6625c6092fcbb9575dfc，branch codex/persistent-cumulative-43-main-869e；180提交/705路径、0033–0044、全43迁移。实际远端body准确。三项已有CI成功，0重跑；test-merge664e8f63双父精确main/head、tree46900a09等于head。
-- 既有release_safety_review只读核对原证据、504manifest/18revision与后续差异，未发现必须先回补的阻断P1/P2。144/c1、8/6d、9/01d→6d及617guard分别绑定；不能用855/fde8/cf77/de5的后续结果替代。
-- 0045–0051 Gate8仍后续本地，617→本阶段855为98提交/280路径。先取得PR130具体合并批准并执行前复核，merge commit保留历史；核实新main双父/tree，再前向整合Gate8/共享文档/manifest、运行新base精确守卫及实际受影响检查，授权交付后才唯一草稿PR。不要把Gate8塞回PR130，亦不拆丢历史。
-- 原Git实际push退出1的STOP_AUTH_OR_DIVERGENCE根因仍未解，不自行push/ref移动/换认证/改共享代理或TLS。普通恢复常设授权不等于merge授权。当前API读正常不解除写STOP；本片远端写/Hosted/真实Source0。私密outputs/gate-delivery-reconciliation-20261028含完整GET观察、merge-packet、88ref明细、原远端body及两份前向PR草稿；旧delivery-scope保留但其小PR解释已被纠正。所有refs retirementApproved=false。
-- 本阶段仅文档，产品/SQL/UI/测试/guard/manifest均未改。568历史记录保留，不虚增证据或重跑成功检查。同main精确工作区守卫一次PASS：checkedHead855401ba＋working docs，568/12页面/68能力/84 UI，190214ms，session79757退出0；log/guard-result在本片outputs。此后仅记录结果，不重跑未改产品或发布回归。
+实施顺序：来源复核UI（D175 display已完成，复用不要重复造投影）→执行方匹配/显式无产出漂移恢复→报价详情USD采用/历史。原三处具体草图[提案](tasks/active/closing-support-interfaces-proposal-2026-10-28.md)仍是原pending日期记录，本次批准覆盖它；HTML实际hash12c7d56bad06970775ae4a8bdbce21e435a44a0c5fa8e6661021750ed024b50a已重核。新动作在原月份命令服务/SQL/CAS/回执内扩展，期间confirmed/locked先取消确认/重开，生产有实际产出不允许移归属。每片对应type/lint/领域/SQL/API/UI负控与checkpoint；最终集中构建/新base guard/必要CI及只读复审。
 
-## 实机与环境保护
+本次起始outputs和node_modules本地链接缺失：旧私密raw未重新读取，不声称存在；Git冻结证明仍在。outputs/approved-support-flow-20261028保存新preflight/postmerge/merge-verified。node_modules只恢复到原ainuoke-continuous-material-display owner的本地junction，package-lock精确相同，未安装/修改共享依赖。做type/build用canonical tracked runner，防旧未跟踪夹具污染。
 
-2026-10-28后续实机诊断（clean输入ae77c8597ea3b95c2886fc8877053af97a9978f2）：tab5按钮enabled、无inert/遮挡，真实渲染器complete/focused/visible；范围切换后实际回到登录页，当前会话不可用，过期/多入口cookie影响等具体原因未证明。表单两个输入有效，未读取或记录密码内容；普通点击、键盘和已核对坐标的CDP输入均未完成提交。仅在显式Network.enable后的输入段捕获0请求/响应/失败事件，buffer无截断；此前未启用的空事件不能证明无请求。诊断Network已disable，不留临时页面修改。当前停在已填合成账号的登录表单，等待用户手动点击登录并试调月；不能据此修业务代码或宣称人工验收通过。没有业务Save、reload/reseed/clear、DB/Source/Hosted/远端操作。新截图及脱敏receipt位于outputs/closing-live-control-diagnostic-20261028；旧四个tab均已重新markDeliverable。
+原Git/ref STOP根因仍UNRESOLVED，PR130批准仅为API元数据/merge例外，不解除其他remote写；普通纯网络恢复常设授权仍在，但遇新认证/拒绝/分歧必须停。不要盲push/换认证。无真实Source新额度、真实账号或既有业务库、自动部署/切换、其他PR合并或退役授权。
 
-- 用户实机http://localhost:62411/closing-center?year=2027，合成closing.editor / synthetic-closing，source fde8b0f1f467edfc864cbd616756ad1778c9f40e、build closing-chain-fde8b0f1-20261028；产品/SQL与cf77相同，owned tmpfsPG zhixu-pg-it-49b6fa3d9241，child46344/launcher20724，非正式持久目标。三处旧demo保持，不reseed/reload用户页；旧61104输入/5件预览、tab4整单预览和53001保留。
-- Cua browser2，demoTab(tab1)、closingDemoTab(tab3)、currentClosingDemo(tab4)、deliveredClosingDemo(tab5)本片已markDeliverable；下一轮需要保留时重新标记。tab5“仅外发”2月/11月各10件/CNY1000/USD25、全年2000/50已实际读取。旧click三方式及本片Return均未打开调整弹窗，无新Save；tab4仍CDP focus timeout，停止重复。不要把自动尝试算PASS或直接认定产品bug，用户可手动体验。最新live-demo.jpg在本片outputs，open_in_codex显示请求queued不等于已在前台。
-- 新持久空候选https://localhost:62428，project zhixu-quote-trial-server-g8-7ab874a33c，私密root D:/zhixu-server-convergence/gate8-empty-cf77-7ab874a33c。cf77image ID ec2987de1be1dd31435a766081bafcbd11b98fe9efbc24333b236c5811ac74a6，50迁移/0051、五服务/四持久卷、111业务表0/唯一local.admin、READY/restart原通过。不要读取/输出secrets，不安装系统信任或越过浏览器警告。start-reviewed一次额度已用，不能重新完整执行；无需操作该目标。
-- 243/Chromium9/fde8、cf77image+de5恢复9/Chromium9及568guard原精确source回执保留在关联证明/旧归档；不重复build、全仓/Hosted/恢复。旧容器/卷/网络/备份/Browser/运行依赖全部保留。
-
-整体目标未完成，Goal工具当前blocked；三处具体配套UI、执行归属漂移恢复规则与PR130具体合并问题仍待既有答复，不因时间或本次两项人工确认当作批准。核心关账UI已批准，人工登录/打开弹窗已确认，均不重问。无新真实Source/调度/既有账号业务库/merge/正式部署/切换/退役授权。
+实机62411/fde8和原61104用户输入/预览、tab1/3/4/5及53001保持，不reload/reseed/清缓存。Cua自动视图曾停旧登录，不用它否定用户手动确认，不再追赶登录。新62428是cf77/0051持久空候选，不导入、不替换其他入口；旧卷/备份/Browser/运行依赖保护不变。整体Goal继续，用户业务接受和具体来源激活/正式切换仍独立。
