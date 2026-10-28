@@ -5286,6 +5286,35 @@
       "sha256": "13653a2f92705ed16b8d70f971345ee1db4c38770c3ac3a56f8395c1c95bde96",
       "supersedes": "closing-support-main6479-integration-8-20261028",
       "changeReason": "Freeze the current contract only after the actual integration witness and full imported history were already present in its immediate parent. Preserve every prior blob, date, failure and scope; no retroactive checkpoint or capability/deployment promotion."
+    },
+    {
+      "id": "closing-executor-support-engineering-20261028",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-28-closing-executor-support-ui-engineering.md",
+      "recordedAtSha": "da54ddaf61f880a4e7712d0cf2e57f3f501cf944",
+      "renderedSourceSha": "3ac9192cb8720b781d760ef0182de35440d4702e",
+      "sha256": "7075fe62645a8fafd3c47f8bc11a0f912f5b071e3b058b01a0caa8352ecd622f",
+      "changeReason": "Freeze actual executor matching implementation and isolated verification; retain original product, corrected harness and previous history. No human acceptance, remote CI or deployment promotion."
+    },
+    {
+      "id": "closing-executor-support-preview-20261028",
+      "kind": "screenshot",
+      "path": "docs/release/screenshots/closing-executor-support-20261028/executor-unassigned-preview.png",
+      "recordedAtSha": "da54ddaf61f880a4e7712d0cf2e57f3f501cf944",
+      "renderedSourceSha": "3ac9192cb8720b781d760ef0182de35440d4702e",
+      "sha256": "3d8233b98a72c9e9bd7e743deb1b6a497ec87f0dd3add521bab204c14f1f662c",
+      "approvalEvidence": "closing-support-approved-20261028",
+      "changeReason": "Freeze actual executor matching implementation and isolated verification; retain original product, corrected harness and previous history. No human acceptance, remote CI or deployment promotion."
+    },
+    {
+      "id": "closing-executor-support-current-contract-20261028",
+      "kind": "document",
+      "path": "docs/features/SERVER_CLOSING_EXECUTOR_MATCHING.md",
+      "recordedAtSha": "da54ddaf61f880a4e7712d0cf2e57f3f501cf944",
+      "renderedSourceSha": "da54ddaf61f880a4e7712d0cf2e57f3f501cf944",
+      "sha256": "7699b624abfe05b0188c01ade897418920349f3977765afcefbd152c5fe71ca8",
+      "supersedes": "closing-support-main6479-integration-5-20261028",
+      "changeReason": "Freeze actual executor matching implementation and isolated verification; retain original product, corrected harness and previous history. No human acceptance, remote CI or deployment promotion."
     }
   ],
   "pages": [
@@ -5560,7 +5589,9 @@
         "closing-adjustment-desktop-annual-20261027",
         "closing-support-approved-20261028",
         "closing-source-support-engineering-20261028",
-        "closing-source-support-preview-20261028"
+        "closing-source-support-preview-20261028",
+        "closing-executor-support-engineering-20261028",
+        "closing-executor-support-preview-20261028"
       ]
     }
   ],
