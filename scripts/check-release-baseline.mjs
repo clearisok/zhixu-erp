@@ -15,6 +15,8 @@ const documentAnchorDepthLimit = 256;
 const fullSha = value => typeof value === 'string' && /^[0-9a-f]{40}$/.test(value);
 const nonempty = value => typeof value === 'string' && value.trim().length > 0;
 const same = (left, right) => JSON.stringify(left) === JSON.stringify(right);
+const sameHistoricalEvidence = (prior, current) => Boolean(prior && current) && ['kind', 'path', 'recordedAtSha', 'renderedSourceSha',
+  'supersedes', 'mergeOf', 'changeReason', 'approvalEvidence', ...(prior.sha256 ? ['sha256'] : [])].every(key => same(current[key], prior[key]));
 const requiredPages = ['quote-list', 'quote-new', 'quote-detail', 'quote-settings', 'order-list', 'order-detail', 'material', 'login', 'navigation'];
 const requiredCapabilities = ['quote', 'commercial-security', 'order', 'material', 'delivery-plan', 'intake', 'production', 'closing'];
 const statusDimensions = ['implemented', 'merged', 'isolatedTest', 'humanAcceptance', 'sourceActivation', 'trial18443', 'preview18444'];
@@ -116,7 +118,10 @@ export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths
     const visit = (current, visited) => {
       if (!current || current.kind !== item.kind || current.path !== item.path || visited.has(current.id)) return false;
       if (context.sourceIds && !same(context.sourceIds.get(current.id), current)) return false;
-      if (same(context.ids.get(current.id), current)) return true;
+      // Existing history validation below owns field compatibility, including
+      // v1's permitted addition of a verified document hash. Imported v2 source
+      // membership above remains an exact object comparison.
+      if (sameHistoricalEvidence(context.ids.get(current.id), current)) return true;
       if (importedRoot(current)) return true;
       // A later ordinary revision cannot borrow an earlier revision's valid
       // checkpoint when its own immediate-parent witness is absent or invalid.
@@ -213,8 +218,7 @@ export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths
         || visited.size >= documentAnchorDepthLimit) return 0;
       if (!lineageNodes.has(current.id) && lineageNodes.size >= documentAnchorDepthLimit) return 0;
       lineageNodes.add(current.id);
-      if (!same(history.ids.get(current.id), current) || !fullSha(current.recordedAtSha)
-        || !isAncestor(current.recordedAtSha, parents[0])) return 0;
+      if (!same(history.ids.get(current.id), current) || !fullSha(current.recordedAtSha)) return 0;
       if (!isAncestor(currentContext.base, current.recordedAtSha)) {
         const imported = currentContext.imports && importedDocumentAnchor(current);
         if (!imported) return 0;
@@ -224,6 +228,7 @@ export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths
       const lineageKey = `${currentContext.base}:${currentContext.head}:${current.id}`;
       const cachedHeight = lineageHeights.get(lineageKey);
       if (cachedHeight !== undefined) return visited.size + cachedHeight <= documentAnchorDepthLimit ? cachedHeight : 0;
+      if (!isAncestor(current.recordedAtSha, parents[0])) return 0;
       const predecessors = parentsOf(current);
       if (!predecessors.length) {
         if (current.supersedes !== undefined || current.mergeOf !== undefined) return 0;
@@ -422,8 +427,7 @@ export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths
   }
   for (const [id, prior] of priorEvidence) {
     const current = evidence.get(id);
-    if (!current || ['kind', 'path', 'recordedAtSha', 'renderedSourceSha', 'supersedes', 'mergeOf', 'changeReason', 'approvalEvidence', ...(prior.sha256 ? ['sha256'] : [])]
-      .some(key => !same(current[key], prior[key]))) fail('EVIDENCE_HISTORY_CHANGED', id);
+    if (!sameHistoricalEvidence(prior, current)) fail('EVIDENCE_HISTORY_CHANGED', id);
   }
   for (const item of evidence.values()) {
     if (item.kind === 'screenshot' && !priorEvidence.has(item.id)
