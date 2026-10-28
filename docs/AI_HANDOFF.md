@@ -1,30 +1,22 @@
-# 接力：PR131已交付，CI旧断言已本地修复但网络再次降级
+# 接力：0052完整恢复/新持久空候选通过，PR131测试修复待交付
 
-2026-10-28；feat/closing-support-interfaces，main本轮重新核实6479a713e2b80228f008049519ebbd50d10601a8，PR130已批准合并且双父/树已验证。先读CURRENT_STATE/PROJECT_INDEX与D169–D177。完整Goal继续，不把本片完成设为complete。
+2026-10-28；feat/closing-support-interfaces，阶段起点24f44284e94a0dbfda40dfc23915f0be665ea139 clean，最终HEAD从Git读取。本片只改完成证明/精简回执及状态文档；产品/SQL/UI/权限/依赖不变。最近核实main6479a713e2b80228f008049519ebbd50d10601a8，PR130已批准合并；本片没有fetch、push、远端元数据写或新CI。完整Goal继续active，不能因本片READY标complete。
 
-产品a198d1829675092006708727624ee867be0e7b60；最终业务验证a0272a44be9c0f5961bbc2de51477a996815af57，d243a65df9000fc6dc2a85fe8e8252c1031fe109仅交付失败文档。最新本片从d243 clean开始，只改5个集成测试/夹具和状态文档，没有应用/SQL/UI/权限/依赖变化。原feat/order-closing-month-plan仍0900c2b0ae9bc875e91c4c124bb101f52d227250，前向整合153c04及所有原ref保持。
+## 当前工程与运行
 
-## 本片实际结果
+- 精确产品a198d1829675092006708727624ee867be0e7b60；来源数量复核、执行方匹配/无产出恢复、报价中心USD工价采用及原请求保护已获批准并实现。此前18实机/811项目/182发布/定向SQL和新测试兼容47/47分别绑定原源码，没有重复执行；见[最终业务证明](tasks/completed/2026-10-28-closing-support-final-validation.md)。
+- 本片[完整持久化证明](tasks/completed/2026-10-28-closing-support-persistent-runtime.md)与[机器回执](tasks/completed/2026-10-28-support-persistent-runtime/receipt.json)。3258canonical blob、0overlay，原Dockerfile/package/lock不改。原USTC失败保留；一次官方默认CDN GET200/TLS有效后，原default选项一次受控build退出0。内容image sha256:90e36de7c3d61ca137b2d5a4227e848b83ed57579bd146ce25501dbc6fe35f4f，build closing-support-default-a198d182-b7ae3db3a4 /2026-10-28T06:12:40.247Z，51项迁移/最高0052。
+- 原owned双project完整非空恢复9/9，0fail/cancel/skip，369010.8379ms：重启、冷重建、原工具备份/独立恢复、附件原文、全121public表/sequence和恢复后app启动前0051/0052保护核对；两个锁定期、4财务归属、USD采用、2.125件无产出归属恢复及原回执保持。原harness成功，仅清理自己的临时双项目。
+- 汇总wrapper直接JSON.parse TAP额外转义导致误报FAIL，原report/log保留。reconcile-support-recovery-tap-offline.mjs只离线解码唯一诊断并逐字重编码，绑定原件两SHA256、原exit0/9项及五个恢复标志，另存PASS_RECONCILED_OFFLINE；没有重跑恢复/Docker/网络。不要误写第二次通过或把原wrapper失败掩去。
+- 新持久空候选https://localhost:65139，project zhixu-quote-trial-support-60b2e53765，私密root D:/zhixu-server-convergence/support-empty-a198-60b2e53765。运维固定到新canonical source中的17个ops文件；5healthy/4owned卷，default internal10.253.240.32/28和gateway ingress10.253.240.48/28。原check→prepare→init→objects-init→start→restart各一次；121表中原10项技术白名单之外111表全0，仅新local.admin/role-server-admin。重启前后计数/身份/51迁移/完整0051与0052目录body相等，health/build TLS200。未登录、导入、业务写入、系统信任变更或浏览器人工接受；技术密码只在新私密文件。
+- 三阶段均核对原69container/195volume/35network选定身份state集合，missingChanged[]，不是旧业务内容审计。当前合成演示仍http://closing-current.localhost:52251/closing-center?year=2027，closing.editor或labor.editor /synthetic-closing（后者仅工价）。旧62428仍cf77/0051，62411/59846/3001/50426等及其所有用户输入/库/卷/refs保留；不要用65139空库替代体验或自动切50426。
 
-- persistent-executor-release-recovery-fixture.mjs检查0052真实目录、延迟属性及源码body；显式ZHIXU_LOCAL_TRIAL_EXECUTOR_RELEASE_RECOVERY只在原financial/domain owned路径加入非空真实HTTP match→合法无产出改外发→release。原resource/production/month回执和全库行/sequence快照继续使用同一实现；恢复后app/login前比较0051和0052目录。
-- 最终独立PG/HTTP8/8，8274.342ms，真实同SO1.25件锁定一月、当前/basis及生产完整相等；最初8项空冻结集合证明边界已修，原日志保留。原financial/local检查11pass1skip、domain回执4pass、MJS解析/定向lintpass。完整持久镜像恢复因没有新镜像SKIP，不是通过。独立终审0P1/P2，未重跑测试。
-- a198 canonical3258 blob唯一Docker构建，目录D:/zhixu-server-convergence/candidates/closing-support-image-a198-757bf06705，tag zhixu-closing-support:a198d182-20261028-757bf06705，USTC APK TLS失败退出1。没有重试/换源/关TLS/宿主安装。build wrapper执行前已按review改为默认隔离网络；原Dockerfile/lock字节未改。全部旧资源集合缺失/变化为空；raw support-linux-image.json/.log和assets-after-failure.json保留。
-- 本片证明[见此](tasks/completed/2026-10-28-closing-executor-recovery-engineering.md)；旧状态逐字/hash在docs/tasks/completed/2026-10-28-executor-recovery-input-state/receipt.json，不覆盖旧日期/source/失败。无需重跑a19818实机/811项目/182发布或不变SQL；新test-only改动不借旧结果当作新镜像验证。
+## GitHub与下一步
 
-## 运行与交付
+唯一草稿https://github.com/clearisok/zhixu-erp/pull/131，精确远端4584deb786e0dd2fada0d998a16d166b00ccaadc。用户4584例外已实际push1/退出0/5373ms并独立Git/API/连接器核实，后建唯一草稿。首次Hosted Release40639447810通过；source40639447798与first-team40639447804被旧颜色总count/closing路由断言阻断，后续步骤未运行，不是全绿。
 
-当前 http://closing-current.localhost:52251/closing-center?year=2027，a198、独立临时合成PG zhixu-pg-it-290e734e433b，Node31904。closing.editor/labor.editor，密码synthetic-closing，后者仅工价。不要刷新用户正编辑表单或重置库。保留59846/62411/62428/3001/50426等全部旧入口、输入、库/卷/备份/Browser。旧62428只到0051，未更新0052。
+两份测试修复136ba1675c54d2ae147fdc50c72a99169aec6495：显式disabled/snapshot环境、未知路径负控及并发前后全库颜色身份完整比较；47/47、类型/lint及精确6479守卫PASS、review0P1/P2。普通checkpoint上传一次exit128 uncertain_transport64秒，Git/API及连接器确认远端仍4584。后继24f及本片仅文档/证据待送达。NETWORK_DEGRADED继续；原diagnose三种只读方式均30秒超时，完整根因未定，不重复推送/诊断或要求用户拼相同命令。普通安全恢复常设授权保留，但需具体外部状态变化后再核验；新的auth/ref/cert异常仍停。现有独立工具worktree git-delivery-preflight /fix/git-delivery-upload-budget@c91d904d8751275dd6a7830893ce237efa021905 clean、未上传，用180秒push工具不改变唯一性/STOP保护。
 
-a027指定一次实际push已耗尽且30秒超时，原事实/STOP边界保留。随后用户明确批准4584新例外，c91既有工具实际仅push1次、退出0/5373ms，Git/API加独立连接器精确核实4584deb786e0dd2fada0d998a16d166b00ccaadc；创建唯一草稿PR131并attach，main6479为其祖先。仅进程级代理7897，未改共享Git/TLS/认证，无重试。本次真实写入正常、工具NORMAL，不能称通道永久恢复；新的认证/拒绝/分歧/证书异常仍停止。普通可靠checkpoint及安全恢复常设授权保留，不自动merge/deploy。
+独立终审已核对六份私密原件hash、三份24f旧状态Git字节及公开/私有回执逐对象相符，9份docs增量无P1/P2，reviewer未重跑测试或操作环境。主控只stage本片增量并独立commit，随后一次最终精确6479基线守卫；恢复会话先读outputs/approved-support-flow-20261028/support-persistence-final-guard.log核其checkedHead/exit，已通过且后继无源码变化时复用，不重复业务套件。最终HEAD从git查，不伪造尚未写入的hash或Hosted结果。
 
-独立既有工作树git-delivery-preflight，fix/git-delivery-upload-budget，最终c91d904d8751275dd6a7830893ce237efa021905 clean；源码a859b44c。唯一push等待180秒，其余read30秒、一次性/STOP/独立核验不变。Git/state79、发布144与精确6479守卫通过，真实GitHub上传0，无PR/CI。不要把工具分支旧产品页面用于关账演示。
-
-0052恢复片8752729f17b191e5dd32a265de5effcf858f601a精确6479守卫PASS。随后独立CI收口仅改原source workflow：增加一次0052模型/SQL/目录检查和一次已有18项UI检查，CLOSING_UI_EXPECTED_SOURCE绑定github.sha、Ubuntu CHROME_PATH明确google-chrome。无新job/workflow/push重复触发，concurrency/缓存/20min保持，已有锁定js-yaml解析通过，初次yaml模块缺失日志保留而未安装。独立只读复审无P1/P2；详情见tasks/completed/2026-10-28-closing-ci-integration.md。新最终守卫以closing-ci-final-guard.log实际结果为准，不预报Hosted PASS。
-
-PR131首次Hosted：Release40639447810成功；source40639447798失败于production-scheduling.integration.test.ts:126全库颜色2!==1；first-team40639447804失败于server-auth-frontend的quote-editor-persistence.test.ts:51 closing route旧false。不是新排单重复写或权限UI本身失败；原job122653911201/122653911180的失败摘录在pr131-ci-failure-observation.json，后续步骤跳过，未rerun。当前仅两份测试修正：disabled/snapshot显式环境并恢复、closing正式路由和未知路径负控；并发前后全库颜色身份完整JSON不变。原红测47/44pass3fail（含parent同源）、新47/47、类型/相关lint通过，review0P1/P2；产品/SQL/UI/依赖未变。精确新守卫看pr131-ci-fix-final-guard.log。详见tasks/completed/2026-10-28-pr131-delivery-and-test-compatibility.md。
-
-最新代码checkpoint **136ba1675c54d2ae147fdc50c72a99169aec6495**，精确6479守卫PASS（12/68/38UI/errors[]），47/47/类型/lint仍绑定此代码。4584实际写入正常后按既有普通checkpoint协议集中尝试一次136：preflight Git30.798秒超时/API成功，实际push1次退出128 uncertain_transport64.012秒，未触发180秒预算；工具/API加连接器均确认远端仍4584，TARGET_NOT_DELIVERED、新CI0。已重新NETWORK_DEGRADED，不能在后续Gate撞同一通道；不得再把先前NORMAL当作永久恢复。
-
-随后仅一次原只读diagnose，过程代理仍7897：default/HTTP1.1/OpenSSL+HTTP1.1分别30.807/30.895/30.762秒超时，0push/无配置修改。没有可靠后端差异或全部根因结论，不改共享代理/认证/TLS，不关证书/换认证/文件API重建commit。PR131正文已据实写首次CI及136本地修复待送达；普通网络恢复常设授权保持，下一次先等待具体外部状态变化/适用恢复指示，不重复已失败通道或要求用户再拼相同命令。raw git-delivery-normal-checkpoint-136.log、diagnose-process-proxy-after136.log。最后只收口4份状态/交付文档；源代码/测试/SQL/UI/依赖相对136不变，不能把新文档HEAD称为已上传或新守卫checkedHead。
-
-新Linux镜像/非空恢复/持久空目标仍待；唯一后续HEAD对照host和owned只读容器均TLS有效/HTTP403，不能视为GET/APK可用，未再次构建。不升级旧62428、不切50426。此后全链最终审计/人工接受、具体来源和依赖退役按Gate0，不自行合并/部署/读新真实Source或删除资产。完整Goal保持active，此Turn有真实交付/CI和本地修复进展，不能因两个外部依赖就冒称完成或提前blocked。
+下一步：不因新镜像成功而推断Git通道恢复，不再触发旧CI。待可证实恢复后集中交付本地修复并检查一次必要CI，保持草稿，明确批准后才合并。目标切换/完整业务接受、新真实Source范围及旧资产依赖解除独立，未授予正式部署、既有账号/业务库操作或删除。前一接力逐字/hash在[本片输入](tasks/completed/2026-10-28-support-persistence-input-state/receipt.json)，更早失败/日期/source沿其中链接保留。

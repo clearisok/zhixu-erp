@@ -1,0 +1,327 @@
+{
+  "contract": "zhixu-support-persistent-runtime-evidence.v1",
+  "recordedAt": "2026-10-28T06:32:35.615Z",
+  "phaseBaseline": "24f44284e94a0dbfda40dfc23915f0be665ea139",
+  "branch": "feat/closing-support-interfaces",
+  "latestVerifiedMain": "6479a713e2b80228f008049519ebbd50d10601a8",
+  "productSource": "a198d1829675092006708727624ee867be0e7b60",
+  "image": {
+    "id": "sha256:90e36de7c3d61ca137b2d5a4227e848b83ed57579bd146ce25501dbc6fe35f4f",
+    "tag": "zhixu-closing-support:a198d182-default-20261028-b7ae3db3a4",
+    "buildId": "closing-support-default-a198d182-b7ae3db3a4",
+    "buildTime": "2026-10-28T06:12:40.247Z",
+    "canonicalFiles": 3258,
+    "overlays": 0,
+    "sourceArchiveSha256": "b61dd8845137ed954e8461b356013c0fe06d1652a8b48231d3cb7daca7d7a49a",
+    "apkOption": "default",
+    "exitCode": 0,
+    "pull": false,
+    "priorUstcAttemptPreserved": true,
+    "buildMetadata": {
+      "environment": "production",
+      "buildId": "closing-support-default-a198d182-b7ae3db3a4",
+      "gitCommit": "a198d1829675092006708727624ee867be0e7b60",
+      "buildTime": "2026-10-28T06:12:40.247Z",
+      "masterSettingsAuthority": "server",
+      "identityMode": "session",
+      "quoteWriterMode": "writable",
+      "quoteAuthority": "server",
+      "orderRead": "snapshot"
+    }
+  },
+  "packageProbe": {
+    "endpoint": "https://dl-cdn.alpinelinux.org/alpine/v3.24/main/x86_64/APKINDEX.tar.gz",
+    "method": "GET",
+    "status": 200,
+    "tlsAuthorized": true,
+    "bytes": 528432,
+    "sha256": "569c174a31a8def1d1a37d59092af67fb4751a8310161e9e4cbacb264478992b",
+    "requests": 1,
+    "retries": 0
+  },
+  "recovery": {
+    "state": "PASS_RECONCILED_OFFLINE",
+    "counts": {
+      "tests": 9,
+      "pass": 9,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "testDurationMs": 369010.8379,
+    "startedAt": "2026-10-28T06:17:32.699Z",
+    "endedAt": "2026-10-28T06:23:41.789Z",
+    "originalExitCode": 0,
+    "timedOut": false,
+    "originalWrapperFailure": "FAILED_RETAIN_OWNED_EVIDENCE",
+    "originalReportSha256": "ed0cabff9ec6f8cf50a2e18b1cdb9b2c2223db88017347f0b3801aa054d003ed",
+    "originalLogSha256": "38d1ce513aad74f21e4e905eec968f1347f63bbb20f8f3424a56065865b78be8",
+    "tapRoundTripExact": true,
+    "offlineOnly": true,
+    "newTestExecutionsForCorrection": 0,
+    "businessSnapshotTables": 113,
+    "fullPublicTables": 121,
+    "restart": true,
+    "beforeRestoreStartup": true,
+    "restoredReadbacks": true,
+    "closingProtectionBeforeRestoreStartup": true,
+    "executorReleaseProtectionBeforeRestoreStartup": true,
+    "lockedPeriods": 2,
+    "financialAllocations": 4,
+    "financialCounts": {
+      "server_closing_commands": 9,
+      "server_closing_periods": 2,
+      "server_closing_period_versions": 9,
+      "server_closing_period_heads": 2,
+      "server_closing_allocations": 4,
+      "server_closing_allocation_versions": 4,
+      "server_closing_allocation_heads": 4,
+      "order_labor_adoption_commands": 1,
+      "server_closing_month_plans": 3,
+      "server_closing_month_plan_versions": 13,
+      "server_closing_month_plan_heads": 3,
+      "server_closing_month_commands": 10,
+      "server_closing_month_financial_links": 4
+    },
+    "financialReadbacks": 18,
+    "financialReceipts": 20,
+    "releasedQuantity": "2.125",
+    "protection": {
+      "trigger": "month_frozen_lines_validation",
+      "enabled": "O",
+      "type": 7,
+      "table": "public.server_closing_month_plan_versions",
+      "function": "public.validate_closing_frozen_month_lines",
+      "bodySha256": "f2df4338587d4dd7a8719a03e588bb0b8e8072cd4efadb7a8692a39fa3985ef5",
+      "triggerDefinitionSha256": "9e05113af1908469d26b74587bab1dac580f34f80c05244943fb2ba65e6a3b82",
+      "functionDefinitionSha256": "fe87e3039cd76f759552999d4e9b64a47c662b100d000ecd541088ae9e441df2"
+    },
+    "executorReleaseProtection": {
+      "trigger": "month_executor_release_validation",
+      "enabled": "O",
+      "type": 5,
+      "deferrable": true,
+      "initiallyDeferred": true,
+      "table": "public.server_closing_month_plan_versions",
+      "function": "public.validate_closing_executor_release",
+      "bodySha256": "6ada6b9ae8f6d9c5ebf48ff9a7e07df0d8108f8543b1625436ecec1c340b7e76",
+      "triggerDefinitionSha256": "f114a1c9603dbff11160e7955487c247442694f5dbfa8087cb7da4ffd43388a0",
+      "functionDefinitionSha256": "49cbb4aff8d017d1e50444a7a3a4905de630c4012c27e594c24a04b0752259c6"
+    },
+    "syntheticSourceWorkerCalls": 2,
+    "realSourceRequests": 0
+  },
+  "emptyTarget": {
+    "state": "READY",
+    "project": "zhixu-quote-trial-support-60b2e53765",
+    "root": "D:/zhixu-server-convergence/support-empty-a198-60b2e53765",
+    "origin": "https://localhost:65139",
+    "source": "a198d1829675092006708727624ee867be0e7b60",
+    "imageId": "sha256:90e36de7c3d61ca137b2d5a4227e848b83ed57579bd146ce25501dbc6fe35f4f",
+    "immutableOps": "D:\\zhixu-server-convergence\\candidates\\closing-support-image-default-a198-b7ae3db3a4\\source\\ops\\quote-trial",
+    "verifiedOpsFiles": 17,
+    "operations": [
+      {
+        "action": "check",
+        "result": "CHECK_ONLY",
+        "completedAt": "2026-10-28T06:29:12.309Z"
+      },
+      {
+        "action": "prepare-local",
+        "result": "LOCAL_SECRETS_PREPARED",
+        "completedAt": "2026-10-28T06:29:15.318Z"
+      },
+      {
+        "action": "init",
+        "result": "PASS",
+        "completedAt": "2026-10-28T06:29:22.472Z"
+      },
+      {
+        "action": "objects-init",
+        "result": "READY",
+        "completedAt": "2026-10-28T06:29:37.657Z"
+      },
+      {
+        "action": "start",
+        "result": "READY",
+        "completedAt": "2026-10-28T06:29:49.174Z"
+      },
+      {
+        "action": "restart",
+        "result": "READY",
+        "completedAt": "2026-10-28T06:30:01.521Z"
+      }
+    ],
+    "publicTables": 121,
+    "nonTechnicalTables": 111,
+    "nonTechnicalRows": 0,
+    "technicalUsers": 1,
+    "migrationFiles": 51,
+    "lastMigration": "0052_closing_executor_release.sql",
+    "protections": [
+      {
+        "type": 5,
+        "enabled": "O",
+        "trigger": "month_executor_release_validation",
+        "language": "plpgsql",
+        "arguments": 0,
+        "tableName": "server_closing_month_plan_versions",
+        "deferrable": true,
+        "returnType": "trigger",
+        "tableSchema": "public",
+        "functionName": "validate_closing_executor_release",
+        "hasCondition": false,
+        "functionSchema": "public",
+        "securityDefiner": false,
+        "hasConfiguration": false,
+        "functionArguments": 0,
+        "initiallyDeferred": true,
+        "bodySha256": "6ada6b9ae8f6d9c5ebf48ff9a7e07df0d8108f8543b1625436ecec1c340b7e76"
+      },
+      {
+        "type": 7,
+        "enabled": "O",
+        "trigger": "month_frozen_lines_validation",
+        "language": "plpgsql",
+        "arguments": 0,
+        "tableName": "server_closing_month_plan_versions",
+        "deferrable": false,
+        "returnType": "trigger",
+        "tableSchema": "public",
+        "functionName": "validate_closing_frozen_month_lines",
+        "hasCondition": false,
+        "functionSchema": "public",
+        "securityDefiner": false,
+        "hasConfiguration": false,
+        "functionArguments": 0,
+        "initiallyDeferred": false,
+        "bodySha256": "f2df4338587d4dd7a8719a03e588bb0b8e8072cd4efadb7a8692a39fa3985ef5"
+      }
+    ],
+    "services": [
+      {
+        "service": "gateway",
+        "id": "48e0f7a2c4e1669098f51568d5ec22a325e7dd2e3c5c36c3bd4923dac648190b",
+        "imageId": "sha256:90e36de7c3d61ca137b2d5a4227e848b83ed57579bd146ce25501dbc6fe35f4f",
+        "health": "healthy"
+      },
+      {
+        "service": "app",
+        "id": "4d48e5414fc97602075a2595580d82a0a3687365e343655e1da0ad02b2011dda",
+        "imageId": "sha256:90e36de7c3d61ca137b2d5a4227e848b83ed57579bd146ce25501dbc6fe35f4f",
+        "health": "healthy"
+      },
+      {
+        "service": "objects-tls",
+        "id": "057041b66dcf83ef133a17c3341584f7f4a6473e49eaaf6db4b78a7606ae3722",
+        "imageId": "sha256:90e36de7c3d61ca137b2d5a4227e848b83ed57579bd146ce25501dbc6fe35f4f",
+        "health": "healthy"
+      },
+      {
+        "service": "objects",
+        "id": "9b87343a63d5593474d9fa4bb1049b0c3b579fdc7b9975912af5ee3e97b0bb92",
+        "imageId": "sha256:6dabb4a2088c9a79908de3bc05f4586c23ad2182c8908e7e3acbf61c1467fb20",
+        "health": "healthy"
+      },
+      {
+        "service": "database",
+        "id": "4693e23d5dd28667618a9e6631f8034fe3e300e9db41f6856d3d3a873f518aaa",
+        "imageId": "sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229",
+        "health": "healthy"
+      }
+    ],
+    "volumes": [
+      "zhixu-quote-trial-support-60b2e53765_appsecrets",
+      "zhixu-quote-trial-support-60b2e53765_data",
+      "zhixu-quote-trial-support-60b2e53765_objects",
+      "zhixu-quote-trial-support-60b2e53765_objectsecrets"
+    ],
+    "networks": [
+      {
+        "id": "9136253b834fb66c9cf96239d1c764bf98d04117f3617962328dcb05eadb0896",
+        "name": "zhixu-quote-trial-support-60b2e53765_default",
+        "internal": true,
+        "subnet": "10.253.240.32/28"
+      },
+      {
+        "id": "0e971933bcd6cbf956b72eaef8ee7890ee60ce7053483876ce344d5f0405cd2e",
+        "name": "zhixu-quote-trial-support-60b2e53765_ingress",
+        "internal": false,
+        "subnet": "10.253.240.48/28"
+      }
+    ],
+    "restartSnapshotEqual": true,
+    "startedAt": "2026-10-28T06:29:08.175Z",
+    "endedAt": "2026-10-28T06:30:03.194Z"
+  },
+  "preservation": {
+    "image": {
+      "containers": {
+        "before": 69,
+        "missingOrChanged": []
+      },
+      "volumes": {
+        "before": 195,
+        "missingOrChanged": []
+      },
+      "networks": {
+        "before": 35,
+        "missingOrChanged": []
+      }
+    },
+    "recovery": {
+      "containers": {
+        "before": 69,
+        "missingOrChanged": []
+      },
+      "volumes": {
+        "before": 195,
+        "missingOrChanged": []
+      },
+      "networks": {
+        "before": 35,
+        "missingOrChanged": []
+      }
+    },
+    "emptyTarget": {
+      "containers": {
+        "before": 69,
+        "missingOrChanged": []
+      },
+      "volumes": {
+        "before": 195,
+        "missingOrChanged": []
+      },
+      "networks": {
+        "before": 35,
+        "missingOrChanged": []
+      }
+    }
+  },
+  "privateArtifactSha256": {
+    "default-package-get-once.json": "4feafcd5362b70229ba4074b26ab3efa7994addb71a94a8133774cce3e07f6a7",
+    "support-default-linux-image.json": "6c6c97d4e180a2178b8417bc774a4b4d3437f61e19112505c4f8b806957b5e7e",
+    "support-persistent-recovery-once.json": "ed0cabff9ec6f8cf50a2e18b1cdb9b2c2223db88017347f0b3801aa054d003ed",
+    "support-persistent-recovery-once.log": "38d1ce513aad74f21e4e905eec968f1347f63bbb20f8f3424a56065865b78be8",
+    "support-persistent-recovery-reconciled.json": "638fe996a59a9cd27963089fe427864b7fcd8a14ac6be82b0941540f85878a3f",
+    "support-empty-target-once.json": "022d0e70e21cd4a6a40d9b7ebe352e985fa6a5a7c6be041f13ade86d1ab6a46e"
+  },
+  "boundaries": {
+    "oldAssetsChanged": false,
+    "oldTargetsReplaced": false,
+    "existingAccountsChanged": false,
+    "realBusinessDatabaseChanged": false,
+    "newRealSourceRequests": 0,
+    "sourceActivation": false,
+    "scheduling": false,
+    "formalDeployment": false,
+    "cutover50426": false,
+    "newGitPushes": 0,
+    "newHostedCiRuns": 0,
+    "oldTemporaryDemo": "http://closing-current.localhost:52251/closing-center?year=2027",
+    "oldPersistentCandidate": "https://localhost:62428",
+    "newTargetBrowserAcceptance": "not-run",
+    "fullGoalComplete": false
+  }
+}
