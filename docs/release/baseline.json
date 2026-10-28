@@ -5335,6 +5335,16 @@
       "sha256": "9a673d87f65155784ea104811c5b004c558d24f4915cdaf859af4a14fb51d24e",
       "supersedes": "usd-labor-d164-order_usd_labor_adoption-20261027",
       "changeReason": "Freeze exact forward contract or real two-parent main integration witness. Preserve all prior source records and original history; no deployment or human acceptance promotion."
+    },
+    {
+      "id": "closing-usd-support-current-contract-20261028",
+      "kind": "document",
+      "path": "docs/features/ORDER_USD_LABOR_ADOPTION.md",
+      "recordedAtSha": "80b21cbffdc8c799abd0d7dcdfa91464340a236c",
+      "renderedSourceSha": "80b21cbffdc8c799abd0d7dcdfa91464340a236c",
+      "sha256": "35de3efe0bff0134c6734732f346f3ad4293a4434771f15e7bea617413b97874",
+      "supersedes": "closing-usd-main6479-integration-20261028",
+      "changeReason": "Freeze approved USD support interface and exact original receipt safety. Preserve original side source and genuine main integration anchor; implementation and isolated evidence remain separate from acceptance or deployment."
     }
   ],
   "pages": [
@@ -5377,7 +5387,8 @@
       "route": "/quote-center/detail",
       "routeFile": "app/quote-center/detail/page.tsx",
       "components": [
-        "features/quote-center/components/quote-editor.tsx"
+        "features/quote-center/components/quote-editor.tsx",
+        "features/quote-center/components/quote-order-labor-dialog.tsx"
       ],
       "acceptance": "approved-history",
       "acceptanceScope": "Original Editor plus PR91 compact sections/PV cards; PR93 grants are security constraints, not new layout approval.",
