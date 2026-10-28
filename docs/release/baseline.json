@@ -5315,6 +5315,26 @@
       "sha256": "7699b624abfe05b0188c01ade897418920349f3977765afcefbd152c5fe71ca8",
       "supersedes": "closing-support-main6479-integration-5-20261028",
       "changeReason": "Freeze actual executor matching implementation and isolated verification; retain original product, corrected harness and previous history. No human acceptance, remote CI or deployment promotion."
+    },
+    {
+      "id": "closing-executor-recovery-contract-20261028",
+      "kind": "document",
+      "path": "docs/features/SERVER_CLOSING_EXECUTOR_MATCHING.md",
+      "recordedAtSha": "06980ab5f1cb542a71b8828b363223416e0cf46d",
+      "renderedSourceSha": "06980ab5f1cb542a71b8828b363223416e0cf46d",
+      "sha256": "72bc0f382cd4ab6f3d8986b4715a4673e2b4568e5e5602208376fff79e5933ca",
+      "supersedes": "closing-executor-support-current-contract-20261028",
+      "changeReason": "Freeze exact forward contract or real two-parent main integration witness. Preserve all prior source records and original history; no deployment or human acceptance promotion."
+    },
+    {
+      "id": "closing-usd-main6479-integration-20261028",
+      "kind": "document",
+      "path": "docs/features/ORDER_USD_LABOR_ADOPTION.md",
+      "recordedAtSha": "153c04a4627f6d78febd79e153d11d7e5cc0cd38",
+      "renderedSourceSha": "153c04a4627f6d78febd79e153d11d7e5cc0cd38",
+      "sha256": "9a673d87f65155784ea104811c5b004c558d24f4915cdaf859af4a14fb51d24e",
+      "supersedes": "usd-labor-d164-order_usd_labor_adoption-20261027",
+      "changeReason": "Freeze exact forward contract or real two-parent main integration witness. Preserve all prior source records and original history; no deployment or human acceptance promotion."
     }
   ],
   "pages": [
