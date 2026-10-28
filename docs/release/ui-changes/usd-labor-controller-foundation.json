@@ -1,5 +1,5 @@
 {
-  "baselineSha": "869ee84dd0b31de6161011e4aa560678b244a64d",
+  "baselineSha": "6479a713e2b80228f008049519ebbd50d10601a8",
   "level": "V0",
   "paths": [
     "features/quote-center/server/labor-adoption-controller.ts"

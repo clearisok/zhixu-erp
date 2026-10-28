@@ -70,6 +70,47 @@ test('approved closing UI uses real built Server, owned synthetic PostgreSQL and
       const before = posts(); await click('确认调整'); await has('原请求已核实'); assert.equal(posts(), before + 1); await click('完成', '[role=dialog] button');
       assert.equal(await evaluate("Object.keys(sessionStorage).some(k=>k.startsWith('zhixu.server.closing-month.pending.v1.'))"), false); assert.equal(await evaluate("localStorage.getItem('zhixu.erp.local.closing-center')"), 'KEEP');
     });
+    await phase('source review reads the whole order behind an outsource filter and recovers one committed response', async () => {
+      const before = (await x.request('/orders/' + seeded.first.id + '/month-plan')).body.plan;
+      const executions = (await x.pool.query('SELECT * FROM production_schedule_executions ORDER BY assignment_id')).rows;
+      // This changes only saved Source facts in the caller-owned synthetic DB.
+      // The existing persistent fixture separately tests actual Source refresh.
+      await x.pool.query('UPDATE ainuoke_sales_order_contract_mirrors SET quantity=120 WHERE sales_order_id=$1', [seeded.first.id]);
+      await x.pool.query("UPDATE ainuoke_sales_order_color_mirrors SET quantity=CASE color_name WHEN 'Blue' THEN 70 ELSE 50 END WHERE sales_order_id=$1", [seeded.first.id]);
+      await field('select[aria-label="关账显示范围"]', 'outsource', 'HTMLSelectElement'); await has('来源待复核');
+      const menu = await evaluate("document.querySelector('.sc-order-table tbody tr .qc-floating-menu-trigger').getAttribute('aria-label')");
+      await click(menu); await click('复核来源数量'); await has('当前来源量 120');
+      assert.equal(await evaluate("document.querySelectorAll('table[aria-label=来源复核原片段] tbody tr').length"), before.lines.length);
+      await has('新增待分月 / 未分配'); await field('input[aria-label=来源复核原因]', '全单新增量保持未分配'); await click('预览复核'); await has('复核后完整月份分配');
+      assert.equal(await evaluate("/[¥$]|CNY|USD/u.test(document.querySelector('[role=dialog]').innerText)"), false);
+      await shot('source-complete-order-preview');
+      await evaluate("window.realClosingFetch=window.fetch;window.fetch=async(...args)=>{const r=await window.realClosingFetch(...args);if(String(args[0]).endsWith('/month-plans/commands')){window.fetch=window.realClosingFetch;await r.text();throw Error('synthetic source response lost')}return r}");
+      const count = posts(); await click('确认复核'); await has('原请求已核实'); assert.equal(posts(), count + 1);
+      const after = (await x.request('/orders/' + seeded.first.id + '/month-plan')).body;
+      assert.equal(after.plan.sourceQuantity, '120'); assert.equal(after.sourceChanged, false);
+      for (const line of before.lines) assert.deepEqual(after.plan.lines.find(value => value.id === line.id), line);
+      const added = after.plan.lines.filter(line => !before.lines.some(old => old.id === line.id));
+      assert.equal(added.length, 1); assert.equal(added[0].quantity, '20'); assert.equal(added[0].month, null); assert.equal(added[0].assignmentId, null);
+      assert.deepEqual((await x.pool.query('SELECT * FROM production_schedule_executions ORDER BY assignment_id')).rows, executions);
+      await click('完成', '[role=dialog] button');
+    });
+    await phase('a second Source change after UI preview is rejected without another month version', async () => {
+      const before = (await x.request('/orders/' + seeded.first.id + '/month-plan')).body.plan;
+      await x.pool.query('UPDATE ainuoke_sales_order_contract_mirrors SET quantity=130 WHERE sales_order_id=$1', [seeded.first.id]);
+      await x.pool.query("UPDATE ainuoke_sales_order_color_mirrors SET quantity=CASE color_name WHEN 'Blue' THEN 80 ELSE 50 END WHERE sales_order_id=$1", [seeded.first.id]);
+      await click('刷新'); await has('来源待复核');
+      const menu = await evaluate("document.querySelector('.sc-order-table tbody tr .qc-floating-menu-trigger').getAttribute('aria-label')");
+      await click(menu); await click('复核来源数量'); await has('当前来源量 130'); await field('input[aria-label=来源复核原因]', '预览后的来源竞争'); await click('预览复核'); await has('复核后完整月份分配');
+      await x.pool.query('UPDATE ainuoke_sales_order_contract_mirrors SET quantity=140 WHERE sales_order_id=$1', [seeded.first.id]);
+      await x.pool.query("UPDATE ainuoke_sales_order_color_mirrors SET quantity=CASE color_name WHEN 'Blue' THEN 90 ELSE 50 END WHERE sales_order_id=$1", [seeded.first.id]);
+      const count = posts(); await click('确认复核'); await until(() => evaluate("document.querySelectorAll('[role=dialog] [role=alert]').length>0"), 'Source race shown');
+      assert.equal(posts(), count + 1); const after = (await x.request('/orders/' + seeded.first.id + '/month-plan')).body;
+      assert.equal(after.plan.version, before.version); assert.deepEqual(after.plan.lines, before.lines); assert.equal(after.sourceChanged, true);
+      await click('取消', '[role=dialog] button');
+      await x.pool.query('UPDATE ainuoke_sales_order_contract_mirrors SET quantity=120 WHERE sales_order_id=$1', [seeded.first.id]);
+      await x.pool.query("UPDATE ainuoke_sales_order_color_mirrors SET quantity=CASE color_name WHEN 'Blue' THEN 70 ELSE 50 END WHERE sales_order_id=$1", [seeded.first.id]);
+      await field('select[aria-label="关账显示范围"]', 'all', 'HTMLSelectElement'); await has('制作完成');
+    });
     await phase('locked month has no ordinary close/edit and an explicit new period has a blank tax', async () => {
       await click('管理 2027-12'); await has('重开月份'); assert.equal(await evaluate("document.querySelector('select[aria-label=月份操作]').options.length"), 1); await click('关闭', '[role=dialog] button');
       await click('管理 2027-06'); await has('期间税率'); assert.equal(await evaluate("document.querySelector('input[aria-label=期间税率]').value"), ''); await click('关闭', '[role=dialog] button');

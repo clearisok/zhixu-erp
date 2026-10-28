@@ -5158,6 +5158,15 @@
       "renderedSourceSha": "cf77e1a6d7626808c3ba958137aeb52e5978976b",
       "sha256": "f1b3867efb63fa86df3ee9566779b53e66f6d0019ea8b9e909a5139fe75e68ec",
       "changeReason": "Freeze one new owned current-image persistent empty local candidate: explicit local daemon, exact immutable ops/image, 50 migrations/0051, empty business tables, one technical admin, READY/restart and selected old-asset preservation. No existing runtime cutover, real Source, shared trust, business import, remote delivery, hosted CI, capability or human acceptance promotion."
+    },
+    {
+      "id": "closing-support-approved-20261028",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-28-closing-support-and-pr130-approval.md",
+      "recordedAtSha": "153c04a4627f6d78febd79e153d11d7e5cc0cd38",
+      "renderedSourceSha": "153c04a4627f6d78febd79e153d11d7e5cc0cd38",
+      "sha256": "19742049898d70938efa9c97aef95431548d79e4f7c489a7c534962959ff0179",
+      "changeReason": "Freeze the specific user approval of three closing support interfaces and no-output executor recovery, plus exact verified PR130 merge. Original prototype hash and prior pending context retained. Approval is not implementation, human acceptance, CI or deployment proof."
     }
   ],
   "pages": [
@@ -5419,7 +5428,8 @@
       "components": [
         "features/closing-center/components/closing-authority-page.tsx",
         "features/closing-center/components/server-closing-adjustment-page.tsx",
-        "features/closing-center/components/server-closing-move-dialog.tsx"
+        "features/closing-center/components/server-closing-move-dialog.tsx",
+        "features/closing-center/components/server-closing-source-dialog.tsx"
       ],
       "acceptance": "implementation-only",
       "acceptanceScope": "Specific D169 UI contract approved; formal Server synthetic browser and live demonstration only. No user implementation acceptance or deployment. Explicit snapshot flag and fresh permissions remain required.",
@@ -5427,7 +5437,8 @@
         "closing-adjustment-ui-approval-20261027",
         "closing-adjustment-ui-contract-20261027",
         "closing-adjustment-ui-engineering-20261027",
-        "closing-adjustment-desktop-annual-20261027"
+        "closing-adjustment-desktop-annual-20261027",
+        "closing-support-approved-20261028"
       ]
     }
   ],

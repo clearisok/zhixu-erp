@@ -1,12 +1,16 @@
 {
-  "baselineSha": "869ee84dd0b31de6161011e4aa560678b244a64d",
+  "baselineSha": "6479a713e2b80228f008049519ebbd50d10601a8",
   "level": "V0",
   "visibleDifference": "none",
   "paths": [
     "features/closing-center/server/closing-projection.ts",
     "features/operation-logs/model/operation-log.ts"
   ],
-  "pages": ["order-detail"],
-  "evidence": ["docs/features/SERVER_CLOSING_MONTH_FINANCIAL.md"],
+  "pages": [
+    "order-detail"
+  ],
+  "evidence": [
+    "docs/features/SERVER_CLOSING_MONTH_FINANCIAL.md"
+  ],
   "reason": "Strict shared response validation for an unmounted existing Server client and an audit-action type extension only. No DOM, CSS, navigation, displayed columns or live Browser owner change; the approved annual two-output UI remains subsequent work."
 }

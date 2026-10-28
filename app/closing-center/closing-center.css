@@ -583,6 +583,7 @@
 .sc-order-table td:first-child { min-width: 180px; }
 .sc-order-table td:nth-child(2) { min-width: 160px; }
 .sc-order-table .qc-button { white-space: nowrap; }
+.sc-row-actions { display: flex; align-items: center; gap: 6px; white-space: nowrap; }
 .sc-production-status { font-size: 12px; border-radius: 6px; background: #f0f4f0; padding: 4px 8px; white-space: nowrap; }
 .sc-pagination { justify-content: flex-end; font-size: 13px; color: #6c7e73; }
 .sc-alert { margin: 0; border: 1px solid #e4d7bd; background: #fff9ee; color: #87622c; padding: 12px 16px; border-radius: 10px; font-size: 13px; }

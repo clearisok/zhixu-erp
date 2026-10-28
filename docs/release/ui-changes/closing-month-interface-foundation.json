@@ -1,5 +1,5 @@
 {
-  "baselineSha": "869ee84dd0b31de6161011e4aa560678b244a64d",
+  "baselineSha": "6479a713e2b80228f008049519ebbd50d10601a8",
   "level": "V0",
   "visibleDifference": "none",
   "paths": [
@@ -13,7 +13,11 @@
     "features/closing-center/server/closing-year-projection.ts",
     "features/closing-center/server/closing-request-hash.ts"
   ],
-  "pages": ["order-detail"],
-  "evidence": ["docs/features/SERVER_CLOSING_MONTH_INTERFACE.md"],
+  "pages": [
+    "order-detail"
+  ],
+  "evidence": [
+    "docs/features/SERVER_CLOSING_MONTH_INTERFACE.md"
+  ],
   "reason": "Unmounted strict Server clients and one shared renderless request-recovery controller only. Existing financial public calls/key/envelope preserved; no DOM, CSS, navigation, displayed columns or Browser owner change. The specifically approved closing adjustment UI is a subsequent phase."
 }

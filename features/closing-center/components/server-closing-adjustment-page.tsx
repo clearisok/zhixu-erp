@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { AppShell, Button, Card, EmptyState, PageContainer, PageHeader, SearchField } from "@/components/foundation";
+import { AppShell, Button, Card, EmptyState, FloatingMenu, PageContainer, PageHeader, SearchField } from "@/components/foundation";
 import { PermissionAuthorityProvider } from "@/features/permissions/components/permission-authority";
 import { useServerNavigationProtection } from "@/components/foundation/server-navigation-protection";
 import { useServerSession } from "@/features/server-auth";
@@ -13,6 +13,7 @@ import { ServerClosingPeriodDialog } from "./server-closing-period-dialog";
 import { ServerClosingRecoveryDialog, type ClosingRecovery } from "./server-closing-recovery-dialog";
 import { readClosingMonthPending } from "../server/closing-month-controller";
 import { readClosingPending } from "../server/closing-pending";
+import { ServerClosingSourceDialog } from "./server-closing-source-dialog";
 
 type Summary = ClosingYear["totals"]["garmentSalesCny"];
 function SummaryValue({ value, symbol }: { value: Summary; symbol: string }) {
@@ -30,6 +31,7 @@ function Workspace() {
   const [owned, setOwned] = useState<{ owner: object; data: ClosingYear }>(), [failure, setFailure] = useState<{ owner: object; text: string }>();
   const [loading, setLoading] = useState(false), [move, setMove] = useState<ClosingYear["items"][number] | null>(null), [month, setMonth] = useState<string | null>(validMonth);
   const [originals, setOriginals] = useState<{ session: typeof session; items: ClosingRecovery[]; corrupt: boolean }>(), [recovery, setRecovery] = useState<ClosingRecovery | null>(null);
+  const [sourceReview, setSourceReview] = useState<ClosingYear["items"][number] | null>(null);
   const pending = originals?.session === session ? originals : null;
   const pendingBlocked = pending === null || Boolean(pending.items.length || pending.corrupt);
   useServerNavigationProtection({ blocked: Boolean(pending?.items.length || pending?.corrupt), message: "有原关账请求待核对，请先使用核对入口确认结果。" });
@@ -53,7 +55,7 @@ function Workspace() {
       finally { if (lease()) setLoading(false); }
     }); return () => { active = false; };
   }, [client, offset, owner, owns, production, revision, scope, search, session, year]);
-  const refresh = () => setRevision(value => value + 1), filter = (run: () => void) => { setOffset(0); setMonth(null); setMove(null); run(); };
+  const refresh = () => setRevision(value => value + 1), filter = (run: () => void) => { setOffset(0); setMonth(null); setMove(null); setSourceReview(null); run(); };
   const selectedMonth = data?.months.find(row => row.month === month);
   return <PermissionAuthorityProvider can={session.hasPermission}><PageContainer className="sc-adjustment-page">
     <PageHeader eyebrow="CLOSING PLANNING" title="关账调整" description="按订单交期归月，结合制作进度调整；生产和出货只作参考。" actions={<div className="sc-year-select"><label htmlFor="sc-year">年份</label><input id="sc-year" aria-label="关账年份" type="number" min="1900" max="2199" value={year} onChange={e => filter(() => setYear(e.target.value))} /><Button size="compact" variant="secondary" onClick={refresh}>刷新</Button></div>} />
@@ -73,13 +75,18 @@ function Workspace() {
       <Card className="sc-order-card"><div className="sc-table-scroll"><table className="sc-order-table"><thead><tr><th>订单 / 款号</th><th>颜色 / 执行方</th><th>制作状态</th><th>订单量 / 完成量</th><th>关账月份 / 数量</th><th>成衣单价 CNY</th><th>加工单价 USD</th><th>操作</th></tr></thead><tbody>{data.items.map(row => <tr key={[row.order.id, row.id, row.month].join(":")}>
         <td><strong>{row.order.factoryStyleNo || row.order.styleNo || row.order.orderNo}</strong><small>{row.order.orderNo} · {row.order.customerName ?? "客户待确认"}</small></td>
         <td>{row.colorName ?? "整单 / 未分颜色"}<small>{row.executor ? (row.executor.type === "internal" ? "内制 · " : "外发 · ") + (row.executor.name ?? "历史执行方") : "未分配执行方"}</small></td>
-        <td><span className="sc-production-status">{productionLabel[row.order.productionStatus]}</span>{row.executionReview?.laterCorrection && <small>生产依据有更正</small>}</td>
+        <td><span className="sc-production-status">{productionLabel[row.order.productionStatus]}</span>{row.executionReview?.laterCorrection && <small>生产依据有更正</small>}
+          {row.issues.includes("month_source_changed") && <Button size="compact" variant="text" disabled={pendingBlocked || !session.hasPermission("closing.edit")} onClick={() => setSourceReview(row)}>来源待复核</Button>}
+        </td>
         <td>{closingNumber(row.order.quantity)}<small>完成 {closingNumber(row.order.completedQuantity)}</small></td><td>{row.month ?? "待分月"}<strong>{closingNumber(row.quantity)}</strong></td>
-        <td>{price(row.garmentSale, "¥")}</td><td>{price(row.processing, "$")}</td><td><Button size="compact" variant="text" disabled={pendingBlocked || !session.hasPermission("closing.edit")} onClick={() => setMove(row)}>调整月份</Button></td>
+        <td>{price(row.garmentSale, "¥")}</td><td>{price(row.processing, "$")}</td><td><div className="sc-row-actions"><Button size="compact" variant="text" disabled={pendingBlocked || !session.hasPermission("closing.edit")} onClick={() => setMove(row)}>调整月份</Button>
+          <FloatingMenu label={row.order.orderNo + " 关账更多操作"} trigger="更多"><Button size="compact" variant="text" disabled={pendingBlocked || !session.hasPermission("closing.edit")} onClick={() => setSourceReview(row)}>复核来源数量</Button></FloatingMenu>
+        </div></td>
       </tr>)}</tbody></table></div>{data.items.length === 0 && <EmptyState title="当前范围没有订单片段" description="调整筛选条件，或等待新订单按成衣交期建立月份计划。" />}</Card>
       <div className="sc-pagination"><Button size="compact" variant="secondary" disabled={offset === 0 || loading} onClick={() => setOffset(value => Math.max(0, value - 25))}>上一页</Button><span>{data.total === 0 ? 0 : offset + 1}–{Math.min(offset + data.items.length, data.total)} / {data.total}</span><Button size="compact" variant="secondary" disabled={offset + data.items.length >= data.total || loading} onClick={() => setOffset(value => value + 25)}>下一页</Button></div>
     </>}
     {move && <ServerClosingMoveDialog row={move} context={context} onClose={() => setMove(null)} onChanged={refresh} />}
+    {sourceReview && <ServerClosingSourceDialog row={sourceReview} context={context} onClose={() => setSourceReview(null)} onChanged={refresh} />}
     {selectedMonth && !pendingBlocked && <ServerClosingPeriodDialog month={selectedMonth} onClose={() => setMonth(null)} onChanged={refresh} />}
     {recovery && <ServerClosingRecoveryDialog original={recovery} onClose={() => { setRecovery(null); refresh(); }} />}
   </PageContainer></PermissionAuthorityProvider>;
