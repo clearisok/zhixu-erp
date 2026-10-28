@@ -20,3 +20,5 @@
 来源UIA实际收口：产品d32912cf7483f42fd42dc28799531c0b1e7fb52d，canonical Server构建及owned PG/Chromium11/11通过；稳定启动前丢包代理证明两个未知响应均只一次POST。首轮测试代理递归FAIL保留，未盲改应用。见tasks/completed/2026-10-28-closing-source-support-ui-engineering.md。发布工具/文档整合门禁仍待修复，当前未远端交付。
 
 发布证据整合checkpoint：8个H153实际blob见证及来源UI工程/PNG已前向冻结，保留568旧记录。工具改为按M/S共同旧base验证导入段，每段own-parent及S完整成员必须保留；root-only限定历史上下文。旧guard红测、新组13项/根正例1项、lint通过；完整最终回归/新base守卫待文档后继冻结完成。见tasks/active/release-post-base-main-forward-2026-10-28.md，不将中间检查写成最终PASS。
+
+文档source前向收口：H见证已在930b497123f73c4e1860aa661451f64feede8b96冻结，本片在其后更新发布契约和来源UI验收说明；下一metadata把本片精确blob作为H后继，随后只运行一次完整release回归与actual-main守卫。原FAILED日志和旧source记录保持。
