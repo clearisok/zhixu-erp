@@ -1,5 +1,9 @@
 # 接力：0052完整恢复/新持久空候选通过，PR131测试修复待交付
 
+## 当前能力账本校准片
+
+2026-10-28从9baa7a5d011a1ca93a7ceec9c99174a6c7554a0c clean开始。fresh GitHub API GET再次确认main6479、PR131 open/draft/head4584/未合并，未触发CI或Git传输。52个merged=false中50个原实现SHA已为main祖先；排除implemented=no的intake，49项仅能校正历史提交包含维度。六项旧认领/准备/归一写路径410，不因merged校正恢复入口；closing/USD仍未在main。新[冻结证明](tasks/completed/2026-10-28-convergence-capability-reconciliation.md)和[逐cap回执](tasks/completed/2026-10-28-convergence-capability-reconciliation/receipt.json)先独立commit，再追加新Gitblob document证据并调整metadata；不重写旧592记录、不改变部署/Source/人工接受维度。当前未修改产品/SQL/UI或运行环境；最终metadata守卫和相关有界测试待实际执行，不借9baa原guard预报新结果。
+
 2026-10-28；feat/closing-support-interfaces，阶段起点24f44284e94a0dbfda40dfc23915f0be665ea139 clean，最终HEAD从Git读取。本片只改完成证明/精简回执及状态文档；产品/SQL/UI/权限/依赖不变。最近核实main6479a713e2b80228f008049519ebbd50d10601a8，PR130已批准合并；本片没有fetch、push、远端元数据写或新CI。完整Goal继续active，不能因本片READY标complete。
 
 ## 当前工程与运行
