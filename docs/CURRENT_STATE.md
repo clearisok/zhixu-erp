@@ -10,4 +10,6 @@
 
 **交付**：a027一次明确push已耗尽并30秒超时，独立核实未解析到分支；没有再推。[交付事实](tasks/completed/2026-10-28-closing-support-delivery-attempt.md)保留本次进程代理修正与原STOP未解边界。独立工具分支fix/git-delivery-upload-budget已收口 **c91d904d8751275dd6a7830893ce237efa021905**：push有界180秒、证据读取仍30秒，Git/state79与发布144、6479守卫通过，未真实上传。两分支不混淆送达。
 
+**必要CI准备**：8752729f17b191e5dd32a265de5effcf858f601a精确main守卫PASS；现只把0052负控和已有18项关账UI接入原source job，不增加workflow/job或push触发、不过度重复检查。原PR并发取消、锁文件缓存和超时保持；YAML用已有锁定解析器验证、独立复审0P1/P2。尚无Hosted结果，[CI接线证明](tasks/completed/2026-10-28-closing-ci-integration.md)与后续精确守卫分开核对。
+
 整体[Server收敛Goal](tasks/active/server-convergence-gate0-2026-10-20.md)继续active；具体远端恢复/必要CI、合并及目标切换、人工业务接受、授权来源和旧资产退役仍独立。未执行新真实Source读取/激活/调度、正式部署或既有账号业务库修改。先前完整摘要及日期/hash/失败在[本片输入档案](tasks/completed/2026-10-28-executor-recovery-input-state/receipt.json)保留。

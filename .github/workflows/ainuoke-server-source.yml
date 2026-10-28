@@ -57,6 +57,7 @@ jobs:
           npm run test:delivery-coverage
           npm run test:closing-backend
           npm run test:order-usd-labor-adoption
+          npx --no-install tsx --test --test-concurrency=1 server/closing/executor-release-model.test.ts server/integration/closing-executor-release.integration.test.ts server/integration/closing-protection-recovery.integration.test.mjs server/integration/persistent-executor-release-recovery.integration.test.mjs
           npx --no-install tsx --test features/production-scheduling/server/__tests__/delivery-coverage-client.test.ts
           npm run test:order-normalization
           npm run test:order-effective-attribution
@@ -104,6 +105,8 @@ jobs:
           GARMENT_SHIPMENTS_EXPECTED_SOURCE: ${{ github.sha }}
           DELIVERY_PLAN_EXPECTED_SOURCE: ${{ github.sha }}
           PAYMENT_PANEL_EXPECTED_SOURCE: ${{ github.sha }}
+          CLOSING_UI_EXPECTED_SOURCE: ${{ github.sha }}
+          CHROME_PATH: google-chrome
         run: |
           node --test tests/server-navigation-history.test.mjs
           npx --no-install tsx --test server/integration/server-navigation-continuity.integration.test.mjs
@@ -119,6 +122,7 @@ jobs:
           npm run test:garment-shipments-ui
           npx --no-install tsx --test server/integration/delivery-plan-maintenance-ui.integration.test.mjs
           npm run test:ainuoke-payment-panel-ui
+          npx --no-install tsx --test server/integration/closing-adjustment-ui.integration.test.mjs
       - name: Python fixed catalog and transport boundaries
         working-directory: tools/ainuoke-bridge
         env:

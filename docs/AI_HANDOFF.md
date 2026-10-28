@@ -19,4 +19,6 @@ a027指定一次实际push已耗尽（此前push0预检后，修正仅子进程�
 
 独立既有工作树git-delivery-preflight，fix/git-delivery-upload-budget，最终c91d904d8751275dd6a7830893ce237efa021905 clean；源码a859b44c。唯一push等待180秒，其余read30秒、一次性/STOP/独立核验不变。Git/state79、发布144与精确6479守卫通过，真实GitHub上传0，无PR/CI。不要把工具分支旧产品页面用于关账演示。
 
-下一步先收口本片精确guard/checkpoint，网络/授权可用后交付两个独立分支、只运行必要CI。新Linux镜像、完整非空恢复及新持久空目标仍待；不能在已确认Docker TLS失败后循环重试，不升级旧62428、不切50426。此后全链最终审计/人工接受、具体来源和依赖退役按Gate0，不自行合并/部署/读新真实Source或删除资产。
+0052恢复片8752729f17b191e5dd32a265de5effcf858f601a精确6479守卫PASS。随后独立CI收口仅改原source workflow：增加一次0052模型/SQL/目录检查和一次已有18项UI检查，CLOSING_UI_EXPECTED_SOURCE绑定github.sha、Ubuntu CHROME_PATH明确google-chrome。无新job/workflow/push重复触发，concurrency/缓存/20min保持，已有锁定js-yaml解析通过，初次yaml模块缺失日志保留而未安装。独立只读复审无P1/P2；详情见tasks/completed/2026-10-28-closing-ci-integration.md。新最终守卫以closing-ci-final-guard.log实际结果为准，不预报Hosted PASS。
+
+下一步收口精确guard/checkpoint，网络/授权可用后只执行必要交付/CI。新Linux镜像、完整非空恢复及新持久空目标仍待；不能在已确认Docker TLS失败后循环重试，不升级旧62428、不切50426。此后全链最终审计/人工接受、具体来源和依赖退役按Gate0，不自行合并/部署/读新真实Source或删除资产。

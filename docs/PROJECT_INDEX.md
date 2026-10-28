@@ -1,5 +1,7 @@
 # 当前任务入口
 
+当前必要CI接线见[2026-10-28证明](tasks/completed/2026-10-28-closing-ci-integration.md)：只扩展原source job的关账负控/实际浏览器覆盖，不增重复触发或关闭检查，Hosted结果仍独立。
+
 2026-10-28；`feat/closing-support-interfaces`。main已核实 **6479a713e2b80228f008049519ebbd50d10601a8**，PR130已按批准merge commit合并。先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[业务规则](BUSINESS_RULES.md)及DECISION_LOG D169–D177；整体[Server收敛Gate0](tasks/active/server-convergence-gate0-2026-10-20.md)继续。
 
 - [全部确认及PR130事实](tasks/completed/2026-10-28-closing-support-and-pr130-approval.md)：三处具体UI和无实际产出归属恢复已获批准，不重复询问。
