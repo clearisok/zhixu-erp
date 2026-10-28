@@ -2,6 +2,11 @@ import type { readSaleAdjustmentReceipt } from '../../../server/sales-orders/sal
 type Receipt=Awaited<ReturnType<typeof readSaleAdjustmentReceipt>>;
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/iu;
 const invalid=():never=>{throw Error('sale_receipt_mismatch');};
+export function saleOriginalTargets(value:object):string[]{
+ const items=(value as {items?:unknown}).items;if(!Array.isArray(items)||!items.length||items.length>25)return invalid();
+ const ids=items.map(item=>{const id=item?.salesOrderId;if(typeof id!=='string'||!uuid.test(id))return invalid();return id;});
+ if(new Set(ids).size!==ids.length)return invalid();return ids;
+}
 export function saleReceipt(value:unknown,requestId:string,expected?:{operationId:string;orderIds:string[]}):Receipt{
  if(!value||typeof value!=='object'||Array.isArray(value))return invalid();const row=value as Record<string,unknown>;
  if(row.requestId!==requestId||!uuid.test(requestId)||!Array.isArray(row.items)||row.items.length>25)return invalid();

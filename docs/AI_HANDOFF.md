@@ -16,6 +16,8 @@ USD UI切片输入76a61516（恢复06980独立提交、两feature后继/真实H�
 
 fbdb canonical产品/浏览器17/17通过，含旧sale已提交丢ACK后撤权403仍保留原件且撤金额；源码/最新MJS分开。复审补出POST成功但GET非终态仍自动释放的旧边界，已加sale-receipt严格校验/2项负控并接线，需最后新产品构建/浏览器。旧route兼容20通过。新演示59846/fbdb已新库就绪并登录；另补传输修正后的最新候选时保留其输入，不复用cookie host；原62411等均不动。闭环后一次完整182门禁/独立复审，远端STOP仍未解除。
 
+80b构建/浏览器18/18通过（含POST成功+GET not_found/pending仍留原件）；独立复审最后发现expected目标仍取POST响应，已改为发送前固定原body.items，新增两个响应同时漏B负控，3项传输检查/lint通过。此后只重建该UI并复用已不变的SQL检查，不扩大审计。backend完整213实际212通过1旧迁移清单未加0052，清单补齐后该文件14项全部通过，其余已通过不重跑。正式发布完整182尚未执行，不能报通过。
+
 后续实现只复用原月份与订单商业服务：先明确恢复所有无产出漂移归属为未分配、保护旧片段量/月/旧版本/生产；再接报价USD单笔采用和历史，独立labor权限/session owner/原请求，不新增换汇或价格账本。期间confirmed/locked先处理；有真实产出拒绝恢复。最后一次必要完整发布/CI和独立复审。
 
 依赖仍为本地node_modules junction→ainuoke-continuous-material-display owner，锁文件仅CRLF差规范内容一致，无安装。canonical archive用子进程core.autocrlf=false保证逐blob，不能改共享Git。Docker仅核实desktop-linux本机npipe后子进程pin；只新owned合成PG/Chrome，绝不操作旧库/卷。原Git/ref STOP未知保持，不擅自remote/auth/proxy/TLS写。62411用户输入/旧环境及62428候选保持，任何真实Source、正式部署切换、其他PR合并和退役仍未授权。

@@ -7,7 +7,7 @@ import {orderPricingRequest,OrderSourceError,OrderBusinessSourceButton} from '@/
 import type {listQuoteOrderPrices,previewSaleAdjustment,readSaleAdjustmentHistory,readSaleAdjustmentReceipt,SaleRule} from '../../../server/sales-orders/sale-adjustment-service';
 import {QuoteOrderLaborDialog} from './quote-order-labor-dialog';
 import {priceOperationLocks} from '../server/price-operation-locks';
-import {saleReceipt,saleReceiptComplete} from '../server/sale-receipt';
+import {saleReceipt,saleReceiptComplete,saleOriginalTargets} from '../server/sale-receipt';
 
 type Row=Awaited<ReturnType<typeof listQuoteOrderPrices>>['items'][number];
 type Preview=Awaited<ReturnType<typeof previewSaleAdjustment>>;
@@ -55,8 +55,8 @@ function SaleOrderPricingDialog({open,onClose,quoteId,historyOnly=false,laborAva
   const body={requestId,reason,rule,items};setPendingBody({requestId,body});await sendOriginal(requestId,body);
  }
  async function sendOriginal(requestId:string,body:object){
-  const result=await orderPricingRequest<{operationId:string;items:{salesOrderId:string;status:string}[]}>('/api/v1/order-price-adjustments',body);setHistoryRefresh(v=>v+1);setStep(3);setMessage(`已处理 ${result.items.filter(i=>['updated','unchanged'].includes(i.status)).length} 张；未完成 ${result.items.filter(i=>!['updated','unchanged'].includes(i.status)).length} 张。`);
-  const v=saleReceipt(await orderPricingRequest<unknown>(`/api/v1/order-price-adjustments/requests/${requestId}`),requestId,{operationId:result.operationId,orderIds:result.items.map(item=>item.salesOrderId)});setReceipt(v);if(saleReceiptComplete(v))clearPending();
+  const originalOrderIds=saleOriginalTargets(body);const result=await orderPricingRequest<{operationId:string;items:{salesOrderId:string;status:string}[]}>('/api/v1/order-price-adjustments',body);setHistoryRefresh(v=>v+1);setStep(3);setMessage(`已处理 ${result.items.filter(i=>['updated','unchanged'].includes(i.status)).length} 张；未完成 ${result.items.filter(i=>!['updated','unchanged'].includes(i.status)).length} 张。`);
+  const v=saleReceipt(await orderPricingRequest<unknown>(`/api/v1/order-price-adjustments/requests/${requestId}`),requestId,{operationId:result.operationId,orderIds:originalOrderIds});setReceipt(v);if(saleReceiptComplete(v))clearPending();
  }
 
  const switchLabor=()=>{if(busy||sourceGuard||pendingId||pendingUnavailable)return;if((preview||reason||Object.keys(selected).length)&&!window.confirm('放弃未保存的成交价调整输入？'))return;onLabor();};
