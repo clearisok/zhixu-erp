@@ -35,3 +35,9 @@ Hosted run40666735485 Release成功；40666735476 source在order-usd-labor-adopt
 ## 同批补齐Hosted未到达的旧升级夹具
 
 在干净checkpoint d38c4b7326ec35a6878253fc2b5ad5a7f2ea013d，本地继续Hosted被前置错误阻断的后半段。首个normalization套件40/42：旧pre-0047模拟隐藏月份表，却保留0049财务link，现行服务正确拒绝closing_month_financial_schema_incomplete。只补测试：先断言该依赖错误，再同时隐藏从属link，最后验证完整旧schema可选。修后42/42（25929.8014ms）、相关eslint/diff通过；不修改产品、不恢复已退役的公开归一操作。原失败和后半段日志保留outputs/approved-support-flow-20261028/d38-source-ci-continuation.log/json。其余未到达命令按接下来实际结果分别记录，不预报通过。
+
+后继干净源码6ad99e812eb74cfb7b06f76162c61d768bb361a7：8组有效归属/执行/命令/物料历史/原准备客户端联合172/172；9组payment probe/观察/合同/快照/store/client/collection/operator及selected-once联合206/206，0失败/取消/跳过。均为合成源与一次性PG，0真实Source请求。
+
+额外test:postgres整组wrapper在180013ms触及本地预算，没有最终TAP汇总，不能记整组通过。原日志中22文件的全部静态顶层测试已有通过终态；其余8文件（含仅部分顶层完成者）单独检查54/54、60370.0268ms，未重复22个已完成文件。此为分段覆盖，不冒称一次完整数据库全绿；原超时及JSON null counts保留。对应私密日志：6ad-source-ci-continuation、6ad-postgres-unresolved-files和6ad-payment-continuation，各自.log/.json。没有未完成测试进程；未清理既有卷或数据库。
+
+独立只读复审确认第三份夹具修复无P1/P2；时效风险仅记录为待实测，不改调度/TTL。d38精确main守卫已PASS；本片最终文档commit后再核对精确HEAD，不重复guard/manifest未变的182套件。最终Hosted仍由一次集中上传触发后核实。

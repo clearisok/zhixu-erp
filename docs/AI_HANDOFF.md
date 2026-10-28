@@ -11,3 +11,5 @@
 下一步完成本片commit/一次安全交付、精确核对并更新原PR131、必要CI/独立复审；尚无合并批准。之后冻结main镜像、隔离目标及具体真实首绑/续刷验收单，D105真实四流前置保持。staging就绪时提醒，不自动部署。50426工具/旧资产/完整Gate0保留，不加新功能、清理或自动完成Goal。
 
 后继检查从d38 clean开始：Hosted未到达的normalization旧升级测试模拟pre0047但漏隐藏0049link。只补测试依赖负控及完整旧schema正控，42/42、相关lint/diff通过，不改产品/公开入口；其他后半段命令尚未验收，按新私密回执核对，不将d38首次40/42改写为绿。
+
+后半段实际终态已追加：6ad源码8组172/172、payment等9组206/206；额外数据库整组180秒wrapper中断，不计整组通过。保留22已完成文件，不重跑；未完成8文件单跑54/54。见6ad-source-ci-continuation、6ad-postgres-unresolved-files、6ad-payment-continuation私密日志/JSON，无仍在运行的worker。最终文档后只跑精确guard，不重复182。物料最早fetchedAt→下一次发布的时效风险已写准备清单，未新查询/改TTL。
