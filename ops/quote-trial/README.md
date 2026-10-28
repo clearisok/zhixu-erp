@@ -5,8 +5,8 @@
 `cutover-preview.mjs` prepares the concrete target review required by D-147;
 it has **no execute mode**. `new-local-target.ps1` still rejects 50426. A preview
 does not bypass that protection, initialize a database, write credentials or
-authorize a deployment. The guarded target creation/cutover writer is still a
-separate follow-up, subject to the exact-target approval.
+authorize a deployment. The separate `cutover-execute.mjs` entry below remains
+subject to exact-target approval; a preview alone never executes it.
 
 Supply a small JSON file containing only `project`, `root`, `opsRoot`,
 `sourceSha`, `imageId`, `buildId` and `buildTime`. `project` must use
@@ -49,6 +49,62 @@ also used by the recovery harness, avoiding host routes and all Docker networks;
 IPv6 configuration is untouched. Keep the full observation and request when
 seeking exact-target approval. Same-host session cookies can affect other ports;
 do not clear browser stores or silently change hostnames to resolve this.
+
+## Guarded 50426 execution entry (2026-10-28)
+
+This implementation is locally tested, **not a record of a real 50426 cutover**.
+First merge and freeze the final main/image/ops, obtain concrete target approval,
+and produce a fresh preview. The caller must independently verify the supplied
+main SHA; neither local tool reads GitHub or grants merge/deployment permission.
+
+Run from the exact frozen ops directory referenced in the approved preview:
+
+```powershell
+node C:/frozen/ops/quote-trial/cutover-execute.mjs C:/private/preview.json <verified-main-full-SHA> C:/repository
+```
+
+Without the fourth argument this validates and re-observes only. Actual execution
+requires `--execute=<the-exact-previewSha256>` as the fourth argument after the
+human approves that target. It rejects expired/future/tampered/blocked previews,
+different main or ops roots, any changed observation, and Docker overrides. A hash
+is an acknowledgement of reviewed evidence, not a credential or access-control
+boundary against another local administrator. The preview expires after ten
+minutes; refresh and review if it expires rather than editing its timestamp.
+Expiry is checked again before `prepare-local` and `init`. After initialization
+has been submitted, expiry does not trigger a retry or a second initialization;
+only the remaining bounded sequence may continue.
+
+Execution prepares private inputs then invokes the existing `trial.mjs` commands
+in order: `check`, `prepare-local`, `init`, `objects-init`, `start`. The original
+compiled-image/Compose/volume/empty-schema/HTTPS/storage readiness checks remain.
+Commands use the fixed local Docker Desktop pipe; frozen file hashes are checked
+before input preparation and each stage. A second port check immediately precedes
+start. Each child is bounded; lifecycle commands are limited to the remaining
+15-minute mutation-phase budget, at most five minutes each. Concurrent external
+changes can still make execution stop: this is not a reservation or global lock.
+
+`local-target-inputs.ps1` shares the existing secret/certificate/config generation
+with the generic preparer. The generic `new-local-target.ps1` still rejects 50426.
+The parent directory must already exist. Root creation is atomic and fails if
+another process creates it first; it never adopts/re-ACLs that directory. Private
+ACL and CreateNew files precede secret publication. No trust-store installation,
+old-account reset, history import or Source activation is added.
+
+Safe attempt/completion receipts are written once under the new private root,
+only after input preparation has confirmed ownership. Failed/unknown preparation
+does not attempt to journal into a possibly competing directory. Generated config
+and network override fingerprints are checked before each lifecycle stage; these
+fingerprints stay in memory and are never returned or logged.
+The prepared root's filesystem identity is also retained in memory and checked
+before input verification and every journal write, including failure receipts;
+replacing a direct directory at the same path does not transfer ownership.
+If a stage errors, times out or cannot confirm its receipt, return
+`STOPPED_REQUIRES_REVIEW`, preserve partial assets, and stop. There is no retry,
+resume, rollback, stop-old-service, cleanup or restore action. Inspect the receipt
+and owned assets before deciding a separately reviewed recovery; never delete the
+new root to make rerunning possible. A start result is READY only with the existing
+readiness PASS. That does not prove business acceptance or authorize old-asset
+retirement. Never pass trial.conf or secret contents back into logs/PRs.
 
 ## Local persistent empty target — Gate 1 candidate (2026-10-20)
 

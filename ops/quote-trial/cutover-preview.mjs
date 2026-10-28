@@ -189,6 +189,12 @@ export function runCutoverCli(args, { platform = process.platform, run = createR
   const [file, verifiedMain, repository] = args;
   check(isAbsolute(file) && isAbsolute(repository) && lstatSync(file).isFile() && lstatSync(file).size <= 16384, 'bounded_absolute_request_required');
   const request = validateCutoverRequest(JSON.parse(readFileSync(file, 'utf8')), verifiedMain);
+  return observeCutoverRequest(request, verifiedMain, repository, { run, now });
+}
+
+export function observeCutoverRequest(input, verifiedMain, repository, { run = createReadOnlyRunner(), now = () => new Date() } = {}) {
+  const request = validateCutoverRequest(input, verifiedMain);
+  check(isAbsolute(repository), 'absolute_repository_required');
   const hostScript = "$ErrorActionPreference='Stop'; $listeners=@(Get-NetTCPConnection -State Listen | Where-Object LocalPort -eq 50426 | ForEach-Object { @{address=$_.LocalAddress;port=[int]$_.LocalPort} }); $routes=@(Get-NetRoute -AddressFamily IPv4 | ForEach-Object DestinationPrefix); @{listeners=$listeners;routes=$routes} | ConvertTo-Json -Depth 4 -Compress";
   const facts = collectCutoverFacts(request, repository, run, timeout => JSON.parse(run('pwsh', ['-NoProfile', '-NonInteractive', '-Command', hostScript], { timeout })));
   return buildCutoverPreview(request, verifiedMain, facts, now());

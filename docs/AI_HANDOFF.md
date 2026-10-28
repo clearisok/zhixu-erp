@@ -1,11 +1,12 @@
-# 接力：50426只读预览已完成，PR131修复待送达
+# 接力：50426执行工具已本地实现，实际切换与PR131交付待完成
 
-2026-10-28；feat/closing-support-interfaces；本片baseline 995a3696884f7e55c3f168b16f6d4a085308f498 clean。最终提交从Git核对。原状态逐字与原件hash见[本片回执](tasks/completed/2026-10-28-cutover-preview/receipt.json)，具体代码/失败/检查范围见[工程证明](tasks/completed/2026-10-28-cutover-preview.md)。
+2026-10-28；feat/closing-support-interfaces；本阶段baseline23f1cd8dd1ec5f6f3ab983507df8edc35a8c6b83 clean，最终HEAD从Git核对。原CURRENT/INDEX/HANDOFF逐字及原件hash在[本片回执](tasks/completed/2026-10-28-cutover-execute/receipt.json)，[工程证明](tasks/completed/2026-10-28-cutover-execute.md)区分初轮45、后继2/1、11→12及最后替换目录定向1项。
 
-- 本片新增固定50426的只读preview，复用网段算法；没有execute，原准备器拒绝50426的保护不变。48项相关ops回归之后，仅端口逐key/HostIp加强再跑3项定向；最后eslint/diff通过、独立复审0P1/P2。
-- 实际首次观察invalid_observation保留；合法自动端口空值离线修复/负控后补一次，BLOCKED唯一原因为image_source_is_not_verified_main。74容器/199卷/37网络观察完成，runtimeWrites=0；不是切换成功，也不是最终镜像READY。观察10分钟过期，仅历史证据，不供未来无条件执行。
-- 最终提交后精确守卫写到outputs/approved-support-flow-20261028/cutover-preview-final-guard.log，核checkedHead/exit确认实际结果。未重复产品、SQL、构建、浏览器、镜像恢复或旧CI；source job仅补必要测试接线。
-- main上次核实6479a713e2b80228f008049519ebbd50d10601a8；PR131上次仍open/draft/head4584deb786e0dd2fada0d998a16d166b00ccaadc。136兼容修复47/47本地成立，后继当前源码仍未上传。NETWORK_DEGRADED；没有新的外部恢复证据，不重复Git上传/诊断或CI。此前4584精确交付授权已经执行，不能重复使用。
-- [当前实机](http://closing-current.localhost:52251/closing-center?year=2027)：closing.editor或labor.editor / synthetic-closing；a198产品及内容镜像90e、65139五服务持久空候选保持。旧3001/50426/库/卷/refs/其他dirty工作树全部保护。新候选不是50426，实际切换未授权。
+- 新cutover-execute默认只读再观察，具体预览hash确认后按原trial生命周期推进；实际50426没有执行。原通用准备器仍拒绝50426，shared输入实现不另建部署体系。
+- 固定本机pipe、冻结ops、自新目录/卷/网络/端口、配置内存指纹、目录dev/ino/birthtimeNs核对；prepare失败不写外来目录、替换目录同样拒绝journal。端口前检完成后再算预算，不在过期预算后提交start。init开始前须十分钟内，之后只按剩余15分钟有界流程继续或停，无自动重试/清理/回滚。
+- 实际测试只创建唯一临时私密输入/证书和Compose config解析，已回收本次合成目录；没有创建/启停容器/卷，没有业务DB/现有账号/Source、信任库或正式环境变更。整体实际执行/人工体验未验证，不能把代码或单元测试当目标READY。
+- 最终定向lint/diff通过；最终提交后精确守卫写到outputs/approved-support-flow-20261028/cutover-execute-final-guard.log，以checkedHead/exit为准。没有重复产品/SQL/构建/浏览器/恢复，也没有新CI；source job只补必要测试。
+- main沿上次6479a713e2b80228f008049519ebbd50d10601a8；PR131上次draft/head4584。136兼容修复及后继仍未送达，NETWORK_DEGRADED无新外部恢复证据；不重复push/诊断/旧CI。原4584单次授权已经执行，不复用为新上传授权。
+- [既有演示](http://closing-current.localhost:52251/closing-center?year=2027)：closing.editor或labor.editor / synthetic-closing；a198/90e和65139持久候选保留，不是50426。旧3001/50426/库/卷/refs/两棵他人dirty树及junction依赖保护继续，未读改其内容。
 
-下一步：可准备C2守卫writer工程，但不执行目标写入；实际落地依赖C0集中交付必要CI/复审及明确合并、C1最终main镜像、C3具体项目/目录/入口批准。不得手改配置绕过50426保护，不能以preview代替实际执行前再验证。仍保留[Gate0](tasks/active/server-convergence-gate0-2026-10-20.md)完整目标；不得标Goal完成。真实来源、正式账号/业务库、实际切换和旧资产退役分别受原边界约束。
+下一依赖仍是C0集中交付必要CI与复审/明确合并、C1最终main镜像、C3具体入口/目录/项目批准，再实际C4/C5与逐对象退役。C2工具工程不能替代真实固定目标演练，也不能解除Git通道阻断、批准自动merge或实际切换。继续保留完整[Gate0](tasks/active/server-convergence-gate0-2026-10-20.md)，不标Goal完成。真实Source新增范围及部署/现有数据操作各自边界不变。
