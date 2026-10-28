@@ -20,3 +20,5 @@ main=6479a713e2b80228f008049519ebbd50d10601a8，PR130已merged。双父869ee84dd
 本片actual-main守卫已实际运行并FAIL：旧Gate8文档证据在main前移后的anchor/ancestry未闭合，另有当前文档前向修订待冻结；错误原件source-baseline.log保留。产品类型/lint/32测试通过不替代该门禁。下一片只修复真实整合证据链并补负控，不删除旧ID/hash或将FAIL写成PASS。
 
 来源UIA实际收口：产品d32912cf7483f42fd42dc28799531c0b1e7fb52d，canonical Server构建及owned PG/Chromium11/11通过；稳定启动前丢包代理证明两个未知响应均只一次POST。首轮测试代理递归FAIL保留，未盲改应用。见tasks/completed/2026-10-28-closing-source-support-ui-engineering.md。发布工具/文档整合门禁仍待修复，当前未远端交付。
+
+发布证据整合checkpoint：8个H153实际blob见证及来源UI工程/PNG已前向冻结，保留568旧记录。工具改为按M/S共同旧base验证导入段，每段own-parent及S完整成员必须保留；root-only限定历史上下文。旧guard红测、新组13项/根正例1项、lint通过；完整最终回归/新base守卫待文档后继冻结完成。见tasks/active/release-post-base-main-forward-2026-10-28.md，不将中间检查写成最终PASS。

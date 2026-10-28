@@ -5167,6 +5167,105 @@
       "renderedSourceSha": "153c04a4627f6d78febd79e153d11d7e5cc0cd38",
       "sha256": "19742049898d70938efa9c97aef95431548d79e4f7c489a7c534962959ff0179",
       "changeReason": "Freeze the specific user approval of three closing support interfaces and no-output executor recovery, plus exact verified PR130 merge. Original prototype hash and prior pending context retained. Approval is not implementation, human acceptance, CI or deployment proof."
+    },
+    {
+      "id": "closing-support-main6479-integration-1-20261028",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "153c04a4627f6d78febd79e153d11d7e5cc0cd38",
+      "renderedSourceSha": "153c04a4627f6d78febd79e153d11d7e5cc0cd38",
+      "sha256": "00cc078a2f379ad0f403df450e6e7dd30500af5887a3614c38e7f866d9562cd6",
+      "supersedes": "closing-chain-d176-decisions-20261028",
+      "changeReason": "Freeze the exact document at real two-parent integration 153 (actual main6479 and independent side0900); retain every imported old record, source parent manifest and original frozen blob. This is an integration witness, not a retroactive source or implementation acceptance."
+    },
+    {
+      "id": "closing-support-main6479-integration-2-20261028",
+      "kind": "document",
+      "path": "docs/features/CLOSING_CENTER.md",
+      "recordedAtSha": "153c04a4627f6d78febd79e153d11d7e5cc0cd38",
+      "renderedSourceSha": "153c04a4627f6d78febd79e153d11d7e5cc0cd38",
+      "sha256": "62c4e50558e8b4ca6ecbe90fc8f3b0aae3a88de469943cbdca2766778a21d3dc",
+      "supersedes": "closing-basis-d162-closing_center-20261026",
+      "changeReason": "Freeze the exact document at real two-parent integration 153 (actual main6479 and independent side0900); retain every imported old record, source parent manifest and original frozen blob. This is an integration witness, not a retroactive source or implementation acceptance."
+    },
+    {
+      "id": "closing-support-main6479-integration-3-20261028",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "153c04a4627f6d78febd79e153d11d7e5cc0cd38",
+      "renderedSourceSha": "153c04a4627f6d78febd79e153d11d7e5cc0cd38",
+      "sha256": "20d306e3aed12a05571385b3675780161dd2da0510da28c5effa9e1286c54bbb",
+      "supersedes": "closing-support-ui-business-rules-20261028",
+      "changeReason": "Freeze the exact document at real two-parent integration 153 (actual main6479 and independent side0900); retain every imported old record, source parent manifest and original frozen blob. This is an integration witness, not a retroactive source or implementation acceptance."
+    },
+    {
+      "id": "closing-support-main6479-integration-4-20261028",
+      "kind": "document",
+      "path": "docs/features/RELEASE_BASELINE_GUARD.md",
+      "recordedAtSha": "153c04a4627f6d78febd79e153d11d7e5cc0cd38",
+      "renderedSourceSha": "153c04a4627f6d78febd79e153d11d7e5cc0cd38",
+      "sha256": "553a286c5cd574c030abffb5cf3654f9339003c51621a24edc28b2c302d374c7",
+      "supersedes": "release-post-base-bounded-lineage-contract-20261028",
+      "changeReason": "Freeze the exact document at real two-parent integration 153 (actual main6479 and independent side0900); retain every imported old record, source parent manifest and original frozen blob. This is an integration witness, not a retroactive source or implementation acceptance."
+    },
+    {
+      "id": "closing-support-main6479-integration-5-20261028",
+      "kind": "document",
+      "path": "docs/features/SERVER_CLOSING_EXECUTOR_MATCHING.md",
+      "recordedAtSha": "153c04a4627f6d78febd79e153d11d7e5cc0cd38",
+      "renderedSourceSha": "153c04a4627f6d78febd79e153d11d7e5cc0cd38",
+      "sha256": "75bec64f3b5f17e2031002979aa3e49585e4ac8e9ef0d890e4fa5e7f4e4687b5",
+      "supersedes": "closing-month-display-contract-20261028",
+      "changeReason": "Freeze the exact document at real two-parent integration 153 (actual main6479 and independent side0900); retain every imported old record, source parent manifest and original frozen blob. This is an integration witness, not a retroactive source or implementation acceptance."
+    },
+    {
+      "id": "closing-support-main6479-integration-6-20261028",
+      "kind": "document",
+      "path": "docs/features/SERVER_CLOSING_MONTH_PLAN.md",
+      "recordedAtSha": "153c04a4627f6d78febd79e153d11d7e5cc0cd38",
+      "renderedSourceSha": "153c04a4627f6d78febd79e153d11d7e5cc0cd38",
+      "sha256": "20774fb5a16751b1c5911de187f495c1cd28aef423dd97b33d9e246570b06122",
+      "supersedes": "closing-chain-frozen-month-contract-20261028",
+      "changeReason": "Freeze the exact document at real two-parent integration 153 (actual main6479 and independent side0900); retain every imported old record, source parent manifest and original frozen blob. This is an integration witness, not a retroactive source or implementation acceptance."
+    },
+    {
+      "id": "closing-support-main6479-integration-7-20261028",
+      "kind": "document",
+      "path": "docs/features/SERVER_CLOSING_ANNUAL_READ.md",
+      "recordedAtSha": "153c04a4627f6d78febd79e153d11d7e5cc0cd38",
+      "renderedSourceSha": "153c04a4627f6d78febd79e153d11d7e5cc0cd38",
+      "sha256": "398126784c5416b933b515cfa7682f393487f664932b64d6ee483414b87c038c",
+      "supersedes": "closing-chain-annual-budget-contract-20261028",
+      "changeReason": "Freeze the exact document at real two-parent integration 153 (actual main6479 and independent side0900); retain every imported old record, source parent manifest and original frozen blob. This is an integration witness, not a retroactive source or implementation acceptance."
+    },
+    {
+      "id": "closing-support-main6479-integration-8-20261028",
+      "kind": "document",
+      "path": "docs/features/SERVER_CLOSING_SOURCE_RECONCILIATION.md",
+      "recordedAtSha": "153c04a4627f6d78febd79e153d11d7e5cc0cd38",
+      "renderedSourceSha": "153c04a4627f6d78febd79e153d11d7e5cc0cd38",
+      "sha256": "af306f722803105c6143a4fef48ad6ee7a0e16d7a5c605dec75374b36a04415c",
+      "supersedes": "closing-source-reconciliation-contract-20261027",
+      "changeReason": "Freeze the exact document at real two-parent integration 153 (actual main6479 and independent side0900); retain every imported old record, source parent manifest and original frozen blob. This is an integration witness, not a retroactive source or implementation acceptance."
+    },
+    {
+      "id": "closing-source-support-engineering-20261028",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-28-closing-source-support-ui-engineering.md",
+      "recordedAtSha": "21d3cbf881375fc88780181f1e9ce5c68c5e3114",
+      "renderedSourceSha": "d32912cf7483f42fd42dc28799531c0b1e7fb52d",
+      "sha256": "6a361b36fa3204c799603aee504b57f13445df6e35e02e5c647899b693165e79",
+      "changeReason": "Freeze actual Source UI validation with separate exact product and corrected harness identities; retain initial archive and simulated-response failures. No remote CI, human acceptance or deployment promotion."
+    },
+    {
+      "id": "closing-source-support-preview-20261028",
+      "kind": "screenshot",
+      "path": "docs/release/screenshots/closing-source-support-20261028/source-complete-order-preview.png",
+      "recordedAtSha": "21d3cbf881375fc88780181f1e9ce5c68c5e3114",
+      "renderedSourceSha": "d32912cf7483f42fd42dc28799531c0b1e7fb52d",
+      "sha256": "b67119733d8a4ee64ed72e5ec4b892cac3ec0d203a88c91c0b31926e28ade4c4",
+      "approvalEvidence": "closing-support-approved-20261028",
+      "changeReason": "New explicitly approved whole-order Source review preview in actual synthetic Chromium; retain all old screenshots and their independent sources."
     }
   ],
   "pages": [
@@ -5438,7 +5537,9 @@
         "closing-adjustment-ui-contract-20261027",
         "closing-adjustment-ui-engineering-20261027",
         "closing-adjustment-desktop-annual-20261027",
-        "closing-support-approved-20261028"
+        "closing-support-approved-20261028",
+        "closing-source-support-engineering-20261028",
+        "closing-source-support-preview-20261028"
       ]
     }
   ],

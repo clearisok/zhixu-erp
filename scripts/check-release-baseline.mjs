@@ -105,21 +105,32 @@ export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths
   // Every branch must reach actual PR-base evidence, or a proven committed
   // checkpoint for a document path first frozen after that base. A merge node
   // never excuses an orphan, overwritten intermediate or cycle.
-  const anchoredRevision = item => {
+  const actualAnchor = { base: historyBaseSha, head: checkedHead, ids: priorEvidence, paths: priorDocumentPaths, imports: true };
+  const anchoredRevision = (item, context = actualAnchor) => {
+    if (context.sourceIds && !same(context.sourceIds.get(item.id), item)) return false;
+    const importedRoot = current => context.sourceIds && !parentsOf(current).length && current.supersedes === undefined && current.mergeOf === undefined
+      && !context.paths.has(current.path) && isAncestor(context.base, current.recordedAtSha) && isAncestor(current.recordedAtSha, context.head);
+    if (importedRoot(item)) return true;
     const needsOwnCheckpoint = current => current.kind === 'document'
-      && !priorDocumentPaths.has(current.path) && current.mergeOf === undefined;
+      && !context.paths.has(current.path) && current.mergeOf === undefined;
     const visit = (current, visited) => {
       if (!current || current.kind !== item.kind || current.path !== item.path || visited.has(current.id)) return false;
-      if (priorEvidence.has(current.id)) return true;
+      if (context.sourceIds && !same(context.sourceIds.get(current.id), current)) return false;
+      if (same(context.ids.get(current.id), current)) return true;
+      if (importedRoot(current)) return true;
       // A later ordinary revision cannot borrow an earlier revision's valid
       // checkpoint when its own immediate-parent witness is absent or invalid.
-      if (needsOwnCheckpoint(current)) return committedDocumentAnchor(current);
+      if (needsOwnCheckpoint(current)) return committedDocumentAnchor(current, context)
+        || context.imports && Boolean(importedDocumentAnchor(current));
       const parents = parentsOf(current);
       const next = new Set(visited).add(current.id);
       return parents.length > 0 && parents.every(id => visit(revisions.get(id), next));
     };
-    return needsOwnCheckpoint(item) ? committedDocumentAnchor(item)
-      : parentsOf(item).length > 0 && parentsOf(item).every(id => visit(revisions.get(id), new Set([item.id])));
+    if (needsOwnCheckpoint(item)) return committedDocumentAnchor(item, context)
+      || context.imports && Boolean(importedDocumentAnchor(item));
+    const parents = parentsOf(item);
+    return parents.length > 0 ? parents.every(id => visit(revisions.get(id), new Set([item.id])))
+      : !context.paths.has(item.path) && isAncestor(context.base, item.recordedAtSha) && isAncestor(item.recordedAtSha, context.head);
   };
   // Screenshot replacements keep distinct paths, so they use the original
   // single-predecessor anchor/cycle rule rather than the document path DAG.
@@ -138,7 +149,7 @@ export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths
   let parentBytes = 0;
   const parentManifest = sha => {
     if (parentManifests.has(sha)) return parentManifests.get(sha);
-    const result = { valid: false, ids: new Map(), changed: [], limit: false };
+    const result = { valid: false, ids: new Map(), changed: [], limit: false, baselineSha: null };
     if (parentBytes >= integrationManifestBytes) {
       result.limit = true; parentManifests.set(sha, result); return result;
     }
@@ -151,6 +162,7 @@ export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths
     }
     if (parsed?.schemaVersion === 2 && parsed.repository === manifest.repository && Array.isArray(parsed.evidence)) {
       result.valid = true;
+      result.baselineSha = parsed.baselineSha;
       for (const old of parsed.evidence) {
         if (!old || typeof old !== 'object' || Array.isArray(old)) { result.changed.push('invalid-parent-record'); continue; }
         if (!nonempty(old.id) || result.ids.has(old.id) || !same(revisions.get(old.id), old)) result.changed.push(String(old.id));
@@ -176,51 +188,59 @@ export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths
     return valid;
   };
   const committedDocumentAnchors = new Map();
-  function committedDocumentAnchor(item) {
-    if (committedDocumentAnchors.has(item.id)) return committedDocumentAnchors.get(item.id);
-    committedDocumentAnchors.set(item.id, false);
+  function committedDocumentAnchor(item, context = actualAnchor) {
+    const cacheKey = `${context.base}:${context.head}:${item.id}`;
+    if (committedDocumentAnchors.has(cacheKey)) return committedDocumentAnchors.get(cacheKey);
+    committedDocumentAnchors.set(cacheKey, false);
     // A path first frozen after the actual PR base has no base evidence ID to
     // reach. Its next linear revision must prove that its predecessor and the
     // complete frozen lineage already exist in the source commit's immediate
     // Git parent. A caller-owned root, sibling branch, merge declaration or
     // rewritten intermediate cannot substitute for that committed checkpoint.
-    if (item.kind !== 'document' || priorDocumentPaths.has(item.path) || item.mergeOf !== undefined
+    if (item.kind !== 'document' || context.paths.has(item.path) || item.mergeOf !== undefined
       || !nonempty(item.supersedes) || !fullSha(item.recordedAtSha)
-      || !isAncestor(historyBaseSha, item.recordedAtSha) || !isAncestor(item.recordedAtSha, checkedHead)) return false;
+      || context.sourceIds && !same(context.sourceIds.get(item.id), item)
+      || !isAncestor(context.base, item.recordedAtSha) || !isAncestor(item.recordedAtSha, context.head)) return false;
     let parents;
     try { parents = readCommitParents(item.recordedAtSha); } catch { return false; }
     if (!Array.isArray(parents) || parents.length !== 1 || !fullSha(parents[0]) || parents[0] === item.recordedAtSha
-      || !isAncestor(historyBaseSha, parents[0])) return false;
+      || !isAncestor(context.base, parents[0])) return false;
     const history = parentManifest(parents[0]);
     if (!history.valid || history.limit || history.changed.length || history.ids.has(item.id)) return false;
     const lineageHeights = new Map(), lineageNodes = new Set([item.id]);
-    const lineage = (current, visited) => {
+    const lineage = (current, visited, currentContext = context) => {
       if (!current || current.kind !== 'document' || current.path !== item.path || visited.has(current.id)
         || visited.size >= documentAnchorDepthLimit) return 0;
-      const cachedHeight = lineageHeights.get(current.id);
-      if (cachedHeight !== undefined) return visited.size + cachedHeight <= documentAnchorDepthLimit ? cachedHeight : 0;
       if (!lineageNodes.has(current.id) && lineageNodes.size >= documentAnchorDepthLimit) return 0;
       lineageNodes.add(current.id);
-      if (!same(history.ids.get(current.id), current)
-        || !fullSha(current.recordedAtSha) || !isAncestor(historyBaseSha, current.recordedAtSha)
+      if (!same(history.ids.get(current.id), current) || !fullSha(current.recordedAtSha)
         || !isAncestor(current.recordedAtSha, parents[0])) return 0;
+      if (!isAncestor(currentContext.base, current.recordedAtSha)) {
+        const imported = currentContext.imports && importedDocumentAnchor(current);
+        if (!imported) return 0;
+        currentContext = imported;
+      }
+      if (currentContext.sourceIds && !same(currentContext.sourceIds.get(current.id), current)) return 0;
+      const lineageKey = `${currentContext.base}:${currentContext.head}:${current.id}`;
+      const cachedHeight = lineageHeights.get(lineageKey);
+      if (cachedHeight !== undefined) return visited.size + cachedHeight <= documentAnchorDepthLimit ? cachedHeight : 0;
       const predecessors = parentsOf(current);
       if (!predecessors.length) {
         if (current.supersedes !== undefined || current.mergeOf !== undefined) return 0;
-        lineageHeights.set(current.id, 1); return 1;
+        lineageHeights.set(lineageKey, 1); return 1;
       }
       const next = new Set(visited).add(current.id);
       let height = 1;
       for (const id of predecessors) {
-        const predecessorHeight = lineage(revisions.get(id), next);
+        const predecessorHeight = lineage(revisions.get(id), next, currentContext);
         if (!predecessorHeight) return 0;
         height = Math.max(height, predecessorHeight + 1);
       }
       if (visited.size + height > documentAnchorDepthLimit) return 0;
-      lineageHeights.set(current.id, height); return height;
+      lineageHeights.set(lineageKey, height); return height;
     };
     const valid = lineage(revisions.get(item.supersedes), new Set([item.id])) > 0;
-    committedDocumentAnchors.set(item.id, valid);
+    committedDocumentAnchors.set(cacheKey, valid);
     return valid;
   }
   // Inspect the actual Git integration corridor, independently of which
@@ -266,6 +286,38 @@ export function validateBaseline({ root, manifest, expectedBaseSha, changedPaths
     }
     return false;
   };
+  const importedAnchors = new Map();
+  function importedDocumentAnchor(item) {
+    if (importedAnchors.has(item.id)) return importedAnchors.get(item.id);
+    importedAnchors.set(item.id, null); // Active recursion/cycles fail closed.
+    for (const witness of candidates.values()) {
+      if (witness.kind !== 'document' || witness.path !== item.path || witness.mergeOf !== undefined
+        || !nonempty(witness.supersedes) || witness.id !== item.id && !reachesRevision(witness, item.id)) continue;
+      const integration = integrations.get(witness.recordedAtSha);
+      if (!integration?.valid || integration.parents.length !== 2 || !integration.parents.includes(historyBaseSha)) continue;
+      const source = integration.parents.find(sha => sha !== historyBaseSha);
+      if (isAncestor(historyBaseSha, source) || isAncestor(source, historyBaseSha)
+        || !isAncestor(witness.recordedAtSha, checkedHead)) continue;
+      const mainHistory = parentManifest(historyBaseSha), sourceHistory = parentManifest(source), oldBase = sourceHistory.baselineSha;
+      if (!mainHistory.valid || mainHistory.changed.length || mainHistory.limit || !sourceHistory.valid || sourceHistory.changed.length || sourceHistory.limit
+        || !fullSha(oldBase) || mainHistory.baselineSha !== oldBase || !hasCommit(oldBase)
+        || !isAncestor(oldBase, historyBaseSha) || !isAncestor(oldBase, source)) continue;
+      const oldHistory = parentManifest(oldBase);
+      if (!oldHistory.valid || oldHistory.changed.length || oldHistory.limit) continue;
+      const context = { base: oldBase, head: source, ids: oldHistory.ids,
+        paths: new Set([...oldHistory.ids.values()].filter(row => row.kind === 'document').map(row => row.path)), imports: false, sourceIds: sourceHistory.ids };
+      const predecessor = revisions.get(witness.supersedes);
+      // H may only import the exact source leaf. Older revisions still prove
+      // their own original immediate-parent checkpoints in the shared old base.
+      if (!predecessor || !same(sourceHistory.ids.get(predecessor.id), predecessor)
+        || [...sourceHistory.ids.values()].some(row => row.kind === 'document' && row.path === item.path && parentsOf(row).includes(predecessor.id))) continue;
+      const imported = witness.id === item.id ? predecessor : item;
+      if (!same(sourceHistory.ids.get(imported.id), imported) || !isAncestor(imported.recordedAtSha, source)
+        || !anchoredRevision(imported, context)) continue;
+      importedAnchors.set(item.id, context); return context;
+    }
+    return null;
+  }
   const hasForwardWitness = item => {
     for (const witness of candidates.values()) {
       if (witness.id === item.id || witness.kind !== 'document' || witness.path !== item.path || !reachesRevision(witness, item.id)) continue;

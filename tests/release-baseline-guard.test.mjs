@@ -824,6 +824,88 @@ function assertOversizedParentsDoNotReadObjects(s) {
   }
 }
 
+function advancedPostBaseDocument(t, rootOnly = false) {
+  const s = postBaseDocumentRevision(t), { f, git, commit } = s;
+  if (rootOnly) f.manifest.evidence = f.manifest.evidence.filter(row => row.id !== s.revised.id);
+  // This owned fixture tests history, independently of pending documentation
+  // revisions in the real working tree. Keep each fixture leaf at its own blob.
+  const superseded = new Set(f.manifest.evidence.flatMap(row => row.mergeOf ?? (row.supersedes ? [row.supersedes] : [])));
+  for (const row of f.manifest.evidence) if (row.kind === 'document' && !superseded.has(row.id)) {
+    const bytes = s.options.readBlob(row.recordedAtSha, row.path); assert.ok(bytes); f.write(row.path, bytes);
+  }
+  s.save(); const sourceHead = commit('freeze valid post-base revision before independent main', [manifestPath, s.side.path]);
+  git(['switch', '-q', 'main']); f.write('docs/independent-main.md', '# Independent main\n');
+  const actualBase = commit('advance main independently', ['docs/independent-main.md']);
+  const baseManifest = JSON.parse(git(['show', `${actualBase}:${manifestPath}`]));
+  git(['switch', '-q', 'right']); git(['merge', '--no-ff', '--no-commit', 'main']);
+  f.manifest.baselineSha = actualBase;
+  for (const file of ['docs/CURRENT_STATE.md', 'docs/AI_HANDOFF.md', 'docs/PROJECT_INDEX.md']) f.edit(file, text => text.replaceAll(original.baselineSha, actualBase));
+  s.save(); const integrationSha = commit('integrate exact main and source with original post-base history', [manifestPath,
+    'docs/CURRENT_STATE.md', 'docs/AI_HANDOFF.md', 'docs/PROJECT_INDEX.md']);
+  const witnesses = [s.merged, rootOnly ? s.side : s.revised].map((old, index) => ({ id: 'post-base-import-witness-' + index, kind: 'document', path: old.path,
+    recordedAtSha: integrationSha, sha256: old.sha256, supersedes: old.id, changeReason: 'Import exact source leaf at the real two-parent integration' }));
+  f.manifest.evidence.push(...witnesses);
+  const options = { ...s.options, expectedBaseSha: actualBase, historyBaseSha: actualBase, previousManifest: baseManifest, checkedHead: integrationSha,
+    readMergeCommits: (base, head) => git(['rev-list', '--ancestry-path', '--min-parents=2', '--max-count=257', `${base}..${head}`]).split('\n').filter(Boolean),
+    readBlob: (sha, file) => s.options.readBlob(sha === original.baselineSha && file === manifestPath ? s.base : sha, file) };
+  return { ...s, options, actualBase, baseManifest, sourceHead, integrationSha, witness: witnesses[1] };
+}
+
+test('advanced main imports a valid post-base chain and later revisions still prove their own checkpoint', async t => {
+  const s = advancedPostBaseDocument(t), { f } = s;
+  assert.deepEqual(f.check(s.options), []);
+  const valid = structuredClone(f.manifest), sourceManifest = JSON.parse(s.options.readBlob(s.sourceHead, manifestPath));
+  const sourceParent = JSON.parse(s.options.readBlob(s.anchorHead, manifestPath));
+  const encode = value => Buffer.from(JSON.stringify(value));
+  for (const mode of ['missing-old-parent', 'missing-root', 'changed-root', 'missing-source-root', 'missing-blob', 'wrong-source-baseline', 'three-parent-integration', 'nonleaf-integration', 'no-witness']) {
+    await t.test(mode, () => {
+      Object.assign(f.manifest, structuredClone(valid)); let options = s.options;
+      if (mode === 'missing-old-parent') options = { ...options, readBlob: (sha, file) => sha === s.anchorHead && file === manifestPath ? null : s.options.readBlob(sha, file) };
+      if (mode === 'missing-root' || mode === 'changed-root') {
+        const parent = structuredClone(sourceParent);
+        if (mode === 'missing-root') parent.evidence = parent.evidence.filter(row => row.id !== s.side.id);
+        else parent.evidence.find(row => row.id === s.side.id).sha256 = '0'.repeat(64);
+        options = { ...options, readBlob: (sha, file) => sha === s.anchorHead && file === manifestPath ? encode(parent) : s.options.readBlob(sha, file) };
+      }
+      if (mode === 'missing-blob') options = { ...options, readBlob: (sha, file) => sha === s.side.recordedAtSha && file === s.side.path ? null : s.options.readBlob(sha, file) };
+      if (mode === 'wrong-source-baseline') {
+        const source = structuredClone(sourceManifest); source.baselineSha = s.actualBase;
+        options = { ...options, readBlob: (sha, file) => sha === s.sourceHead && file === manifestPath ? encode(source) : s.options.readBlob(sha, file) };
+      }
+      if (mode === 'missing-source-root') {
+        const source = structuredClone(sourceManifest); source.evidence = source.evidence.filter(row => row.id !== s.side.id);
+        options = { ...options, readBlob: (sha, file) => sha === s.sourceHead && file === manifestPath ? encode(source) : s.options.readBlob(sha, file) };
+      }
+      if (mode === 'three-parent-integration') options = { ...options, readCommitParents: sha => sha === s.integrationSha ? [s.sourceHead, s.actualBase, s.base] : s.options.readCommitParents(sha) };
+      if (mode === 'nonleaf-integration') f.manifest.evidence.find(row => row.id === s.witness.id).supersedes = s.side.id;
+      if (mode === 'no-witness') f.manifest.evidence = f.manifest.evidence.filter(row => row.id !== s.witness.id);
+      const errors = f.check(options); assert.ok(errors.some(row => ['EVIDENCE_REVISION_ANCHOR', 'EVIDENCE_REVISION_ANCESTRY', 'EVIDENCE_BLOB'].includes(row.code)), JSON.stringify(errors));
+    });
+  }
+  Object.assign(f.manifest, structuredClone(valid)); s.save();
+  const frozen = s.commit('freeze actual integration witnesses before later edits', [manifestPath]);
+  const bytes = Buffer.from('# Forward document source after frozen integration\n'); f.write(s.side.path, bytes);
+  const later = s.commit('later document source preserves imported chain', [s.side.path]);
+  f.manifest.evidence.push({ ...s.witness, id: 'post-import-later', recordedAtSha: later, sha256: hash(bytes), supersedes: s.witness.id, changeReason: 'Current-base own-parent checkpoint after the exact import' });
+  const laterOptions = { ...s.options, checkedHead: later };
+  assert.deepEqual(f.check(laterOptions), []);
+  const parent = JSON.parse(s.options.readBlob(frozen, manifestPath));
+  for (const removed of [s.witness.id, s.revised.id, s.side.id]) await t.test('later parent must retain ' + removed, () => {
+    const bad = structuredClone(parent); bad.evidence = bad.evidence.filter(row => row.id !== removed);
+    has(f.check({ ...laterOptions, readBlob: (sha, file) => sha === frozen && file === manifestPath ? encode(bad) : s.options.readBlob(sha, file) }), 'EVIDENCE_REVISION_ANCHOR');
+  });
+});
+
+test('advanced main imports an exact frozen post-base root without inventing a prior revision', t => {
+  const s = advancedPostBaseDocument(t, true), { f } = s;
+  assert.deepEqual(f.check(s.options), []);
+  s.save(); s.commit('freeze root-only integration before its first revision', [manifestPath]);
+  const bytes = Buffer.from('# First source revision after a root-only import\n'); f.write(s.side.path, bytes);
+  const later = s.commit('revise root-only imported document', [s.side.path]);
+  f.manifest.evidence.push({ ...s.witness, id: 'root-only-later', recordedAtSha: later, sha256: hash(bytes), supersedes: s.witness.id, changeReason: 'First explicit revision after the frozen import' });
+  assert.deepEqual(f.check({ ...s.options, checkedHead: later }), []);
+});
+
 for (const doubleSided of [false, true]) test(`main advancement preserves ${doubleSided ? 'both document branches' : 'single-side frozen history'} with a real integration witness`, t => {
   const s = advancedMainEvidenceMerge(t, doubleSided);
   assert.deepEqual(s.f.check(s.options), []);
