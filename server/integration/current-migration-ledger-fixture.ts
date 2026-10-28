@@ -52,6 +52,7 @@ export const CURRENT_MIGRATION_FILES = Object.freeze([
   '0049_closing_month_financial_links.sql',
   '0050_closing_source_reconciliation.sql',
   '0051_closing_frozen_month_lines.sql',
+  '0052_closing_executor_release.sql',
 ]);
 
 export const migrationFilesAfter = (version: number) =>

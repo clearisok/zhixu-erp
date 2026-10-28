@@ -8,7 +8,8 @@
     "features/quote-center/components/quote-editor.tsx",
     "features/quote-center/components/restricted-quote-content.tsx",
     "features/quote-center/server/labor-adoption-controller.ts",
-    "features/quote-center/server/price-operation-locks.ts"
+    "features/quote-center/server/price-operation-locks.ts",
+    "features/quote-center/server/sale-receipt.ts"
   ],
   "pages": ["quote-detail"],
   "approval": {"status": "user-approved", "reference": "docs/tasks/completed/2026-10-28-closing-support-and-pr130-approval.md"},
