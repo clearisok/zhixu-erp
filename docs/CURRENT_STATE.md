@@ -1,15 +1,15 @@
-# 当前状态：PR131已送达，校准最后一处关账路由验收
+# 当前状态：PR131正常送达，收口实际浏览器验收
 
-2026-10-28；branch feat/closing-support-interfaces；main **6479a713e2b80228f008049519ebbd50d10601a8**。当前片从干净2fd68ff0975f5a5bb1233298444e0b68cea3532b开始，最终本地HEAD/status从Git核对。完整Gate0–8/R继续；[前片三摘要全文/hash](tasks/completed/2026-10-28-pr131-route-gate-recovery/input-state.json)及所有原日期、失败、结果和限制保留。
+2026-10-29；branch feat/closing-support-interfaces；main **6479a713e2b80228f008049519ebbd50d10601a8**；本片baseline40b1a7f712fce70026b90f3f795e28b691b17de2 clean。最终HEAD/dirty从Git核对。[本片证据](tasks/completed/2026-10-29-pr131-browser-route-recovery.md)、[原三摘要全文/hash](tasks/completed/2026-10-29-pr131-browser-route-recovery/input-state.json)保留全部旧日期、失败与限制；完整Gate0–8/R继续。
 
-**远端与CI**：唯一[PR131](https://github.com/clearisok/zhixu-erp/pull/131)已精确收到2fd，仍open/draft、未合并。一次进程级直连OpenSSL上传4616ms，证书校验/原认证保持；工具API及PR独立核对完整SHA。Git仍exit1/STOP_AUTH_OR_DIVERGENCE，退出原因未确证，停止后续Git/ref写入，不重复推送或宣称永久修好。无全局/共享网络修改。PR说明已按既有授权更新。
+**远端与网络**：唯一[PR131](https://github.com/clearisok/zhixu-erp/pull/131)精确收到40b1，仍draft、未合并。Git旧代理17989已不监听，当前系统代理7888监听；仅进程覆盖当前代理/OpenSSL/HTTP1.1，保留TLS验证及原认证。正常上传10861ms、exit0，原工具API及PR独立核实。未改全局/共享设置；不倒推此前2fd exit1根因或宣称永久恢复。
 
-三项必要检查自动触发一次：team 40704922122与release 40704922068成功；source 40704921822失败于旧测试仍期待snapshot关账页面关闭，后继quality/build/browser/Python跳过。该运行先前完整数据库270/270及同单据闭环8项已通过，不抹去旧失败或借它支持新head。
+**40b1检查与本片修复**：Release40719451821和Team40719451760成功；Source40719451599的后端、SQL/API、quality、构建及前两组浏览器通过，P6仍期待关账禁用而失败（14项12pass/2fail，后继跳过）。本片只修P6正负权限/Server路由验收，以及议价恢复测试依赖短暂message的问题，改查稳定原请求、原字节、无重复POST和数据库版本。CI作业20→25分钟，仅给完整SQL/API/Chromium尾部留余量；不删测试、不增加workflow或手工重跑。产品/SQL/UI/业务权限均未改。
 
-**本片修复**：仅order-read-capability验收对齐现行精确路由：两条关账路径default-off/snapshot-on，未知路径仍拒绝。产品/SQL/UI/权限/来源规则均未改。红测1fail可重现；修后定向2/2、类型/相关lint通过；完整来源连续回归79项中78pass/0fail/1个Linux-only skip，49484.618ms。该Linux正控已在上述Hosted实际成功，分源记录。独立静态复审无P1/P2。见[本片证据](tasks/completed/2026-10-28-pr131-route-gate-recovery.md)。新修复尚未交付，不冒称新CI通过。
+**本地验证**：复用a198 canonical产物、实际Chromium/Node和全新自有临时PG，11组119/119（含关账18/18），0失败/取消/跳过。原失败及补强时过早读取version的失败保留。相关eslint/diff通过；两份测试独立静态复审无P1/P2，临时junction已移除。最终文档、守卫、交付与新CI分别收口，未发生前不预报通过。
 
-**保留的工程与运行证明**：产品仍a198；811项目/18Chromium与SQL分源结果见[最终工程](tasks/completed/2026-10-28-closing-support-final-validation.md)。镜像90e非空恢复9/9、65139持久空候选五服务/四卷及111业务表0见[持久证明](tasks/completed/2026-10-28-closing-support-persistent-runtime.md)。c9完整182发布及2fd Hosted基线通过，后继guard/manifest/UI未改，不重复整套。同SO20完成/7出运/100月计划及来源量120与冻结保护见[跨域闭环](tasks/completed/2026-10-28-ainuoke-same-order-closure.md)，仅合成，不替代真实来源。
+**既有有效证明**：a198项目811/18浏览器、SQL分源与镜像90e恢复9/9、65139五服务四卷/111业务表0见原工程证明；40b1新Hosted发布基线成功，c9完整182保留各自source和日期。守卫/manifest/UI构建输入未改，不重复同一成功大套件。合成同SO闭环8项已由本地及Hosted证明，不替代真实来源运行。
 
-**下一步与边界**：收口本片commit/精确守卫、Git/ref异常和修复送达，必要CI/复审后申请PR131精确合并；未获自动合并授权。随后冻结最终main Linux镜像与独立持久目标，按[宁波闭环清单](tasks/active/ningbo-server-closed-loop-readiness-2026-10-28.md)完成受控首绑、有限续刷与人工核对。staging当前200仍是旧7cd；未部署新版本，尚不具备晋升条件。用户要求就绪时提醒，不自动部署。
+**下一步**：本片集中checkpoint、精确main守卫、一次安全交付，必要新CI/复审后申请PR131精确合并；未获该PR合并授权。随后最终main镜像/独立持久目标、D105真实首绑/有限续刷及人工核对。staging仍旧7cd，尚不具备晋升条件；本机trial的loopback origin限制须受控公网配置承接，不能直接取消。用户要求就绪提醒，不自动部署。
 
-物料scheduler只刷新已绑定四流，合同主信息/颜色、6086941和6086979独立受控；旧真实次数已耗尽，D105/D147保持。Linux源码operator须同SHA干净checkout及锁定依赖，应用镜像不能替代。663离线源码包仅NOT_DEPLOYABLE本机备份，未传宁波。50426受控工具尚未实际切换；保护3001/旧体验、所有工作树、账号、库/卷/对象/备份及共享依赖，不清理或修改真实数据。
+真实Source请求/凭据读取/业务库操作/绑定/激活/调度均0；旧次数已耗尽，D147具体范围保持。物料四流、主信息/颜色、6086941及6086979独立受控，Linux源码operator至目标DB待核对。保护3001/50426/65139、全部旧工作树、账号、库/卷/对象/备份与共享依赖，不清理资产。

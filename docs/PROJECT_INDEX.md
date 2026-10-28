@@ -1,8 +1,9 @@
 # 当前任务入口
 
-2026-10-28；main **6479a713e2b80228f008049519ebbd50d10601a8**；feat/closing-support-interfaces。先读[当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[业务规则](BUSINESS_RULES.md)及DECISION_LOG D145–D177。[本片原三摘要全文/hash](tasks/completed/2026-10-28-pr131-route-gate-recovery/input-state.json)保留全部旧日期/SHA/结果/限制。
+2026-10-29；main **6479a713e2b80228f008049519ebbd50d10601a8**；feat/closing-support-interfaces。先读[当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[业务规则](BUSINESS_RULES.md)及DECISION_LOG D145–D177。[本片原三摘要全文/hash](tasks/completed/2026-10-29-pr131-browser-route-recovery/input-state.json)保留全部旧日期/SHA/结果/限制。
 
-- [PR131实际交付与路由验收](tasks/completed/2026-10-28-pr131-route-gate-recovery.md)：远端2fd、team/release成功；source旧关账路由断言失败，最小本地修复与分源验收；Git exit1 STOP仍独立保留。
+- [PR131正常交付与浏览器路由验收](tasks/completed/2026-10-29-pr131-browser-route-recovery.md)：40b1正常送达；team/release成功，source过期P6断言失败，后续本地修复与实际页面验收按实记录。
+- [此前交付与单元路由验收](tasks/completed/2026-10-28-pr131-route-gate-recovery.md)：历史2fd送达、Git exit1及单元修复，保留原结果，不倒推旧异常根因。
 - [前两处CI兼容修复](tasks/completed/2026-10-28-pr131-ci-source-readiness.md)、[同SO闭环回归](tasks/completed/2026-10-28-ainuoke-same-order-closure.md)：历史证据，不代替真实Source续刷。
 - [宁波体验与艾诺科闭环清单](tasks/active/ningbo-server-closed-loop-readiness-2026-10-28.md)：旧公网7cd，新main镜像/目标、真实四流和独立财务/成衣、操作者与恢复仍须收口。
 - [完整Gate0](tasks/active/server-convergence-gate0-2026-10-20.md)：五项目标/Gate0–8/R，工程、合并、部署、来源和用户接受分开。

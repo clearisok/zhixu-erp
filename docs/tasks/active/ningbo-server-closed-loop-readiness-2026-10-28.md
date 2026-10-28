@@ -14,6 +14,8 @@
 
 ## 唯一链路与实际缺口
 
+2026-10-29纯配置核验补充：`ops/quote-trial/trial.mjs`将同一`TRIAL_HTTPS_ORIGIN`用于loopback健康检查及应用allowed origin，且明确要求localhost/127.0.0.1/::1与端口一致。合成值`https://localhost:3003`通过、`https://staging.weaveops.top`以`local_trial_origin_mismatch`拒绝；当前本机trial不能原样冒充公网部署配置。后续须独立评审公网入口/本机探针的受控配置，保留现有本机限制与CSRF/session同源校验，不直接移除守卫。附件由授权应用流式返回，现compose仅网关暴露loopback，不需要公开MinIO端口；Linux源码operator到新独立DB的连接仍待实际验证。此项无真实凭据/文件读取、网络或服务器写入，不表示已部署。
+
 | 业务 | 已有唯一实现/证据 | 发布前要完成的核对 |
 | --- | --- | --- |
 | 合同→SO→颜色尺码 | `server/ainuoke-source/{binding,additions}.ts`、正式source link/mapper；稳定颜色身份 | 精确新目标上首绑/新增的预览、确认、唯一SO；只接受合同身份，不用款号匹配 |
