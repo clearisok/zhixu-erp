@@ -5548,7 +5548,8 @@
         "features/closing-center/components/closing-authority-page.tsx",
         "features/closing-center/components/server-closing-adjustment-page.tsx",
         "features/closing-center/components/server-closing-move-dialog.tsx",
-        "features/closing-center/components/server-closing-source-dialog.tsx"
+        "features/closing-center/components/server-closing-source-dialog.tsx",
+        "features/closing-center/components/server-closing-executor-dialog.tsx"
       ],
       "acceptance": "implementation-only",
       "acceptanceScope": "Specific D169 UI contract approved; formal Server synthetic browser and live demonstration only. No user implementation acceptance or deployment. Explicit snapshot flag and fresh permissions remain required.",

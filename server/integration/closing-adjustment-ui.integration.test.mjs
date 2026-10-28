@@ -114,6 +114,25 @@ test('approved closing UI uses real built Server, owned synthetic PostgreSQL and
       await x.pool.query("UPDATE ainuoke_sales_order_color_mirrors SET quantity=CASE color_name WHEN 'Blue' THEN 70 ELSE 50 END WHERE sales_order_id=$1", [seeded.first.id]);
       await field('select[aria-label="关账显示范围"]', 'all', 'HTMLSelectElement'); await has('制作完成');
     });
+    await phase('executor matching assigns only the selected unassigned quantity and keeps its exact remainder', async () => {
+      const before = (await x.request('/orders/' + seeded.first.id + '/month-plan')).body.plan;
+      const pending = before.lines.find(line => line.assignmentId === null && line.month === null && line.quantity === '20'); assert.ok(pending);
+      const facts = (await x.pool.query('SELECT * FROM production_schedule_executions ORDER BY assignment_id')).rows;
+      const menu = await evaluate("document.querySelector('.sc-order-table tbody tr .qc-floating-menu-trigger').getAttribute('aria-label')");
+      await click(menu); await click('匹配执行方'); await has('未分配片段'); await field('select[aria-label=待匹配月份片段]', pending.id, 'HTMLSelectElement');
+      await until(() => evaluate("document.querySelectorAll('table[aria-label=执行方匹配候选] tbody tr').length===2"), 'same order same color candidates');
+      await field('input[aria-label="匹配数量 ' + seeded.internal + '"]', '5'); await field('input[aria-label="匹配数量 ' + seeded.outsourced + '"]', '10');
+      await has('余量 5 保持未分配'); await field('input[aria-label=执行方匹配原因]', '明确内外发归属并保留余量'); await click('预览匹配'); await has('匹配后完整月份分配');
+      await has('归属量超过排单 / 完成参考量'); assert.equal(await evaluate("/[¥$]|CNY|USD/u.test(document.querySelector('[role=dialog]').innerText)"), false); await shot('executor-unassigned-preview');
+      const dropped = await evaluate('window.droppedClosingMonthAcks'); await evaluate('window.dropNextClosingMonthAck=true');
+      const count = posts(); await click('确认匹配'); await has('原请求已核实'); assert.equal(posts(), count + 1); assert.equal(await evaluate('window.droppedClosingMonthAcks'), dropped + 1);
+      const after = (await x.request('/orders/' + seeded.first.id + '/month-plan')).body.plan;
+      for (const line of before.lines.filter(line => line.id !== pending.id)) assert.deepEqual(after.lines.find(value => value.id === line.id), line);
+      assert.deepEqual(after.lines.find(line => line.id === pending.id), { ...pending, quantity: '5' });
+      const added = after.lines.filter(line => !before.lines.some(old => old.id === line.id));
+      assert.deepEqual(added.map(line => [line.assignmentId, line.quantity]).sort(), [[seeded.internal, '5'], [seeded.outsourced, '10']].sort()); assert(added.every(line => line.colorId === pending.colorId && line.month === pending.month));
+      assert.deepEqual((await x.pool.query('SELECT * FROM production_schedule_executions ORDER BY assignment_id')).rows, facts); await click('完成', '[role=dialog] button');
+    });
     await phase('locked month has no ordinary close/edit and an explicit new period has a blank tax', async () => {
       await click('管理 2027-12'); await has('重开月份'); assert.equal(await evaluate("document.querySelector('select[aria-label=月份操作]').options.length"), 1); await click('关闭', '[role=dialog] button');
       await click('管理 2027-06'); await has('期间税率'); assert.equal(await evaluate("document.querySelector('input[aria-label=期间税率]').value"), ''); await click('关闭', '[role=dialog] button');
