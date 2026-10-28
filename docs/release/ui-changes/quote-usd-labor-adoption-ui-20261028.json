@@ -1,0 +1,16 @@
+{
+  "baselineSha": "6479a713e2b80228f008049519ebbd50d10601a8",
+  "level": "V3",
+  "visibleDifference": "Approved Quote associated-orders modal adds independent USD work adoption and history. Exact original PV/color mapping, explicit product acknowledgement and read-only preview, processing-only work, single active original price command and fresh session ownership. No FX, free price input or order-center price write.",
+  "paths": [
+    "features/quote-center/components/quote-order-labor-dialog.tsx",
+    "features/quote-center/components/quote-order-pricing.tsx",
+    "features/quote-center/components/quote-editor.tsx",
+    "features/quote-center/components/restricted-quote-content.tsx",
+    "features/quote-center/server/labor-adoption-controller.ts",
+    "features/quote-center/server/price-operation-locks.ts"
+  ],
+  "pages": ["quote-detail"],
+  "approval": {"status": "user-approved", "reference": "docs/tasks/completed/2026-10-28-closing-support-and-pr130-approval.md"},
+  "evidence": ["docs/features/ORDER_USD_LABOR_ADOPTION.md"]
+}

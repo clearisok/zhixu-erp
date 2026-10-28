@@ -27,7 +27,7 @@ export function createLaborAdoptionController(options: {
   access: () => { read: boolean; write: boolean }; storage: () => PendingStorage;
   client?: Pick<ReturnType<typeof createLaborAdoptionClient>, 'preview' | 'submit' | 'receipt'>;
   requestId?: () => string; timeoutMs?: number;
-  onChange?: (state: LaborControlState) => void; onUnauthorized?: () => void;
+  onChange?: (state: LaborControlState) => void; onUnauthorized?: () => void; onForbidden?: () => void;
   onApplied?: (orderId: string, commercialVersionId: string) => void;
 }) {
   const { userId, quoteId, owner } = options, scope = { userId }, client = options.client ?? createLaborAdoptionClient();
@@ -82,6 +82,10 @@ export function createLaborAdoptionController(options: {
         patch({ retryAllowed: false, error: error instanceof LaborAdoptionClientError ? error.message : '采用结果尚未核实，请保留原请求并重新核对。' });
         if (current() && error instanceof LaborAdoptionClientError && error.status === 401) {
           try { options.onUnauthorized?.(); } catch { /* A subscriber cannot discard the pending command. */ }
+        }
+        if (current() && error instanceof LaborAdoptionClientError && error.status === 403) {
+          patch({ preview: null });
+          try { options.onForbidden?.(); } catch { /* Keep the original pending command. */ }
         }
       }
     } finally {

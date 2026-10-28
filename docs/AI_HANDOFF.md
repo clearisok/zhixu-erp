@@ -10,6 +10,8 @@
 
 恢复切片输入e9a2888981542fe07cf4a55a2b273a015c1ccfe8：0052+原month命令新增显式release_executors，所有漂移且无历史产出归属返回未分配，原ID/量/月/Source保持；来源同时变化可先解除归属再复核。新模型1、owned PG/HTTP/SQL6通过，原匹配/客户端相关检查通过，type/lint通过；首轮SQL测试断言被既有FK抢先拒绝已保留并修正。正式最新UI浏览器/最终发布未完成，继续USD采用入口。无远端写/CI/旧数据操作。
 
+USD UI切片输入76a61516（恢复06980独立提交、两feature后继/真实H锚已冻结）：新增报价关联订单单Modal USD采用/历史，独立工价权限、原PV/选色、未预选产品确认/原因、只读预览及原控制器回执；加工入口仅工价。工价/售价原件互斥，损坏记录不删除；403刷新权限。初步type/lint/34项通过，最新403负控和实际新构建/浏览器待做。只读复审复用原release_safety_review；没有新agent/付费CI。
+
 后续实现只复用原月份与订单商业服务：先明确恢复所有无产出漂移归属为未分配、保护旧片段量/月/旧版本/生产；再接报价USD单笔采用和历史，独立labor权限/session owner/原请求，不新增换汇或价格账本。期间confirmed/locked先处理；有真实产出拒绝恢复。最后一次必要完整发布/CI和独立复审。
 
 依赖仍为本地node_modules junction→ainuoke-continuous-material-display owner，锁文件仅CRLF差规范内容一致，无安装。canonical archive用子进程core.autocrlf=false保证逐blob，不能改共享Git。Docker仅核实desktop-linux本机npipe后子进程pin；只新owned合成PG/Chrome，绝不操作旧库/卷。原Git/ref STOP未知保持，不擅自remote/auth/proxy/TLS写。62411用户输入/旧环境及62428候选保持，任何真实Source、正式部署切换、其他PR合并和退役仍未授权。

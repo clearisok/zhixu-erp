@@ -247,3 +247,10 @@ test('callbacks after state publication cannot affect a replacement owner or dis
     assert.equal(Boolean(readLaborPending(r.storage, { userId: actor })), result === 'unauthorized');
   }
 });
+
+test('a fresh forbidden response revokes the old preview and notifies the UI without deleting the pending original',async()=>{
+ const r=rig();let forbidden=0;const c=r.make({onForbidden(){forbidden++;}});await ready(c);
+ r.handlers.preview=async()=>response({error:{code:'permission_denied'}},403);await c.preview(intent());assert.equal(forbidden,1);assert.equal(c.snapshot().preview,null);
+ r.handlers.preview=null;await ready(c);r.handlers.post=async()=>response({error:{code:'permission_denied'}},403);r.handlers.receipt=async()=>response({error:{code:'permission_denied'}},403);
+ await c.apply();assert.equal(forbidden,2);assert.equal(c.snapshot().preview,null);assert.ok(readLaborPending(r.storage,{userId:actor}));assert.equal(r.posts.length,1);
+});
