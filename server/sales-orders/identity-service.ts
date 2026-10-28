@@ -2,6 +2,7 @@ import {supportsPreparationAdoption,readPreparationQuoteIntent} from './preparat
 import {parseCommercialProvenance} from './commercial-source.js';
 import {lockEffectiveAttribution,requireEffectiveOrderForWrite,supportsEffectiveAttribution} from './effective-attribution.js';
 import {effectiveOrderJoins,sourceOwnerSql} from './effective-order-sql.js';
+import {verifiedOrderBusinessSql} from './business-verification-sql.js';
 import { createHash } from 'node:crypto';
 import type { Pool, PoolClient } from 'pg';
 import type { TrustedIdentity } from '../auth/session.js';
@@ -24,16 +25,9 @@ export async function requireVerifiedOrderBusiness(client:Queryable,id:string,lo
  const order=(await client.query(`SELECT id::text,creation_source,lifecycle_state FROM sales_orders WHERE id=$1::uuid ${lock?'FOR UPDATE':''}`,[id])).rows[0];
  if(!order)fail(404,'sales_order_not_found');
  const attributed=await supportsEffectiveAttribution(client);
- const source=(await client.query(`SELECT m.source_id FROM sales_orders so ${effectiveOrderJoins(attributed)} JOIN ainuoke_sales_order_contract_mirrors m ON m.sales_order_id=${sourceOwnerSql(attributed)} JOIN sales_order_source_links l ON l.sales_order_id=m.sales_order_id AND l.external_id=m.source_id AND l.sales_contract_no=m.sales_contract_no WHERE so.id=$1::uuid AND l.source_system='ainuoke' AND l.source_entity_type='sales_contract'`,[id])).rows;
- const effective=attributed?(await client.query('SELECT attribution_change_id FROM sales_order_effective_identities WHERE original_order_id=$1 AND effective_order_id=$1',[id])).rows[0]:null;
- if((order.creation_source==='ainuoke'||effective?.attribution_change_id)&&source.length===1)return {...order,businessType:'ainuoke_contract'};
- if(order.creation_source==='quote'){
-  const profile=(await client.query("SELECT business_type FROM sales_order_identity_profiles WHERE sales_order_id=$1",[id])).rows[0];
-  if(profile?.business_type==='processing'){
-   const trusted=(await client.query(`SELECT b.id FROM processing_order_batch_consumptions c JOIN processing_order_batches b ON b.id=c.batch_id JOIN sales_orders o ON o.id=c.sales_order_id WHERE o.id=$1 AND b.state='consumed' AND o.source_quote_id=b.quote_id AND o.source_revision_id=b.revision_id AND o.source_price_version_id=b.price_version_id`,[id])).rowCount;
-   if(trusted===1)return {...order,businessType:'processing'};
-  }
- }
+ const processing=(await client.query("SELECT to_regclass('public.processing_order_batch_consumptions') IS NOT NULL AND to_regclass('public.processing_order_batches') IS NOT NULL AND to_regclass('public.sales_order_identity_profiles') IS NOT NULL AS ready")).rows[0]?.ready===true;
+ const business=(await client.query(`SELECT ${verifiedOrderBusinessSql(attributed,processing)} AS business_type FROM sales_orders so ${effectiveOrderJoins(attributed)} WHERE so.id=$1::uuid`,[id])).rows[0];
+ if(business?.business_type==='ainuoke_contract'||business?.business_type==='processing')return {...order,businessType:business.business_type};
  fail(409,'trusted_contract_required');
 }
 export type OrderIdentity={salesOrderId:string;businessType:'ainuoke_contract'|'processing'|'unclassified';version:number;ownerId:string|null;ownerName:string|null;lineage:'pending'|'first'|'reorder';referenceOrderId:string|null;specificationChanges:string;preparationId:string|null};

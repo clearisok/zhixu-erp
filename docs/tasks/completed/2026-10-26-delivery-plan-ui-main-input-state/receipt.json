@@ -1,0 +1,24 @@
+{
+  "at": "2026-10-26T07:03:39.290Z",
+  "source": "5be204330984cd6ee509eda94155dbad0d722810",
+  "originalUiImpactSource": "0a086a912b4077c3dfc08438235e27ea448816a1",
+  "dirty": "",
+  "files": {
+    "PROJECT_INDEX.md": {
+      "gitBlob": "32835c6601bc7b2f634a8b2b9ddb41d4f2b8ef2f",
+      "sha256": "de9a8d2dc8bfd3a38139209c6bdec7be2e2450fafa3a7c71f16c151b0f6007f7"
+    },
+    "CURRENT_STATE.md": {
+      "gitBlob": "b6b8d3d297fbccd85a023fa8752f43a42968aac4",
+      "sha256": "cab54369e769d4cf3b5914dc111dfb8dad6e8310f25717931b8821e4ea036507"
+    },
+    "AI_HANDOFF.md": {
+      "gitBlob": "d06df4ab3da466881d8f61a45a91a3bbdee78ceb",
+      "sha256": "e639622e0202760fa278d6ee4f3d202595ac059c772271abe7fcc10431e273bb"
+    },
+    "original-server-delivery-plan-ui-current.json": {
+      "gitBlob": "36c9403797e3bf5a678662b5d80955d491ed4379",
+      "sha256": "5a2b35130354b8a9b2b871b6ad69ad4eccd4b8f2bc3b3625ac01f7cb2d3ded0a"
+    }
+  }
+}

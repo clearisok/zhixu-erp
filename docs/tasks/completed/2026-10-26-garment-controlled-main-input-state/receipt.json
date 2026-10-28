@@ -1,0 +1,24 @@
+{
+  "at": "2026-10-26T08:06:53.228Z",
+  "source": "2509b7cb0cda644ae4dbb2d87d442fadea706085",
+  "originalImpactSource": "7da954545bd9b720bfc28edbd313bc387dd5c195",
+  "inheritedDirty": "",
+  "files": {
+    "PROJECT_INDEX.md": {
+      "gitBlob": "c9de1e5c3340ba0190e921f121fcdb970ed8ad9b",
+      "sha256": "d635f7a05f672559a2a78931c138a708c1071b20eb025f6541fc4e8bbdce5f4a"
+    },
+    "CURRENT_STATE.md": {
+      "gitBlob": "6107354014ccaca0005cafe0b9c9180d57962dc8",
+      "sha256": "6537759fee95c9f95379a79e6fa6314d57c9ce16663b9b43aedfb39c1a2de4b8"
+    },
+    "AI_HANDOFF.md": {
+      "gitBlob": "fb3cbeb868c6e75db55260ffccc132d2846faa28",
+      "sha256": "4e3f034576c36e08d902d91dc3b00fecda0e16f27f636084d0eaf9870cca55d8"
+    },
+    "original-server-garment-target-current.json": {
+      "gitBlob": "fa917e04e622a1922ab72c5771a14324fdf1237a",
+      "sha256": "8933505ae82bf8d48a6699831870b323b8a28ca34df5dfe7f07845dab651cfbc"
+    }
+  }
+}

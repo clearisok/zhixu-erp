@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { applyEstimateCommand, parseEstimateCommand } from "../../../../server/quotes/estimate-workflows";
+import { applyEstimateCommand, parseEstimateCommand, type EstimateCommand } from "../../../../server/quotes/estimate-workflows";
 import { createSyntheticQuoteFixture } from "../../../../server/integration/quote-fixture";
 import { quoteSnapshotFromBrowser } from "../../../../server/quotes/model";
 import { createQuoteEditorPersistence } from "../quote-editor-persistence";
@@ -9,6 +9,22 @@ import { estimateCostIsStale } from "../../model/estimate-cost";
 
 let n = 0;
 const identity = { id: () => `synthetic-${++n}`, actor: "Trusted test", now: "2026-10-08T12:00:00.000Z" };
+for (const action of ["estimate.generate", "estimate.regenerate", "estimate.update", "estimate.restore", "estimate.ignore"] as const) {
+  test(`current processing default rejects ${action} before cloning or allocating identities`, () => {
+    const quote = quoteSnapshotFromBrowser(createSyntheticQuoteFixture(`processing-${action}`, "processing"));
+    quote.revisions[0].baseInfo.quoteType = "distribution";
+    quote.currentRevisionId = quote.revisions[0].revisionId;
+    if (action === "estimate.generate") quote.activeEstimateCost = null;
+    const command: EstimateCommand = action === "estimate.generate" || action === "estimate.regenerate"
+      ? { action, expectedVersion: 1, sourceRevisionId: quote.revisions[0].revisionId }
+      : action === "estimate.update" ? { action, expectedVersion: 1, estimate: structuredClone(quote.activeEstimateCost!) }
+        : { action, expectedVersion: 1, estimateId: action === "estimate.restore" ? quote.estimateCostHistory[0].id : quote.activeEstimateCost!.id };
+    const before = structuredClone(quote); let allocations = 0;
+    assert.throws(() => applyEstimateCommand(quote, command, { ...identity, id() { allocations++; return "unexpected"; } }),
+      (error: unknown) => Boolean(error && typeof error === "object" && "status" in error && error.status === 409 && "code" in error && error.code === "estimate_not_applicable"));
+    assert.equal(allocations, 0); assert.deepEqual(quote, before);
+  });
+}
 function fixture() {
   const quote = quoteSnapshotFromBrowser(createSyntheticQuoteFixture("estimate-unit"));
   quote.activeEstimateCost = null; quote.estimateCostHistory = []; quote.aggregateStatus = "draft";

@@ -1,0 +1,301 @@
+{
+  "at": "2026-10-24T13:31:24.472Z",
+  "branch": "codex/server-delivery-plan-ui-current",
+  "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+  "verifiedMain": {
+    "at": "2026-10-24T13:22:59.888Z",
+    "code": 0,
+    "timedOut": false,
+    "sha": "e01a11952b648024c0bd6bf4259de429374981e2"
+  },
+  "reusedRecentReadOnlyMain": true,
+  "head": "c70aa15b69640c48ba001e1bbbbbef119365303a",
+  "tree": "2435928101749d55d44c5d439bd00c984b372df2",
+  "cleanBeforePhase": true,
+  "previousGoalTurnClassification": "progress: closed garment read UI and0042 receipts with new commits/tests/evidence/guards/reviews",
+  "previousFinal": {
+    "at": "2026-10-24T13:24:44.933Z",
+    "branch": "codex/server-delivery-plan-requests-current",
+    "head": "c70aa15b69640c48ba001e1bbbbbef119365303a",
+    "tree": "2435928101749d55d44c5d439bd00c984b372df2",
+    "source": "62693a8fac3db6aa1d86b73cf812d53395aa0cec",
+    "sourceTree": "d789ec6ffcee02b9252726245abc9725167e7fc1",
+    "proof": "3e8691ce009f27e42474102d360f61b2372ec967",
+    "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+    "guard": {
+      "at": "2026-10-24T13:24:44.644Z",
+      "head": "c70aa15b69640c48ba001e1bbbbbef119365303a",
+      "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 104753,
+      "result": {
+        "status": "PASS",
+        "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
+        "checkedHead": "c70aa15b69640c48ba001e1bbbbbef119365303a",
+        "historySha": "e01a11952b648024c0bd6bf4259de429374981e2",
+        "pages": 11,
+        "capabilities": 60,
+        "changedUiFiles": 68,
+        "scope": "source/evidence guard only; no browser, runtime, database or user acceptance claim",
+        "errors": []
+      }
+    },
+    "tests": {
+      "relatedApiUnion": {
+        "tests": 185,
+        "pass": 185,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "mode": "two separate processes: archive167 + exact clean root18"
+      },
+      "archiveApi": {
+        "tests": 167,
+        "pass": 167,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "knownGitRootApi": {
+        "tests": 18,
+        "pass": 18,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "rootNonrelease": 811,
+      "newReleaseRuns": 0,
+      "newPythonRuns": 0,
+      "newViteRuns": 0,
+      "newBrowserRuns": 0
+    },
+    "releasePolicy": {
+      "state": "NOT_RUN_THIS_LOCAL_NO_PR_GATE",
+      "priorToolRegression": {
+        "head": "1ae89745c148e03272e7e8f17bc3b1475010650d",
+        "pass": 134,
+        "elapsedMs": 432059
+      },
+      "scope": "Guard/two test source and responsive product unchanged; dynamic manifest/docs changed, not all134 inputs unchanged and not currentGate134PASS. New exact metadata/main guard passed.",
+      "requiredBeforeFinalCumulativePR": [
+        "npm run test:release-baseline",
+        "npm run check:release-baseline -- --base-sha <then-verified-main>"
+      ],
+      "canClaimCurrentFull945": false
+    },
+    "reuseScope": {
+      "frontendAndPythonUnchanged": true,
+      "renderedSource": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "artifactFiles": 215,
+      "allCopiedHashesEqual": true,
+      "reusedOfflinePython": {
+        "source": "d1930a2da590098f70e6433892eab350a3262e0c",
+        "pass": 139
+      }
+    },
+    "platformBoundary": "Existing Linux-only Source CLI coverage remains unverified on Windows; current185 does not execute that CLI",
+    "upgradeBoundary": "0041 populated old-schema fixture has no nonempty0040 observations or0041 refresh receipt; do not extend nonempty protection claim to them",
+    "workingTreeClean": true,
+    "delivery": {
+      "state": "NOT_ATTEMPTED_NETWORK_DEGRADED",
+      "pushes": 0,
+      "priorTarget": "b6af0cd247c1e7ec4406e69526fa672544cce1d8",
+      "priorState": "TARGET_NOT_DELIVERED"
+    },
+    "hostedActionsTriggeredByThisPhase": 0,
+    "newPr": null,
+    "goal": "active",
+    "deployed": false,
+    "realSourceOrBusinessDatabaseAccess": false,
+    "independentReview": {
+      "at": "2026-10-24T13:29:35.164Z",
+      "reviewer": "/root/server_convergence_review",
+      "mode": "independent read-only; no own tests/network/writes",
+      "verdict": "no new P1/P2",
+      "verified": [
+        "exactc70/tree24359281/clean; metadata/source/proof same ancestry",
+        "three new Git blobs/hash/decision696 chain, old421evidence59cap/runtime21routes retained",
+        "167+18 two groups185,811 root and quality logs; exact clean Git fixture before/after",
+        "exacte01a guard PASS104753ms,11pages60cap68cumulativeUI/errors[]",
+        "newReleaseRuns0,1ae134 only scoped tool regression, not current945 or current134PASS; final cumulativePR bothcommands required"
+      ],
+      "limits": [
+        "No new UI/Vite/browser/Python run;215 rendered922 files and139offline Python only reuse",
+        "Upgrade fixture does not contain nonempty0040 observations/0041 refresh receipts",
+        "Existing LinuxCLI platform coverage not executed",
+        "No Hosted CI/real Source/activation/target upgrade/deployment/human acceptance"
+      ]
+    },
+    "next": [
+      "Approved DeliveryPlan maintenance client and UI, then coverage projection",
+      "Controlled collector0043; closing decisions pending"
+    ],
+    "protected": [
+      "3001",
+      "50426",
+      "59069",
+      "62426",
+      "Browser stores",
+      "backups",
+      "existing volumes"
+    ]
+  },
+  "preflight": {
+    "at": "2026-10-24T13:29:43.478Z",
+    "head": "c70aa15b69640c48ba001e1bbbbbef119365303a",
+    "base": "89993412de4cc3f8f3ef19488d20bac67f85c3d9",
+    "incoming": "2a19960a8f9810062f15b87e18214505aa74f8c5",
+    "paths": [
+      {
+        "path": ".github/workflows/ainuoke-server-source.yml",
+        "before": "dbc25c22d08413bca4c3744fbe3c900f7201eb80",
+        "after": "10429ed3e990b566923f6a4660d16d71d78655d6",
+        "current": "5c1eb942da53283fc4cbd28d2fd1e3172787c097",
+        "strategy": "three-way-required"
+      },
+      {
+        "path": "components/foundation/modal.tsx",
+        "before": "7e169dcac12ff1fe308a0699c45d6818459dc348",
+        "after": "125ea855d450e3a8a29adfb6af7021163645ba4d",
+        "current": "7e169dcac12ff1fe308a0699c45d6818459dc348",
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/order-center/components/server-delivery-plan-maintenance.css",
+        "before": null,
+        "after": "bdcc6e3c933fdfac07b4d593fbeef08d59884150",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/order-center/components/server-delivery-plan-maintenance.tsx",
+        "before": null,
+        "after": "766294cb6a53be81eb63def10936f01b7cf704bd",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/order-center/components/server-sales-order-detail-page.tsx",
+        "before": "833b02aba9dabadf59b0edb14f7b0ba583f78b76",
+        "after": "811802366cefa20220bedafd80c04ea26ae8ea1d",
+        "current": "833b02aba9dabadf59b0edb14f7b0ba583f78b76",
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/order-center/components/server-saved-order-sources.tsx",
+        "before": "6b6c99317b2c32a83466968c737b58ee06f2868c",
+        "after": "cb8e200b05f55ed6de4787b86a9693733fbf08f3",
+        "current": "6b6c99317b2c32a83466968c737b58ee06f2868c",
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/order-center/components/use-server-delivery-plan-maintenance.ts",
+        "before": null,
+        "after": "b637012f143ca6b50c013ff99d65aa14f1934467",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/order-center/server/__tests__/delivery-plan-client.test.ts",
+        "before": null,
+        "after": "4b4d71f5f877fcc8801756b90639087f81a4174b",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/order-center/server/__tests__/delivery-plan-draft.test.ts",
+        "before": null,
+        "after": "1140c2bf4171690e06652e896bb2181e944b8ed6",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/order-center/server/__tests__/delivery-plan-pending.test.ts",
+        "before": null,
+        "after": "89dfb0d92778c5e3209f3b0b92bec3dce35fb5ff",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/order-center/server/__tests__/delivery-plan-read-client.test.ts",
+        "before": "1cdb74b7372f1dfcd04dd0be715c5f83cd9cfd95",
+        "after": "187c442d979bd572b99be8008db07c2b2787d72e",
+        "current": "1cdb74b7372f1dfcd04dd0be715c5f83cd9cfd95",
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/order-center/server/delivery-plan-client.ts",
+        "before": null,
+        "after": "34a699449414c2557a5ba6740163bb2d4c261aa6",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/order-center/server/delivery-plan-draft.ts",
+        "before": null,
+        "after": "265a280917190b47c6abcd9f945b7fcf8b214989",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/order-center/server/delivery-plan-pending.ts",
+        "before": null,
+        "after": "61c3bf102ca54d36a4cbd61fcb0a6a60be04d264",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/order-center/server/sales-order-server-client.ts",
+        "before": "d68fb3fb8393c7cbc8ec46c3ce90420504adce29",
+        "after": "5429f75b0b1a3e6c766d2372995626b51139cbd5",
+        "current": "d68fb3fb8393c7cbc8ec46c3ce90420504adce29",
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/integration/delivery-plan-maintenance-ui.integration.test.mjs",
+        "before": null,
+        "after": "7175b975463009eaa8a29e1f44ce2fb8a5d669c4",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "tests/quote-v12.test.mjs",
+        "before": "a518632e49db0102ef530d6fe115d625d0de02ee",
+        "after": "20a9e5fcb4ddf73c641032650a864e6f0b6a4c18",
+        "current": "a518632e49db0102ef530d6fe115d625d0de02ee",
+        "strategy": "exact-input"
+      }
+    ],
+    "repositoryWrites": 0,
+    "pushes": 0,
+    "sourceReads": 0
+  },
+  "approval": {
+    "path": "docs/tasks/completed/2026-10-22-delivery-plan-maintenance-ui-approval.md",
+    "originalCommit": "89993412de4cc3f8f3ef19488d20bac67f85c3d9",
+    "originalGitBlob": "e271c6ac5e9f01b549f8f9b7ac83d64218629af0",
+    "importedOriginalBytes": true,
+    "prototype": "C:/Users/Administrator/.codex/visualizations/2026/10/12/01a12e06-f975-7311-a02c-903037c16f96/delivery-plan-review.html",
+    "prototypeSha256": "9ce8a0c744039874e514423a5b5fbada6d58f2d9af555b85f065806d682b64c1",
+    "userReply": "按草图实施（推荐）",
+    "call": "call_d4696fa532a64295ba294304d8404abf",
+    "scope": "Existing detail small action/Foundation edit-void-preview-save modal, source readonly/quantity warning, unknown original request readback; V2 already explicitly approved, not a new request/deployment/Source grant"
+  },
+  "protectedSummaryHashes": [
+    {
+      "path": "docs/tasks/completed/2026-10-24-delivery-plan-ui-input-state/CURRENT_STATE.md",
+      "sha256": "a712ec2915fd85b4ff1a3604bb86d32474a8bdb1895c140d7185ee4d64f3893a"
+    },
+    {
+      "path": "docs/tasks/completed/2026-10-24-delivery-plan-ui-input-state/AI_HANDOFF.md",
+      "sha256": "d1d1e247423b1f4e89fafdc87ea15640110e7e570de920477c11d43c54a4a42f"
+    },
+    {
+      "path": "docs/tasks/completed/2026-10-24-delivery-plan-ui-input-state/PROJECT_INDEX.md",
+      "sha256": "0e877ad619452efc2c7dd58e8161e65d50bcef7403f104b376744cbe2f0396c9"
+    }
+  ],
+  "network": "NETWORK_DEGRADED; no push/remote mutation/Actions"
+}

@@ -1,9 +1,13 @@
-# Current state: corrected navigation evidence candidate
+# 当前状态：PR130已交付，正在修复旧货款侧栏测试调用者
 
-2026-10-25 Asia/Shanghai; actual main 9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf. Branch codex/navigation-pr-main-9d65 preserves navigation input 7cf7238b93b309cc736b473eeedaba394e6a47b7 through genuine merge 85072a26ab40906fbffa37e3facf7326c33eac5c. PR125 approved merge/history retained; PR124 auto-marked merged after inclusion. No other merge/close is authorized.
+2026-10-26；main基准869ee84dd0b31de6161011e4aa560678b244a64d，branch codex/persistent-cumulative-43-main-869e。原最终f8ed7f33c911cc1ec52cf3b3d9432912ac5aa80f已一次NORMAL安全推送，独立API精确核SHA/tree/父，唯一草稿[PR130](https://github.com/clearisok/zhixu-erp/pull/130)，未合并；合并预览树与原已验树一致。历史网络STOP/根因未完全确定的限制保持，未改共享配置。
 
-0698f5eb2c1ac8644328cc2b826aefbc3c9d98ab named main guard PASS73799ms and named release134/134 PASS292141ms (0fail/cancel/skip,stable HEAD/manifest). Final6c documentation revision then failed the evidence-root anchor guard; no push followed. The original task root is restored exactly and observed results are bound to a distinct proof path; all prior240 valid objects/main230/input237 stay. Corrected final exact-HEAD guard and final review remain PENDING; do not call6c PASS or rerun successful134 without a new reason. See[engineering proof](tasks/completed/2026-10-25-navigation-main-9d65-engineering.md).
+首次CI baseline与team-access通过；source SQL/API、边界和构建通过，但货款侧栏浏览器旧“第一个按钮”选择器点中新增到货动作，连续超时后达20分钟上限取消，Python未运行。一次owned诊断已复现existing drawer超时；不是付款数据或权限故障。现在仅修测试调用者、依赖失败即停及编译源断言，不延长时限，不立即重跑CI；尚无修后PASS。
 
-64 total paths/33 non-document files, no SQL or later domain code. ca53/2bd original QA is reused only for unchanged scopes after210 retained build files and archive hash were checked;66 UI is phased,87 Quote is local,old90/44/2 retained. No new build/browser/install. The[original frozen integration input](tasks/active/navigation-pr-main-9d65-2026-10-25.md) records its earlier pending state; current outcome is here and in the separate proof.
+原6d镜像43迁移实际8/8、原c1的144与f8守卫/复审分别按原source保持；后续不重新build/重跑已通过8项，不把其结果归新test commit。新定向检查/实际浏览器、最终守卫和复审完成后才一次集中交付。旧环境未改，工作区原状态已逐字归档。
 
-REMOTE PENDING at this local checkpoint; exact finalSHA/guard/delivery/PR receipts remain in ignored outputs/navigation-pr-main-9d65-20261025. No new Hosted CI yet. Protect later d406 target branch,3001/50426/59069/62426,Browser,real accounts/business DB/volumes,backups and old evidence. No realSource/credentials,activation/scheduling,deployment or50426 cutover/retirement. Standing safe recovery never waives auth/divergence/certificate/unknown-dirty STOPs. Closing questions,real quotas,visible coverageV2 remain separate; full Goal active.
+完整G1–G8/R继续，非空新增域恢复、稳定跨次成衣事件/更正、关账三项、真实Source具体授权/激活、目标人工接受与切换、依赖审计后退役仍有后续。不把当前候选称main或正式上线。3001/50426及全部旧账号、库、对象、卷、备份与Browser数据保持。
+
+[当前阶段](tasks/active/payment-panel-ci-recovery-2026-10-26.md)。
+
+实际修后终态：test source 01d112b98e02d8aaacb4af14b4fa4522d6d3c207 / actualParent 49ff169b09e22f3891beab17ed2b6b605d168e31 / phaseBase f8ed7f33c911cc1ec52cf3b3d9432912ac5aa80f，renderSource 6d27d1e7fa1079f1830511068ff070791df310ab；canonical 2983 tracked files/0 overlay，复用dist 1211字节匹配文件。实际9/9、23202ms、0 fail/cancel/skip/timeout/overflow；语法/lint/YAML/8原phase体校验通过，旧50/179/27元数据changes=[]。完整原件hash见[证明](tasks/completed/2026-10-26-payment-panel-ci-validation.md)。下一步最终守卫/复审后仅更新原PR130，未交付新修，不称新CI通过。

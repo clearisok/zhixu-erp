@@ -1,9 +1,7 @@
-# Project recovery index
+# 当前任务入口
 
-2026-10-25 Asia/Shanghai; actual main 9d65c868e0cef966a6b8ccbdc5eb048eeac36ddf. Read AGENTS, [current state](CURRENT_STATE.md), [handoff](AI_HANDOFF.md) and[current navigation delivery](tasks/active/navigation-pr-main-9d65-2026-10-25.md) before continuing. This PR contains only the original navigation input plus its three Quote acceptance drivers.
+2026-10-26；当前核实main 869ee84dd0b31de6161011e4aa560678b244a64d；先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[PR130货款侧栏测试兼容](tasks/active/payment-panel-ci-recovery-2026-10-26.md)、[财务来源](features/AINUOKE_PAYMENT_REQUESTS.md)。
 
-The complete prior project/module/source/recovery index and historical evidence are preserved byte-for-byte in[input PROJECT_INDEX](tasks/completed/2026-10-25-navigation-pr-input-state/PROJECT_INDEX.md). Product facts still come from code, BUSINESS_RULES and Active decisions. Relevant current contracts: [UI Foundation](features/UI_FOUNDATION.md), [release guard](features/RELEASE_BASELINE_GUARD.md), [D-148](DECISION_LOG.md), [original navigation forward QA](tasks/active/server-navigation-main-forward-2026-10-24.md), [Quote acceptance](tasks/active/quote-server-current-acceptance-2026-10-24.md).
+原f8已一次精确送达唯一PR130；首轮CI baseline/team-access通过，source旧按钮选择器超时后取消。新修只在测试调用者和expected source，不更改产品/数据；实际修后检查尚待回执。原[43迁移运行证明](tasks/completed/2026-10-26-persistent-cumulative-43-validation.md)及各Gate证据保留并按原源码归属。完整G1–G8/R继续，不自动合并、部署、真实Source或切换/退役。
 
-Later cumulative target-control work remains on codex/server-garment-target-current at d4060b60a52db766c548b20a5974b43a224784a8; its protected state/receipts are outside this narrow PR. No reset, migration, dependency install, real-data operation or automatic merge/deployment follows from navigation delivery. Full Goal remains active.
-
-[Navigation engineering proof](tasks/completed/2026-10-25-navigation-main-9d65-engineering.md): original0698 named guard and134PASS; rejected6c evidence-root revision preserved, corrected as an independent proof with old240/main230/input237 intact. Final corrected guard/review and delivery/PR CI remain pending. The original integration task is frozen history; current state/handoff owns recovery status.
+实际修后终态：test source 01d112b98e02d8aaacb4af14b4fa4522d6d3c207 / actualParent 49ff169b09e22f3891beab17ed2b6b605d168e31 / phaseBase f8ed7f33c911cc1ec52cf3b3d9432912ac5aa80f，renderSource 6d27d1e7fa1079f1830511068ff070791df310ab；canonical 2983 tracked files/0 overlay，复用dist 1211字节匹配文件。实际9/9、23202ms、0 fail/cancel/skip/timeout/overflow；语法/lint/YAML/8原phase体校验通过，旧50/179/27元数据changes=[]。完整原件hash见[证明](tasks/completed/2026-10-26-payment-panel-ci-validation.md)。下一步最终守卫/复审后仅更新原PR130，未交付新修，不称新CI通过。

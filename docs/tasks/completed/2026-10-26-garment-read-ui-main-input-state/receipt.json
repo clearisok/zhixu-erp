@@ -1,0 +1,27 @@
+{
+  "at": "2026-10-26T05:59:48.611Z",
+  "source": "6eff5b4c2ddb83804f777723493988b24f566e41",
+  "branch": "codex/bound-refresh-main-869e",
+  "dirty": "",
+  "files": {
+    "PROJECT_INDEX.md": {
+      "gitBlob": "4b3c2efafccc77c76722beee3831d58359b238ef",
+      "sha256": "88c2b73bdceb6271c6d62864e01c592c26c34e9aab86e39a4b099a1c727a5468"
+    },
+    "CURRENT_STATE.md": {
+      "gitBlob": "2f69073d9a3ff0d27afe54c9f034de24857bdc19",
+      "sha256": "b2249417f25069f34cd72001b61ccb658bfb4055cea4a77472a83019792000bb"
+    },
+    "AI_HANDOFF.md": {
+      "gitBlob": "4931f7c4c5ec0f0c58661154b3914cb27b6e8669",
+      "sha256": "58785e7a3b0884942003cfb2075efa513cae2ebb306a296f3a1cf23097f66339"
+    }
+  },
+  "originalImpact": {
+    "source": "9a16c28b53becc4c16671f6beb4e9285e128e19f",
+    "path": "docs/release/ui-changes/server-garment-read-ui-current.json",
+    "gitBlob": "b59ccc1c4c33f4d02d9675c7449a7277c13e4c78",
+    "sha256": "6d2636c7688ddfb4957b6fbafb510c8b64a286868dd7efd9164e67a86ef907d2"
+  },
+  "scope": "Original recovery summaries and V1 impact preserved verbatim; historical validation failures and screenshots remain at original paths and SHAs."
+}

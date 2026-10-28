@@ -1,5 +1,14 @@
 # Ainuoke 6087105 Garment Color / Size Source
 
+## 2026-10-24 保存证据的 Server 只读投影（本地前向候选）
+
+现有接纳已保存的颜色metadata通过白名单验证后返回typed sizeEvidence，保留slot顺序、
+quantity pending/null/显式0及记录时matrix状态；缺失、结构无效、过大和来源不可信各有状态，
+不清空颜色、不推算尺码或过期时间。额外metadata/价格/hash/凭据不出DTO。
+合同颜色摘要时间仅为已保存Discovery/颜色批次最大时间，不称逐颜色读取时间。
+复用a187原Gate4A，当前验收见[前移任务](../tasks/active/order-source-readchain-current-2026-10-24.md)。
+未接4B页面、真实采集/绑定/激活或部署；下列历史阶段事实保留原日期。
+
 ## 2026-10-14 后续用户修订（D-117，当前工程规则）
 具名且总量/所有尺码数量均空的颜色投影为0，保留sourceQuantity:null与quantityPendingConfirmation:true；对应PENDING_COLOR_QUANTITY_ZERO不阻断颜色可用。原始null与明确0在hash、metadata和订单提醒中可区分。负数/非法值/总量空但尺码已有值不转换。下文D-116“具名数量null”的旧规则由此替代；无名纯空占位规则保持。六份旧异常报告离线重放已全部usable，保留九条待定0颜色并排除六条纯空占位；不是实时采集或真实激活。
 

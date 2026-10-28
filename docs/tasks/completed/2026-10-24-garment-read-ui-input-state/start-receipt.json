@@ -1,0 +1,279 @@
+{
+  "at": "2026-10-24T12:33:03.855Z",
+  "branch": "codex/server-garment-read-ui-current",
+  "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+  "verifiedMain": {
+    "at": "2026-10-24T12:27:40.779Z",
+    "code": 0,
+    "timedOut": false,
+    "sha": "e01a11952b648024c0bd6bf4259de429374981e2"
+  },
+  "reusedRecentReadOnlyMain": true,
+  "head": "b97d8d6c17a2ef78c0f460e43b4524dca03b3573",
+  "tree": "31ec114b2432d57cb5723da4ad8c0550c82f8d61",
+  "clean": true,
+  "previousGoalTurnClassification": "progress: closed arrival UI,0040 and0041 commits/tests/evidence/final review",
+  "previousFinal": {
+    "at": "2026-10-24T12:29:19.393Z",
+    "branch": "codex/server-bound-refresh-current",
+    "head": "b97d8d6c17a2ef78c0f460e43b4524dca03b3573",
+    "tree": "31ec114b2432d57cb5723da4ad8c0550c82f8d61",
+    "source": "df5bedaddd2f9e54f8c66f578e32f06859878104",
+    "sourceTree": "86af079cc8206096f4b43ff86b373e87c81a9e9c",
+    "proof": "da5b5cc695106dab71986d32354e99ccae134c23",
+    "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+    "guard": {
+      "at": "2026-10-24T12:29:19.085Z",
+      "head": "b97d8d6c17a2ef78c0f460e43b4524dca03b3573",
+      "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 98302,
+      "result": {
+        "status": "PASS",
+        "baselineSha": "e01a11952b648024c0bd6bf4259de429374981e2",
+        "checkedHead": "b97d8d6c17a2ef78c0f460e43b4524dca03b3573",
+        "historySha": "e01a11952b648024c0bd6bf4259de429374981e2",
+        "pages": 11,
+        "capabilities": 58,
+        "changedUiFiles": 64,
+        "scope": "source/evidence guard only; no browser, runtime, database or user acceptance claim",
+        "errors": []
+      }
+    },
+    "release": {
+      "at": "2026-10-24T12:27:15.953Z",
+      "head": "4cc15c9c7b07d12ca50fa5e61f7007436bfac64c",
+      "productAndNonreleaseSource": "df5bedaddd2f9e54f8c66f578e32f06859878104",
+      "base": "e01a11952b648024c0bd6bf4259de429374981e2",
+      "command": "npm run test:release-baseline",
+      "code": 0,
+      "timedOut": false,
+      "overflow": false,
+      "elapsedMs": 412214,
+      "counts": {
+        "tests": 134,
+        "pass": 134,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "sourcePathsUnchanged": true
+    },
+    "tests": {
+      "relatedApiUnion": {
+        "tests": 185,
+        "pass": 184,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 1
+      },
+      "relatedApiValidationMode": "phased union:18 unchanged API files passed in immutable archive, affected integration file rerun clean exact-source worktree; NOT a new185-test single run",
+      "initialApi": {
+        "tests": 185,
+        "pass": 182,
+        "fail": 2,
+        "cancelled": 0,
+        "skipped": 1
+      },
+      "affectedFileRerun": {
+        "tests": 16,
+        "pass": 16,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0
+      },
+      "rootNonrelease": 811,
+      "rootWithReleaseUnion": 945,
+      "newPython": 0,
+      "reusedPython": 139,
+      "newVite": 0,
+      "newBrowser": 0
+    },
+    "platformBoundary": "Existing Linux-only Source CLI integration skipped on Windows, unchanged; NOT passed",
+    "reuseScope": {
+      "frontendAndPythonUnchanged": true,
+      "renderedSource": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "artifactFiles": 215,
+      "allCopiedHashesEqual": true
+    },
+    "workingTreeClean": true,
+    "delivery": {
+      "state": "NOT_ATTEMPTED_NETWORK_DEGRADED",
+      "pushes": 0,
+      "priorTarget": "b6af0cd247c1e7ec4406e69526fa672544cce1d8",
+      "priorState": "TARGET_NOT_DELIVERED"
+    },
+    "hostedActionsTriggeredByThisPhase": 0,
+    "newPr": null,
+    "goal": "active",
+    "deployed": false,
+    "realSourceOrBusinessDatabaseAccess": false,
+    "independentReview": {
+      "at": "2026-10-24T12:30:59.151Z",
+      "reviewer": "/root/server_convergence_review",
+      "mode": "read-only; no own tests/network/writes",
+      "verdict": "no new P1/P2",
+      "verified": [
+        "exact b97/tree/branch clean; only four state documents after metadata4cc",
+        "source df5bed/tests/proof da5b/two feature docs/manifest39358 unchanged",
+        "release134/134, zero fail/cancel/skip, elapsed412214ms",
+        "exact-main e01a guard PASS98302ms;11pages/58capabilities/64cumulativeUI/errors[]",
+        "API phased union184/185; original182pass/2fail/1skip and affected16/16 rerun preserved"
+      ],
+      "limits": [
+        "one existing Linux CLI Windows skip remains unverified",
+        "139 Python/215 UI artifacts reused within unchanged scope, not rerun",
+        "upgrade fixture has no nonempty0040 garment observations",
+        "report write failure/replay is not COMMIT acknowledgement-loss simulation",
+        "no Hosted CI/real Source/target activation/deployment/human acceptance"
+      ]
+    },
+    "next": [
+      "Garment read UI with original snapshot expiry, bounded client and current browser proof",
+      "DeliveryPlan0042/coverage/controlled collector0043; closing decisions pending"
+    ],
+    "protected": [
+      "3001",
+      "50426",
+      "59069",
+      "62426",
+      "Browser stores",
+      "backups",
+      "existing volumes"
+    ]
+  },
+  "preflight": {
+    "at": "2026-10-24T12:22:52.775Z",
+    "head": "4cc15c9c7b07d12ca50fa5e61f7007436bfac64c",
+    "base": "441edd614c911475c55049342108a70a60f72523",
+    "incoming": "4066b00a2532cbd5572bcd4ef8a5fe7c8453edff",
+    "paths": [
+      {
+        "path": ".github/workflows/ainuoke-server-source.yml",
+        "before": "f38908cdd366f691c9e75c8f69557bc20e71c414",
+        "after": "fbea72abfe523f3b4b5bfd46d2d9da9cea082b8c",
+        "current": "3a4e448c01b4951ec375ccb1e59e1a7db69c028e",
+        "strategy": "three-way-required"
+      },
+      {
+        "path": "features/ainuoke-garment-shipments/__tests__/client.test.ts",
+        "before": null,
+        "after": "e87ec41fd07843641e2aceee9dc61c0e72357012",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/ainuoke-garment-shipments/__tests__/fixtures.ts",
+        "before": null,
+        "after": "ab2291cb06ca420f63d58fa83b8ad9c1d39df726",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/ainuoke-garment-shipments/client.ts",
+        "before": null,
+        "after": "b38850fd70eae37c154e376623c63bd529b6a155",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/ainuoke-garment-shipments/garment-shipment-section.tsx",
+        "before": null,
+        "after": "c99ad7377ddeb176bd693169170a5fd8044f52f1",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/ainuoke-garment-shipments/model.ts",
+        "before": null,
+        "after": "f758a7327a68da79efddfaeb72451be213819734",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/ainuoke-garment-shipments/use-garment-shipments.ts",
+        "before": null,
+        "after": "c5ca60972e3d2e322a9df9192e2a7b2e6be9a8b7",
+        "current": null,
+        "strategy": "exact-input"
+      },
+      {
+        "path": "features/order-center/components/server-sales-order-detail-page.tsx",
+        "before": "3d153e9cc6650e41a28a8f7428e7cc58efba421b",
+        "after": "833b02aba9dabadf59b0edb14f7b0ba583f78b76",
+        "current": "3d153e9cc6650e41a28a8f7428e7cc58efba421b",
+        "strategy": "exact-input"
+      },
+      {
+        "path": "package.json",
+        "before": "accb6a07a89a0913fb1110cff23f9d44577624b8",
+        "after": "7c92795ff54c8ecd692e7f7156b866b2db3bc36d",
+        "current": "720543b5de295293c41e87ac9953dfb7b497d59b",
+        "strategy": "three-way-required"
+      },
+      {
+        "path": "server/ainuoke-source/garment-shipment-observations.ts",
+        "before": "f15066d0d708e488f8b496e3cc8698887fd5d829",
+        "after": "8c14d799d8f4f51b20174d2d2efe59af1b29dbe4",
+        "current": "f15066d0d708e488f8b496e3cc8698887fd5d829",
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/ainuoke-source/garment-shipment-store.ts",
+        "before": "0e7c1c4fd0a9f0cfd44261c89137a583be69be75",
+        "after": "b1d685d04a1972ead6c0a3cd3226303e28db91f5",
+        "current": "0e7c1c4fd0a9f0cfd44261c89137a583be69be75",
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/app.ts",
+        "before": "e8ed8b0440cf163304193040b06cb30f48125d82",
+        "after": "f072acbb282a228a1165ebf2e15575d2d2b42f4d",
+        "current": "f072acbb282a228a1165ebf2e15575d2d2b42f4d",
+        "strategy": "already-present"
+      },
+      {
+        "path": "server/integration/ainuoke-continuous-fixture.ts",
+        "before": "b717d7ff6b57056338ca05e01cd2ed9f21d2ca5c",
+        "after": "446b0ca5870ad23965a78a8438298f3996bc1da4",
+        "current": "b717d7ff6b57056338ca05e01cd2ed9f21d2ca5c",
+        "strategy": "exact-input"
+      },
+      {
+        "path": "server/integration/garment-shipment-store.integration.test.ts",
+        "before": "59f34898c08b540bb40b8a6d2cf8f6ba9e309cc6",
+        "after": "f134e125b69481a3feb37d43a3202c61df5d949e",
+        "current": "b5de59bacf24a2c7a61878d8b471af4b4cdad96b",
+        "strategy": "three-way-required"
+      },
+      {
+        "path": "server/integration/garment-shipments-ui.integration.test.mjs",
+        "before": null,
+        "after": "2644dfc666f028917c8df068e6955c2eee250914",
+        "current": null,
+        "strategy": "exact-input"
+      }
+    ],
+    "repositoryWrites": 0,
+    "pushes": 0,
+    "sourceReads": 0,
+    "sourceActivation": false
+  },
+  "protectedSummaryHashes": [
+    {
+      "path": "docs/tasks/completed/2026-10-24-garment-read-ui-input-state/CURRENT_STATE.md",
+      "sha256": "00a35b09bf4549e9c7cafba897397ca0e960c3dbc2f9d68aa327bbf25f1c3179"
+    },
+    {
+      "path": "docs/tasks/completed/2026-10-24-garment-read-ui-input-state/AI_HANDOFF.md",
+      "sha256": "839127029aadeb977be33c715c58b2d6692998f0ec29f49180ef28032e13c32a"
+    },
+    {
+      "path": "docs/tasks/completed/2026-10-24-garment-read-ui-input-state/PROJECT_INDEX.md",
+      "sha256": "3aca176f2ab07be07cf1af86028bce43c94694bdf3f99fc0c53315a25822419a"
+    }
+  ],
+  "network": "NETWORK_DEGRADED; no push/remote mutation/Actions"
+}

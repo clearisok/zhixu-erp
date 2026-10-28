@@ -1,0 +1,3 @@
+# 到仓后台输入保护
+
+2026-10-26；原557ce07bb71195f1fef9cec9e10f3cf8b55b4add的单路径V0记录逐字保存，规范文本SHA256 9b58cdf7ed731b2a731cba5ea36911656a6086373732cd0a402e75e8f59b1521。当前只base改为869ee84dd0b31de6161011e4aa560678b244a64d并追加阶段链接；联合类型与视觉等价说明、source、平台SKIP和proof不改。

@@ -6,12 +6,12 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawnSync } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { validateBaseline, manifestPath, cssImports, isUiPath, readEvidenceBlob } from '../scripts/check-release-baseline.mjs';
+import { validateBaseline, manifestPath, cssImports, isUiPath, readEvidenceBlob, readEvidenceBlobs } from '../scripts/check-release-baseline.mjs';
 
 const repository = fileURLToPath(new URL('../', import.meta.url));
 const original = JSON.parse(readFileSync(path.join(repository, manifestPath), 'utf8'));
 const commits = new Set([original.baselineSha, ...original.evidence.flatMap(item => [item.recordedAtSha, item.renderedSourceSha]), ...original.runtimeSnapshots.map(item => item.sourceSha), ...original.capabilities.flatMap(item => Object.values(item.statusEvidence).map(claim => claim.sourceSha))].filter(Boolean));
-const frozenBlobs = new Map(original.evidence.map(item => [`${item.recordedAtSha}:${item.path}`, readEvidenceBlob(repository, item.recordedAtSha, item.path)]));
+const frozenBlobs = readEvidenceBlobs(repository, original.evidence);
 const hash = bytes => createHash('sha256').update(bytes).digest('hex');
 
 function fixture(t) {
@@ -33,8 +33,10 @@ function fixture(t) {
     'docs/CURRENT_STATE.md', 'docs/AI_HANDOFF.md', 'docs/PROJECT_INDEX.md',
     'features/quote-center/server/list-preferences.ts',
   ]);
+  for (const directory of new Set([...files].map(file => path.dirname(path.join(root, file))))) {
+    mkdirSync(directory, { recursive: true });
+  }
   for (const file of files) {
-    mkdirSync(path.dirname(path.join(root, file)), { recursive: true });
     copyFileSync(path.join(repository, file), path.join(root, file));
   }
   const write = (file, value) => {
@@ -47,6 +49,83 @@ function fixture(t) {
   return { root, manifest, write, edit, check, blobs, knownCommits, previousManifest };
 }
 const has = (errors, code) => assert.ok(errors.some(error => error.code === code), `Expected ${code}; got ${JSON.stringify(errors)}`);
+
+test('bulk frozen inputs retain exact Git bytes and reject unsafe or incomplete batches', async t => {
+  const parent = realpathSync(tmpdir()), root = mkdtempSync(path.join(parent, 'zhixu-evidence-batch-test-'));
+  t.after(() => {
+    const resolved = realpathSync(root);
+    assert.equal(path.dirname(resolved), parent);
+    assert.ok(path.basename(resolved).startsWith('zhixu-evidence-batch-test-'));
+    rmSync(resolved, { recursive: true, force: true });
+  });
+  const git = args => {
+    const result = spawnSync('git', ['-c', 'core.autocrlf=false', '-c', 'commit.gpgsign=false',
+      '-c', 'user.name=Evidence Batch Fixture', '-c', 'user.email=evidence@example.invalid', ...args], {
+      cwd: root, encoding: 'utf8', windowsHide: true, timeout: 15000, maxBuffer: 1024 * 1024,
+    });
+    assert.equal(result.status, 0, `owned_batch_git_failed:${args[0]}`);
+    return result.stdout.trim();
+  };
+  const bytes = Buffer.from([0, 10, 13, 255, 32, 65, 0, 10]);
+  mkdirSync(path.join(root, 'proofs'));
+  writeFileSync(path.join(root, 'proofs', '价格 with spaces.bin'), bytes);
+  writeFileSync(path.join(root, 'same.bin'), bytes);
+  writeFileSync(path.join(root, 'empty.bin'), Buffer.alloc(0));
+  git(['init', '-q']);
+  git(['add', '--', 'proofs/价格 with spaces.bin', 'same.bin', 'empty.bin']);
+  git(['commit', '-q', '-m', 'owned binary evidence']);
+  const sha = git(['rev-parse', 'HEAD']);
+  const record = file => ({ recordedAtSha: sha, path: file });
+  await t.test('binary, empty, Unicode paths and repeated objects preserve exact identities', () => {
+    const records = ['same.bin', 'empty.bin', 'proofs/价格 with spaces.bin', 'same.bin'].map(record);
+    const loaded = readEvidenceBlobs(root, records);
+    assert.equal(loaded.size, 3);
+    for (const item of records) assert.deepEqual(loaded.get(`${sha}:${item.path}`), readEvidenceBlob(root, sha, item.path));
+    assert.deepEqual(loaded.get(`${sha}:same.bin`), bytes);
+    assert.equal(loaded.get(`${sha}:empty.bin`).length, 0);
+  });
+  await t.test('one missing path rejects the whole batch', () => {
+    assert.throws(() => readEvidenceBlobs(root, [record('same.bin'), record('missing.bin')]), /evidence_blob_unavailable/);
+  });
+  await t.test('an unavailable commit rejects the whole batch', () => {
+    assert.throws(() => readEvidenceBlobs(root, [{ ...record('same.bin'), recordedAtSha: '0'.repeat(40) }]), /evidence_blob_unavailable/);
+  });
+  await t.test('a tree cannot impersonate a blob', () => {
+    assert.throws(() => readEvidenceBlobs(root, [record('proofs')]), /evidence_blob_unavailable/);
+  });
+  await t.test('path and line-protocol injection is rejected before starting Git', () => {
+    for (const file of ['../outside', '/absolute', 'C:/absolute', 'back\\slash', './relative', 'empty//part', 'proof\nHEAD:other', 'proof\rHEAD:other', 'proof\0other']) {
+      assert.throws(() => readEvidenceBlobs('not-an-owned-repository', [record(file)]), /invalid_evidence_blob_identity/);
+    }
+    assert.throws(() => readEvidenceBlobs('not-an-owned-repository', [{ ...record('same.bin'), recordedAtSha: sha.slice(0, 7) }]), /invalid_evidence_blob_identity/);
+  });
+  await t.test('request count and bytes are bounded before starting Git', () => {
+    assert.throws(() => readEvidenceBlobs('not-an-owned-repository', Array(4097).fill(record('same.bin'))), /evidence_batch_limit/);
+    assert.throws(() => readEvidenceBlobs('not-an-owned-repository', [record('a'.repeat(1024 * 1024))]), /evidence_batch_limit/);
+  });
+  await t.test('oversized objects are rejected before reading payloads', () => {
+    writeFileSync(path.join(root, 'large.bin'), Buffer.alloc(16 * 1024 * 1024 + 1, 90));
+    git(['add', '--', 'large.bin']); git(['commit', '-q', '-m', 'owned oversized evidence']);
+    const recordedAtSha = git(['rev-parse', 'HEAD']);
+    assert.throws(() => readEvidenceBlobs(root, [{ recordedAtSha, path: 'large.bin' }]), /evidence_batch_limit/);
+  });
+  await t.test('the unique payload budget accepts duplicate OIDs at 64MiB and rejects one extra object', () => {
+    const files = Array.from({ length: 4 }, (_, index) => `budget-${index}.bin`);
+    for (const [index, file] of files.entries()) writeFileSync(path.join(root, file), Buffer.alloc(16 * 1024 * 1024, index + 1));
+    copyFileSync(path.join(root, files[0]), path.join(root, 'budget-duplicate.bin'));
+    git(['add', '--', ...files, 'budget-duplicate.bin']); git(['commit', '-q', '-m', 'owned exact batch budget']);
+    const recordedAtSha = git(['rev-parse', 'HEAD']);
+    const records = [...files, 'budget-duplicate.bin'].map(file => ({ recordedAtSha, path: file }));
+    const loaded = readEvidenceBlobs(root, records);
+    assert.equal(loaded.size, 5);
+    for (const [index, file] of files.entries()) assert.equal(hash(loaded.get(`${recordedAtSha}:${file}`)), hash(Buffer.alloc(16 * 1024 * 1024, index + 1)));
+    assert.deepEqual(loaded.get(`${recordedAtSha}:budget-duplicate.bin`), loaded.get(`${recordedAtSha}:${files[0]}`));
+    assert.throws(() => readEvidenceBlobs(root, [...records, { recordedAtSha, path: 'same.bin' }]), /evidence_batch_limit/);
+  });
+  await t.test('an empty batch does not require repository access', () => {
+    assert.deepEqual(readEvidenceBlobs('not-an-owned-repository', []), new Map());
+  });
+});
 
 test('real manifest resolves scoped page/evidence/status contracts without a runtime connection', t => {
   assert.deepEqual(fixture(t).check(), []);

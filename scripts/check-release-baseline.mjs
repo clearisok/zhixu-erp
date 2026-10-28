@@ -477,6 +477,60 @@ export function readEvidenceBlob(root, sha, file) {
   return result.stdout;
 }
 
+/** Bulk fixture input only: actual Git objects, with no text conversion or filters. */
+export function readEvidenceBlobs(root, records) {
+  if (!Array.isArray(records) || records.length > 4096) throw new Error('evidence_batch_limit');
+  const requested = new Map();
+  for (const item of records) {
+    if (!fullSha(item?.recordedAtSha) || !safePath(item?.path) || /[\r\n\0]/.test(item.path)) {
+      throw new Error('invalid_evidence_blob_identity');
+    }
+    const key = `${item.recordedAtSha}:${item.path}`;
+    requested.set(key, null);
+  }
+  if (!requested.size) return requested;
+  const input = [...requested.keys()].join('\n') + '\n';
+  if (Buffer.byteLength(input) > 1024 * 1024) throw new Error('evidence_batch_limit');
+  const metadata = spawnSync('git', ['cat-file', '--batch-check'], {
+    cwd: root, input, windowsHide: true, timeout: 15000, maxBuffer: 1024 * 1024,
+  });
+  if (metadata.status !== 0 || !metadata.stdout?.toString('utf8').endsWith('\n')) throw new Error('evidence_blob_unavailable');
+  const rows = metadata.stdout.toString('utf8').slice(0, -1).split('\n');
+  if (rows.length !== requested.size) throw new Error('evidence_blob_unavailable');
+  const identities = new Map(), objects = new Map();
+  let total = 0;
+  for (const [index, key] of [...requested.keys()].entries()) {
+    const match = /^([0-9a-f]{40}) blob (0|[1-9][0-9]*)$/.exec(rows[index]);
+    if (!match) throw new Error('evidence_blob_unavailable');
+    const size = Number(match[2]);
+    if (!Number.isSafeInteger(size) || size > 16 * 1024 * 1024) throw new Error('evidence_batch_limit');
+    if (!objects.has(match[1])) {
+      total += size;
+      if (total > 64 * 1024 * 1024) throw new Error('evidence_batch_limit');
+      objects.set(match[1], { size });
+    } else if (objects.get(match[1]).size !== size) throw new Error('evidence_blob_unavailable');
+    identities.set(key, match[1]);
+  }
+  const contents = spawnSync('git', ['cat-file', '--batch'], {
+    cwd: root, input: [...objects.keys()].join('\n') + '\n', windowsHide: true,
+    timeout: 15000, maxBuffer: total + objects.size * 128 + 1,
+  });
+  if (contents.status !== 0 || !Buffer.isBuffer(contents.stdout)) throw new Error('evidence_blob_unavailable');
+  let offset = 0;
+  for (const [oid, item] of objects) {
+    const end = contents.stdout.indexOf(10, offset);
+    if (end < offset || contents.stdout.subarray(offset, end).toString('ascii') !== `${oid} blob ${item.size}`) {
+      throw new Error('evidence_blob_unavailable');
+    }
+    const start = end + 1, next = start + item.size;
+    if (next >= contents.stdout.length || contents.stdout[next] !== 10) throw new Error('evidence_blob_unavailable');
+    item.bytes = contents.stdout.subarray(start, next);
+    offset = next + 1;
+  }
+  if (offset !== contents.stdout.length) throw new Error('evidence_blob_unavailable');
+  return new Map([...identities].map(([key, oid]) => [key, objects.get(oid).bytes]));
+}
+
 export function runCheck(root, expectedBaseSha) {
   const manifest = JSON.parse(repositoryReader(root)(manifestPath).toString('utf8'));
   if (!fullSha(manifest.baselineSha)) throw new Error('invalid_baseline_sha');

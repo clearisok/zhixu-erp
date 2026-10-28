@@ -1,0 +1,92 @@
+{
+  "driverSourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+  "renderedSourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+  "before": true,
+  "build": {
+    "environment": "production",
+    "buildId": "garment-read-ui-922488b9-server-20261024",
+    "gitCommit": "922488b9474daeed8abc2204e21f6ffeefc39955",
+    "buildTime": "2026-10-24T12:46:24.781Z",
+    "masterSettingsAuthority": "server",
+    "identityMode": "session",
+    "quoteWriterMode": "writable",
+    "quoteAuthority": "server",
+    "orderRead": "snapshot"
+  },
+  "headerMetrics": [
+    {
+      "width": 1920,
+      "height": 1080,
+      "touch": false,
+      "dpr": 1,
+      "documentOverflow": false,
+      "sourceVisible": true,
+      "sourceInside": true
+    },
+    {
+      "width": 1536,
+      "height": 864,
+      "touch": false,
+      "dpr": 1.25,
+      "documentOverflow": false,
+      "sourceVisible": true,
+      "sourceInside": true
+    },
+    {
+      "width": 1440,
+      "height": 1000,
+      "touch": false,
+      "dpr": 1,
+      "documentOverflow": false,
+      "sourceVisible": true,
+      "sourceInside": true
+    },
+    {
+      "width": 1280,
+      "height": 900,
+      "touch": false,
+      "dpr": 1,
+      "documentOverflow": false,
+      "sourceVisible": true,
+      "sourceInside": true
+    },
+    {
+      "width": 900,
+      "height": 900,
+      "touch": false,
+      "dpr": 1,
+      "documentOverflow": false,
+      "sourceVisible": true,
+      "sourceInside": true
+    },
+    {
+      "width": 736,
+      "height": 900,
+      "touch": false,
+      "dpr": 1,
+      "documentOverflow": false,
+      "sourceVisible": true,
+      "sourceInside": true
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "touch": true,
+      "dpr": 1,
+      "documentOverflow": false,
+      "sourceVisible": true,
+      "sourceInside": true
+    },
+    {
+      "width": 320,
+      "height": 740,
+      "touch": true,
+      "dpr": 1,
+      "documentOverflow": false,
+      "sourceVisible": true,
+      "sourceInside": true
+    }
+  ],
+  "metrics": [],
+  "errors": []
+}

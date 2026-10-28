@@ -1,0 +1,24 @@
+{
+  "at": "2026-10-26T07:28:38.809Z",
+  "source": "c8d0eff5463ef3ad705f27cc950d191be58e9d51",
+  "originalImpactSource": "c83510c5337f63c7f62d422bbb9dfd764e6fc0e7",
+  "inheritedDirty": "",
+  "files": {
+    "PROJECT_INDEX.md": {
+      "gitBlob": "68d5d86a56d166c93bf4aada22b74a6deeee0cef",
+      "sha256": "fb27c01c567172b15c266943e57dff94bb5c307e190310bab8f4d0c05e974777"
+    },
+    "CURRENT_STATE.md": {
+      "gitBlob": "8672ea62007515fd4e6effdc7ea1e729cf9cf645",
+      "sha256": "8666f5e0f1e8546b06ca8c56a5801c7b7e548270c96ad54cd4b2c9d932584454"
+    },
+    "AI_HANDOFF.md": {
+      "gitBlob": "8964fc9f129f1630430db65b84bf90638c188adc",
+      "sha256": "631e1f2419c8367fe72204afa659dd0e003bbd288e045872d1fb9e3b948bb9e3"
+    },
+    "original-server-delivery-coverage-client-current.json": {
+      "gitBlob": "f2241bbc37136422fe161fa3b74c01dd39ad74ac",
+      "sha256": "503f8628a961901a2a3fe6f5b232297264e8edbe72868ab6e29dae108609588c"
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "at": "2026-10-26T06:26:30.644Z",
+  "source": "1c5fc49a62541573584ee5b0686366a4ca39e619",
+  "dirty": "",
+  "files": {
+    "PROJECT_INDEX.md": {
+      "gitBlob": "f12b0796e0b5a883c0350f091dce270707a40643",
+      "sha256": "db6367cfc7aa8a14329ef24a4ffa4b9d609d2f21d6b0179579c802329dd4c89f"
+    },
+    "CURRENT_STATE.md": {
+      "gitBlob": "3b0e0854426031bb8b662856550804a1b3712c68",
+      "sha256": "08f4601615851d739754aed1e47031575ae03cb58dc6419a8f180576bfca610d"
+    },
+    "AI_HANDOFF.md": {
+      "gitBlob": "0e9d881e08a1297574928749caef7f155d2eb64f",
+      "sha256": "7d9c51ae0a08a4832e0afb64b35216cffaf4b7ff85a04b03e9ee7f86dc0c8ca5"
+    }
+  }
+}

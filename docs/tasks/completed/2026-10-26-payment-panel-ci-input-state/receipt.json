@@ -1,0 +1,22 @@
+{
+  "at": "2026-10-26T11:16:01.038Z",
+  "branch": "codex/persistent-cumulative-43-main-869e",
+  "head": "f8ed7f33c911cc1ec52cf3b3d9432912ac5aa80f",
+  "tree": "d93752452c4d4ec504f09192c1b16beb5f31f51f",
+  "dirtyBaseline": "",
+  "archive": {
+    "CURRENT_STATE.md": "27c2f41dd39c8e4a971007732381fdd3b3c1818f45f297f73064d11f3f60839a",
+    "AI_HANDOFF.md": "782dd23cd8e6aef9b2ad03088f628a2b9abcd236922e8ff4c0904226962e5aed",
+    "PROJECT_INDEX.md": "4a8fa4224b02f95188ec18f5c6c65e03a8e51df17915204ffa6eb455ce68d241"
+  },
+  "protectedRef": "codex/persistent-cumulative-43-first-delivered",
+  "pr": 130,
+  "firstCI": {
+    "head": "f8ed7f33c911cc1ec52cf3b3d9432912ac5aa80f",
+    "baseline": "success",
+    "teamAccess": "success",
+    "source": "cancelled after 20 minute limit;payment UI existing drawer already timed out"
+  },
+  "sourceImage": "6d27d1e7fa1079f1830511068ff070791df310ab",
+  "scope": "No product,SQL or API change;new owned synthetic tests only"
+}

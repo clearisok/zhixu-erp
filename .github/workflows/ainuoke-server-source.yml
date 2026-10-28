@@ -8,6 +8,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   source:
     runs-on: ubuntu-latest
@@ -22,6 +26,8 @@ jobs:
         uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: '24'
+          cache: npm
+          cache-dependency-path: package-lock.json
       - name: Locked dependencies
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Compiled server and migration/session source tests
@@ -35,6 +41,21 @@ jobs:
           npm run test:order-sale-adjustments
           npm run test:processing-batches
           npm run test:processing-quote-push
+          npm run test:production-resources
+          npm run test:logistics-resources
+          npm run test:order-tracking
+          npm run test:material-arrivals
+          npm run test:garment-shipment-observations
+          npm run test:garment-collection-control
+          npm run test:garment-target-control
+          npm run test:garment-operator
+          npm run test:bound-order-refresh
+          npx --no-install tsx --test --test-concurrency=1 server/sales-orders/delivery-plan-request.test.ts server/integration/delivery-plan-requests.integration.test.ts
+          npx --no-install tsx --test features/order-center/server/__tests__/delivery-plan-client.test.ts features/order-center/server/__tests__/delivery-plan-draft.test.ts features/order-center/server/__tests__/delivery-plan-pending.test.ts
+          npm run test:production-planning
+          npm run test:production-execution
+          npm run test:delivery-coverage
+          npx --no-install tsx --test features/production-scheduling/server/__tests__/delivery-coverage-client.test.ts
           npm run test:order-normalization
           npm run test:order-effective-attribution
           npm run test:order-normalization-execution
@@ -77,9 +98,15 @@ jobs:
           ZHIXU_GIT_COMMIT: ${{ github.sha }}
         run: npm run build
       - name: Existing P6 pages, six roles and persisted refresh in private Chromium
+        env:
+          GARMENT_SHIPMENTS_EXPECTED_SOURCE: ${{ github.sha }}
+          DELIVERY_PLAN_EXPECTED_SOURCE: ${{ github.sha }}
+          PAYMENT_PANEL_EXPECTED_SOURCE: ${{ github.sha }}
         run: |
           node --test tests/server-navigation-history.test.mjs
           npx --no-install tsx --test server/integration/server-navigation-continuity.integration.test.mjs
+          npm run test:production-resources-ui
+          npm run test:production-planning-ui
           npm run test:ainuoke-continuous-ui
           npm run test:processing-batches-ui
           npm run test:processing-quote-push-ui
@@ -87,6 +114,8 @@ jobs:
           npm run test:order-sale-adjustments-ui
           npm run test:material-history-ui
           npx --no-install tsx --test server/integration/material-display-ui.integration.test.mjs
+          npm run test:garment-shipments-ui
+          npx --no-install tsx --test server/integration/delivery-plan-maintenance-ui.integration.test.mjs
           npm run test:ainuoke-payment-panel-ui
       - name: Python fixed catalog and transport boundaries
         working-directory: tools/ainuoke-bridge

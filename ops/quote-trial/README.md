@@ -69,6 +69,14 @@ on Windows only with explicit `ZHIXU_LOCAL_TRIAL_IMAGE` and full
 `ZHIXU_LOCAL_TRIAL_COMMIT`. Its unique synthetic projects are distinct from the
 final empty target. Validation results belong to the Gate 1 evidence record;
 the historical results below retain their original source and date.
+The harness permits cleanup only after this run receives successful
+`prepare-local` confirmation. A rejected or partially prepared project is retained
+without issuing stop/down commands; a random name alone does not prove ownership.
+Before first preparation it rejects existing project networks by exact name or
+Compose project label, and it excludes the protected entry/database ports recorded
+in Gate 0 even when those endpoints are not currently listening.
+Successful cleanup removes only the two newly owned synthetic projects, never
+an existing target, historical test project, backup or volume.
 
 ## Historical Quote trial candidate (2026-10-09)
 

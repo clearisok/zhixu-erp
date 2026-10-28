@@ -510,6 +510,9 @@ html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
 .qc-infrastructure-explanation > div { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:11px; }
 .qc-infrastructure-explanation p { margin:0;padding:10px;color:#596861;border-radius:7px;background:#fff;font-size:10px;line-height:1.5; }
 .qc-infrastructure-drawer { width:min(760px,calc(100vw - 28px)); }
+/* Server logistics needs the existing wide infrastructure form, not the base 480px drawer. */
+.qc-drawer.qc-server-logistics-drawer { width:min(760px,calc(100vw - 28px)); }
+@media (max-width:699px) { .qc-drawer.qc-server-logistics-drawer { width:100%; } }
 .qc-infrastructure-form { display:grid;gap:15px; }
 .qc-infrastructure-form-grid,.qc-infrastructure-steps { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px; }
 .qc-infrastructure-reference-note { margin:0;padding:10px;color:#6b7771;border-left:3px solid #d5e2dc;background:#f6f8f6;font-size:10px; }

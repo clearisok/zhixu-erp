@@ -1,0 +1,47 @@
+{
+  "at": "2026-10-26T10:11:48.614Z",
+  "files": [
+    {
+      "source": "c5f994396203803218c5bb853e316cdf761e83ce",
+      "path": "docs/AI_HANDOFF.md",
+      "archive": "docs/tasks/completed/2026-10-26-persistent-cumulative-43-input-state/source-AI_HANDOFF.md",
+      "gitBlob": "ae2f0d435cf56d95f3e193228b1a916327734e7a",
+      "sha256": "a73e270f71563751c1674ad36502849cae36bcf9490405310cbab1271affcea9"
+    },
+    {
+      "source": "c5f994396203803218c5bb853e316cdf761e83ce",
+      "path": "docs/CURRENT_STATE.md",
+      "archive": "docs/tasks/completed/2026-10-26-persistent-cumulative-43-input-state/source-CURRENT_STATE.md",
+      "gitBlob": "fe80d1f3bf047f8fa18d43c66c80dc7d7cd7df17",
+      "sha256": "1a9d3ecf461a1e7099c94f9034f60f61ff55794efcc3c82320e45d8739a6c3cf"
+    },
+    {
+      "source": "c5f994396203803218c5bb853e316cdf761e83ce",
+      "path": "docs/PROJECT_INDEX.md",
+      "archive": "docs/tasks/completed/2026-10-26-persistent-cumulative-43-input-state/source-PROJECT_INDEX.md",
+      "gitBlob": "26f183898d1092a1db13f54a731484bc52418355",
+      "sha256": "fa35829c603f5bd2ab521a483a709036c93e4a17719ac8cb2b874138e3962b77"
+    },
+    {
+      "source": "38580ae2185cddedb175cdd8fde88fee2eb8443d",
+      "path": "docs/AI_HANDOFF.md",
+      "archive": "docs/tasks/completed/2026-10-26-persistent-cumulative-43-input-state/runtime-input-AI_HANDOFF.md",
+      "gitBlob": "cdf07169efa7daf93f3bcd8dc400dc809559cafd",
+      "sha256": "1fb35d7119629e4d40208b6d604b483d892240e56076ca7a8b38e1a945b5c8c2"
+    },
+    {
+      "source": "38580ae2185cddedb175cdd8fde88fee2eb8443d",
+      "path": "docs/CURRENT_STATE.md",
+      "archive": "docs/tasks/completed/2026-10-26-persistent-cumulative-43-input-state/runtime-input-CURRENT_STATE.md",
+      "gitBlob": "daa106d6a76c2e1dcb3880fe3f0907b1691cfe1e",
+      "sha256": "c38ded8aaa2651b08f52cf2be4e9b6052cd576980b4a7fd670815804ca2a0cf7"
+    },
+    {
+      "source": "38580ae2185cddedb175cdd8fde88fee2eb8443d",
+      "path": "docs/PROJECT_INDEX.md",
+      "archive": "docs/tasks/completed/2026-10-26-persistent-cumulative-43-input-state/runtime-input-PROJECT_INDEX.md",
+      "gitBlob": "20ba1958fd6352d30aeba574398164e3d021909b",
+      "sha256": "7d893cd9b4022ff167da44e8c93da278b1b52f94978716c002a4a7529a176e01"
+    }
+  ]
+}
