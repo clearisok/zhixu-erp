@@ -25,11 +25,15 @@
 
 已有a198完整非空恢复9/9以及本机合成界面证明继续有效。当前65139是 `snapshot/local-empty` 空候选；这些证明不能替代“精确发布目标上的真实首绑→续刷→页面/单位/数量人工核对”。来源未启用、陈旧、缺数量、缺单位或暂未出货都必须保留真实空/未知状态，不能为演示补造业务事实。
 
+本地新增[同单据跨域验收](../completed/2026-10-28-ainuoke-same-order-closure.md)：两合同正式首绑，同一主SO贯穿四流、6086941、6086979、Quote采用、手工交期、生产和锁定关账。20件完成、7件成衣出运、100件月份计划相互独立；合同增至120件不改原身份/稳定颜色或已冻结执行金额。最终8/8；仅合成worker/自有一次性PG，不能据此核销真实续刷前置。
+
+**Linux运行方式已实测**：使用已缓存精确90e镜像、无网络/挂载/凭据、只读rootfs和非root用户的一次临时容器，Node v22.23.3、Python3.14.10可用，Git/tsx不可用。payment/garment compiled入口的help成功，但使用不存在的合成receipt路径时分别先拒绝payment_operator_committed_clean_worktree_required、garment_operator_committed_clean_worktree_required。未触碰私密文件、数据库或上游。这证明应用镜像不能充当源码operator，不是Linux生产采集正控；按第4步复用同SHA的干净源码工具目录，无需放宽原件保护或把Git加入应用镜像。
+
 **待实测的时效风险**：`scheduler.ts`在整轮成功后默认等待300000ms；`source-adapter.ts`按每页fetchedAt判断600000ms等已配置上限，而不是只按发布时刻。若较早页距本轮结束超过300秒，五分钟等待就可能在下一轮开始前触及十分钟上限，下一轮采集和发布还会增加等待。历史2026-10-13全量物料阶段414954ms仅是风险线索，非本轮页龄测量或当前已发生故障。有限代表合同验收应记录每页最早时间、两轮成功发布间隔和页面陈旧/恢复状态，不靠延长TTL或改采集时间伪造持续展示；全量扩展另据实际预算决定。
 
 ## 收敛后的执行顺序
 
-1. **代码收口**：当前PR只修Hosted暴露的两份旧验收与状态说明，不加新ERP功能。沿订单月份计划采用财务快照验证CNY阻断、USD零价和真实非空锁定快照；登录按当前order-read门控验证匿名访问。集中一次上传、一次必要CI、精确复审，之后请求合并。
+1. **代码收口**：当前PR修Hosted暴露的旧验收与状态说明，增加接入现有source CI的同单据跨域回归，不加新ERP功能。沿订单月份计划采用财务快照验证CNY阻断、USD零价和真实非空锁定快照；登录按当前order-read门控验证匿名访问。集中一次上传、一次必要CI、精确复审，之后请求合并；已有传输降级时不在后继Gate撞同一失败通道。
 2. **冻结候选**：获准合并后，从精确main构建一次Linux Server镜像。保存source/image/build-info/完整迁移checksum；显式server、session、writable、snapshot。旧Legacy deploy-production workflow不使用。
 3. **准备可审阅目标**：新Compose project、独立空业务DB/持久卷、独立附件存储namespace、受保护新管理员、loopback入口；旧3000/3002/域名路由先保持。应用Origin固定为最终HTTPS域名，cookie、反代及对象TLS实际核对。具体端口、目录、镜像和秘密文件路径冻结后再请求实际部署批准。
 4. **验证操作者运行方式**：复用现有CLI，不另建collector。物料CLI可在正式Server镜像运行；主信息刷新/payment/garment operator要求干净源码checkout和Git原件校验，不能把无Git/tsx的运行镜像冒称可直接执行。准备与应用同SHA的固定工具目录与锁定依赖，仅有界连接新目标；私密job/报告和凭据分离。先合成验证其Linux入口，不读取真实凭据或调用上游。
