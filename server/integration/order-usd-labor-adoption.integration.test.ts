@@ -12,6 +12,8 @@ import { previewLaborAdoption, executeLaborAdoption, readLaborAdoptionReceipt, r
 import { LABOR_ADOPTION_PERMISSIONS } from '../sales-orders/labor-adoption-model.js';
 import { readClosingOrderBasis } from '../closing/basis-service.js';
 import { previewClosingCommand } from '../closing/service.js';
+import { readOrderClosingMonthPlan, previewClosingMonthMove, executeClosingMonthMove } from '../closing/month-plan-service.js';
+import { readClosingPeriodDetail } from '../closing/read-service.js';
 import { previewSaleAdjustment, commitSaleAdjustment } from '../sales-orders/sale-adjustment-service.js';
 import { findSalesOrderIdsByQuoteProvenance } from '../confirmed-commercial-terms/repository.js';
 import { updateConfirmedCommercialTermsByQuote } from '../confirmed-commercial-terms/service.js';
@@ -22,14 +24,25 @@ import {migrationFilesAfter} from './current-migration-ledger-fixture.js';
 
 test('Gate8C explicit USD labor adoption preserves independent order, product, batch and closing facts', { timeout: 240000 }, async t => {
   const x = await closingFixture(t, 45, true), { pool, editor } = x;
-  const a = await x.order(), b = await x.order(), process = await x.processing('CNY');
+  const a = await x.order(), b = await x.order(), legacyProcess = await x.processing('CNY');
   const prior = (await pool.query("SELECT md5(jsonb_agg(to_jsonb(v) ORDER BY id)::text) hash FROM sales_order_commercial_versions v")).rows[0].hash;
   await t.test('nonempty 45→current is additive, idempotent and keeps prior commercial rows byte-equivalent', async () => {
     assert.deepEqual((await runMigrations(pool, resolve('database/migrations'))).applied, migrationFilesAfter(45));
     assert.equal((await pool.query("SELECT md5(jsonb_agg(to_jsonb(v) ORDER BY id)::text) hash FROM sales_order_commercial_versions v")).rows[0].hash, prior);
     assert.equal((await pool.query('SELECT count(*)::int n FROM order_labor_adoption_commands')).rows[0].n, 0);
     assert.deepEqual((await runMigrations(pool, resolve('database/migrations'))).applied, []);
+    assert.equal((await readOrderClosingMonthPlan(pool, editor.actor, legacyProcess.id)).plan, null, 'upgrade must not fabricate historical month ownership');
   });
+  // Current business flows use a newly created order; the pre-0047 sample stays historical.
+  const process = await x.processing('CNY');
+  async function moveToMonth(orderId: string, targetMonth: string, quantity?: string) {
+    const { plan } = await readOrderClosingMonthPlan(pool, editor.actor, orderId); assert.ok(plan);
+    const preview = await previewClosingMonthMove(pool, editor.actor, { action: 'move_months', orderId,
+      expectedVersion: plan.version, targetMonth, reason: 'Explicit synthetic month selection',
+      selection: quantity ? { mode: 'partial', items: [{ lineId: plan.lines[0].id, quantity }] } : { mode: 'whole' } });
+    const result = await executeClosingMonthMove(pool, editor.actor, { requestId: randomUUID(), intent: preview.intent, previewHash: preview.previewHash });
+    assert.equal(result.status, 'applied');
+  }
   async function http(path: string, body?: unknown, method = body === undefined ? 'GET' : 'POST', cookie: string | null = editor.cookie) {
     const response = await fetch(x.base + '/api/v1/' + path, { method, headers: { ...(cookie ? { Cookie: cookie } : {}),
       ...(body === undefined ? {} : { Origin: x.base, 'X-Zhixu-Request': '1', 'Content-Type': 'application/json' }) }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) });
@@ -108,14 +121,21 @@ test('Gate8C explicit USD labor adoption preserves independent order, product, b
   });
   await t.test('processing original CNY blocks closing, explicit USD adoption keeps exact batch consumption and enables service-only closing', async () => {
     const period = (await x.apply({ action: 'create_period', month: '2026-10', taxRatePercent: '8', taxRateConfirmed: true, remark: 'Synthetic USD' })).result;
-    const data = { quantity: '2', colorId: null, assignmentId: null, executor: { type: 'internal', id: x.group.id }, channels: { sales: false, work: true }, remark: '' };
-    await assert.rejects(() => previewClosingCommand(pool, editor.actor, { action: 'create_allocation', periodId: period.periodId, expectedPeriodVersion: period.periodVersion, orderId: process.id, data }), closingCode('closing_usd_work_basis_required'));
+    await moveToMonth(process.id, '2026-10', '2');
+    const intent = { action: 'sync_month_outputs', periodId: period.periodId, expectedPeriodVersion: period.periodVersion,
+      channels: { sales: false, work: true }, reason: 'Explicit processing month adoption' };
+    await assert.rejects(() => previewClosingCommand(pool, editor.actor, intent), closingCode('closing_usd_work_basis_required'));
     const batch = (await pool.query('SELECT to_jsonb(b) b FROM processing_order_batch_consumptions b WHERE sales_order_id=$1', [process.id])).rows;
     const before = await state(process.id), response = await http('quotes/order-labor-adoptions/commands', await command(process.id, processingRevision)); assert.equal(response.status, 200, response.text);
     const after = await state(process.id); assert.equal(after.laborCurrency, 'USD'); assert.equal(after.lines![0].laborPrice, '0'); assert.equal(after.lines![0].salePrice, null);
     assert.deepEqual((await pool.query('SELECT to_jsonb(b) b FROM processing_order_batch_consumptions b WHERE sales_order_id=$1', [process.id])).rows, batch);
     assert.equal((await pool.query('SELECT confirmed_labor_price::text p,labor_currency c FROM sales_order_commercial_versions WHERE id=$1', [before.id])).rows[0].c, 'CNY');
-    const saved = await x.apply({ action: 'create_allocation', periodId: period.periodId, expectedPeriodVersion: period.periodVersion, orderId: process.id, data }); assert.equal(saved.result.status, 'applied');
+    const saved = await x.apply(intent); assert.equal(saved.result.status, 'applied');
+    const detail = await readClosingPeriodDetail(pool, editor.actor, period.periodId, new URLSearchParams());
+    assert.equal(detail.summary.registeredQuantity, '2');
+    const rows = detail.items.filter(row => row.status === 'active'); assert.equal(rows.length, 1);
+    assert.equal(rows[0].snapshot.order.id, process.id); assert.deepEqual(rows[0].snapshot.channels, { sales: false, work: true });
+    assert.equal(rows[0].snapshot.outputs.work!.price, '0');
     const basis = await readClosingOrderBasis(pool, editor.actor, process.id); assert.equal('garmentSale' in basis.priceLines[0], false);
     assert.ok((await findSalesOrderIdsByQuoteProvenance(pool, { quoteId: after.quoteId, revisionId: processingRevision, priceVersionId: after.lines![0].priceVersionId })).includes(process.id));
     const history = await readLaborAdoptionHistory(pool, editor.actor, new URLSearchParams({ orderId: process.id }));
@@ -220,11 +240,18 @@ test('Gate8C explicit USD labor adoption preserves independent order, product, b
   await t.test('CNY→USD adoption cannot reprice existing locked closing snapshots or their earlier versions', async () => {
     const order = await x.order(), source = await state(order.id), color = source.lines!.find(row => row.colorName === 'White')!;
     const created = (await x.apply({ action: 'create_period', month: '2026-12', taxRatePercent: '0', taxRateConfirmed: true, remark: 'Preserve old USD closing' })).result;
-    const allocation = (await x.apply({ action: 'create_allocation', periodId: created.periodId, expectedPeriodVersion: created.periodVersion, orderId: order.id,
-      data: { quantity: '2', colorId: color.colorId, assignmentId: null, executor: null, channels: { sales: true, work: false }, remark: '' } })).result;
+    await moveToMonth(order.id, '2026-12');
+    const allocation = (await x.apply({ action: 'sync_month_outputs', periodId: created.periodId, expectedPeriodVersion: created.periodVersion,
+      channels: { sales: true, work: false }, reason: 'Explicit sales month adoption' })).result;
     const confirmed = (await x.apply({ action: 'confirm_period', periodId: created.periodId, expectedPeriodVersion: allocation.periodVersion, reason: 'Explicit confirmation' })).result;
     await x.apply({ action: 'lock_period', periodId: created.periodId, expectedPeriodVersion: confirmed.periodVersion, reason: 'Explicit lock' });
+    const detail = await readClosingPeriodDetail(pool, editor.actor, created.periodId, new URLSearchParams());
+    assert.equal(detail.period.status, 'locked'); assert.equal(detail.summary.registeredQuantity, '100');
+    const lockedRows = detail.items.filter(row => row.status === 'active'); assert.equal(lockedRows.length, 2);
+    assert.ok(lockedRows.every(row => row.snapshot.order.id === order.id && row.snapshot.quantity === '50'));
+    assert.deepEqual(lockedRows.map(row => row.snapshot.colorId).sort(), source.lines!.map(line => line.colorId).sort());
     const frozen = (await pool.query('SELECT to_jsonb(v) snapshot FROM server_closing_allocation_versions v WHERE sales_order_id=$1 ORDER BY version', [order.id])).rows;
+    assert.equal(frozen.length, 2, 'the comparison must protect real nonempty financial snapshots');
     assert.equal((await executeLaborAdoption(pool, editor.actor, await command(order.id, revisionId))).status, 'applied');
     assert.equal(color.laborCurrency, 'CNY'); assert.equal((await state(order.id)).lines!.find(row => row.colorId === color.colorId)!.laborCurrency, 'USD');
     assert.deepEqual((await pool.query('SELECT to_jsonb(v) snapshot FROM server_closing_allocation_versions v WHERE sales_order_id=$1 ORDER BY version', [order.id])).rows, frozen);

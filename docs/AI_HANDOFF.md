@@ -1,12 +1,11 @@
-# 接力：50426执行工具已本地实现，实际切换与PR131交付待完成
+# 接力：集中交付PR131兼容修复，继续真实来源闭环准备
 
-2026-10-28；feat/closing-support-interfaces；本阶段baseline23f1cd8dd1ec5f6f3ab983507df8edc35a8c6b83 clean，最终HEAD从Git核对。原CURRENT/INDEX/HANDOFF逐字及原件hash在[本片回执](tasks/completed/2026-10-28-cutover-execute/receipt.json)，[工程证明](tasks/completed/2026-10-28-cutover-execute.md)区分初轮45、后继2/1、11→12及最后替换目录定向1项。
+2026-10-28；feat/closing-support-interfaces；phase baseline c9b87c3ca48de5104f3de4158ce0f434cd3a2d52 clean；main6479a713e2b80228f008049519ebbd50d10601a8。最终HEAD/status从Git核对。[原三摘要全文及hash](tasks/completed/2026-10-28-pr131-ci-source-readiness/input-state.json)、[本片验收](tasks/completed/2026-10-28-pr131-ci-source-readiness.md)。
 
-- 新cutover-execute默认只读再观察，具体预览hash确认后按原trial生命周期推进；实际50426没有执行。原通用准备器仍拒绝50426，shared输入实现不另建部署体系。
-- 固定本机pipe、冻结ops、自新目录/卷/网络/端口、配置内存指纹、目录dev/ino/birthtimeNs核对；prepare失败不写外来目录、替换目录同样拒绝journal。端口前检完成后再算预算，不在过期预算后提交start。init开始前须十分钟内，之后只按剩余15分钟有界流程继续或停，无自动重试/清理/回滚。
-- 实际测试只创建唯一临时私密输入/证书和Compose config解析，已回收本次合成目录；没有创建/启停容器/卷，没有业务DB/现有账号/Source、信任库或正式环境变更。整体实际执行/人工体验未验证，不能把代码或单元测试当目标READY。
-- 最终定向lint/diff通过；最终提交后精确守卫写到outputs/approved-support-flow-20261028/cutover-execute-final-guard.log，以checkedHead/exit为准。没有重复产品/SQL/构建/浏览器/恢复，也没有新CI；source job只补必要测试。
-- main沿上次6479a713e2b80228f008049519ebbd50d10601a8；PR131上次draft/head4584。136兼容修复及后继仍未送达，NETWORK_DEGRADED无新外部恢复证据；不重复push/诊断/旧CI。原4584单次授权已经执行，不复用为新上传授权。
-- [既有演示](http://closing-current.localhost:52251/closing-center?year=2027)：closing.editor或labor.editor / synthetic-closing；a198/90e和65139持久候选保留，不是50426。旧3001/50426/库/卷/refs/两棵他人dirty树及junction依赖保护继续，未读改其内容。
+- c9已一次直连送达，4337ms/exit0/API精确核对；PR131唯一open/draft。Hosted Release成功，source/team旧断言失败，不是仍停在预检。没有改共享网络配置。安全恢复常设授权继续，不反复索要每次上传批准；必要CI仅随集中push触发，不手工重跑旧失败。
+- 本片两测试：工价沿新订单月份计划/partial move/sync；旧45样本无自动回填；locked两色各50/共100和两条非空快照。动画登录按orderRead判断关账开放并检查匿名401。产品/SQL/UI/manifest未变。早期78项、最终受影响20项、实际浏览器11项及type/lint分源通过；补强时一次字段错误保留，不称最后重跑全78。
+- UI测试复用a198精确canonical产物，临时ignored dist/client junction已移除，原产物保留；无新构建。c9已通过完整182发布，guard/manifest未改，复用该结果，只跑最终精确main守卫。
+- 宁波只读观察：公网200与local3002精确旧7cd43b；四旧服务健康，旧staging无当前附件/Source配置。无账号/DB/凭据/容器或系统写入，不能把200说成新版本就绪。
+- [闭环准备](tasks/active/ningbo-server-closed-loop-readiness-2026-10-28.md)覆盖绑定/新增、四流、独立财务/成衣、生产/关账。65139仍local-empty，不新增真实请求或启用目标。源码operator要求clean/Git/锁定依赖，不能用无Git运行镜像冒充入口。
 
-下一依赖仍是C0集中交付必要CI与复审/明确合并、C1最终main镜像、C3具体入口/目录/项目批准，再实际C4/C5与逐对象退役。C2工具工程不能替代真实固定目标演练，也不能解除Git通道阻断、批准自动merge或实际切换。继续保留完整[Gate0](tasks/active/server-convergence-gate0-2026-10-20.md)，不标Goal完成。真实Source新增范围及部署/现有数据操作各自边界不变。
+下一步完成本片commit/一次安全交付、精确核对并更新原PR131、必要CI/独立复审；尚无合并批准。之后冻结main镜像、隔离目标及具体真实首绑/续刷验收单，D105真实四流前置保持。staging就绪时提醒，不自动部署。50426工具/旧资产/完整Gate0保留，不加新功能、清理或自动完成Goal。
