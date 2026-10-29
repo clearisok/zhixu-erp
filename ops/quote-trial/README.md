@@ -409,6 +409,40 @@ keys are legitimate new-system objects.
 
 ## Short operation entrypoints
 
+### Controlled staging Origin profile (2026-10-29)
+
+The default profile remains `local`. A separately approved staging target may
+add these two keys to its private operator config:
+
+```text
+TRIAL_ACCESS_PROFILE=staging
+TRIAL_PUBLIC_HTTPS_ORIGIN=https://staging.weaveops.top
+```
+
+Keep `TRIAL_HTTPS_ORIGIN=https://localhost:<same-port>` for the local TLS health
+probe. Do not put the public domain in that key. Only the explicit staging
+profile accepts the exact public Origin above: no trailing slash, alternate
+domain, port, path, credentials or comma-separated list. A public Origin with
+the default/local profile is rejected. The resolved Compose model must match
+both the application's allowed browser Origin and the gateway's local probe
+Origin; inherited environment and override files cannot silently replace either.
+
+This profile changes application request validation, not network exposure. The
+gateway still binds `127.0.0.1`; database, app and object services remain private.
+Session identity, secure cookies, CSRF/request headers, certificate/hostname
+verification, exact image/config checks and owned storage rules remain required.
+An existing reverse proxy or tunnel needs a separately reviewed route to the new
+gateway, preserving the browser Host/Origin and verified TLS upstream. No route,
+certificate, DNS, Access policy or existing stack is created or changed by this
+profile. Public login/logout, cookie behavior, attachment delivery and denied
+foreign Origins must be tested on the approved target before user experience
+acceptance. A successful `config` or `check` is not deployment readiness.
+
+The main `5c8cb803` image was built and restored before this profile increment;
+its 9/9 recovery proof belongs to that exact source/image. Do not relabel it as
+an image built from a later profile commit or future merged main. See the
+[dated evidence](../../docs/tasks/completed/2026-10-29-main-image-staging-profile.md).
+
 From the reviewed repository/tool directory, use an absolute config path:
 
 ```text

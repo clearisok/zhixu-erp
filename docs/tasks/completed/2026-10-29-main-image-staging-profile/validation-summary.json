@@ -1,0 +1,100 @@
+{
+  "sourceSha": "5c8cb8037376288aa71043e799a057e21f1b985d",
+  "merge": {
+    "pullRequest": 131,
+    "parents": [
+      "6479a713e2b80228f008049519ebbd50d10601a8",
+      "e94a351a84906c1e4feb35f81b48dfe023d11e57"
+    ],
+    "tree": "2753102b7573bfe459b76281d27634f22b19471f",
+    "preservedOriginalHistory": true
+  },
+  "image": {
+    "id": "sha256:80ff7e5318e0f9345cdb63715d2c6e6f4eb2087dc34527abc942056e39d85ff8",
+    "buildId": "server-main-5c8cb803-d20d6f9c51",
+    "buildTime": "2026-10-29T00:28:15.908Z",
+    "sourceBlobs": 3308,
+    "overlays": 0,
+    "sourceArchiveSha256": "80f4e5b255e133acc60947cf7b6ac66a390def61b81a510404d3a656ffe34280",
+    "migrationFiles": 51,
+    "buildExitCode": 0,
+    "preservation": {
+      "containers": {
+        "before": 74,
+        "missingOrChanged": []
+      },
+      "volumes": {
+        "before": 201,
+        "missingOrChanged": []
+      },
+      "networks": {
+        "before": 37,
+        "missingOrChanged": []
+      }
+    },
+    "privateReviewedReceiptSha256": "1493795378df57ee25c1a25dbdb49fb216abf678a7560621c7257566c076b0ee"
+  },
+  "recovery": {
+    "state": "PASS",
+    "startedAt": "2026-10-29T00:34:15.462Z",
+    "endedAt": "2026-10-29T00:39:53.457Z",
+    "harnessHead": "e94a351a84906c1e4feb35f81b48dfe023d11e57",
+    "harnessTreeEqualsImageSource": true,
+    "imageId": "sha256:80ff7e5318e0f9345cdb63715d2c6e6f4eb2087dc34527abc942056e39d85ff8",
+    "counts": {
+      "tests": 9,
+      "pass": 9,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "timedOut": false,
+    "retries": 0,
+    "roundTripExact": true,
+    "restart": true,
+    "beforeRestoreStartup": true,
+    "restoredReadbacks": true,
+    "closingProtectionBeforeRestoreStartup": true,
+    "executorReleaseProtectionBeforeRestoreStartup": true,
+    "preservation": {
+      "containers": {
+        "before": 74,
+        "missingOrChanged": []
+      },
+      "volumes": {
+        "before": 201,
+        "missingOrChanged": []
+      },
+      "networks": {
+        "before": 37,
+        "missingOrChanged": []
+      }
+    },
+    "privateReceiptSha256": "1029879d6fa5863d4ae0e875fcb38eb2286f58b65664dce4025e2e1ddf6a59f6"
+  },
+  "profile": {
+    "unitAndComposeTests": {
+      "pass": 26,
+      "fail": 0,
+      "skipped": 0,
+      "durationMs": 5565.8403
+    },
+    "adjacentCutoverTests": {
+      "pass": 30,
+      "fail": 0,
+      "skipped": 0,
+      "durationMs": 4706.4917
+    },
+    "syntaxLintDiff": "PASS",
+    "independentStaticReview": "No P1/P2 in four-file increment; public deployment/session acceptance not verified"
+  },
+  "boundaries": {
+    "realSourceRequests": 0,
+    "existingBusinessWrites": 0,
+    "deployments": 0,
+    "oldAssetCleanup": false,
+    "publicRuntimeAcceptance": false,
+    "profileRemoteDelivery": "NOT_YET_SUBMITTED"
+  }
+}

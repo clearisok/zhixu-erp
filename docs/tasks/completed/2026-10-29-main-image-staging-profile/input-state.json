@@ -1,0 +1,26 @@
+{
+  "phase": "main image / controlled staging profile",
+  "baseline": "5c8cb8037376288aa71043e799a057e21f1b985d",
+  "branch": "feat/staging-controlled-runtime",
+  "inheritedDirty": [],
+  "files": [
+    {
+      "path": "docs/PROJECT_INDEX.md",
+      "archive": "docs/tasks/completed/2026-10-29-main-image-staging-profile/PROJECT_INDEX.md",
+      "bytes": 2894,
+      "sha256": "cf4944f72fef1f4cc4e761ad14f4338f26d70fc8d811fc8597a0238906ea6f76"
+    },
+    {
+      "path": "docs/CURRENT_STATE.md",
+      "archive": "docs/tasks/completed/2026-10-29-main-image-staging-profile/CURRENT_STATE.md",
+      "bytes": 3031,
+      "sha256": "c1496c4578e8669ef1208810f98c0398f202c50d16554802be892e80d00c4965"
+    },
+    {
+      "path": "docs/AI_HANDOFF.md",
+      "archive": "docs/tasks/completed/2026-10-29-main-image-staging-profile/AI_HANDOFF.md",
+      "bytes": 2956,
+      "sha256": "de6de06d6f04727995f21f11d90458970701cb1cbe94271b1afb8f55150c1426"
+    }
+  ]
+}
