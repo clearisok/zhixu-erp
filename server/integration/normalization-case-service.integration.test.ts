@@ -118,6 +118,30 @@ test('normalization case service transactional synthetic lifecycle',{timeout:180
    assert.equal((await req(path,'POST',draft,{Origin:'http://evil.invalid'})).status,403);
    const note={requestId:randomUUID(),expectedVersion:1,eventType:'review_note',reason:'HTTP note'};
    const written=await req(path+'/'+result.caseId+'/events','POST',note);assert.equal(written.status,410);
+   const mixedPath='/api/v1/Order-normalization-cases/'+result.caseId+'/events';
+   assert.equal((await fetch(base+mixedPath,{method:'POST',headers,body:JSON.stringify(note)})).status,401);
+   assert.equal((await req(mixedPath,'POST',note,{Origin:'http://evil.invalid'})).status,403);
+   assert.equal((await req(mixedPath,'POST',note,{'X-Zhixu-Request':'0'})).status,403);
+   const history=await req('/API/V1/ORDER-NORMALIZATION-CASES/'+result.caseId);assert.equal(history.status,200);
+   const ledgers=['sales_order_normalization_cases','sales_order_normalization_case_events','sales_order_attribution_changes','operation_logs'];
+   const snapshot=()=>Promise.all(ledgers.map(table=>pool.query(`SELECT row_to_json(r) AS row FROM ${table} r ORDER BY id`).then(r=>r.rows)));
+   const ledgerBefore=await snapshot();
+   const variants:[string,string,object][]=[
+    [mixedPath,'POST',note],
+    [path.toUpperCase(),'POST',draft],
+    ['/Api/V1/oRdEr-NoRmAlIzAtIoN-CaSeS/'+result.caseId+'/EVENTS','POST',note],
+    [path.toUpperCase()+'/'+result.caseId,'DELETE',{}],
+    ...['attribution-preview','review-proposals','reviews','execute'].map(action=>[path.toUpperCase()+'/'+result.caseId+'/'+action,'POST',{}] as [string,string,object]),
+    ['/API/V1/ORDER-NORMALIZATION-WORKSPACE/proposals/'+result.caseId+'/reviews','POST',{}],
+   ];
+   for(const [url,method,body] of variants){
+    const retired=await req(url,method,body);
+    assert.equal(retired.status,410,`${method} ${url}; case version ${(await readNormalizationCase(pool,actor,result.caseId)).case.version}`);
+    assert.equal((await retired.json()).error.code,'order_workflow_retired');
+   }
+   assert.deepEqual(await snapshot(),ledgerBefore);
+   await pool.query("DELETE FROM app_role_permissions WHERE role_id='role-server-admin' AND permission_key='order.view'");
+   try{assert.equal((await req(mixedPath,'POST',note)).status,403);}finally{await pool.query("INSERT INTO app_role_permissions(role_id,permission_key) VALUES('role-server-admin','order.view')");}
    assert.equal((await req(path+'/'+result.caseId+'/events','POST',{...note,requestId:randomUUID(),eventType:'executed',expectedVersion:2})).status,410);
    assert.equal((await req(path+'/'+result.caseId+'/events')).status,405);
    assert.equal((await req(path+'/'+result.caseId,'DELETE')).status,410);
