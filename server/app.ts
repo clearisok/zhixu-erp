@@ -691,8 +691,9 @@ async function route(
   const retiredOrderWrite=!['GET','HEAD','OPTIONS'].includes(request.method??'')&&(
     /^\/api\/v1\/sales-orders\/[^/]+\/(identity|preparation-adoptions)$/.test(path)
     ||path==='/api/v1/order-preparations'
-    ||/^\/api\/v1\/order-normalization-cases(?:\/.*)?$/.test(path)
-    ||/^\/api\/v1\/order-normalization-workspace(?:\/.*)?$/.test(path)
+    // Match the downstream legacy dispatch policy, including mixed-case URLs.
+    ||/^\/api\/v1\/order-normalization-cases(?:\/.*)?$/iu.test(path)
+    ||/^\/api\/v1\/order-normalization-workspace(?:\/.*)?$/iu.test(path)
     ||/^\/api\/v1\/sales-orders\/[^/]+\/commercial-versions(?:\/preview)?$/.test(path));
   if(retiredOrderWrite||path==='/api/v1/order-claimants'){
     const identity=await dependencies.identityAuthority.resolve(request);

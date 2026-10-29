@@ -1,3 +1,17 @@
+# 当前状态：本地发布组合验证，尚未晋升main
+
+2026-10-29；此处是 `codex/staging-release-local-integration` 的本地组合验证，包含 #132@015dec7409e6109b9adbd638624d28dfd6ebc7f0、真实来源文档 checkpoint032c553fc4ec2f30e9d4e8402e2ee86d3393c8e5 及 #133@3c481949b9f13306f7901f63cde213f27ccc8370。远端 main 仍是5c8cb8037376288aa71043e799a057e21f1b985d；没有合并 main、更新两个 PR head、构建新镜像或部署。最终 HEAD/工作树及守卫另查。
+
+- #132的双Origin受控配置和#133的归一退役大小写修复均保留原文件；本地仅解决状态文档/发布清单冲突。两边产品互不覆盖，既有证据全部保留。
+- #133的三项必要CI首次通过，#132三项既有CI通过；组合HEAD没有新的Hosted检查，不能借前件状态声称它已通过。当前运行80ff镜像仍不包含这两项。
+- 真实两合同的订单/颜色尺码、三代物料四流及两份货款快照已经保留，有限窗口结束。成衣固定证明尚未批准/执行；生产和关账仅有合成闭环证明，不伪造真实执行/收入。
+- 本机staging Origin十项协议断言已通过，原失败和自有环境安全停止回执保留。宁波只有现有Tunnel形态只读证据；尚未部署或切路由。
+- 待具体合并批准后再整合实际main、冻结最终镜像和具体部署单。没有自动merge、部署、新真实采集、旧账号/业务库写入或旧资产删除。
+
+[本地组合说明](tasks/completed/2026-10-29-local-staging-release-integration.md)区分本片验证和复用结果。
+
+## checkpoint032原状态（历史，保留原文）
+
 # 当前状态：main镜像已恢复，两合同真实窗口完成
 
 2026-10-29；产品源main **5c8cb8037376288aa71043e799a057e21f1b985d**。仅#131已批准merge commit，双父6479/e94及原树核实，历史保留。当前codex/real-source-acceptance文档checkpoint，HEAD/dirty由Git核实。[本片事实](tasks/active/real-source-acceptance-current-2026-10-29.md)及前件[镜像/配置](tasks/completed/2026-10-29-main-image-staging-profile.md)、[本机目标/工具](tasks/completed/2026-10-29-main-local-target-and-source-tools.md)保留原日期/失败/hash。

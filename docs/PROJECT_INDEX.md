@@ -1,3 +1,11 @@
+# 本地组合发布入口
+
+2026-10-29；此处是 `codex/staging-release-local-integration` 的本地组合验证，包含 #132@015dec7409e6109b9adbd638624d28dfd6ebc7f0、真实来源文档 checkpoint032c553fc4ec2f30e9d4e8402e2ee86d3393c8e5 及 #133@3c481949b9f13306f7901f63cde213f27ccc8370。远端 main 仍是5c8cb8037376288aa71043e799a057e21f1b985d；没有合并 main、更新两个 PR head、构建新镜像或部署。最终 HEAD/工作树及守卫另查。
+
+先读[当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)和[组合证据](tasks/completed/2026-10-29-local-staging-release-integration.md)。[真实来源窗口](tasks/active/real-source-acceptance-current-2026-10-29.md)、[staging协议/宁波路由](tasks/completed/2026-10-29-staging-origin-and-ningbo-route.md)、[旧写边界](tasks/completed/2026-10-29-server-write-boundaries-and-retirement.md)与[大小写修复](tasks/completed/2026-10-29-retired-normalization-route-guard.md)同时保留。旧审计中的归一大小写P2由后者关闭，其余保留限制不变。
+
+## checkpoint032原索引（历史，保留原文）
+
 # 当前任务入口
 
 2026-10-29；main产品源 **5c8cb8037376288aa71043e799a057e21f1b985d**；codex/real-source-acceptance。先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[真实窗口](tasks/active/real-source-acceptance-current-2026-10-29.md)、[业务规则](BUSINESS_RULES.md)及DECISION_LOG D145–D178。旧摘要全文/日期/hash见[归档](tasks/completed/2026-10-29-main-image-staging-profile/input-state.json)。

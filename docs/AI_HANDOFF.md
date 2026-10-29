@@ -1,3 +1,13 @@
+# 接力：本地组合候选已解冲突，等待独立发布批准
+
+2026-10-29；此处是 `codex/staging-release-local-integration` 的本地组合验证，包含 #132@015dec7409e6109b9adbd638624d28dfd6ebc7f0、真实来源文档 checkpoint032c553fc4ec2f30e9d4e8402e2ee86d3393c8e5 及 #133@3c481949b9f13306f7901f63cde213f27ccc8370。远端 main 仍是5c8cb8037376288aa71043e799a057e21f1b985d；没有合并 main、更新两个 PR head、构建新镜像或部署。最终 HEAD/工作树及守卫另查。
+
+先读[组合证据](tasks/completed/2026-10-29-local-staging-release-integration.md)。两边原始提交、全部596项既有证据及当前真实来源结果保留。#133三项首次CI成功、14/14回归及独立复审无P1/P2已完成；#132三项既有CI成功。它们不是本组合HEAD的新CI。只解决三份状态文档和发布manifest；两边产品文件逐字保留，不增加业务逻辑。旧归一大小写P2在#133已修，不再作为未修缺陷；以下原checkpoint的待办/网络描述均为历史。
+
+当前两合同来源窗口已停止、配额用完，真实生产/关账没有新增记录，固定成衣证明仍待具体人类批准。进程直连Git/原认证/TLS校验已实际完成一次133上传；不更改共享代理配置。下一步在获准后核对当时main，把本地解决方式前向整合实际新main，再做必要候选检查；不把本地组合提交当已合并版本或直接部署。完整Gate0–8/R继续。
+
+## 继承checkpoint032原接力（历史，保留原文）
+
 # 接力：两合同真实窗口完成，下一项成衣固定证明
 
 2026-10-29；产品源main5c8cb8037376288aa71043e799a057e21f1b985d；当前codex/real-source-acceptance文档checkpoint，HEAD/dirty由Git核实。用户最新撤销旧AGENTS指令；明确业务规则和具体Source/merge范围仍按实际消息。先读[本片事实](tasks/active/real-source-acceptance-current-2026-10-29.md)。
