@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "6479a713e2b80228f008049519ebbd50d10601a8",
-  "verifiedAt": "2026-10-28",
+  "baselineSha": "5c8cb8037376288aa71043e799a057e21f1b985d",
+  "verifiedAt": "2026-10-29",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -5402,6 +5402,25 @@
       "recordedAtSha": "a082187a619636c8c8b376bd0b4d031c96be5c2f",
       "sha256": "42bcd503b27cda6f4c434136baa45c26b2d86db676c7d109b6ad9fb4bf15d2a5",
       "changeReason": "Fresh-main Git ancestry reconciliation for retained historical implementation; separate current Server owner, retired writes and unmerged financial scope. Preserve prior evidence and all unverified activation/acceptance/deployment dimensions."
+    },
+    {
+      "id": "staging-profile-d178-20261029",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "5f997f354120ff3ce9db292ece7c725ea7ba538a",
+      "renderedSourceSha": "5f997f354120ff3ce9db292ece7c725ea7ba538a",
+      "sha256": "83336ffba90995bd18b41b586ce314c4904bcf884d49c49cf13523b3be66d4fa",
+      "supersedes": "closing-support-main6479-integration-1-20261028",
+      "changeReason": "Forward evidence for approved PR131 merge, exact main Linux image and nonempty synthetic recovery; controlled staging Origin engineering only. Preserve all prior versions and historical deployment/source/acceptance dimensions. No public deployment or live Source activation."
+    },
+    {
+      "id": "main-image-staging-profile-proof-20261029",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-29-main-image-staging-profile.md",
+      "recordedAtSha": "5f997f354120ff3ce9db292ece7c725ea7ba538a",
+      "renderedSourceSha": "5f997f354120ff3ce9db292ece7c725ea7ba538a",
+      "sha256": "9fded57108bcd9cb9fc9101283f3aa3c355ee1d27faf2056debe5a3fc0d877aa",
+      "changeReason": "Forward evidence for approved PR131 merge, exact main Linux image and nonempty synthetic recovery; controlled staging Origin engineering only. Preserve all prior versions and historical deployment/source/acceptance dimensions. No public deployment or live Source activation."
     }
   ],
   "pages": [
