@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "5c8cb8037376288aa71043e799a057e21f1b985d",
-  "verifiedAt": "2026-10-29T05:21:26.471Z",
+  "verifiedAt": "2026-10-29T05:22:21.352Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -5429,6 +5429,14 @@
       "recordedAtSha": "1769becca52e5606cce72ba6c8a2569a3e03fb65",
       "sha256": "2bcc4394f362a9d8c6e1c8f00762ed577d2df5f21e27b5645629327c1959d5c9",
       "changeReason": "Fix case-policy parity for retired normalization HTTP writes, backed by disposable-database before/after regression; preserve authentication, history, original evidence and all deployment/acceptance dimensions."
+    },
+    {
+      "id": "local-staging-release-integration-20261029",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-29-local-staging-release-integration.md",
+      "recordedAtSha": "d818f0d5ea89567dafa623c746ce238a764802d1",
+      "sha256": "44040a44e0c15764af25e88d458332dcaf62afcfb40f5d1c47e38d8727153ce6",
+      "changeReason": "Local integration of reviewed staging and retired-route heads with existing source evidence; preserve all original records and non-conflicting product blobs. No main merge, Hosted dispatch, new real Source or deployment."
     }
   ],
   "pages": [
