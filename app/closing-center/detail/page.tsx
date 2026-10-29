@@ -1,5 +1,5 @@
-import { ClosingCenterPage } from "@/features/closing-center/components/closing-center-page";
+import { ClosingAuthorityPage } from "@/features/closing-center/components/closing-authority-page";
 
 export default function Page() {
-  return <ClosingCenterPage detail />;
+  return <ClosingAuthorityPage detail />;
 }

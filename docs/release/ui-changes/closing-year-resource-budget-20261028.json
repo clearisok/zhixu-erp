@@ -1,0 +1,14 @@
+{
+  "baselineSha": "6479a713e2b80228f008049519ebbd50d10601a8",
+  "level": "V0",
+  "visibleDifference": "none",
+  "paths": [
+    "features/closing-center/server/closing-projection.ts"
+  ],
+  "pages": [
+    "closing-adjustment"
+  ],
+  "evidence": [
+    "docs/tasks/active/closing-chain-correctness-review-2026-10-28.md"
+  ]
+}

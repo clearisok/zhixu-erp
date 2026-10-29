@@ -113,6 +113,11 @@ test("Gate6B planning: empty schema, real PostgreSQL and trusted HTTP atomic com
   let firstId = "";
   await t.test("same request concurrently creates one stable assignment, revision, receipt and audit", async () => {
     const read = await request("/orders/" + a), colorId = read.body.order.colors[0].id;
+    // Order month initialization now materializes colors before planning. The
+    // concurrent command must retain every original identity, not assume this
+    // multi-order fixture has exactly one color in its entire database.
+    const colorIdentities = (await pool.query("SELECT to_jsonb(c) AS value FROM sales_order_color_identities c ORDER BY id")).rows;
+    assert.ok(colorIdentities.some(row => row.value.id === colorId && row.value.sales_order_id === a));
     const input = await command(await createIntent(a, planData({ colorId })));
     const replies = await Promise.all([request("/commands", input), request("/commands", input)]); assert.deepEqual(replies.map(r => r.status), [200, 200]);
     firstId = replies[0].body.assignments[0].id; assert.equal(firstId, replies[1].body.assignments[0].id); assert.deepEqual(replies.map(r => r.body.replayed).sort(), [false, true]);
@@ -123,7 +128,8 @@ test("Gate6B planning: empty schema, real PostgreSQL and trusted HTTP atomic com
     assert.equal((await request("/commands/" + input.requestId, undefined, other.cookie)).body.state, "unknown");
     assert.equal((await request("/commands", { ...input, previewHash: "0".repeat(64) })).body.error.code, "production_plan_request_conflict");
     const details = await request("/assignments/" + firstId); assert.equal(details.body.history[0].snapshot.planned_quantity, "30");
-    assert.equal(details.body.resourceSnapshot.calendar.name, "合成日历"); assert.equal(await count("sales_order_color_identities"), 1);
+    assert.equal(details.body.resourceSnapshot.calendar.name, "合成日历");
+    assert.deepEqual((await pool.query("SELECT to_jsonb(c) AS value FROM sales_order_color_identities c ORDER BY id")).rows, colorIdentities);
   });
   await t.test("different commands with one order CAS have one winner and durable loser", async () => {
     const intent = await createIntent(a), x = await command(intent), y = await command(intent);

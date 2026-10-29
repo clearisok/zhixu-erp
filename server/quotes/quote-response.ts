@@ -48,7 +48,7 @@ export function projectQuoteResponse(actor:TrustedIdentity,record:QuoteRecord):Q
    if (!price.confirmation) return price;
    const confirmation:ProjectedConfirmation={...price.confirmation};
    if (!sale) {delete confirmation.quotedGarmentPrice;delete confirmation.confirmedGarmentPrice;}
-   if (!labor) delete confirmation.confirmedLaborPrice;
+   if (!labor) {delete confirmation.confirmedLaborPrice;delete confirmation.laborCurrencyAtConfirmation;}
    return {...price,confirmation};
   })}))};
   const estimateAllowed = actor.permissions.includes("estimate.view")&&!processing;

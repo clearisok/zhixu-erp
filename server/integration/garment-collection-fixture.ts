@@ -3,6 +3,7 @@ import { accountFingerprint, parseCollectorConfig } from "../ainuoke-source/coll
 import { hash } from "../ainuoke-source/contract.js";
 import type { GarmentCollectionRequest } from "../ainuoke-source/garment-collection-control.js";
 import type { GarmentObservationScope } from "../ainuoke-source/garment-shipment-observations.js";
+import { garmentFirstPageRequest } from "../ainuoke-source/garment-first-page.js";
 
 export const digest = (value: string) => createHash("sha256").update(value).digest("hex");
 export const configFor = (operatorUsername = "garment.collector", sourceKey = "synthetic-garment-collection") => parseCollectorConfig({
@@ -31,4 +32,12 @@ export function workerFrame(scope: GarmentObservationScope, now: number, rows = 
     captures: [0, 1].map(i => { const text = rawPage(rows); return { schemaVersion: "ainuoke-garment-shipment-capture.v1", reportId: "6086979",
       sourceFingerprint: scope.sourceFingerprint, queryContext: { match: "exact", salesContractNo: scope.salesContractNo }, page: 1, pageSize: 100,
       capturedAt: new Date(now - 20 + i * 10).toISOString(), rawResponseSha256: digest(text), rawReportResponse: text }; }) };
+}
+export function workerFrameV2(scope: GarmentObservationScope, now: number, rows = [sourceRow(scope.salesContractNo)], sentinel = true) {
+  const frame = workerFrame(scope, now, rows);
+  return { ...frame, captures: frame.captures.map((cap, i) => {
+    const text = rawPage(rows, sentinel ? { pageIndex: 0, pageSize: 0 } : {});
+    return { ...cap, schemaVersion: "ainuoke-garment-shipment-capture.v2", rawReportResponse: text, rawResponseSha256: digest(text),
+      executedRequest: { reportRequestNumber: i + 1, body: garmentFirstPageRequest(scope.salesContractNo) } };
+  }) };
 }

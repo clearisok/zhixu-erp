@@ -25,7 +25,7 @@ services:
       DB_NAME: quote_trial
       DB_USER: quote_trial
       DB_PASSWORD: ${TRIAL_DB_PASSWORD:?}
-      ZHIXU_ALLOWED_ORIGINS: ${TRIAL_HTTPS_ORIGIN:?HTTPS gateway origin required}
+      ZHIXU_ALLOWED_ORIGINS: ${TRIAL_PUBLIC_HTTPS_ORIGIN:-${TRIAL_HTTPS_ORIGIN:?HTTPS gateway origin required}}
       ZHIXU_COOKIE_SECURE: "true"
       ZHIXU_IDENTITY_MODE: session
       NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY: server

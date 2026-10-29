@@ -1,0 +1,318 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-10-29T04:29:17.802Z",
+  "productSource": "5c8cb8037376288aa71043e799a057e21f1b985d",
+  "reviewStartedAtHead": "c4cbac73879137de153fde9f78972a6df0ec012a",
+  "productDirectoriesUnchanged": true,
+  "sourceFiles": [
+    {
+      "path": "features/quote-center/authority/quote-authority.ts",
+      "gitBlob": "18e681f7cde0a389dc271ead76ac7a5da4421787",
+      "currentGitBlob": "18e681f7cde0a389dc271ead76ac7a5da4421787"
+    },
+    {
+      "path": "features/quote-center/components/quote-server-boundary.tsx",
+      "gitBlob": "b31b83914ad154cb706fef3c66ebffa033cc1537",
+      "currentGitBlob": "b31b83914ad154cb706fef3c66ebffa033cc1537"
+    },
+    {
+      "path": "features/data-management/components/local-data-bootstrap.tsx",
+      "gitBlob": "dc94fab2382449395ad1caf0da274a1136cb4d85",
+      "currentGitBlob": "dc94fab2382449395ad1caf0da274a1136cb4d85"
+    },
+    {
+      "path": "features/permissions/components/permission-provider.tsx",
+      "gitBlob": "93efcc9f7079e1847b939b2fcf78776f14b671e3",
+      "currentGitBlob": "93efcc9f7079e1847b939b2fcf78776f14b671e3"
+    },
+    {
+      "path": "app/page.tsx",
+      "gitBlob": "4a40684cdbfbb48a66d831142a02235762d4f386",
+      "currentGitBlob": "4a40684cdbfbb48a66d831142a02235762d4f386"
+    },
+    {
+      "path": "features/quote-center/components/production-quote-pages.tsx",
+      "gitBlob": "e696148391dc059768fe6946e7e532724df884f0",
+      "currentGitBlob": "e696148391dc059768fe6946e7e532724df884f0"
+    },
+    {
+      "path": "app/order-center/page.tsx",
+      "gitBlob": "ac21f79fe9f1866ed8e404ef2cf0ac433138cd1f",
+      "currentGitBlob": "ac21f79fe9f1866ed8e404ef2cf0ac433138cd1f"
+    },
+    {
+      "path": "app/order-center/style-progress/detail/page.tsx",
+      "gitBlob": "e3441595f51c134e0052bbc33f84cfa49078ff7d",
+      "currentGitBlob": "e3441595f51c134e0052bbc33f84cfa49078ff7d"
+    },
+    {
+      "path": "features/operations-settings/components/production-resource-settings-page.tsx",
+      "gitBlob": "1a8e23d34d1cac9781e0bf752e1b43774a791320",
+      "currentGitBlob": "1a8e23d34d1cac9781e0bf752e1b43774a791320"
+    },
+    {
+      "path": "features/production-scheduling/components/production-scheduling-authority-page.tsx",
+      "gitBlob": "71f41cb1e2c415051f95c881832eb544ce102c26",
+      "currentGitBlob": "71f41cb1e2c415051f95c881832eb544ce102c26"
+    },
+    {
+      "path": "features/closing-center/components/closing-authority-page.tsx",
+      "gitBlob": "e9cebff3ba4fa25533d6c49e2408e06fd545a558",
+      "currentGitBlob": "e9cebff3ba4fa25533d6c49e2408e06fd545a558"
+    },
+    {
+      "path": "features/production-scheduling/repository/production-scheduling-repository.ts",
+      "gitBlob": "e9a67338f48491db930894945145d2e9df78ff84",
+      "currentGitBlob": "e9a67338f48491db930894945145d2e9df78ff84"
+    },
+    {
+      "path": "features/closing-center/repository/closing-repository.ts",
+      "gitBlob": "86400f78cb27eeeb4ba186bc42441a5e26c29b95",
+      "currentGitBlob": "86400f78cb27eeeb4ba186bc42441a5e26c29b95"
+    },
+    {
+      "path": "features/order-center/server/delivery-plan-pending.ts",
+      "gitBlob": "61c3bf102ca54d36a4cbd61fcb0a6a60be04d264",
+      "currentGitBlob": "61c3bf102ca54d36a4cbd61fcb0a6a60be04d264"
+    },
+    {
+      "path": "features/production-scheduling/server/production-plan-outbox.ts",
+      "gitBlob": "fce3d3fe5099fd767a5c11bf71e7f227341fd065",
+      "currentGitBlob": "fce3d3fe5099fd767a5c11bf71e7f227341fd065"
+    },
+    {
+      "path": "features/closing-center/server/closing-pending.ts",
+      "gitBlob": "b36c6fc62f9e0d13f3ecc31123c9ce9a501d9013",
+      "currentGitBlob": "b36c6fc62f9e0d13f3ecc31123c9ce9a501d9013"
+    },
+    {
+      "path": "server/app.ts",
+      "gitBlob": "bd43ee60ca9f6fc6b8222b7f167557f278b7a7c1",
+      "currentGitBlob": "bd43ee60ca9f6fc6b8222b7f167557f278b7a7c1"
+    }
+  ],
+  "httpObservation": {
+    "receiptSha256": "626df1517a34a2b76ef45e4096e0f5b3fa580257e83466df44d3199c3b40acd7",
+    "state": "PASS",
+    "startedAt": "2026-10-29T04:23:12.373Z",
+    "endedAt": "2026-10-29T04:23:12.420Z",
+    "project": "zhixu-quote-trial-main-4e7c5853f7",
+    "source": "5c8cb8037376288aa71043e799a057e21f1b985d",
+    "rows": [
+      {
+        "path": "/build-info.json",
+        "status": 200,
+        "gitCommit": "5c8cb8037376288aa71043e799a057e21f1b985d",
+        "quoteAuthority": "server"
+      },
+      {
+        "path": "/api/bootstrap",
+        "status": 404,
+        "errorCode": "not_found",
+        "cookiesIssued": false
+      },
+      {
+        "path": "/api/quotes",
+        "status": 404,
+        "errorCode": "not_found",
+        "cookiesIssued": false
+      },
+      {
+        "path": "/api/orders",
+        "status": 404,
+        "errorCode": "not_found",
+        "cookiesIssued": false
+      },
+      {
+        "path": "/api/schedules",
+        "status": 404,
+        "errorCode": "not_found",
+        "cookiesIssued": false
+      }
+    ],
+    "requests": 5,
+    "methods": [
+      "GET"
+    ],
+    "authenticated": false,
+    "businessWrites": 0,
+    "sourceRequests": 0,
+    "scope": "current exact main application rejects legacy HTTP API names; not a Browser mount or permission matrix test",
+    "generatedTargetConfigReadInPrivateProcess": true,
+    "credentialUsedForHttpRequests": false,
+    "ainuokeCredentialFileAccessed": false,
+    "rawFieldClarification": "Raw existingCredentialAccess=false meant no account credential used for HTTP, but generated target config was parsed to locate the CA; this derived receipt narrows that ambiguous label."
+  },
+  "mountObservation": {
+    "receiptSha256": "222367e66f84b8bf361d6bca0eac6e5e2dd18585e65f29efe4ff076f4760f752",
+    "at": "2026-10-29T04:23:13.296Z",
+    "inspectedContainers": 88,
+    "root": "C:/Users/Administrator/.codex/worktrees/7bf3/zhixu-ainuoke-api",
+    "gitPresent": false,
+    "rootEntries": [
+      "node_modules"
+    ],
+    "runningDependentContainers": 0,
+    "missingBindSources": 24,
+    "dependentContainers": [
+      {
+        "id": "dae567e5178dec3cd10db5655b65c000fb8ae6aeacd39592a720f97fd930129d",
+        "name": "/zhixu-quote-trial-recovery-363159504a-objects-tls-1",
+        "project": "zhixu-quote-trial-recovery-363159504a",
+        "status": "exited",
+        "running": false,
+        "missingBinds": 2
+      },
+      {
+        "id": "f311ba9e125cf2ac29837984bd85b9663e278a8103c6be86a9eee551ebc89c52",
+        "name": "/zhixu-quote-trial-it-363159504a-app-1",
+        "project": "zhixu-quote-trial-it-363159504a",
+        "status": "exited",
+        "running": false,
+        "missingBinds": 3
+      },
+      {
+        "id": "a72f3659cd4c672e00567189d06c67f3f83dfe53a35d4fe041c7352706ddf28b",
+        "name": "/zhixu-quote-trial-it-363159504a-objects-tls-1",
+        "project": "zhixu-quote-trial-it-363159504a",
+        "status": "exited",
+        "running": false,
+        "missingBinds": 2
+      },
+      {
+        "id": "dc60c9290cf4d06cda1d6a833fedae6812660cfb2999cc327aa1956f96916f32",
+        "name": "/zhixu-quote-trial-it-363159504a-gateway-1",
+        "project": "zhixu-quote-trial-it-363159504a",
+        "status": "exited",
+        "running": false,
+        "missingBinds": 4
+      },
+      {
+        "id": "479d97a661ee79a4f95fe0a906deb0fece316f468e863b3555e0cbce8432f53f",
+        "name": "/zhixu-quote-trial-it-97e9a87152-app-1",
+        "project": "zhixu-quote-trial-it-97e9a87152",
+        "status": "exited",
+        "running": false,
+        "missingBinds": 3
+      },
+      {
+        "id": "e8733316a7a8cd075f83bde67417fedc44569a93a80ed00b4df5eea91dafc904",
+        "name": "/zhixu-quote-trial-it-97e9a87152-gateway-1",
+        "project": "zhixu-quote-trial-it-97e9a87152",
+        "status": "exited",
+        "running": false,
+        "missingBinds": 4
+      },
+      {
+        "id": "24f2a7cf0aabda27d83c0e7b7ae0ba7fb770068f0a53a19e3eefec438ada82cd",
+        "name": "/zhixu-quote-trial-it-97e9a87152-objects-tls-1",
+        "project": "zhixu-quote-trial-it-97e9a87152",
+        "status": "exited",
+        "running": false,
+        "missingBinds": 2
+      },
+      {
+        "id": "fc5b5edf945847adcd282f53d3cff7bbd247aa24327e34311c102db9eeb196c6",
+        "name": "/zhixu-quote-trial-it-64b3cc9f30-objects-tls-1",
+        "project": "zhixu-quote-trial-it-64b3cc9f30",
+        "status": "created",
+        "running": false,
+        "missingBinds": 2
+      },
+      {
+        "id": "c047bfd570f924460a24118516f7b69bc1aeb341b5123d8f8aa886df6938ebd4",
+        "name": "/zhixu-quote-trial-it-50054ce266-objects-tls-1",
+        "project": "zhixu-quote-trial-it-50054ce266",
+        "status": "created",
+        "running": false,
+        "missingBinds": 2
+      }
+    ],
+    "scope": "bind existence only; no old service restart, data contents, causes or complete recoverability claimed"
+  },
+  "recoveryCandidate": {
+    "receiptSha256": "2949574dd1487c1a716995f116ba6c2a2ace0dd95f97f664df59e80b08a14798",
+    "state": "CANONICAL_RECOVERY_CANDIDATES_PRESERVED",
+    "root": "D:/zhixu-server-convergence/legacy-bind-code-2e8610bde5",
+    "sourceRevisions": [
+      "8175f6280d54b6d4af28cb2ebe6d86741b906b9d"
+    ],
+    "canonicalFiles": [
+      {
+        "source": "8175f6280d54b6d4af28cb2ebe6d86741b906b9d",
+        "path": "ops/quote-trial/local-object-health.mjs",
+        "target": "D:/zhixu-server-convergence/legacy-bind-code-2e8610bde5/8175f6280d54b6d4af28cb2ebe6d86741b906b9d/ops/quote-trial/local-object-health.mjs",
+        "gitBlob": "ab03aa6d5e529f23aca2fea05c94c0ac00fed151",
+        "sha256": "4e130151d9567f820e0fa7aa84cbbb4844d22b7ff81247668a66c32057fabff1",
+        "bytes": 657,
+        "syntaxCheck": "PASS"
+      },
+      {
+        "source": "8175f6280d54b6d4af28cb2ebe6d86741b906b9d",
+        "path": "ops/quote-trial/tls-gateway.mjs",
+        "target": "D:/zhixu-server-convergence/legacy-bind-code-2e8610bde5/8175f6280d54b6d4af28cb2ebe6d86741b906b9d/ops/quote-trial/tls-gateway.mjs",
+        "gitBlob": "2c1b615ffefd532e97d27aaaf6d188a329f37360",
+        "sha256": "08397fd571b2e87e8f4f65ca2ca411db3e29ad8b28f237ca4e3ba6a8ee59a8c3",
+        "bytes": 1137,
+        "syntaxCheck": "PASS"
+      },
+      {
+        "source": "8175f6280d54b6d4af28cb2ebe6d86741b906b9d",
+        "path": "ops/quote-trial/local-object-control.mjs",
+        "target": "D:/zhixu-server-convergence/legacy-bind-code-2e8610bde5/8175f6280d54b6d4af28cb2ebe6d86741b906b9d/ops/quote-trial/local-object-control.mjs",
+        "gitBlob": "45c89d68281638c4621a58b218eb125001142249",
+        "sha256": "d3519ba016fabe85092094f85a57bd5a72c12dbe88c5782fc0125402c14f9c57",
+        "bytes": 1694,
+        "syntaxCheck": "PASS"
+      },
+      {
+        "source": "8175f6280d54b6d4af28cb2ebe6d86741b906b9d",
+        "path": "ops/quote-trial/local-objects.mjs",
+        "target": "D:/zhixu-server-convergence/legacy-bind-code-2e8610bde5/8175f6280d54b6d4af28cb2ebe6d86741b906b9d/ops/quote-trial/local-objects.mjs",
+        "gitBlob": "a4f583e8f1ec62213977676af56d04d73986e2c4",
+        "sha256": "1e871ea2391234212ea144746ae8f12e22e3d55339270d0b26592e00521391be",
+        "bytes": 5112,
+        "syntaxCheck": "PASS"
+      },
+      {
+        "source": "8175f6280d54b6d4af28cb2ebe6d86741b906b9d",
+        "path": "ops/quote-trial/object-bundle.mjs",
+        "target": "D:/zhixu-server-convergence/legacy-bind-code-2e8610bde5/8175f6280d54b6d4af28cb2ebe6d86741b906b9d/ops/quote-trial/object-bundle.mjs",
+        "gitBlob": "3beb9ed342ec3b14e286d4099549a6b1fcb4d79e",
+        "sha256": "1762f8ce22bff03aeec8cd0d77211da58565c03140008f56bd3147193e837e3d",
+        "bytes": 4026,
+        "syntaxCheck": "PASS"
+      },
+      {
+        "source": "8175f6280d54b6d4af28cb2ebe6d86741b906b9d",
+        "path": "ops/quote-trial/gateway-health.mjs",
+        "target": "D:/zhixu-server-convergence/legacy-bind-code-2e8610bde5/8175f6280d54b6d4af28cb2ebe6d86741b906b9d/ops/quote-trial/gateway-health.mjs",
+        "gitBlob": "86bcde945990815ae27affd4dfc53ee5d4afa0e1",
+        "sha256": "afc7ea16aeb5f3176e68c9ceea1f0f65f2ea3df08a278607342c11f400e6c6f7",
+        "bytes": 770,
+        "syntaxCheck": "PASS"
+      },
+      {
+        "source": "8175f6280d54b6d4af28cb2ebe6d86741b906b9d",
+        "path": "ops/quote-trial/readiness.mjs",
+        "target": "D:/zhixu-server-convergence/legacy-bind-code-2e8610bde5/8175f6280d54b6d4af28cb2ebe6d86741b906b9d/ops/quote-trial/readiness.mjs",
+        "gitBlob": "b939b550ee20ef49449f543cacd0dcfa51b4910a",
+        "sha256": "ef90c2db9497ebc692c6b4ee6fa5d97fec03cce377c40de1f196d31c89c226c0",
+        "bytes": 4107,
+        "syntaxCheck": "PASS"
+      }
+    ],
+    "originalBindBytesVerified": false,
+    "originalDirectoryRestored": false,
+    "runtimeRestarted": false,
+    "scope": "canonical Git files matching each image revision are candidates for a reviewed future repair, not proof of the bytes originally mounted or a validated restart"
+  },
+  "businessWrites": 0,
+  "sourceRequests": 0,
+  "newHostedCI": 0,
+  "oldAssetsChanged": false,
+  "browserStoresAccessed": false,
+  "browserAcceptance": false,
+  "completeFallbackAbsenceProven": false,
+  "scope": "listed entry paths static owner review, listed legacy GET endpoints, selected old bind dependencies; no whole-project dynamic proof or retirement approval"
+}

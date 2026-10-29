@@ -1,10 +1,12 @@
 # 关账中心
 
-## Approved Server target (2026-10-20, D-147; not implemented)
+## Server target and current engineering boundary (D-147 / D-162)
 
 用户确认未来 Server 成衣销售产值关账币种为 CNY，工价为 USD。两类金额分别保存与汇总，不直接相加，不新增自动换汇；不改写既有 Quote/PV/CCT、采购来源币种或历史关账。新系统从空业务库建立，不安排历史业务迁移，也不删除旧数据。
 
-以下描述现有 Browser 路径，不是 Server 完成证明。当前新记录不自动换汇，部分旧文档的 USD 转 RMB 描述与实现不一致；不得照搬到新 Server。加工服务产值归类、完成变化引起的 stale、出货与关账依据仍待确认。详见[批准范围和证据](../tasks/active/server-convergence-gate0-2026-10-20.md)。
+2026-10-26 用户进一步确认：加工服务产值单列，不计成衣销售；实际非USD工价阻断，待报价中心明确采用USD新版本，不换汇。未锁定记录引用的完成量/日期/版本变化须复核，已锁定快照保留并提示。成衣产值沿用数量×实际CNY成交价÷（1＋期间税率），期间税率显式确认；月份、数量、颜色和执行方手工确认，生产与出货仅参考。
+
+当前仅实现[Server关账依据与资格只读接口](SERVER_CLOSING.md)及纯依据变化策略，尚无 Server 期间/关账写入、确认、锁定或页面切换。以下描述现有 **Browser 历史路径**，不是 Server 完成证明。部分旧描述中的汇率、默认税率及完成量不触发stale不得照搬到新Server。详见[批准范围和证据](../tasks/active/server-convergence-gate0-2026-10-20.md)。
 
 ## Purpose
 

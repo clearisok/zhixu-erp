@@ -1,0 +1,26 @@
+{
+  "at": "2026-10-26T12:11:22.231Z",
+  "files": [
+    {
+      "source": "61704afe22fe9fd0ea9f6625c6092fcbb9575dfc",
+      "path": "docs/CURRENT_STATE.md",
+      "archive": "docs/tasks/completed/2026-10-26-domain-recovery-input-state/CURRENT_STATE.md",
+      "gitBlob": "33cb2cfcdb840528ca63387dbb57e730255a7303",
+      "sha256": "43695512a2cf1a7225dff3fdd10d51d8fca008a5b63f1491dd7c825adf0b6499"
+    },
+    {
+      "source": "61704afe22fe9fd0ea9f6625c6092fcbb9575dfc",
+      "path": "docs/AI_HANDOFF.md",
+      "archive": "docs/tasks/completed/2026-10-26-domain-recovery-input-state/AI_HANDOFF.md",
+      "gitBlob": "91391d1178d41e06d89db4d3fed7cffef24bb6a9",
+      "sha256": "d2af1051d8fbb17496dd40d56664941cbbce5645da66008417ec6c3410813221"
+    },
+    {
+      "source": "61704afe22fe9fd0ea9f6625c6092fcbb9575dfc",
+      "path": "docs/PROJECT_INDEX.md",
+      "archive": "docs/tasks/completed/2026-10-26-domain-recovery-input-state/PROJECT_INDEX.md",
+      "gitBlob": "21bee1d9456fcaf73c2e5837f7599d679ee977d3",
+      "sha256": "8d72a2c90e77feb922e006c60e6b69ab6fe6c36bd111583ba1dca1f36213edc0"
+    }
+  ]
+}

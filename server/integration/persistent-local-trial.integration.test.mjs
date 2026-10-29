@@ -11,12 +11,25 @@ import { randomBytes, randomUUID, createHash } from 'node:crypto';
 import { createServer } from 'node:net';
 import { request } from 'node:https';
 import { readTrialConfig } from '../../ops/quote-trial/trial.mjs';
+import { seedPersistentDomainRecovery, snapshotPersistentDomains, snapshotPersistentDomainDatabase, assertPersistentDomainRecovery } from './persistent-domain-recovery-fixture.mjs';
+import { allocateTrialSubnets, assertTrialSubnetsClear, renderOwnedNetworkOverride } from './persistent-network-fixture.mjs';
 const execute=promisify(execFile),sha=b=>createHash('sha256').update(b).digest('hex');
 async function run(bin,args,input){
   if(input!==undefined)return new Promise((yes,no)=>{const p=execFile(bin,args,{encoding:'utf8',windowsHide:true,timeout:180000,maxBuffer:8e6},(e,out)=>e?no(Error('owned_command_failed')):yes(out.trim()));p.stdin.end(input);});
   try{return (await execute(bin,args,{encoding:'utf8',windowsHide:true,timeout:180000,maxBuffer:8e6})).stdout.trim();}catch{throw Error('owned_command_failed');}
 }
 const docker=(args,input)=>run('docker',args,input);
+async function networkReservations(){
+  const rawRoutes=JSON.parse(await run('pwsh',['-NoProfile','-Command','Get-NetRoute -AddressFamily IPv4 | Select-Object -ExpandProperty DestinationPrefix | Sort-Object -Unique | ConvertTo-Json -Compress']));
+  const hostRoutes=typeof rawRoutes==='string'?[rawRoutes]:rawRoutes;
+  assert.ok(Array.isArray(hostRoutes)&&hostRoutes.length<=4096,'bounded_host_ipv4_routes_required');
+  const ids=(await docker(['network','ls','--quiet'])).split(/\r?\n/u).filter(Boolean);assert.ok(ids.length<=256&&ids.every(id=>/^[a-f0-9]{12,64}$/u.test(id)),'bounded_docker_network_inventory_required');
+  const configs=ids.length?(await docker(['network','inspect','--format','{{json .IPAM.Config}}',...ids])).split(/\r?\n/u).filter(Boolean).map(JSON.parse):[];
+  const dockerSubnets=[];
+  for(const config of configs){assert.ok(config===null||Array.isArray(config),'docker_ipam_inventory_required');
+    for(const row of config??[]){assert.ok(row&&typeof row.Subnet==='string','docker_subnet_required');if(!row.Subnet.includes(':'))dockerSubnets.push(row.Subnet);}}
+  return {hostRoutes,dockerSubnets,blocked:[...hostRoutes,...dockerSubnets]};
+}
 function assertNoProjectNetworks(project,networks){
   for(const network of networks){
     const labels=new Map((network.Labels||'').split(',').map(label=>{
@@ -29,6 +42,7 @@ const trial=async(state,action,bundle)=>{
   if(action==='prepare-local'&&state.prepared!==true){
     const networks=(await docker(['network','ls','--format','{{json .}}'])).split('\n').filter(Boolean).map(line=>JSON.parse(line));
     assertNoProjectNetworks(state.project,networks);
+    if(state.networkSubnets)assertTrialSubnetsClear(state.networkSubnets,(await networkReservations()).blocked);
   }
   const result=await run(process.execPath,[resolve('ops/quote-trial/trial.mjs'),action,state.config,`--execute=${state.project}`,...(bundle?[`--bundle-dir=${bundle}`]:[])]);
   if(action==='prepare-local'){
@@ -76,6 +90,9 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
   assert.equal(labels['org.opencontainers.image.revision'],commit);
   const parent=await mkdtemp(join(tmpdir(),'zhixu-persistent-it-')),nonce=randomBytes(5).toString('hex'),states=[];
   const owned=[`zhixu-quote-trial-it-${nonce}`,`zhixu-quote-trial-recovery-${nonce}`];
+  // The daemon's exhausted default pool is a known local condition. Plan only
+  // these four new project networks, never change defaults or remove old ones.
+  const plannedSubnets=allocateTrialSubnets((await networkReservations()).blocked,4);
   const expectedMigrations=(await readdir(resolve('database/migrations'))).filter(n=>/^\d{4}_.+\.sql$/.test(n)).sort();
   let completed=false,backup,backupHash;
   // A failed Node subtest does not reject t.test(). Stop dependent phases and
@@ -97,9 +114,17 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
   async function state(project){
     const folder=join(parent,project),p=await port();
     await run('pwsh',['-NoProfile','-File',resolve('ops/quote-trial/new-local-target.ps1'),'-Root',folder,'-Project',project,'-Port',String(p),'-Image',image,'-Commit',commit,'-BuildId',labels['io.zhixu.build-id'],'-BuildTime',labels['org.opencontainers.image.created'],'-Execute']);
-    const config=join(folder,'trial.conf'),values=readTrialConfig(config);
-    const prefix=['compose','--env-file',config,'-f',resolve('ops/quote-trial/compose.yml'),'-f',resolve('ops/quote-trial/local-objects.compose.yml'),'-f',resolve('ops/quote-trial/objects.compose.yml'),'-p',project];
-    const s={project,folder,config,values,db:`${project}-database-1`,app:`${project}-app-1`,compose:args=>docker([...prefix,...args])};states.push(s);
+    const config=join(folder,'trial.conf'),originalValues=readTrialConfig(config),prepared=JSON.parse(await readFile(join(folder,'prepared.json'),'utf8'));
+    assert.equal(prepared.contract,'zhixu-persistent-local-target.v1');assert.equal(prepared.project,project);assert.equal(prepared.sourceSha,commit);
+    assert.equal(resolve(originalValues.TRIAL_COMPOSE_OVERRIDE),resolve('ops/quote-trial/objects.compose.yml'));
+    const index=owned.indexOf(project);assert.ok(index>=0);const networkSubnets=plannedSubnets.slice(index*2,index*2+2);
+    const override=join(folder,'owned-networks.compose.yml'),original=await readFile(originalValues.TRIAL_COMPOSE_OVERRIDE,'utf8');
+    await writeFile(override,renderOwnedNetworkOverride(original,project,networkSubnets),{flag:'wx',mode:0o600});
+    const text=await readFile(config,'utf8');assert.equal((text.match(/^TRIAL_COMPOSE_OVERRIDE=/gmu)??[]).length,1);
+    await writeFile(config,text.replace(/^TRIAL_COMPOSE_OVERRIDE=.*$/mu,()=>`TRIAL_COMPOSE_OVERRIDE=${override.replaceAll('\\','/')}`));
+    const values=readTrialConfig(config);assert.ok(Object.keys(values).length===Object.keys(originalValues).length&&Object.keys(originalValues).every(key=>key==='TRIAL_COMPOSE_OVERRIDE'||values[key]===originalValues[key]),'only_owned_network_override_may_change');
+    const prefix=['compose','--env-file',config,'-f',resolve('ops/quote-trial/compose.yml'),'-f',resolve('ops/quote-trial/local-objects.compose.yml'),'-f',override,'-p',project];
+    const s={project,folder,config,values,networkSubnets,db:`${project}-database-1`,app:`${project}-app-1`,compose:(args,input)=>docker([...prefix,...args],input)};states.push(s);
     s.sql=q=>docker(['exec','-i',s.db,'psql','-X','-q','-U','quote_trial','-d','quote_trial','-At','-v','ON_ERROR_STOP=1'],q);
     const ca=await readFile(values.TRIAL_TLS_CA_FILE);
     s.request=(path,{method='GET',body,cookie,headers={}}={})=>new Promise((yes,no)=>{
@@ -112,6 +137,15 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
     return s;
   }
   const a=await state(owned[0]);let cookie,quoteId,record,attachmentId,attachmentPath,snapshot,adminHash;
+  const domainRecovery=process.env.ZHIXU_LOCAL_TRIAL_DOMAIN_RECOVERY==='true';
+  const sourceLedgerRecovery=process.env.ZHIXU_LOCAL_TRIAL_SOURCE_LEDGER_RECOVERY==='true';
+  const financialRecovery=process.env.ZHIXU_LOCAL_TRIAL_FINANCIAL_RECOVERY==='true';
+  const executorReleaseRecovery=process.env.ZHIXU_LOCAL_TRIAL_EXECUTOR_RELEASE_RECOVERY==='true';
+  assert.ok(!sourceLedgerRecovery||domainRecovery,'source ledger rehearsal requires the owned domain input');
+  assert.ok(!financialRecovery||domainRecovery,'financial rehearsal requires the owned domain input');
+  assert.ok(!executorReleaseRecovery||financialRecovery,'executor release rehearsal requires the owned financial input');
+  let domainFixture,domainSnapshot,frozenDomainDatabase;
+  const domainVerified={restart:false,beforeRestoreStartup:false,restoredReadbacks:false};
   const png=Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=','base64');
   const read=async(s,session)=>{const r=await s.request(`/api/v1/quotes/${quoteId}`,{cookie:session});assert.equal(r.status,200);return r.json().quote;};
   await phase('one-time private preparation and explicit empty-schema init; no automatic migration',async()=>{
@@ -164,6 +198,10 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
     assert.equal(await a.sql('SELECT count(*) FROM sales_orders'),'0');
     await assert.rejects(trial(a,'objects-export'));
   });
+  if(domainRecovery)await phase('nonempty domain input uses trusted binding and formal production/logistics/material commands',async()=>{
+    domainFixture=await seedPersistentDomainRecovery(a,cookie,run,{sourceLedgerRecovery,financialRecovery,executorReleaseRecovery});
+    domainSnapshot=await snapshotPersistentDomains(a,cookie,domainFixture);
+  });
   await phase('restart and cold container recreation preserve DB identity, adopted rows and attachment bytes',async()=>{
     const before=await a.sql('SELECT string_agg(version::text,\',\' ORDER BY version) FROM schema_migrations');
     assert.match(await trial(a,'restart'),/READY/);
@@ -174,10 +212,13 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
     assert.deepEqual((await a.request(`${attachmentPath}/${attachmentId}/download`,{cookie})).bytes,png);
     assert.ok((await a.sql("SELECT password_hash FROM app_users WHERE username='local.admin'"))===adminHash,'admin credential must not be overwritten');
     assert.equal(await a.sql('SELECT string_agg(version::text,\',\' ORDER BY version) FROM schema_migrations'),before);
+    if(domainRecovery){assertPersistentDomainRecovery(domainSnapshot,await snapshotPersistentDomains(a,cookie,domainFixture));domainVerified.restart=true;}
   });
   const target=s=>['-ExpectedContainerName',s.db,'-ExpectedComposeProject',s.project,'-ExpectedVolumeName',`${s.project}_data`,'-ExpectedDatabaseName','quote_trial','-ExpectedTargetFingerprint',sha(`${s.project}|${s.db}|${s.project}_data|quote_trial|local_socket|5432`)];
   await phase('offline DB and object bundle backup use the existing exact-target tools',async()=>{
-    await trial(a,'maintenance');const out=await run('pwsh',['-NoProfile','-File',resolve('Backup-Zhixu.ps1'),...target(a)]);
+    await trial(a,'maintenance');
+    if(domainRecovery)frozenDomainDatabase=await snapshotPersistentDomainDatabase(a,true,{closingFrozenProtection:financialRecovery,closingExecutorProtection:executorReleaseRecovery});
+    const out=await run('pwsh',['-NoProfile','-File',resolve('Backup-Zhixu.ps1'),...target(a)]);
     const name=/filename=(zhixu-[a-zA-Z0-9-]+\.dump)/.exec(out)?.[1];assert.ok(name);backup=resolve('backups',name);backupHash=sha(await readFile(backup));
     assert.match(await trial(a,'objects-export'),/"integrity":"PASS"/);
     const manifest=JSON.parse(await readFile(join(a.values.TRIAL_OBJECT_BUNDLE_DIR,'objects.json'),'utf8'));assert.equal(manifest.objects.length,1);assert.equal(manifest.objects[0].sha256,sha(png));
@@ -197,7 +238,9 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
     // Shared DB writer guard is unchanged: even local object containers must stop.
     await assert.rejects(run('pwsh',args));assert.equal(await b.sql("SELECT count(*) FROM pg_tables WHERE schemaname='public'"),'0');
     await b.compose(['stop','objects-tls','objects']);
-    await run('pwsh',args);await trial(b,'objects-init');
+    await run('pwsh',args);
+    if(domainRecovery){assertPersistentDomainRecovery(frozenDomainDatabase,await snapshotPersistentDomainDatabase(b,true,{closingFrozenProtection:financialRecovery,closingExecutorProtection:executorReleaseRecovery}));domainVerified.beforeRestoreStartup=true;domainVerified.closingProtectionBeforeRestoreStartup=financialRecovery;domainVerified.executorReleaseProtectionBeforeRestoreStartup=executorReleaseRecovery;}
+    await trial(b,'objects-init');
     const from=a.values.TRIAL_OBJECT_BUNDLE_DIR,to=b.values.TRIAL_OBJECT_BUNDLE_DIR;
     await cp(join(from,'objects.json'),join(to,'objects.json'));await cp(join(from,'objects'),join(to,'objects'),{recursive:true});
     const file=join(to,'objects',`${attachmentId}.bin`);await writeFile(file,'tampered');await assert.rejects(trial(b,'objects-restore'));
@@ -217,7 +260,16 @@ test('persistent local trial: owned volumes, signed TLS S3, restart and independ
     assert.deepEqual(await read(b,restoredCookie),snapshot);assert.deepEqual((await b.request(`${attachmentPath}/${attachmentId}/download`,{cookie:restoredCookie})).bytes,png);
     assert.ok((await b.sql("SELECT password_hash FROM app_users WHERE username='local.admin'"))===adminHash,'restored administrator stays unchanged');
     assert.equal(Number(await b.sql('SELECT count(*) FROM schema_migrations')),expectedMigrations.length);
+    if(domainRecovery){assertPersistentDomainRecovery(domainSnapshot,await snapshotPersistentDomains(b,restoredCookie,domainFixture));domainVerified.restoredReadbacks=true;}
     await assert.rejects(trial(b,'restore-check'));
   });
+  if(domainRecovery)t.diagnostic('DOMAIN_RECOVERY '+JSON.stringify({imageSource:commit,...domainVerified,networkSubnets:states.map(state=>({project:state.project,subnets:state.networkSubnets})),orderId:domainFixture.orderId,assignmentIds:domainFixture.assignments,businessTables:domainSnapshot.database,frozenTables:frozenDomainDatabase,sequences:undefined,readbacks:domainFixture.readPaths.length,receipts:domainFixture.receipts.length,
+    ...(financialRecovery?{financial:{orderId:domainFixture.financial.orderId,processingOrderId:domainFixture.financial.processingOrderId,
+      periodIds:domainFixture.financial.periodIds,allocationIds:domainFixture.financial.allocationIds,lockedVersions:domainFixture.financial.lockedVersions,
+      counts:domainSnapshot.financial.counts,protection:domainSnapshot.financial.protection,readbacks:domainFixture.financial.readPaths.length,receipts:domainFixture.financial.receipts.length,
+      ...(executorReleaseRecovery?{executorRelease:domainFixture.financial.executorRelease,executorReleaseProtection:domainSnapshot.financial.executorReleaseProtection}:{})}}:{}),
+    ...(sourceLedgerRecovery?{sourceLedger:{orderId:domainFixture.sourceLedger.orderId,publications:domainFixture.sourceLedger.publications,
+      generations:domainSnapshot.sourceLedger.versions.map(v=>v.generation),fakeWorkerCalls:domainFixture.sourceLedger.fakeWorkerCalls,
+      syntheticRequestCounts:true,receiptCount:domainFixture.sourceLedger.receipts.length+1}}:{})}));
   completed=true;t.diagnostic(`Exact image ${commit}; ${expectedMigrations.length} migrations; source and restore use distinct persistent object/data/secret volumes; no existing environment touched.`);
 });

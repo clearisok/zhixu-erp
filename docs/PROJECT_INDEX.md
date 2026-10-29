@@ -1,11 +1,18 @@
-# 当前任务入口：Git上传预算独立修复
+# 当前工具入口：上传预算与main562前向预整合
 
-2026-10-28；fix/git-delivery-upload-budget；已核实main和清单基线6479a713e2b80228f008049519ebbd50d10601a8。先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)和[本片工程](tasks/completed/2026-10-28-upload-budget-engineering.md)。
+2026-10-30；fix/git-delivery-upload-budget。先读[本片](tasks/active/git-upload-budget-main562-forward-2026-10-30.md)、[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)。原c91工程/main6479输入完整保留；当前main562四处文档冲突仅在本地解析。此片不含PR135未合并产品修复，不是新部署/来源/退役批准。
 
-- [交付协议与工具历史](tasks/active/git-delivery-resilience.md)：本次仅唯一push最多180秒，所有证据读取原30秒；无重试/身份/证书/祖先核实豁免。
-- [输入逐字归档](tasks/completed/2026-10-28-upload-budget-main-input/receipt.json)：保留旧main日期、hash、失败和限制。
-- [Server总Gate](tasks/active/server-convergence-gate0-2026-10-20.md)、[业务规则](BUSINESS_RULES.md)、[持久化](features/SERVER_PERSISTENCE.md)继续适用；此工具分支不改变业务或UI。
+以下main562索引保留原样及原日期。
 
-关账主分支仍在7bf3/feat/closing-support-interfaces，HEAD d243a65df9000fc6dc2a85fe8e8252c1031fe109；实际演示a198的52251和原62411等保持。不要把main工具分支旧界面当作关账目标。其单次上传超时/未送达不因本工具79项本地通过变成PR/CI/正式部署。
+# 当前入口：最终main与C1成衣完整首页兼容
 
-本片没有真实push、PR、Hosted CI、Source、账号业务库、Docker/环境或共享代理/TLS操作。后续Gate继续，已耗尽的精确上传许可不复用；不自动合并或资产退役。
+2026-10-29；比较main **e11b3c3cbd1dcf751b6fa5cb16e9323fdc67ac9e**，分支codex/garment-collection-first-page-proof。#132/#133已按具体批准merge commit，原历史保留；当前新兼容修复尚未合并或部署。
+
+先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[本片事实/验证](tasks/completed/2026-10-29-garment-first-page-compatibility.md)及[新兼容契约](features/SERVER_GARMENT_FIRST_PAGE_COMPATIBILITY.md)。原状态和全链接完整保留在e11的同路径Git blobs，以下仅列当前恢复入口，不复制过期结论。
+
+- [完整Gate0–8/R](tasks/active/server-convergence-gate0-2026-10-20.md)、[宁波闭环清单](tasks/active/ningbo-server-closed-loop-readiness-2026-10-28.md)：全目标继续，范围/日期不冒进。
+- [真实两合同窗口](tasks/active/real-source-acceptance-current-2026-10-29.md)、[133合并与固定证明](tasks/completed/2026-10-29-approved-pr133-and-garment-proof.md)、[本片C1接纳及失败](tasks/completed/2026-10-29-garment-first-page-compatibility.md)：原始额度、部分成功与新修复分开。
+- [Server来源](features/AINUOKE_SERVER_SOURCE.md)、[货款](features/AINUOKE_PAYMENT_REQUESTS.md)、[成衣观察](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)、[操作者](features/SERVER_GARMENT_OPERATOR_CURRENT.md)、[完整首页补充](features/SERVER_GARMENT_FIRST_PAGE_COMPATIBILITY.md)。
+- [staging Origin/宁波路由](tasks/completed/2026-10-29-staging-origin-and-ningbo-route.md)、[trial运维](../ops/quote-trial/README.md)、[旧写边界/恢复依赖](tasks/completed/2026-10-29-server-write-boundaries-and-retirement.md)：不是部署/切换/旧资产清理批准。
+- [关账月份](features/SERVER_CLOSING_MONTH_PLAN.md)、[年度](features/SERVER_CLOSING_ANNUAL_READ.md)、[来源复核](features/SERVER_CLOSING_SOURCE_RECONCILIATION.md)、[执行归属](features/SERVER_CLOSING_EXECUTOR_MATCHING.md)、[USD工价](features/ORDER_USD_LABOR_ADOPTION.md)。
+- [业务规则](BUSINESS_RULES.md)、[决策](DECISION_LOG.md)、[发布守卫](features/RELEASE_BASELINE_GUARD.md)、[Git交付](tasks/active/git-delivery-resilience.md)。既有安全交付常设授权不等于自动merge、部署或新Source授权。

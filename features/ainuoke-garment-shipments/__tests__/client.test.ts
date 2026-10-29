@@ -39,6 +39,23 @@ test("zero, negative, missing and invalid evidence are distinct; outdate has no 
   assert.deepEqual(value.rows.map(row => row.quantity.state), ["known", "known", "unknown", "invalid", "invalid"]);
   assert.equal(value.rows[2].businessDate.state, "unknown"); assert.equal(value.rows[3].businessDate.state, "invalid");
 });
+test("new first-page provenance is optional for history, closed and never permits multiple pages", () => {
+  const withEvidence = (total = 1) => {
+    const value = observed(total);
+    for (const trace of value.trace) trace.pagingEvidence = { schemaVersion: "ainuoke-garment-first-page-evidence.v1",
+      reportRequestNumber: trace.pass as 1 | 2, requestBodySha256: "a".repeat(64), responsePageIndex: 0, responsePageSize: 0 };
+    return value;
+  };
+  assert.deepEqual(parseGarmentView(withEvidence(), orderId, contract), withEvidence());
+  for (const edit of [
+    (x: ReturnType<typeof observed>) => { x.trace[0].pagingEvidence!.responsePageSize = 100; },
+    (x: ReturnType<typeof observed>) => { x.trace[0].pagingEvidence!.reportRequestNumber = 2; },
+    (x: ReturnType<typeof observed>) => { x.trace[0].pagingEvidence!.requestBodySha256 = "not-a-hash"; },
+    (x: ReturnType<typeof observed>) => { delete x.trace[1].pagingEvidence; },
+    (x: ReturnType<typeof observed>) => { Reflect.set(x.trace[0].pagingEvidence!, "token", "secret"); },
+  ]) { const value = withEvidence(); edit(value); assert.throws(() => parseGarmentView(value, orderId, contract)); }
+  assert.throws(() => parseGarmentView(withEvidence(101), orderId, contract));
+});
 
 test("strict allowlist rejects forged scope, totals, traces, projections and private amount fields", async t => {
   const changes: [string, (value: ReturnType<typeof observed>) => void][] = [

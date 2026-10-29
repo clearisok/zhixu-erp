@@ -1,11 +1,19 @@
-# 当前任务：单次Git上传的有界等待修复
+# 当前独立预整合：Git上传预算与main562
 
-2026-10-28；fix/git-delivery-upload-budget，独立复用git-delivery-preflight工作树。GitHub重新核实main **6479a713e2b80228f008049519ebbd50d10601a8**；从该完整本地对象建分支，原cb1658及其ref保持。进入前无dirty、无运行进程依赖。旧状态逐字保留于[输入归档](tasks/completed/2026-10-28-upload-budget-main-input/receipt.json)。
+2026-10-30；分支fix/git-delivery-upload-budget，保留原始c91d904d与已核实main562的历史。本片只有交付工具/回归及文档增量，不改变产品、SQL、UI或运行环境。四处冲突仅为共享状态/基线文档，已按main原件和旧工具历史前向保留。具体冻结、原79项复用边界及待验收见[本片](tasks/active/git-upload-budget-main562-forward-2026-10-30.md)。这是本地预整合，不是PR就绪、远端交付或合并/部署。
 
-仅交付工具的唯一push等待由默认30秒改为显式180秒，所有本地/远端证据读取仍保留原30秒；不新增CLI开关、自动重试或认证/代理/TLS路径。超时后仍独立核实，精确送达与安全STOP分开。不是承诺三分钟一定能送达，也不证明旧Git退出1的全部根因。
+业务修复[PR135](https://github.com/clearisok/zhixu-erp/pull/135)的a6667877已三项CI通过，仍等待明确merge批准；宁波实际运行main562，已批准的三合同有限初始化完成、无持续调度。当前工具片不复制未合并PR135的源码/状态文件，不重复其测试或CI；最终发布门禁/交付等待确定最终main基线后集中完成。
 
-新测试先复现旧预算未传递；修后隔离Git/state **79/79 PASS**，0失败/取消/跳过，153246.3653ms；实际PowerShell入口/超时/脱敏/安全拒绝均在该套件。Node语法与定向lint通过，独立只读复审无P1/P2，未重复产品/数据库/浏览器测试。发布清单仅前向对齐当前main，504条旧证据、能力状态及截图保持。精确a859b44cff57b7a5e7b4f42e6f6348d8d44ce266上发布回归 **144/144** 和main守卫 **PASS**（11页/66能力/0 UI），见[本片证明](tasks/completed/2026-10-28-upload-budget-engineering.md)。
+以下为本片核实main562的原状态，保留其时点和限制，不据此覆盖后续宁波事实。
 
-关账配套产品在7bf3工作树feat/closing-support-interfaces的d243a65df9000fc6dc2a85fe8e8252c1031fe109，实际演示source a198d1829675092006708727624ee867be0e7b60。其a027单次GitHub上传已用完并超时；此次修复没有再次上传该分支。两支线分别保留，不因工具本地通过冒称关账已送达/CI或已合并。
+# 当前状态：最终main已就位，C1接纳成功、出货兼容修复中
 
-整体Server收敛Goal仍active：继续最新持久空候选与非空恢复核对、精确远端交付/必要CI、具体合并/目标切换、人工接受和授权来源/依赖退役；不触碰旧3001/50426等环境、用户输入、库/卷/备份、真实账号或Source。本片真实网络push0、新PR0、Hosted CI0；旧精确单次许可不能复用为新上传。
+2026-10-29；比较main **e11b3c3cbd1dcf751b6fa5cb16e9323fdc67ac9e**，分支codex/garment-collection-first-page-proof。#132/#133已按具体批准merge commit，原历史保留；当前新兼容修复尚未合并或部署。
+
+e11应用442b1c及源码工具5568fc已冻结，确切镜像非空恢复9/9；本机https://localhost:54315五服务健康、原四卷保留，其他环境未变。发布包仅本机，没有宁波传输/部署；浏览器证书及人工接受仍待。各失败、校正、hash与备份范围见[本片证据](tasks/completed/2026-10-29-garment-first-page-compatibility.md)。
+
+获准C1窗口已停止：PI2606-008已创建唯一SO，6颜色9250件；target v1已启用。原两单在出货采集前摘要不变。成衣读取第一遍后因page_mismatch完成not_published，未第二遍/快照；本窗口2登录27报表29HTTP，不重复合同查询、不借剩余额度自动重试。失败原文未保留；旧同合同证明0/0不能冒充本次响应。
+
+离线修复只对原有界完整首页增加实际请求证据及成对0/0兼容，保留原文hash/两遍一致/≤100/时效/旧v1标识。保留报表还暴露createTime私密字段缺口，定点补齐、不输出或替代outdate。工程与剩余验证详见[契约](features/SERVER_GARMENT_FIRST_PAGE_COMPATIBILITY.md)和本片，最终候选/CI不借前件结果。
+
+完整Goal/Gate0–8/R继续：原两单已有物料四流/货款历史，C1尚未发布成衣且未采物料/货款；真实生产、商业采用和关账人工业务接受不被合成测试替代。新修复merge、新真实读取及宁波发布分别需要具体批准。没有修改旧账号/业务库、持续调度或删除旧资产。前件原状态完整保留于e11的Git及[原窗口](tasks/active/real-source-acceptance-current-2026-10-29.md)。

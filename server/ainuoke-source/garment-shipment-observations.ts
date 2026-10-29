@@ -1,6 +1,7 @@
 import { GARMENT_VISIBLE_FIELDS, garmentQuantity, garmentBusinessDate, type GarmentSourceField } from "../../features/ainuoke-garment-shipments/model.js";
 export { garmentQuantity, garmentBusinessDate, type GarmentSourceField, type GarmentQuantity, type GarmentBusinessDate } from "../../features/ainuoke-garment-shipments/model.js";
 import { hash } from "./contract.js";
+import { checkedGarmentFirstPageEvidence } from "./garment-first-page.js";
 
 /** Engineering input budgets, not permission to issue any real request. */
 export const GARMENT_OBSERVATION_LIMITS = Object.freeze({ pageSize: 100, maxPages: 20, maxRows: 2000,
@@ -8,7 +9,7 @@ export const GARMENT_OBSERVATION_LIMITS = Object.freeze({ pageSize: 100, maxPage
 export const GARMENT_SOURCE_FIELDS = ["id", "CompanyName", "billno", "FDate", "CustomerName", "Brand", "GoodsNo", "insideorderno",
   "CustomerOrderNo", "CnName", "CnColor", "QtyUnit", "styleNum", "trimnum", "ycyNum", "UsableNum", "Num", "TotalGWa", "TotalNWa",
   "ppmeetting", "indate", "outdate", "Bgrade", "Bgradereason", "factory", "Overfilled", "isClearing", "ExpContractNo", "syap", "syqr",
-  "dhmlzg", "dcsj", "GYDJY", "KCDate", "DeliveryDate", "wx", "remark", "wxprice"] as const;
+  "dhmlzg", "dcsj", "GYDJY", "KCDate", "DeliveryDate", "wx", "remark", "wxprice", "createTime"] as const;
 type Obj = Record<string, unknown>;
 export type GarmentObservationScope = { sourceFingerprint: string; salesContractNo: string };
 export class GarmentObservationError extends Error {
@@ -44,11 +45,12 @@ function capturedTime(value: unknown): number {
     return fail("shipment_observation_invalid_capture_time");
   return Date.parse(value);
 }
-function projectPage(input: unknown, scope: GarmentObservationScope) {
-  const page = object(input);
-  exact(page, ["schemaVersion", "reportId", "sourceFingerprint", "queryContext", "capturedAt", "page", "pageSize", "reportedTotal", "rawResponseSha256", "rows"]);
+function projectPage(input: unknown, scope: GarmentObservationScope, pass: number) {
+  const page = object(input), v2 = page.schemaVersion === "ainuoke-garment-shipment-page.v2";
+  exact(page, ["schemaVersion", "reportId", "sourceFingerprint", "queryContext", "capturedAt", "page", "pageSize", "reportedTotal", "rawResponseSha256", "rows",
+    ...(v2 ? ["pagingEvidence"] : [])]);
   const query = object(page.queryContext); exact(query, ["match", "salesContractNo"]);
-  if (page.schemaVersion !== "ainuoke-garment-shipment-page.v1" || page.reportId !== "6086979"
+  if ((!v2 && page.schemaVersion !== "ainuoke-garment-shipment-page.v1") || page.reportId !== "6086979"
     || page.sourceFingerprint !== scope.sourceFingerprint || query.match !== "exact" || query.salesContractNo !== scope.salesContractNo)
     return fail("shipment_observation_scope_mismatch");
   if (!Number.isSafeInteger(page.page) || Number(page.page) < 1 || Number(page.page) > GARMENT_OBSERVATION_LIMITS.maxPages
@@ -57,8 +59,15 @@ function projectPage(input: unknown, scope: GarmentObservationScope) {
     || !Array.isArray(page.rows) || Number(page.page) > Math.max(1, Math.ceil(Number(page.reportedTotal) / 100))
     || page.rows.length !== Math.min(100, Math.max(0, Number(page.reportedTotal) - (Number(page.page) - 1) * 100)))
     return fail("shipment_observation_invalid_page");
+  let pagingEvidence;
+  if (v2) {
+    if (page.page !== 1 || Number(page.reportedTotal) > 100) fail("shipment_observation_invalid_page");
+    try { pagingEvidence = checkedGarmentFirstPageEvidence(page.pagingEvidence, scope.salesContractNo, pass); }
+    catch { fail("shipment_observation_invalid_paging_evidence"); }
+  }
   const capturedAt = capturedTime(page.capturedAt);
-  const captureId = hash([page.reportId, page.sourceFingerprint, page.queryContext, page.capturedAt, page.page, page.rawResponseSha256]);
+  const captureId = hash([page.reportId, page.sourceFingerprint, page.queryContext, page.capturedAt, page.page, page.rawResponseSha256,
+    ...(pagingEvidence ? [pagingEvidence] : [])]);
   const rows = page.rows.map((raw, index) => {
     const row = object(raw);
     if (Object.keys(row).some(key => !(GARMENT_SOURCE_FIELDS as readonly string[]).includes(key))) fail("shipment_observation_unknown_field");
@@ -73,7 +82,8 @@ function projectPage(input: unknown, scope: GarmentObservationScope) {
       quantityMeaning: "this_row_garment_outstore" as const, businessDateMeaning: "source_outdate" as const };
   });
   return { page: Number(page.page), total: Number(page.reportedTotal), capturedAt, captureId, rows,
-    trace: { captureId, page: Number(page.page), capturedAt: page.capturedAt as string, rawResponseSha256: page.rawResponseSha256 as string, rowCount: rows.length } };
+    trace: { captureId, page: Number(page.page), capturedAt: page.capturedAt as string, rawResponseSha256: page.rawResponseSha256 as string,
+      rowCount: rows.length, ...(pagingEvidence ? { pagingEvidence } : {}) } };
 }
 
 /** Pure checked-page contract, not an authorization boundary. The offline Python
@@ -87,7 +97,9 @@ export function buildGarmentObservationSnapshot(input: unknown, expectedScope: G
     || [value.firstPass, value.secondPass].some(pass => pass.length < 1 || pass.length > GARMENT_OBSERVATION_LIMITS.maxPages)
     || Buffer.byteLength(JSON.stringify(value), "utf8") > GARMENT_OBSERVATION_LIMITS.maxBytes) fail("shipment_observation_input_limit");
   const rawPasses = [value.firstPass as unknown[], value.secondPass as unknown[]];
-  const passes = rawPasses.map(pass => pass.map(page => projectPage(page, scope)));
+  const schemas = new Set(rawPasses.flat().map(page => object(page).schemaVersion));
+  if (schemas.size !== 1) fail("shipment_observation_invalid_shape");
+  const passes = rawPasses.map((pass, i) => pass.map(page => projectPage(page, scope, i + 1)));
   let total: number | null = null, previous = -Infinity, oldest = Infinity;
   const captureIds = new Set<string>();
   for (const pass of passes) {

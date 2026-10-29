@@ -1,0 +1,22 @@
+{
+  "baseline": "d243a65df9000fc6dc2a85fe8e8252c1031fe109",
+  "branch": "feat/closing-support-interfaces",
+  "reason": "0052 owned recovery fixture and exact-image failure evidence; preserve previous state",
+  "files": [
+    {
+      "source": "docs/CURRENT_STATE.md",
+      "archive": "docs\\tasks\\completed\\2026-10-28-executor-recovery-input-state\\CURRENT_STATE.md",
+      "sha256": "7f9b01568acc4fad25382c714a89d4ac86ca35ed00595c31312fbebfe481fb89"
+    },
+    {
+      "source": "docs/AI_HANDOFF.md",
+      "archive": "docs\\tasks\\completed\\2026-10-28-executor-recovery-input-state\\AI_HANDOFF.md",
+      "sha256": "9e8d04fe2677f6dd37c4b1c8780f74d17831d75be779601542fe7517ff1db88a"
+    },
+    {
+      "source": "docs/PROJECT_INDEX.md",
+      "archive": "docs\\tasks\\completed\\2026-10-28-executor-recovery-input-state\\PROJECT_INDEX.md",
+      "sha256": "48515aba987e6bb21b39a12325247595a350b46b349a04ff51af0f1671c72cbd"
+    }
+  ]
+}

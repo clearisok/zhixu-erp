@@ -1,0 +1,35 @@
+import assert from 'node:assert/strict';
+import test from 'node:test';
+import { randomUUID } from 'node:crypto';
+import { closingFixture } from './closing-fixture.js';
+import { readClosingOrderBasis } from '../closing/basis-service.js';
+import { listClosingPeriods } from '../closing/read-service.js';
+import { closingMoveReference } from '../../features/closing-center/server/closing-move-reference.js';
+import type { ClosingMonthLine } from '../closing/month-plan-model.js';
+
+test('UI move reference uses adopted exact terms only for affected months, excluding unrelated scope and preserving unknowns', { timeout: 60000 }, async t => {
+  const f = await closingFixture(t), order = await f.order(), basis = order.basis;
+  for (const month of ['2027-02', '2027-03', '2027-12']) await f.apply({ action: 'create_period', month, taxRatePercent: '13', taxRateConfirmed: true, remark: 'Explicit synthetic tax' });
+  const periods = (await listClosingPeriods(f.pool, f.editor.actor, new URLSearchParams('year=2027&limit=50'))).items;
+  const blue = basis.priceLines.find(line => line.colorName === 'Blue')!.colorId;
+  const white = basis.priceLines.find(line => line.colorName === 'White')!.colorId;
+  const line = (month: string | null, quantity: string, colorId = blue): ClosingMonthLine => ({ id: randomUUID(), colorId, assignmentId: null, month, quantity });
+  const before = [line('2027-02', '20'), line('2027-12', '20')], after = [line('2027-02', '10'), line('2027-03', '10'), before[1]];
+  const rows = closingMoveReference(basis, periods, before, after, ['2027-02', '2027-03'], { sale: true, work: true });
+  assert.deepEqual(rows.map(row => row.month), ['2027-02', '2027-03']);
+  assert.equal(rows[0].before.sale.visibility === 'allowed' && rows[0].before.sale.amount?.decimal, '2000');
+  assert.equal(rows[0].after.sale.visibility === 'allowed' && rows[0].after.sale.amount?.decimal, '1000');
+  assert.equal(rows[1].after.work.visibility === 'allowed' && rows[1].after.work.amount?.decimal, '25');
+  const unknown = closingMoveReference(basis, periods, before, [line('2027-04', '20'), before[1]], ['2027-02', '2027-04'], { sale: true, work: true });
+  assert.equal(unknown[1].after.sale.visibility === 'allowed' && unknown[1].after.sale.state, 'incomplete');
+  const cny = closingMoveReference(basis, periods, [line('2027-02', '1', white)], [line('2027-03', '1', white)], ['2027-02', '2027-03'], { sale: true, work: true });
+  assert.equal(cny[1].after.work.visibility === 'allowed' && cny[1].after.work.state, 'incomplete');
+  const hidden = closingMoveReference(basis, periods, before, after, ['2027-02', '2027-03'], { sale: false, work: false });
+  assert.deepEqual(hidden[0].before.sale, { visibility: 'restricted' }); assert.deepEqual(hidden[1].after.work, { visibility: 'restricted' });
+  const pending = closingMoveReference(basis, periods, [line(null, '10')], [line('2027-03', '10')], ['2027-03'], { sale: true, work: true });
+  assert.deepEqual(pending.map(row => row.month), ['2027-03', null]);
+  const processing = await f.processing('USD'), processingBasis = await readClosingOrderBasis(f.pool, f.editor.actor, processing.id);
+  const zero = closingMoveReference(processingBasis, periods, [line(null, '10', null)], [line('2027-03', '10', null)], ['2027-03'], { sale: true, work: true });
+  assert.equal(zero[0].after.work.visibility === 'allowed' && zero[0].after.work.amount?.decimal, '0');
+  assert.equal(zero[0].after.sale.visibility === 'allowed' && zero[0].after.sale.applicablePortions, 0);
+});

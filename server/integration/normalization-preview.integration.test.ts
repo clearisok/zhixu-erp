@@ -29,6 +29,17 @@ test('normalization preview reads only synthetic disposable database', {timeout:
   assert.deepEqual((await pool.query('SELECT row_to_json(o) AS row FROM sales_orders o ORDER BY id')).rows,before);
   assert.equal(result.reviewHash,(await previewOrderNormalization(pool,actor,[a.id,b.id])).reviewHash);
  });
+ await t.test('month ownership references cannot omit a partial schema cohort',async()=>{
+  const client=await pool.connect();try{
+   await client.query('BEGIN');await client.query('ALTER TABLE server_closing_month_commands RENAME TO synthetic_hidden_month_commands');
+   await assert.rejects(()=>normalizationReferences(client),(error:unknown)=>(error as {code:string}).code==='closing_month_reference_schema_incomplete');
+   for(const table of ['server_closing_month_plans','server_closing_month_plan_versions','server_closing_month_plan_heads'])await client.query('ALTER TABLE '+table+' RENAME TO synthetic_hidden_'+table);
+   // A pre-0047 cohort cannot retain the dependent 0049 financial link table.
+   await assert.rejects(()=>normalizationReferences(client),(error:unknown)=>(error as {code:string}).code==='closing_month_financial_schema_incomplete');
+   await client.query('ALTER TABLE server_closing_month_financial_links RENAME TO synthetic_hidden_month_financial_links');
+   assert.equal((await normalizationReferences(client)).some(([table])=>table.startsWith('server_closing_month_')),false);
+  }finally{await client.query('ROLLBACK');client.release();}
+ });
  await t.test('color reference schema is optional before upgrade, but a partial upgrade fails closed',async()=>{
   const client=await pool.connect();
   try{
@@ -36,8 +47,20 @@ test('normalization preview reads only synthetic disposable database', {timeout:
    await client.query('ALTER TABLE sales_order_commercial_lines RENAME TO synthetic_hidden_commercial_lines');
    await assert.rejects(()=>normalizationReferences(client),(error:unknown)=>(error as {code:string}).code==='color_reference_schema_incomplete');
    await client.query('ALTER TABLE sales_order_color_identities RENAME TO synthetic_hidden_color_identities');
+   // A pre-0028 rehearsal cannot retain the dependent 0046 receipt table.
+   await client.query('ALTER TABLE order_labor_adoption_commands RENAME TO synthetic_hidden_labor_commands');
    const references=await normalizationReferences(client);
    assert.equal(references.some(([table])=>table==='sales_order_color_identities'||table==='sales_order_commercial_lines'),false);
+  }finally{await client.query('ROLLBACK');client.release();}
+ });
+ await t.test('labor evidence column and receipt table must be upgraded together',async()=>{
+  const client=await pool.connect();
+  try{
+   await client.query('BEGIN');
+   await client.query('ALTER TABLE order_labor_adoption_commands RENAME TO synthetic_hidden_labor_commands');
+   await assert.rejects(()=>normalizationReferences(client),(error:unknown)=>(error as {code:string}).code==='labor_adoption_reference_schema_incomplete');
+   await client.query('ALTER TABLE sales_order_commercial_lines RENAME COLUMN labor_confirmation_source TO synthetic_hidden_labor_source');
+   assert.equal((await normalizationReferences(client)).some(([table])=>table==='order_labor_adoption_commands'),false);
   }finally{await client.query('ROLLBACK');client.release();}
  });
  await t.test('sale adjustment reference schema cannot silently omit a partial upgrade',async()=>{

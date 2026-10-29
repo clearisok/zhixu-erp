@@ -1,0 +1,16 @@
+{
+  "baselineSha": "6479a713e2b80228f008049519ebbd50d10601a8",
+  "level": "V0",
+  "paths": [
+    "features/quote-center/model/quote-view-model.ts"
+  ],
+  "pages": [
+    "quote-detail",
+    "order-detail"
+  ],
+  "visibleDifference": "none",
+  "evidence": [
+    "docs/features/ORDER_USD_LABOR_ADOPTION.md",
+    "docs/tasks/active/order-usd-labor-adoption-2026-10-27.md"
+  ]
+}

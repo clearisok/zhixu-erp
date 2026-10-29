@@ -1,0 +1,29 @@
+{
+  "sourceCommit": "bcab6ce3c56a89c54ef3628634450d7cdcf16fa1",
+  "sourceManifestGitBlob": "0dc28b3473693bc1a609235bcf78cf2745931b41",
+  "sourceManifestSha256": "41ab948ed169d15ea87c2f0f26908b21d2d7f494b77ce1a6684b4a9a18d5bd2f",
+  "status": "unverified-invalid-candidates-permanently-retired",
+  "reason": "Both supersedes chains end at branch-only independent roots absent from actual main 869ee84dd0b31de6161011e4aa560678b244a64d; never accepted by the exact baseline guard. Preserve Git history and these exact objects; do not reuse the IDs.",
+  "records": [
+    {
+      "id": "closing-commands-d163-server_closing-20261027",
+      "kind": "document",
+      "path": "docs/features/SERVER_CLOSING.md",
+      "recordedAtSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
+      "renderedSourceSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
+      "sha256": "43d9774122b66cc13189227595d2acdf129975bed6d90dd69e660f1607c3d8d9",
+      "supersedes": "closing-basis-d162-server_closing-20261026",
+      "changeReason": "D163 implements D162 Server closing snapshots and atomic commands; preserve all historical Browser/Server evidence and uncompleted UI/live boundaries"
+    },
+    {
+      "id": "closing-commands-d163-business_rules-20261027",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
+      "renderedSourceSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
+      "sha256": "e08d3e037403139e06e4602d7bd936d5b6cca903b1a2ea71e92136df833bd592",
+      "supersedes": "closing-basis-d162-business_rules-20261026",
+      "changeReason": "D163 implements D162 Server closing snapshots and atomic commands; preserve all historical Browser/Server evidence and uncompleted UI/live boundaries"
+    }
+  ]
+}

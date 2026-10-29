@@ -1,0 +1,4 @@
+# Preserve the captured Windows checkout bytes referenced by input-state.json.
+AI_HANDOFF.md -text whitespace=cr-at-eol
+CURRENT_STATE.md -text whitespace=cr-at-eol
+PROJECT_INDEX.md -text whitespace=cr-at-eol

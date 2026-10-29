@@ -159,8 +159,28 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
   });
   await t.test("missing UUID and unsupported routes cannot enter old Browser pages",async()=>{
    await navigate("/order-center/style-progress/detail");await has("仅接受正式订单 UUID");
-   for(const route of ["/order-center/new","/order-center/style-progress","/order-center/risks","/closing-center"]){await navigate(route);await has("此模块未在当前候选中启用");}
+   for(const route of ["/order-center/new","/order-center/style-progress","/order-center/risks"]){await navigate(route);await has("此模块未在当前候选中启用");}
    assert.deepEqual(await evaluate("Object.keys(localStorage).filter(k=>k.startsWith('zhixu.erp.local.'))"),[]);
+  });
+  await t.test("approved snapshot closing routes enforce trusted permissions without Browser fallback or writes",async()=>{
+   const routes=["/closing-center?year=2027","/closing-center/detail?year=2027"];
+   await login(x.users.at(-1));
+   for(const route of routes){
+    await navigate(route);await has("暂无关账查看权限");await has("需要关账、订单及生产排单查看权限。");
+    assert.equal(await evaluate("document.querySelector('.sc-adjustment-page')!==null"),false);
+    assert.equal(await evaluate("(async()=> (await fetch('/api/v1/closing/year?year=2027')).status)()"),403);
+    assert.deepEqual(await evaluate("window.businessWrites"),[]);
+    assert.deepEqual(await evaluate("Object.keys(localStorage).filter(k=>k.startsWith('zhixu.erp.local.'))"),[]);
+   }
+   await login(x.users[0]);
+   for(const route of routes){
+    await navigate(route);await has("全年成衣销售产值 · CNY");await has("全年加工产值 · USD");
+    assert.equal(await evaluate("document.querySelector('.sc-adjustment-page')!==null"),true);
+    assert.equal(await evaluate("document.querySelectorAll('[aria-label=全年十二个月] .sc-month-card').length"),12);
+    assert.equal(await evaluate("(async()=> (await fetch('/api/v1/closing/year?year=2027')).status)()"),200);
+    assert.deepEqual(await evaluate("window.businessWrites"),[]);
+    assert.deepEqual(await evaluate("Object.keys(localStorage).filter(k=>k.startsWith('zhixu.erp.local.'))"),[]);
+   }
   });
   await t.test("explicit snapshot candidate opens trusted Server planning without Browser stores or business writes",async()=>{
    await login(x.users.at(-1));await navigate("/production-scheduling");await has("暂无生产排单权限");

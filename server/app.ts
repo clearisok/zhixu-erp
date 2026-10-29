@@ -66,6 +66,8 @@ import { routeManagedRoles } from "./auth/managed-role-routes.js";
 import { routeProductionResources } from "./production-resources/routes.js";
 import { routeProductionScheduling } from "./production-scheduling/routes.js";
 import { routeMaterialArrivals } from "./material-arrivals/routes.js";
+import { routeClosing } from "./closing/routes.js";
+import { routeLaborAdoptions } from "./sales-orders/labor-adoption-routes.js";
 import type { SourceReadConfig } from "./ainuoke-source/reader.js";
 import type { PaymentSnapshotReader } from './ainuoke-source/payment-request-store.js';
 import type { GarmentShipmentReader } from './ainuoke-source/garment-shipment-store.js';
@@ -368,6 +370,8 @@ async function route(
   if (await routeProductionResources(request, response, dependencies)) return;
   if (await routeProductionScheduling(request, response, dependencies)) return;
   if (await routeMaterialArrivals(request, response, dependencies)) return;
+  if (await routeClosing(request, response, dependencies)) return;
+  if (await routeLaborAdoptions(request, response, dependencies)) return;
   const creationReceipt = /^\/api\/v1\/quotes\/creation-receipts\/([^/]+)$/.exec(path);
   const creationOrder = /^\/api\/v1\/quotes\/creation-order-context\/([^/]+)$/.exec(path);
   const creationOrigin = /^\/api\/v1\/quotes\/([^/]+)\/creation-origin$/.exec(path);
@@ -687,8 +691,9 @@ async function route(
   const retiredOrderWrite=!['GET','HEAD','OPTIONS'].includes(request.method??'')&&(
     /^\/api\/v1\/sales-orders\/[^/]+\/(identity|preparation-adoptions)$/.test(path)
     ||path==='/api/v1/order-preparations'
-    ||/^\/api\/v1\/order-normalization-cases(?:\/.*)?$/.test(path)
-    ||/^\/api\/v1\/order-normalization-workspace(?:\/.*)?$/.test(path)
+    // Match the downstream legacy dispatch policy, including mixed-case URLs.
+    ||/^\/api\/v1\/order-normalization-cases(?:\/.*)?$/iu.test(path)
+    ||/^\/api\/v1\/order-normalization-workspace(?:\/.*)?$/iu.test(path)
     ||/^\/api\/v1\/sales-orders\/[^/]+\/commercial-versions(?:\/preview)?$/.test(path));
   if(retiredOrderWrite||path==='/api/v1/order-claimants'){
     const identity=await dependencies.identityAuthority.resolve(request);

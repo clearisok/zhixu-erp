@@ -11,6 +11,12 @@ export function validateTrial(values) {
   if(!/^[0-9a-f]{40}$/.test(values.TRIAL_COMMIT||''))throw Error('full_reviewed_commit_required');
   const origin=new URL(values.TRIAL_HTTPS_ORIGIN);if(origin.protocol!=='https:'||origin.origin!==values.TRIAL_HTTPS_ORIGIN)throw Error('https_origin_required');
   if(origin.port!==String(port)||!['localhost','127.0.0.1','[::1]'].includes(origin.hostname))throw Error('local_trial_origin_mismatch');
+  const accessProfile=values.TRIAL_ACCESS_PROFILE??'local';
+  if(!['local','staging'].includes(accessProfile))throw Error('invalid_trial_access_profile');
+  const publicOrigin=values.TRIAL_PUBLIC_HTTPS_ORIGIN;
+  if(accessProfile==='local'&&publicOrigin!==undefined)throw Error('public_origin_requires_staging_profile');
+  if(accessProfile==='staging'&&publicOrigin!=='https://staging.weaveops.top')throw Error('exact_staging_origin_required');
+  const browserOrigin=accessProfile==='staging'?publicOrigin:origin.origin;
   const endpoint=new URL(values.TRIAL_S3_ENDPOINT);if(endpoint.protocol!=='https:'||endpoint.username||endpoint.password)throw Error('https_storage_required');
   for(const key of ['TRIAL_IMAGE','TRIAL_BUILD_ID','TRIAL_BUILD_TIME','TRIAL_DB_PASSWORD','TRIAL_ADMIN_PASSWORD','TRIAL_S3_REGION','TRIAL_S3_BUCKET','TRIAL_SECRET_ID_FILE','TRIAL_SECRET_KEY_FILE','TRIAL_TLS_CERT_FILE','TRIAL_TLS_KEY_FILE'])if(!values[key])throw Error('missing_'+key);
   for(const key of ['TRIAL_SECRET_ID_FILE','TRIAL_SECRET_KEY_FILE','TRIAL_TLS_CERT_FILE','TRIAL_TLS_KEY_FILE'])if(!isAbsolute(values[key]))throw Error('absolute_file_required');
@@ -18,7 +24,7 @@ export function validateTrial(values) {
   if(values.TRIAL_TLS_CA_FILE&&!isAbsolute(values.TRIAL_TLS_CA_FILE))throw Error('absolute_file_required');
   if(values.TRIAL_READY_TIMEOUT_MS!==undefined&&(!/^\d+$/.test(values.TRIAL_READY_TIMEOUT_MS)||Number(values.TRIAL_READY_TIMEOUT_MS)<1000||Number(values.TRIAL_READY_TIMEOUT_MS)>120000))throw Error('readiness_timeout_invalid');
   const localObjects=validateLocalObjectConfig(values);
-  return {project:values.TRIAL_PROJECT,image:values.TRIAL_IMAGE,commit:values.TRIAL_COMMIT,buildId:values.TRIAL_BUILD_ID,buildTime:values.TRIAL_BUILD_TIME,origin:origin.origin,port,localObjects};
+  return {project:values.TRIAL_PROJECT,image:values.TRIAL_IMAGE,commit:values.TRIAL_COMMIT,buildId:values.TRIAL_BUILD_ID,buildTime:values.TRIAL_BUILD_TIME,origin:origin.origin,browserOrigin,accessProfile,port,localObjects};
 }
 export function readTrialConfig(path) {
   const values={};for(const line of readFileSync(path,'utf8').split(/\r?\n/)) {
@@ -47,6 +53,8 @@ export function validateComposeTarget(model,safe) {
   if(database.volumes?.length!==1||database.volumes[0].source!=='data'||database.volumes[0].target!=='/var/lib/postgresql/data'||database.volumes[0].type!=='volume')throw Error('unsafe_pgdata');
   if(app.environment.DB_HOST!=='database'||app.environment.DB_NAME!=='quote_trial'||app.environment.DB_USER!=='quote_trial'||app.environment.DATABASE_URL)throw Error('foreign_db');
   if(app.environment.ZHIXU_IDENTITY_MODE!=='session'||app.environment.ZHIXU_COOKIE_SECURE!=='true'||app.environment.NODE_ENV!=='production')throw Error('unsafe_identity');
+  if(app.environment.ZHIXU_ALLOWED_ORIGINS!==safe.browserOrigin)throw Error('application_origin_mismatch');
+  if(gateway.environment?.TRIAL_HTTPS_ORIGIN!==safe.origin)throw Error('gateway_probe_origin_mismatch');
   for(const [key,value] of Object.entries({ZHIXU_GIT_COMMIT:safe.commit,ZHIXU_BUILD_ID:safe.buildId,ZHIXU_BUILD_TIME:safe.buildTime,NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY:'server',NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY:'server',NEXT_PUBLIC_ZHIXU_QUOTE_WRITER_MODE:'writable'}))if(app.environment[key]!==value)throw Error('runtime_identity_mismatch');
   if(gateway.ports?.length!==1||gateway.ports[0].host_ip!=='127.0.0.1'||String(gateway.ports[0].published)!==String(safe.port))throw Error('unsafe_binding');
   if(gateway.healthcheck?.disable||JSON.stringify(gateway.healthcheck?.test)!==JSON.stringify(['CMD','node','/trial/gateway-health.mjs']))throw Error('gateway_probe_required');

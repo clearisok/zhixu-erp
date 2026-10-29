@@ -19,7 +19,8 @@ import { accountFingerprint } from "../ainuoke-source/collector.js";
 import { collectGarmentOnce, planGarmentCollection, readGarmentCollectionReceipt, garmentCollectionProof } from "../ainuoke-source/garment-collection-control.js";
 import { createGarmentShipmentReader, prepareGarmentPublication, publishGarmentObservation } from "../ainuoke-source/garment-shipment-store.js";
 import { validateGarmentCollectionResult } from "../ainuoke-source/garment-collection-worker.js";
-import { collectionRequest, configFor, workerFrame } from "./garment-collection-fixture.js";
+import { collectionRequest, configFor, workerFrame, workerFrameV2 } from "./garment-collection-fixture.js";
+import { parseGarmentView } from "../../features/ainuoke-garment-shipments/client.js";
 
 test("durable garment commands, one worker, atomic publication and original request recovery", { timeout: 240000 }, async t => {
   const db = await startDisposablePostgres(), pool = new pg.Pool({ connectionString: await db.createDatabase("garment_commands"), max: 12 });
@@ -86,6 +87,20 @@ test("durable garment commands, one worker, atomic publication and original requ
     const startCalls = calls, duplicate = await collect(job); assert.equal(duplicate.receiptState, "unverified_started"); assert.equal(calls, startCalls);
     release(); assert.equal((await pending).result?.outcome, "published");
     assert.equal((await collect(job)).receiptState, "completed"); assert.equal(calls, startCalls);
+  });
+  await t.test("v2 complete sentinel pages publish, persist original paging evidence and recover without another worker", async () => {
+    const job = await make(), before = calls;
+    const result = await collectGarmentOnce(pool, job.actor, job.request, job.permit, { now: () => clock,
+      collect: async (_config, scope) => { calls++; clock += 100; return workerFrameV2(scope, clock); } });
+    assert.equal(result.result?.outcome, "published"); assert.equal(calls, before + 1);
+    const current = await reader.read(admin, job.orderId); assert.ok("trace" in current);
+    assert.deepEqual(parseGarmentView(current, job.orderId, job.request.verification.selection.salesContractNo), current);
+    assert.deepEqual(current.trace.map(x => [x.pagingEvidence?.responsePageIndex, x.pagingEvidence?.responsePageSize]), [[0, 0], [0, 0]]);
+    assert.equal(current.rows.length, 1);
+    assert.deepEqual((await receipt(job)).result, result.result);
+    assert.deepEqual((await collect(job)).result, result.result); assert.equal(calls, before + 1);
+    const historical = await reader.read(admin, job.orderId);
+    assert.deepEqual(historical, current);
   });
   await t.test("expired original request remains historical after later target and head changes", async () => {
     const job = await make(), result = await collect(job), before = calls;

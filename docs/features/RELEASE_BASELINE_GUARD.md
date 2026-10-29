@@ -89,10 +89,32 @@ the same path, `supersedes: <old-id>` and a nonempty `changeReason`. Only the la
 document version must match the working file; earlier blobs stay readable in Git.
 Do not remove the old ID or reuse it for a different assertion.
 Multiple committed revisions in one stacked branch may form a forward chain.
-Every chain must reach an ID in the actual PR-base manifest; intermediate Git
-blobs remain hash-checked. Missing links, cycles, unclosed forks, same-commit document
+For paths already represented in the actual PR-base manifest, every chain must
+reach that base's evidence ID. Intermediate Git blobs remain hash-checked.
+Missing links, cycles, unclosed forks, same-commit document
 revisions and path/kind changes fail closed. This does not authorize overwriting
 any original evidence or advance deployment/acceptance status.
+
+A document path first frozen after the actual PR base has no base evidence ID.
+Its next linear revision instead needs a committed checkpoint witness: the
+revision's exact source commit must be in the checked branch, descend from the
+actual base and have exactly one Git parent. That immediate parent's Git-loaded
+manifest must already contain the exact predecessor and its complete same-path,
+acyclic frozen lineage. Every source commit in that lineage must descend from
+the actual base and be an ancestor of the parent; every evidence record in the
+parent manifest must remain unchanged. Each ordinary revision must prove its
+own immediate-parent witness; it cannot inherit an older revision's witness.
+The new revision itself cannot already be in that parent. Lineage traversal is
+bounded to256 unique records including the new revision and256 records along any
+path. Completed nodes are memoized with their longest remaining path, so shared
+merge ancestors are not revalidated exponentially and cached results cannot
+bypass the depth or cycle bound. The witness shares the existing64MiB
+distinct-parent-manifest budget.
+Missing/corrupt history, forged roots, future or sibling sources, overwritten
+records and missing/tampered original blobs still fail. There is no new manifest
+field or change to the PR comparison base. This witness cannot replace the usual
+base anchor for a path already represented there, cannot stand in for a merge,
+and does not grant UI/approval/capability/deployment status.
 
 Parallel reviewed document branches can converge through an explicit document-only
 `mergeOf: [<predecessor-id>, <predecessor-id>, ...]` record, mutually exclusive with
@@ -102,7 +124,10 @@ The guard reads that checkpoint's actual Git parents: two parent branches must
 contribute different predecessor histories. All predecessor commits must be strict
 ancestors of the checkpoint and the checkpoint must be in the checked head.
 
-Every branch must trace back to the actual PR base; cycles and multiple final leaves
+Every branch must trace back to the actual PR base or, for a post-base path, an
+ordinary predecessor's own restricted committed checkpoint above. A real merge
+still requires the actual Git-parent contribution and retention checks below;
+it is not accepted through the single-parent exception. Cycles and multiple final leaves
 remain errors. All evidence records in the Git parents' manifests must be retained
 unchanged, including records not yet on main. A merge cannot hide missing intermediate
 blobs or modify old hashes/edges. Its own `mergeOf` is immutable in later PRs. A normal
@@ -130,8 +155,9 @@ unrelated paths. This also applies when H has no document record or its author
 freezes a later ordinary checkpoint. Missing/invalid Git history is not an empty
 manifest. Discovery is bounded to256 corridor merges,8 parents per merge and64MiB
 of distinct parent manifests; exceeding a bound fails explicitly without a
-truncated PASS. Parent manifests are cached, and ordinary commits do not add
-manifest reads. This protects history actually merged into the inspected corridor,
+truncated PASS. Parent manifests are cached; ordinary corridor commits are not
+scanned. Only an eligible post-base document revision may separately load its
+immediate source-parent checkpoint as described above. This protects history actually merged into the inspected corridor,
 not unmerged branches outside it. Default local/dispatch inspection still compares
 working changes to HEAD; it cannot replace the explicit actual-main PR gate.
 
@@ -254,3 +280,10 @@ previous local audit's later time is not represented as new in-repo runtime proo
 The regression fixture loads actual frozen Git blobs using `readEvidenceBlobs`: one bounded metadata query, then one binary payload query by verified object IDs. It rejects missing/non-blob objects, malformed identities, CR/LF/NUL protocol injection, more than4096 records, more than1MiB request bytes, a blob over16MiB or unique payloads over64MiB. Both child processes have15-second limits; exact binary boundaries and complete output are checked. No textconv/filter, synthetic replacement or cached PASS is used.
 
 Every fixture still owns independent real files; the existing real-Git cases retain their separate owned repositories, while ordinary fixtures keep their original in-memory commit/blob doubles; only repeated creation of the same parent directory is deduplicated. There are no shared writable hardlinks or file/result caches across checks. `validateBaseline`, `runCheck`, immutable evidence rules and hosted workflow quality gates are unchanged. The original134 cases remain, with10 new reader checks. The earlier901399ms timeout and bounded progress diagnosis remain explicitly incomplete; current source-attributed results are recorded separately in [the task](../tasks/active/release-evidence-efficiency-2026-10-26.md).
+
+
+## Imported post-base documents after an exact main integration (2026-10-28)
+
+A document first frozen on the independent source branch after its original base cannot prove its old commits descend from newly advanced main. A restricted historical context now uses only the identical full baseline recorded in the actual Git manifests of both exact merge parents M/S, with that base an ancestor of each. H must be the real two-parent M/S integration, preserve all parent records and explicitly import the exact same-path source leaf. Every old ordinary revision still proves its own immediate-parent checkpoint, complete lineage and original blobs in that historical base; all visited old records must also exist unchanged in S. A later integration cannot repair a source manifest that deleted an earlier record. Only exact frozen historical roots gain root eligibility; current arbitrary roots do not.
+
+A later ordinary U remains based on current M and must have frozen H and the complete old chain in its own direct parent. Traversal continues through the imported chain rather than stopping at H. Active cycles, per-context memoization, 256-node/depth, 64MiB parent-manifest budgets, real merge contribution checks, original screenshot/approval and immutable evidence checks remain. No historical ID/hash is rewritten. See the real-Git regression and dated integration task; a checkpoint witness cannot be declared retroactively in an earlier commit parent.

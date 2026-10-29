@@ -1,0 +1,23 @@
+{
+  "baselineSha": "6479a713e2b80228f008049519ebbd50d10601a8",
+  "level": "V3",
+  "visibleDifference": "Approved complete-order Source quantity review dialog and compact row menu/issue shortcut. Explicit open-fragment reductions and new pending/unassigned quantities; no new amount or Source collection entry. Uses existing display and original-request service.",
+  "paths": [
+    "app/closing-center/closing-center.css",
+    "features/closing-center/components/server-closing-adjustment-page.tsx",
+    "features/closing-center/components/server-closing-source-dialog.tsx",
+    "features/closing-center/components/use-closing-month-editor.ts",
+    "features/closing-center/server/closing-source-draft.ts"
+  ],
+  "pages": [
+    "closing-adjustment"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/completed/2026-10-28-closing-support-and-pr130-approval.md"
+  },
+  "evidence": [
+    "docs/tasks/completed/2026-10-28-closing-support-and-pr130-approval.md",
+    "docs/features/SERVER_CLOSING_SOURCE_RECONCILIATION.md"
+  ]
+}

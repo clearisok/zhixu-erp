@@ -51,5 +51,13 @@ export async function waitReady({inspect,expected,probe,safe,storageProbe,timeou
   throw Error(last);
 }
 export function safeFailure(error){
-  return ['runtime_identity_mismatch','runtime_storage_mismatch','local_object_storage_not_ready','app_not_ready','gateway_unhealthy','database_not_ready','https_entry_not_ready','readiness_timeout_invalid','gateway_probe_required','image_identity_mismatch','compiled_identity_mismatch','explicit_matching_execute_required'].includes(error?.message)?error.message:'trial_operation_failed_review_config_or_safe_service_logs';
+  if(['runtime_identity_mismatch','runtime_storage_mismatch','local_object_storage_not_ready','app_not_ready','gateway_unhealthy','database_not_ready','https_entry_not_ready','readiness_timeout_invalid','gateway_probe_required','image_identity_mismatch','compiled_identity_mismatch','explicit_matching_execute_required'].includes(error?.message))return error.message;
+  // Child stderr may include credentials/configuration. Inspect only bounded
+  // primitive bytes and return a fixed category; never forward the raw output.
+  const stderr=error?.stderr;
+  if(Number.isInteger(error?.status)&&error.status>0&&(typeof stderr==='string'||Buffer.isBuffer(stderr))&&Buffer.byteLength(stderr)<=65536){
+    const text=typeof stderr==='string'?stderr:stderr.toString('utf8');
+    if(/Error response from daemon: (?:all predefined address pools have been fully subnetted|could not find an available, non-overlapping IPv4 address pool)/i.test(text))return 'docker_address_pool_exhausted';
+  }
+  return 'trial_operation_failed_review_config_or_safe_service_logs';
 }

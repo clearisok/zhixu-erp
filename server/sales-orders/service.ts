@@ -4,6 +4,7 @@ import { HttpError } from "../http/errors.js";
 import type { Pool, PoolClient } from "pg";
 import type { TrustedIdentity } from "../auth/session.js";
 import { appendOperationLog } from "../operation-logs/repository.js";
+import { initializeOrderClosingMonth, lockOrderClosingMonthCreation } from "../closing/month-plan-service.js";
 import {
   AINUOKE_CONTRACT_ENTITY_TYPE,
   AINUOKE_SOURCE_SYSTEM,
@@ -52,6 +53,7 @@ export async function createAinuokeSalesOrder(
 /** Caller owns transaction and trusted authorization; shared domain creation path. */
 export async function createAinuokeSalesOrderInTransaction(client: PoolClient, actor: TrustedIdentity, input: CreateAinuokeSalesOrderInput): Promise<CreateAinuokeSalesOrderResult> {
     await lockEffectiveAttribution(client);
+    await lockOrderClosingMonthCreation(client);
     const normalizedSourceId = input.source.sourceId.normalize("NFKC").trim();
     if (!normalizedSourceId) throw new Error("sourceId is required");
     const sourceLockKey = `${AINUOKE_SOURCE_SYSTEM}:${AINUOKE_CONTRACT_ENTITY_TYPE}:${normalizedSourceId}`;
@@ -91,6 +93,7 @@ export async function createAinuokeSalesOrderInTransaction(client: PoolClient, a
     });
     await upsertCurrentAinuokeContractMirror(client, salesOrder.id, input.source);
     await replaceCurrentAinuokeColorSlice(client, salesOrder.id, input.colors);
+    await initializeOrderClosingMonth(client, actor, salesOrder.id);
     await appendOperationLog(client, actor, {
       module: "艾诺科同步",
       action: "艾诺科新增订单",
