@@ -1,4 +1,8 @@
-# 当前入口：main562与C1成衣真实发布
+# 当前入口：宁波staging已部署及固定Source初始化
+
+2026-10-30北京时间；产品main562fbf07。先读[当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[宁波部署/恢复/公网验收](tasks/completed/2026-10-30-ningbo-isolated-staging-deployment.md)。部署已批准且完成，新三合同有限初始化另获明确批准、尚未开始；旧资产和本机历史保持。以下为原阶段入口，保留原日期与事实。
+
+# 历史入口：main562与C1成衣真实发布
 
 2026-10-29，产品main **562fbf07f2caccfc9ba0d9c1a8e6a7e58436ee94**。先读[当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)与[本片验收](tasks/completed/2026-10-29-main562-real-garment-acceptance.md)。#134已合并、本机C1出货已发布；宁波尚未部署。以下为前片入口，保留日期/范围，不覆盖历史事实。
 
