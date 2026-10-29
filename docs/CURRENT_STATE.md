@@ -1,4 +1,12 @@
-# 当前状态：PR131正常送达，收口实际浏览器验收
+# 当前状态：独立修复已退役归一入口的大小写绕过
+
+2026-10-29；main基线 **5c8cb8037376288aa71043e799a057e21f1b985d**，当前 `codex/retired-normalization-route-guard`；源码6ec7a56671284f236a553afbfcedae376e1ca43a。[本片证据](tasks/completed/2026-10-29-retired-normalization-route-guard.md)：合成库修复前HTTP200/案件版本2，修复后14/14、canonical类型及两文件lint通过，独立复审关闭P2。只改两条正则匹配标志，既有鉴权/历史/数据不变；没有新部署或真实写入。最终元数据守卫、远端/草稿PR/CI仍按实际后置。
+
+#131已批准merge commit进入本基线，原历史保留。#132的015dec三项CI已通过，仍待精确merge许可；不改其head。两合同真实首绑/颜色尺码/三代四流和独立货款窗口已完成并停止，证据/持久数据留在D:/新隔离目标及原文档分支032c553f；真实生产/成衣/关账尚未全部闭环，新6086979具体读取待许可。旧挂载恢复风险和7份canonical候选已保存，未恢复/清理旧资产。当前运行80ff尚未含本修复；没有自动merge、CI重跑、宁波部署或新增真实Source。
+
+## 继承的main历史摘要
+
+以下保留原日期/失败/结果，不把旧“#131未合并”作为当前事实。
 
 2026-10-29；branch feat/closing-support-interfaces；main **6479a713e2b80228f008049519ebbd50d10601a8**；本片baseline40b1a7f712fce70026b90f3f795e28b691b17de2 clean。最终HEAD/dirty从Git核对。[本片证据](tasks/completed/2026-10-29-pr131-browser-route-recovery.md)、[原三摘要全文/hash](tasks/completed/2026-10-29-pr131-browser-route-recovery/input-state.json)保留全部旧日期、失败与限制；完整Gate0–8/R继续。
 
