@@ -1,4 +1,14 @@
-# 接力：宁波公网已验收，三合同固定初始化已获批但尚未开始
+# 接力：宁波三合同固定初始化完成，待人工体验
+
+2026-10-30北京时间；产品main562fbf07、app d0685f、operator100e92，https://staging.weaveops.top。先读[最新实证](tasks/completed/2026-10-30-ningbo-fixed-source-initialization.md)和[部署/恢复](tasks/completed/2026-10-30-ningbo-isolated-staging-deployment.md)。
+
+- 用户批准的固定初始化已全部执行，不能重复询问或再采：前两单各3轮物料、6086941各一份；第三单PI2606-008只采6086979。约10分32秒，0重试。run容器zhixu-ningbo-source-7247e4beea-run exit0，无活跃采集进程/持续调度。新额度需具体授权。
+- SO-1 PI2608-257 UUID8ae5851b-ed07-4f6c-acbf-d18fbcb4daad，13500/1色、9物料/18货款；SO-2 PI2609-039 UUID3bde5f34-17c0-45c5-916e-0cd738f8455e，6000/1色、31物料/15货款；SO-3 PI2606-008 UUIDa79f7730-a27b-4d49-9904-e18f62d83e6b，9250/6色、16成衣行全部颜色匹配。当前SO均保留原Source身份，8色尺码证据可读。第三单物料API404/历史0是未采范围，不能误称订单不存在或物料零数量。
+- 有效宁波配置 **/home/jackson/weaveops-staging-preview/runtime/trial.source.conf**；只比原trial.conf增加两个reader标志，原件保留。不要再用原config start撤销reader。private报告卷zhixu-ningbo-source-7247e4beea-reports保留，原证明时点不变；现所有prepare/run/backup动作已完成，不重跑。公共回执outputs/ningbo-approved-deployment/source-window，manifest固定runner68b8cec.../approval04ddc5...。
+- 公网正式HTTPS/API三单/交期/生产/月分配及来源当前/历史读回通过，quote_*及附件保持；121表保护核对通过、旧5容器/3卷/6网络原样。没有新生产/商业/财务命令；新备份hash3993468f.../947996字节，私密source-initialization-backup-tools/backups下，未重新恢复该dump。原空系统独立恢复事实保持，不冒称新真实Source恢复通过。
+- 本次无产品/SQL修改、无CI/push/合并，文档按本地独立checkpoint保存。新包装语法、实际固定窗口、公网读回、保护核对、新备份及精确main源码守卫通过（12页/68能力/0UI变化）；未重跑旧全套。时效10分钟不延长；过期用已有历史，不登录/重读。没有登录后全页面人工接受，完整Goal Gate0–8/R未完成。登录私密文件D:/zhixu-server-convergence/ningbo-target-562fbf07-f3f9f290/staging-login.txt可给用户文件链接，不输出密码。
+
+# 历史接力：宁波公网已验收，三合同固定初始化已获批但尚未开始
 
 2026-10-30北京时间。产品main562fbf07、app d0685f；https://staging.weaveops.top 已按明确批准切到新项目127.0.0.1:3003。先读[部署/恢复/公网原件摘要](tasks/completed/2026-10-30-ningbo-isolated-staging-deployment.md)。下方为本机阶段历史接力，保留日期和范围。
 

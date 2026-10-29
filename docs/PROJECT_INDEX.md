@@ -1,4 +1,8 @@
-# 当前入口：宁波staging已部署及固定Source初始化
+# 当前入口：宁波固定Source窗口已完成
+
+2026-10-30北京时间；main562fbf07。先读[当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[宁波三合同固定来源验收](tasks/completed/2026-10-30-ningbo-fixed-source-initialization.md)。三单/三轮物料/两单货款/一单成衣已发布并公网读回，无持续调度，不造生产/价格/关账。下面入口保留各自时点，不能将历史“未开始”作为当前状态。
+
+# 历史入口：宁波staging已部署及固定Source初始化
 
 2026-10-30北京时间；产品main562fbf07。先读[当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[宁波部署/恢复/公网验收](tasks/completed/2026-10-30-ningbo-isolated-staging-deployment.md)。部署已批准且完成，新三合同有限初始化另获明确批准、尚未开始；旧资产和本机历史保持。以下为原阶段入口，保留原日期与事实。
 
