@@ -13,3 +13,5 @@
 **下一步**：收口配置独立草稿PR/必要CI；同SHA Linux源码operator、新持久目标与D147真实执行单。旧staging仍7cd；目标DB、公网路由TLS/cookie/附件尚未实际验收，D105真实首绑/有限续刷及人工核对未完成，尚不能提醒部署就绪。完整Gate0–8/R继续。
 
 无新真实Source/凭据读取/绑定/激活/调度、真实库/账号修改、宁波部署、50426切换或旧资产退役。旧额度已消耗，具体范围另批；保护所有旧库/卷/对象/备份/工作树、3001/50426/65139与共享依赖。
+
+**本片最终本地收口**：冻结be4f102249ad108d374cf26ddf97052f50b68e0f输入后，发布182/182通过（0失败/取消/跳过），上轮旧清单/新摘要不一致失败保留。精确main5c8新持久空目标 https://localhost:54315 READY，5健康服务/4新卷，121表中111业务表全部0，重启前后相同；Linux源码工具b7e8独立operator-only，原CLI源码守卫/help及3308Git blobs、至该新库的只读连接通过，不是实际业务采集。全部新结果/准备失败/限制见[新收口](tasks/completed/2026-10-29-main-local-target-and-source-tools.md)和[安全回执](tasks/completed/2026-10-29-main-image-staging-profile/final-local-validation.json)。下一步仅本分支最终精确守卫、一次集中交付/唯一草稿PR/必要CI与复审；新head未送达/CI前不预报。真实两合同首绑/有限续刷/财务及成衣范围仍未获新D147额度，staging未就绪、未部署。
