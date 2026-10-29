@@ -14,3 +14,4 @@
 
 - [本机精确main空目标与Linux源码工具](tasks/completed/2026-10-29-main-local-target-and-source-tools.md)：原准备时点54315 READY、发布182/182、CLI与新库只读连通；之后真实窗口结果见当前任务，不沿用原“未运行”状态。
 - [staging协议及宁波Tunnel](tasks/completed/2026-10-29-staging-origin-and-ningbo-route.md)：十项本机协议断言、收尾失败/保留、既有Tunnel只读观察和完整Gate剩余项；不是公网部署通过。
+- [Server写入边界与旧恢复依赖](tasks/completed/2026-10-29-server-write-boundaries-and-retirement.md)：正式入口/旧命令分流、旧API实际404、9个未运行容器24缺失挂载及canonical恢复候选；未切换、退役或删除旧资产。
