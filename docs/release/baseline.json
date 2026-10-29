@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "5c8cb8037376288aa71043e799a057e21f1b985d",
-  "verifiedAt": "2026-10-29T04:44:47.728Z",
+  "baselineSha": "8da5644cb5f3202955b39224065fbab5aea3f4b6",
+  "verifiedAt": "2026-10-29T05:51:38.580Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -5404,12 +5404,56 @@
       "changeReason": "Fresh-main Git ancestry reconciliation for retained historical implementation; separate current Server owner, retired writes and unmerged financial scope. Preserve prior evidence and all unverified activation/acceptance/deployment dimensions."
     },
     {
+      "id": "staging-profile-d178-20261029",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "5f997f354120ff3ce9db292ece7c725ea7ba538a",
+      "renderedSourceSha": "5f997f354120ff3ce9db292ece7c725ea7ba538a",
+      "sha256": "83336ffba90995bd18b41b586ce314c4904bcf884d49c49cf13523b3be66d4fa",
+      "supersedes": "closing-support-main6479-integration-1-20261028",
+      "changeReason": "Forward evidence for approved PR131 merge, exact main Linux image and nonempty synthetic recovery; controlled staging Origin engineering only. Preserve all prior versions and historical deployment/source/acceptance dimensions. No public deployment or live Source activation."
+    },
+    {
+      "id": "main-image-staging-profile-proof-20261029",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-29-main-image-staging-profile.md",
+      "recordedAtSha": "5f997f354120ff3ce9db292ece7c725ea7ba538a",
+      "renderedSourceSha": "5f997f354120ff3ce9db292ece7c725ea7ba538a",
+      "sha256": "9fded57108bcd9cb9fc9101283f3aa3c355ee1d27faf2056debe5a3fc0d877aa",
+      "changeReason": "Forward evidence for approved PR131 merge, exact main Linux image and nonempty synthetic recovery; controlled staging Origin engineering only. Preserve all prior versions and historical deployment/source/acceptance dimensions. No public deployment or live Source activation."
+    },
+    {
       "id": "retired-normalization-route-guard-20261029",
       "kind": "document",
       "path": "docs/tasks/completed/2026-10-29-retired-normalization-route-guard.md",
       "recordedAtSha": "1769becca52e5606cce72ba6c8a2569a3e03fb65",
       "sha256": "2bcc4394f362a9d8c6e1c8f00762ed577d2df5f21e27b5645629327c1959d5c9",
       "changeReason": "Fix case-policy parity for retired normalization HTTP writes, backed by disposable-database before/after regression; preserve authentication, history, original evidence and all deployment/acceptance dimensions."
+    },
+    {
+      "id": "local-staging-release-integration-20261029",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-29-local-staging-release-integration.md",
+      "recordedAtSha": "d818f0d5ea89567dafa623c746ce238a764802d1",
+      "sha256": "44040a44e0c15764af25e88d458332dcaf62afcfb40f5d1c47e38d8727153ce6",
+      "changeReason": "Local integration of reviewed staging and retired-route heads with existing source evidence; preserve all original records and non-conflicting product blobs. No main merge, Hosted dispatch, new real Source or deployment."
+    },
+    {
+      "id": "approved-pr133-and-garment-proof-20261029",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-29-approved-pr133-and-garment-proof.md",
+      "recordedAtSha": "25fa26cd4f077712caa727b60ce01ca3575c324c",
+      "sha256": "cf488181ac57a24eae54e7f6af15faf4c0f5be0ea82c15fef41610324129f773",
+      "changeReason": "Record human-approved PR133 merge, exact signed object import, unchanged-product PR132 forward integration and fixed 6086979 read-only proof; retain original history and distinct binding/deployment/real business boundaries."
+    },
+    {
+      "id": "staging-profile-d178-main8da-import-20261029",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "69c398e5422d85a348561c561a5991e404c71be2",
+      "sha256": "83336ffba90995bd18b41b586ce314c4904bcf884d49c49cf13523b3be66d4fa",
+      "supersedes": "staging-profile-d178-20261029",
+      "changeReason": "Forward witness at the actual two-parent integration of approved main8da and validated staging source5e; import the exact D178 leaf without changing its bytes or any prior evidence. Preserve all main/source history and deployment/acceptance dimensions."
     }
   ],
   "pages": [

@@ -23,6 +23,13 @@
 
 ## Active
 
+### D-178 受控 staging 浏览器 Origin 与本机健康探针分离
+
+- 日期：2026-10-29；Active engineering，承接已批准的最终镜像与宁波体验准备，不改变业务规则或扩大真实部署/Source额度。
+- 复用 `ops/quote-trial` 唯一持久化栈，默认仍为 local。只有显式 `TRIAL_ACCESS_PROFILE=staging` 与完整 `https://staging.weaveops.top` 一起配置时，应用浏览器 Origin 才采用该域名；`TRIAL_HTTPS_ORIGIN` 仍须是与端口一致的 loopback HTTPS，继续供本机与网关健康检查使用。
+- 实际 Compose 的应用 allowed Origin、网关 probe Origin 必须分别精确匹配已验证配置；未知模式、默认模式携带公网值、域名/路径/端口/列表及继承环境漂移均拒绝。原 session、Secure cookie、CSRF、TLS信任、镜像身份及私有存储/端口保护不变。
+- 这不是公网路由、真实Source接纳或调度激活。确切新目标、路由、TLS/Host/cookie和附件验收另行收口；不复用旧staging数据库或卷。main5c8镜像及其9/9恢复仅证明其精确版本，不冒称包含本后继配置或未来main。[当前证据](tasks/completed/2026-10-29-main-image-staging-profile.md)。
+
 ### D-177 配套关账入口与无产出执行归属显式恢复
 
 - 日期：2026-10-28；Active approved business/UI scope，用户对三项此前具体方案答复“全部确认”；实现与验收逐片记录，不因批准宣称完成。

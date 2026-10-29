@@ -1,0 +1,197 @@
+{
+  "phase": "Final local main target and original source-operator preparation",
+  "sourceSha": "5c8cb8037376288aa71043e799a057e21f1b985d",
+  "release": {
+    "state": "PASS",
+    "head": "be4f102249ad108d374cf26ddf97052f50b68e0f",
+    "startedAt": "2026-10-29T00:52:28.743Z",
+    "endedAt": "2026-10-29T01:01:29.340Z",
+    "commandEquivalentTo": "node --test tests/release-baseline-guard.test.mjs tests/responsive-mobile-batch1.test.mjs",
+    "reporterOnlyChange": "tap",
+    "exit": 0,
+    "timedOut": false,
+    "counts": {
+      "tests": 182,
+      "pass": 182,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0
+    },
+    "sameInputs": true,
+    "sameHead": true,
+    "clean": true,
+    "logSha256": "006cd09ef5fb3e53a1e605dcdc20a5154b3cd1a4f764dd7a03be6c5adeed42c9",
+    "firstAttempt": {
+      "state": "FAILED",
+      "headAtStart": "fa18f516ddf63547ec1ecae91e6bf22e58b554d0",
+      "command": "npm run test:release-baseline",
+      "observedErrors": [
+        "EVIDENCE_WORKTREE_DRIFT closing-support-main6479-integration-1-20261028",
+        "STATE_BASELINE_DRIFT current state/handoff/index"
+      ],
+      "cause": "Runner captured pre-reconciliation manifest before new metadata freeze, while current docs already reflected main5c8. Inputs were not frozen for that attempt.",
+      "counts": "not retained in bounded console capture; no all-pass claim",
+      "productChanges": 0,
+      "repeatedSourceOrRestoreTests": 0
+    }
+  },
+  "target": {
+    "state": "READY",
+    "project": "zhixu-quote-trial-main-4e7c5853f7",
+    "root": "D:/zhixu-server-convergence/main-empty-5c8-4e7c5853f7",
+    "origin": "https://localhost:54315",
+    "sourceSha": "5c8cb8037376288aa71043e799a057e21f1b985d",
+    "imageId": "sha256:80ff7e5318e0f9345cdb63715d2c6e6f4eb2087dc34527abc942056e39d85ff8",
+    "buildId": "server-main-5c8cb803-d20d6f9c51",
+    "opsFiles": 21,
+    "publicTables": 121,
+    "nonTechnicalEmptyTables": 111,
+    "services": [
+      {
+        "service": "gateway",
+        "id": "7dd969e9e4e19adcf870915645cf1cbfb2e558f69a7c7551a14aefdca51d83bb",
+        "imageId": "sha256:80ff7e5318e0f9345cdb63715d2c6e6f4eb2087dc34527abc942056e39d85ff8",
+        "health": "healthy"
+      },
+      {
+        "service": "app",
+        "id": "288078663e9caa72005c33d36792ff0b1a12deca699cc05e34215b99f486217d",
+        "imageId": "sha256:80ff7e5318e0f9345cdb63715d2c6e6f4eb2087dc34527abc942056e39d85ff8",
+        "health": "healthy"
+      },
+      {
+        "service": "objects-tls",
+        "id": "d43cadb3b0950f7573bf2db6f9823a98b03a3482938b658fd642fe3b64497d03",
+        "imageId": "sha256:80ff7e5318e0f9345cdb63715d2c6e6f4eb2087dc34527abc942056e39d85ff8",
+        "health": "healthy"
+      },
+      {
+        "service": "objects",
+        "id": "a618957b9387bcd97c7806a893b2a68c4f0d71d02d7d67703f7632a240f0d7f5",
+        "imageId": "sha256:6dabb4a2088c9a79908de3bc05f4586c23ad2182c8908e7e3acbf61c1467fb20",
+        "health": "healthy"
+      },
+      {
+        "service": "database",
+        "id": "6c7712a8b93a408c358eca553f60f93370597f139940c030a5ed15aeaf45d6c4",
+        "imageId": "sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229",
+        "health": "healthy"
+      }
+    ],
+    "volumes": [
+      "zhixu-quote-trial-main-4e7c5853f7_appsecrets",
+      "zhixu-quote-trial-main-4e7c5853f7_data",
+      "zhixu-quote-trial-main-4e7c5853f7_objects",
+      "zhixu-quote-trial-main-4e7c5853f7_objectsecrets"
+    ],
+    "networks": [
+      {
+        "id": "c2eb9e7d36f1abd2fb3d2395a9cb2f4a561ba8f39965b09aa9c9854bf4aac831",
+        "name": "zhixu-quote-trial-main-4e7c5853f7_default",
+        "internal": true,
+        "subnet": "10.253.240.64/28"
+      },
+      {
+        "id": "53e6bce67a2d69f47401c972e4d28a9a7e0345e35771c2d3d7a9bcd211a8bcf7",
+        "name": "zhixu-quote-trial-main-4e7c5853f7_ingress",
+        "internal": false,
+        "subnet": "10.253.240.80/28"
+      }
+    ],
+    "restartPreserved": true,
+    "sourceProfiles": 0,
+    "canonicalDatabaseTarget": {
+      "project": "zhixu-quote-trial-main-4e7c5853f7",
+      "container": "zhixu-quote-trial-main-4e7c5853f7-database-1",
+      "volume": "zhixu-quote-trial-main-4e7c5853f7_data",
+      "database": "quote_trial",
+      "fingerprint": "ba8a0fb77709d7314f0258a383112ad6ceb5e5985e2b9a95f619dc500aa22360"
+    },
+    "privateReceiptSha256": "24b4dc6b4f7961de396981aba258f9e09d0025117745614cc5a15a3c429f2146",
+    "preservation": {
+      "containers": {
+        "before": 74,
+        "missingOrChanged": []
+      },
+      "volumes": {
+        "before": 201,
+        "missingOrChanged": []
+      },
+      "networks": {
+        "before": 37,
+        "missingOrChanged": []
+      }
+    }
+  },
+  "tools": {
+    "state": "TOOLS_SOURCE_SMOKE_PASS",
+    "imageId": "sha256:b7e8fa82f4a24053d6e64ffc7a8045a534a59208d35a1a93b11255dec701ebe0",
+    "sourceSha": "5c8cb8037376288aa71043e799a057e21f1b985d",
+    "layout": "immutable-git-checkout-without-Windows-bind",
+    "smoke": {
+      "state": "SOURCE_CHECKOUT_AND_HELP_PASS",
+      "source": "5c8cb8037376288aa71043e799a057e21f1b985d",
+      "uid": 1000,
+      "garmentCheckout": true,
+      "help": [
+        {
+          "name": "payment",
+          "help": true
+        },
+        {
+          "name": "garment",
+          "help": true
+        }
+      ],
+      "paymentPassedCheckoutThenRejectedSyntheticOutput": true,
+      "network": "none",
+      "realSourceRequests": 0,
+      "databaseConnections": 0,
+      "credentialsMounted": false
+    },
+    "allSourceBlobs": 3308,
+    "privateDatabaseReadOnly": true,
+    "migrations": 51,
+    "actor": {
+      "public_id": "495d1659-7938-46a0-93ba-530069f3177a",
+      "username": "local.admin",
+      "active": true,
+      "archived_at": null
+    },
+    "privateReceiptSha256": "f2a3b5ca1fa305790c1ccbb2d96f4b1db9cb68e0b650c05a53a10a20ab37f9ab",
+    "connectivityReceiptSha256": "929f04466114d71ce9a05b278bfd2be728f8944e29965057725489869428c663",
+    "preservation": {
+      "containers": {
+        "before": 74,
+        "missingOrChanged": []
+      },
+      "volumes": {
+        "before": 201,
+        "missingOrChanged": []
+      },
+      "networks": {
+        "before": 37,
+        "missingOrChanged": []
+      }
+    }
+  },
+  "preparationFailuresRetained": [
+    "First release run used pre-reconciliation manifest with already revised state docs; corrected frozen-input run 182/182.",
+    "Initial offline bundle clone imported no branch from refs/remotes/origin/main; explicit same-local-bundle fetch corrected it, zero remote Git.",
+    "FROM sha256 config-ID syntax resolved an unintended registry name and failed before apk/npm; original cached repository/tag was then verified by immutable ID and base layers.",
+    "Windows-source bind smoke exceeded 30s, then bounded 90s diagnostic; original failed records preserved. Internal Linux immutable checkout succeeded; exact old timeout root cause remains unproven.",
+    "Ignored generated Dockerfile contained literal plus continuation markers, then root init in UID1000 dir was rightly refused; corrected explicit recipe and matching UID1000 init, no shared trust exception.",
+    "Read-only DB helper requested UI-only status column; corrected to actual active/archived_at DDL and succeeded."
+  ],
+  "boundaries": {
+    "realSourceRequests": 0,
+    "realCredentialFilesRead": 0,
+    "existingBusinessDatabaseWrites": 0,
+    "realAccountChanges": 0,
+    "deployments": 0,
+    "sourceTargetActivation": 0,
+    "oldAssetCleanup": false,
+    "publicRuntimeAccepted": false,
+    "realOperatorBusinessCommandExecuted": false
+  }
+}

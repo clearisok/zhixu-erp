@@ -4,6 +4,8 @@
 
 ## 本次只读现场事实
 
+**2026-10-29前向收口**：#131已批准merge为main5c8cb8037376288aa71043e799a057e21f1b985d，三项CI成功、双父6479/e94及原树核实。canonical80ff Linux镜像一次非空持久恢复9/9，旧资产零缺失/变更。D178后继增量保留loopback探针、显式指定staging浏览器Origin；不包含于80ff。见[新证据](../completed/2026-10-29-main-image-staging-profile.md)。以下旧7cd/宁波观察保留原日期，不声称本片重新SSH或部署；目标operator/DB、公网cookie/附件、真实来源和人工接受仍待收口。
+
 通过既有 `weaveops` SSH 别名、BatchMode、严格已知主机校验进行只读观察；没有 sudo、凭据读取、数据库查询、安装、构建、容器启停或配置写入。
 
 - Linux x86_64，Docker 29.8.1；根盘剩余194G、可用内存约13.2GiB，未做压测。

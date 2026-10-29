@@ -1,0 +1,37 @@
+{
+  "schemaVersion": 1,
+  "approvedMain": "8da5644cb5f3202955b39224065fbab5aea3f4b6",
+  "originalPR132Head": "015dec7409e6109b9adbd638624d28dfd6ebc7f0",
+  "forwardIntegration": "69c398e5422d85a348561c561a5991e404c71be2",
+  "productTreeUnchangedFromValidatedCombination": true,
+  "garmentProof": {
+    "state": "FIXED_GARMENT_CONTRACT_PROOF_IDENTIFIED_OFFLINE",
+    "at": "2026-10-29T05:46:36.509Z",
+    "salesContractNo": "PI2606-008",
+    "matchesExistingTwoContractScope": false,
+    "positiveRows": 16,
+    "repeatPositiveHashesIdentical": true,
+    "negativeControl": "zero rows validated by original producer",
+    "candidateSha256": "1f366d401214ceee52bec6df9cb7713af713e1d6aec67492df193051a0bb6647",
+    "sourceFingerprint": "82ef1be86b5f4969a156aeb3e9a7df540a26bbe684c838d8085e90b1ae99f983",
+    "actualSourceWindow": {
+      "logins": 2,
+      "reportRequests": 4,
+      "httpAttempts": 6
+    },
+    "additionalSourceRequests": 0,
+    "databaseAccess": "none",
+    "binding": "none",
+    "activation": "none",
+    "publication": "none",
+    "privateReportVolume": "zhixu-garment-proof-bc0f9f4ba1-reports"
+  },
+  "newBusinessDatabaseAccess": false,
+  "newBindings": false,
+  "newActivation": false,
+  "newPublication": false,
+  "newSchedule": false,
+  "newDeployment": false,
+  "newCI": "not yet triggered for this candidate",
+  "scope": "completed fixed proof and approved PR133 merge; PR132 final head and checks remain separately verified"
+}
