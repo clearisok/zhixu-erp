@@ -18,6 +18,14 @@ export function syntheticShipmentInput(total = 127, offset = 0) {
 const run = (input: unknown) => buildGarmentObservationSnapshot(input, scope, start + 10000);
 const code = (expected: string) => (error: unknown) => (error as { code?: string }).code === expected;
 
+test("v1 historical snapshot, capture and observation identities retain the pre-fix values", () => {
+  // Computed from the Git-loaded implementation and fixture at main e11b3c3c.
+  const snapshot = run(syntheticShipmentInput());
+  assert.equal(snapshot.snapshotId, "3988b966270937d9761035b9e2a79d677806d557242695bba48298062d408e20");
+  assert.equal(snapshot.trace[0].captureId, "b3ee5b03e35de247ec27fa7be6a65384f3bbdfd00825c80d0e43d0a744f49687");
+  assert.equal(snapshot.rows[0].observationId, "0aed895058dc3aab8c6dc52236020a0b819b0730c231a585dc69b40debe3d8d2");
+});
+
 test("garment snapshot preserves exact Num/outdate, independent dates and observation-only provenance", () => {
   const input = syntheticShipmentInput(), snapshot = run(input);
   assert.equal(snapshot.rows.length, 127); assert.equal(snapshot.rows[100].trace.page, 2);

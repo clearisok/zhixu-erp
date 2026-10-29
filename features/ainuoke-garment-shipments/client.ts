@@ -110,13 +110,22 @@ export function parseGarmentView(input: unknown, id: string, contract: string, p
     || complete.allCompanyRecordsRead !== false || complete.contractFilterExecution !== "requires_separate_verification"
     || !Array.isArray(value.trace) || value.trace.length !== pages * 2) return invalid();
   const rowInputs = value.rows;
+  const hasPagingEvidence = Object.hasOwn(object(value.trace[0]), "pagingEvidence");
   let previous = from;
   const traces = value.trace.map((input, index) => {
-    const trace = object(input); exact(trace, ["pass", "captureId", "page", "capturedAt", "rawResponseSha256", "rowCount"]);
+    const trace = object(input); exact(trace, ["pass", "captureId", "page", "capturedAt", "rawResponseSha256", "rowCount",
+      ...(hasPagingEvidence ? ["pagingEvidence"] : [])]);
     const page = index % pages + 1, time = stamp(trace.capturedAt);
     if (trace.pass !== Math.floor(index / pages) + 1 || trace.page !== page || !sha(trace.captureId) || !sha(trace.rawResponseSha256)
       || trace.rowCount !== Math.min(100, Math.max(0, rowInputs.length - (page - 1) * 100)) || time < previous || time > through
       || index === 0 && time !== from || index === pages * 2 - 1 && time !== through) return invalid();
+    if (hasPagingEvidence) {
+      const evidence = object(trace.pagingEvidence);
+      exact(evidence, ["schemaVersion", "reportRequestNumber", "requestBodySha256", "responsePageIndex", "responsePageSize"]);
+      if (pages !== 1 || evidence.schemaVersion !== "ainuoke-garment-first-page-evidence.v1" || evidence.reportRequestNumber !== trace.pass
+        || !sha(evidence.requestBodySha256) || !(evidence.responsePageIndex === 0 && evidence.responsePageSize === 0
+          || evidence.responsePageIndex === 1 && evidence.responsePageSize === 100)) return invalid();
+    }
     previous = time; return trace;
   });
   if (new Set(traces.map(trace => trace.captureId)).size !== traces.length) return invalid();

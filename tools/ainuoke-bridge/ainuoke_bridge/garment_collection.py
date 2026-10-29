@@ -15,7 +15,7 @@ from time import monotonic
 from .ainuoke_client import AinuokeClient, UpstreamSchemaError
 from .contracts import build_report_request
 from .garment_report_screening import DEFINITION, screen
-from .garment_shipment_observations import extract_garment_observation_page
+from .garment_shipment_observations import extract_garment_observation_page, checked_executed_request
 from .payment_request_observations import strict_json
 from .payment_request_contract_probe import fingerprint
 from .payment_request_probe import BoundedPaymentTransport, FAILURE_CODES
@@ -32,6 +32,7 @@ EXTRA_CODES = frozenset({
     "shipment_observation_count_mismatch", "shipment_observation_invalid_rows", "shipment_observation_exact_contract_rows_required",
     "shipment_observation_invalid_raw_response", "garment_filter_structure_limit", "payment_observation_duplicate_json_key",
     "payment_observation_invalid_json", "payment_observation_invalid_shape", "payment_observation_invalid_count",
+    "shipment_observation_invalid_paging_evidence",
 })
 
 
@@ -68,6 +69,11 @@ class GarmentCollectionTransport(BoundedPaymentTransport):
         self.deadline = monotonic() + 180
         self.total_report_bytes = 0
         self.stopped = False
+        self.last_executed_request = None
+
+    def record_executed_request(self, body):
+        self.last_executed_request = checked_executed_request({"reportRequestNumber": self.report_requests, "body": body},
+            self.scope["salesContractNo"], self.report_requests)
 
     def report_body_allowed(self, body):
         return (not self.stopped and self.scope is not None and self.http_attempts == self.report_requests + 1
@@ -89,6 +95,7 @@ class GarmentCollectionTransport(BoundedPaymentTransport):
         try:
             result = super().request(**{**kwargs, "timeout": min(kwargs["timeout"], remaining)})
             if kwargs["method"] == "POST":
+                self.record_executed_request(kwargs["body"])
                 self.total_report_bytes += len(self.last_report_text.encode("utf-8"))
                 if self.total_report_bytes > LIMIT_BYTES:
                     fail("garment_collection_response_limit")
@@ -114,13 +121,14 @@ def collect(value, transport=None):
         if not isinstance(raw, str) or transport.last_report_request_number != _pass:
             fail("garment_collection_raw_missing")
         screen(strict_json(raw), (value["password"], session.jwt_token, session.session_id))
-        capture = {"schemaVersion": "ainuoke-garment-shipment-capture.v1", "reportId": "6086979",
+        executed = checked_executed_request(transport.last_executed_request, value["scope"]["salesContractNo"], _pass)
+        capture = {"schemaVersion": "ainuoke-garment-shipment-capture.v2", "reportId": "6086979", "executedRequest": executed,
                    **value["scope"], "queryContext": {"match": "exact", "salesContractNo": value["scope"]["salesContractNo"]},
                    "capturedAt": datetime.now(timezone.utc).isoformat(), "page": 1, "pageSize": 100,
                    "rawResponseSha256": sha256(raw.encode("utf-8")).hexdigest(), "rawReportResponse": raw}
         del capture["salesContractNo"]
-        # Formal pages require exact metadata. Zero sentinels from diagnostic
-        # endpoints are never silently changed into page 1 / size 100.
+        # Keep source metadata unchanged. The v2 path binds the actual bounded
+        # request and only accepts a complete first page, including paired 0/0.
         checked = extract_garment_observation_page(capture)
         if checked["reportedTotal"] > 100:
             fail("garment_collection_pagination_unverified")
