@@ -1,5 +1,7 @@
 # 当前状态：宁波staging及三合同固定初始化已完成
 
+**当前开发**：最新GitHub main本轮核实仍562fbf07、0开放PR。Gate4本地候选修正“可信新合同尚未采物料却404”的读取空态，沿用not_connected和原权限/来源校验；相关回归79通过/1既有Windows跳过，最终新增用例7/7、类型/局部lint/Server编译通过。见[本片](tasks/completed/2026-10-30-bound-order-material-empty-state.md)。发布证据/CI待最终交付；未合并或更新宁波，不新增Source查询。下方为实际已部署事实，不用候选替代。
+
 2026-10-30（北京时间）；产品main **562fbf07f2caccfc9ba0d9c1a8e6a7e58436ee94**，应用d0685f。经明确批准，宁波全新project/空库/四卷/新staging.admin已部署，https://staging.weaveops.top 已切此版本，127.0.0.1:3003；原3000/3002及5旧容器/3卷/6网络保持。实际PG16.15、51迁移/121表、合成报价/附件、重启、独立备份恢复及外部公网session/Origin/TLS验收通过。见[部署事实](tasks/completed/2026-10-30-ningbo-isolated-staging-deployment.md)。
 
 宁波用户另批的三合同固定窗口已完成，见[来源实证](tasks/completed/2026-10-30-ningbo-fixed-source-initialization.md)。PI2608-257/PI2609-039各三轮物料，间隔均超过五分钟，当前分别9/31项、货款18/15行；随后新增PI2606-008，只采成衣16行、全匹配6色。新SO三个、颜色尺码可读；约10分32秒、0重试，操作者exit0，无持续调度。没有采C1物料/货款、原两单成衣，也未填造生产、商业版本或关账。合同9250不等于出货合计，申请不等于银行实付。

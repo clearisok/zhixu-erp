@@ -1,4 +1,8 @@
-# 当前入口：宁波固定Source窗口已完成
+# 当前入口：新合同未采物料空态候选
+
+2026-10-30；main562，独立分支fix/bound-order-material-empty-state，先读[本片](tasks/completed/2026-10-30-bound-order-material-empty-state.md)、[状态](CURRENT_STATE.md)及[接力](AI_HANDOFF.md)。修复Gate4的可信订单未采物料读取，不重新采集或改已部署宁波；候选/运行/人工接受分别记录。
+
+# 已完成入口：宁波固定Source窗口已完成
 
 2026-10-30北京时间；main562fbf07。先读[当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[宁波三合同固定来源验收](tasks/completed/2026-10-30-ningbo-fixed-source-initialization.md)。三单/三轮物料/两单货款/一单成衣已发布并公网读回，无持续调度，不造生产/价格/关账。下面入口保留各自时点，不能将历史“未开始”作为当前状态。
 
