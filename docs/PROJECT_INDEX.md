@@ -1,33 +1,12 @@
-# 当前入口：已批准发布收口与成衣固定证明
+# 当前入口：最终main与C1成衣完整首页兼容
 
-2026-10-29；用户已明确批准132/133合并和成衣固定只读范围。#133已以merge commit进入main **8da5644cb5f3202955b39224065fbab5aea3f4b6**；双父/tree和三项首次CI已核对。当前feat/staging-controlled-runtime为#132前向整合候选，原015dec及032/3c4/5e历史全部保留；实际main合入后产品tree不变。最终head、精确守卫、远端交付和必要新CI按后置回执核实，不能借前件CI称当前head已绿。尚未合并132、构建最终main镜像或部署。
+2026-10-29；比较main **e11b3c3cbd1dcf751b6fa5cb16e9323fdc67ac9e**，分支codex/garment-collection-first-page-proof。#132/#133已按具体批准merge commit，原历史保留；当前新兼容修复尚未合并或部署。
 
-先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)和[本次批准后证据](tasks/completed/2026-10-29-approved-pr133-and-garment-proof.md)。[本地组合](tasks/completed/2026-10-29-local-staging-release-integration.md)与[真实两合同窗口](tasks/active/real-source-acceptance-current-2026-10-29.md)均保留原日期/范围，不把PI2606-008过滤验证当已绑定或发布。
+先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[本片事实/验证](tasks/completed/2026-10-29-garment-first-page-compatibility.md)及[新兼容契约](features/SERVER_GARMENT_FIRST_PAGE_COMPATIBILITY.md)。原状态和全链接完整保留在e11的同路径Git blobs，以下仅列当前恢复入口，不复制过期结论。
 
-## 前件本地组合索引（历史，保留原文）
-
-# 本地组合发布入口
-
-2026-10-29；此处是 `codex/staging-release-local-integration` 的本地组合验证，包含 #132@015dec7409e6109b9adbd638624d28dfd6ebc7f0、真实来源文档 checkpoint032c553fc4ec2f30e9d4e8402e2ee86d3393c8e5 及 #133@3c481949b9f13306f7901f63cde213f27ccc8370。远端 main 仍是5c8cb8037376288aa71043e799a057e21f1b985d；没有合并 main、更新两个 PR head、构建新镜像或部署。最终 HEAD/工作树及守卫另查。
-
-先读[当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)和[组合证据](tasks/completed/2026-10-29-local-staging-release-integration.md)。[真实来源窗口](tasks/active/real-source-acceptance-current-2026-10-29.md)、[staging协议/宁波路由](tasks/completed/2026-10-29-staging-origin-and-ningbo-route.md)、[旧写边界](tasks/completed/2026-10-29-server-write-boundaries-and-retirement.md)与[大小写修复](tasks/completed/2026-10-29-retired-normalization-route-guard.md)同时保留。旧审计中的归一大小写P2由后者关闭，其余保留限制不变。
-
-## checkpoint032原索引（历史，保留原文）
-
-# 当前任务入口
-
-2026-10-29；main产品源 **5c8cb8037376288aa71043e799a057e21f1b985d**；codex/real-source-acceptance。先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[真实窗口](tasks/active/real-source-acceptance-current-2026-10-29.md)、[业务规则](BUSINESS_RULES.md)及DECISION_LOG D145–D178。旧摘要全文/日期/hash见[归档](tasks/completed/2026-10-29-main-image-staging-profile/input-state.json)。
-
-- [PR131合并、main镜像与staging配置](tasks/completed/2026-10-29-main-image-staging-profile.md)：双父/树、80ff镜像、非空恢复9/9、D178配置与56定向检查；不是部署或真实Source完成。
-- [宁波/艾诺科闭环清单](tasks/active/ningbo-server-closed-loop-readiness-2026-10-28.md)、[完整Gate0–8/R](tasks/active/server-convergence-gate0-2026-10-20.md)：原现场日期保留，目标/真实额度另批。
-- [trial运维](../ops/quote-trial/README.md)：默认local、显式staging双Origin，同一栈的备份/恢复/目标/镜像保护。
-- [前件浏览器验收](tasks/completed/2026-10-29-pr131-browser-route-recovery.md)、[历史路由/网络](tasks/completed/2026-10-28-pr131-route-gate-recovery.md)、[同SO闭环](tasks/completed/2026-10-28-ainuoke-same-order-closure.md)：保留原source、失败及结果。
-- [a198最终验证](tasks/completed/2026-10-28-closing-support-final-validation.md)、[完整UI](tasks/completed/2026-10-28-closing-support-complete-ui-engineering.md)、[旧90e恢复/65139](tasks/completed/2026-10-28-closing-support-persistent-runtime.md)。
-- [切换预览](tasks/completed/2026-10-28-cutover-preview.md)、[执行工具](tasks/completed/2026-10-28-cutover-execute.md)、[退役预检](tasks/active/server-convergence-cutover-preflight-2026-10-28.md)：尚未切换/删除。
-- [月份](features/SERVER_CLOSING_MONTH_PLAN.md)、[年度](features/SERVER_CLOSING_ANNUAL_READ.md)、[来源复核](features/SERVER_CLOSING_SOURCE_RECONCILIATION.md)、[执行归属](features/SERVER_CLOSING_EXECUTOR_MATCHING.md)、[USD工价](features/ORDER_USD_LABOR_ADOPTION.md)。
-- [Server来源](features/AINUOKE_SERVER_SOURCE.md)、[货款申请](features/AINUOKE_PAYMENT_REQUESTS.md)、[成衣观察](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)、[成衣操作者](features/SERVER_GARMENT_OPERATOR_CURRENT.md)：具体授权范围内真实读取。
-- [Git协议](tasks/active/git-delivery-resilience.md)：安全交付/PR/CI常设授权，无自动merge/部署；身份/分歧STOP。
-
-- [本机精确main空目标与Linux源码工具](tasks/completed/2026-10-29-main-local-target-and-source-tools.md)：原准备时点54315 READY、发布182/182、CLI与新库只读连通；之后真实窗口结果见当前任务，不沿用原“未运行”状态。
-- [staging协议及宁波Tunnel](tasks/completed/2026-10-29-staging-origin-and-ningbo-route.md)：十项本机协议断言、收尾失败/保留、既有Tunnel只读观察和完整Gate剩余项；不是公网部署通过。
-- [Server写入边界与旧恢复依赖](tasks/completed/2026-10-29-server-write-boundaries-and-retirement.md)：正式入口/旧命令分流、旧API实际404、9个未运行容器24缺失挂载及canonical恢复候选；未切换、退役或删除旧资产。
+- [完整Gate0–8/R](tasks/active/server-convergence-gate0-2026-10-20.md)、[宁波闭环清单](tasks/active/ningbo-server-closed-loop-readiness-2026-10-28.md)：全目标继续，范围/日期不冒进。
+- [真实两合同窗口](tasks/active/real-source-acceptance-current-2026-10-29.md)、[133合并与固定证明](tasks/completed/2026-10-29-approved-pr133-and-garment-proof.md)、[本片C1接纳及失败](tasks/completed/2026-10-29-garment-first-page-compatibility.md)：原始额度、部分成功与新修复分开。
+- [Server来源](features/AINUOKE_SERVER_SOURCE.md)、[货款](features/AINUOKE_PAYMENT_REQUESTS.md)、[成衣观察](features/SERVER_GARMENT_SHIPMENT_OBSERVATIONS.md)、[操作者](features/SERVER_GARMENT_OPERATOR_CURRENT.md)、[完整首页补充](features/SERVER_GARMENT_FIRST_PAGE_COMPATIBILITY.md)。
+- [staging Origin/宁波路由](tasks/completed/2026-10-29-staging-origin-and-ningbo-route.md)、[trial运维](../ops/quote-trial/README.md)、[旧写边界/恢复依赖](tasks/completed/2026-10-29-server-write-boundaries-and-retirement.md)：不是部署/切换/旧资产清理批准。
+- [关账月份](features/SERVER_CLOSING_MONTH_PLAN.md)、[年度](features/SERVER_CLOSING_ANNUAL_READ.md)、[来源复核](features/SERVER_CLOSING_SOURCE_RECONCILIATION.md)、[执行归属](features/SERVER_CLOSING_EXECUTOR_MATCHING.md)、[USD工价](features/ORDER_USD_LABOR_ADOPTION.md)。
+- [业务规则](BUSINESS_RULES.md)、[决策](DECISION_LOG.md)、[发布守卫](features/RELEASE_BASELINE_GUARD.md)、[Git交付](tasks/active/git-delivery-resilience.md)。既有安全交付常设授权不等于自动merge、部署或新Source授权。

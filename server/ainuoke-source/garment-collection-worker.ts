@@ -2,11 +2,12 @@ import { spawn } from "node:child_process";
 import { createHash } from "node:crypto";
 import { resolve } from "node:path";
 import { accountFingerprint, APPROVED_HTTP_ORIGIN, APPROVED_HTTP_POLICY, parseCollectorConfig, type CollectorConfig } from "./collector.js";
-import { SourceError } from "./contract.js";
+import { SourceError, hash } from "./contract.js";
 import { strictExactSourceJson, assertExactSourceJsonRuntime } from "./exact-source-json.js";
 import { screen } from "./garment-filter-evidence.js";
 import { buildGarmentObservationSnapshot, type GarmentObservationScope } from "./garment-shipment-observations.js";
 import { PAYMENT_WORKER_FAILURE_CODES } from "./payment-request-probe.js";
+import { checkedGarmentFirstPageEvidence, garmentFirstPageRequest } from "./garment-first-page.js";
 
 /** The observed filter proof covers one complete page, not general pagination.
  * These are engineering ceilings, never a grant for a real upstream request. */
@@ -21,7 +22,8 @@ const extraCodes = ["garment_collection_input_invalid", "garment_collection_scop
   "shipment_observation_scope_mismatch", "shipment_observation_report_mismatch", "shipment_observation_page_mismatch",
   "shipment_observation_count_mismatch", "shipment_observation_invalid_rows", "shipment_observation_exact_contract_rows_required",
   "shipment_observation_invalid_raw_response", "garment_filter_structure_limit", "payment_observation_duplicate_json_key",
-  "payment_observation_invalid_json", "payment_observation_invalid_shape", "payment_observation_invalid_count"] as const;
+  "payment_observation_invalid_json", "payment_observation_invalid_shape", "payment_observation_invalid_count",
+  "shipment_observation_invalid_paging_evidence"] as const;
 const workerCodes = new Set<string>([...PAYMENT_WORKER_FAILURE_CODES, ...extraCodes]);
 export const GARMENT_COLLECTION_FAILURE_CODES = Object.freeze([...workerCodes]);
 const fail = (code: string): never => { throw new SourceError(code); };
@@ -60,22 +62,34 @@ export function garmentCollectionFailureCounts(error: unknown): GarmentRequestCo
   return error instanceof GarmentWorkerFailure ? { ...error.counts } : null;
 }
 
-function extractCapture(input: unknown, scope: GarmentObservationScope, password: string) {
-  const cap = object(input); keys(cap, "schemaVersion,reportId,sourceFingerprint,queryContext,capturedAt,page,pageSize,rawResponseSha256,rawReportResponse");
+function extractCapture(input: unknown, scope: GarmentObservationScope, password: string, ordinal: number) {
+  const cap = object(input), v2 = cap.schemaVersion === "ainuoke-garment-shipment-capture.v2";
+  keys(cap, "schemaVersion,reportId,sourceFingerprint,queryContext,capturedAt,page,pageSize,rawResponseSha256,rawReportResponse" + (v2 ? ",executedRequest" : ""));
   const query = object(cap.queryContext); keys(query, "match,salesContractNo");
-  if (cap.schemaVersion !== "ainuoke-garment-shipment-capture.v1" || cap.reportId !== "6086979" || cap.page !== 1 || cap.pageSize !== 100
+  if ((!v2 && cap.schemaVersion !== "ainuoke-garment-shipment-capture.v1") || cap.reportId !== "6086979" || cap.page !== 1 || cap.pageSize !== 100
     || cap.sourceFingerprint !== scope.sourceFingerprint || query.match !== "exact" || query.salesContractNo !== scope.salesContractNo
     || typeof cap.rawReportResponse !== "string" || Buffer.byteLength(cap.rawReportResponse, "utf8") > GARMENT_COLLECTION_LIMITS.responseBytes
     || !sha(cap.rawResponseSha256) || createHash("sha256").update(cap.rawReportResponse).digest("hex") !== cap.rawResponseSha256)
     fail("garment_collection_invalid_worker");
   const raw = decoded(cap.rawReportResponse), data = decoded(raw.dataList), meta = decoded(raw.reportObj);
   for (const value of [raw, data, meta]) screen(value, password);
-  if (object(raw.reObj).isOk !== true || meta.reportId !== "6086979" || Object.hasOwn(raw, "reportId") && raw.reportId !== "6086979"
-    || count(raw.pageIndex) !== 1 || count(raw.pageSize) !== 100) fail("garment_collection_invalid_worker");
+  if (object(raw.reObj).isOk !== true || meta.reportId !== "6086979" || Object.hasOwn(raw, "reportId") && raw.reportId !== "6086979")
+    fail("garment_collection_invalid_worker");
+  const responsePageIndex = count(raw.pageIndex), responsePageSize = count(raw.pageSize);
+  let pagingEvidence;
+  if (v2) {
+    const executed = object(cap.executedRequest); keys(executed, "reportRequestNumber,body");
+    if (executed.reportRequestNumber !== ordinal || hash(executed.body) !== hash(garmentFirstPageRequest(scope.salesContractNo)))
+      fail("garment_collection_invalid_worker");
+    try { pagingEvidence = checkedGarmentFirstPageEvidence({ schemaVersion: "ainuoke-garment-first-page-evidence.v1",
+      reportRequestNumber: ordinal, requestBodySha256: hash(executed.body), responsePageIndex, responsePageSize }, scope.salesContractNo, ordinal); }
+    catch { fail("garment_collection_invalid_worker"); }
+  } else if (responsePageIndex !== 1 || responsePageSize !== 100) fail("garment_collection_invalid_worker");
   const total = count(Object.hasOwn(raw, "dataCount") ? raw.dataCount : data.total);
   if (Object.hasOwn(raw, "dataCount") && Object.hasOwn(data, "total") && count(data.total) !== total) fail("garment_collection_invalid_worker");
   if (total > 100 || !Array.isArray(data.rows) || data.rows.length !== total) fail("garment_collection_unverified_pagination");
-  return { schemaVersion: "ainuoke-garment-shipment-page.v1", reportId: "6086979", sourceFingerprint: scope.sourceFingerprint,
+  return { schemaVersion: v2 ? "ainuoke-garment-shipment-page.v2" : "ainuoke-garment-shipment-page.v1",
+    ...(pagingEvidence ? { pagingEvidence } : {}), reportId: "6086979", sourceFingerprint: scope.sourceFingerprint,
     queryContext: { match: "exact", salesContractNo: scope.salesContractNo }, capturedAt: cap.capturedAt,
     page: 1, pageSize: 100, reportedTotal: total, rawResponseSha256: cap.rawResponseSha256, rows: data.rows };
 }
@@ -94,7 +108,9 @@ export function validateGarmentCollectionResult(value: unknown, configuration: C
   const counts = countsOf(row.counts);
   if (row.schemaVersion !== "ainuoke-garment-collection-worker.v1" || row.result !== "complete" || counts.httpAttempts !== 3 || counts.reportRequests !== 2
     || !Array.isArray(row.captures) || row.captures.length !== 2) fail("garment_collection_invalid_worker");
-  const pages = (row.captures as unknown[]).map(cap => extractCapture(cap, scope, config.password));
+  const captures = row.captures as unknown[];
+  if (object(captures[0]).schemaVersion !== object(captures[1]).schemaVersion) fail("garment_collection_invalid_worker");
+  const pages = captures.map((cap, i) => extractCapture(cap, scope, config.password, i + 1));
   const input = { schemaVersion: "ainuoke-garment-shipment-input.v1", firstPass: [pages[0]], secondPass: [pages[1]] };
   const snapshot = buildGarmentObservationSnapshot(input, scope, now);
   return { input, scope: { ...scope }, snapshot, counts };

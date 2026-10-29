@@ -1,4 +1,5 @@
 import { canonicalDecimal } from "../../server/quotes/decimal-projection.js";
+import type { GarmentFirstPageEvidence } from "../../server/ainuoke-source/garment-first-page.js";
 
 /** Public, quantity-only fields. Private source evidence is never a read DTO. */
 export const GARMENT_VISIBLE_FIELDS = ["id", "billno", "ExpContractNo", "insideorderno", "CnColor", "QtyUnit", "Num", "outdate", "FDate", "indate",
@@ -34,7 +35,8 @@ export type GarmentReadRow = {
   quantity: GarmentQuantity; businessDate: GarmentBusinessDate;
   quantityMeaning: "this_row_garment_outstore"; businessDateMeaning: "source_outdate"; colorMatch: GarmentColorMatch;
 };
-export type GarmentCaptureTrace = { pass: number; captureId: string; page: number; capturedAt: string; rawResponseSha256: string; rowCount: number };
+export type GarmentCaptureTrace = { pass: number; captureId: string; page: number; capturedAt: string; rawResponseSha256: string; rowCount: number;
+  pagingEvidence?: GarmentFirstPageEvidence };
 export type GarmentEmptyStatus = "not_applicable" | "not_connected" | "not_captured" | "identity_changed";
 export type GarmentEmptyView = { schemaVersion: "order-garment-shipments.v1"; salesOrderId: string; sourceReportId: "6086979"; sourceStatus: GarmentEmptyStatus; rows: [] };
 export type GarmentObservedView = {

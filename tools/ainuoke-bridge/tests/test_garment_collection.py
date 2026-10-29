@@ -1,6 +1,7 @@
 import json
 from copy import deepcopy
 from unittest import TestCase, main
+from unittest.mock import patch
 
 from ainuoke_bridge.ainuoke_client import UpstreamSchemaError, AuthExpiredError
 from ainuoke_bridge.contracts import REPORT_CATALOG
@@ -48,6 +49,7 @@ class FakeTransport(GarmentCollectionTransport):
         text = payload if isinstance(payload, str) else json.dumps(payload, ensure_ascii=False)
         self.last_report_text = text
         self.last_report_request_number = self.report_requests
+        self.record_executed_request(kwargs["body"])
         return json.loads(text)
 
 
@@ -80,7 +82,53 @@ class GarmentCollectionTests(TestCase):
                 collect({**CONFIG, **patch}, transport)
             self.assertEqual(transport.http_attempts, 0)
 
-    def test_zero_sentinels_wrong_contract_and_inconsistent_totals_stop_before_second_report(self):
+    def test_paired_zero_sentinel_retains_actual_request_and_raw_response(self):
+        for rows in (None, [], [{"id": str(i), "ExpContractNo": "SYN-C1"} for i in range(100)]):
+            payload = response(rows=rows, pageIndex=0, pageSize=0)
+            evidence = collect(CONFIG, FakeTransport([payload, payload]))
+            for ordinal, cap in enumerate(evidence["captures"], 1):
+                checked = extract_garment_observation_page(cap)
+                self.assertEqual(cap["schemaVersion"], "ainuoke-garment-shipment-capture.v2")
+                self.assertEqual(checked["pagingEvidence"]["reportRequestNumber"], ordinal)
+                self.assertEqual((checked["pagingEvidence"]["responsePageIndex"], checked["pagingEvidence"]["responsePageSize"]), (0, 0))
+                self.assertEqual(json.loads(cap["rawReportResponse"])["pageIndex"], 0)
+                self.assertEqual(cap["executedRequest"]["body"]["sqlCdtn"]["pageIndex"], 1)
+
+    def test_missing_or_forged_executed_request_stops_before_second_report(self):
+        edits = [lambda x: x.update(last_executed_request=None),
+                 lambda x: x.last_executed_request.update(reportRequestNumber=2),
+                 lambda x: x.last_executed_request["body"]["sqlCdtn"].update(pageSize=True),
+                 lambda x: x.last_executed_request["body"]["sqlCdtn"]["conditionList"][0].update(compareType="contains")]
+        for edit in edits:
+            transport = FakeTransport()
+            original = transport.record_executed_request
+            def record(body):
+                original(body)
+                edit(transport)
+            transport.record_executed_request = record
+            with self.assertRaises(Exception):
+                collect(CONFIG, transport)
+            self.assertEqual(transport.report_requests, 1)
+
+    def test_transport_records_only_successful_actual_bounded_request_without_aliasing(self):
+        from ainuoke_bridge.contracts import build_report_request
+        from ainuoke_bridge.garment_report_screening import DEFINITION
+        from ainuoke_bridge.payment_request_probe import BoundedPaymentTransport
+        transport = GarmentCollectionTransport()
+        transport.scope = CONFIG["scope"]
+        transport.http_attempts = 1
+        body = build_report_request(DEFINITION, page=1, page_size=100, query_context={"salesContractNo": "SYN-C1"})
+        def success(_self, **_kwargs):
+            transport.http_attempts += 1
+            transport.report_requests += 1
+            transport.last_report_text = json.dumps(response())
+            return response()
+        with patch.object(BoundedPaymentTransport, "request", success):
+            transport.request(url="unused", method="POST", body=body, headers={}, timeout=1)
+        body["sqlCdtn"]["pageIndex"] = 2
+        self.assertEqual(transport.last_executed_request["body"]["sqlCdtn"]["pageIndex"], 1)
+
+    def test_mixed_sentinels_wrong_contract_and_inconsistent_totals_stop_before_second_report(self):
         for payload in (response(pageIndex=0), response(pageSize=0), response(contract="OTHER"), response(dataCount=2),
                         response(dataCount=None), response(reportObj=json.dumps({"reportId": 6086941}))):
             transport = FakeTransport([payload, response()])
