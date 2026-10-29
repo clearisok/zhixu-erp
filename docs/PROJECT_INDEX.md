@@ -1,3 +1,7 @@
+# 当前入口：main562与C1成衣真实发布
+
+2026-10-29，产品main **562fbf07f2caccfc9ba0d9c1a8e6a7e58436ee94**。先读[当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)与[本片验收](tasks/completed/2026-10-29-main562-real-garment-acceptance.md)。#134已合并、本机C1出货已发布；宁波尚未部署。以下为前片入口，保留日期/范围，不覆盖历史事实。
+
 # 当前入口：最终main与C1成衣完整首页兼容
 
 2026-10-29；比较main **e11b3c3cbd1dcf751b6fa5cb16e9323fdc67ac9e**，分支codex/garment-collection-first-page-proof。#132/#133已按具体批准merge commit，原历史保留；当前新兼容修复尚未合并或部署。

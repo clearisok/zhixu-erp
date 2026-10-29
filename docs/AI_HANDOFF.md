@@ -1,13 +1,10 @@
-# 接力：C1保留结果已恢复，正式出货未发布，先完成离线兼容修复
+# 接力：#134已合并且C1出货成功，下一步是宁波隔离部署审批
 
-2026-10-29；比较main **e11b3c3cbd1dcf751b6fa5cb16e9323fdc67ac9e**，分支codex/garment-collection-first-page-proof。#132/#133已按具体批准merge commit，原历史保留；当前新兼容修复尚未合并或部署。
+2026-10-29；产品main **562fbf07f2caccfc9ba0d9c1a8e6a7e58436ee94**，本机app d0685f/tool100e92，https://localhost:54315。当前本地文档分支codex/main-562-real-garment-acceptance不改变该产品SHA。先读[本片](tasks/completed/2026-10-29-main562-real-garment-acceptance.md)。
 
-1. 先读[完整本片](tasks/completed/2026-10-29-garment-first-page-compatibility.md)及[契约](features/SERVER_GARMENT_FIRST_PAGE_COMPATIBILITY.md)。旧AGENTS指令已被用户撤销；原业务/授权/数据保护边界仍按实际人类消息，不反复索取已给安全交付许可。
-2. 当前有效工作树staging-controlled-runtime，7bf3仍仅依赖链接，不恢复/覆盖。当前分支从e11建立，所有增量属于本片；ignored outputs含运维回执，不能入Git或重新执行已用run/resume/merge/helper。
-3. #132/#133均已merge。应用442b1c/工具5568fc及本机54315为e11，9/9恢复通过，发布包release-main-e11b3c3c-5741a960仅本机。具体dump是C1前备份且只查目录/hash，不冒称该dump已restore；旧资产与其他容器/卷未变。
-4. C1 SO0535a7a6-0ad4-4ed3-99c6-1ee1dac5e60f、PI2606-008/D1933、6颜色9250；target v1启用。原addOrders与原两单均保留。成衣请求d6d2ace1-4c19-4dc5-bbf5-8bc1d7a584f6已完成not_published/page_mismatch，不能换UUID自动重试、回滚SO/target、续TTL或重查合同。所有当前Source进程已结束，无调度。
-5. 真实本窗口2登录27报表29HTTP；旧固定证明2/4/6另算。最新失败raw未保留；保留旧C1 raw0/0及createTime作为离线夹具，只验证兼容，不冒充新执行证明/新快照。outputs/c1-admission-current/original-stage-receipts.json与私密卷保留。当前修复没有新Source或业务库操作。
-6. 新capture/page v2绑定actual request/ordinal，原1登录2报表3HTTP/180秒不变，限定完整首页≤100，严格0/0或1/100、合同/总数/两遍。v1严格不改，private createTime不公开，DTO/客户端兼容。独立复审发现client拒收已修，旧ID golden补齐；最终定向/质量/守卫/CI按后置结果，勿预写PASS。
-7. 集中交付一个修复PR及一次必要CI；不重复前件已绿检查。新PR merge不在旧132/133许可内，Source新额度另批。宁波目标staging.weaveops.top仍未部署，现有Tunnel具体route/publicTLS/cookie/附件/Access和人工接受未完成。完整Gate0–8/R不缩成仅修复或镜像完成。
-
-首轮PR134 head1ca已精确送达，Release成功；Team发现最后新增测试rows未收窄（之前本地typecheck早于该测试，不能称最终PASS），Source当时仍运行。仅补测试Array.isArray断言，业务代码不变；库内临时TS夹具已完整移到库外自有验证目录，实际typecheck/修改测试lint及worker10通过。原182发布、811补充根检查及32/45/41/155等按精确范围保留，最终head/守卫/远端/CI见outputs/garment-first-page-validation后置回执。不要重跑旧workflow或把旧CI借给新head；新交付只更新唯一134。
+- 完整Goal Gate0–8/R不缩减。#134与新一次C1采集均已有人类明确批准并完成，不能重复询问或重复执行。实际请求69488dec-ddc9-4d45-96f6-08d8f6c66272、发布acb344b3-120b-4e5d-a923-ab70db72305d、generation1、16行/6色，1登录2报表3HTTP。原失败d6d2...保留，固定额度已用完，任何新Source需具体范围。
+- 不重跑 outputs 中 prepare/run/merge/build/backup helpers；所有当前会话已完成。源码/工件/回执保留，node_modules是既有依赖链接。7bf3不恢复/覆盖，当前有效工作树staging-controlled-runtime。凭据仅私密进程消费。
+- 当前有效配置以outputs/pr134-main-local-read-experience.json为准，追加本机只读garment snapshot；不是原final-main-local-experience或pr134初次镜像更新配置。C1过期后用历史，不能续TTL或把合同数量当出货。旧两单Source历史不等于持续运行，C1没有物料/货款采集。
+- 新恢复Node原结果7pass/2cancelled（600s父级），不能称9/9；outputs/pr134-main-retained-recovery.json补齐原现场恢复，不重seed/重复restore。实际121表/序列/两冻结保护/附件/17接口通过。原合成资源已停止保留，真实体验三单未被该演练触碰。
+- 宁波目前只有只读预检，无写入；旧3000/3002和staging7cd保留。新project/path/3003/空库方案、TLS输入和同版离线包已准备。需明确部署/路由切换批准；切换保持源站证书验证，不能关闭TLS或读取旧Tunnel凭据。若管理入口不可用保护旧路由，不能假报公网就绪。新宁波Source范围另批，本机许可不跨目标。
+- 不因本片文档变化重跑旧CI或上传。产品head35e三项PR CI已通过并合并；后续仅按实际新变化必要验证。真实商业/生产/关账及人工体验不被合成证据替代。
