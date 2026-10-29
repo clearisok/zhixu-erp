@@ -1,6 +1,6 @@
 # 当前任务入口
 
-2026-10-29；main **5c8cb8037376288aa71043e799a057e21f1b985d**；feat/staging-controlled-runtime。先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[业务规则](BUSINESS_RULES.md)及DECISION_LOG D145–D178。旧摘要全文/日期/hash见[归档](tasks/completed/2026-10-29-main-image-staging-profile/input-state.json)。
+2026-10-29；main产品源 **5c8cb8037376288aa71043e799a057e21f1b985d**；codex/real-source-acceptance。先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[真实窗口](tasks/active/real-source-acceptance-current-2026-10-29.md)、[业务规则](BUSINESS_RULES.md)及DECISION_LOG D145–D178。旧摘要全文/日期/hash见[归档](tasks/completed/2026-10-29-main-image-staging-profile/input-state.json)。
 
 - [PR131合并、main镜像与staging配置](tasks/completed/2026-10-29-main-image-staging-profile.md)：双父/树、80ff镜像、非空恢复9/9、D178配置与56定向检查；不是部署或真实Source完成。
 - [宁波/艾诺科闭环清单](tasks/active/ningbo-server-closed-loop-readiness-2026-10-28.md)、[完整Gate0–8/R](tasks/active/server-convergence-gate0-2026-10-20.md)：原现场日期保留，目标/真实额度另批。

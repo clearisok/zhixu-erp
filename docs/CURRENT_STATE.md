@@ -1,17 +1,11 @@
-# 当前状态：PR131已合并，main镜像恢复通过，继续真实闭环准备
+# 当前状态：main镜像已恢复，两合同真实窗口完成
 
-2026-10-29；main **5c8cb8037376288aa71043e799a057e21f1b985d**；新分支 feat/staging-controlled-runtime，从该main clean开始。最终HEAD/dirty由Git核实，原7bf3/e94保留clean。[本片证据](tasks/completed/2026-10-29-main-image-staging-profile.md)、[验证摘要](tasks/completed/2026-10-29-main-image-staging-profile/validation-summary.json)、[旧三摘要原文/hash](tasks/completed/2026-10-29-main-image-staging-profile/input-state.json)。
+2026-10-29；产品源main **5c8cb8037376288aa71043e799a057e21f1b985d**。仅#131已批准merge commit，双父6479/e94及原树核实，历史保留。当前codex/real-source-acceptance文档checkpoint，HEAD/dirty由Git核实。[本片事实](tasks/active/real-source-acceptance-current-2026-10-29.md)及前件[镜像/配置](tasks/completed/2026-10-29-main-image-staging-profile.md)、[本机目标/工具](tasks/completed/2026-10-29-main-local-target-and-source-tools.md)保留原日期/失败/hash。
 
-**合并完成**：用户仅批准#131；Source40726286740、Release40726285079、Team40726285483成功后ready/merge。5c8双父6479/e94，树2753102b与已审预览一致，原历史/分支保留。未合并其他PR或部署。mainfetch正常exit0；仅进程当前7888代理/OpenSSL/HTTP1.1，原认证/TLS，共享配置不改，旧2fd退出原因仍未证实。
+**工程交付**：精确main80ff应用、非空备份恢复9/9；D178配置26+30定向、发布182/182、015精确守卫及独立代码复审通过。#132远端015dec7409e6109b9adbd638624d28dfd6ebc7f0三项自然CI成功，仍草稿未合并。此后GraphQL/REST两次只读元数据EOF，无重推/重跑CI/共享代理或认证变更，merge前重核。新文档head不借旧CI，不为记结果反复push。
 
-**main镜像**：canonical3308 blobs、0overlay，原Dockerfile/lock，一次实际构建。image **80ff7e5318e0f9345cdb63715d2c6e6f4eb2087dc34527abc942056e39d85ff8**，build server-main-5c8cb803-d20d6f9c51；server/server/writable/session/snapshot精确读回，51迁移文件最高0052。原预备引号/package守卫失败及builder旧历史说明纠正保留，未冒称额外构建前复审。
+**真实窗口已完成**：用户独立批准新目标54315两合同首绑/颜色尺码、物料初采+两次五分钟续刷、独立6086941目标及一次采集。626568ms内完成2 SO、有效尺码矩阵、3代/6物料快照、2财务快照（12/9行）；初末SO/颜色相同，snapshot API全200。四流/单位独立；货款申请不等于银行实付，mappingVerified=false。实际库Quote/生产/关账事务0，原创建生成默认月份计划2。
 
-**精确镜像恢复**：新自有合成项目实际9/9，无失败/取消/跳过/重试；非空生产/Source代际/财务、原身份/回执、附件备份恢复，冻结/执行归属保护在恢复启动前验证。74旧容器/201卷/37网络选定身份状态不变。不是D105真实来源或用户业务接受。
+**窗口停止**：合计可证明≤5登录/112报表/117HTTP，主容器exited/0，无持续调度；时效600000ms不变。只新应用财务snapshot开关重建一次，五服务健康。过期后“查看历史物料来源”每单3次及9/31行可读，不冒称当前。只验证本机CA/主机名和新local.admin登录/注销/API，没有系统信任安装、浏览器或人工接受。原件/备份保留在新卷及目标owner-only证据目录，不入Git。
 
-**配置增量**：D178复用trial唯一栈，显式staging浏览器Origin与loopback TLS探针分离；默认local，Compose双端精确校验，原session/CSRF/TLS/私有端口不变。26配置/对象/就绪及30相邻cutover通过，语法/eslint/diff及独立复审无P1/P2。固定be4f输入后发布182/182通过；2c8精确main守卫通过。旧清单/新摘要不一致的首轮失败保留。后续摘要提交仍核最终守卫，远端/CI另记。增量晚于80ff，不能复标该镜像为未来main。
-
-**本机准备完成**：精确main5c8持久空目标 https://localhost:54315 READY，5健康服务/4新卷，121表中111业务表全部0，重启前后相同；Linux工具b7e8为独立operator-only镜像，原CLI源码守卫/help、3308Git blobs及到新库的只读连接通过。应用80ff不变，不冒称实际业务采集。结果、准备失败及限制见[本地收口](tasks/completed/2026-10-29-main-local-target-and-source-tools.md)与[安全回执](tasks/completed/2026-10-29-main-image-staging-profile/final-local-validation.json)。
-
-**下一步**：本分支最终守卫、一次集中交付/唯一草稿PR/必要CI与复审；准备D147新目标真实执行单。旧staging仍7cd；公网路由TLS/cookie/附件、D105真实首绑/有限续刷及人工核对未完成，尚不能提醒部署就绪。新head远端/CI按实际结果记录，完整Gate0–8/R继续。
-
-无新真实Source/凭据读取/绑定/激活/调度、真实库/账号修改、宁波部署、50426切换或旧资产退役。旧额度已消耗，具体范围另批；保护所有旧库/卷/对象/备份/工作树、3001/50426/65139与共享依赖。
+**下一步**：6086979固定D1933→唯一C1/C0/C1的原工具已冻结，2667 blobs及无网络/私密路径前置通过，真实请求0；新具体许可待确认，不能猜合同或借旧额度。#132新merge、对应最终main镜像、公网TLS/Host/cookie/附件及人工业务接受仍待，staging未就绪。原7bf3现仅依赖链接，未恢复/覆盖；完整本工作树和持久新目标可用。无宁波部署、旧库/真实账号修改、50426切换或旧资产退役，完整Gate0–8/R继续。
