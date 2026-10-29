@@ -1,6 +1,6 @@
 # 当前独立预整合：Git上传预算与main562
 
-2026-10-30；分支fix/git-delivery-upload-budget，保留原始c91d904d与已核实main562的历史。本片只有交付工具/回归及文档增量，不改变产品、SQL、UI或运行环境。四处冲突仅为共享状态/基线文档，已按main原件和旧工具历史前向保留。具体冻结、原79项复用边界及待验收见[本片](tasks/active/git-upload-budget-main562-forward-2026-10-30.md)。这是本地预整合，不是PR就绪、远端交付或合并/部署。
+2026-10-30；分支fix/git-delivery-upload-budget，保留原始c91d904d与已核实main562的历史。本片只有交付工具/回归及文档增量，不改变产品、SQL、UI或运行环境。四处冲突仅为共享状态/基线文档，已按main原件和旧工具历史前向保留；双父checkpoint9c894cf1独立只读复审无P1/P2。具体冻结、原79项复用边界及待验收见[本片](tasks/active/git-upload-budget-main562-forward-2026-10-30.md)。这是本地预整合，不是PR就绪、远端交付或合并/部署。
 
 业务修复[PR135](https://github.com/clearisok/zhixu-erp/pull/135)的a6667877已三项CI通过，仍等待明确merge批准；宁波实际运行main562，已批准的三合同有限初始化完成、无持续调度。当前工具片不复制未合并PR135的源码/状态文件，不重复其测试或CI；最终发布门禁/交付等待确定最终main基线后集中完成。
 

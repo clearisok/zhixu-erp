@@ -2,7 +2,7 @@
 
 2026-10-30；fix/git-delivery-upload-budget，原始c91d904d8751275dd6a7830893ce237efa021905，合入本地可验证main562fbf07f2caccfc9ba0d9c1a8e6a7e58436ee94。先读[本片](tasks/active/git-upload-budget-main562-forward-2026-10-30.md)；当前无远端写入/CI/Source/运行环境动作。PR135的a666仍是独立业务候选，三项CI通过，merge待批准。不要将本工具分支旧业务摘要当作当前宁波或最新人工接受情况。
 
-唯一产品差异为上传工具及其专用测试，均应逐blob等于原c91；state/PowerShell/原测试依赖保持。旧79项是原源码/原日期的历史复用，不称新跑。此次先留本地双父checkpoint；最终main确定后再做一次必要发布守卫/完整发布测试和统一交付，不为每次文档接力触发付费CI。不自动merge、部署、启停/清理旧资产或新增真实Source。
+唯一产品差异为上传工具及其专用测试，均应逐blob等于原c91；state/PowerShell/原测试依赖保持。旧79项是原源码/原日期的历史复用，不称新跑。双父checkpoint9c894cf1969732fb6ab62b2d0beee2406715fa10的独立只读复审无P1/P2，599项main证据与504项旧工具对象全部保持；本片相对main diff检查通过，继承main历史尾空格单独保留。最终main确定后再做一次必要发布守卫/完整发布测试和统一交付，不为每次文档接力触发付费CI。不自动merge、部署、启停/清理旧资产或新增真实Source。
 
 下方保留main562原接力；旧工具输入和a859/c91实际结果仍在Git及本片链接中。
 
