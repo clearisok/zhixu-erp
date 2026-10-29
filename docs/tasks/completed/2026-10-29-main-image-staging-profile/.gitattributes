@@ -1,0 +1,4 @@
+# Preserve the captured Windows checkout bytes referenced by input-state.json.
+AI_HANDOFF.md -text
+CURRENT_STATE.md -text
+PROJECT_INDEX.md -text

@@ -2,6 +2,8 @@
 
 2026-10-29；本片 baseline **5c8cb8037376288aa71043e799a057e21f1b985d**；新分支 `feat/staging-controlled-runtime`，开始工作树 clean、无继承 dirty。原 `7bf3` 的 `feat/closing-support-interfaces` 保持 e94a351a clean，不切换或覆盖。旧三摘要全文/原字节/hash见 [input-state](2026-10-29-main-image-staging-profile/input-state.json)，本片安全验证摘要见 [validation-summary](2026-10-29-main-image-staging-profile/validation-summary.json)。
 
+归档捕获main5c8 Windows checkout原工作树CRLF字节，文本与5c8 Git blob按换行规范化相同。独立复审发现首次checkpoint的自动换行会使发布blob与原件hash不符；后继只为本目录三份归档设置`-text`并重新提交保留原字节，原fa18及5c8对象不改，receipt原长度/hash不改。不把working-tree原件字节冒称原Git canonical字节。
+
 ## 已批准合并与必要检查
 
 用户明确仅批准 #131 转就绪，以 merge commit 合入 main、保留原始历史。执行前重新核实 head e94a351a84906c1e4feb35f81b48dfe023d11e57、base6479a713e2b80228f008049519ebbd50d10601a8，无冲突。三项必要 CI 已终态成功：Source40726286740（含实际关账18及Python152）、Release40726285079、Team40726285483。没有手工重跑或触发额外工作流。
