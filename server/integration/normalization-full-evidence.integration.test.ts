@@ -20,6 +20,7 @@ import {quoteSnapshotFromBrowser} from '../quotes/model.js';
 import {adoptColorSource,previewColorSource} from '../sales-orders/color-commercial.js';
 import {commitSaleAdjustment,previewSaleAdjustment} from '../sales-orders/sale-adjustment-service.js';
 import {createQuoteCreationService} from '../quotes/creation-workflows.js';
+import {previewClosingMonthMove,executeClosingMonthMove} from '../closing/month-plan-service.js';
 
 test('strict attribution commands cannot inject authorization or counts',()=>{
  const a=randomUUID(),b=randomUUID();const proposal={changeType:'normalize',caseVersion:1,assignments:[{originalOrderId:a,effectiveOrderId:a},{originalOrderId:b,effectiveOrderId:a}],reason:'Synthetic',recoveryPlanHash:'a'.repeat(64)};
@@ -53,6 +54,20 @@ test('full normalization evidence fingerprints every declared row and frozen sou
  await t.test('frozen empty domain is distinct from unknown and exposes no protected business payload',async()=>{
   const result=await read(frozen());assert.deepEqual(result.blockers,[]);assert.deepEqual(result.requiredReviews,[]);assert.equal(result.external.coverage,'frozen_adapter_inventory');assert.equal(result.executionAuthorized,false);
   assert.equal(JSON.stringify(result).includes('confirmed_sale_price'),false);assert.equal(result.hashScope,'all-bounded-declared-server-reference-rows-and-locked-adapter-inventory');
+ });
+ await t.test('month plans, current heads, every version and rejected commands contribute to full evidence',async()=>{
+  const prior=await read(frozen());assert.deepEqual(prior.unknownReferences,[]);
+  for(const relation of ['server_closing_month_plans','server_closing_month_plan_versions','server_closing_month_plan_heads'])assert.equal(prior.references.find(row=>row.relation===relation&&row.orderId===a)?.count,1);
+  const preview=await previewClosingMonthMove(pool,actor,{action:'move_months',orderId:a,expectedVersion:1,targetMonth:'2026-12',reason:'Synthetic reference evidence',selection:{mode:'whole'}});
+  const command={requestId:randomUUID(),intent:preview.intent,previewHash:preview.previewHash};
+  assert.equal((await executeClosingMonthMove(pool,actor,command)).status,'applied');
+  assert.equal((await executeClosingMonthMove(pool,actor,{...command,requestId:randomUUID()})).status,'rejected');
+  const after=await read(frozen());assert.deepEqual(after.unknownReferences,[]);assert.deepEqual(after.blockers,[]);
+  assert.equal(after.references.find(row=>row.relation==='server_closing_month_plan_versions'&&row.orderId===a)?.count,2);
+  assert.equal(after.references.find(row=>row.relation==='server_closing_month_commands'&&row.orderId===a)?.count,2);
+  assert.notEqual(after.evidenceHash,prior.evidenceHash);assert.equal(after.executionAuthorized,false);
+  const locked=await pool.connect();try{await locked.query('BEGIN');assert.equal((await collectFullNormalizationEvidence(locked,caseId,proposal,frozen(),undefined,true)).evidenceHash,after.evidenceHash);}
+  finally{await locked.query('ROLLBACK');locked.release();}
  });
  await t.test('creation context contributes every immutable row to full evidence without becoming execution',async()=>{
   const prior=await read(frozen()),service=createQuoteCreationService(pool),context=await service.orderContext(actor,a);

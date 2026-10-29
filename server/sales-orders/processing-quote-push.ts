@@ -17,6 +17,7 @@ import {readCommercialCandidate} from './commercial-source.js';
 import {parseProcessingBatchDraft} from './processing-batch-model.js';
 import {createProcessingBatchInTransaction,confirmProcessingBatchInTransaction,consumeProcessingBatchInTransaction} from './processing-batch-service.js';
 import {appendOperationLog} from '../operation-logs/repository.js';
+import {lockOrderClosingMonthCreation} from '../closing/month-plan-service.js';
 
 function fail(status:number,code:string):never{throw new HttpError(status,code,code);}
 type ExistingBatch={id:string;version:number;state:string;quantity:string;styleNo:string;deliveryDate:string|null;customerName:string;salesOrderId:string|null;orderNo:string|null};
@@ -73,6 +74,7 @@ function parseItem(raw:unknown):PushItem{
 async function pushQuote(pool:Pool,actor:TrustedIdentity,requestId:string,item:PushItem):Promise<PushResult & {replayed:boolean}>{
  const c=await pool.connect(),payloadHash=productHash(item);let committing=false;try{
   await c.query('BEGIN');await c.query("SET LOCAL lock_timeout='5s'");await lockEffectiveAttribution(c);const a=await authorize(c,actor,true);
+  await lockOrderClosingMonthCreation(c);
   await c.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',['processing-push:'+a.internalUserId+':'+requestId+':'+item.quoteId]);
   const old=(await c.query('SELECT payload_hash,result FROM processing_quote_push_receipts WHERE actor_id=$1 AND request_id=$2 AND quote_id=$3',[a.internalUserId,requestId,item.quoteId])).rows[0];
   if(old){if(old.payload_hash!==payloadHash)fail(409,'processing_push_retry_mismatch');await c.query('COMMIT');return {...old.result,replayed:true};}

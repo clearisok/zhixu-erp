@@ -70,6 +70,8 @@ export type LaborCost = {
 };
 
 export type PriceVersionConfirmation = {
+  /** Server confirmation evidence; absent on legacy snapshots, never inferred. */
+  laborCurrencyAtConfirmation?: LaborCurrency;
   quotedGarmentPrice: number;
   confirmedGarmentPrice: number | null;
   quotedLaborPrice: number;

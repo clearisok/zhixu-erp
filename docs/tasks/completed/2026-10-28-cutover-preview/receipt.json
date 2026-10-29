@@ -1,0 +1,72 @@
+{
+  "date": "2026-10-28",
+  "baseline": "995a3696884f7e55c3f168b16f6d4a085308f498",
+  "branch": "feat/closing-support-interfaces",
+  "mainLastVerified": "6479a713e2b80228f008049519ebbd50d10601a8",
+  "remoteRefreshed": false,
+  "runtimeWrites": 0,
+  "firstObservation": {
+    "failureCode": "invalid_observation",
+    "status": "OBSERVATION_FAILED",
+    "preserved": true
+  },
+  "repairedObservation": {
+    "blockers": [
+      "image_source_is_not_verified_main"
+    ],
+    "previewSha256": "16427a1b7c2a6a57504e2fbdc4faf35ea87332aa42135f1653d69226b1276b35",
+    "protection": {
+      "existingContainers": 74,
+      "existingVolumes": 199,
+      "existingNetworks": 37,
+      "stoppedPortOwners": [],
+      "stopOrDelete": false,
+      "browserStoresChanged": false,
+      "sharedSettingsChanged": false
+    },
+    "status": "BLOCKED"
+  },
+  "tests": {
+    "relatedOpsBeforeFinalPortStrengthening": "48/48",
+    "finalTargetedLint": "PASS",
+    "affectedAfterFinalPortStrengthening": "3/3",
+    "newCiRuns": 0,
+    "independentReview": "0 remaining P1/P2, static only"
+  },
+  "evidence": [
+    {
+      "path": "outputs/approved-support-flow-20261028/cutover-preview-995a-request.json",
+      "sha256": "b2947c14551104a6a3df390377b22c62cbdfb55e269fb68d3c83f8de17c9279b"
+    },
+    {
+      "path": "outputs/approved-support-flow-20261028/cutover-preview-995a-observation.json",
+      "sha256": "43118b765d62e045d2ee6a89fe9e9e5796d931a6490214548190be90de417da6"
+    },
+    {
+      "path": "outputs/approved-support-flow-20261028/cutover-preview-995a-observation-v2.json",
+      "sha256": "3bd67d1b3f61c29f9cd3ec1bcedb1d0e893ee81404db90ed1ebeea5240a5f150"
+    },
+    {
+      "path": "outputs/approved-support-flow-20261028/cutover-preview-final-tests.log",
+      "sha256": "f7f9f1a58ea3152a15318c1cb079ce3e1466c262e5da66c0501042428c359833"
+    },
+    {
+      "path": "outputs/approved-support-flow-20261028/cutover-preview-port-regression.log",
+      "sha256": "a4ad5aa5d0490b4848398a0d4449fce302da395f3772a358e4646a6f831814d9"
+    }
+  ],
+  "priorState": {
+    "docs/CURRENT_STATE.md": {
+      "content": "# 当前状态：候选可用，PR131修复与50426切换仍待收口\n\n2026-10-28；`feat/closing-support-interfaces`。本片只读GitHub再次核实main **6479a713e2b80228f008049519ebbd50d10601a8**；唯一[草稿PR131](https://github.com/clearisok/zhixu-erp/pull/131)仍open/draft、head **4584deb786e0dd2fada0d998a16d166b00ccaadc**、未合并。无fetch/push、PR写入或新CI；API成功不代表Git写通道恢复。\n\n**产品与工程**：产品仍为 **a198d1829675092006708727624ee867be0e7b60**，来源数量复核、执行方匹配/无产出恢复、报价中心USD工价采用及历史已实现。[精确业务证明](tasks/completed/2026-10-28-closing-support-final-validation.md)的18项Chromium、811项目、182发布结果与SQL夹具修正分别绑定原源码，本片未重跑。内容镜像90e、完整非空恢复9/9和空目标111表0的[持久证明](tasks/completed/2026-10-28-closing-support-persistent-runtime.md)保留原日期；TAP汇总误报仅离线纠正。当前本片不读取业务库、不扩大人工接受或Source状态。\n\n**体验与目标**：[关账演示](http://closing-current.localhost:52251/closing-center?year=2027)仍为a198，closing.editor或labor.editor / synthetic-closing，后者仅工价。新持久空候选 **https://localhost:65139** 本片观察五服务running/healthy、四卷、两网络，内容镜像仍 **sha256:90e36de7c3d61ca137b2d5a4227e848b83ed57579bd146ce25501dbc6fe35f4f**，没有开发工作树bind。它不是50426。Node解析演示域名ENOTFOUND，一次固定IP/原Host公开build-info对照200；没有改DNS/hosts或宣称浏览器故障。\n\n**运行收敛**：[50426切换与退役预检](tasks/active/server-convergence-cutover-preflight-2026-10-28.md)及[逐对象依赖/原状态档案](tasks/completed/2026-10-28-runtime-cutover-preflight/receipt.json)记录31工作树、74容器、199卷、37网络。14个依赖junction、旧容器bind和两棵他人dirty树仍需保护。3001/50426等固定旧端口本次未监听，不代表空数据或可删除；原69容器ID/name/state、195卷名、35网络ID/name保持，历史内容镜像不作不具备证据的比较。无旧服务停止、重启或资产清理。\n\n**交付与下一步**：PR131首次Hosted仅Release通过，source/first-team旧测试失败；本地兼容修复 **136ba1675c54d2ae147fdc50c72a99169aec6495** 已47/47、类型/lint及精确守卫通过。其一次普通checkpoint上传传输失败，独立核实仍4584；NETWORK_DEGRADED，不能重复撞失败Git或手工重跑旧CI。恢复后集中送达修复，核实必要CI和复审，再请求精确合并。最终main冻结后准备单一精确目标镜像；现有new-local-target工具明确拒绝50426，受控preview/execute工程与实际切换许可分开，不能手改配置绕过。\n\n整体[Goal/Gate0](tasks/active/server-convergence-gate0-2026-10-20.md)仍未完成。上一片49项历史merged校准和593条保留证据见[账本证明](tasks/completed/2026-10-28-convergence-capability-reconciliation.md)，不恢复退役写入口、不提升部署/人工/Source维度。本片只改计划/回执/当前文档，未改产品、SQL、权限、UI或环境；具体来源、正式账号/业务库、50426切换和旧资产退役仍须各自许可。此前状态及全部日期/hash/失败/限制逐字保存在本片档案的priorState字段，更早证据沿其中链接保留。\n",
+      "sha256": "6400fcb1af505ed9a36e5b06bb43553bc9c9730143c27a16c8e391d2e27a4002"
+    },
+    "docs/PROJECT_INDEX.md": {
+      "content": "# 当前任务入口\n\n最新[50426切换与旧运行资产预检](tasks/active/server-convergence-cutover-preflight-2026-10-28.md)：31工作树/74容器/199卷/37网络及14个依赖junction，旧端口未监听不等于可删；两棵他人dirty树保护。新65139五healthy、无开发树bind，仍不是50426。准备器明确拒绝50426，后续受控preview/execute与具体切换批准分开，不能手改配置或restart绕过。[逐对象清单及原状态档案](tasks/completed/2026-10-28-runtime-cutover-preflight/receipt.json)保留观察时间/hash/失败/限制；本片只有只读盘点和文档，没有环境变更、产品测试或新CI。先读[当前状态](CURRENT_STATE.md)与[接力](AI_HANDOFF.md)。\n\n最新[能力账本与Server owner核对](tasks/completed/2026-10-28-convergence-capability-reconciliation.md)：fresh main仍6479，PR131仍open/draft/head4584；49项仅校正历史实现已合入，六项退役写入口不恢复，关账/USD采用仍未合并。原592证据保留，新冻结document后账本593；部署、Source及人工接受维度不变。本片仅元数据/文档，相关状态与证据负控10/10，最终精确门禁日志由接力指向；不重复业务测试、Docker或失败Git上传。\n\n最新[0052精确镜像/完整恢复/新持久空候选](tasks/completed/2026-10-28-closing-support-persistent-runtime.md)：原USTC失败保留，官方默认选项一次新构建成功；a198完整非空恢复9/9，TAP汇总误报仅离线纠正、不重跑。新https://localhost:65139 READY，111张非白名单表0、仅新技术管理员，五服务/四卷/重启及完整保护核对。旧52251/62428/50426等全部保留，未切换/部署/登录新库。精简[机器证据](tasks/completed/2026-10-28-support-persistent-runtime/receipt.json)和[原状态档案](tasks/completed/2026-10-28-support-persistence-input-state/receipt.json)区分各自日期/source；本片远端Git写入及新CI0，PR131仍待恢复交付。\n\n当前必要CI接线见[2026-10-28证明](tasks/completed/2026-10-28-closing-ci-integration.md)：只扩展原source job的关账负控/实际浏览器覆盖，不增重复触发或关闭检查，Hosted结果仍独立。\n\n最新[PR131交付与旧测试兼容](tasks/completed/2026-10-28-pr131-delivery-and-test-compatibility.md)：4584精确送达、唯一草稿；首次Release通过，另两项旧断言失败。本地136两份测试47/47、类型/lint/精确守卫通过；一次新checkpoint上传发生传输故障，独立核实远端仍4584。NETWORK_DEGRADED，不重推、手工重跑旧CI或把本地修复冒称远端通过；后继仅状态文档，当前HEAD从Git核对。\n\n2026-10-28；`feat/closing-support-interfaces`。main已核实 **6479a713e2b80228f008049519ebbd50d10601a8**，PR130已按批准merge commit合并。先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[业务规则](BUSINESS_RULES.md)及DECISION_LOG D169–D177；整体[Server收敛Gate0](tasks/active/server-convergence-gate0-2026-10-20.md)继续。\n\n- [全部确认及PR130事实](tasks/completed/2026-10-28-closing-support-and-pr130-approval.md)：三处具体UI和无实际产出归属恢复已获批准，不重复询问。\n- [本片最终验证与交付边界](tasks/completed/2026-10-28-closing-support-final-validation.md)、[a198完整工程证明](tasks/completed/2026-10-28-closing-support-complete-ui-engineering.md)：实际18项Chromium、811项目、182发布及定向SQL/API；源码/失败/原件hash分开，不借旧结果冒充新UI。\n- [月份计划](features/SERVER_CLOSING_MONTH_PLAN.md)、[年度读取](features/SERVER_CLOSING_ANNUAL_READ.md)、[来源复核](features/SERVER_CLOSING_SOURCE_RECONCILIATION.md)、[执行方匹配/恢复](features/SERVER_CLOSING_EXECUTOR_MATCHING.md)、[USD工价采用](features/ORDER_USD_LABOR_ADOPTION.md)。feature内旧日期的“待UI”保留历史阶段，当前状态以本页及最新工程证明为准。\n- [具体已批准界面](tasks/active/closing-support-interfaces-proposal-2026-10-28.md)及[原关账规则](features/SERVER_CLOSING.md)；D177与原CNY成衣/USD加工、原版本/冻结保护不变。\n- [当前实机](http://closing-current.localhost:52251/closing-center?year=2027)：a198、独立合成临时库、已登录；保留旧62411/59846及全部原输入/库/卷。人工接受、持久切换、部署及真实来源激活分别记录。\n- [旧PR130/Gate8核对](tasks/completed/2026-10-28-pr130-gate8-delivery-reconciliation.md)、[旧核心链工程](tasks/completed/2026-10-28-closing-chain-correctness-engineering.md)、[旧精确镜像恢复](tasks/completed/2026-10-28-closing-frozen-image-recovery-engineering.md)、[旧持久空候选](tasks/completed/2026-10-28-current-persistent-empty-target-engineering.md)继续绑定各自source，不冒作本片验收。\n\n[0052恢复输入与原镜像失败证据](tasks/completed/2026-10-28-closing-executor-recovery-engineering.md)仍记录当时owned PG/HTTP8项通过、安全检查11pass1skip及回执4pass、完整恢复未完成；本片后续9/9及新候选只看上方新证明，不覆盖旧结果。独立上传预算工具在另一分支收口c91d904d，本工具实际用于4584交付，但工具分支未上传。raw在outputs/approved-support-flow-20261028。[原a027单次交付回执](tasks/completed/2026-10-28-closing-support-delivery-attempt.md)继续保留旧代理/30秒失败和当时PR0；最新远端/CI以PR131证明为准。[更早状态输入归档](tasks/completed/2026-10-28-support-ui-final-input-state/receipt.json)保留旧日期、hash、失败和限制。累计PR包含0045–0052，不能误称仅三个界面；不自动合并、部署或退役旧资产。\n",
+      "sha256": "1e8c0bb2b8505fdb747b38290ed09912d28fb8805eaee3890838362e4adbb07f"
+    },
+    "docs/AI_HANDOFF.md": {
+      "content": "# 接力：50426切换预检完成，PR131修复待送达\n\n2026-10-28；分支 `feat/closing-support-interfaces`，本片baseline **ab3a49ee9d481c4530521859ffcc67f490e1a4b1** clean。最终HEAD由Git核实，不把本片文档提交当产品版本。原CURRENT/INDEX/HANDOFF逐字、Git blob、hash在[本片档案](tasks/completed/2026-10-28-runtime-cutover-preflight/receipt.json)的priorState，历史结果不可丢弃。\n\n## 本片完成与限制\n\n- [具体方案](tasks/active/server-convergence-cutover-preflight-2026-10-28.md)：只读盘点31worktrees/74containers/199volumes/37networks；逐对象configured/observed ports、tmpfs、junction/bind owner、dirty、main ancestry均在JSON。原69容器ID/name/state、195卷名、35网络ID/name比较保持。旧snapshot混tag/ID，不能声称历史内容镜像也已比对。\n- 两棵其他dirty树：D:/workspace/preparesystem 的AGENTS.md；D:/workspace/zhixu-order-material-b 的docs/tasks/active/order-material-read-gate1.md。仅登记路径，没有读改内容或stage。14junction中8树依赖continuous-material-display、5树依赖erp-followup-governance、pr84依赖ainuoke-c；多个停止容器仍bind工作树，不按merged/clean判可删。\n- 固定旧3001/50426等端口本次未监听；没有自动停止或重启它们。新65139五healthy/四卷/两网络、image90e，零开发工作树bind；业务空库沿原证明，不在本片重查。52251 Node仍监听，公开build-info IP/原Host对照200/a198；Node域名ENOTFOUND与浏览器可用性分开，不改hosts/DNS。\n- private outputs/approved-support-flow-20261028 中 runtime-readonly-inventory-v2、configured-ports-readonly-v2、demo-identity-contrast、cutover-remote-observation四个主要回执。初次Health/Tmpfs可选字段读取失败保留原脚本/回执或工具记录；汇总tag/ID比较错误仅离线收窄，无新Docker/HTTP读取。public receipt绑定原件hash，未导出Env/密码/command line/DB或Browser内容。\n- 本片没有产品测试、Docker构建、迁移、账号/Source/调度、stop/start/restart、清理或CI。上轮10项状态检查及ab3守卫、a198的18/811/182/9、136的47均保留原source，不重跑。收口commit后精确main守卫真实结果查 outputs/approved-support-flow-20261028/convergence-cutover-final-guard.log，核checkedHead/exit，不借旧日志预报PASS。\n\n## 当前交付与真正的下一步\n\n本片独立只读复审五份文档，无剩余P1/P2；挂载条数与不同容器数已明确区分。离线证据核对6份输入、3份原状态、4份代码摘要通过，无运行时请求。最终提交后执行一次精确守卫，结果仍以以上新日志为准。\n\nfresh GitHub API两次GET确认main **6479a713e2b80228f008049519ebbd50d10601a8**，唯一草稿https://github.com/clearisok/zhixu-erp/pull/131 仍open/draft/head4584deb786e0dd2fada0d998a16d166b00ccaadc/未合并。原首次CI Release40639447810成功，source40639447798与first-team40639447804被旧断言阻断，后续跳过；[136兼容修复](tasks/completed/2026-10-28-pr131-delivery-and-test-compatibility.md)47/47与类型/lint/守卫、review0P1/P2均本地成立，未送达。其一次上传exit128 uncertain_transport后Git/API精确仍4584，NETWORK_DEGRADED；API读和新Docker候选成功均不证明Git写恢复。无具体外部变化，不重复push/诊断或触发旧CI。独立工具分支fix/git-delivery-upload-budget@c91d904d8751275dd6a7830893ce237efa021905仍未上传，可复用其180秒push工具，不改认证/共享代理/证书。\n\n当前产品a198及镜像90e、9项恢复/65139空候选的精确证明见[持久化工程](tasks/completed/2026-10-28-closing-support-persistent-runtime.md)；[当前实机](http://closing-current.localhost:52251/closing-center?year=2027) closing.editor或labor.editor / synthetic-closing，所有旧输入/端口/库/卷/refs保留。新目标未登录、没有业务写入，不能把候选当50426或人工完整接受。\n\n现有ops/quote-trial/new-local-target.ps1拒绝50426；默认保护不放开。可继续本地受控preview工程，实际目标初始化/切换仍待精确main、镜像、项目/目录/网段、HTTPS与会话影响的具体许可。不得手改trial.conf或用restart冒充升级。Cookie固定zhixu_v1_session/Path=/，同host端口不隔离，不清用户Cookie/Browser stores。C0交付/CI/复审→明确合并→最终镜像→受控目标方案批准→50426→人工/Source→逐对象退役；旧R不是新业务认领/归一功能复活。完整目标尚未完成，不能因预检文档完成标complete。\n",
+      "sha256": "4f251f49e75f7ca09112148fe57c12a09477583757ebc30d1c663ca68110fafa"
+    }
+  }
+}

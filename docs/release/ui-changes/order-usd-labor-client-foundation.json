@@ -1,0 +1,15 @@
+{
+  "baselineSha": "6479a713e2b80228f008049519ebbd50d10601a8",
+  "level": "V0",
+  "paths": [
+    "features/quote-center/server/labor-adoption-client.ts",
+    "features/quote-center/server/labor-adoption-pending.ts"
+  ],
+  "pages": [
+    "quote-detail"
+  ],
+  "visibleDifference": "none",
+  "evidence": [
+    "docs/features/ORDER_USD_LABOR_INTERFACE.md"
+  ]
+}

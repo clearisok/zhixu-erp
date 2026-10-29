@@ -132,8 +132,16 @@ test("Animated login: real session, redirects, keyboard, errors and responsive U
    assert.equal(await evalJs("location.pathname"),"/quote-center");
    await evalJs("window.logoutFail=false");await click("退出登录");await ready();assert.equal(await evalJs("location.pathname"),"/login");
    await navigate("/login");await ready();
-   await navigate("/closing-center");await has("尚未接通");
-   assert.equal(await evalJs("document.querySelector('.zx-login-form')!==null"),false);
+   await navigate("/closing-center");
+   if(build.orderRead==="snapshot"){
+    await ready();
+    assert.equal(await evalJs("location.pathname"),"/login");
+    assert.equal(await evalJs("new URLSearchParams(location.search).get('returnTo')"),"/closing-center");
+    assert.equal((await fetch(x.base+"/api/v1/closing/periods")).status,401);
+   }else{
+    await has("尚未接通");
+    assert.equal(await evalJs("document.querySelector('.zx-login-form')!==null"),false);
+   }
    await navigate("/login");await ready();
   });
   await t.test("production planning follows the explicit order-read gate and never loads anonymous business data",async()=>{

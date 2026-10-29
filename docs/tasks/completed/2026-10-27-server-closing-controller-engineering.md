@@ -1,0 +1,54 @@
+# Gate8E2：Server关账原命令编排冻结工程证明
+
+2026-10-27，branch codex/server-closing-controller-main-869e；clean基点和S直接父7d6ce0e5ca5011fa693dcaea9e0b93c2642ce5f3。main869ee84dd0b31de6161011e4aa560678b244a64d沿用同日已核实证据，未fetch/重复API。PR130原61704afe22fe9fd0ea9f6625c6092fcbb9575dfc非本地新代码；Git/ref写STOP_AUTH_OR_DIVERGENCE根因UNRESOLVED。
+
+## 实现与边界
+
+D168在原ClosingIntent/client/pending/Server命令上实现save/readback→单次POST→GET原UUID/hash/CAS终态→精确ack，不增加价格、关账或日志系统。构造/刷新只恢复本actor/tab原命令，不发网络。unknown必须先核对、用户显式确认且原slot完整相同，才允许原UUID/body重试；无新UUID绕过未决，无自动POST循环。损坏/未来/竞争原件、读回失败和ack失败均保留并阻断新写入。
+
+月份列表只预览create_period，本期间详情只预览精确periodId；当前actor另一期间未决可原请求核对，不能换上下文覆盖。复用原closingActionPermission逐项检查编辑、确认、锁定、重开，输入新渠道沿原金额权限。旧/新渠道或全期间并集仍由Server事务鉴权，controller不是授权权威。写撤权仍允许读原回执，读撤权隐藏状态；金额可见性变化立即隐藏旧预览并拒绝其apply，晚预览不发布。
+
+每个实际会话/权限/期间代际需要新owner对象，包括ABA；离开dispose。操作串行、timeout/AbortSignal/current lease、存储前后及回调前复核owner；snapshot/回调参数和输入规范化副本隔离可变对象。不会因为POST返回或HTTP失败直接清原缓存。onChange/onApplied/onUnauthorized异常不改变Server事实，navigationBlocked只是待接线状态信号。
+
+无React/真实session-provider/导航/离开提醒安装；关账UI具体草图和USD采用原UI问题仍pending。无DOM、密度、菜单或价格交互改版。V0新controller精确路径登记仅引用既有order-detail物理SO保护范围，app/components无调用，不虚构新关账页基线、截图或批准。D162/D163人工月份/数量/颜色/执行方、显式期间税率、CNY销售、USD经销工价/独立加工服务和冻结历史均不改；无FX/税率更正/默认13%。
+
+## 实际验证
+
+精确S 4dfcd44e03b2c6949fa9140aadd4d9b0471f2719：owned Git archive逐一核对3079 tracked blob、0overlay，复用原node_modules junction，无安装。52/52相关回归＝15原client＋21新controller＋8原interface HTTP＋8新controller HTTP（HTTP各含父项），0失败/取消/跳过。根typecheck、相关三文件lint通过；Vite8独立browser compile 1输出/11模块通过，无Node/PG/后端repository运行时依赖。
+
+真实API→PG只使用新owned tmpfs合成库。覆盖九动作：create_period、create/update/review/void_allocation、confirm/unconfirm/lock/reopen_period；手工税/量独立于累计完成、加工0USD独立服务桶、实际CNY工价预览阻断、生产更正后显式复核、原锁定版本快照不变。已核unknown的未提交原请求只由显式重试发送一次；真实COMMIT后丢POST及首GET回应，刷新不重发，随后撤closing.edit仍可只读核实并释放原命令。报价和订单商业版本前后完全相同，旧Browser示意字节保留。
+
+复审发现1项P2：busy发布的同步回调dispose后仍安装未消费取消Promise，第二次dispose产生未处理取消拒绝。新增定向用例实际失败；修正为try内发布busy后先核current，失效不安装cancel/timer。修后busy重复清理、新渠道权限和精确wrong-period三项定向通过；最终21单元含本负控。wrong-period仅改目标ID，保留正确版本，不再借CAS错误掩盖。
+
+原红测诊断脚本错误期待spec reporter出现字面unhandledRejection，故reproduced=false且分类assert失败；该原件不改。实际原日志有失败用例和closing_owner_changed的cancel/second-dispose栈，派生classification仅澄清日志格式，不声称原分类器成功。WIP19单元/8HTTP、早期lint和三项修后结果各按原件保留，不与最终52相加。私有验证脚本准备时一次语法检查误用互斥--check/--eval，改为文件--check；不是产品测试失败，不作为QA PASS。
+
+独立只读实现、修复和精确S证据复审0剩余P1/P2，核对归档与日志哈希；审查者未运行测试或环境操作。Server/SQL/页面依赖图未改，原811项目/前后端构建仅保留其原S48a41fb6957c7353415e690863af48ec704c9a2e归属；本阶段未重跑，也未跑144发布负控或Hosted CI。实际新PR交付前必要完整门禁仍须完成；最终完整HEAD的精确main守卫在后续收口运行一次，结果另记，不预报。
+
+## 保护与交付
+
+275条旧本地branch HEAD逐项保留。原50容器/179卷/27网络标识与上一阶段保存值及本轮QA前后相同，只是选定标识核对，不是业务内容/完整状态审计。新owned测试库按夹具回收，没有既有库/账号、Browser存储、旧环境、卷或备份操作。0远端写/Hosted/真实Source/绑定/激活/调度/合并/部署/切换/退役。只向已有closing测试命令追加两文件，无新workflow/job；68能力状态不改。完整Goal保持active，源码存在和合成验收不等于用户体验、远端送达或上线完成。
+
+## 本机原件SHA256
+
+目录outputs/server-closing-controller-20261027；原件不覆盖，归档路径/hash在prepared.json。
+
+- start.json：786026e0c18c1f143519dd8012e0cb3ae2c926900cd916156492a6aeba698d0c
+- source.json：cad862300d654e54726cef97bf42b648da9520ec0145d66cacdb16f3b7d427f3
+- prepared.json：c58e9cb723d833b82c4782bee8de00c5fd2aa0513bfc3290b1b5707bf561d2a2
+- canonical.json：8ddf1552724d0974c8134b452466450a2161ad4b1995c1c601cd1c80953ef07f
+- canonical-affected.log：42cfc8450ccadf99f69eca19b6dd3180e3fc082ee4ca89a1147f02a16c2caa9c
+- canonical-typecheck.log：169f24774e13a79b6341d6c41c58f159e180701e87e9028aa70afdf8712b6fbb
+- canonical-changed-lint.log：169f24774e13a79b6341d6c41c58f159e180701e87e9028aa70afdf8712b6fbb
+- browser-bundle.json：85630cb2239c6d41555284d1b48f7bb8556bba6bcd965f2d66bf5185da805f3e
+- browser-bundle.log：b8d56268cf9606a5a4fe0647d6952cb618611e89f6d03af334a46eba31e843b3
+- review-busy-red.json：ab41239d1d8df8d60340b83886449c2045b3976caf556b4814f8fdbddab20f99
+- review-busy-red.log：76ee946bfa2d84a853b4df0af96f3c1c2521bc329d56beadd16cf81666cc561a
+- review-busy-red-classification.json：d77e05b48b8b7ee4fbed80b7fe9957c168372d289cecd46ac3e718516721825e
+- review-fixed.json：35c15605e76d8e11c0961a50aa51b0c6729433bc50566b646d4459fd02a2b826
+- review-fixed.log：bd2af16a62d1adab2b25c6fec1c8912565783e823776d714fdc9ca56a12287ff
+- preservation.json：85a4cec1d6ec3adc1379a80706a5d61e217bfd85dabdc4c53f272d3924e27d0e
+- phase-preservation.json：81c4f7b6e01cdcac625d021b477f0a6f5dbb134d26cf61e72ee71ee3913bfdf4
+- ref-preservation.json：804960aeeb2cadbfb1ed17f73d20e2ef47bc80d466c9270087dd58ddc3825891
+- review.json：07056983310ef4b36ae6bd63cbcc6f862caffeddea6392b9fe55ddc03311f78c
+
+[当前契约](../../features/SERVER_CLOSING_INTERFACE.md)；[阶段](../active/server-closing-controller-2026-10-27.md)；[原Gate8E1收口](2026-10-27-server-closing-interface-validation.md)。本页固定本切片，后续用新证明前向接续，不覆盖历史证据。

@@ -1,0 +1,15 @@
+{
+  "baselineSha": "6479a713e2b80228f008049519ebbd50d10601a8",
+  "level": "V1",
+  "visibleDifference": "Restore the approved month-plan-only behavior: a retired manual quantity command now gives a business explanation directing the user to closing adjustment. No new layout, control, price writer or navigation.",
+  "paths": [
+    "features/closing-center/server/closing-projection.ts"
+  ],
+  "pages": [
+    "closing-adjustment"
+  ],
+  "evidence": [
+    "docs/features/SERVER_CLOSING_WRITE_RETIREMENT.md",
+    "docs/tasks/active/closing-write-retirement-2026-10-27.md"
+  ]
+}

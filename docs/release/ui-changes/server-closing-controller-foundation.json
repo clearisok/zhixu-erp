@@ -1,0 +1,14 @@
+{
+  "baselineSha": "6479a713e2b80228f008049519ebbd50d10601a8",
+  "level": "V0",
+  "paths": [
+    "features/closing-center/server/closing-controller.ts"
+  ],
+  "pages": [
+    "order-detail"
+  ],
+  "visibleDifference": "none",
+  "evidence": [
+    "docs/features/SERVER_CLOSING_INTERFACE.md"
+  ]
+}

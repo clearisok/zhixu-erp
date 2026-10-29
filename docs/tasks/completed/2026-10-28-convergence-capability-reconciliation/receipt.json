@@ -1,0 +1,1873 @@
+{
+  "contract": "zhixu-convergence-capability-reconciliation.v1",
+  "assessedAt": "2026-10-28",
+  "phaseBaseline": "9baa7a5d011a1ca93a7ceec9c99174a6c7554a0c",
+  "branch": "feat/closing-support-interfaces",
+  "main": "6479a713e2b80228f008049519ebbd50d10601a8",
+  "productSource": "a198d1829675092006708727624ee867be0e7b60",
+  "remote": {
+    "observedAt": "2026-10-28 06:48:11 UTC",
+    "readOnly": true,
+    "repository": "clearisok/zhixu-erp",
+    "main": "6479a713e2b80228f008049519ebbd50d10601a8",
+    "pr": {
+      "number": 131,
+      "state": "open",
+      "merged": false,
+      "draft": true,
+      "head": "4584deb786e0dd2fada0d998a16d166b00ccaadc",
+      "base": "6479a713e2b80228f008049519ebbd50d10601a8",
+      "mergeable": true,
+      "url": "https://github.com/clearisok/zhixu-erp/pull/131"
+    },
+    "gitTransportRecovered": false,
+    "newPushes": 0,
+    "newCiRuns": 0
+  },
+  "remoteReceiptSha256": "44044a790f0ab09e212807a7d2cc3dec8d734c7bab93c8cccb147ed9ea2da280",
+  "priorManifest": {
+    "sourceSha": "9baa7a5d011a1ca93a7ceec9c99174a6c7554a0c",
+    "gitBlob": "80181fcbe8912ca3104ecba83c7b25a3dd0f6337",
+    "sha256": "810dc30f9b7b13c787f7092865ef900c12c17cd173424ca1c01db22a8ef60ef1",
+    "evidenceCount": 592,
+    "capabilityCount": 68
+  },
+  "meaning": "Git ancestry proves original implementation history is contained in main. It does not prove current route availability, product correctness, target deployment, human acceptance or live source activation.",
+  "counts": {
+    "unmergedClaims": 52,
+    "implementationSourcesInMain": 50,
+    "eligibleMergedCorrections": 49,
+    "unimplementedIntakeHeld": 1,
+    "notInMain": 2
+  },
+  "capabilities": [
+    {
+      "id": "intake",
+      "implemented": "no",
+      "originalImplementationSource": "4adbc30845f99368caa77d3431cc67a6440ac623",
+      "originalAssessedAt": "2026-10-12",
+      "originalScope": "Approved contract only; mobile collection/conversion not implemented; contract PR merge is not feature implementation.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-12",
+        "scope": "Approved contract only; mobile collection/conversion not implemented; contract PR merge is not feature implementation.",
+        "evidence": [
+          "intake",
+          "decisions"
+        ],
+        "sourceSha": "4adbc30845f99368caa77d3431cc67a6440ac623"
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "4adbc30845f99368caa77d3431cc67a6440ac623",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": false,
+      "nextMerged": false,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "order-identity-contract-claim",
+      "implemented": "yes",
+      "originalImplementationSource": "f4f8d715065d202bb816bd79a6595e10b71374d6",
+      "originalAssessedAt": "2026-10-14",
+      "originalScope": "Gate1 contract identity, claim, lineage and non-SO preparation only; Gate2 commercial snapshots and processing intake are not implemented.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-14",
+        "sourceSha": "f4f8d715065d202bb816bd79a6595e10b71374d6",
+        "scope": "Gate1 contract identity, claim, lineage and non-SO preparation only; Gate2 commercial snapshots and processing intake are not implemented. Local engineering passed; no remote delivery, deployment or human acceptance.",
+        "evidence": [
+          "order-identity-g1-engineering"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "f4f8d715065d202bb816bd79a6595e10b71374d6",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": true
+    },
+    {
+      "id": "order-commercial-versions",
+      "implemented": "yes",
+      "originalImplementationSource": "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+      "originalAssessedAt": "2026-10-17",
+      "originalScope": "D145 single confirmation authority and independent immutable uniform/color order commercial versions; quote-center single/batch sale negotiation only, shared CCT/labor/cost/product schemes unchanged. Synthetic verification only; no real upgrade, FX or complete Server closing.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-17",
+        "sourceSha": "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+        "scope": "D145 single confirmation authority and independent immutable uniform/color order commercial versions; quote-center single/batch sale negotiation only, shared CCT/labor/cost/product schemes unchanged. Synthetic verification only; no real upgrade, FX or complete Server closing. New head remote delivery/CI and human acceptance remain pending.",
+        "evidence": [
+          "order-commercial-g2-engineering",
+          "price-coordination-engineering-20261017",
+          "price-coordination-final-review-20261017"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "processing-order-batches",
+      "implemented": "yes",
+      "originalImplementationSource": "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+      "originalAssessedAt": "2026-10-17",
+      "originalScope": "D145 labor-only processing projection/export, synchronized editable quote push and immutable 0016 batch identity, dual-entry deduplication, explicit repeat order, per-quote atomic partial batches and request recovery. No real account/data/source activation or deployment.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-17",
+        "sourceSha": "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+        "scope": "D145 labor-only processing projection/export, synchronized editable quote push and immutable 0016 batch identity, dual-entry deduplication, explicit repeat order, per-quote atomic partial batches and request recovery. No real account/data/source activation or deployment. New head remote delivery/CI and human acceptance remain pending.",
+        "evidence": [
+          "processing-g3-engineering",
+          "price-coordination-engineering-20261017",
+          "price-coordination-final-review-20261017"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "order-normalization-case-review",
+      "implemented": "yes",
+      "originalImplementationSource": "f36307cf39b5581ab1ad3536c5829448deee1988",
+      "originalAssessedAt": "2026-10-14",
+      "originalScope": "Gate4 local administrator case review and finite-reference preview only; effective attribution/execution/correction, external production/closing coverage, real activation and deployment are not delivered.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-14",
+        "sourceSha": "f36307cf39b5581ab1ad3536c5829448deee1988",
+        "scope": "Gate4 local administrator case review and finite-reference preview only; effective attribution/execution/correction, external production/closing coverage, real activation and deployment are not delivered. Remote delivery/CI and human acceptance remain pending.",
+        "evidence": [
+          "order-normalization-preview-engineering"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "f36307cf39b5581ab1ad3536c5829448deee1988",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": true
+    },
+    {
+      "id": "order-command-control",
+      "implemented": "yes",
+      "originalImplementationSource": "24a983418f346c2651e34385ddf7a948af01e012",
+      "originalAssessedAt": "2026-10-15",
+      "originalScope": "Local Server process/SQL pause for new SO, order commercial adoption and attribution, with immutable control history and exact old-main Server startup/compatible frozen-read rehearsal. No real target activation, old Docker/Browser certification, external writer coverage, deployment or human acceptance.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-15",
+        "sourceSha": "24a983418f346c2651e34385ddf7a948af01e012",
+        "scope": "Local Server process/SQL pause for new SO, order commercial adoption and attribution, with immutable control history and exact old-main Server startup/compatible frozen-read rehearsal. No real target activation, old Docker/Browser certification, external writer coverage, deployment or human acceptance.",
+        "evidence": [
+          "order-command-control-engineering"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "24a983418f346c2651e34385ddf7a948af01e012",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "order-material-source-history",
+      "implemented": "yes",
+      "originalImplementationSource": "6bc7f2f51d9b5104d4680b5a175e0e68d9fa7e1e",
+      "originalAssessedAt": "2026-10-15",
+      "originalScope": "Local Server original-target historical material Source list/read with capture scope/link/version and immutable known source identities. Captured quantities/events only; no current or past readiness certification, browser UI, real activation, deployment or human acceptance.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-15",
+        "sourceSha": "6bc7f2f51d9b5104d4680b5a175e0e68d9fa7e1e",
+        "scope": "Local Server original-target historical material Source list/read with capture scope/link/version and immutable known source identities. Captured quantities/events only; no current or past readiness certification, browser UI, real activation, deployment or human acceptance.",
+        "evidence": [
+          "order-source-history-engineering"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "6bc7f2f51d9b5104d4680b5a175e0e68d9fa7e1e",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "order-original-history-ui",
+      "implemented": "yes",
+      "originalImplementationSource": "af9d142de39ad0f68898df7079c646390d80e260",
+      "originalAssessedAt": "2026-10-15",
+      "originalScope": "Local existing Server list/detail/Modal connects effective versus original history, exact material capture navigation and historical mutation holds. Synthetic UI only; no execution/reviewer UI, real source, deployment or human acceptance.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-15",
+        "sourceSha": "af9d142de39ad0f68898df7079c646390d80e260",
+        "scope": "Local existing Server list/detail/Modal connects effective versus original history, exact material capture navigation and historical mutation holds. Synthetic UI only; no execution/reviewer UI, real source, deployment or human acceptance.",
+        "evidence": [
+          "order-source-history-ui-engineering"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "af9d142de39ad0f68898df7079c646390d80e260",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "normalization-review-workspace-backend",
+      "implemented": "yes",
+      "originalImplementationSource": "a7c4879e6f418d761e8f7989f71083a1194dd9b5",
+      "originalAssessedAt": "2026-10-15",
+      "originalScope": "Local Server immutable proposal publication, reviewer access/inbox/current status/history and scoped lineage evidence. Synthetic backend only; no browser review UI, real adapters/permit activation, normalization, deployment or human acceptance.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-15",
+        "sourceSha": "a7c4879e6f418d761e8f7989f71083a1194dd9b5",
+        "scope": "Local Server immutable proposal publication, reviewer access/inbox/current status/history and scoped lineage evidence. Synthetic backend only; no browser review UI, real adapters/permit activation, normalization, deployment or human acceptance.",
+        "evidence": [
+          "normalization-review-workspace-engineering"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "a7c4879e6f418d761e8f7989f71083a1194dd9b5",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": true
+    },
+    {
+      "id": "normalization-independent-review-ui",
+      "implemented": "yes",
+      "originalImplementationSource": "e6bbf9869621ceb9708d2c723b1eb81773950773",
+      "originalAssessedAt": "2026-10-15",
+      "originalScope": "Local existing Foundation/Server order-center proposal publication and fresh independent production/finance review UI, original evidence/history and visible execution blockers. Synthetic sessions and disposable PG only; no execute UI, real adapter/permit/source activation, deployment or human acceptance.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-15",
+        "sourceSha": "e6bbf9869621ceb9708d2c723b1eb81773950773",
+        "scope": "Local existing Foundation/Server order-center proposal publication and fresh independent production/finance review UI, original evidence/history and visible execution blockers. Synthetic sessions and disposable PG only; no execute UI, real adapter/permit/source activation, deployment or human acceptance.",
+        "evidence": [
+          "normalization-review-ui-engineering"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "e6bbf9869621ceb9708d2c723b1eb81773950773",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": true
+    },
+    {
+      "id": "order-preparation-adoption-backend",
+      "implemented": "yes",
+      "originalImplementationSource": "ff89f884a245ba69b7d3bdc520782ecc6ed74be8",
+      "originalAssessedAt": "2026-10-15",
+      "originalScope": "Local exact proposed Quote intent, owner/CAS/immutable contract preparation adoption receipts and current lineage reference, trustworthy consumed-batch identity reads, and CI test configuration. Synthetic backend/old UI regression only; new preparation UI, real migration, source activation, deployment and human acceptance not claimed.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-15",
+        "sourceSha": "ff89f884a245ba69b7d3bdc520782ecc6ed74be8",
+        "scope": "Local exact proposed Quote intent, owner/CAS/immutable contract preparation adoption receipts and current lineage reference, trustworthy consumed-batch identity reads, and CI test configuration. Synthetic backend/old UI regression only; new preparation UI, real migration, source activation, deployment and human acceptance not claimed.",
+        "evidence": [
+          "preparation-adoption-backend-engineering"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "ff89f884a245ba69b7d3bdc520782ecc6ed74be8",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": true
+    },
+    {
+      "id": "order-preparation-adoption-ui",
+      "implemented": "yes",
+      "originalImplementationSource": "b63d6424dcbfd1076d4f7558ff05a9c1b1cd8280",
+      "originalAssessedAt": "2026-10-15",
+      "originalScope": "Local existing-Foundation explicit proposed Quote preparation and post-claim contract adoption, private receipts and tab-scoped unresolved command recovery. Synthetic seven-role/responsive/unchanged-order facts only; no remote delivery, human acceptance, real source activation, migration or deployment.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-15",
+        "sourceSha": "b63d6424dcbfd1076d4f7558ff05a9c1b1cd8280",
+        "scope": "Local existing-Foundation explicit proposed Quote preparation and post-claim contract adoption, private receipts and tab-scoped unresolved command recovery. Synthetic seven-role/responsive/unchanged-order facts only; no remote delivery, human acceptance, real source activation, migration or deployment.",
+        "evidence": [
+          "preparation-adoption-ui-engineering"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "b63d6424dcbfd1076d4f7558ff05a9c1b1cd8280",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": true
+    },
+    {
+      "id": "ainuoke-live-demo-preflight",
+      "implemented": "yes",
+      "originalImplementationSource": "b1aaabd2f5083b54b804bcffc68d55d2a8dcb242",
+      "originalAssessedAt": "2026-10-13",
+      "originalScope": "Unmerged source-only full preflight and plan-only isolated target; wrapper repairs retain 24 synthetic regressions. User-executed real full read at tooling 4b4a09eac5ada875a452a743715f65e3e69719a1 completed for 558 current-account-visible contracts in about 8m25s; protected report hash verified. Colors 552 usable/6 invalid; 14411 demand items have 12655 known/1750 missing/6 conflicting units. This is a single read, not continuous persisted refresh, company-wide visibility, DB authorization, Source activation, human acceptance or deployment.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-13",
+        "sourceSha": "b1aaabd2f5083b54b804bcffc68d55d2a8dcb242",
+        "scope": "Unmerged source-only full preflight and plan-only isolated target; wrapper repairs retain 24 synthetic regressions. User-executed real full read at tooling 4b4a09eac5ada875a452a743715f65e3e69719a1 completed for 558 current-account-visible contracts in about 8m25s; protected report hash verified. Colors 552 usable/6 invalid; 14411 demand items have 12655 known/1750 missing/6 conflicting units. This is a single read, not continuous persisted refresh, company-wide visibility, DB authorization, Source activation, human acceptance or deployment.",
+        "evidence": [
+          "ainuoke-live-preflight-wrapper-repair-20261013",
+          "ainuoke-real-full-preflight-20261013"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "b1aaabd2f5083b54b804bcffc68d55d2a8dcb242",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "ainuoke-source-quality-diagnostic",
+      "implemented": "yes",
+      "originalImplementationSource": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+      "originalAssessedAt": "2026-10-14",
+      "originalScope": "Bounded fixed-catalog read-only quality diagnosis: 19 selected current-account-visible contracts/47 requests, anonymous reasons and five-way unit/purchase statistics. It does not repeat the successful full materials collection or activate a persisted live Source.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-14",
+        "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+        "scope": "Bounded fixed-catalog read-only quality diagnosis: 19 selected current-account-visible contracts/47 requests, anonymous reasons and five-way unit/purchase statistics. It does not repeat the successful full materials collection or activate a persisted live Source.",
+        "evidence": [
+          "ainuoke-isolated-demo-final-20261014"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "ainuoke-quantity-comparison",
+      "implemented": "yes",
+      "originalImplementationSource": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+      "originalAssessedAt": "2026-10-14",
+      "originalScope": "Read-only theoretical usage candidate and actual purchase remain independent observation-only facts. Three user-confirmed quantities supported; no global field semantics, formal requiredQuantity/kit readiness/unit conversion or purchase event identity changes. Original P6 layout retained.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-14",
+        "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+        "scope": "Read-only theoretical usage candidate and actual purchase remain independent observation-only facts. Three user-confirmed quantities supported; no global field semantics, formal requiredQuantity/kit readiness/unit conversion or purchase event identity changes. Original P6 layout retained.",
+        "evidence": [
+          "ainuoke-isolated-demo-final-20261014"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "isolated-offline-fixture-demo",
+      "implemented": "yes",
+      "originalImplementationSource": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+      "originalAssessedAt": "2026-10-14",
+      "originalScope": "Explicitly authorized new owned durable local project runs actual Server/session/Adapter/Pipeline/Projection/P6 at be1c522 with 6 labelled fixtures plus 17 workbook framework orders, imported Server quotes and six synthetic roles. Three-cycle/failure/stale/overflow/recovery/restart and actual responsive UI evidence; not 558 live replay, live activation, human acceptance or Ningbo deployment.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-14",
+        "sourceSha": "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+        "scope": "Explicitly authorized new owned durable local project runs actual Server/session/Adapter/Pipeline/Projection/P6 at be1c522 with 6 labelled fixtures plus 17 workbook framework orders, imported Server quotes and six synthetic roles. Three-cycle/failure/stale/overflow/recovery/restart and actual responsive UI evidence; not 558 live replay, live activation, human acceptance or Ningbo deployment.",
+        "evidence": [
+          "ainuoke-isolated-demo-final-20261014"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "5ac3294655d7bdd40fa48420046b81df1e172e9a",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "material-order-headers",
+      "implemented": "yes",
+      "originalImplementationSource": "d0e1ae2d67589654207db8fda011d5384eb5d8b2",
+      "originalAssessedAt": "2026-10-15",
+      "originalScope": "Approved header/back-arrow/business-style/factory-style corrections and compact source status; actual synthetic six-width and protected navigation validation, no human pixel acceptance, production deployment, source activation or quantity changes.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-15",
+        "sourceSha": "7949cdd0c708556f691b0629d6fcb15119782d70",
+        "scope": "Approved header/back-arrow/business-style/factory-style corrections and compact source status; actual synthetic six-width and protected navigation validation, no human pixel acceptance, production deployment, source activation or quantity changes.",
+        "evidence": [
+          "material-order-header-ui-verification",
+          "material-order-page-approved-scope"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "d0e1ae2d67589654207db8fda011d5384eb5d8b2",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "material-excess-warehouse",
+      "implemented": "yes",
+      "originalImplementationSource": "049a87ba9aeef2e076ae8a7d69b753d18f4cd39b",
+      "originalAssessedAt": "2026-10-15",
+      "originalScope": "Readonly per-inbound num_dyc fact, with source-reference agreement, missing/conflicting units and older DTO safety; no change to rknum, formal readiness, business database, source capture, deployment or human acceptance.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-15",
+        "sourceSha": "99b4f37750084f4edf50db129532576a204e0374",
+        "scope": "Readonly per-inbound num_dyc fact, with source-reference agreement, missing/conflicting units and older DTO safety; no change to rknum, formal readiness, business database, source capture, deployment or human acceptance.",
+        "evidence": [
+          "excess-warehouse-mapping-results",
+          "excess-warehouse-confirmed-scope",
+          "excess-warehouse-offline-statistics",
+          "excess-warehouse-pr-delivery"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "049a87ba9aeef2e076ae8a7d69b753d18f4cd39b",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "material-display-team-settings",
+      "implemented": "yes",
+      "originalImplementationSource": "b0ecbc08ecc1b8bd9266cc2da1febb3cc532e993",
+      "originalAssessedAt": "2026-10-15",
+      "originalScope": "Approved display-only fabric/trim ordering, shared team keyword settings with CAS/idempotency/audit, color/spec expansion and source event drawer; no formal quantity/readiness or commercial/source-activation change. Synthetic engineering acceptance only.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-15",
+        "sourceSha": "f84ba7be2b98b161959092f908f5e807e2d11538",
+        "scope": "Approved display-only fabric/trim ordering, shared team keyword settings with CAS/idempotency/audit, color/spec expansion and source event drawer; no formal quantity/readiness or commercial/source-activation change. Synthetic engineering acceptance only.",
+        "evidence": [
+          "material-display-results",
+          "material-display-approved-scope",
+          "material-display-ui-receipt",
+          "decisions-material-display-settings-events"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "b0ecbc08ecc1b8bd9266cc2da1febb3cc532e993",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "ainuoke-payment-first-page-diagnostic",
+      "implemented": "yes",
+      "originalImplementationSource": "362f81ba704ab792eff102cf121301deee4998f0",
+      "originalAssessedAt": "2026-10-15",
+      "originalScope": "Operator-only fixed 6086941 first-page diagnostic. One authorized read captured 100 of 17675 rows and 49 declared columns on 2026-10-15; no full collection, formal business mapping, database, UI, activation, currency or bank-payment inference.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-15",
+        "sourceSha": "b0e4cbc970888aa50d87e8cccdc7ec9d731701ff",
+        "scope": "Operator-only fixed 6086941 first-page diagnostic. One authorized read captured 100 of 17675 rows and 49 declared columns on 2026-10-15; no full collection, formal business mapping, database, UI, activation, currency or bank-payment inference.",
+        "evidence": [
+          "payment-request-probe-results",
+          "decisions-payment-request-probe",
+          "payment-request-first-attempt-repair",
+          "payment-request-metadata-compatibility",
+          "payment-request-ipc-encoding",
+          "payment-request-first-page-real",
+          "payment-request-first-page-schema"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "362f81ba704ab792eff102cf121301deee4998f0",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "ainuoke-payment-read-only-observations",
+      "implemented": "yes",
+      "originalImplementationSource": "ba3e058307c7e500ac86efc54121e17290291249",
+      "originalAssessedAt": "2026-10-15",
+      "originalScope": "Pure offline exact 6086941 first-page observations, no event deduplication or totals. Only two exact rows have confirmed purchase-contract CNY and allocation unit. CNY qualifies cgGoodsAmount, PayAmount and GoodsAmount only; all other amount currencies stay unknown. No complete-contract read, API, DB, Source activation, bank-payment inference, product acceptance or deployment.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-15",
+        "sourceSha": "ba3e058307c7e500ac86efc54121e17290291249",
+        "scope": "Pure offline exact 6086941 first-page observations, no event deduplication or totals. Only two exact rows have confirmed purchase-contract CNY and allocation unit. CNY qualifies cgGoodsAmount, PayAmount and GoodsAmount only; all other amount currencies stay unknown. No complete-contract read, API, DB, Source activation, bank-payment inference, product acceptance or deployment.",
+        "evidence": [
+          "decisions-payment-row-context",
+          "payment-row-context-confirmation",
+          "payment-observations-engineering",
+          "payment-observations-offline",
+          "payment-observations-amount-currency",
+          "payment-observations-amount-currency-offline"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "ba3e058307c7e500ac86efc54121e17290291249",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "ainuoke-payment-two-contract-diagnostic",
+      "implemented": "yes",
+      "originalImplementationSource": "48b63101675f7773b63c7d820d4c1d60088ed9b4",
+      "originalAssessedAt": "2026-10-16",
+      "originalScope": "Operator-only 6086941 diagnostic: one explicitly authorized real run at source 48b63101675f7773b63c7d820d4c1d60088ed9b4 completed two selected positive contracts, 12/9 rows, one page each per pass, two matching passes, 4 report/5 HTTP attempts. Exact filtering and observed completeness verified only for these contracts. Real >100-row second page and other contracts remain unverified; mappingVerified=false. No ERP DB, activation, bank-payment inference, API/UI enablement, product acceptance or deployment. No additional read permission remains.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-16",
+        "sourceSha": "48b63101675f7773b63c7d820d4c1d60088ed9b4",
+        "scope": "Operator-only 6086941 diagnostic: one explicitly authorized real run at source 48b63101675f7773b63c7d820d4c1d60088ed9b4 completed two selected positive contracts, 12/9 rows, one page each per pass, two matching passes, 4 report/5 HTTP attempts. Exact filtering and observed completeness verified only for these contracts. Real >100-row second page and other contracts remain unverified; mappingVerified=false. No ERP DB, activation, bank-payment inference, API/UI enablement, product acceptance or deployment. No additional read permission remains.",
+        "evidence": [
+          "decisions-payment-contract-probe",
+          "payment-contract-probe-engineering",
+          "payment-contract-selection-offline",
+          "payment-two-contract-real-read-20261016"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "48b63101675f7773b63c7d820d4c1d60088ed9b4",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "ainuoke-payment-contract-snapshot-model",
+      "implemented": "yes",
+      "originalImplementationSource": "075a174d900f17288ab4e73745470c98ae8119b4",
+      "originalAssessedAt": "2026-10-15",
+      "originalScope": "Pure internal two-pass contract snapshot validation only: real page identities, exact string observations, explicit source/contract/witness, <=200 rows, oldest-page freshness; no sums, event deduplication, default currency, HTTP, DB, SO binding, UI, live query verification, Source activation or deployment.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-15",
+        "sourceSha": "075a174d900f17288ab4e73745470c98ae8119b4",
+        "scope": "Pure internal two-pass contract snapshot validation only: real page identities, exact string observations, explicit source/contract/witness, <=200 rows, oldest-page freshness; no sums, event deduplication, default currency, HTTP, DB, SO binding, UI, live query verification, Source activation or deployment.",
+        "evidence": [
+          "decisions-payment-snapshot-model",
+          "payment-contract-snapshot-model-engineering"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "075a174d900f17288ab4e73745470c98ae8119b4",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "ainuoke-payment-contract-snapshot-storage-api",
+      "implemented": "yes",
+      "originalImplementationSource": "c235ca6e4aba782c251bd0b4a5ddd0e70df5b79f",
+      "originalAssessedAt": "2026-10-15",
+      "originalScope": "Internal checked-page immutable payment snapshot publication and session DB-only read API, per-SO opt-in disabled by default, CAS/replay, effective-source ownership/fresh DB grants, oldest-page expiry and normalization reference inventories. New 19 synthetic PG/session cases passed; final related 218 passed and one Windows-inapplicable Linux CLI skipped. No live report query, collector wiring, actual migration/data/target activation, bank-payment facts, CCT reads, sums, UI acceptance or deployment.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-15",
+        "sourceSha": "c235ca6e4aba782c251bd0b4a5ddd0e70df5b79f",
+        "scope": "Internal checked-page immutable payment snapshot publication and session DB-only read API, per-SO opt-in disabled by default, CAS/replay, effective-source ownership/fresh DB grants, oldest-page expiry and normalization reference inventories. New 19 synthetic PG/session cases passed; final related 218 passed and one Windows-inapplicable Linux CLI skipped. No live report query, collector wiring, actual migration/data/target activation, bank-payment facts, CCT reads, sums, UI acceptance or deployment.",
+        "evidence": [
+          "decisions-payment-snapshot-storage",
+          "payment-contract-snapshot-storage-engineering"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "c235ca6e4aba782c251bd0b4a5ddd0e70df5b79f",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "ainuoke-payment-contract-read-panel",
+      "implemented": "yes",
+      "originalImplementationSource": "994aa4bcca5d1e3f0fc55dbdcfae1add31b7ee17",
+      "originalAssessedAt": "2026-10-15",
+      "originalScope": "Contract-scoped readonly observations in the approved reconciliation tab, shared static field catalogue and explicit wire v1, exact values/unknowns and no material matching or bank-payment inference. Bounded GET/no-store, conservative monotonic expiry, actor/order isolation, abort and permission failures. 150 related tests and 9 new plus 9 original Chromium tests passed. Product UI rendered cefe951d1de1a32763a1e7298e69b2560b1c282d build20261015-231629; only tests/CI/docs changed afterwards. No real report query, target activation, live data write, CCT access, sums, deployment or human pixel approval.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-15",
+        "sourceSha": "994aa4bcca5d1e3f0fc55dbdcfae1add31b7ee17",
+        "scope": "Contract-scoped readonly observations in the approved reconciliation tab, shared static field catalogue and explicit wire v1, exact values/unknowns and no material matching or bank-payment inference. Bounded GET/no-store, conservative monotonic expiry, actor/order isolation, abort and permission failures. 150 related tests and 9 new plus 9 original Chromium tests passed. Product UI rendered cefe951d1de1a32763a1e7298e69b2560b1c282d build20261015-231629; only tests/CI/docs changed afterwards. No real report query, target activation, live data write, CCT access, sums, deployment or human pixel approval.",
+        "evidence": [
+          "decisions-payment-read-panel",
+          "payment-read-panel-engineering",
+          "payment-read-panel-approved-scope",
+          "payment-read-panel-ui-receipt"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "994aa4bcca5d1e3f0fc55dbdcfae1add31b7ee17",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "ainuoke-payment-controlled-collection",
+      "implemented": "yes",
+      "originalImplementationSource": "499edf5423790392704b35305beb35d13f89790b",
+      "originalAssessedAt": "2026-10-16",
+      "originalScope": "Internal one-shot coordinator reuses the fixed two-contract worker and checked raw pages, exact DB/operator/account/SO/contract/version plan, all-before-first-publication validation, fresh scope recheck and per-SO immutable CAS transactions. New 22 synthetic tests and all 172 related tests passed, including actual committed data with lost COMMIT acknowledgement reported UNVERIFIED; no automatic retry. Exact clean default Browser build is 039e9f5d477c629a3e0134f1db21922aa59300c8/build20261016-001315. No HTTP/CLI/scheduler activation, real queries or target/data/account writes, new UI/migration, sums, bank-payment inference, merge or deployment. Full root/baseline and guard follow forward evidence binding.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-16",
+        "sourceSha": "499edf5423790392704b35305beb35d13f89790b",
+        "scope": "Internal one-shot coordinator reuses the fixed two-contract worker and checked raw pages, exact DB/operator/account/SO/contract/version plan, all-before-first-publication validation, fresh scope recheck and per-SO immutable CAS transactions. New 22 synthetic tests and all 172 related tests passed, including actual committed data with lost COMMIT acknowledgement reported UNVERIFIED; no automatic retry. Exact clean default Browser build is 039e9f5d477c629a3e0134f1db21922aa59300c8/build20261016-001315. No HTTP/CLI/scheduler activation, real queries or target/data/account writes, new UI/migration, sums, bank-payment inference, merge or deployment. Full root/baseline and guard follow forward evidence binding.",
+        "evidence": [
+          "decisions-payment-controlled-collection",
+          "payment-controlled-collection-engineering"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "499edf5423790392704b35305beb35d13f89790b",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "ainuoke-payment-operator",
+      "implemented": "yes",
+      "originalImplementationSource": "b5413f96765fb374409ccd39fee9559a1b17830d",
+      "originalAssessedAt": "2026-10-16",
+      "originalScope": "Explicit source-checkout payment operator: DB-only reviewed target/collection plans, atomic two-target enable/disable, durable actor/request receipts before one fixed worker, zero-new-read started/terminal replay, private UTF8/ACL/size/hash/identity guards, immutable per-SO snapshots and readback. 21 synthetic/owned-PG tests, related112 and fullPG261 passed; source checkout/default Browser build is 6658f0c1d221f581adcc94582bb6538e7654b3c1/build20261016-122100. Additive0026 preserves nonempty0025 data and rejects unsupported old-schema rollback. No new real source reads, target activation, business DB/account writes, scheduler, HTTP writer, UI redesign, merge or deployment; final root/baseline/Hosted checks follow this frozen evidence.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-16",
+        "sourceSha": "b5413f96765fb374409ccd39fee9559a1b17830d",
+        "scope": "Explicit source-checkout payment operator: DB-only reviewed target/collection plans, atomic two-target enable/disable, durable actor/request receipts before one fixed worker, zero-new-read started/terminal replay, private UTF8/ACL/size/hash/identity guards, immutable per-SO snapshots and readback. 21 synthetic/owned-PG tests, related112 and fullPG261 passed; source checkout/default Browser build is 6658f0c1d221f581adcc94582bb6538e7654b3c1/build20261016-122100. Additive0026 preserves nonempty0025 data and rejects unsupported old-schema rollback. No new real source reads, target activation, business DB/account writes, scheduler, HTTP writer, UI redesign, merge or deployment; final root/baseline/Hosted checks follow this frozen evidence.",
+        "evidence": [
+          "decisions-payment-operator",
+          "payment-operator-engineering"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "b5413f96765fb374409ccd39fee9559a1b17830d",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "ainuoke-selected-source-once",
+      "implemented": "yes",
+      "originalImplementationSource": "4fd14730239c7223c2cc4859b464a099b13520c4",
+      "originalAssessedAt": "2026-10-16",
+      "originalScope": "Internal strict two-contract binding/color or material collection reuses the existing SDK, fixed catalog, trusted Discovery, formal selected-binding mapper and Material Pipeline. One login, at most80reports/81HTTP/180s, zero network retry/auth renewal, exact per-row contract guards, complete paging/count/age/source-fingerprint validation, no partial failure bundle. 13 Node/actual-parent-Python/owned-PG tests and full131 Python passed; continuous70passed/1existing Windows skip. Source71b291762467c1efd19873438fef2abfd2954d23 clean Server/session/snapshot image sha256:8f4c0e5272394db15933a2a0c00c0e44933b4b5e42dbcfca8c92a59217aaacfc built and inspected in a read-only network-none container. No new HTTP/CLI/scheduler/DB writer/UI, no real source read, bind, activation, business DB/account change, merge or deployment. Full release/root/Hosted checks follow frozen evidence; proposed real demo still requires specific authorization. Post-review fix rejects escaped secret values and field names as decoded data; original red tests and frozen earlier images retained. Root898/baseline94/current-main guard passed locally; exact final-head Hosted CI remains independent.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-16",
+        "sourceSha": "4fd14730239c7223c2cc4859b464a099b13520c4",
+        "scope": "Internal strict two-contract binding/color or material collection reuses the existing SDK, fixed catalog, trusted Discovery, formal selected-binding mapper and Material Pipeline. One login, at most80reports/81HTTP/180s, zero network retry/auth renewal, exact per-row contract guards, complete paging/count/age/source-fingerprint validation, no partial failure bundle. 13 Node/actual-parent-Python/owned-PG tests and full131 Python passed; continuous70passed/1existing Windows skip. Source71b291762467c1efd19873438fef2abfd2954d23 clean Server/session/snapshot image sha256:8f4c0e5272394db15933a2a0c00c0e44933b4b5e42dbcfca8c92a59217aaacfc built and inspected in a read-only network-none container. No new HTTP/CLI/scheduler/DB writer/UI, no real source read, bind, activation, business DB/account change, merge or deployment. Full release/root/Hosted checks follow frozen evidence; proposed real demo still requires specific authorization. Post-review fix rejects escaped secret values and field names as decoded data; original red tests and frozen earlier images retained. Root898/baseline94/current-main guard passed locally; exact final-head Hosted CI remains independent.",
+        "evidence": [
+          "decisions-selected-source-once",
+          "selected-source-once-engineering",
+          "selected-source-once-secret-guard"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "4fd14730239c7223c2cc4859b464a099b13520c4",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "order-business-source-maintenance",
+      "implemented": "yes",
+      "originalImplementationSource": "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+      "originalAssessedAt": "2026-10-17",
+      "originalScope": "D145 ownerless quote-only source after trusted Ainuoke contract, centered exact revision/color scheme matching and first confirmed adoption only in Order Center. Existing changes require Quote Center authority; stable colors preserve history. Historical reorder/normalization records retained, new write entrypoints retired.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-17",
+        "sourceSha": "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+        "scope": "D145 ownerless quote-only source after trusted Ainuoke contract, centered exact revision/color scheme matching and first confirmed adoption only in Order Center. Existing changes require Quote Center authority; stable colors preserve history. Historical reorder/normalization records retained, new write entrypoints retired. New head remote delivery/CI and human acceptance remain pending.",
+        "evidence": [
+          "decisions-business-source",
+          "business-source-approved-scope",
+          "business-source-isolated-experience",
+          "price-coordination-engineering-20261017",
+          "price-coordination-final-review-20261017"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "order-sale-adjustments",
+      "implemented": "yes",
+      "originalImplementationSource": "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+      "originalAssessedAt": "2026-10-17",
+      "originalScope": "D145 unified quote-center single and batch final garment sale negotiation, immutable per-order color versions, exact decimals, CAS/fresh field grants, partial receipts, original-request recovery and global/quote/order history. Order Center read-only; no CCT/labor/cost/PriceVersion/FX mutation.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-17",
+        "sourceSha": "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+        "scope": "D145 unified quote-center single and batch final garment sale negotiation, immutable per-order color versions, exact decimals, CAS/fresh field grants, partial receipts, original-request recovery and global/quote/order history. Order Center read-only; no CCT/labor/cost/PriceVersion/FX mutation. Local synthetic engineering only; no merge, human acceptance, real activation or deployment.",
+        "evidence": [
+          "price-coordination-engineering-20261017",
+          "price-coordination-final-review-20261017"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "a90493473493d9f3262b7d8f108d8f13b7ed52e3",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "order-saved-source-read",
+      "implemented": "yes",
+      "originalImplementationSource": "6ef9e37493127661a9d805979660378f6340ad5f",
+      "originalAssessedAt": "2026-10-24",
+      "originalScope": "D147 Gate4 saved contract/color/size evidence and read-only owned DeliveryPlan in existing default-closed disclosures; exact identities, unknown/zero/history, lazy GET and committed-session reply ownership. No writer, price, schema, Source refresh or Browser fallback. Current isolated engineering only; no merge/runtime/human acceptance.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-24",
+        "sourceSha": "6ef9e37493127661a9d805979660378f6340ad5f",
+        "scope": "D147 Gate4 saved contract/color/size evidence and read-only owned DeliveryPlan in existing default-closed disclosures; exact identities, unknown/zero/history, lazy GET and committed-session reply ownership. No writer, price, schema, Source refresh or Browser fallback. Current isolated engineering only; no merge/runtime/human acceptance.",
+        "evidence": [
+          "order-saved-source-read-engineering-20261024"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "6ef9e37493127661a9d805979660378f6340ad5f",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "order-context-quote-create",
+      "implemented": "yes",
+      "originalImplementationSource": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+      "originalAssessedAt": "2026-10-24",
+      "originalScope": "D147 Gate5 explicit trusted contract-order context to existing Quote draft writer/Editor; immutable original creation reference, no SO/CCT/adoption write. Current isolated API/browser/receipt/session engineering only; no merge, activation, deployment or human acceptance.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-24",
+        "sourceSha": "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+        "scope": "D147 Gate5 explicit trusted contract-order context to existing Quote draft writer/Editor; immutable original creation reference, no SO/CCT/adoption write. Current isolated API/browser/receipt/session engineering only; no merge, activation, deployment or human acceptance.",
+        "evidence": [
+          "order-context-quote-engineering-20261024"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "68a38b6bfb0785cc6019381f095660b38cf8fbf7",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "production-resources-current",
+      "implemented": "yes",
+      "originalImplementationSource": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+      "originalAssessedAt": "2026-10-24",
+      "originalScope": "D147 Gate6A Server production calendars, sites, groups and outsource factories on three existing pages; stable identities, CAS, fresh session authority, immutable command receipts and bounded request recovery. Current synthetic API/browser/build engineering only, no scheduling, completion, logistics, target upgrade, merge, deployment or human acceptance.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-24",
+        "sourceSha": "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+        "scope": "D147 Gate6A Server production calendars, sites, groups and outsource factories on three existing pages; stable identities, CAS, fresh session authority, immutable command receipts and bounded request recovery. Current synthetic API/browser/build engineering only, no scheduling, completion, logistics, target upgrade, merge, deployment or human acceptance.",
+        "evidence": [
+          "production-resources-current-engineering-20261024"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "f441e70d133174dd8acc5fcd5943ca90afe74aa5",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "production-planning-current",
+      "implemented": "yes",
+      "originalImplementationSource": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+      "originalAssessedAt": "2026-10-24",
+      "originalScope": "D147 Gate6B current Server planned/cancelled production assignments directly owned by eligible SOs; immutable resources and history, stable colors, exact preview, per-item/order/group CAS, bounded queries and original-request recovery on the existing queue/order-pool UI. Synthetic API/browser/build engineering only. No actual execution/completion, logistics, shipment, closing, target upgrade, merge, deployment or human acceptance.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-24",
+        "sourceSha": "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+        "scope": "D147 Gate6B current Server planned/cancelled production assignments directly owned by eligible SOs; immutable resources and history, stable colors, exact preview, per-item/order/group CAS, bounded queries and original-request recovery on the existing queue/order-pool UI. Synthetic API/browser/build engineering only. No actual execution/completion, logistics, shipment, closing, target upgrade, merge, deployment or human acceptance.",
+        "evidence": [
+          "production-planning-current-engineering-20261024"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "cd73726babfaa86ffef671cbbe3a37fd542dace6",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "production-execution-current",
+      "implemented": "yes",
+      "originalImplementationSource": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+      "originalAssessedAt": "2026-10-24",
+      "originalScope": "D147 Gate6C current Server cumulative actual execution, immutable original assignment/executor/color/resource attribution, technical first-execution concurrency epoch, reasoned corrections and explicit complete+edit next-queue replan using the existing command/audit/UI. Synthetic API/upgrade/browser/build engineering only. No logistics, garment shipment, closing, real target upgrade, merge, deployment or human acceptance.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-24",
+        "sourceSha": "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+        "scope": "D147 Gate6C current Server cumulative actual execution, immutable original assignment/executor/color/resource attribution, technical first-execution concurrency epoch, reasoned corrections and explicit complete+edit next-queue replan using the existing command/audit/UI. Synthetic API/upgrade/browser/build engineering only. No logistics, garment shipment, closing, real target upgrade, merge, deployment or human acceptance.",
+        "evidence": [
+          "production-execution-current-engineering-20261024"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "9c2f5bc536f9e5023a32b2e93cfd292984f00abe",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "logistics-resources-current",
+      "implemented": "yes",
+      "originalImplementationSource": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+      "originalAssessedAt": "2026-10-24",
+      "originalScope": "D147 G6D current Server hubs and atomic transport plans/modes using the existing production resource command, permissions, CAS, immutable actor/request receipts and prior four-resource compatibility. Synthetic API/0036 upgrade/build/browser engineering only; no material arrival, logistics orders, garment shipment, closing, target upgrade, merge, deployment or human acceptance.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-24",
+        "sourceSha": "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+        "scope": "D147 G6D current Server hubs and atomic transport plans/modes using the existing production resource command, permissions, CAS, immutable actor/request receipts and prior four-resource compatibility. Synthetic API/0036 upgrade/build/browser engineering only; no material arrival, logistics orders, garment shipment, closing, target upgrade, merge, deployment or human acceptance.",
+        "evidence": [
+          "logistics-resources-current-engineering-20261024"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "07d481afcd16fd1fc48ab3c3b3ffa2fe23b741d9",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "order-logistics-context-current",
+      "implemented": "yes",
+      "originalImplementationSource": "45f30070abeb1d70211eb10eab7841be10e8f894",
+      "originalAssessedAt": "2026-10-24",
+      "originalScope": "D054/D147 current Server backend physical-order SupplyHub/remark context, independent immutable history and version, no defaults, same production command/request/permissions and physical ownership. Synthetic SQL/HTTP/0037 nonempty upgrade engineering only. No UI wiring, material dates, production quantities, prices, garment shipment, closing, target upgrade, merge, deployment or human acceptance.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-24",
+        "sourceSha": "45f30070abeb1d70211eb10eab7841be10e8f894",
+        "scope": "D054/D147 current Server backend physical-order SupplyHub/remark context, independent immutable history and version, no defaults, same production command/request/permissions and physical ownership. Synthetic SQL/HTTP/0037 nonempty upgrade engineering only. No UI wiring, material dates, production quantities, prices, garment shipment, closing, target upgrade, merge, deployment or human acceptance.",
+        "evidence": [
+          "order-tracking-current-engineering-20261024"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "45f30070abeb1d70211eb10eab7841be10e8f894",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "order-logistics-dialog-current",
+      "implemented": "yes",
+      "originalImplementationSource": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+      "originalAssessedAt": "2026-10-24",
+      "originalScope": "D054/D147 current order logistics UI on existing Server planning page, explicit hub and remark with preview and immutable history; same production request/outbox, fresh permissions, CAS and concrete layout/Drawer ownership. Synthetic API, dual builds, before/after and resource/navigation browser regression only. No new schema, material arrival, shipment, closing, real data, target upgrade, merge/deployment or human acceptance.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-24",
+        "sourceSha": "e2cf2bb4397a656b58cfab8388049bd84559527e",
+        "scope": "D054/D147 current order logistics UI on existing Server planning page, explicit hub and remark with preview and immutable history; same production request/outbox, fresh permissions, CAS and concrete layout/Drawer ownership. Synthetic API, dual builds, before/after and resource/navigation browser regression only. No new schema, material arrival, shipment, closing, real data, target upgrade, merge/deployment or human acceptance.",
+        "evidence": [
+          "order-logistics-dialog-current-engineering-20261024"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "e2cf2bb4397a656b58cfab8388049bd84559527e",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "material-arrivals-current",
+      "implemented": "yes",
+      "originalImplementationSource": "c994eac8aee32f9e6877fa81e65a604376760519",
+      "originalAssessedAt": "2026-10-24",
+      "originalScope": "D054/D065-69/D147 current Windows synthetic backend for manual material arrival batches/allocations, stable demand identities, explicit Hub/source generations, exact capacity, fresh permissions and immutable history/actor-request receipts. Current217 passing related checks plus811 root; one unchanged Linux-only CLI test skipped on Windows is NOT claimed passed. No UI/logistics projection closure, new Vite/browser, real Source, target upgrade, merge/deployment or human acceptance.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-24",
+        "sourceSha": "c994eac8aee32f9e6877fa81e65a604376760519",
+        "scope": "D054/D065-69/D147 current Windows synthetic backend for manual material arrival batches/allocations, stable demand identities, explicit Hub/source generations, exact capacity, fresh permissions and immutable history/actor-request receipts. Current217 passing related checks plus811 root; one unchanged Linux-only CLI test skipped on Windows is NOT claimed passed. No UI/logistics projection closure, new Vite/browser, real Source, target upgrade, merge/deployment or human acceptance.",
+        "evidence": [
+          "material-arrivals-current-engineering-20261024"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "c994eac8aee32f9e6877fa81e65a604376760519",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "material-arrival-ui-current",
+      "implemented": "yes",
+      "originalImplementationSource": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+      "originalAssessedAt": "2026-10-24",
+      "originalScope": "D054/D065-69/D147 current Server manual material arrival UI on existing cards/modal/history, exact partial multi-unit allocations and unique per-batch logistics from persisted Hub/adopted schedule location. Current97 related and811 root; actual before3/after17/material10/navigation18 browser checks, six widths/DPR and synthetic touch, dual builds, immutable history and guarded recovery. No second price/logistics owner, new schema, real Source, target upgrade, merge/deployment or human acceptance. Existing Linux-only Source CLI gap remains separate.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-24",
+        "sourceSha": "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+        "scope": "D054/D065-69/D147 current Server manual material arrival UI on existing cards/modal/history, exact partial multi-unit allocations and unique per-batch logistics from persisted Hub/adopted schedule location. Current97 related and811 root; actual before3/after17/material10/navigation18 browser checks, six widths/DPR and synthetic touch, dual builds, immutable history and guarded recovery. No second price/logistics owner, new schema, real Source, target upgrade, merge/deployment or human acceptance. Existing Linux-only Source CLI gap remains separate.",
+        "evidence": [
+          "material-arrival-ui-current-engineering-20261024"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "a0c3d164265aa4cdc79dc5d8676d9f0559eb8fad",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "garment-observations-current",
+      "implemented": "yes",
+      "originalImplementationSource": "d1930a2da590098f70e6433892eab350a3262e0c",
+      "originalAssessedAt": "2026-10-24",
+      "originalScope": "D147/D152/D153 current Windows synthetic0040 backend: immutable exact-contract two-pass garment observations, Num/outdate, stable order colors and physical/effective scope, fresh session DB-only reads, CAS/original capture receipts/history and actual JSONB capacity. Current173/174 related checks, one unchanged Linux CLI platform skip NOT passed;811 root/139 offline Python/type/Node/lint. No new Vite/browser, event ledger/closing/collector, real Source/activation, deployment or human acceptance.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-24",
+        "sourceSha": "d1930a2da590098f70e6433892eab350a3262e0c",
+        "scope": "D147/D152/D153 current Windows synthetic0040 backend: immutable exact-contract two-pass garment observations, Num/outdate, stable order colors and physical/effective scope, fresh session DB-only reads, CAS/original capture receipts/history and actual JSONB capacity. Current173/174 related checks, one unchanged Linux CLI platform skip NOT passed;811 root/139 offline Python/type/Node/lint. No new Vite/browser, event ledger/closing/collector, real Source/activation, deployment or human acceptance.",
+        "evidence": [
+          "garment-observations-current-engineering-20261024"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "d1930a2da590098f70e6433892eab350a3262e0c",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "bound-order-refresh-current",
+      "implemented": "yes",
+      "originalImplementationSource": "df5bedaddd2f9e54f8c66f578e32f06859878104",
+      "originalAssessedAt": "2026-10-24",
+      "originalScope": "D083/D100/D147 current Windows synthetic0041 offline bound-contract refresh: exact DB target/contract preview, current permissions, actor-request receipt, source-owner UPDATE and manual DeliveryPlan/commercial/execution protection. API phased union184/185, one unchanged Linux CLI platform skip NOT passed; initial182pass/2fail preserved, affected file16/16 clean exact-source rerun after archive Git-ignore precondition diagnosed. Root811/type/Node/lint new PASS; Python139 and215 UI artifacts reused within unchanged scope, not rerun. No real Source/activation, migration of existing targets, deployment or human acceptance.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-24",
+        "sourceSha": "df5bedaddd2f9e54f8c66f578e32f06859878104",
+        "scope": "D083/D100/D147 current Windows synthetic0041 offline bound-contract refresh: exact DB target/contract preview, current permissions, actor-request receipt, source-owner UPDATE and manual DeliveryPlan/commercial/execution protection. API phased union184/185, one unchanged Linux CLI platform skip NOT passed; initial182pass/2fail preserved, affected file16/16 clean exact-source rerun after archive Git-ignore precondition diagnosed. Root811/type/Node/lint new PASS; Python139 and215 UI artifacts reused within unchanged scope, not rerun. No real Source/activation, migration of existing targets, deployment or human acceptance.",
+        "evidence": [
+          "bound-refresh-current-engineering-20261024"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "df5bedaddd2f9e54f8c66f578e32f06859878104",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "garment-read-ui-current",
+      "implemented": "yes",
+      "originalImplementationSource": "922488b9474daeed8abc2204e21f6ffeefc39955",
+      "originalAssessedAt": "2026-10-24",
+      "originalScope": "D147/D152/D153 current Server order garment observations UI: exact Num/outdate, original snapshot expiry, independent current/history, strict client and committed session/layout ownership. Current102 related checks/root811/type/Node/lint, two actual builds/artifacts and45 browser checks (before3/after14/material10/navigation18),23PNG/3JSON and9 viewed images. Initial generated-artifact lint failure preserved and only full lint rerun after moving owned old static fixture; no product or lint-config change. Unchanged Linux CLI platform gap and offline Python139 reuse remain explicit. No real Source/activation, deployment, event ledger/closing or human acceptance.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-24",
+        "sourceSha": "922488b9474daeed8abc2204e21f6ffeefc39955",
+        "scope": "D147/D152/D153 current Server order garment observations UI: exact Num/outdate, original snapshot expiry, independent current/history, strict client and committed session/layout ownership. Current102 related checks/root811/type/Node/lint, two actual builds/artifacts and45 browser checks (before3/after14/material10/navigation18),23PNG/3JSON and9 viewed images. Initial generated-artifact lint failure preserved and only full lint rerun after moving owned old static fixture; no product or lint-config change. Unchanged Linux CLI platform gap and offline Python139 reuse remain explicit. No real Source/activation, deployment, event ledger/closing or human acceptance.",
+        "evidence": [
+          "garment-read-ui-current-engineering-20261024"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "922488b9474daeed8abc2204e21f6ffeefc39955",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "delivery-plan-requests-current",
+      "implemented": "yes",
+      "originalImplementationSource": "62693a8fac3db6aa1d86b73cf812d53395aa0cec",
+      "originalAssessedAt": "2026-10-24",
+      "originalScope": "D083/D100/D147/D154 current synthetic0042 DeliveryPlan exact request receipts. Existing PATCH/date/quantity/ownership and lifecycle preserved; original actor/request replay, current grants, atomic plan/audit/receipt, full void history, compact and PG JSONB capacity, COMMIT-lost-acknowledgement recovery, real lock timeout and complete original SO references. Current16files two groups185/185 plus root811/type/Node/lint; Git-required fixture runs once at exact clean source. No new UI/Vite/browser/Python; old215static hashes/139Python only scope reuse. Prior1ae134 tool regression reused for this local no-PR Gate, not current134 PASS; dynamic docs/manifest changed, final cumulativePR both release commands still required. No real Source/upgrade/activation/deployment/human acceptance.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-24",
+        "sourceSha": "62693a8fac3db6aa1d86b73cf812d53395aa0cec",
+        "scope": "D083/D100/D147/D154 current synthetic0042 DeliveryPlan exact request receipts. Existing PATCH/date/quantity/ownership and lifecycle preserved; original actor/request replay, current grants, atomic plan/audit/receipt, full void history, compact and PG JSONB capacity, COMMIT-lost-acknowledgement recovery, real lock timeout and complete original SO references. Current16files two groups185/185 plus root811/type/Node/lint; Git-required fixture runs once at exact clean source. No new UI/Vite/browser/Python; old215static hashes/139Python only scope reuse. Prior1ae134 tool regression reused for this local no-PR Gate, not current134 PASS; dynamic docs/manifest changed, final cumulativePR both release commands still required. No real Source/upgrade/activation/deployment/human acceptance.",
+        "evidence": [
+          "delivery-plan-requests-current-engineering-20261024"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "62693a8fac3db6aa1d86b73cf812d53395aa0cec",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "delivery-plan-ui-current",
+      "implemented": "yes",
+      "originalImplementationSource": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+      "originalAssessedAt": "2026-10-24",
+      "originalScope": "D083/D100/D147/D154/D156 current Server DeliveryPlan maintenance UI: specifically approved compact title action and Foundation edit/void/preview/confirmed save with source contract read-only. Exact actor/tab original-intent persistence, unknown receipt and second explicit sameUUID/CAS/body retry, same-session layout ownership and independent source/delivery guards. Product56b57 related API/client/root811/type/Node/lint/dual builds; driver0e14after,3before and40 phased related browser union57,23PNG4JSON,10 actual viewed images. Two touch failures and omitted-ExpectedSource precondition failure preserved; only affected checks rerun. No product rebuild/retest repetition, real Source/upgrade/deployment or human acceptance.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-24",
+        "sourceSha": "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+        "scope": "D083/D100/D147/D154/D156 current Server DeliveryPlan maintenance UI: specifically approved compact title action and Foundation edit/void/preview/confirmed save with source contract read-only. Exact actor/tab original-intent persistence, unknown receipt and second explicit sameUUID/CAS/body retry, same-session layout ownership and independent source/delivery guards. Product56b57 related API/client/root811/type/Node/lint/dual builds; driver0e14after,3before and40 phased related browser union57,23PNG4JSON,10 actual viewed images. Two touch failures and omitted-ExpectedSource precondition failure preserved; only affected checks rerun. No product rebuild/retest repetition, real Source/upgrade/deployment or human acceptance.",
+        "evidence": [
+          "delivery-plan-ui-current-engineering-20261024"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "56b813be4fd7fa45b70bdeda794870df0fcfe9e5",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "delivery-coverage-current",
+      "implemented": "yes",
+      "originalImplementationSource": "558345ae7ee4ba2e07f24fd319e42c052919370d",
+      "originalAssessedAt": "2026-10-24",
+      "originalScope": "D043/D147/D151/D155 existing production-order GET adds exact nonmonetary deliveryCoverage under one fresh-permission READ ONLY REPEATABLE READ. Current completed output remains original physical SO/executor including cancellations; only active unended positive remainder contributes expected supply. Dated demand cumulative once, unknown dates unassessed, not historical timeliness/inventory/shipment/closing. Current5files47 checks, type/Node/import/relatedlint. No schema/UI/browser/Vite/Python change. Prior56b811/frontend217/browser57 and707134 are scoped reuse, NOT current new pass or complete945. Final cumulativePR both release commands remain mandatory.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-24",
+        "sourceSha": "558345ae7ee4ba2e07f24fd319e42c052919370d",
+        "scope": "D043/D147/D151/D155 existing production-order GET adds exact nonmonetary deliveryCoverage under one fresh-permission READ ONLY REPEATABLE READ. Current completed output remains original physical SO/executor including cancellations; only active unended positive remainder contributes expected supply. Dated demand cumulative once, unknown dates unassessed, not historical timeliness/inventory/shipment/closing. Current5files47 checks, type/Node/import/relatedlint. No schema/UI/browser/Vite/Python change. Prior56b811/frontend217/browser57 and707134 are scoped reuse, NOT current new pass or complete945. Final cumulativePR both release commands remain mandatory.",
+        "evidence": [
+          "delivery-coverage-current-engineering-20261024"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "558345ae7ee4ba2e07f24fd319e42c052919370d",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "delivery-coverage-client-current",
+      "implemented": "yes",
+      "originalImplementationSource": "fc103fb87ed3df294922189b4954c1764903ef22",
+      "originalAssessedAt": "2026-10-24",
+      "originalScope": "V0 existing production-order session GET validates same-response deliveryCoverage with existing pure D155; missing/null unavailable, exact decimals/plan coverage/summary/lease and original 1MiB+4096 envelope preserved. No DOM/style/navigation/new panel, Source call, SQL, write, money or role change. Actual source fc103:62 related checks,type,relatedlint,Node compile/import,dual Vite/artifacts and37 real built planning UI. Initial ignored runner emit-path smoke error preserved; corrected smoke only. 707134 tool/fixture scoped reuse, NOT current134PASS/all dynamic inputs unchanged/full945; final cumulativePR both release commands mandatory.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-24",
+        "sourceSha": "fc103fb87ed3df294922189b4954c1764903ef22",
+        "scope": "V0 existing production-order session GET validates same-response deliveryCoverage with existing pure D155; missing/null unavailable, exact decimals/plan coverage/summary/lease and original 1MiB+4096 envelope preserved. No DOM/style/navigation/new panel, Source call, SQL, write, money or role change. Actual source fc103:62 related checks,type,relatedlint,Node compile/import,dual Vite/artifacts and37 real built planning UI. Initial ignored runner emit-path smoke error preserved; corrected smoke only. 707134 tool/fixture scoped reuse, NOT current134PASS/all dynamic inputs unchanged/full945; final cumulativePR both release commands mandatory.",
+        "evidence": [
+          "delivery-coverage-client-current-engineering-20261024"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "fc103fb87ed3df294922189b4954c1764903ef22",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "garment-collector-current",
+      "implemented": "yes",
+      "originalImplementationSource": "7f1c9decc34d8e615a169002fa3f6b77531d5f58",
+      "originalAssessedAt": "2026-10-24",
+      "originalScope": "D147/D152/D153/D158 internal single-SO collector: durable started confirmed before one worker; no network DB locks, exact account/contract proof, scope/fresh expiry/fresh roles, snapshot/color/head/audit/terminal atomic, unknown COMMIT original receipt only. 0043 additive empty command table;41 prior SQL unchanged,42 files/max43; no HTTP/CLI/Catalog/scheduler/target activation. Missing dependency P2 fixed via original pure blocks without old diagnostic IO; String enum P2 actual2red, strict typeof/exact enum and43 new checks at7f. d2ff280+18 API/811 roots/152 Python/full lint retained as scoped pre-fix evidence, NOT7f full rerun; fc103217 artifacts/37UI reused only, no new Vite/browser. New134/exact main guard after this metadata; no remote/real source/deployment claim.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-24",
+        "sourceSha": "7f1c9decc34d8e615a169002fa3f6b77531d5f58",
+        "scope": "D147/D152/D153/D158 internal single-SO collector: durable started confirmed before one worker; no network DB locks, exact account/contract proof, scope/fresh expiry/fresh roles, snapshot/color/head/audit/terminal atomic, unknown COMMIT original receipt only. 0043 additive empty command table;41 prior SQL unchanged,42 files/max43; no HTTP/CLI/Catalog/scheduler/target activation. Missing dependency P2 fixed via original pure blocks without old diagnostic IO; String enum P2 actual2red, strict typeof/exact enum and43 new checks at7f. d2ff280+18 API/811 roots/152 Python/full lint retained as scoped pre-fix evidence, NOT7f full rerun; fc103217 artifacts/37UI reused only, no new Vite/browser. New134/exact main guard after this metadata; no remote/real source/deployment claim.",
+        "evidence": [
+          "garment-collector-current-engineering-20261024"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "7f1c9decc34d8e615a169002fa3f6b77531d5f58",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "garment-target-control-current",
+      "implemented": "yes",
+      "originalImplementationSource": "40a930019bd8218784e40d7ea49d780f97042fb7",
+      "originalAssessedAt": "2026-10-24",
+      "originalScope": "D147/D153/D158/D160 internal DB-only target plan/apply/original receipts. Reuses original target, account/contract proof, physical ownership, fresh four grants, preview CAS/expiry, disable independent of source-chain health, atomic target/audit/completed-only immutable0044 and actor+UUID audit groups. 42 prior SQL Git blobs/canonical bytes unchanged,43 files/max44; no operator/HTTP/CLI/Catalog/scheduler/default/real activation. e19 actual21files221/221,related16,type/Node/load/lint;40a only two stronger exact proof-error assertions,affected file19/19; prior checks scoped not full rerun. Original217frontend/37UI reused,no newVite/browser/Python/full-root. PR125 merged separately,does not merge this target capability. Newmain guard and local134 follow metadata. No real Source/oldDB/account/volume/deployment.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-24",
+        "sourceSha": "40a930019bd8218784e40d7ea49d780f97042fb7",
+        "scope": "D147/D153/D158/D160 internal DB-only target plan/apply/original receipts. Reuses original target, account/contract proof, physical ownership, fresh four grants, preview CAS/expiry, disable independent of source-chain health, atomic target/audit/completed-only immutable0044 and actor+UUID audit groups. 42 prior SQL Git blobs/canonical bytes unchanged,43 files/max44; no operator/HTTP/CLI/Catalog/scheduler/default/real activation. e19 actual21files221/221,related16,type/Node/load/lint;40a only two stronger exact proof-error assertions,affected file19/19; prior checks scoped not full rerun. Original217frontend/37UI reused,no newVite/browser/Python/full-root. PR125 merged separately,does not merge this target capability. Newmain guard and local134 follow metadata. No real Source/oldDB/account/volume/deployment.",
+        "evidence": [
+          "garment-target-current-engineering-20261024"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "40a930019bd8218784e40d7ea49d780f97042fb7",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "garment-operator-current",
+      "implemented": "yes",
+      "originalImplementationSource": "8cf667f26f191b0ca1d3b31b423dd293d7f2a5b6",
+      "originalAssessedAt": "2026-10-25",
+      "originalScope": "D147/D159/D161 original explicit single-SO CLI composes current D158 collector and D160 target services; no second model, SQL, HTTP, permission, Catalog, scheduler or UI. Clean committed source only; explicit job/database/actor/proof; independent target confirmation and expiry; credential-independent disable/history; same immutable0043/0044, fresh grants/CAS/audit and unknown-result recovery. 79f actual27/52/71 plus type/Node/lint/help;8cf only two tests and docs, currenttype/lint/affected20, strict-green/old-String-mutant-red proves coverageP2closed; exact source scopes retained. All43SQL unchanged; no real Source/credentials/private reports/target/account/oldDB/volume/deployment. Release gates follow metadata; not merged or activated.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-25",
+        "sourceSha": "8cf667f26f191b0ca1d3b31b423dd293d7f2a5b6",
+        "scope": "D147/D159/D161 original explicit single-SO CLI composes current D158 collector and D160 target services; no second model, SQL, HTTP, permission, Catalog, scheduler or UI. Clean committed source only; explicit job/database/actor/proof; independent target confirmation and expiry; credential-independent disable/history; same immutable0043/0044, fresh grants/CAS/audit and unknown-result recovery. 79f actual27/52/71 plus type/Node/lint/help;8cf only two tests and docs, currenttype/lint/affected20, strict-green/old-String-mutant-red proves coverageP2closed; exact source scopes retained. All43SQL unchanged; no real Source/credentials/private reports/target/account/oldDB/volume/deployment. Release gates follow metadata; not merged or activated.",
+        "evidence": [
+          "garment-operator-current-engineering-20261025"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "8cf667f26f191b0ca1d3b31b423dd293d7f2a5b6",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 0,
+      "ancestorOfMain": true,
+      "eligibleMergedCorrection": true,
+      "nextMerged": true,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "server-closing-commands",
+      "implemented": "yes",
+      "originalImplementationSource": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
+      "originalAssessedAt": "2026-10-27",
+      "originalScope": "D162/D163 Server backend only: manual month/quantity/color/executor, immutable adopted commercial snapshots, CNY sales and separate USD labor/processing-service, no FX, atomic review/confirm/lock/reopen and original receipts. No closing UI, USD-new-price adoption, tax-rate correction, live database, cutover, Source activation or deployment.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-27",
+        "sourceSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
+        "scope": "D162/D163 Server backend only: manual month/quantity/color/executor, immutable adopted commercial snapshots, CNY sales and separate USD labor/processing-service, no FX, atomic review/confirm/lock/reopen and original receipts. No closing UI, USD-new-price adoption, tax-rate correction, live database, cutover, Source activation or deployment.",
+        "evidence": [
+          "closing-commands-d163-2026-10-27-server-closing-commands-engineering-20261027"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 1,
+      "ancestorOfMain": false,
+      "eligibleMergedCorrection": false,
+      "nextMerged": false,
+      "historicalWritePathRetired": false
+    },
+    {
+      "id": "order-usd-labor-adoption",
+      "implemented": "yes",
+      "originalImplementationSource": "7afc5bb3a38784bd44dc539dbf1104143ae49fb2",
+      "originalAssessedAt": "2026-10-27",
+      "originalScope": "D162 CNY→USD confirmed labor conversion only; same Quote/fixed PV/trusted successor/unchanged product, exact USD no-op only, immutable order commercial versions and separate work provenance, original sale/product/batch/closing preserved. No general USD→USD adoption, free labor price, FX, UI, tax correction, live data, deployment or source activation.",
+      "originalMergedClaim": {
+        "value": false,
+        "assessedAt": "2026-10-27",
+        "sourceSha": "7afc5bb3a38784bd44dc539dbf1104143ae49fb2",
+        "scope": "D162 CNY→USD confirmed labor conversion only; same Quote/fixed PV/trusted successor/unchanged product, exact USD no-op only, immutable order commercial versions and separate work provenance, original sale/product/batch/closing preserved. No general USD→USD adoption, free labor price, FX, UI, tax correction, live data, deployment or source activation.",
+        "evidence": [
+          "usd-labor-d164-2026-10-27-order-usd-labor-adoption-engineering-20261027"
+        ]
+      },
+      "command": [
+        "git",
+        "merge-base",
+        "--is-ancestor",
+        "7afc5bb3a38784bd44dc539dbf1104143ae49fb2",
+        "6479a713e2b80228f008049519ebbd50d10601a8"
+      ],
+      "exitCode": 1,
+      "ancestorOfMain": false,
+      "eligibleMergedCorrection": false,
+      "nextMerged": false,
+      "historicalWritePathRetired": false
+    }
+  ],
+  "priorFinancialCapabilities": [
+    {
+      "id": "server-closing-commands",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D162/D163 Server backend only: manual month/quantity/color/executor, immutable adopted commercial snapshots, CNY sales and separate USD labor/processing-service, no FX, atomic review/confirm/lock/reopen and original receipts. No closing UI, USD-new-price adoption, tax-rate correction, live database, cutover, Source activation or deployment.",
+      "evidence": [
+        "closing-commands-d163-2026-10-27-server-closing-commands-engineering-20261027"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-27",
+          "sourceSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
+          "scope": "D162/D163 Server backend only: manual month/quantity/color/executor, immutable adopted commercial snapshots, CNY sales and separate USD labor/processing-service, no FX, atomic review/confirm/lock/reopen and original receipts. No closing UI, USD-new-price adoption, tax-rate correction, live database, cutover, Source activation or deployment.",
+          "evidence": [
+            "closing-commands-d163-2026-10-27-server-closing-commands-engineering-20261027"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-27",
+          "sourceSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
+          "scope": "D162/D163 Server backend only: manual month/quantity/color/executor, immutable adopted commercial snapshots, CNY sales and separate USD labor/processing-service, no FX, atomic review/confirm/lock/reopen and original receipts. No closing UI, USD-new-price adoption, tax-rate correction, live database, cutover, Source activation or deployment.",
+          "evidence": [
+            "closing-commands-d163-2026-10-27-server-closing-commands-engineering-20261027"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-27",
+          "sourceSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
+          "scope": "D162/D163 Server backend only: manual month/quantity/color/executor, immutable adopted commercial snapshots, CNY sales and separate USD labor/processing-service, no FX, atomic review/confirm/lock/reopen and original receipts. No closing UI, USD-new-price adoption, tax-rate correction, live database, cutover, Source activation or deployment.",
+          "evidence": [
+            "closing-commands-d163-2026-10-27-server-closing-commands-engineering-20261027"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-27",
+          "sourceSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
+          "scope": "D162/D163 Server backend only: manual month/quantity/color/executor, immutable adopted commercial snapshots, CNY sales and separate USD labor/processing-service, no FX, atomic review/confirm/lock/reopen and original receipts. No closing UI, USD-new-price adoption, tax-rate correction, live database, cutover, Source activation or deployment.",
+          "evidence": [
+            "closing-commands-d163-2026-10-27-server-closing-commands-engineering-20261027"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-27",
+          "sourceSha": "1e6b21f72ab4c6adbca6ce5ffd36cc85019ae4df",
+          "scope": "D162/D163 Server backend only: manual month/quantity/color/executor, immutable adopted commercial snapshots, CNY sales and separate USD labor/processing-service, no FX, atomic review/confirm/lock/reopen and original receipts. No closing UI, USD-new-price adoption, tax-rate correction, live database, cutover, Source activation or deployment.",
+          "evidence": [
+            "closing-commands-d163-2026-10-27-server-closing-commands-engineering-20261027"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-27",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "This local-only backend was not deployed by this phase; preserve historical runtime source/image identity and selected Docker metadata, without a new business/environment query.",
+          "evidence": [
+            "closing-commands-d163-2026-10-27-server-closing-commands-engineering-20261027"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-27",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "This local-only backend was not deployed by this phase; preserve historical runtime source/image identity and selected Docker metadata, without a new business/environment query.",
+          "evidence": [
+            "closing-commands-d163-2026-10-27-server-closing-commands-engineering-20261027"
+          ]
+        }
+      }
+    },
+    {
+      "id": "order-usd-labor-adoption",
+      "implemented": "yes",
+      "merged": false,
+      "isolatedTest": "passed-historical",
+      "humanAcceptance": "not-run",
+      "sourceActivation": "not-applicable",
+      "environments": {
+        "trial18443": "not-deployed",
+        "preview18444": "not-deployed"
+      },
+      "scope": "D162 CNY→USD confirmed labor conversion only; same Quote/fixed PV/trusted successor/unchanged product, exact USD no-op only, immutable order commercial versions and separate work provenance, original sale/product/batch/closing preserved. No general USD→USD adoption, free labor price, FX, UI, tax correction, live data, deployment or source activation.",
+      "evidence": [
+        "usd-labor-d164-2026-10-27-order-usd-labor-adoption-engineering-20261027"
+      ],
+      "statusEvidence": {
+        "implemented": {
+          "value": "yes",
+          "assessedAt": "2026-10-27",
+          "sourceSha": "7afc5bb3a38784bd44dc539dbf1104143ae49fb2",
+          "scope": "D162 CNY→USD confirmed labor conversion only; same Quote/fixed PV/trusted successor/unchanged product, exact USD no-op only, immutable order commercial versions and separate work provenance, original sale/product/batch/closing preserved. No general USD→USD adoption, free labor price, FX, UI, tax correction, live data, deployment or source activation.",
+          "evidence": [
+            "usd-labor-d164-2026-10-27-order-usd-labor-adoption-engineering-20261027"
+          ]
+        },
+        "merged": {
+          "value": false,
+          "assessedAt": "2026-10-27",
+          "sourceSha": "7afc5bb3a38784bd44dc539dbf1104143ae49fb2",
+          "scope": "D162 CNY→USD confirmed labor conversion only; same Quote/fixed PV/trusted successor/unchanged product, exact USD no-op only, immutable order commercial versions and separate work provenance, original sale/product/batch/closing preserved. No general USD→USD adoption, free labor price, FX, UI, tax correction, live data, deployment or source activation.",
+          "evidence": [
+            "usd-labor-d164-2026-10-27-order-usd-labor-adoption-engineering-20261027"
+          ]
+        },
+        "isolatedTest": {
+          "value": "passed-historical",
+          "assessedAt": "2026-10-27",
+          "sourceSha": "7afc5bb3a38784bd44dc539dbf1104143ae49fb2",
+          "scope": "D162 CNY→USD confirmed labor conversion only; same Quote/fixed PV/trusted successor/unchanged product, exact USD no-op only, immutable order commercial versions and separate work provenance, original sale/product/batch/closing preserved. No general USD→USD adoption, free labor price, FX, UI, tax correction, live data, deployment or source activation.",
+          "evidence": [
+            "usd-labor-d164-2026-10-27-order-usd-labor-adoption-engineering-20261027"
+          ]
+        },
+        "humanAcceptance": {
+          "value": "not-run",
+          "assessedAt": "2026-10-27",
+          "sourceSha": "7afc5bb3a38784bd44dc539dbf1104143ae49fb2",
+          "scope": "D162 CNY→USD confirmed labor conversion only; same Quote/fixed PV/trusted successor/unchanged product, exact USD no-op only, immutable order commercial versions and separate work provenance, original sale/product/batch/closing preserved. No general USD→USD adoption, free labor price, FX, UI, tax correction, live data, deployment or source activation.",
+          "evidence": [
+            "usd-labor-d164-2026-10-27-order-usd-labor-adoption-engineering-20261027"
+          ]
+        },
+        "sourceActivation": {
+          "value": "not-applicable",
+          "assessedAt": "2026-10-27",
+          "sourceSha": "7afc5bb3a38784bd44dc539dbf1104143ae49fb2",
+          "scope": "D162 CNY→USD confirmed labor conversion only; same Quote/fixed PV/trusted successor/unchanged product, exact USD no-op only, immutable order commercial versions and separate work provenance, original sale/product/batch/closing preserved. No general USD→USD adoption, free labor price, FX, UI, tax correction, live data, deployment or source activation.",
+          "evidence": [
+            "usd-labor-d164-2026-10-27-order-usd-labor-adoption-engineering-20261027"
+          ]
+        },
+        "trial18443": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-27",
+          "sourceSha": "878de323d618b25fca1f51ccf3f024e932641742",
+          "imageId": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+          "runtimeId": "trial18443",
+          "scope": "This phase performs local synthetic backend validation only and no deployment. Retain historical runtime identity and selected Docker metadata; no new business query.",
+          "evidence": [
+            "usd-labor-d164-2026-10-27-order-usd-labor-adoption-engineering-20261027"
+          ]
+        },
+        "preview18444": {
+          "value": "not-deployed",
+          "assessedAt": "2026-10-27",
+          "sourceSha": "eb9530ac9a2e1b7f68299d97c4d424662a6622f7",
+          "imageId": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+          "runtimeId": "preview18444",
+          "scope": "This phase performs local synthetic backend validation only and no deployment. Retain historical runtime identity and selected Docker metadata; no new business query.",
+          "evidence": [
+            "usd-labor-d164-2026-10-27-order-usd-labor-adoption-engineering-20261027"
+          ]
+        }
+      }
+    }
+  ],
+  "codeEvidence": [
+    {
+      "path": "features/quote-center/authority/quote-authority.ts",
+      "sourceSha": "9baa7a5d011a1ca93a7ceec9c99174a6c7554a0c",
+      "blob": "18e681f7cde0a389dc271ead76ac7a5da4421787",
+      "mainBlob": "ea9e97243dff0b6bcb0faf64ae915b2958d2aecf",
+      "sameBlobInMain": false
+    },
+    {
+      "path": "components/foundation/app-shell.tsx",
+      "sourceSha": "9baa7a5d011a1ca93a7ceec9c99174a6c7554a0c",
+      "blob": "a9007fd2d0ee496d9db38dff54f877724612f00a",
+      "mainBlob": "5b5288edde13379a4b25d0095ab6684884c54474",
+      "sameBlobInMain": false
+    },
+    {
+      "path": "server/index.ts",
+      "sourceSha": "9baa7a5d011a1ca93a7ceec9c99174a6c7554a0c",
+      "blob": "61c97fda83326493efab70b7261dd82996e2ae5c",
+      "mainBlob": "61c97fda83326493efab70b7261dd82996e2ae5c",
+      "sameBlobInMain": true
+    },
+    {
+      "path": "server/app.ts",
+      "sourceSha": "9baa7a5d011a1ca93a7ceec9c99174a6c7554a0c",
+      "blob": "bd43ee60ca9f6fc6b8222b7f167557f278b7a7c1",
+      "mainBlob": "83ebe6b29b5ac05b3c0395c283d42efd5f8758da",
+      "sameBlobInMain": false
+    },
+    {
+      "path": "server/auth/team-access-routes.ts",
+      "sourceSha": "9baa7a5d011a1ca93a7ceec9c99174a6c7554a0c",
+      "blob": "0345bb89a6638e53dd7395bc89914df17832f436",
+      "mainBlob": "0345bb89a6638e53dd7395bc89914df17832f436",
+      "sameBlobInMain": true
+    },
+    {
+      "path": "server/auth/managed-role-routes.ts",
+      "sourceSha": "9baa7a5d011a1ca93a7ceec9c99174a6c7554a0c",
+      "blob": "6aa045cab412832b357528c02a476d0ad6089055",
+      "mainBlob": "6aa045cab412832b357528c02a476d0ad6089055",
+      "sameBlobInMain": true
+    },
+    {
+      "path": "server/quotes/repository.ts",
+      "sourceSha": "9baa7a5d011a1ca93a7ceec9c99174a6c7554a0c",
+      "blob": "e9b47c811995e207756b9ec909bdca32f297c431",
+      "mainBlob": "e9b47c811995e207756b9ec909bdca32f297c431",
+      "sameBlobInMain": true
+    },
+    {
+      "path": "server/quotes/creation-order-context.ts",
+      "sourceSha": "9baa7a5d011a1ca93a7ceec9c99174a6c7554a0c",
+      "blob": "85305e031dcbc1486b9874da922909a1b0416781",
+      "mainBlob": "85305e031dcbc1486b9874da922909a1b0416781",
+      "sameBlobInMain": true
+    },
+    {
+      "path": "features/order-center/server/server-sales-order-read-repository.ts",
+      "sourceSha": "9baa7a5d011a1ca93a7ceec9c99174a6c7554a0c",
+      "blob": "70b8310c567e2be85d208b11dba09b6dcd2c920d",
+      "mainBlob": "70b8310c567e2be85d208b11dba09b6dcd2c920d",
+      "sameBlobInMain": true
+    },
+    {
+      "path": "features/production-scheduling/components/production-scheduling-authority-page.tsx",
+      "sourceSha": "9baa7a5d011a1ca93a7ceec9c99174a6c7554a0c",
+      "blob": "71f41cb1e2c415051f95c881832eb544ce102c26",
+      "mainBlob": "71f41cb1e2c415051f95c881832eb544ce102c26",
+      "sameBlobInMain": true
+    },
+    {
+      "path": "features/closing-center/components/closing-authority-page.tsx",
+      "sourceSha": "9baa7a5d011a1ca93a7ceec9c99174a6c7554a0c",
+      "blob": "e9cebff3ba4fa25533d6c49e2408e06fd545a558",
+      "mainBlob": null,
+      "sameBlobInMain": false
+    },
+    {
+      "path": "server/sales-orders/delivery-plan-repository.ts",
+      "sourceSha": "9baa7a5d011a1ca93a7ceec9c99174a6c7554a0c",
+      "blob": "37ba29d2dab79834803b894857416e651af5f1b4",
+      "mainBlob": "37ba29d2dab79834803b894857416e651af5f1b4",
+      "sameBlobInMain": true
+    },
+    {
+      "path": "server/production-scheduling/repository.ts",
+      "sourceSha": "9baa7a5d011a1ca93a7ceec9c99174a6c7554a0c",
+      "blob": "6af9b78675dccc53f16298c38350f30707284c00",
+      "mainBlob": "6af9b78675dccc53f16298c38350f30707284c00",
+      "sameBlobInMain": true
+    },
+    {
+      "path": "server/material-arrivals/routes.ts",
+      "sourceSha": "9baa7a5d011a1ca93a7ceec9c99174a6c7554a0c",
+      "blob": "05b1f74061c2a41f95d12f6d7e5b4f945ab540b8",
+      "mainBlob": "05b1f74061c2a41f95d12f6d7e5b4f945ab540b8",
+      "sameBlobInMain": true
+    },
+    {
+      "path": "server/closing/routes.ts",
+      "sourceSha": "9baa7a5d011a1ca93a7ceec9c99174a6c7554a0c",
+      "blob": "77f58258507612d29233a69e19722e7a667b93f4",
+      "mainBlob": null,
+      "sameBlobInMain": false
+    },
+    {
+      "path": "server/sales-orders/labor-adoption-routes.ts",
+      "sourceSha": "9baa7a5d011a1ca93a7ceec9c99174a6c7554a0c",
+      "blob": "741ee6ce53a65f897771d5ac1bb919b43d4fdb3c",
+      "mainBlob": null,
+      "sameBlobInMain": false
+    },
+    {
+      "path": "features/quote-center/components/quote-order-labor-dialog.tsx",
+      "sourceSha": "9baa7a5d011a1ca93a7ceec9c99174a6c7554a0c",
+      "blob": "3fc1e47030190f29916ddf892287a1b584817f4c",
+      "mainBlob": null,
+      "sameBlobInMain": false
+    }
+  ],
+  "retirement": {
+    "sourcePath": "server/app.ts",
+    "sourceSha": "9baa7a5d011a1ca93a7ceec9c99174a6c7554a0c",
+    "guardLines": [
+      691,
+      702
+    ],
+    "claimantsAllMethodsGone": true,
+    "scope": "Identity/preparation-adoption mutations, order-preparations create, normalization case/workspace mutations and old commercial-versions writes return guarded410. Historical records and permitted historical GET routes remain subject to existing permissions; order-claimants itself is410 for every method. Read-only normalization preview is not claimed removed."
+  },
+  "reusedEngineering": {
+    "product": "a198d1829675092006708727624ee867be0e7b60",
+    "uiDriverCheckpoint": "35bf9de650d34219b4e1838b768129ce9aa59d4c",
+    "uiDriverRawSha256": "f26ffe4faa3f2cedcbf7e4699a68d73ec8b128629427373ea50f6041957e4d34",
+    "uiDriverCanonicalGitSha256": "ea0372360289ec3ac6457ab6eb4c190a2d1ea5f986854aba2d5aeb97148debce",
+    "uiTests": 18,
+    "persistenceHarness": "24f44284e94a0dbfda40dfc23915f0be665ea139",
+    "persistentImageId": "sha256:90e36de7c3d61ca137b2d5a4227e848b83ed57579bd146ce25501dbc6fe35f4f",
+    "persistentTests": 9,
+    "proofs": [
+      "docs/tasks/completed/2026-10-28-closing-support-final-validation.md",
+      "docs/tasks/completed/2026-10-28-closing-support-persistent-runtime.md"
+    ]
+  },
+  "boundaries": {
+    "newTests": 0,
+    "newCiRuns": 0,
+    "newGitPushes": 0,
+    "changedApplication": false,
+    "changedSql": false,
+    "changedUi": false,
+    "changedPermissions": false,
+    "changedRuntime": false,
+    "newRealSourceRequests": 0,
+    "mergedOtherPrs": false,
+    "deployed": false,
+    "oldAssetRetirementAuthorized": false
+  }
+}

@@ -28,7 +28,23 @@ function Assert-PrivateDirectory([string]$Path) {
 function New-PrivateDirectory([string]$Path) {
     Assert-NoReparsePath $Path
     if (Test-Path -LiteralPath $Path) { throw 'target_exists' }
-    [void][IO.Directory]::CreateDirectory($Path)
+    # CreateDirectory (managed) accepts an existing directory. Use atomic Win32
+    # creation so a concurrently created target cannot be adopted or re-ACL'd.
+    if (-not ('Zhixu.TrialPrivateDirectory' -as [type])) {
+        Add-Type -TypeDefinition @'
+using System;
+using System.Runtime.InteropServices;
+namespace Zhixu {
+  public static class TrialPrivateDirectory {
+    [DllImport("kernel32.dll", EntryPoint="CreateDirectoryW", CharSet=CharSet.Unicode, SetLastError=true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool Create(string path, IntPtr attributes);
+  }
+}
+'@
+    }
+    if (-not [Zhixu.TrialPrivateDirectory]::Create([IO.Path]::GetFullPath($Path), [IntPtr]::Zero)) { throw 'private_directory_create_failed_or_exists' }
+    Assert-NoReparsePath $Path
     $acl = [Security.AccessControl.DirectorySecurity]::new()
     $acl.SetAccessRuleProtection($true, $false)
     $sid = [Security.Principal.WindowsIdentity]::GetCurrent().User

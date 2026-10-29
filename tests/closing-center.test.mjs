@@ -179,16 +179,18 @@ test("ClosingSearchProvider 按 closing.view 过滤并搜索月份和订单", as
 });
 
 test("Closing UI 使用 Overview → Month Detail 路由并显示生产事实", async () => {
-  const [source, detailRoute] = await Promise.all([
+  const [source, detailRoute, authority] = await Promise.all([
     readFile(new URL("../features/closing-center/components/closing-center-page.tsx", import.meta.url), "utf8"),
     readFile(new URL("../app/closing-center/detail/page.tsx", import.meta.url), "utf8"),
+    readFile(new URL("../features/closing-center/components/closing-authority-page.tsx", import.meta.url), "utf8"),
   ]);
   assert.match(source, /groupClosingPeriodsByYear/);
   assert.match(source, /sortClosingPeriodsLatestFirst/);
   assert.match(source, /\/closing-center\/detail\?month=/);
   assert.match(source, /periodOrderIds\.has\(order\.id\)/);
   for (const label of ["全部", "开放中", "已确认", "已锁定", "订单数量", "已排", "已生产", "本月关账", "累计关账"]) assert.match(source, new RegExp(label));
-  assert.match(detailRoute, /<ClosingCenterPage detail \/>/);
+  assert.match(detailRoute, /<ClosingAuthorityPage detail \/>/);
+  assert.match(authority, /quoteAuthority\(\) === "server" \? <ServerClosingAdjustmentPage \/> : <ClosingCenterPage detail=\{detail\} \/>/);
 });
 
 test("月度目标差额和达成率由 Closing Service 投影且不修改关账事实", () => {

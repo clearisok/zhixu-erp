@@ -1,7 +1,12 @@
-# 恢复点：PR130货款侧栏测试兼容
+# 接力：正常交付后修复浏览器验收，继续完整闭环目标
 
-2026-10-26；当前核实main 869ee84dd0b31de6161011e4aa560678b244a64d；codex/persistent-cumulative-43-main-869e，baseline f8ed7f33c911cc1ec52cf3b3d9432912ac5aa80f。先读[当前任务](tasks/active/payment-panel-ci-recovery-2026-10-26.md)和outputs/payment-panel-ci-recovery-20261026的start/prepared/diagnostic。原f8已交付唯一PR130，首次CI两通过/source因旧事件按钮选择器连续超时后取消；不要直接重跑或延长上限。
+2026-10-29；feat/closing-support-interfaces；phase baseline40b1a7f712fce70026b90f3f795e28b691b17de2 clean；main6479a713e2b80228f008049519ebbd50d10601a8。最终HEAD/dirty从Git读。[本片证据](tasks/completed/2026-10-29-pr131-browser-route-recovery.md)及[原摘要全文/hash](tasks/completed/2026-10-29-pr131-browser-route-recovery/input-state.json)。
 
-本阶段仅测试具名事件按钮/fail-fast/CI expected source；新source checkpoint后在新owned runner复用6d镜像原dist作9项实际浏览器，test/render来源分别记录，不覆盖现有工作树dist。旧失败保留，未完成不PASS。原6d 8/8与f8 Hosted baseline不重跑/不冒称新head。最终守卫/独立复审后一次普通安全交付更新同PR，不自动merge/deploy/Source/旧数据操作。完整G1–G8/R与既有待决/切换/退役限制保持。
+1. 用户“再试试”后，40b1已正常exit0送达PR131，10861ms、原工具独立API和PR完整SHA一致。旧Git17989不监听，WinINET7888监听；只在进程采用当前代理/OpenSSL/HTTP1.1、保留原认证/TLS验证。旧直连失败及2fd exit1仍历史，不能倒推旧根因；共享配置未改。后续普通安全交付沿用常设授权，不反复问每个SHA。
+2. 三必要CI只自动一次：Release40719451821、Team40719451760成功；Source40719451599后端/SQL/API/quality/构建通过，生产资料23和排单37浏览器通过，P6旧关账禁用断言失败14项12pass/2fail。后继UI/Python未到达。没有重跑成功检查或冒称全部绿。
+3. 本片只改两份实际浏览器验收：P6保持旧路径关闭，关账两路径无权403/管理员年度12月200、无Browser/写入；议价恢复改用持久原请求ID，核实同pending原字节、无重复POST、version3与117不变。补强首轮过早读取提交版本的失败保留，后继显式等成功响应已被丢弃再断言。静态独立复审无P1/P2，主控实际测试另记。
+4. 复用a198 canonical静态构建，app/components/features生产输入未变；owned dist/client junction已移除，原产物/依赖保留。本机P6及Hosted未到达的UI尾部11组119/119（关账18），没有失败/取消/跳过，不重复已绿生产两组。相关eslint/diff通过。20分钟CI预算上次P6已约17.5分钟，仅改该作业为25分钟；逐字比较其余步骤/触发/缓存/concurrency不变，不增加工作流或主动rerun。
+5. 最终测试/精确守卫后checkpoint一次正常交付，独立核实完整HEAD后更新原PR131并看必要新CI。合并仍须具体批准，不自动merge。40b1 Hosted release与c9完整182/原a198工程证据按source复用，不当作新head全绿；新构建无必要不重复。
+6. 完整Gate0–8/R不缩小为Git或关账；随后最终main镜像/新持久目标、受控真实首绑和有限续刷、人工接受，再提醒staging就绪。本机trial不能直接传公网origin，须保留local守卫的受控公网配置；Linux源码operator至DB仍待核对。两合同额度方案仅规划未批准，成衣C1原件位置仍待核实。
 
-实际修后终态：test source 01d112b98e02d8aaacb4af14b4fa4522d6d3c207 / actualParent 49ff169b09e22f3891beab17ed2b6b605d168e31 / phaseBase f8ed7f33c911cc1ec52cf3b3d9432912ac5aa80f，renderSource 6d27d1e7fa1079f1830511068ff070791df310ab；canonical 2983 tracked files/0 overlay，复用dist 1211字节匹配文件。实际9/9、23202ms、0 fail/cancel/skip/timeout/overflow；语法/lint/YAML/8原phase体校验通过，旧50/179/27元数据changes=[]。完整原件hash见[证明](tasks/completed/2026-10-26-payment-panel-ci-validation.md)。下一步最终守卫/复审后仅更新原PR130，未交付新修，不称新CI通过。
+无新真实Source、凭据读取、业务库/账号变更、绑定/激活/调度、宁波部署或资产退役。旧次数耗尽、D147具体授权保持；保护3001/50426/65139、全部旧卷/备份/工作树和共享依赖。原663离线bundle仍NOT_DEPLOYABLE，不伪称最终main。

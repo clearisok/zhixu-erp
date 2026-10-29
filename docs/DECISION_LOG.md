@@ -23,6 +23,143 @@
 
 ## Active
 
+### D-177 配套关账入口与无产出执行归属显式恢复
+
+- 日期：2026-10-28；Active approved business/UI scope，用户对三项此前具体方案答复“全部确认”；实现与验收逐片记录，不因批准宣称完成。
+- 三处界面采用已列明的来源数量复核、执行方匹配及报价中心USD工价采用/历史；精确提案与原型hash见[批准记录](tasks/completed/2026-10-28-closing-support-and-pr130-approval.md)。复用D175显示协议、原月份/CCT/订单商业服务，成本/售价/工价权限继续独立，不增加订单中心价格写入口。
+- 对尚无实际产出的合法改色/换执行方，受影响开放月份片段仅经明确预览/确认返回未分配，再走原匹配；数量、月份、价格、排单/产出事实和旧版本保持。确认/锁定先取消确认/重开，已产出归属不得借此恢复。原409保留于普通调月/匹配路径，只有本明确恢复命令可解除相应无产出漂移。
+- 原请求、fresh RBAC、事务锁/CAS/hash、审计、未知COMMIT核对和冻结边界沿用；实现将增量扩展服务/数据库约束/严格客户端，并覆盖负向验收。没有自动恢复、自动来源采集、自动换汇或历史财务重算。
+- 本次同时仅批准并完成PR130 merge commit进入main6479a713e2b80228f008049519ebbd50d10601a8，保留原历史；不扩大到其他PR合并、真实Source、现有账号/业务库、正式部署/切换或旧资产退役。
+
+### D-176 关账终审修复冻结片段与年度读取上界
+
+- 日期：2026-10-28；Active engineering corrective，落实既有D169–D175冻结/守恒/有界读取，不新增业务口径或UI批准。
+- 调月只归并本次实际调入目标的颜色/执行方scope；所有未触及月份和其他scope逐行身份/数量保持。0051只前向比较confirmed/locked月的原版与新版完整行集合，覆盖初始化及既有动作；重开后仍按原权限可调。原财务manifest、旧SQL与历史不重写，无自动历史修复/回填或现有库升级。
+- 年度读取在单一RR、fresh权限后、完整resourceFacts载入前，对全部候选按assignment重复引用累计预算。开放最多3次、纯冻结2次预留同一8MiB，为保守上界而非实测用量；超限完整422，不截断汇总或变换价格/数量。15秒SQL超时不冒称总请求时限。D175沿用共享常量，无原API字节变化。
+- 模型/实际PG红测及修后分源结果、非空升级、SQL负控见[终审阶段](tasks/active/closing-chain-correctness-review-2026-10-28.md)；源码质量、完整相关回归和最终复审/门禁另记，不预报通过。三处配套UI、归属漂移恢复、远端/CI、显式切换与全项目终审独立待办；无真实Source、账号业务库、merge/部署或资产退役。
+
+### D-175 关账复核的只读名称与期间状态
+
+- 日期：2026-10-28；Active engineering，实施D170/D174已规划的非金额显示读取，不批准尚待确认的具体UI，不改变归属、价格或冻结规则。
+- 原月份GET仅显式view=display扩展；原无参数/年度读取和严格客户端保持。fresh既有读取权限与单一RR只读事务关联当前Source、不可变颜色身份、assignment/hash/type/executor快照及全部计划/default月份期间；不自动初始化、取Source网络或授予金额权限。
+- 旧identityName与当前Source名分别标记，歧义/缺失保留未知；执行方只取精确hash验证的不可变资源facts名称，不以基础资料当前名伪造历史，不返回联系人/备注等无关字段。显示参考不是冻结财务名称；税率/金额不进入本投影。完整数量、原预览/命令/回执及快照字节不变。
+- 行数/资源facts总bytes/输出大小有界拒绝；新客户端按同单颜色/执行依据/所涉月份完整集合核对，不截断、不写浏览器存储。见[当前读取切片](tasks/active/closing-month-display-read-2026-10-28.md)。初次测试错误假设和修正保留，最终类型/发布/复审另记；无正式DOM/schema、真实数据、Hosted/远端、merge/部署/退役声明。
+
+### D-174 变化来源的关账数量显式复核
+
+- 日期：2026-10-27；Active engineering，实施D169已批准的数量/颜色复核，不增加业务口径或真实Source额度。复用同一月份preview/commands/原回执，新增`reconcile_source`及无金额当前Source观察；保存时锁后重读、CAS、fresh RBAC与预览指纹核对。
+- 原片段只能减量或零删除，ID/颜色/执行方/月保持；增量始终待分月/未分配。同色不得先减再加覆盖旧归属，每色与全单精确对应可信来源；未知、歧义或不完整来源不能推算。确认/锁定原行保持，开放量不足先按旧权限处理。
+- 0050增加新动作与不可变`source_observation`，旧行SQL NULL、无回填；原版本/basis、创建交期、完成量、报价/商业与财务历史保持。新版本basis只移除无行引用者，保留者原字节不动。延迟SQL约束以version-1重建原命令变换，不读前移head。
+- 原move/match遇来源变化仍阻断；本动作不调月、分配生产、输入价格、换币或同步财务。严格客户端单独验证新预览，未挂载新复核UI。镜像恢复夹具必须对同一真实合成刷新订单显式复核，不换SO/清库绕过。见[契约](features/SERVER_CLOSING_SOURCE_RECONCILIATION.md)及[阶段](tasks/active/closing-source-reconciliation-2026-10-27.md)。
+- 已有61104及用户输入保持；新owned合成库验收不代表用户业务接受、Hosted、远端交付、合并、正式部署或旧资产退役。Git/ref STOP独立保留，完整目标未完成。
+
+### D-173 退役新手工财务数量，历史核对与月份权威保持
+
+- 日期：2026-10-27；Active engineering，实施已批准D169。新create/update allocation在服务层统一409；解析保留用于既有原命令/hash核对，历史成功回执仍先按fresh权限回放，不再执行数量写入。没有新的兼容开关、schema或历史迁移。
+- 新确认/锁定必须有完整月份依据：所有active无link记录均阻断，包含legacy-only及另一SO的混合期间；缺0049 schema明确503。旧manifest、读取、原请求、review/void与带原因重开保持，不能把复核当作月份来源认证。linked作废仍由sync负责。
+- D169/G1和D171/G2b“旧入口尚未整体退役”为原阶段事实，本片前向完成新手工数量写退役。新量只来自已初始化月份计划及明确sync，不改生产、价格、期间税率或冻结历史。[契约](features/SERVER_CLOSING_WRITE_RETIREMENT.md)与[阶段](tasks/active/closing-write-retirement-2026-10-27.md)区分实际检查、旧失败和后续新镜像恢复。
+- 保留G2e运行中的合成演示，不把它冒称当前后端热更新。无真实Source、既有账号/业务库、远端/Hosted、合并、正式部署、切换或旧资产退役授权；Goal继续。
+
+### D-172 全年两项产值同范围只读投影
+
+- 日期：2026-10-27；Active engineering，实施已批准D169/D171，不改价格、税率、月份、生产或冻结事实。session-only `GET /api/v1/closing/year`明确year，按相同scope、生产参考状态和空格且搜索先过滤，再汇总12月/全年并分页；没有年度写命令、Browser回退、Source网络调用或页面激活。
+- 开放月份只读当前已采用订单商业行，标明参考值；confirmed/locked只读原manifest财务版本，不因当前报价/Source变化重算。税率/价格/工价币种不适用保持blocked、总额null及可见已知小计，已确认0与未知分开。加工不产生销售价；内制/外发/未分配用已保存归属，未分配不猜内制。
+- 生产状态来自当前实际累计/已记录执行，仅参考，不按完成日期或排单量摊月。冻结片段复用原生产更正比较：confirmed提示复核，locked保留金额并提示后续更正；刚锁定无更正不误报。当前订单参考信息与冻结身份有显式标签，缺数量/落入冻结默认月的未定量新SO仍显示待分月，不冒充冻结记录或0。
+- 复用原价格资格、精确金额与fresh字段权限；500订单/5000片段/1MiB响应有界拒绝，不截断汇总，尚无500订单压测结论。当前只读HTTP/模型，原请求客户端、正式UI/浏览器验收和旧写入口整体退役后续；完整发布/Hosted/远端与本机工程分开。见[年度契约](features/SERVER_CLOSING_ANNUAL_READ.md)。
+
+### D-171 月份数量显式采用既有财务快照
+
+- 日期：2026-10-27；Active engineering，实施D169/D170的0045财务衔接，不改变两项产值目标、数量独立、报价中心价格所有权、税率或冻结规则。修订UI已批准，但本片不挂载页面，也不把旧三项汇总冒称全年两项视图。
+- `sync_month_outputs`复用既有ClosingIntent、preview/commands/原回执和0045不可变商业金额快照。仅提交期间版本、所选sales/work及原因；服务端从当前月份计划选择完整适用数量，不接受SO、颜色、数量、价格或汇率输入。加工不适用sales；非USD实际工价只阻断所选work，纯sales先排除加工再核对适用合同。
+- 0049只增加不可变月份片段→既有财务allocation的精确引用及SQL保护，不回填旧记录、不复制第二套价格。每片段每渠道分别保存，不能将两条财务行的数量相加。已采用值不会随调月或议价静默更新；开放期明确重采所选渠道，另一渠道保持原版本。跨渠道片段集合不一致时总件数未知/待同步，不能取第一条、平均或相加。
+- 月份可在开放期调整并令财务依据过期；原确认/锁定入口同样检查当前月份完整覆盖、新增订单和稳定归属，过期须显式同步。后续完成更正仍沿用原复核，锁定manifest/金额保留。已关联SO不能经旧手工create/update或作废linked记录重复记账；未关联旧有效记录先核对，不自动搬移，旧兼容入口并未整体退役。
+- 一个期间所选渠道原子保存，fresh权限、CAS、全局锁、原请求幂等/未知COMMIT和审计保持。分拆行共享的自由文本可能含双渠道金额，linked详情/历史保守要求双金额查看权；金额字段仍分项投影。数量/返回字节逐项有界，具体契约见[月份财务关联](features/SERVER_CLOSING_MONTH_FINANCIAL.md)。
+- 没有真实Source读取、现有账号/业务库、远端写、合并、部署或旧资产退役。年度两项只读模型、HTTP月份计划、正式UI、完整旧入口收紧及新镜像恢复继续后续；不借用旧G1/Gate8F结果。原Git/ref STOP根因仍未定。
+
+### D-170 关账月份执行归属与本次匹配观察
+
+2026-10-27衔接进展：下文保留本片记录时事实；0045财务关联与旧写保护现由D171接续，匹配/数量/归属规则继续有效。
+
+- 日期：2026-10-27；Active engineering，承接D169，不改变两项产值、数量独立、精确商业源或期间冻结。用户已[明确批准修订UI](tasks/completed/2026-10-27-closing-adjustment-ui-approval.md)，替代D169记录时仍pending的界面状态；独立USD采用UI不在此次范围。
+- `match_executors`仅明确拆分未分配数量，保持每个颜色/月量和已有执行归属。真实同单assignment与颜色校验；未分配不猜内制，不按排单比例摊月。计划/完成量超量或取消仅warning，不能成为独立关账数量的上限。
+- 0048为月份版本增加原生产观察证据。首次匹配固定稳定归属；再次追加在新版本保存本次观察，旧版本和未选中观察不变；调月不刷新。当前归属漂移明确409/回执，避免合法未开工改色触发数据库500；后续异常归属更正不冒称已完成。
+- 与0047共用fresh RBAC、全局锁、CAS、幂等、审计及COMMIT未知恢复，无新价格/财务账本。全年金额、0045一次性消费/冻结、Source更正、HTTP/客户端、正式UI及旧写入口收紧仍后续。见[契约](features/SERVER_CLOSING_EXECUTOR_MATCHING.md)与[分源阶段](tasks/active/closing-executor-matching-2026-10-27.md)。无远端写、真实Source、现有账号业务库、部署、合并或退役，Git原STOP独立保留。
+
+### D-169 订单默认归月、两项产值与关账调整
+
+- 日期：2026-10-27；Active approved target / Gate8G1 local engineering。用户否定旧三项/手工新增方案，并确认加工产值包括内制及外发，切换范围时明细与汇总同步。仅替代D162/D163/D167/D168的手工归属交互与三项展示目标；成衣CNY公式、显式期间税率、工价USD资格、商业版本唯一价格源、快照冻结和原请求保护保持。
+- 新SO在原可信创建事务中按成衣交期默认归属全部量；合同读总交期，加工读确认批次交期。缺交期或默认月已冻结时保留待分月，不猜当前月或阻断SO。未确认价格/税率不补0；没有Source真实请求、历史迁移或收入确认授权。
+- “关账调整”部分/整单跨月须原子守恒，不重写订单/排单/完成量。生产状态和全年12月两项金额作参考；显示开关不写账本，未分配不猜内制。交期变化不覆盖人工分月，数量/颜色变化显式复核。已确认/锁定期间先按旧权限取消确认/重开，原锁定历史保留。
+- 本片0047四张空表只持久未定价月份数量；初始化、preview/execute/receipt复用fresh权限、全局锁、CAS、幂等和既有OperationLog。完整PG结果预算、逐颜色/执行方守恒、COMMIT未知及完整历史引用盘点见[契约](features/SERVER_CLOSING_MONTH_PLAN.md)。无HTTP/UI激活，年度两项金额/执行方对账/0045财务消费关联和旧写入口收紧仍后续；不能声称原三项summary已改完或旧API已退役。
+- 原三项草图已由本需求替代；修订可交互草图仍待具体批准，外发范围答复不等于批准页面。报价中心USD采用UI也仍pending。旧原状态和草图见[input-state](tasks/completed/2026-10-27-closing-month-plan-input-state/README.md)，本轮工程与未来验收分开，Git/ref STOP和真实环境边界不变。
+
+### D-168 Server关账原请求无界面编排
+
+2026-10-27状态：Partially Superseded by D169（手工新增/三项展示目标）；原请求存储、核对、会话/权限保护与历史工程证据继续保留。
+
+- 日期：2026-10-27；Partially Superseded by D169，实施D167原命令恢复，不改变D162/D163手工口径、税率/币种、金额来源和冻结规则。复用原client/pending、同一九类ClosingIntent和回执；不新增价格、税率更正、schema或日志系统。
+- 月份列表仅创建期间，详情仅操作本期间；另一期间未决可核对但不能换新命令绕过。编辑/确认/锁定/重开分别复用原动作权限，渠道并集仍由Server原子鉴权。写撤权可只读核对，读撤权隐藏；金额可见性变化撤掉旧预览，不新增隐式金额授权。
+- 完整保存读回后只POST一次，再GET原hash/CAS终态；unknown需显式确认且原slot完整，才原UUID/body重试。损坏/未来/竞争原件不覆盖，ack失败保留已核结果和原请求。串行、取消/超时、owner对象代际及回调复核保护晚响应和ABA；构造/刷新不发请求。
+- 当前仅renderless controller/state，未接真实session、React、导航或离开提醒。原关账及USD采用具体UI答复仍pending。新owned合成库验收和精确源码另记于[阶段](tasks/active/server-closing-controller-2026-10-27.md)，不凭WIP或父PASS声称新验收。Git/ref STOP根因UNRESOLVED，不授予真实Source、合并、部署、现有库操作或旧资产退役。
+- 精确S4dfcd44e03b2c6949fa9140aadd4d9b0471f2719，3079blob owned归档，52相关/根类型/lint/Vite browser通过；busy同步销毁P2定向复现并修复，原分类器误判保留，独立终审0P1/P2。见[冻结工程](tasks/completed/2026-10-27-server-closing-controller-engineering.md)。811/旧构建/144未重跑，新守卫及远端分别收口；不提升UI/68能力状态。
+
+### D-167 Server关账浏览器契约与原命令回执绑定
+
+2026-10-27状态：Partially Superseded by D169（手工归属/三项展示目标）；原协议和回执保护保留，新分月协议尚未接浏览器。
+
+- 日期：2026-10-27；Partially Superseded by D169，实施D162/D163，不改变手工数量/月份、CNY成衣/USD工价、快照冻结、税率创建后固定或权限。原contract去除间接Node依赖，同一parseClosingIntent/Command在Server与浏览器共用；Buffer等价Unicode检验保留BOM/未配对代理项语义。read-query规则原样抽出，不另建价格计算或Browser仓储。
+- 原关账回执增加commandHash并复验存储command/request/hash，仍只按当前actor原UUID读取，坏存储不造证明；不返回原命令或金额。历史绑定entityType/entityId，发生时时间统一ISO，原对象/身份/版本不改。
+- 浏览器白名单投影覆盖basis/月份/明细/历史/preview/result；手工归属/CAS/hash/分页和三桶金额独立。1MiB、fresh会话owner lease、无自动POST重试、原UUID终态核对；sessionStorage只保存本actor/tab的一条原命令，坏字节不覆盖，无旧Browser账本/Seed/IndexedDB读写。
+- 当前只有协议和原请求存储函数，低层submit不负责存储，不宣称UI save→POST编排或真实session/provider/导航接线完成。具体[关账UI草图](tasks/active/server-closing-ui-proposal-2026-10-27.md)已征询且仍pending；USD采用UI原问题也不被替代。精确源码及验证见[阶段](tasks/active/server-closing-browser-protocol-2026-10-27.md)。远端STOP未解除，不授予来源、合并、部署或现有库操作。
+- 精确S1 48a41fb6957c7353415e690863af48ec704c9a2e：82受影响、811项目、lint/构建通过，类型失败原件保留；S2 45a5b087b4b3ed19ae448188257146a516d75bf4：38受影响、类型/lint/浏览器编译通过，实际父为S1，不混同阶段基点e5f。独立复审两项P2已修，0剩余P1/P2，见[冻结工程](tasks/completed/2026-10-27-server-closing-interface-engineering.md)。完整关账体验、最终守卫及远端交付分别记录，不因源码验收完成而提升能力状态。
+
+### D-166 USD采用无界面原请求控制器
+
+- 日期：2026-10-27；Active engineering，实施D165恢复约束，不新增业务/价格规则、权限、schema或页面设计。复用原client/pending与同一Server命令、商业版本和回执。
+- 构造只恢复不请求；先清旧预览再校验新意图。完整存储读回后POST一次，再GET精确原终态；unknown仅在显式确认且slot精确存在时允许原UUID/body重试，不以新命令绕过未决。损坏/未来版本原字节保留。
+- 实际session/权限/Quote代际须新owner对象，包括A→B→A；read撤回隐藏，write撤回保留只读核对。串行、取消和超时lease保护晚响应，业务回调前再次核owner；终态ack失败保留待核。
+- 具体三步UI批准仍pending，只提供状态/navigationBlocked，未接React、真实session或导航。见[契约](features/ORDER_USD_LABOR_INTERFACE.md)、[阶段](tasks/active/usd-labor-controller-2026-10-27.md)；验证按精确源码另记，原冻结证据保留，远端STOP不因新SHA解除。
+
+### D-165 USD采用查询、原请求核对与历史身份
+
+- 日期：2026-10-27；Active engineering，D162/D164配套协议，不改变仅CNY→USD、报价中心owner、原产品/售价/批次/关账保护及写权限。
+- 新查询仅按当前采用Quote列物理订单，含加工；稳定颜色与原消费依据，20条分页、字面搜索、fresh工价读取授权、1MiB投影。候选与写入共用CCT包括null优先的USD解析；候选不能替代可信后继/产品/CAS预览，也不代替用户确认产品未变化。
+- 回执绑定原订单及完整命令摘要；history以actor/request区分合法同UUID，发生时姓名只读匹配的不可变审计，缺失不借当前姓名补造。客户端协议不做枚举强转，坏响应/错owner/未知提交保留原命令且无自动重发。
+- sessionStorage仅存每actor/tab的原身份/意图/hash及用户原因，完整读回才允许POST，不保存价格/CCT快照或凭据；损坏/未来版本不覆盖，无Browser账本/Seed/IndexedDB迁移或清理。见[配套契约](features/ORDER_USD_LABOR_INTERFACE.md)。
+- 具体V2采用页签仍待本轮三步交互答复；本切片没有DOM/CSS/导航变化。精确S60c2a6a2848978af1bb9ebe72184de97f4b14450的41项受影响/811项目、类型/lint/构建与Vite浏览器编译通过，独立静态复审0P1/P2，见[冻结工程](tasks/completed/2026-10-27-order-usd-labor-interface-engineering.md)。发布门禁及远端另记，不等同部署、来源激活或完整Goal完成。
+
+### D-164 明确采用 USD 工价复用原商业版本与可信报价确认
+
+- 日期：2026-10-27；Active engineering，实施 D162，不改变其币种、手工关账和历史冻结规则。只在报价中心显式选择当前订单/颜色，仅允许CNY→USD；已USD只有金额与完整凭据完全相同的no-op，混合选择越界整单拒绝。不提供一般USD→USD再采用、自由工价、自动换汇、不同产品/Quote/PV换绑或订单侧写入口。
+- 新 PV 确认保存服务端观察的确认时币种，旧缺失不推断；已有确认不得直接改 PV 币种。CCT（包括空值）优先，其关联规则保持。新采用要求可证明 USD，零有效，缺失拒绝。可信后继逐步匹配专用创建审计，创建身份不可改；普通 PUT/版本名称不能伪造后继。
+- 原 source/product/hash、售价、未选颜色、数量快照、加工批次/消费与关账历史保持。新工价只追加原订单商业版本并独立保存精确确认来源，后续售价调整不得丢失；加工原统一版按精确消费证据转换订单级行，不重建 SO/批次。
+- 0046 空增量、fresh RBAC、共享商业请求锁、CAS、真实 jsonb 字节预算、原子审计/回执、未知 COMMIT 核对及暂停边界见 [Gate8C 契约](features/ORDER_USD_LABOR_ADOPTION.md)。本地工程分源192定向/811项目、类型/lint/构建通过，独立静态复审0 P1/P2；发布门禁按后续收口记录，UI仍后续。不代表远端、部署或真实来源授权。
+
+### D-163 Server关账持久快照、渠道与原子命令
+
+2026-10-27状态：Partially Superseded by D169（手工新增与三项汇总目标）；0045过渡命令、不可变价格快照、期间冻结和原历史保持，旧写入口尚未退役。
+
+2026-10-27接续：[Gate8B独立契约](features/SERVER_CLOSING_COMMANDS.md)为当前入口；原SERVER_CLOSING/BUSINESS_RULES中的Gate8A实现状态按原日期冻结保存，不表示当前仍无写入。两条无main根的未验证修订候选永久退休，原对象和bcab历史保留，规则与守卫不放宽，见[证据澄清](tasks/completed/2026-10-27-closing-command-evidence-reconciliation.md)。
+
+- 日期：2026-10-26；Partially Superseded by D169，实施D-162已批准口径；不替代其业务公式、币种或手工确认。D162下文Gate8A“尚无写入”是原切片事实，当前本地Gate8B进展由本条及独立契约接续。
+- 一份归属一份手工数量，销售/工价/两项渠道显式选择；加工仅工价，单列服务产值。BigInt有理数精确计算，汇总后half-up显示6位；不自动换汇、不以累计生产分月、不回写报价/订单/排单。税率创建时显式确认，本切片固定；税率更正、USD新工价采用与UI后续，不能以SQL替代。
+- 0045只加七张空Server表，版本/身份不可变，head前进；精确商业、稳定颜色、原计划/执行版本与请求FK。既有实际采用价格为唯一金额来源，新建/修改预览采用当前版本；复核只更新reviewBasis，作废保留原快照。无跨期搬移命令、历史导入、seed或旧迁移改写。
+- open/confirmed/locked独立，确认和锁定以完整版本清单冻结。重开需原权限与原因，原locked版本仍可读。生产更正后未锁须复核；锁等待后READ COMMITTED重新核对实际事实，不使用陈旧RR预览。旧新渠道权限并集用于间接修改及期间状态操作；独立金额投影覆盖摘要、历史、备注/原因与回执。
+- 复用原effective fence、生产/resource锁、fresh身份、OperationLog、expected版本和actor/request幂等。快照/head/审计/回执原子提交；稳定拒绝有回执，未知COMMIT保持unverified，原请求读取等待在途锁。已有真实执行方停用不妨碍作废/重开，不改原执行方事实。preview/execute在任何领域应用前核对真实PG jsonb字节预算，SQL限额不放宽；NUL和不可表示Unicode拒绝。
+- 归一引用清单包含closing直接引用及heads/period/history/commands/audit全行摘要；旧锁定历史仍要求财务核对，不启用归一执行。新owned合成库演练非空44→45及完整备份恢复，未碰现有库或Docker卷。
+- 代码证据：`database/migrations/0045_server_closing_snapshots.sql`、`server/closing/{contract,snapshot,repository,service,read-service,routes}.ts`及三组新测试；[契约](features/SERVER_CLOSING.md)。本地工程、精确守卫/独立复审、远端交付、UI/人工接受分别记录；无新真实Source/激活、Hosted CI、合并、部署或旧路径退役。
+
+### D-162 Server 关账口径、手工确认与依据更正保护
+
+2026-10-27状态：Partially Superseded by D169（手工新建月份/数量归属目标）；币种、公式、显式税率、依据更正和历史冻结继续有效。下文是原日期决定，不覆盖新默认归月要求。
+
+- 日期：2026-10-26；Partially Superseded by D169。补齐 D-147/D-152 当时保留的关账口径；D-042 及下列 Browser 描述仍为历史路径，不作为 Server 的默认值或迁移来源。
+- 用户确认：成衣销售产值为手工确认数量 × 订单实际采用的 CNY 成交单价 ÷（1＋期间税率）；税率每个期间显式填写并确认，不预填 13%、不继承 Browser 设置。月份、数量、颜色和执行方归属由用户确认；累计生产完成与 6086979 成衣出货仅作参考，不自动分月、确认收入或改变四个独立数量口径。
+- 加工订单没有成衣售价；加工服务产值单独统计，不进入成衣销售产值。工价口径要求 USD，实际采用 CNY 的工价先阻断其工价关账，须在报价中心明确确认、采用新的 USD 商业版本后再纳入；不自动换汇、不换币种标签、不覆盖旧商业版本或批次创建依据。加工服务与工价维度引用同一金额事实时不得重复相加。
+- 引用的生产完成数量、日期或依据版本变化后，未锁定记录须复核，复核前不得确认或锁定；已锁定快照保持，只展示后续更正。版本变化后数值回到原值也不视作从未更正；取消剩余排单不删除原执行方的已完成数量。
+- 当前工程仅 Gate8A：`GET /api/v1/closing/orders/:id/basis` 复用已采用订单商业版本、稳定颜色、原物理 SO 和生产执行版本；可信会话、fresh RBAC、三项读取权限及独立金额投影。加工批次仅承认精确 consumption/commercial 引用的统一快照；历史合同统一价不补造颜色。没有期间/关账记录写入、税额计算、确认/锁定、UI 切换或旧路径退役。见 [Server 契约](features/SERVER_CLOSING.md)。
+- 后续写入须追加不可变快照、原子审计/幂等回执、乐观版本和原子依据复核；不能把本次纯复核策略当作已实现的确认/锁定命令。真实库、部署、来源读取和入口切换边界不扩大。
+
 ### D-161 / D-159 当前成衣操作者复用原配置与单次采集服务
 
 - 原2026-10-23工程决定，2026-10-25向当前main受控前移，Active engineering；D147既有范围。新增的是原源码CLI接线，不另建模型、SQL、HTTP、权限、Catalog或调度；D158/D160中无CLI继续表示其冻结切片。真实目标启用与新Source请求额度不由工程入口、hash或确认短语授予。

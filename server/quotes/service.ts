@@ -105,6 +105,8 @@ function authorizeReplacement(actor: TrustedIdentity, before: ServerQuote, after
       const previousVersion = priceVersionById(previousRevision, nextVersion.id);
       if (!previousVersion) continue;
       requireChangedPermission(actor, "quote.settings.edit", previousVersion.pricingParameters, nextVersion.pricingParameters);
+      if (previousVersion.confirmation && previousVersion.pricingParameters.laborCurrency !== nextVersion.pricingParameters.laborCurrency)
+        throw new HttpError(409, "confirmed_labor_currency_requires_revision", "Create a new Revision and explicitly confirm its labor currency");
       requireChangedPermission(actor, "quote.cost.edit", {
         fabrics: previousVersion.fabrics,
         trims: previousVersion.trims,
@@ -170,6 +172,11 @@ export function createTrustedQuoteService(pool: Pool, dependencies: QuoteRuntime
         beforeVersion: mutation.before?.version ?? null,
         afterVersion: mutation.after.version,
         ...(context.workflowAction ? { workflowAction: context.workflowAction } : {}),
+        ...(context.workflowAction === "revision.create" ? { revisionCreation: {
+          schemaVersion: "quote-revision-creation.v1", revisionId: mutation.after.quote.defaultRevisionId,
+          parentRevisionId: mutation.after.quote.revisions.find(r => r.revisionId === mutation.after.quote.defaultRevisionId)!.parentRevisionId,
+          quoteVersion: mutation.after.version,
+        } } : {}),
       },
     });
     // A new Revision inherits relationship rows in the repository transaction.

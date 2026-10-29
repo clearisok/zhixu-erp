@@ -26,6 +26,15 @@ test('bounded startup failures have safe codes and no recovery/writes',async()=>
   await assert.rejects(waitReady({inspect:rows,expected,safe,probe:async()=>({status:200,body:{...build,status:'ok',database:'ready',gitCommit:'b'.repeat(40)}})}),/runtime_identity_mismatch/);
   assert.equal(safeFailure(Error('password=synthetic-secret')),'trial_operation_failed_review_config_or_safe_service_logs');
 });
+test('Docker network allocation failure is classified without disclosing command output',()=>{
+  const generic='trial_operation_failed_review_config_or_safe_service_logs';
+  const output='password=synthetic-secret\nError response from daemon: all predefined address pools have been fully subnetted\n';
+  assert.equal(safeFailure(Object.assign(Error('command includes private values'),{status:1,stderr:output})),'docker_address_pool_exhausted');
+  assert.equal(safeFailure({status:1,stderr:Buffer.from('Error response from daemon: could not find an available, non-overlapping IPv4 address pool among the defaults to assign to the network')}),'docker_address_pool_exhausted');
+  for(const error of [null,Error(output),{status:0,stderr:output},{status:1,stderr:'private output without a recognized daemon failure'},
+    {status:1,stderr:'all predefined address pools have been fully subnetted'},{status:1,stderr:'x'.repeat(65537)+output},{status:1,stderr:{toString(){throw Error('do not coerce objects');}}}])assert.equal(safeFailure(error),generic);
+  assert.equal(safeFailure({message:'runtime_identity_mismatch',status:1,stderr:output}),'runtime_identity_mismatch');
+});
 test('actual TLS probe rejects untrusted certificates, oversized/malformed JSON and stalls',async t=>{
   const dir=mkdtempSync(join(tmpdir(),'zhixu-trial-probe-'));
   const certPath=join(dir,'cert.pem'),keyPath=join(dir,'key.pem');

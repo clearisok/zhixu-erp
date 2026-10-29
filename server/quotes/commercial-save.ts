@@ -7,7 +7,7 @@ import type { QuoteSaveContent } from "./quote-response.js";
 export function restoreRestrictedConfirmation(actor: TrustedIdentity, content: QuoteSaveContent, saved: ServerQuote): QuoteSaveContent {
  const keys = [
   ...(!actor.permissions.includes("commercial.sale.view") ? ["quotedGarmentPrice", "confirmedGarmentPrice"] as const : []),
-  ...(!actor.permissions.includes("commercial.labor.view") ? ["confirmedLaborPrice"] as const : []),
+  ...(!actor.permissions.includes("commercial.labor.view") ? ["confirmedLaborPrice", "laborCurrencyAtConfirmation"] as const : []),
  ];
  if (!keys.length) return content;
  const next = structuredClone(content);

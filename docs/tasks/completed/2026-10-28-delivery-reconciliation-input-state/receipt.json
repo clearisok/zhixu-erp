@@ -1,0 +1,21 @@
+{
+  "source": "855401ba60de2732bb6cc0305390cc79862db958",
+  "purpose": "Preserve the exact prior entry documents before correcting the stale small-PR130 assumption and shortening the current recovery point.",
+  "records": [
+    {
+      "path": "docs/PROJECT_INDEX.md",
+      "source": "855401ba60de2732bb6cc0305390cc79862db958",
+      "sha256": "2d68acfc4ebc58307b69536d52ed13d5266a03da4cd6825b4964077b87d0fc4d"
+    },
+    {
+      "path": "docs/CURRENT_STATE.md",
+      "source": "855401ba60de2732bb6cc0305390cc79862db958",
+      "sha256": "073d4cf0eef32be85691b15eae7a2015e14df18308ba230725554d033a2b1ed3"
+    },
+    {
+      "path": "docs/AI_HANDOFF.md",
+      "source": "855401ba60de2732bb6cc0305390cc79862db958",
+      "sha256": "437974daa08a50a7eeeabb5d317b40705014422ed61990358c6e4af2ee4d981e"
+    }
+  ]
+}

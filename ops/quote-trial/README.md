@@ -1,5 +1,111 @@
 # Quote trial operations
 
+## Read-only 50426 cutover preview (2026-10-28)
+
+`cutover-preview.mjs` prepares the concrete target review required by D-147;
+it has **no execute mode**. `new-local-target.ps1` still rejects 50426. A preview
+does not bypass that protection, initialize a database, write credentials or
+authorize a deployment. The separate `cutover-execute.mjs` entry below remains
+subject to exact-target approval; a preview alone never executes it.
+
+Supply a small JSON file containing only `project`, `root`, `opsRoot`,
+`sourceSha`, `imageId`, `buildId` and `buildTime`. `project` must use
+`zhixu-quote-trial-main-` plus ten lowercase hexadecimal characters; `root` is
+a new absolute local directory outside a Git checkout. `opsRoot` is the frozen
+`ops/quote-trial` directory from the exact image source, also outside any checkout.
+`imageId` is a full `sha256:` content ID, not a mutable tag. No secrets belong in
+this request. Invoke on Windows with Node 22.13+ and existing Docker/Git/PowerShell:
+
+```powershell
+node ops/quote-trial/cutover-preview.mjs C:/private/cutover-request.json <independently-verified-main-full-SHA> C:/path/to/repository
+```
+
+The tool only reads selected Docker metadata, fixed-port listeners, IPv4 routes,
+Git objects and exact ops files; it never runs a container or contacts a database,
+Source, remote Git service or business API. Output goes to stdout. Commands have
+10-second limits, a 4MiB output cap and a 120-second collection deadline; failures
+stop without retry and expose only a safe category, not external stderr. Inventory
+counts and files are bounded. Docker environment overrides are rejected without
+printing their values. Every inventory query is pinned to the validated local
+named-pipe endpoint and Linux daemon. Git lazy fetching is disabled in the child
+process, so missing promisor objects fail rather than downloading anything.
+No environment dump, credential file, Docker Env or process command line is read.
+
+The main SHA is a caller-supplied observation, **not verified remotely by this
+tool**. A source/main mismatch produces `BLOCKED` even if the image is healthy.
+Image labels alone do not prove compiled identity: the original `trial.mjs check`
+and fresh main verification remain prerequisites before any future execution.
+The fixed plan uses HTTPS, loopback port 50426, the existing five services and
+four new volumes. Existing project/volume/network identities, occupied ports,
+indirect/existing target paths, modified ops or unknown network ranges block it.
+Stopped containers with an old 50426 binding are listed as protected owners;
+they are not stopped, deleted or treated as live listeners. Recheck immediately
+before execution so a concurrently restarted owner cannot be displaced.
+
+`READY_FOR_REVIEW` is not runtime readiness or approval. The receipt includes
+an observation fingerprint, ten-minute expiry, old asset counts and outstanding
+checks. It reserves no port or subnet. IPv4 /28 selection reuses the pure policy
+also used by the recovery harness, avoiding host routes and all Docker networks;
+IPv6 configuration is untouched. Keep the full observation and request when
+seeking exact-target approval. Same-host session cookies can affect other ports;
+do not clear browser stores or silently change hostnames to resolve this.
+
+## Guarded 50426 execution entry (2026-10-28)
+
+This implementation is locally tested, **not a record of a real 50426 cutover**.
+First merge and freeze the final main/image/ops, obtain concrete target approval,
+and produce a fresh preview. The caller must independently verify the supplied
+main SHA; neither local tool reads GitHub or grants merge/deployment permission.
+
+Run from the exact frozen ops directory referenced in the approved preview:
+
+```powershell
+node C:/frozen/ops/quote-trial/cutover-execute.mjs C:/private/preview.json <verified-main-full-SHA> C:/repository
+```
+
+Without the fourth argument this validates and re-observes only. Actual execution
+requires `--execute=<the-exact-previewSha256>` as the fourth argument after the
+human approves that target. It rejects expired/future/tampered/blocked previews,
+different main or ops roots, any changed observation, and Docker overrides. A hash
+is an acknowledgement of reviewed evidence, not a credential or access-control
+boundary against another local administrator. The preview expires after ten
+minutes; refresh and review if it expires rather than editing its timestamp.
+Expiry is checked again before `prepare-local` and `init`. After initialization
+has been submitted, expiry does not trigger a retry or a second initialization;
+only the remaining bounded sequence may continue.
+
+Execution prepares private inputs then invokes the existing `trial.mjs` commands
+in order: `check`, `prepare-local`, `init`, `objects-init`, `start`. The original
+compiled-image/Compose/volume/empty-schema/HTTPS/storage readiness checks remain.
+Commands use the fixed local Docker Desktop pipe; frozen file hashes are checked
+before input preparation and each stage. A second port check immediately precedes
+start. Each child is bounded; lifecycle commands are limited to the remaining
+15-minute mutation-phase budget, at most five minutes each. Concurrent external
+changes can still make execution stop: this is not a reservation or global lock.
+
+`local-target-inputs.ps1` shares the existing secret/certificate/config generation
+with the generic preparer. The generic `new-local-target.ps1` still rejects 50426.
+The parent directory must already exist. Root creation is atomic and fails if
+another process creates it first; it never adopts/re-ACLs that directory. Private
+ACL and CreateNew files precede secret publication. No trust-store installation,
+old-account reset, history import or Source activation is added.
+
+Safe attempt/completion receipts are written once under the new private root,
+only after input preparation has confirmed ownership. Failed/unknown preparation
+does not attempt to journal into a possibly competing directory. Generated config
+and network override fingerprints are checked before each lifecycle stage; these
+fingerprints stay in memory and are never returned or logged.
+The prepared root's filesystem identity is also retained in memory and checked
+before input verification and every journal write, including failure receipts;
+replacing a direct directory at the same path does not transfer ownership.
+If a stage errors, times out or cannot confirm its receipt, return
+`STOPPED_REQUIRES_REVIEW`, preserve partial assets, and stop. There is no retry,
+resume, rollback, stop-old-service, cleanup or restore action. Inspect the receipt
+and owned assets before deciding a separately reviewed recovery; never delete the
+new root to make rerunning possible. A start result is READY only with the existing
+readiness PASS. That does not prove business acceptance or authorize old-asset
+retirement. Never pass trial.conf or secret contents back into logs/PRs.
+
 ## Local persistent empty target — Gate 1 candidate (2026-10-20)
 
 Approved engineering scope is D-147 / [Gate 0](../../docs/tasks/active/server-convergence-gate0-2026-10-20.md).
@@ -77,6 +183,58 @@ Compose project label, and it excludes the protected entry/database ports record
 in Gate 0 even when those endpoints are not currently listening.
 Successful cleanup removes only the two newly owned synthetic projects, never
 an existing target, historical test project, backup or volume.
+
+### Opt-in nonempty domain recovery rehearsal
+
+Set `ZHIXU_LOCAL_TRIAL_DOMAIN_RECOVERY=true` only alongside the explicit image
+and full image commit above. This adds synthetic trusted contract/color/material
+input through the existing binding/capture services, then creates resources,
+internal/external plans, completion history, order logistics and material arrival
+versions through the actual HTTPS APIs. It does not query Ainuoke or activate a
+real source. The Node host uses the already installed `tsx` loader to serialize
+existing generated fixtures; no dependency installation or new runtime image is
+required when the application bytes are unchanged.
+
+The same harness compares every non-auth business table and domain/history/
+request readback after cold recreation and after independent recovery. After
+maintenance, it also freezes all public table row counts/digests and sequence
+states; these must match the restored database **before** app startup or login.
+Technical authentication rows are excluded only from the active-runtime comparison,
+where new sessions/login times are expected; they are included in that frozen
+pre-start comparison. Required domain tables must be nonempty. The original
+exact-target DB tools, object integrity checks, writer refusal, owned preparation
+and failure preservation remain in force. This is synthetic recovery evidence,
+not real Source validation, financial closing, user acceptance or deployment.
+
+Also set `ZHIXU_LOCAL_TRIAL_SOURCE_LEDGER_RECOVERY=true` to add nonempty
+0040–0044 ledgers to that same fresh rehearsal. An explicitly injected synthetic
+worker publishes two generations; their exact decimal strings, frozen color
+matches and head/history are read using a fixed evaluation clock. Report request
+counts in these fixtures are synthetic, with no Source HTTP calls. A separate
+synthetic profile is inserted only if absent; `local-empty` is never overwritten.
+The original bound SO is refreshed from generated evidence after a manual HTTPS
+delivery-plan command. Its production, arrival and manual delivery rows must
+remain unchanged. Recovery queries original completed receipts under each
+protocol, including the complete delivery command; it never reapplies them in
+the new database. This does not establish stable shipment event IDs, cancellation
+or financial semantics.
+
+Also set `ZHIXU_LOCAL_TRIAL_FINANCIAL_RECOVERY=true` with domain recovery to
+exercise the existing 0045/0046 financial records. It creates synthetic confirmed
+quotes, adopts CNY sales/CNY work, locks a manually selected sales-only month,
+then explicitly confirms/adopts a trusted USD work successor in Quote Center.
+A second manually selected month contains distribution work and a separate
+zero-USD processing service. Period tax is explicitly supplied, not defaulted;
+the new quote sale must not overwrite the original order sale or locked history.
+The eight closing/adoption tables must be nonempty. Readbacks bind each original
+request UUID, command hash, order/period identity and applied result. Restart,
+cold recreation and independent recovery use the same existing full-table,
+pre-start sequence and object-byte checks. No command is replayed after restore.
+Use an exact image containing these migrations; the older 43-file image cannot
+prove this coverage. `npm run test:persistent-recovery` runs the receipt controls
+and skips the actual-image rehearsal unless its explicit image inputs are set.
+This remains synthetic engineering evidence, not financial acceptance, Source
+activation, a user-target upgrade or permission to deploy.
 
 ## Historical Quote trial candidate (2026-10-09)
 
@@ -408,6 +566,12 @@ Feedback only: build version, page, steps, expected/actual, blocking yes/no,
 necessary screenshot. These cards are **not** automated or user acceptance PASS.
 
 ## Evidence and next action
+
+The CLI reports only safe fixed failure codes. A nonzero Docker child failure
+whose bounded stderr contains the known daemon address-pool exhaustion message
+is classified as `docker_address_pool_exhausted`; raw command/configuration
+output is never forwarded. Unknown failures remain generic. This diagnostic
+does not retry startup, remove networks or change Docker address pools.
 
 Executable sources: `server/integration/quote-trial-release.integration.test.mjs`,
 `s3-runtime-bounds.test.ts`, `scripts/__tests__/quote-trial-config.test.mjs`,

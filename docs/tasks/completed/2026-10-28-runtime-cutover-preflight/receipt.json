@@ -1,0 +1,4237 @@
+{
+  "contract": "zhixu-runtime-cutover-preflight.v1",
+  "phaseBaseline": "ab3a49ee9d481c4530521859ffcc67f490e1a4b1",
+  "branch": "feat/closing-support-interfaces",
+  "observedAt": "2026-10-28T07:20:39.470Z",
+  "configuredPortsObservedAt": "2026-10-28T07:27:58.641Z",
+  "remote": {
+    "contract": "zhixu-runtime-cutover-remote-observation.v1",
+    "observedAt": "2026-10-28 07:22:41 UTC",
+    "repository": "clearisok/zhixu-erp",
+    "main": "6479a713e2b80228f008049519ebbd50d10601a8",
+    "pr": {
+      "number": 131,
+      "url": "https://github.com/clearisok/zhixu-erp/pull/131",
+      "head": "4584deb786e0dd2fada0d998a16d166b00ccaadc",
+      "base": "6479a713e2b80228f008049519ebbd50d10601a8",
+      "state": "open",
+      "draft": true,
+      "merged": false
+    },
+    "readOnly": true,
+    "gitWriteReliabilityProved": false,
+    "newPushes": 0,
+    "newCiRuns": 0
+  },
+  "inputDigests": {
+    "convergence-runtime-readonly-inventory-v2.json": {
+      "sha256": "99dc5d8951003b9e0cd7d08e5c5b88dc62973c1c447ec49449b3a8eaeb82e721",
+      "bytes": 390089
+    },
+    "convergence-configured-ports-readonly-v2.json": {
+      "sha256": "ca3960c8894a7bffdb949deb2ab201a9b16d443e61391fd245ae9f2e1253addb",
+      "bytes": 14892
+    },
+    "convergence-demo-identity-contrast.json": {
+      "sha256": "0110842a43407c204febf6d18efa3d6200fdb2db4a4240a3be6213a303c661fd",
+      "bytes": 958
+    },
+    "convergence-cutover-remote-observation.json": {
+      "sha256": "8a855dd082ce95f98db18dad04554d9f05e4a877a5f382fda8708cc653ec8985",
+      "bytes": 562
+    },
+    "support-empty-assets-before.json": {
+      "sha256": "b04ae79f92b85e53dcaf7a7eeabb6b8b6467863e7f4a9ad6094f45e756e2c389",
+      "bytes": 27323
+    },
+    "convergence-runtime-readonly-inventory.json": {
+      "sha256": "d350542a89e45b999552849476fda86f1f5a8d0d0123af08af67ef3f66a67e64",
+      "bytes": 14887
+    }
+  },
+  "inventorySummary": {
+    "worktrees": 31,
+    "dirtyWorktrees": [
+      "D:/workspace/preparesystem",
+      "D:/workspace/zhixu-order-material-b"
+    ],
+    "containers": 74,
+    "runningContainers": 8,
+    "volumes": 199,
+    "networks": 37,
+    "junctions": 14,
+    "bindMounts": 168,
+    "protectedPortsObserved": [
+      {
+        "port": 3001,
+        "listening": false
+      },
+      {
+        "port": 50426,
+        "listening": false
+      },
+      {
+        "port": 59069,
+        "listening": false
+      },
+      {
+        "port": 62326,
+        "listening": false
+      },
+      {
+        "port": 62316,
+        "listening": false
+      },
+      {
+        "port": 18443,
+        "listening": false
+      },
+      {
+        "port": 18444,
+        "listening": false
+      },
+      {
+        "port": 62411,
+        "listening": false
+      },
+      {
+        "port": 62428,
+        "listening": false
+      },
+      {
+        "port": 65139,
+        "listening": true
+      },
+      {
+        "port": 52251,
+        "listening": true
+      }
+    ]
+  },
+  "protectionComparison": {
+    "source": "support-empty-assets-before.json",
+    "sourceSha256": "b04ae79f92b85e53dcaf7a7eeabb6b8b6467863e7f4a9ad6094f45e756e2c389",
+    "comparedContainerIdentityNameState": 69,
+    "comparedVolumeNames": 195,
+    "comparedNetworkIdentityName": 35,
+    "imageComparisonLimit": "Prior docker-ps snapshot contains mixed configured tags and IDs; do not compare those labels to current immutable Image IDs or claim a historical content-image proof.",
+    "missingOrChangedContainers": [],
+    "missingVolumes": [],
+    "missingOrChangedNetworks": []
+  },
+  "containers": [
+    {
+      "id": "48e0f7a2c4e1669098f51568d5ec22a325e7dd2e3c5c36c3bd4923dac648190b",
+      "name": "zhixu-quote-trial-support-60b2e53765-gateway-1",
+      "image": "sha256:90e36de7c3d61ca137b2d5a4227e848b83ed57579bd146ce25501dbc6fe35f4f",
+      "project": "zhixu-quote-trial-support-60b2e53765",
+      "service": "gateway",
+      "state": "running",
+      "health": "healthy",
+      "configuredPorts": [
+        {
+          "containerPort": "8443/tcp",
+          "hostIp": "127.0.0.1",
+          "hostPort": 65139
+        }
+      ],
+      "observedPublishedPorts": [
+        {
+          "containerPort": "8443/tcp",
+          "hostIp": "127.0.0.1",
+          "hostPort": 65139
+        }
+      ],
+      "tmpfsDestinations": [],
+      "namedVolumes": [],
+      "bindMounts": 7,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-support-60b2e53765_default",
+        "zhixu-quote-trial-support-60b2e53765_ingress"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "4d48e5414fc97602075a2595580d82a0a3687365e343655e1da0ad02b2011dda",
+      "name": "zhixu-quote-trial-support-60b2e53765-app-1",
+      "image": "sha256:90e36de7c3d61ca137b2d5a4227e848b83ed57579bd146ce25501dbc6fe35f4f",
+      "project": "zhixu-quote-trial-support-60b2e53765",
+      "service": "app",
+      "state": "running",
+      "health": "healthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-quote-trial-support-60b2e53765_appsecrets"
+      ],
+      "bindMounts": 5,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-support-60b2e53765_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "057041b66dcf83ef133a17c3341584f7f4a6473e49eaaf6db4b78a7606ae3722",
+      "name": "zhixu-quote-trial-support-60b2e53765-objects-tls-1",
+      "image": "sha256:90e36de7c3d61ca137b2d5a4227e848b83ed57579bd146ce25501dbc6fe35f4f",
+      "project": "zhixu-quote-trial-support-60b2e53765",
+      "service": "objects-tls",
+      "state": "running",
+      "health": "healthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [],
+      "bindMounts": 5,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-support-60b2e53765_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "9b87343a63d5593474d9fa4bb1049b0c3b579fdc7b9975912af5ee3e97b0bb92",
+      "name": "zhixu-quote-trial-support-60b2e53765-objects-1",
+      "image": "sha256:6dabb4a2088c9a79908de3bc05f4586c23ad2182c8908e7e3acbf61c1467fb20",
+      "project": "zhixu-quote-trial-support-60b2e53765",
+      "service": "objects",
+      "state": "running",
+      "health": "healthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [
+        "/certs"
+      ],
+      "namedVolumes": [
+        "zhixu-quote-trial-support-60b2e53765_objectsecrets",
+        "zhixu-quote-trial-support-60b2e53765_objects"
+      ],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-support-60b2e53765_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "4693e23d5dd28667618a9e6631f8034fe3e300e9db41f6856d3d3a873f518aaa",
+      "name": "zhixu-quote-trial-support-60b2e53765-database-1",
+      "image": "sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229",
+      "project": "zhixu-quote-trial-support-60b2e53765",
+      "service": "database",
+      "state": "running",
+      "health": "healthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-quote-trial-support-60b2e53765_data"
+      ],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-support-60b2e53765_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "43600dfc3d8b49882c91258a07c3c21511ebfded411f670eeb0477c3a6fc6885",
+      "name": "zhixu-pg-it-290e734e433b",
+      "image": "sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229",
+      "project": null,
+      "service": null,
+      "state": "running",
+      "health": null,
+      "configuredPorts": [
+        {
+          "containerPort": "5432/tcp",
+          "hostIp": "127.0.0.1",
+          "hostPort": 0
+        }
+      ],
+      "observedPublishedPorts": [
+        {
+          "containerPort": "5432/tcp",
+          "hostIp": "127.0.0.1",
+          "hostPort": 52245
+        }
+      ],
+      "tmpfsDestinations": [
+        "/var/lib/postgresql/data"
+      ],
+      "namedVolumes": [],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "bridge"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "fd3f52584f41b12fdc6543a48ff8fe89b88389f06beccb46ec40fb8219ea33fd",
+      "name": "zhixu-pg-it-7dd7f2df6280",
+      "image": "sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229",
+      "project": null,
+      "service": null,
+      "state": "running",
+      "health": null,
+      "configuredPorts": [
+        {
+          "containerPort": "5432/tcp",
+          "hostIp": "127.0.0.1",
+          "hostPort": 0
+        }
+      ],
+      "observedPublishedPorts": [
+        {
+          "containerPort": "5432/tcp",
+          "hostIp": "127.0.0.1",
+          "hostPort": 64498
+        }
+      ],
+      "tmpfsDestinations": [
+        "/var/lib/postgresql/data"
+      ],
+      "namedVolumes": [],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "bridge"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "410b31865f26559ddd3b1a32adffa832a44b49e1e46ddc24f92b6a23b3d3f47b",
+      "name": "zhixu-quote-trial-server-g8-7ab874a33c-gateway-1",
+      "image": "sha256:ec2987de1be1dd31435a766081bafcbd11b98fe9efbc24333b236c5811ac74a6",
+      "project": "zhixu-quote-trial-server-g8-7ab874a33c",
+      "service": "gateway",
+      "state": "exited",
+      "health": "starting",
+      "configuredPorts": [
+        {
+          "containerPort": "8443/tcp",
+          "hostIp": "127.0.0.1",
+          "hostPort": 62428
+        }
+      ],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [],
+      "bindMounts": 7,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-server-g8-7ab874a33c_default",
+        "zhixu-quote-trial-server-g8-7ab874a33c_ingress"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "a5d5420bf31245c75b2e0e479c08e888dbe7283c342241efdc2ae52915bbcbb6",
+      "name": "zhixu-quote-trial-server-g8-7ab874a33c-app-1",
+      "image": "sha256:ec2987de1be1dd31435a766081bafcbd11b98fe9efbc24333b236c5811ac74a6",
+      "project": "zhixu-quote-trial-server-g8-7ab874a33c",
+      "service": "app",
+      "state": "exited",
+      "health": "starting",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-quote-trial-server-g8-7ab874a33c_appsecrets"
+      ],
+      "bindMounts": 5,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-server-g8-7ab874a33c_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "8a18c69628eef0bce5de050cef52452084bb4bacd74f90876effdee6b13eaa5e",
+      "name": "zhixu-quote-trial-server-g8-7ab874a33c-objects-tls-1",
+      "image": "sha256:ec2987de1be1dd31435a766081bafcbd11b98fe9efbc24333b236c5811ac74a6",
+      "project": "zhixu-quote-trial-server-g8-7ab874a33c",
+      "service": "objects-tls",
+      "state": "exited",
+      "health": "starting",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [],
+      "bindMounts": 5,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-server-g8-7ab874a33c_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "ecae54f969f211bb65619629dde5e057a58fa02f1d37bc8651d627039fd89f66",
+      "name": "zhixu-quote-trial-server-g8-7ab874a33c-objects-1",
+      "image": "sha256:6dabb4a2088c9a79908de3bc05f4586c23ad2182c8908e7e3acbf61c1467fb20",
+      "project": "zhixu-quote-trial-server-g8-7ab874a33c",
+      "service": "objects",
+      "state": "exited",
+      "health": "starting",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [
+        "/certs"
+      ],
+      "namedVolumes": [
+        "zhixu-quote-trial-server-g8-7ab874a33c_objects",
+        "zhixu-quote-trial-server-g8-7ab874a33c_objectsecrets"
+      ],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-server-g8-7ab874a33c_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "47a0ec420f05b811b2b76578458d5fd15ea6eb16f6094065354df178b97b16ea",
+      "name": "zhixu-quote-trial-server-g8-7ab874a33c-database-1",
+      "image": "sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229",
+      "project": "zhixu-quote-trial-server-g8-7ab874a33c",
+      "service": "database",
+      "state": "exited",
+      "health": "starting",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-quote-trial-server-g8-7ab874a33c_data"
+      ],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-server-g8-7ab874a33c_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "e15dded6d16a44ff2d6b66ed02f8b52cdcbb8dabc5896fb3b3b3dff17ddde140",
+      "name": "zhixu-quote-trial-recovery-f3920b6a71-gateway-1",
+      "image": "sha256:ad6cf01f17e34f0dc6cf2523f6526bbf440f67abaafa100e76e84f41121ea31e",
+      "project": "zhixu-quote-trial-recovery-f3920b6a71",
+      "service": "gateway",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [
+        {
+          "containerPort": "8443/tcp",
+          "hostIp": "127.0.0.1",
+          "hostPort": 64440
+        }
+      ],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [],
+      "bindMounts": 7,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-recovery-f3920b6a71_default",
+        "zhixu-quote-trial-recovery-f3920b6a71_ingress"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "e673137cc2a64bad56d2b87a2c030286a808bf935aac46a77c0e23d40ac72951",
+      "name": "zhixu-quote-trial-recovery-f3920b6a71-app-1",
+      "image": "sha256:ad6cf01f17e34f0dc6cf2523f6526bbf440f67abaafa100e76e84f41121ea31e",
+      "project": "zhixu-quote-trial-recovery-f3920b6a71",
+      "service": "app",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-quote-trial-recovery-f3920b6a71_appsecrets"
+      ],
+      "bindMounts": 5,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-recovery-f3920b6a71_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "020d8fecb307d7b6431fb0c08454233dd59e965639e692ed1a51075a12c6da42",
+      "name": "zhixu-quote-trial-recovery-f3920b6a71-objects-tls-1",
+      "image": "sha256:ad6cf01f17e34f0dc6cf2523f6526bbf440f67abaafa100e76e84f41121ea31e",
+      "project": "zhixu-quote-trial-recovery-f3920b6a71",
+      "service": "objects-tls",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [],
+      "bindMounts": 5,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-recovery-f3920b6a71_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "2d34e28637309b11ee63bbaf2a14763f96b73f7442d5e409e95f6c5d07d03311",
+      "name": "zhixu-quote-trial-recovery-f3920b6a71-objects-1",
+      "image": "sha256:6dabb4a2088c9a79908de3bc05f4586c23ad2182c8908e7e3acbf61c1467fb20",
+      "project": "zhixu-quote-trial-recovery-f3920b6a71",
+      "service": "objects",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [
+        "/certs"
+      ],
+      "namedVolumes": [
+        "zhixu-quote-trial-recovery-f3920b6a71_objects",
+        "zhixu-quote-trial-recovery-f3920b6a71_objectsecrets"
+      ],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-recovery-f3920b6a71_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "8e0fc69d52f4ea7447c9af6bf30dadb15922cfbd33b116c99f4c256bab6698d2",
+      "name": "zhixu-quote-trial-recovery-f3920b6a71-database-1",
+      "image": "sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229",
+      "project": "zhixu-quote-trial-recovery-f3920b6a71",
+      "service": "database",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-quote-trial-recovery-f3920b6a71_data"
+      ],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-recovery-f3920b6a71_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "bf847845f13c2a6c432ca325d2ad539ade3daadff3e039db841a4fa1e63771d1",
+      "name": "zhixu-quote-trial-it-f3920b6a71-app-1",
+      "image": "sha256:ad6cf01f17e34f0dc6cf2523f6526bbf440f67abaafa100e76e84f41121ea31e",
+      "project": "zhixu-quote-trial-it-f3920b6a71",
+      "service": "app",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-quote-trial-it-f3920b6a71_appsecrets"
+      ],
+      "bindMounts": 5,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-it-f3920b6a71_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "98af0ebc2e6ed53f6b30e22d83df7d4b83dcd99c0aafc51ed23be407791e608c",
+      "name": "zhixu-quote-trial-it-f3920b6a71-objects-tls-1",
+      "image": "sha256:ad6cf01f17e34f0dc6cf2523f6526bbf440f67abaafa100e76e84f41121ea31e",
+      "project": "zhixu-quote-trial-it-f3920b6a71",
+      "service": "objects-tls",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [],
+      "bindMounts": 5,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-it-f3920b6a71_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "e725a08113012149cd0c0f0744617434a9bfb2e48b8f7cd8ea710cbe6b2b9c10",
+      "name": "zhixu-quote-trial-it-f3920b6a71-gateway-1",
+      "image": "sha256:ad6cf01f17e34f0dc6cf2523f6526bbf440f67abaafa100e76e84f41121ea31e",
+      "project": "zhixu-quote-trial-it-f3920b6a71",
+      "service": "gateway",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [
+        {
+          "containerPort": "8443/tcp",
+          "hostIp": "127.0.0.1",
+          "hostPort": 56238
+        }
+      ],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [],
+      "bindMounts": 7,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-it-f3920b6a71_default",
+        "zhixu-quote-trial-it-f3920b6a71_ingress"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "e830738015a409f6d050398c37a51891f1c15c30c8b86b03499a7ce3cbc91477",
+      "name": "zhixu-quote-trial-it-f3920b6a71-database-1",
+      "image": "sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229",
+      "project": "zhixu-quote-trial-it-f3920b6a71",
+      "service": "database",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-quote-trial-it-f3920b6a71_data"
+      ],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-it-f3920b6a71_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "2f2fd5d209eb630b2cc20d4fd781a17d6421fa02d3957f3fd75afba420f105f0",
+      "name": "zhixu-quote-trial-it-f3920b6a71-objects-1",
+      "image": "sha256:6dabb4a2088c9a79908de3bc05f4586c23ad2182c8908e7e3acbf61c1467fb20",
+      "project": "zhixu-quote-trial-it-f3920b6a71",
+      "service": "objects",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [
+        "/certs"
+      ],
+      "namedVolumes": [
+        "zhixu-quote-trial-it-f3920b6a71_objects",
+        "zhixu-quote-trial-it-f3920b6a71_objectsecrets"
+      ],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-it-f3920b6a71_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "3748621e74353e79cadc1d1e4b50794abc27d9ccef1b0a8f8e5bff1df4caada5",
+      "name": "zhixu-quote-trial-it-41e3b58260-gateway-1",
+      "image": "sha256:ad6cf01f17e34f0dc6cf2523f6526bbf440f67abaafa100e76e84f41121ea31e",
+      "project": "zhixu-quote-trial-it-41e3b58260",
+      "service": "gateway",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [
+        {
+          "containerPort": "8443/tcp",
+          "hostIp": "127.0.0.1",
+          "hostPort": 62007
+        }
+      ],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [],
+      "bindMounts": 7,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-it-41e3b58260_default",
+        "zhixu-quote-trial-it-41e3b58260_ingress"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "47a95acdd17233f85fc2d2f320316a72b0ebba04b429dbc5a9090c60aa144cd3",
+      "name": "zhixu-quote-trial-it-41e3b58260-app-1",
+      "image": "sha256:ad6cf01f17e34f0dc6cf2523f6526bbf440f67abaafa100e76e84f41121ea31e",
+      "project": "zhixu-quote-trial-it-41e3b58260",
+      "service": "app",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-quote-trial-it-41e3b58260_appsecrets"
+      ],
+      "bindMounts": 5,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-it-41e3b58260_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "9e536d5a4b576f115d367255b9086487a7cb4e32e8de79f0d7adde753358a84a",
+      "name": "zhixu-quote-trial-it-41e3b58260-objects-tls-1",
+      "image": "sha256:ad6cf01f17e34f0dc6cf2523f6526bbf440f67abaafa100e76e84f41121ea31e",
+      "project": "zhixu-quote-trial-it-41e3b58260",
+      "service": "objects-tls",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [],
+      "bindMounts": 5,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-it-41e3b58260_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "6eaf1e2b4b8c81fcccdb663cf14c826372e641a9747c5087ba7ba8eb9b0458dd",
+      "name": "zhixu-quote-trial-it-41e3b58260-objects-1",
+      "image": "sha256:6dabb4a2088c9a79908de3bc05f4586c23ad2182c8908e7e3acbf61c1467fb20",
+      "project": "zhixu-quote-trial-it-41e3b58260",
+      "service": "objects",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [
+        "/certs"
+      ],
+      "namedVolumes": [
+        "zhixu-quote-trial-it-41e3b58260_objects",
+        "zhixu-quote-trial-it-41e3b58260_objectsecrets"
+      ],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-it-41e3b58260_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "d0368a15982e0b2e080a36b95fe4fc80baad4ccb2d05f0a5499545a1586f465f",
+      "name": "zhixu-quote-trial-it-41e3b58260-database-1",
+      "image": "sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229",
+      "project": "zhixu-quote-trial-it-41e3b58260",
+      "service": "database",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-quote-trial-it-41e3b58260_data"
+      ],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-it-41e3b58260_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "afc15db57a8783d6c9b662b1a21faa8c7d2a279cf8c33d37827e9db23d6f7d1c",
+      "name": "zhixu-quote-trial-server-g1-gateway-1",
+      "image": "sha256:04e027893651b5855027bff8a0e9214def8b630a490fb9f0e479b88f4c78abb6",
+      "project": "zhixu-quote-trial-server-g1",
+      "service": "gateway",
+      "state": "exited",
+      "health": "starting",
+      "configuredPorts": [
+        {
+          "containerPort": "8443/tcp",
+          "hostIp": "127.0.0.1",
+          "hostPort": 62426
+        }
+      ],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [],
+      "bindMounts": 7,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-server-g1_default",
+        "zhixu-quote-trial-server-g1_ingress"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "04d2b41c59cd2c229edef4790267a1cb9996b68aa277ad2e781a3e4971df9bcd",
+      "name": "zhixu-quote-trial-server-g1-app-1",
+      "image": "sha256:04e027893651b5855027bff8a0e9214def8b630a490fb9f0e479b88f4c78abb6",
+      "project": "zhixu-quote-trial-server-g1",
+      "service": "app",
+      "state": "exited",
+      "health": "starting",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-quote-trial-server-g1_appsecrets"
+      ],
+      "bindMounts": 5,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-server-g1_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "da03e984d4900f20b07ec8240ba129308d5f3dcfa5471ab498a1921850feedbb",
+      "name": "zhixu-quote-trial-server-g1-objects-tls-1",
+      "image": "sha256:04e027893651b5855027bff8a0e9214def8b630a490fb9f0e479b88f4c78abb6",
+      "project": "zhixu-quote-trial-server-g1",
+      "service": "objects-tls",
+      "state": "exited",
+      "health": "starting",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [],
+      "bindMounts": 5,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-server-g1_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "2f88c2f3794ccf3371f605a02e1b8e29efed124d5d99224f6f6946eff0db1135",
+      "name": "zhixu-quote-trial-server-g1-objects-1",
+      "image": "sha256:6dabb4a2088c9a79908de3bc05f4586c23ad2182c8908e7e3acbf61c1467fb20",
+      "project": "zhixu-quote-trial-server-g1",
+      "service": "objects",
+      "state": "exited",
+      "health": "starting",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [
+        "/certs"
+      ],
+      "namedVolumes": [
+        "zhixu-quote-trial-server-g1_objects",
+        "zhixu-quote-trial-server-g1_objectsecrets"
+      ],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-server-g1_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "5272f7141ac1d666f0a8b6e257bec2c82f454ef9515dba81f81487d73d0350a8",
+      "name": "zhixu-quote-trial-server-g1-database-1",
+      "image": "sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229",
+      "project": "zhixu-quote-trial-server-g1",
+      "service": "database",
+      "state": "exited",
+      "health": "starting",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-quote-trial-server-g1_data"
+      ],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-server-g1_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "dae567e5178dec3cd10db5655b65c000fb8ae6aeacd39592a720f97fd930129d",
+      "name": "zhixu-quote-trial-recovery-363159504a-objects-tls-1",
+      "image": "sha256:04e027893651b5855027bff8a0e9214def8b630a490fb9f0e479b88f4c78abb6",
+      "project": "zhixu-quote-trial-recovery-363159504a",
+      "service": "objects-tls",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [],
+      "bindMounts": 5,
+      "mutableWorktreeBindOwners": [
+        "C:/Users/Administrator/.codex/worktrees/7bf3/zhixu-ainuoke-api"
+      ],
+      "networks": [
+        "zhixu-quote-trial-recovery-363159504a_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "a7660109468aa95457abc296817f31b2d0683c2bee0f52bd3be8839f1cb26b80",
+      "name": "zhixu-quote-trial-recovery-363159504a-objects-1",
+      "image": "sha256:6dabb4a2088c9a79908de3bc05f4586c23ad2182c8908e7e3acbf61c1467fb20",
+      "project": "zhixu-quote-trial-recovery-363159504a",
+      "service": "objects",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [
+        "/certs"
+      ],
+      "namedVolumes": [
+        "zhixu-quote-trial-recovery-363159504a_objectsecrets",
+        "zhixu-quote-trial-recovery-363159504a_objects"
+      ],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-recovery-363159504a_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "5e4949694e512e5d1568cb6a0f3f4813c79485d93b427b66f2268ad04437eb98",
+      "name": "zhixu-quote-trial-recovery-363159504a-database-1",
+      "image": "sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229",
+      "project": "zhixu-quote-trial-recovery-363159504a",
+      "service": "database",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-quote-trial-recovery-363159504a_data"
+      ],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-recovery-363159504a_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "f311ba9e125cf2ac29837984bd85b9663e278a8103c6be86a9eee551ebc89c52",
+      "name": "zhixu-quote-trial-it-363159504a-app-1",
+      "image": "sha256:04e027893651b5855027bff8a0e9214def8b630a490fb9f0e479b88f4c78abb6",
+      "project": "zhixu-quote-trial-it-363159504a",
+      "service": "app",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-quote-trial-it-363159504a_appsecrets"
+      ],
+      "bindMounts": 5,
+      "mutableWorktreeBindOwners": [
+        "C:/Users/Administrator/.codex/worktrees/7bf3/zhixu-ainuoke-api"
+      ],
+      "networks": [
+        "zhixu-quote-trial-it-363159504a_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "a72f3659cd4c672e00567189d06c67f3f83dfe53a35d4fe041c7352706ddf28b",
+      "name": "zhixu-quote-trial-it-363159504a-objects-tls-1",
+      "image": "sha256:04e027893651b5855027bff8a0e9214def8b630a490fb9f0e479b88f4c78abb6",
+      "project": "zhixu-quote-trial-it-363159504a",
+      "service": "objects-tls",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [],
+      "bindMounts": 5,
+      "mutableWorktreeBindOwners": [
+        "C:/Users/Administrator/.codex/worktrees/7bf3/zhixu-ainuoke-api"
+      ],
+      "networks": [
+        "zhixu-quote-trial-it-363159504a_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "dc60c9290cf4d06cda1d6a833fedae6812660cfb2999cc327aa1956f96916f32",
+      "name": "zhixu-quote-trial-it-363159504a-gateway-1",
+      "image": "sha256:04e027893651b5855027bff8a0e9214def8b630a490fb9f0e479b88f4c78abb6",
+      "project": "zhixu-quote-trial-it-363159504a",
+      "service": "gateway",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [
+        {
+          "containerPort": "8443/tcp",
+          "hostIp": "127.0.0.1",
+          "hostPort": 65183
+        }
+      ],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [],
+      "bindMounts": 7,
+      "mutableWorktreeBindOwners": [
+        "C:/Users/Administrator/.codex/worktrees/7bf3/zhixu-ainuoke-api"
+      ],
+      "networks": [
+        "zhixu-quote-trial-it-363159504a_default",
+        "zhixu-quote-trial-it-363159504a_ingress"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "4df6831770f749ebcef6c956cd12c35bbcf0662725a2e8b2f26229f13191d483",
+      "name": "zhixu-quote-trial-it-363159504a-database-1",
+      "image": "sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229",
+      "project": "zhixu-quote-trial-it-363159504a",
+      "service": "database",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-quote-trial-it-363159504a_data"
+      ],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-it-363159504a_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "a72f446ed0b3c6b11f4f392b725157b9ba2f4152f68e0754ad1f856d25c758e2",
+      "name": "zhixu-quote-trial-it-363159504a-objects-1",
+      "image": "sha256:6dabb4a2088c9a79908de3bc05f4586c23ad2182c8908e7e3acbf61c1467fb20",
+      "project": "zhixu-quote-trial-it-363159504a",
+      "service": "objects",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [
+        "/certs"
+      ],
+      "namedVolumes": [
+        "zhixu-quote-trial-it-363159504a_objectsecrets",
+        "zhixu-quote-trial-it-363159504a_objects"
+      ],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-it-363159504a_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "479d97a661ee79a4f95fe0a906deb0fece316f468e863b3555e0cbce8432f53f",
+      "name": "zhixu-quote-trial-it-97e9a87152-app-1",
+      "image": "sha256:04e027893651b5855027bff8a0e9214def8b630a490fb9f0e479b88f4c78abb6",
+      "project": "zhixu-quote-trial-it-97e9a87152",
+      "service": "app",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-quote-trial-it-97e9a87152_appsecrets"
+      ],
+      "bindMounts": 5,
+      "mutableWorktreeBindOwners": [
+        "C:/Users/Administrator/.codex/worktrees/7bf3/zhixu-ainuoke-api"
+      ],
+      "networks": [
+        "zhixu-quote-trial-it-97e9a87152_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "e8733316a7a8cd075f83bde67417fedc44569a93a80ed00b4df5eea91dafc904",
+      "name": "zhixu-quote-trial-it-97e9a87152-gateway-1",
+      "image": "sha256:04e027893651b5855027bff8a0e9214def8b630a490fb9f0e479b88f4c78abb6",
+      "project": "zhixu-quote-trial-it-97e9a87152",
+      "service": "gateway",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [
+        {
+          "containerPort": "8443/tcp",
+          "hostIp": "127.0.0.1",
+          "hostPort": 57480
+        }
+      ],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [],
+      "bindMounts": 7,
+      "mutableWorktreeBindOwners": [
+        "C:/Users/Administrator/.codex/worktrees/7bf3/zhixu-ainuoke-api"
+      ],
+      "networks": [
+        "zhixu-quote-trial-it-97e9a87152_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "24f2a7cf0aabda27d83c0e7b7ae0ba7fb770068f0a53a19e3eefec438ada82cd",
+      "name": "zhixu-quote-trial-it-97e9a87152-objects-tls-1",
+      "image": "sha256:04e027893651b5855027bff8a0e9214def8b630a490fb9f0e479b88f4c78abb6",
+      "project": "zhixu-quote-trial-it-97e9a87152",
+      "service": "objects-tls",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [],
+      "bindMounts": 5,
+      "mutableWorktreeBindOwners": [
+        "C:/Users/Administrator/.codex/worktrees/7bf3/zhixu-ainuoke-api"
+      ],
+      "networks": [
+        "zhixu-quote-trial-it-97e9a87152_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "2c7ce1a35fbb5a3242c053f4b0d67d92650808e00a701f0d96b65aede8a80d1e",
+      "name": "zhixu-quote-trial-it-97e9a87152-objects-1",
+      "image": "sha256:6dabb4a2088c9a79908de3bc05f4586c23ad2182c8908e7e3acbf61c1467fb20",
+      "project": "zhixu-quote-trial-it-97e9a87152",
+      "service": "objects",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [
+        "/certs"
+      ],
+      "namedVolumes": [
+        "zhixu-quote-trial-it-97e9a87152_objects",
+        "zhixu-quote-trial-it-97e9a87152_objectsecrets"
+      ],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-it-97e9a87152_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "98ae5ff51ca445bb2a09a88827e2e2bcd27014ed5afc6ccf25989db4bc26c5e6",
+      "name": "zhixu-quote-trial-it-97e9a87152-database-1",
+      "image": "sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229",
+      "project": "zhixu-quote-trial-it-97e9a87152",
+      "service": "database",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-quote-trial-it-97e9a87152_data"
+      ],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-it-97e9a87152_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "fc5b5edf945847adcd282f53d3cff7bbd247aa24327e34311c102db9eeb196c6",
+      "name": "zhixu-quote-trial-it-64b3cc9f30-objects-tls-1",
+      "image": "sha256:04e027893651b5855027bff8a0e9214def8b630a490fb9f0e479b88f4c78abb6",
+      "project": "zhixu-quote-trial-it-64b3cc9f30",
+      "service": "objects-tls",
+      "state": "created",
+      "health": null,
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [],
+      "bindMounts": 5,
+      "mutableWorktreeBindOwners": [
+        "C:/Users/Administrator/.codex/worktrees/7bf3/zhixu-ainuoke-api"
+      ],
+      "networks": [
+        "zhixu-quote-trial-it-64b3cc9f30_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "d4771d8eb288cf377847f6cdac917b11a56260db43e3519efed6da4958e35f7c",
+      "name": "zhixu-quote-trial-it-64b3cc9f30-objects-1",
+      "image": "sha256:6dabb4a2088c9a79908de3bc05f4586c23ad2182c8908e7e3acbf61c1467fb20",
+      "project": "zhixu-quote-trial-it-64b3cc9f30",
+      "service": "objects",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [
+        "/certs"
+      ],
+      "namedVolumes": [
+        "zhixu-quote-trial-it-64b3cc9f30_objects",
+        "zhixu-quote-trial-it-64b3cc9f30_objectsecrets"
+      ],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-it-64b3cc9f30_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "8ff1120b00deb278c0a3c60b9e3efcd28266ae4759a1926bff1caa38d2eefdb8",
+      "name": "zhixu-quote-trial-it-64b3cc9f30-database-1",
+      "image": "sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229",
+      "project": "zhixu-quote-trial-it-64b3cc9f30",
+      "service": "database",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-quote-trial-it-64b3cc9f30_data"
+      ],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-it-64b3cc9f30_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "c047bfd570f924460a24118516f7b69bc1aeb341b5123d8f8aa886df6938ebd4",
+      "name": "zhixu-quote-trial-it-50054ce266-objects-tls-1",
+      "image": "sha256:04e027893651b5855027bff8a0e9214def8b630a490fb9f0e479b88f4c78abb6",
+      "project": "zhixu-quote-trial-it-50054ce266",
+      "service": "objects-tls",
+      "state": "created",
+      "health": null,
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [],
+      "bindMounts": 5,
+      "mutableWorktreeBindOwners": [
+        "C:/Users/Administrator/.codex/worktrees/7bf3/zhixu-ainuoke-api"
+      ],
+      "networks": [
+        "zhixu-quote-trial-it-50054ce266_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "ed90d2899d626c7b4d382326e09295751d15340eff55248ea28d474845f92b68",
+      "name": "zhixu-quote-trial-it-50054ce266-objects-1",
+      "image": "sha256:6dabb4a2088c9a79908de3bc05f4586c23ad2182c8908e7e3acbf61c1467fb20",
+      "project": "zhixu-quote-trial-it-50054ce266",
+      "service": "objects",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-quote-trial-it-50054ce266_objects",
+        "78f484ea86e230fda73ae49a552ff8302a9f969adf207f752084606a0c82f8ba",
+        "zhixu-quote-trial-it-50054ce266_objectsecrets"
+      ],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-it-50054ce266_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "eef81832e2ecb4f63bbd0d31f31984c3dcfef63e95f68c791107fa9bd4618a3a",
+      "name": "zhixu-quote-trial-it-50054ce266-database-1",
+      "image": "sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229",
+      "project": "zhixu-quote-trial-it-50054ce266",
+      "service": "database",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-quote-trial-it-50054ce266_data"
+      ],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-it-50054ce266_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "5ffd37c39ce2a36fa9f4237f62a94e2be9f4758e5087be16ede7a49aaac5b711",
+      "name": "zhixu-business-source-demo-20261017-app",
+      "image": "sha256:8eb3828155945758a8b7343b159b3460e944e57967dcc05dd2337aafdee85151",
+      "project": null,
+      "service": null,
+      "state": "exited",
+      "health": "starting",
+      "configuredPorts": [
+        {
+          "containerPort": "3000/tcp",
+          "hostIp": "127.0.0.1",
+          "hostPort": 62326
+        }
+      ],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-business-source-demo-20261017-attachments"
+      ],
+      "bindMounts": 1,
+      "mutableWorktreeBindOwners": [
+        "C:/Users/Administrator/.codex/worktrees/ainuoke-live-readiness/zhixu-ainuoke-api"
+      ],
+      "networks": [
+        "zhixu-business-source-demo-20261017-net",
+        "zhixu-business-source-demo-20261017-web"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "0109f387295284aca947e483437ec1b5b6c62a611bf312564c957377e2ea586f",
+      "name": "zhixu-business-source-demo-20261017-pg",
+      "image": "sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229",
+      "project": null,
+      "service": null,
+      "state": "exited",
+      "health": null,
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-business-source-demo-20261017-data"
+      ],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-business-source-demo-20261017-net"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "a39a7c2e9a28e8aba0f03862319fa2b1609c023c110b48f8a3d33521fcc241ce",
+      "name": "zhixu-selected-demo-20261016-r2-pg",
+      "image": "sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229",
+      "project": null,
+      "service": null,
+      "state": "exited",
+      "health": null,
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-selected-demo-20261016-r2-data"
+      ],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-selected-demo-20261016-r2-net"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "f665f993231ebd09e67575147f4d8d1e3bd17cba5c1dd711447338cdce085469",
+      "name": "zhixu-selected-demo-20261016-r2-app",
+      "image": "sha256:8f4c0e5272394db15933a2a0c00c0e44933b4b5e42dbcfca8c92a59217aaacfc",
+      "project": null,
+      "service": null,
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [
+        {
+          "containerPort": "3000/tcp",
+          "hostIp": "127.0.0.1",
+          "hostPort": 62316
+        }
+      ],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [
+        "/tmp"
+      ],
+      "namedVolumes": [],
+      "bindMounts": 3,
+      "mutableWorktreeBindOwners": [
+        "C:/Users/Administrator/.codex/worktrees/ainuoke-live-readiness/zhixu-ainuoke-api"
+      ],
+      "networks": [
+        "zhixu-selected-demo-20261016-r2-net",
+        "zhixu-selected-demo-20261016-r2-web"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "30aae4c61e2ce53c88310b8d112ebd5f14b001e880f328c095ede2fb31eb78d3",
+      "name": "zhixu-live-demo-20261014-r1-app",
+      "image": "sha256:57087ab323136e4ee74fa631675fca488d1817df157bb07b12b49757201b2f8b",
+      "project": null,
+      "service": null,
+      "state": "exited",
+      "health": "starting",
+      "configuredPorts": [
+        {
+          "containerPort": "3000/tcp",
+          "hostIp": "127.0.0.1",
+          "hostPort": 62310
+        }
+      ],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [],
+      "bindMounts": 1,
+      "mutableWorktreeBindOwners": [
+        "C:/Users/Administrator/.codex/worktrees/erp-followup-governance/zhixu-ainuoke-api"
+      ],
+      "networks": [
+        "zhixu-live-demo-20261014-r1-net",
+        "zhixu-live-demo-20261014-r1-web"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "63d7488edf1fd91cc9b680d3f993dbe8423c0bc6be2c490dc6b03fc68313a2c2",
+      "name": "zhixu-live-demo-20261014-r1-pg",
+      "image": "sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229",
+      "project": null,
+      "service": null,
+      "state": "exited",
+      "health": null,
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-live-demo-20261014-r1-data"
+      ],
+      "bindMounts": 1,
+      "mutableWorktreeBindOwners": [
+        "C:/Users/Administrator/.codex/worktrees/erp-followup-governance/zhixu-ainuoke-api"
+      ],
+      "networks": [
+        "zhixu-live-demo-20261014-r1-net"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "8b2b9e93adebb044ea8440f803d252fa317ea089ed61f05113ab9ffd82f73c91",
+      "name": "zhixu-local-314c667377ec-app",
+      "image": "sha256:00b41ae63aa9b9fe4a517792de27d1a32cc96ebc1483ac8501611985433e73f4",
+      "project": null,
+      "service": null,
+      "state": "exited",
+      "health": "starting",
+      "configuredPorts": [
+        {
+          "containerPort": "3000/tcp",
+          "hostIp": "127.0.0.1",
+          "hostPort": 62200
+        }
+      ],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [],
+      "bindMounts": 1,
+      "mutableWorktreeBindOwners": [
+        "C:/Users/Administrator/.codex/worktrees/ainuoke-live-demo-readiness/zhixu-ainuoke-api"
+      ],
+      "networks": [
+        "zhixu-local-314c667377ec-net",
+        "zhixu-local-314c667377ec-web"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "41438ad245a51497a04e3aefbeb89be690bf454e09d60dc80e4bc8d74aeb0cf6",
+      "name": "zhixu-local-314c667377ec-pg",
+      "image": "sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229",
+      "project": null,
+      "service": null,
+      "state": "exited",
+      "health": null,
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-local-314c667377ec-data"
+      ],
+      "bindMounts": 1,
+      "mutableWorktreeBindOwners": [
+        "C:/Users/Administrator/.codex/worktrees/ainuoke-live-demo-readiness/zhixu-ainuoke-api"
+      ],
+      "networks": [
+        "zhixu-local-314c667377ec-net"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "09354df0944e557d05039c42b30452a0cc6e49919e7afb43ccb39a511ae093fd",
+      "name": "zhixu-preview-d099-18444-gateway-1",
+      "image": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+      "project": "zhixu-preview-d099-18444",
+      "service": "gateway",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [
+        {
+          "containerPort": "8443/tcp",
+          "hostIp": "127.0.0.1",
+          "hostPort": 18444
+        }
+      ],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-preview-d099-18444_tls"
+      ],
+      "bindMounts": 3,
+      "mutableWorktreeBindOwners": [
+        "D:/workspace/zhixu-pr84-integration"
+      ],
+      "networks": [
+        "zhixu-preview-d099-18444_default",
+        "zhixu-preview-d099-18444_front"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "99d7984e29d18f8719c7c58476fbd194ac29052b83af9eaf19acf3c382b4922d",
+      "name": "zhixu-preview-d099-18444-app-1",
+      "image": "sha256:1707a8e54159928330b4d223f5db4646a6d4696e3684e9615055fb9bd9c33e23",
+      "project": "zhixu-preview-d099-18444",
+      "service": "app",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-preview-d099-18444_app-secrets"
+      ],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-preview-d099-18444_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "5930b3f17c4e2fd2a4a999857a013677879bb3be0636afa838fdd45d6b1a99c5",
+      "name": "zhixu-preview-d099-18444-objects-1",
+      "image": "sha256:6dabb4a2088c9a79908de3bc05f4586c23ad2182c8908e7e3acbf61c1467fb20",
+      "project": "zhixu-preview-d099-18444",
+      "service": "objects",
+      "state": "exited",
+      "health": null,
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-preview-d099-18444_objects",
+        "zhixu-preview-d099-18444_object-certs"
+      ],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-preview-d099-18444_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "04612e706a2bc9cf84ecc40d7cd34d08ea64c64cc633ad80cb7c1279c31ff52b",
+      "name": "zhixu-preview-d099-18444-objects-tls-1",
+      "image": "sha256:e28a4aec22e59567858ce3e99775646c68d30f90ffa1df95fdf5fbcbb5792c0d",
+      "project": "zhixu-preview-d099-18444",
+      "service": "objects-tls",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-preview-d099-18444_tls"
+      ],
+      "bindMounts": 1,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-preview-d099-18444_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "545bfbda45e12f5422fa6392388c580f249f1b1fa28d2aedf6fd04f07b12a1e6",
+      "name": "zhixu-preview-d099-18444-database-1",
+      "image": "sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229",
+      "project": "zhixu-preview-d099-18444",
+      "service": "database",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-preview-d099-18444_data"
+      ],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-preview-d099-18444_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "15a09f0cb71a09d4b1a53e69ceab88835c848cac9b3f5c7e41c2b501701b1edc",
+      "name": "zhixu-quote-trial-win01-gateway-1",
+      "image": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+      "project": "zhixu-quote-trial-win01",
+      "service": "gateway",
+      "state": "exited",
+      "health": "starting",
+      "configuredPorts": [
+        {
+          "containerPort": "8443/tcp",
+          "hostIp": "127.0.0.1",
+          "hostPort": 18443
+        }
+      ],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-quote-trial-win01_tls"
+      ],
+      "bindMounts": 3,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-win01_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "56f77a139366067d099dbb73b7d4e6bcfa8f35749c08f97f102ec825134ee7fe",
+      "name": "zhixu-quote-trial-win01-app-1",
+      "image": "sha256:7a4812791968a24c8b8afedf0014d54ec62cc9db06d7bfd3559dc67b05bf4bd4",
+      "project": "zhixu-quote-trial-win01",
+      "service": "app",
+      "state": "exited",
+      "health": "starting",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-quote-trial-win01_secrets"
+      ],
+      "bindMounts": 2,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-win01_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "c047b9fe8ea7b9b922ec3c8184e442248948c77c9389da0199eb63c96f741bec",
+      "name": "zhixu-quote-trial-win01-database-1",
+      "image": "sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229",
+      "project": "zhixu-quote-trial-win01",
+      "service": "database",
+      "state": "exited",
+      "health": "starting",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "zhixu-quote-trial-win01_data"
+      ],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "zhixu-quote-trial-win01_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "2af703487293b920526165049ea8bcb30efcb495ca0f0a0e5b0476ff5ad2d6ca",
+      "name": "zhixu-q3-local-single-user-ui-20261004t160656z",
+      "image": "sha256:2006a20e5d68d561fa44339e9c3ed612f7a22faabb8f8fb25145bb6a2a759f65",
+      "project": null,
+      "service": null,
+      "state": "exited",
+      "health": "starting",
+      "configuredPorts": [
+        {
+          "containerPort": "3000/tcp",
+          "hostIp": "127.0.0.1",
+          "hostPort": 3001
+        }
+      ],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [
+        "/tmp"
+      ],
+      "namedVolumes": [],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "preparesystem_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "0d95a18ef3dd489c70eee6fb0ad47cb69bcd0417130a5b65dc2181c3bc3145b4",
+      "name": "preparesystem-server-1",
+      "image": "sha256:06f6d6869acb583cbe82ce072eef1ea642ab15f9dc15a95e6e7dc6a9b8534447",
+      "project": "preparesystem",
+      "service": "server",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [
+        {
+          "containerPort": "3000/tcp",
+          "hostIp": "127.0.0.1",
+          "hostPort": 3002
+        }
+      ],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "preparesystem_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "6c3d657dc450da87faebfa42be47294c3ce7a1e852cfe45ddb3359250c2b5a52",
+      "name": "zhixu-q3-local-single-user-20261004t085752z",
+      "image": "sha256:c6a601be1d17190fbd69126700a275c063cdb25f54d9a425a931588bff111243",
+      "project": null,
+      "service": null,
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [
+        {
+          "containerPort": "3000/tcp",
+          "hostIp": "127.0.0.1",
+          "hostPort": 3001
+        }
+      ],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [
+        "/tmp"
+      ],
+      "namedVolumes": [],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "preparesystem_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "ea9b31a951b889bd2511f13caa82b3bd6fcd0d94b273aa042e26cbba4c1a3a8c",
+      "name": "zhixu-q3-c2-server-20260930t030902z",
+      "image": "sha256:37375e0434754e2d8bf61226732d9d4e0d3c8f653e797f3e0e3a4cc530bfe104",
+      "project": null,
+      "service": null,
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [
+        {
+          "containerPort": "3000/tcp",
+          "hostIp": "127.0.0.1",
+          "hostPort": 3001
+        }
+      ],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [
+        "/tmp"
+      ],
+      "namedVolumes": [],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "preparesystem_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "7b17f53fd01fb3b8ff8d2c6c06289902e8b4d6c9966df15181d889519b93c7e9",
+      "name": "zhixu-q3-c1-frozen-20260929T153120Z",
+      "image": "sha256:06be5ec24dd374483becf2f2a592a7bbd26d8cc6a7da01e95624df2c80532845",
+      "project": null,
+      "service": null,
+      "state": "exited",
+      "health": null,
+      "configuredPorts": [
+        {
+          "containerPort": "3000/tcp",
+          "hostIp": "127.0.0.1",
+          "hostPort": 3001
+        }
+      ],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [
+        "/tmp"
+      ],
+      "namedVolumes": [],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "bridge"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "419dce9da0da41282cd279541dd723e62ea65b8374797d62f6c348a604a5f07f",
+      "name": "zhixu-database",
+      "image": "sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229",
+      "project": "preparesystem",
+      "service": "database",
+      "state": "running",
+      "health": "healthy",
+      "configuredPorts": [],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "preparesystem_zhixu_data"
+      ],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "preparesystem_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    },
+    {
+      "id": "7a5e3de50270287d80b8501e9f9084221fd60bee24d2b32321670e1a96a6c30c",
+      "name": "garment-erp-postgres",
+      "image": "sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229",
+      "project": "garment-erp",
+      "service": "postgres",
+      "state": "exited",
+      "health": "unhealthy",
+      "configuredPorts": [
+        {
+          "containerPort": "5432/tcp",
+          "hostIp": "",
+          "hostPort": 55432
+        }
+      ],
+      "observedPublishedPorts": [],
+      "tmpfsDestinations": [],
+      "namedVolumes": [
+        "garment-erp_postgres_data"
+      ],
+      "bindMounts": 0,
+      "mutableWorktreeBindOwners": [],
+      "networks": [
+        "garment-erp_default"
+      ],
+      "dataContentsVerified": false,
+      "stopDeleteAuthorized": false
+    }
+  ],
+  "worktrees": [
+    {
+      "root": "D:/workspace/preparesystem",
+      "head": "e3e8e743c6a983c293dbd16f526242cbd24aa392",
+      "branch": "refs/heads/main",
+      "detached": false,
+      "dirtyPaths": [
+        "M AGENTS.md"
+      ],
+      "headHistoryInObservedMain": true,
+      "ancestryExitCode": 0,
+      "nodeModulesJunctionTarget": null,
+      "suppliedToWorktrees": [],
+      "referencedByContainers": [],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    },
+    {
+      "root": "C:/Users/Administrator/.codex/worktrees/7bf3/zhixu-ainuoke-api",
+      "head": "ab3a49ee9d481c4530521859ffcc67f490e1a4b1",
+      "branch": "refs/heads/feat/closing-support-interfaces",
+      "detached": false,
+      "dirtyPaths": [],
+      "headHistoryInObservedMain": false,
+      "ancestryExitCode": 1,
+      "nodeModulesJunctionTarget": "C:\\Users\\Administrator\\.codex\\worktrees\\ainuoke-continuous-material-display\\zhixu-ainuoke-api\\node_modules",
+      "suppliedToWorktrees": [],
+      "referencedByContainers": [
+        "zhixu-quote-trial-recovery-363159504a-objects-tls-1",
+        "zhixu-quote-trial-it-363159504a-app-1",
+        "zhixu-quote-trial-it-363159504a-objects-tls-1",
+        "zhixu-quote-trial-it-363159504a-gateway-1",
+        "zhixu-quote-trial-it-97e9a87152-app-1",
+        "zhixu-quote-trial-it-97e9a87152-gateway-1",
+        "zhixu-quote-trial-it-97e9a87152-objects-tls-1",
+        "zhixu-quote-trial-it-64b3cc9f30-objects-tls-1",
+        "zhixu-quote-trial-it-50054ce266-objects-tls-1"
+      ],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    },
+    {
+      "root": "C:/Users/Administrator/.codex/worktrees/ainuoke-approved-http/zhixu-ainuoke-api",
+      "head": "1de3078dfd0bcb540d87f792f0b43273f294a615",
+      "branch": "refs/heads/feat/ainuoke-approved-http",
+      "detached": false,
+      "dirtyPaths": [],
+      "headHistoryInObservedMain": true,
+      "ancestryExitCode": 0,
+      "nodeModulesJunctionTarget": "C:\\Users\\Administrator\\.codex\\worktrees\\ainuoke-continuous-material-display\\zhixu-ainuoke-api\\node_modules",
+      "suppliedToWorktrees": [],
+      "referencedByContainers": [],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    },
+    {
+      "root": "C:/Users/Administrator/.codex/worktrees/ainuoke-continuous-material-display/zhixu-ainuoke-api",
+      "head": "cc80819890844d0700999f2136c8ad6c9528816b",
+      "branch": "refs/heads/feat/ainuoke-continuous-material-display",
+      "detached": false,
+      "dirtyPaths": [],
+      "headHistoryInObservedMain": true,
+      "ancestryExitCode": 0,
+      "nodeModulesJunctionTarget": null,
+      "suppliedToWorktrees": [
+        "C:/Users/Administrator/.codex/worktrees/7bf3/zhixu-ainuoke-api",
+        "C:/Users/Administrator/.codex/worktrees/ainuoke-approved-http/zhixu-ainuoke-api",
+        "C:/Users/Administrator/.codex/worktrees/ainuoke-f2507037-diagnostics/zhixu-ainuoke-api",
+        "C:/Users/Administrator/.codex/worktrees/ainuoke-live-readiness/zhixu-ainuoke-api",
+        "C:/Users/Administrator/.codex/worktrees/ainuoke-readonly-validation/zhixu-ainuoke-api",
+        "C:/Users/Administrator/.codex/worktrees/animated-login/zhixu-ainuoke-api",
+        "C:/Users/Administrator/.codex/worktrees/git-delivery-preflight/zhixu-ainuoke-api",
+        "C:/Users/Administrator/.codex/worktrees/system-settings-ci/zhixu-ainuoke-api"
+      ],
+      "referencedByContainers": [],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    },
+    {
+      "root": "C:/Users/Administrator/.codex/worktrees/ainuoke-controlled-new-contracts/zhixu-ainuoke-api",
+      "head": "31b5f28862d032fc954b3f831888005f14060a1c",
+      "branch": "refs/heads/feat/ainuoke-controlled-contract-intake",
+      "detached": false,
+      "dirtyPaths": [],
+      "headHistoryInObservedMain": true,
+      "ancestryExitCode": 0,
+      "nodeModulesJunctionTarget": null,
+      "suppliedToWorktrees": [],
+      "referencedByContainers": [],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    },
+    {
+      "root": "C:/Users/Administrator/.codex/worktrees/ainuoke-f2507037-diagnostics/zhixu-ainuoke-api",
+      "head": "6844952d08cd3cf899c250e92b37808c30ba6ab4",
+      "branch": "refs/heads/feat/ainuoke-targeted-diagnostics",
+      "detached": false,
+      "dirtyPaths": [],
+      "headHistoryInObservedMain": true,
+      "ancestryExitCode": 0,
+      "nodeModulesJunctionTarget": "C:\\Users\\Administrator\\.codex\\worktrees\\ainuoke-continuous-material-display\\zhixu-ainuoke-api\\node_modules",
+      "suppliedToWorktrees": [],
+      "referencedByContainers": [],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    },
+    {
+      "root": "C:/Users/Administrator/.codex/worktrees/ainuoke-live-demo-readiness/zhixu-ainuoke-api",
+      "head": "f5bbb1e4d3d6c52c80b03947a6926380afafc8c0",
+      "branch": "refs/heads/feat/ainuoke-live-demo-readiness",
+      "detached": false,
+      "dirtyPaths": [],
+      "headHistoryInObservedMain": true,
+      "ancestryExitCode": 0,
+      "nodeModulesJunctionTarget": null,
+      "suppliedToWorktrees": [],
+      "referencedByContainers": [
+        "zhixu-local-314c667377ec-app",
+        "zhixu-local-314c667377ec-pg"
+      ],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    },
+    {
+      "root": "C:/Users/Administrator/.codex/worktrees/ainuoke-live-readiness/zhixu-ainuoke-api",
+      "head": "ebe4cb16c8f5ea65df6243d8a5627094c6f62da1",
+      "branch": "refs/heads/feat/business-operation-logs",
+      "detached": false,
+      "dirtyPaths": [],
+      "headHistoryInObservedMain": true,
+      "ancestryExitCode": 0,
+      "nodeModulesJunctionTarget": "C:\\Users\\Administrator\\.codex\\worktrees\\ainuoke-continuous-material-display\\zhixu-ainuoke-api\\node_modules",
+      "suppliedToWorktrees": [],
+      "referencedByContainers": [
+        "zhixu-business-source-demo-20261017-app",
+        "zhixu-selected-demo-20261016-r2-app"
+      ],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    },
+    {
+      "root": "C:/Users/Administrator/.codex/worktrees/ainuoke-readonly-validation/zhixu-ainuoke-api",
+      "head": "b43b78bee72a496219bd4872245ad28109f421c4",
+      "branch": "refs/heads/feat/ainuoke-readonly-validation",
+      "detached": false,
+      "dirtyPaths": [],
+      "headHistoryInObservedMain": true,
+      "ancestryExitCode": 0,
+      "nodeModulesJunctionTarget": "C:\\Users\\Administrator\\.codex\\worktrees\\ainuoke-continuous-material-display\\zhixu-ainuoke-api\\node_modules",
+      "suppliedToWorktrees": [],
+      "referencedByContainers": [],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    },
+    {
+      "root": "C:/Users/Administrator/.codex/worktrees/ainuoke-server-source/zhixu-ainuoke-api",
+      "head": "213fb2524bb5f8a2806fea0427a0d3a865612360",
+      "branch": "refs/heads/feat/ainuoke-server-source",
+      "detached": false,
+      "dirtyPaths": [],
+      "headHistoryInObservedMain": true,
+      "ancestryExitCode": 0,
+      "nodeModulesJunctionTarget": null,
+      "suppliedToWorktrees": [],
+      "referencedByContainers": [],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    },
+    {
+      "root": "C:/Users/Administrator/.codex/worktrees/animated-login/zhixu-ainuoke-api",
+      "head": "caf99c35b82d6c2f633209dd2385869ffeb8ea54",
+      "branch": "refs/heads/feat/animated-login",
+      "detached": false,
+      "dirtyPaths": [],
+      "headHistoryInObservedMain": true,
+      "ancestryExitCode": 0,
+      "nodeModulesJunctionTarget": "C:\\Users\\Administrator\\.codex\\worktrees\\ainuoke-continuous-material-display\\zhixu-ainuoke-api\\node_modules",
+      "suppliedToWorktrees": [],
+      "referencedByContainers": [],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    },
+    {
+      "root": "C:/Users/Administrator/.codex/worktrees/erp-followup-governance/zhixu-ainuoke-api",
+      "head": "48b63101675f7773b63c7d820d4c1d60088ed9b4",
+      "branch": "refs/heads/feat/ainuoke-payment-contract-probe",
+      "detached": false,
+      "dirtyPaths": [],
+      "headHistoryInObservedMain": true,
+      "ancestryExitCode": 0,
+      "nodeModulesJunctionTarget": null,
+      "suppliedToWorktrees": [
+        "C:/Users/Administrator/.codex/worktrees/order-commercial-versions/zhixu-ainuoke-api",
+        "C:/Users/Administrator/.codex/worktrees/order-effective-attribution/zhixu-ainuoke-api",
+        "C:/Users/Administrator/.codex/worktrees/order-identity-and-contract-claim/zhixu-ainuoke-api",
+        "C:/Users/Administrator/.codex/worktrees/order-normalization-preview/zhixu-ainuoke-api",
+        "C:/Users/Administrator/.codex/worktrees/processing-order-batches/zhixu-ainuoke-api"
+      ],
+      "referencedByContainers": [
+        "zhixu-live-demo-20261014-r1-app",
+        "zhixu-live-demo-20261014-r1-pg"
+      ],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    },
+    {
+      "root": "C:/Users/Administrator/.codex/worktrees/git-delivery-preflight/zhixu-ainuoke-api",
+      "head": "c91d904d8751275dd6a7830893ce237efa021905",
+      "branch": "refs/heads/fix/git-delivery-upload-budget",
+      "detached": false,
+      "dirtyPaths": [],
+      "headHistoryInObservedMain": false,
+      "ancestryExitCode": 1,
+      "nodeModulesJunctionTarget": "C:\\Users\\Administrator\\.codex\\worktrees\\ainuoke-continuous-material-display\\zhixu-ainuoke-api\\node_modules",
+      "suppliedToWorktrees": [],
+      "referencedByContainers": [],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    },
+    {
+      "root": "C:/Users/Administrator/.codex/worktrees/ningbo-first-team-access/zhixu-ainuoke-api",
+      "head": "95eca129a666fd9ea22f27052340ba5f42730e30",
+      "branch": "refs/heads/feat/ningbo-first-team-access",
+      "detached": false,
+      "dirtyPaths": [],
+      "headHistoryInObservedMain": true,
+      "ancestryExitCode": 0,
+      "nodeModulesJunctionTarget": null,
+      "suppliedToWorktrees": [],
+      "referencedByContainers": [],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    },
+    {
+      "root": "C:/Users/Administrator/.codex/worktrees/ningbo-readonly-preflight/zhixu-ainuoke-api",
+      "head": "174a7e5c27b2b5f5ee18227c6625c0746d9fe82a",
+      "branch": "refs/heads/chore/ningbo-readonly-preflight",
+      "detached": false,
+      "dirtyPaths": [],
+      "headHistoryInObservedMain": false,
+      "ancestryExitCode": 1,
+      "nodeModulesJunctionTarget": null,
+      "suppliedToWorktrees": [],
+      "referencedByContainers": [],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    },
+    {
+      "root": "C:/Users/Administrator/.codex/worktrees/order-commercial-versions/zhixu-ainuoke-api",
+      "head": "e70deacfe446088677aa3d96e998436b730cb7af",
+      "branch": "refs/heads/feat/order-commercial-versions",
+      "detached": false,
+      "dirtyPaths": [],
+      "headHistoryInObservedMain": true,
+      "ancestryExitCode": 0,
+      "nodeModulesJunctionTarget": "C:\\Users\\Administrator\\.codex\\worktrees\\erp-followup-governance\\zhixu-ainuoke-api\\node_modules",
+      "suppliedToWorktrees": [],
+      "referencedByContainers": [],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    },
+    {
+      "root": "C:/Users/Administrator/.codex/worktrees/order-effective-attribution/zhixu-ainuoke-api",
+      "head": "4b7ac1e8e8806bb62cbb24c292ad57bd99c43b00",
+      "branch": "refs/heads/feat/material-sort-and-event-drawer",
+      "detached": false,
+      "dirtyPaths": [],
+      "headHistoryInObservedMain": true,
+      "ancestryExitCode": 0,
+      "nodeModulesJunctionTarget": "C:\\Users\\Administrator\\.codex\\worktrees\\erp-followup-governance\\zhixu-ainuoke-api\\node_modules",
+      "suppliedToWorktrees": [],
+      "referencedByContainers": [],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    },
+    {
+      "root": "C:/Users/Administrator/.codex/worktrees/order-identity-and-contract-claim/zhixu-ainuoke-api",
+      "head": "7ef6e665886c937cb01cf82ed2700e33029746fe",
+      "branch": "refs/heads/feat/order-identity-and-contract-claim",
+      "detached": false,
+      "dirtyPaths": [],
+      "headHistoryInObservedMain": true,
+      "ancestryExitCode": 0,
+      "nodeModulesJunctionTarget": "C:\\Users\\Administrator\\.codex\\worktrees\\erp-followup-governance\\zhixu-ainuoke-api\\node_modules",
+      "suppliedToWorktrees": [],
+      "referencedByContainers": [],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    },
+    {
+      "root": "C:/Users/Administrator/.codex/worktrees/order-normalization-preview/zhixu-ainuoke-api",
+      "head": "4c59d974edd29cc82798884e70ff7586319f95ac",
+      "branch": "refs/heads/feat/order-effective-attribution",
+      "detached": false,
+      "dirtyPaths": [],
+      "headHistoryInObservedMain": true,
+      "ancestryExitCode": 0,
+      "nodeModulesJunctionTarget": "C:\\Users\\Administrator\\.codex\\worktrees\\erp-followup-governance\\zhixu-ainuoke-api\\node_modules",
+      "suppliedToWorktrees": [],
+      "referencedByContainers": [],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    },
+    {
+      "root": "C:/Users/Administrator/.codex/worktrees/processing-order-batches/zhixu-ainuoke-api",
+      "head": "4da3590b46e201857223c09bb951331196ba352a",
+      "branch": "refs/heads/feat/processing-order-batches",
+      "detached": false,
+      "dirtyPaths": [],
+      "headHistoryInObservedMain": true,
+      "ancestryExitCode": 0,
+      "nodeModulesJunctionTarget": "C:\\Users\\Administrator\\.codex\\worktrees\\erp-followup-governance\\zhixu-ainuoke-api\\node_modules",
+      "suppliedToWorktrees": [],
+      "referencedByContainers": [],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    },
+    {
+      "root": "C:/Users/Administrator/.codex/worktrees/project-requirements-register/zhixu-ainuoke-api",
+      "head": "98e3f74f608371fba845e174e0d5f56163e8c715",
+      "branch": "refs/heads/chore/project-requirements-register",
+      "detached": false,
+      "dirtyPaths": [],
+      "headHistoryInObservedMain": false,
+      "ancestryExitCode": 1,
+      "nodeModulesJunctionTarget": null,
+      "suppliedToWorktrees": [],
+      "referencedByContainers": [],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    },
+    {
+      "root": "C:/Users/Administrator/.codex/worktrees/release-baseline-guard/zhixu-ainuoke-api",
+      "head": "0855e75a1461039744ba0c6f689c75acd74b97d3",
+      "branch": "refs/heads/chore/release-baseline-guard",
+      "detached": false,
+      "dirtyPaths": [],
+      "headHistoryInObservedMain": true,
+      "ancestryExitCode": 0,
+      "nodeModulesJunctionTarget": null,
+      "suppliedToWorktrees": [],
+      "referencedByContainers": [],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    },
+    {
+      "root": "C:/Users/Administrator/.codex/worktrees/server-quote-to-order/zhixu-ainuoke-api",
+      "head": "d9bf53b47f2f587d6c0db4954b0b8a55fe431638",
+      "branch": "refs/heads/fix/quote-logout-save-retry",
+      "detached": false,
+      "dirtyPaths": [],
+      "headHistoryInObservedMain": true,
+      "ancestryExitCode": 0,
+      "nodeModulesJunctionTarget": null,
+      "suppliedToWorktrees": [],
+      "referencedByContainers": [],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    },
+    {
+      "root": "C:/Users/Administrator/.codex/worktrees/system-settings-ci/zhixu-ainuoke-api",
+      "head": "5490009b3938ea77d2f8c8754fb90306222db26c",
+      "branch": "refs/heads/codex/system-settings-demo",
+      "detached": false,
+      "dirtyPaths": [],
+      "headHistoryInObservedMain": false,
+      "ancestryExitCode": 1,
+      "nodeModulesJunctionTarget": "C:\\Users\\Administrator\\.codex\\worktrees\\ainuoke-continuous-material-display\\zhixu-ainuoke-api\\node_modules",
+      "suppliedToWorktrees": [],
+      "referencedByContainers": [],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    },
+    {
+      "root": "D:/workspace/zhixu-ainuoke-api",
+      "head": "460a9c1ef29ef69c21a0d0e02162ffb23d0528d8",
+      "branch": "refs/heads/fix/quote-server-original-ui-convergence",
+      "detached": false,
+      "dirtyPaths": [],
+      "headHistoryInObservedMain": true,
+      "ancestryExitCode": 0,
+      "nodeModulesJunctionTarget": null,
+      "suppliedToWorktrees": [],
+      "referencedByContainers": [],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    },
+    {
+      "root": "D:/workspace/zhixu-ainuoke-c",
+      "head": "d3cce4702f405bfce56759aa92abf1091e4de770",
+      "branch": "refs/heads/feat/ainuoke-source-validation",
+      "detached": false,
+      "dirtyPaths": [],
+      "headHistoryInObservedMain": true,
+      "ancestryExitCode": 0,
+      "nodeModulesJunctionTarget": null,
+      "suppliedToWorktrees": [
+        "D:/workspace/zhixu-pr84-integration"
+      ],
+      "referencedByContainers": [],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    },
+    {
+      "root": "D:/workspace/zhixu-order-b",
+      "head": "a6a59a9e269d0635f61b6564b2aec66dede4a6d2",
+      "branch": "refs/heads/feat/order-c43-delivery-plan",
+      "detached": false,
+      "dirtyPaths": [],
+      "headHistoryInObservedMain": true,
+      "ancestryExitCode": 0,
+      "nodeModulesJunctionTarget": null,
+      "suppliedToWorktrees": [],
+      "referencedByContainers": [],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    },
+    {
+      "root": "D:/workspace/zhixu-order-material-b",
+      "head": "5a418106aeca24b62a21f1b7b0e85fa0e8f1927e",
+      "branch": "refs/heads/feat/ainuoke-order-material-progress",
+      "detached": false,
+      "dirtyPaths": [
+        "M docs/tasks/active/order-material-read-gate1.md"
+      ],
+      "headHistoryInObservedMain": true,
+      "ancestryExitCode": 0,
+      "nodeModulesJunctionTarget": null,
+      "suppliedToWorktrees": [],
+      "referencedByContainers": [],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    },
+    {
+      "root": "D:/workspace/zhixu-pr84-integration",
+      "head": "2b59244e714d94b3d38e0413953e99e2eed58d4a",
+      "branch": "refs/heads/chore/d099-user-preview",
+      "detached": false,
+      "dirtyPaths": [],
+      "headHistoryInObservedMain": false,
+      "ancestryExitCode": 1,
+      "nodeModulesJunctionTarget": "D:\\workspace\\zhixu-ainuoke-c\\node_modules",
+      "suppliedToWorktrees": [],
+      "referencedByContainers": [
+        "zhixu-preview-d099-18444-gateway-1"
+      ],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    },
+    {
+      "root": "D:/workspace/zhixu-quote-two-step",
+      "head": "10aa6998ea5a3f22383134640935e548ec68ca79",
+      "branch": "refs/heads/chore/git-delivery-resilience",
+      "detached": false,
+      "dirtyPaths": [],
+      "headHistoryInObservedMain": true,
+      "ancestryExitCode": 0,
+      "nodeModulesJunctionTarget": null,
+      "suppliedToWorktrees": [],
+      "referencedByContainers": [],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    },
+    {
+      "root": "D:/workspace/zhixu-server-deploy",
+      "head": "f0c252b52b6a626037e8ba70cf51d0e976e45447",
+      "branch": null,
+      "detached": true,
+      "dirtyPaths": [],
+      "headHistoryInObservedMain": true,
+      "ancestryExitCode": 0,
+      "nodeModulesJunctionTarget": null,
+      "suppliedToWorktrees": [],
+      "referencedByContainers": [],
+      "ignoredFilesInventoried": false,
+      "uniqueBusinessDataVerified": false,
+      "archiveDeleteAuthorized": false
+    }
+  ],
+  "volumes": [
+    {
+      "name": "0b1d3024329760b6359e8cf3f5d57b315c850483918e6f4c6570b79c9364a390",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "0b89092f10091df65bb0afa7c478911cd2957b8b33778e4a4cbb0f091822e8d7",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "0c08b6c06bbd79329285aa4680e086f3089e0c2d40bdd262a5d48099e7f2d2a7",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "0db28cb115dd59dc94de5f5084d052282fb0bf506717823e7c73ea0b8a070352",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "0f04f975ffb99dd2761275aa2447a290f0fc4fd100430c7d6321cb5c07b59736",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "00af6960e89024e9f3151c8ce9f60f18e5c0528f6bd6f5954b85b9a637439df2",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "00f9efebb5b245c46792589b5a467793d6d8fc3bd3bca9f4db736634f2963877",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "1b319f0efbc9e513bbc475b375fae50f6283d79134ebca4c80a915b7f3aa9ddc",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "2a8b4889846f097ca4bd9e86c50829daf2b4e68e61bf1ac090f2ae2d95e5ecf0",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "2c02700016bb6aae6e0590f89852f5f8d9ece72e99ce751da3bf403496df5582",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "3b0ddf09ed9eb85e70508107b4bead57a307372aa3f1c1c3882b7bf737d3313e",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "3b2cdddfbca0d0e3448e318bd295f8af441ead28341e3b6bc06d298265e9ff59",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "3be0d130412d91a0a0777ef4c857f203ca4a4aba15127857e7fa5e76ba91d0d8",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "3cb40830a51420dd3abae4dbc2e3c902227d0efd0760da5c225008a1aefb677d",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "4d1d2518a245d8c9a8217837c8699868d19197bccde18b0c6132ae3ac685a09d",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "4d66aee924b214b97eada04e3746979853c5a2d5315cca037d8444b191e27bfe",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "5e85b3b647bc6eac909edd48037a718c87aa9b09d900974400ce834bf9435ffa",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "6caeb1791cc5c890dfffe6cc67c20c00de3bb337bc2e118e1989c0218dab5b93",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "6f2b823e2c29557fb34467b37fe7783644747e2723af3cf6dae92163a6248c59",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "06a2ece119f32b69b52be8daf7e4ab247af215599e98e41a67e5253efdc0b7c5",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "7b360947a7170bf63bab3bb22113deb8bea7554f5dcc21695bdb106d5758b8ba",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "7c469990a9d240917a48f09f4e7060cbd42ec7a6f11de739c4c3750665960feb",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "8a5d09c1e15448f120cbdab43aef559ce94e4f5ffd02c447e363f266ac3dc4c3",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "8b20a7c0fe086f0f10b8adef7be007892b911e07542634ee751ea3c1a64830e3",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "8cb72cd3b2e21022688a4bd2e473dbe7fd6f1e1aea5f1e56f77a273426d53e96",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "9d5199e6eab08e1e5b46e8ac8984fceda15a75489a19e8e1996fa84834081612",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "9f61a681069b2f6543be8ee5ccea1cc7a15f7550d752bf3105427bbb155489b8",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "11ad288462db71781ce26620262d4a68cfcbd2da1982d5bd0b7b2ebf1dd292d2",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "17b2292d7ff40c6c77ce90dcee144a005613b96dac37856ee86cc2b71a06733a",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "23fd195d54170bc15f972fda993f2ee5621e37125d07b09aff698a88932682b0",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "25fbf073324ab7bef15af5ab6c737b0f607a1622d616126cce82dde85ad6a5a4",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "26cdd0fdcfedf4a5972d4f174f3c39526362fc418ed3512240732cff5bd36259",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "34c3f154bba16aa13df5bb56edb7d3e15f101090e3979ec00dfa4d186d68bd17",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "39d0d269efb83c4c812de56cbb9e8085c7dcab6e9bb48b21c747afba78a87052",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "45d7b84a2787be12723af856e97945df19bf7bec5994a490ef3a580bde5fea23",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "52cce247a5e0fcbeaa6419f0aeeb3745c6e3ff5c4d458b9c40c231f773794192",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "54a54baacc58e43429882f4f5753c96edeac26797bbf1fd49b8c1aff18e2e8f8",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "54c707f8ffd32d4b051e4f80af40a4dc1e3f9e0e52282a3620584d42fe1bc11f",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "70fdefc3d3a1e77ecd2d7574ee945b332733faad7f7f20859faf160c82e456d6",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "72ecbb5f6a9fd2e75eaa30a4504c83849befd3432d79396de3eda7154800fd2a",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "73cd9fc984b3f03ed1ce204a0e0da42b2cd6c763bd5bae34170c316fbbdeb2ba",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "75ce76a252b172f057b47c0e62b0bc22cd6e6eb7521f2d978901ac943ca17d83",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "78f484ea86e230fda73ae49a552ff8302a9f969adf207f752084606a0c82f8ba",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-50054ce266-objects-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "79f3f597b2eecbc1895699ceb3d9d61e732578bd5b1034cfc8956f7a8548cbf6",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "84bc8fc8d8d37c7b619337f8856ceebb818794f61932e490d6a0ef5285900346",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "242fce3c5694e1af7144f8041191246b381d8c175467853fb05f2f5800c1ad79",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "264c06d825a56ed32ffe0f966499ff161ee07c66b1d63ae0bfa477e35942bf50",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "351f7dbf7ad7d73159f5afb5a3599303d8de559fc7c7b6290e7e2ebe9f786520",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "495e672a4028f40a55ccaa628ec192d811d263959c65cced88a9289c110c29fb",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "3423fcfae79016e18525b3d430a5a9c7e296ee36319e9e1d6818d7ef3d58d548",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "4227d7efad31af3e631fd475ffb43925fb72200720939919ada9750dc11dae0d",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "5420d63ee02c8a808fb5b856bdd3feb940aa609867511ee90551a7d0db70627e",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "5868ef2e15bd241105fc9f0bbaafa28eba6915cd914dfe557a025bfbc45f1193",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "6624adda7c0e38e9a57356b80a66831e7083a7213766f6c778a25830b6e82e89",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "7903cccedb3778a159a9c4b39e778bb594663a8ab57460f710f90127f7c4ee39",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "8809cc5f0fbfb6c15b8e6f4cabbe343881f7cac0432382e7251725d74e10d1dc",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "08928e11ed03df237d920a061b0f834be3e15545e25ace683c391692e83122d3",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "9684b0f53392a4cfb7445165a547ea0082cb34e8266cd6661636b1dd6e42df00",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "34316df856fb049cd9210dc8254bc64ba07d6a9e888672945932082f695f135f",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "76091d220256e72ec476c33f5df136e907fcc7277a3b9d6551bde9bd25594f0f",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "085628c7df1e0f0f9004dc148435fc7bebe4d413e1e7baa33e451613b1a9ed88",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "231074bc22fef29e4df333d8d3807ef1003fe948a588d89b8138fcbf58e90b31",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "930648b0ecdf1cb2db55dd8d0a901afc031ba7fd3901cd7c8a290e69b08f544c",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "7804788fdee789f429938552e31505f46180a5294cd2aa1c505b211841b1efec",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "4461703533ef10e873f6bb9346c02cbf061d23fb9b9230809e731d92fc28028a",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "9374708516e3c7ae2263e4069f327edaacd93dfe0f614b5109b0b0a43e5b265a",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "a0a8c85c8d2004b8bcafb6c028c526daa8a6d5b53c44cebd10197c74657edc40",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "a09f66ba29d938d51f77bb2a2b1da067fe5ca3fa798d38fa17bcef3fbb53eec8",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "a288fd31f1dbad1c2dad38e0fd0557c2be6be959a247b6f9a5a57db46ee66a09",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "a1123d0b92654273f4b0cf8da5228231dac8e44f646d67a1c152bfdac8096af7",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "b7aef7d9b0b6606913a0b55211d90c81605df62c6f2f5719d530f322bcb9c5cf",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "b8e58504de477b7cda7bf4c145bfc359800668ef08e9b459ce350b909d710db5",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "ba0749220fb2f223b3b5eee1fe6aedb656006bc44cf52b0d2590418de54273d9",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "bf6785e2ee4c3b477c0b3f6081fd2b685badf39e183ad9ef1503e6c4ce47c621",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "c2d2488c9af5657c7728258318ea21e60f4d0b7b346dabb4375a8d5643f22159",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "c25ca0ec72f83e80bff93b48b2a8be6b4066d03eb914bf241004cd1086d1521c",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "c364c825753f5b6c581a4e2e7e0e3e4f41106ef875fced62dc81165ca81366d6",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "c405b019c05dcd30f2086b4e3ece56f3e0ba4a42f6db326eee05edd8d14457ba",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "c850c8f7ff3f487dc0af0a6106f25a88a3125de6c26399d34123482e0957984a",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "c10436b2b6615fb35919828c3c1e8a3d77966995447ca93332d1afa25b0a3981",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "camkaxin_postgres_data",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "cd59c0f1ac708e63f0d9e3774e15c5a91caa297856835546b7807c1ae5c53628",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "cddb0b303315b1373de67c63d6344ca33791dc8d3a3ca55ccfd581ee23ce6ff0",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "d0f9602d57305f622667bc8a35be72bfa13734cdd1dc15e048bbafedb6abea4f",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "d4ab5bf5b5cc7b1095847ef19ea650775cb764dfc73eb6a6836480b7ddb2d602",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "d4def194088371f34f809a01c9d7a7eb8be208252a99e008a4c4d9213cd7106d",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "d5eea229e2ed515e35efc07e9b6bdab8949a9e2030d50378fb524425267ac886",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "d57d26108d24950ea5a9189ae23bd258301a95c2fa8e7d76254f845dea61e5c7",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "d8157b63fa17cbc9501e2889c4a7829b915881173c26bf2cdd36f5e49e14b311",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "d9738d9808acfb2b8f95fdfc9bc05bbc15f8e180916b2418af8430dfeff375e9",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "da117b1b63ae5d4fb9a7978a1821a26960f62ea3b03c4be90c9f883ae7a2684e",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "dc235bd1921c9c613da258cd86078ef81621c78391cfcd9612dafb8252fa51e1",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "ddd10a8f190babc4a9e3386ee370d9e8b57029b8685ef76e42154d881a8b909c",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "dfffd17d24184302a5ca4fe48f43b8c38c18fe3905db58829b7c8c145af8957d",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "e1ae9244069e3b74f7d13fb50891b0c6a9672c204a7127c385a62388d7d9d6db",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "e6fa24d7ce779e8df8c516b628271e43b43d4f6cd1734d1f4c54440d231ff9ea",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "e7d9e465c410d5aa60686fa3b7bae93bd9497cd29911b19ac58302ac77167e68",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "eaba310c9c7fac2407b8c39e70a9e0242023a94d0f18affb97e8009179839626",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "ee7034415926b6a1ccbcb4809e88863e6d20d979fb2c7b78e2c8ba66888f181b",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "f8f63945764009d77957dcfaa784efb1173ef52ee64a668efab77f0cb27cfe1a",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "fde480e26bc01b4139b2f818481d13dd6e40f356b28cc7854dd6e3e28dc7761c",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "garment-erp_postgres_data",
+      "referencedByContainers": [
+        "garment-erp-postgres"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "preparesystem_zhixu_data",
+      "referencedByContainers": [
+        "zhixu-database"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "workplace_postgres_data",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-ainuoke-api_zhixu_data",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-build-node-modules",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-business-source-demo-20261017-attachments",
+      "referencedByContainers": [
+        "zhixu-business-source-demo-20261017-app"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-business-source-demo-20261017-data",
+      "referencedByContainers": [
+        "zhixu-business-source-demo-20261017-pg"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-live-demo-20261014-r1-data",
+      "referencedByContainers": [
+        "zhixu-live-demo-20261014-r1-pg"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-local-314c667377ec-data",
+      "referencedByContainers": [
+        "zhixu-local-314c667377ec-pg"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-preview-d099-18444_app-secrets",
+      "referencedByContainers": [
+        "zhixu-preview-d099-18444-app-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-preview-d099-18444_data",
+      "referencedByContainers": [
+        "zhixu-preview-d099-18444-database-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-preview-d099-18444_object-certs",
+      "referencedByContainers": [
+        "zhixu-preview-d099-18444-objects-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-preview-d099-18444_objects",
+      "referencedByContainers": [
+        "zhixu-preview-d099-18444-objects-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-preview-d099-18444_tls",
+      "referencedByContainers": [
+        "zhixu-preview-d099-18444-gateway-1",
+        "zhixu-preview-d099-18444-objects-tls-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-2ad6e5bd60_appsecrets",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-2ad6e5bd60_data",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-2ad6e5bd60_objects",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-2ad6e5bd60_objectsecrets",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-4bec7dac7d_appsecrets",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-4bec7dac7d_data",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-4bec7dac7d_objects",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-4bec7dac7d_objectsecrets",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-5c985d2309_appsecrets",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-5c985d2309_data",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-5c985d2309_objects",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-5c985d2309_objectsecrets",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-41e3b58260_appsecrets",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-41e3b58260-app-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-41e3b58260_data",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-41e3b58260-database-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-41e3b58260_objects",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-41e3b58260-objects-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-41e3b58260_objectsecrets",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-41e3b58260-objects-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-64b3cc9f30_appsecrets",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-64b3cc9f30_data",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-64b3cc9f30-database-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-64b3cc9f30_objects",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-64b3cc9f30-objects-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-64b3cc9f30_objectsecrets",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-64b3cc9f30-objects-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-88c473665f_appsecrets",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-88c473665f_data",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-88c473665f_objects",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-88c473665f_objectsecrets",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-97e9a87152_appsecrets",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-97e9a87152-app-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-97e9a87152_data",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-97e9a87152-database-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-97e9a87152_objects",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-97e9a87152-objects-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-97e9a87152_objectsecrets",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-97e9a87152-objects-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-2986cd3055_appsecrets",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-2986cd3055_data",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-2986cd3055_objects",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-2986cd3055_objectsecrets",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-34375edfb6_appsecrets",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-34375edfb6_data",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-34375edfb6_objects",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-34375edfb6_objectsecrets",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-50054ce266_appsecrets",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-50054ce266_data",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-50054ce266-database-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-50054ce266_objects",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-50054ce266-objects-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-50054ce266_objectsecrets",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-50054ce266-objects-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-363159504a_appsecrets",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-363159504a-app-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-363159504a_data",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-363159504a-database-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-363159504a_objects",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-363159504a-objects-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-363159504a_objectsecrets",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-363159504a-objects-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-a9d73c693e_appsecrets",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-a9d73c693e_data",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-a9d73c693e_objects",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-a9d73c693e_objectsecrets",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-f3920b6a71_appsecrets",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-f3920b6a71-app-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-f3920b6a71_data",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-f3920b6a71-database-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-f3920b6a71_objects",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-f3920b6a71-objects-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-it-f3920b6a71_objectsecrets",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-f3920b6a71-objects-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-recovery-4bec7dac7d_appsecrets",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-recovery-4bec7dac7d_data",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-recovery-4bec7dac7d_objects",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-recovery-4bec7dac7d_objectsecrets",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-recovery-88c473665f_appsecrets",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-recovery-88c473665f_data",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-recovery-88c473665f_objects",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-recovery-88c473665f_objectsecrets",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-recovery-363159504a_appsecrets",
+      "referencedByContainers": [],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-recovery-363159504a_data",
+      "referencedByContainers": [
+        "zhixu-quote-trial-recovery-363159504a-database-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-recovery-363159504a_objects",
+      "referencedByContainers": [
+        "zhixu-quote-trial-recovery-363159504a-objects-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-recovery-363159504a_objectsecrets",
+      "referencedByContainers": [
+        "zhixu-quote-trial-recovery-363159504a-objects-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-recovery-f3920b6a71_appsecrets",
+      "referencedByContainers": [
+        "zhixu-quote-trial-recovery-f3920b6a71-app-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-recovery-f3920b6a71_data",
+      "referencedByContainers": [
+        "zhixu-quote-trial-recovery-f3920b6a71-database-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-recovery-f3920b6a71_objects",
+      "referencedByContainers": [
+        "zhixu-quote-trial-recovery-f3920b6a71-objects-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-recovery-f3920b6a71_objectsecrets",
+      "referencedByContainers": [
+        "zhixu-quote-trial-recovery-f3920b6a71-objects-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-server-g1_appsecrets",
+      "referencedByContainers": [
+        "zhixu-quote-trial-server-g1-app-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-server-g1_data",
+      "referencedByContainers": [
+        "zhixu-quote-trial-server-g1-database-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-server-g1_objects",
+      "referencedByContainers": [
+        "zhixu-quote-trial-server-g1-objects-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-server-g1_objectsecrets",
+      "referencedByContainers": [
+        "zhixu-quote-trial-server-g1-objects-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-server-g8-7ab874a33c_appsecrets",
+      "referencedByContainers": [
+        "zhixu-quote-trial-server-g8-7ab874a33c-app-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-server-g8-7ab874a33c_data",
+      "referencedByContainers": [
+        "zhixu-quote-trial-server-g8-7ab874a33c-database-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-server-g8-7ab874a33c_objects",
+      "referencedByContainers": [
+        "zhixu-quote-trial-server-g8-7ab874a33c-objects-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-server-g8-7ab874a33c_objectsecrets",
+      "referencedByContainers": [
+        "zhixu-quote-trial-server-g8-7ab874a33c-objects-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-support-60b2e53765_appsecrets",
+      "referencedByContainers": [
+        "zhixu-quote-trial-support-60b2e53765-app-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-support-60b2e53765_data",
+      "referencedByContainers": [
+        "zhixu-quote-trial-support-60b2e53765-database-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-support-60b2e53765_objects",
+      "referencedByContainers": [
+        "zhixu-quote-trial-support-60b2e53765-objects-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-support-60b2e53765_objectsecrets",
+      "referencedByContainers": [
+        "zhixu-quote-trial-support-60b2e53765-objects-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-win01_data",
+      "referencedByContainers": [
+        "zhixu-quote-trial-win01-database-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-win01_secrets",
+      "referencedByContainers": [
+        "zhixu-quote-trial-win01-app-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-quote-trial-win01_tls",
+      "referencedByContainers": [
+        "zhixu-quote-trial-win01-gateway-1"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    },
+    {
+      "name": "zhixu-selected-demo-20261016-r2-data",
+      "referencedByContainers": [
+        "zhixu-selected-demo-20261016-r2-pg"
+      ],
+      "contentVerified": false,
+      "deletionAuthorized": false
+    }
+  ],
+  "networks": [
+    {
+      "id": "a8a9903961beb23a33c21e7959fcccc10317b73d81e7d2e43a711d18b5643a90",
+      "name": "bridge",
+      "referencedByContainers": [
+        "zhixu-pg-it-290e734e433b",
+        "zhixu-pg-it-7dd7f2df6280",
+        "zhixu-q3-c1-frozen-20260929T153120Z"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "fde1668f854a735477733592cd7eebc147918fe18dec188d157e0a9164d2adc1",
+      "name": "camkaxin_default",
+      "referencedByContainers": [],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "dd15073b2c0f2e9937f44485066127339b70749bac57992ba28f7b6362b85cba",
+      "name": "garment-erp_default",
+      "referencedByContainers": [
+        "garment-erp-postgres"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "8d43f71f400db142601629a0431308276deb435a86a1180bad85602e1aa9bb45",
+      "name": "host",
+      "referencedByContainers": [],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "02add7edaaea4b27ea24445efebb012d3383d8ab5c633aac2e881d356a346f4b",
+      "name": "none",
+      "referencedByContainers": [],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "bb54943ce6cd4a4e32989e0a4c68494ae3dada669083745d059e6e1abad781f4",
+      "name": "preparesystem_default",
+      "referencedByContainers": [
+        "zhixu-q3-local-single-user-ui-20261004t160656z",
+        "preparesystem-server-1",
+        "zhixu-q3-local-single-user-20261004t085752z",
+        "zhixu-q3-c2-server-20260930t030902z",
+        "zhixu-database"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "e9b700a2e0f5909816686f257e018fc21500ad7ae02e0fd684803dac606b59f7",
+      "name": "workplace_default",
+      "referencedByContainers": [],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "30f826cee9c8602d162be45a207d2d8324a1b635c04a5727aa06bf9c5b9fac75",
+      "name": "zhixu-ainuoke-api_default",
+      "referencedByContainers": [],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "0abe1752fe7c90e695a19d5d4558de47be8b8b428be9de8b5a1f9765a9ac76f8",
+      "name": "zhixu-business-source-demo-20261017-net",
+      "referencedByContainers": [
+        "zhixu-business-source-demo-20261017-app",
+        "zhixu-business-source-demo-20261017-pg"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "6e3ee29fe345fb2d22105e33dde579b6483dd17cf5c6f8cc75d6d18b3033fe34",
+      "name": "zhixu-business-source-demo-20261017-web",
+      "referencedByContainers": [
+        "zhixu-business-source-demo-20261017-app"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "e44a9b561761ea337499107eae4ba5db4b7a5ebbf67aad8c6874b4b9f5140b1d",
+      "name": "zhixu-live-demo-20261014-r1-net",
+      "referencedByContainers": [
+        "zhixu-live-demo-20261014-r1-app",
+        "zhixu-live-demo-20261014-r1-pg"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "75a2a8258e3e127ae1ebc1abf3f51812da824478e6bd9df5b875a1954ec39c6d",
+      "name": "zhixu-live-demo-20261014-r1-web",
+      "referencedByContainers": [
+        "zhixu-live-demo-20261014-r1-app"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "7cb7ddcc12def30ce0119327840f323a466adcda1da819856ae9d0137141de5d",
+      "name": "zhixu-local-314c667377ec-net",
+      "referencedByContainers": [
+        "zhixu-local-314c667377ec-app",
+        "zhixu-local-314c667377ec-pg"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "ebe994de8151deefffde521a604590ff16e2147b03a1743ca0ba9299263d04e0",
+      "name": "zhixu-local-314c667377ec-web",
+      "referencedByContainers": [
+        "zhixu-local-314c667377ec-app"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "ec7973ab5844b23602418ed1d35b6c8c5045a80866ecc7484532e1bfbe7889bd",
+      "name": "zhixu-preview-d099-18444_default",
+      "referencedByContainers": [
+        "zhixu-preview-d099-18444-gateway-1",
+        "zhixu-preview-d099-18444-app-1",
+        "zhixu-preview-d099-18444-objects-1",
+        "zhixu-preview-d099-18444-objects-tls-1",
+        "zhixu-preview-d099-18444-database-1"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "4604d0d0f7cbb1dda5b7a9be7ade7e5737473227d5b2f9a53eb1ee3e305db8db",
+      "name": "zhixu-preview-d099-18444_front",
+      "referencedByContainers": [
+        "zhixu-preview-d099-18444-gateway-1"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "246a2aea67c3a4c1c0821a7b399c91bbac667646ff6c2b1bdbd9e7a769f574a4",
+      "name": "zhixu-quote-trial-it-41e3b58260_default",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-41e3b58260-gateway-1",
+        "zhixu-quote-trial-it-41e3b58260-app-1",
+        "zhixu-quote-trial-it-41e3b58260-objects-tls-1",
+        "zhixu-quote-trial-it-41e3b58260-objects-1",
+        "zhixu-quote-trial-it-41e3b58260-database-1"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "60b48055c99a0f4681f60d49eddf95cdc18673cd7ad5baf6b32b1a70eaed5643",
+      "name": "zhixu-quote-trial-it-41e3b58260_ingress",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-41e3b58260-gateway-1"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "0e7a6383d826511abe1b7fb4e35cc889bfdace66fbe1c0f1a323eff7cf3a1566",
+      "name": "zhixu-quote-trial-it-64b3cc9f30_default",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-64b3cc9f30-objects-tls-1",
+        "zhixu-quote-trial-it-64b3cc9f30-objects-1",
+        "zhixu-quote-trial-it-64b3cc9f30-database-1"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "9e28627600848cfa467d89af556383442ae00cc8039fe2eaa96c5437a8415c67",
+      "name": "zhixu-quote-trial-it-97e9a87152_default",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-97e9a87152-app-1",
+        "zhixu-quote-trial-it-97e9a87152-gateway-1",
+        "zhixu-quote-trial-it-97e9a87152-objects-tls-1",
+        "zhixu-quote-trial-it-97e9a87152-objects-1",
+        "zhixu-quote-trial-it-97e9a87152-database-1"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "97b300dfee4a1129d1b86b0c07c4f51274b2bf16cc5d1c3bf49fc2da0925605e",
+      "name": "zhixu-quote-trial-it-50054ce266_default",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-50054ce266-objects-tls-1",
+        "zhixu-quote-trial-it-50054ce266-objects-1",
+        "zhixu-quote-trial-it-50054ce266-database-1"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "4d92916ab072d0e4c87c83e53c9e7657322a2b74f14a1133bf8f52a8517af988",
+      "name": "zhixu-quote-trial-it-363159504a_default",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-363159504a-app-1",
+        "zhixu-quote-trial-it-363159504a-objects-tls-1",
+        "zhixu-quote-trial-it-363159504a-gateway-1",
+        "zhixu-quote-trial-it-363159504a-database-1",
+        "zhixu-quote-trial-it-363159504a-objects-1"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "b2343da9f12a4c6183a60192f064cdcd7617075f70ddb5c822e35966282e5116",
+      "name": "zhixu-quote-trial-it-363159504a_ingress",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-363159504a-gateway-1"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "bc42a0db56a655fa4f40f7765939c09bba33e2e9e5601992a5bdc8a797dee790",
+      "name": "zhixu-quote-trial-it-f3920b6a71_default",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-f3920b6a71-app-1",
+        "zhixu-quote-trial-it-f3920b6a71-objects-tls-1",
+        "zhixu-quote-trial-it-f3920b6a71-gateway-1",
+        "zhixu-quote-trial-it-f3920b6a71-database-1",
+        "zhixu-quote-trial-it-f3920b6a71-objects-1"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "02c418b915382c977a320b177ce400d0147f61fc42a9b7cfeb06366ecc0354bb",
+      "name": "zhixu-quote-trial-it-f3920b6a71_ingress",
+      "referencedByContainers": [
+        "zhixu-quote-trial-it-f3920b6a71-gateway-1"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "12622d9a5fff0b7cc3f8bac05da766e7b398934e9626fde31683d90e6d3b8829",
+      "name": "zhixu-quote-trial-recovery-363159504a_default",
+      "referencedByContainers": [
+        "zhixu-quote-trial-recovery-363159504a-objects-tls-1",
+        "zhixu-quote-trial-recovery-363159504a-objects-1",
+        "zhixu-quote-trial-recovery-363159504a-database-1"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "292f7b478b09bd6d437414a5337c06fa0ef0579b6bead723962fce28f0c094e9",
+      "name": "zhixu-quote-trial-recovery-f3920b6a71_default",
+      "referencedByContainers": [
+        "zhixu-quote-trial-recovery-f3920b6a71-gateway-1",
+        "zhixu-quote-trial-recovery-f3920b6a71-app-1",
+        "zhixu-quote-trial-recovery-f3920b6a71-objects-tls-1",
+        "zhixu-quote-trial-recovery-f3920b6a71-objects-1",
+        "zhixu-quote-trial-recovery-f3920b6a71-database-1"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "1ae5949e58643487024efa2fd73f4340850cbdea13bb2e78d1767d25606e4458",
+      "name": "zhixu-quote-trial-recovery-f3920b6a71_ingress",
+      "referencedByContainers": [
+        "zhixu-quote-trial-recovery-f3920b6a71-gateway-1"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "22236eb8b69a3cf7d7cf36f8ae572cfc42708572ee854cef5e232177e7faf182",
+      "name": "zhixu-quote-trial-server-g1_default",
+      "referencedByContainers": [
+        "zhixu-quote-trial-server-g1-gateway-1",
+        "zhixu-quote-trial-server-g1-app-1",
+        "zhixu-quote-trial-server-g1-objects-tls-1",
+        "zhixu-quote-trial-server-g1-objects-1",
+        "zhixu-quote-trial-server-g1-database-1"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "d31a2445b6b95411326bfa575a56933731717694d99883881537d7ea886e432a",
+      "name": "zhixu-quote-trial-server-g1_ingress",
+      "referencedByContainers": [
+        "zhixu-quote-trial-server-g1-gateway-1"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "4cf321a11ac57e055758be6606aae65bd57df0ef7236cd2c9b0504a13b9be7b2",
+      "name": "zhixu-quote-trial-server-g8-7ab874a33c_default",
+      "referencedByContainers": [
+        "zhixu-quote-trial-server-g8-7ab874a33c-gateway-1",
+        "zhixu-quote-trial-server-g8-7ab874a33c-app-1",
+        "zhixu-quote-trial-server-g8-7ab874a33c-objects-tls-1",
+        "zhixu-quote-trial-server-g8-7ab874a33c-objects-1",
+        "zhixu-quote-trial-server-g8-7ab874a33c-database-1"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "0dc73c71a0972f53fb4b78614bfe4215d473c5a328cb2ce1294a898be60915b5",
+      "name": "zhixu-quote-trial-server-g8-7ab874a33c_ingress",
+      "referencedByContainers": [
+        "zhixu-quote-trial-server-g8-7ab874a33c-gateway-1"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "9136253b834fb66c9cf96239d1c764bf98d04117f3617962328dcb05eadb0896",
+      "name": "zhixu-quote-trial-support-60b2e53765_default",
+      "referencedByContainers": [
+        "zhixu-quote-trial-support-60b2e53765-gateway-1",
+        "zhixu-quote-trial-support-60b2e53765-app-1",
+        "zhixu-quote-trial-support-60b2e53765-objects-tls-1",
+        "zhixu-quote-trial-support-60b2e53765-objects-1",
+        "zhixu-quote-trial-support-60b2e53765-database-1"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "0e971933bcd6cbf956b72eaef8ee7890ee60ce7053483876ce344d5f0405cd2e",
+      "name": "zhixu-quote-trial-support-60b2e53765_ingress",
+      "referencedByContainers": [
+        "zhixu-quote-trial-support-60b2e53765-gateway-1"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "6e416eec61b07307bf71cf28661cd773b44b731ab7e1b503af91c176c68a1516",
+      "name": "zhixu-quote-trial-win01_default",
+      "referencedByContainers": [
+        "zhixu-quote-trial-win01-gateway-1",
+        "zhixu-quote-trial-win01-app-1",
+        "zhixu-quote-trial-win01-database-1"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "9e81b74f4461e36f590b39405a233503b6009d0030283859e1e08b649f7a61ce",
+      "name": "zhixu-selected-demo-20261016-r2-net",
+      "referencedByContainers": [
+        "zhixu-selected-demo-20261016-r2-pg",
+        "zhixu-selected-demo-20261016-r2-app"
+      ],
+      "deletionAuthorized": false
+    },
+    {
+      "id": "e1402eac01de590b2c8ea3ee701bed5dd6405fc5ecec0ba83be753d9ce725f99",
+      "name": "zhixu-selected-demo-20261016-r2-web",
+      "referencedByContainers": [
+        "zhixu-selected-demo-20261016-r2-app"
+      ],
+      "deletionAuthorized": false
+    }
+  ],
+  "nativeObservation": {
+    "listeners": [
+      {
+        "LocalAddress": "127.0.0.1",
+        "LocalPort": 65139,
+        "OwningProcess": 23948
+      },
+      {
+        "LocalAddress": "127.0.0.1",
+        "LocalPort": 52251,
+        "OwningProcess": 31904
+      }
+    ],
+    "processes": [
+      {
+        "Id": 23948,
+        "ProcessName": "com.docker.backend",
+        "Path": "C:\\Program Files\\Docker\\Docker\\resources\\com.docker.backend.exe"
+      },
+      {
+        "Id": 31904,
+        "ProcessName": "node",
+        "Path": "C:\\Program Files\\nodejs\\node.exe"
+      }
+    ],
+    "commandLinesRead": false
+  },
+  "publicDemoIdentity": {
+    "observedAt": "2026-10-28T07:22:41.961Z",
+    "scope": "One fixed loopback public build-info GET and one hostname resolution, no authentication, database, Source, shared configuration or browser operation.",
+    "predecessorSha256": "99dc5d8951003b9e0cd7d08e5c5b88dc62973c1c447ec49449b3a8eaeb82e721",
+    "originalDomainFetchFailed": true,
+    "httpRequests": 1,
+    "dns": {
+      "available": false,
+      "code": "ENOTFOUND"
+    },
+    "ipContrast": {
+      "status": 200,
+      "bytes": 336,
+      "sha256": "e42a14c0ffff2a1fb036fd935649b0ef73fe623feb85556ddf826d4af28d260f",
+      "identity": {
+        "environment": "production",
+        "buildId": "support-verified-a198d182",
+        "gitCommit": "a198d1829675092006708727624ee867be0e7b60",
+        "buildTime": "2026-10-28T04:26:11.404Z",
+        "masterSettingsAuthority": "server",
+        "identityMode": "session",
+        "quoteWriterMode": "writable",
+        "quoteAuthority": "server",
+        "orderRead": "snapshot"
+      }
+    }
+  },
+  "failuresRetained": {
+    "initialInventory": "Incomplete: optional Health field absent in Docker template. Its completed worktree inventory reused by hash.",
+    "initialConfiguredPorts": {
+      "exitCode": 1,
+      "reason": "Docker Go template missing optional Tmpfs key; tool transcript retained; no result file or environment mutation",
+      "readerSha256": "b33b4e182d86dc59627616005753fb8bfbb38cbc8ae5b399d62f08b1b188d378"
+    },
+    "initialDemoHostname": "Node lookup ENOTFOUND; one fixed IP/Host contrast returns exact public identity. No DNS/hosts/browser change."
+  },
+  "offlineReceiptCorrection": {
+    "reason": "First generator incorrectly compared prior configured-image labels with current content Image IDs; assertion failed before writing any public file. Reconcile only comparable ID/name/state offline; no new Docker/HTTP requests.",
+    "originalGeneratorSha256": "c249db4834cd355e954b59e17d1e0f6f6e3dce4be3f5ed5b0f23b131fae71e89",
+    "generatorSha256": "2607006a7efd8fc54edd6e8f06e4a07b686307664e43b02df40c90a6149d4b35"
+  },
+  "codeWitnesses": [
+    {
+      "path": "ops/quote-trial/new-local-target.ps1",
+      "sourceSha": "ab3a49ee9d481c4530521859ffcc67f490e1a4b1",
+      "gitBlob": "25c7af8da95a0fba0113553547b6639ff6ff92a2",
+      "sha256": "e9e1c3bcc7a9e66c541ae74d4aafaf3bc7da7ee7c2e295ac56b47522f3dd08f2"
+    },
+    {
+      "path": "ops/quote-trial/trial.mjs",
+      "sourceSha": "ab3a49ee9d481c4530521859ffcc67f490e1a4b1",
+      "gitBlob": "7597f5baef96b8182b092182e329aae6fdf01f76",
+      "sha256": "4bc18c9042d0d01654d5c41eba53228542bce8978a3f22e1bb94f5becdedf04c"
+    },
+    {
+      "path": "ops/quote-trial/README.md",
+      "sourceSha": "ab3a49ee9d481c4530521859ffcc67f490e1a4b1",
+      "gitBlob": "2c9fba38b90f601e48aff647e03c0369a9819336",
+      "sha256": "b2c7aca6ca19a36ac19d7ede9685f336c9b794974fc3b77d4870c5575c1c4747"
+    },
+    {
+      "path": "server/auth/session.ts",
+      "sourceSha": "ab3a49ee9d481c4530521859ffcc67f490e1a4b1",
+      "gitBlob": "c1949a1975404e08257a3eeba4cf5cf8ff4fbf82",
+      "sha256": "428ffa073f50aec36852cb3c673be313c6a9c559d7928216c1c29f0111761a80"
+    }
+  ],
+  "priorState": {
+    "sourceSha": "ab3a49ee9d481c4530521859ffcc67f490e1a4b1",
+    "files": [
+      {
+        "path": "docs/CURRENT_STATE.md",
+        "gitBlob": "2c3804417b821cbcf68dcea07edff7c220438a2c",
+        "sha256": "48b8360d09b08b24064430029129c2d72c9b82a7481af1092d083f4116ae3966",
+        "text": "# 当前状态：0052完整恢复及新持久空候选已验收，PR131修复待交付\n\n2026-10-28；分支 `feat/closing-support-interfaces`。最近独立核实main **6479a713e2b80228f008049519ebbd50d10601a8**，批准的PR130已merge commit合并；本片没有fetch或新的远端写入。0045–0052及界面已精确送达 **4584deb786e0dd2fada0d998a16d166b00ccaadc**，创建唯一[草稿PR131](https://github.com/clearisok/zhixu-erp/pull/131)；未合并或正式部署。\n\n**能力账本校准**：新一轮只读API仍确认上述main和PR身份。52项旧未合并声明逐项核对原实现祖先，排除未实现intake后校正49项历史merged；六项旧认领/准备/归一写入口继续退役，关账和USD采用仍false。17条当前代码blob/Server owner边界、原记录与完整SHA见[冻结证明](tasks/completed/2026-10-28-convergence-capability-reconciliation.md)。只追加1条document证据（592→593）、前向更新两个财务scope；其他状态值、历史证据、运行快照、Source/环境/人工接受维度均保持。本片相关状态/证据回归10/10，无产品、SQL、UI、运行环境或新CI变化，不把历史包含当成当前功能全面可用。\n\n**产品与体验**：精确产品 **a198d1829675092006708727624ee867be0e7b60**，来源数量复核、执行方匹配/无产出恢复、报价中心USD工价采用及历史已完成。canonical构建、类型、lint、实际Chromium18、项目811、发布182通过，原SQL夹具遗漏与修复分源记录见[最终证明](tasks/completed/2026-10-28-closing-support-final-validation.md)。[2027关账调整](http://closing-current.localhost:52251/closing-center?year=2027)，closing.editor或labor.editor，合成密码synthetic-closing。该库临时；旧62411/59846/62428及所有环境和输入保留。\n\n**恢复工程**：原0052测试增量8/8、目录负控、11pass/1skip及回执4pass仍绑定[原源码和边界](tasks/completed/2026-10-28-closing-executor-recovery-engineering.md)，不覆盖为新结果。本片新a198精确镜像的完整非空重启、备份及独立恢复实际 **9/9、0skip**，含两个锁定期间、实际采用商业版本、无产出归属恢复、全库行/sequence及启动前0051/0052目录保护。汇总wrapper因TAP转义误记FAIL，原件保留；离线逐字编码往返和原件hash核对已校正，不重跑恢复。见[完整证明](tasks/completed/2026-10-28-closing-support-persistent-runtime.md)。\n\n**镜像与持久候选**：原USTC构建失败保留；一次owned容器官方默认源GET200/TLS有效后，按原Dockerfile默认选项独立构建成功，未改共享网络/证书或宿主依赖。a198/3258canonical blob、0overlay、镜像 **sha256:90e36de7c3d61ca137b2d5a4227e848b83ed57579bd146ce25501dbc6fe35f4f**、51项迁移/最高0052及build-info精确核对。新 **https://localhost:65139** 为独立持久空候选，五服务healthy、四owned卷、两避冲突网段；121张public表中111张非白名单表全0，仅1名新技术管理员，重启前后计数/身份/迁移/完整保护摘要相等。原69容器/195卷/35网络的选定身份状态集合保持。旧62428仍cf77/0051，当前52251体验不变。新候选没有登录/业务写入/浏览器人工接受，不是50426切换；[精简回执](tasks/completed/2026-10-28-support-persistent-runtime/receipt.json)不含凭据。\n\n**交付**：原a027超时没有抹去；用户随后批准4584精确例外，实际push1次、退出0、5373ms，工具Git/API及独立连接器均精确核实，未重试。过程仅覆盖本机进程代理7897，不改共享配置；本次NORMAL不是永久恢复承诺。[新交付和CI证明](tasks/completed/2026-10-28-pr131-delivery-and-test-compatibility.md)与[原失败](tasks/completed/2026-10-28-closing-support-delivery-attempt.md)分别保留。独立工具分支c91d904d8751275dd6a7830893ce237efa021905仍未上传；只有其已验收工具用于本次业务分支交付，两者不混淆。\n\n**必要CI与当前修复**：三项首次Hosted：Release success，source与first-team分别被旧全库颜色count和关账路由false断言阻断，后续步骤跳过；没有手工rerun。只修两份测试，显式环境隔离/未知路由负控与全库身份原件比较加强，47/47、非增量类型、定向lint通过，独立复审0P1/P2。精确代码 **136ba1675c54d2ae147fdc50c72a99169aec6495** 的main守卫PASS；一次普通checkpoint上传发生新传输故障，工具/API与连接器均核实远端仍4584、新CI0。现为NETWORK_DEGRADED，原诊断一次3种只读方式均30秒超时，未重推或改共享配置；完整根因仍未定。后继仅状态文档收口，产品仍a198；不能借4584的Release成功声称修复已远端全绿。[原接线](tasks/completed/2026-10-28-closing-ci-integration.md)不增重复job/触发，缓存/并发取消/超时保持。\n\n整体[Server收敛Goal](tasks/active/server-convergence-gate0-2026-10-20.md)继续active；具体远端恢复/必要CI、合并及目标切换、人工业务接受、授权来源和旧资产退役仍独立。未执行新真实Source读取/激活/调度、正式部署或既有账号业务库修改。本片恢复/镜像/新空候选之外未重复通过的检查；原状态及日期/hash/失败在[本片输入档案](tasks/completed/2026-10-28-support-persistence-input-state/receipt.json)保留，更早输入仍沿原链接保留。\n"
+      },
+      {
+        "path": "docs/PROJECT_INDEX.md",
+        "gitBlob": "5364d4a2a292c5ba5a5738d1da758abbc2c02fe3",
+        "sha256": "6bd46c3afdbf2ce72a22df6958bda485fd4289278f8bca541a7d15de886a5ab3",
+        "text": "# 当前任务入口\n\n最新[能力账本与Server owner核对](tasks/completed/2026-10-28-convergence-capability-reconciliation.md)：fresh main仍6479，PR131仍open/draft/head4584；49项仅校正历史实现已合入，六项退役写入口不恢复，关账/USD采用仍未合并。原592证据保留，新冻结document后账本593；部署、Source及人工接受维度不变。本片仅元数据/文档，相关状态与证据负控10/10，最终精确门禁日志由接力指向；不重复业务测试、Docker或失败Git上传。\n\n最新[0052精确镜像/完整恢复/新持久空候选](tasks/completed/2026-10-28-closing-support-persistent-runtime.md)：原USTC失败保留，官方默认选项一次新构建成功；a198完整非空恢复9/9，TAP汇总误报仅离线纠正、不重跑。新https://localhost:65139 READY，111张非白名单表0、仅新技术管理员，五服务/四卷/重启及完整保护核对。旧52251/62428/50426等全部保留，未切换/部署/登录新库。精简[机器证据](tasks/completed/2026-10-28-support-persistent-runtime/receipt.json)和[原状态档案](tasks/completed/2026-10-28-support-persistence-input-state/receipt.json)区分各自日期/source；本片远端Git写入及新CI0，PR131仍待恢复交付。\n\n当前必要CI接线见[2026-10-28证明](tasks/completed/2026-10-28-closing-ci-integration.md)：只扩展原source job的关账负控/实际浏览器覆盖，不增重复触发或关闭检查，Hosted结果仍独立。\n\n最新[PR131交付与旧测试兼容](tasks/completed/2026-10-28-pr131-delivery-and-test-compatibility.md)：4584精确送达、唯一草稿；首次Release通过，另两项旧断言失败。本地136两份测试47/47、类型/lint/精确守卫通过；一次新checkpoint上传发生传输故障，独立核实远端仍4584。NETWORK_DEGRADED，不重推、手工重跑旧CI或把本地修复冒称远端通过；后继仅状态文档，当前HEAD从Git核对。\n\n2026-10-28；`feat/closing-support-interfaces`。main已核实 **6479a713e2b80228f008049519ebbd50d10601a8**，PR130已按批准merge commit合并。先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[业务规则](BUSINESS_RULES.md)及DECISION_LOG D169–D177；整体[Server收敛Gate0](tasks/active/server-convergence-gate0-2026-10-20.md)继续。\n\n- [全部确认及PR130事实](tasks/completed/2026-10-28-closing-support-and-pr130-approval.md)：三处具体UI和无实际产出归属恢复已获批准，不重复询问。\n- [本片最终验证与交付边界](tasks/completed/2026-10-28-closing-support-final-validation.md)、[a198完整工程证明](tasks/completed/2026-10-28-closing-support-complete-ui-engineering.md)：实际18项Chromium、811项目、182发布及定向SQL/API；源码/失败/原件hash分开，不借旧结果冒充新UI。\n- [月份计划](features/SERVER_CLOSING_MONTH_PLAN.md)、[年度读取](features/SERVER_CLOSING_ANNUAL_READ.md)、[来源复核](features/SERVER_CLOSING_SOURCE_RECONCILIATION.md)、[执行方匹配/恢复](features/SERVER_CLOSING_EXECUTOR_MATCHING.md)、[USD工价采用](features/ORDER_USD_LABOR_ADOPTION.md)。feature内旧日期的“待UI”保留历史阶段，当前状态以本页及最新工程证明为准。\n- [具体已批准界面](tasks/active/closing-support-interfaces-proposal-2026-10-28.md)及[原关账规则](features/SERVER_CLOSING.md)；D177与原CNY成衣/USD加工、原版本/冻结保护不变。\n- [当前实机](http://closing-current.localhost:52251/closing-center?year=2027)：a198、独立合成临时库、已登录；保留旧62411/59846及全部原输入/库/卷。人工接受、持久切换、部署及真实来源激活分别记录。\n- [旧PR130/Gate8核对](tasks/completed/2026-10-28-pr130-gate8-delivery-reconciliation.md)、[旧核心链工程](tasks/completed/2026-10-28-closing-chain-correctness-engineering.md)、[旧精确镜像恢复](tasks/completed/2026-10-28-closing-frozen-image-recovery-engineering.md)、[旧持久空候选](tasks/completed/2026-10-28-current-persistent-empty-target-engineering.md)继续绑定各自source，不冒作本片验收。\n\n[0052恢复输入与原镜像失败证据](tasks/completed/2026-10-28-closing-executor-recovery-engineering.md)仍记录当时owned PG/HTTP8项通过、安全检查11pass1skip及回执4pass、完整恢复未完成；本片后续9/9及新候选只看上方新证明，不覆盖旧结果。独立上传预算工具在另一分支收口c91d904d，本工具实际用于4584交付，但工具分支未上传。raw在outputs/approved-support-flow-20261028。[原a027单次交付回执](tasks/completed/2026-10-28-closing-support-delivery-attempt.md)继续保留旧代理/30秒失败和当时PR0；最新远端/CI以PR131证明为准。[更早状态输入归档](tasks/completed/2026-10-28-support-ui-final-input-state/receipt.json)保留旧日期、hash、失败和限制。累计PR包含0045–0052，不能误称仅三个界面；不自动合并、部署或退役旧资产。\n"
+      },
+      {
+        "path": "docs/AI_HANDOFF.md",
+        "gitBlob": "889d2eb3b1a5437c904ba3b095609e6b743b62c4",
+        "sha256": "387bcd5e9e57d3aad387ca56890c288a3e0942d76a081c125c6277244863ea98",
+        "text": "# 接力：0052完整恢复/新持久空候选通过，PR131测试修复待交付\n\n## 当前能力账本校准片\n\n2026-10-28从9baa7a5d011a1ca93a7ceec9c99174a6c7554a0c clean开始。fresh GitHub API GET再次确认main6479、PR131 open/draft/head4584/未合并，未触发CI或Git传输。52个merged=false中50个原实现SHA已为main祖先；排除implemented=no的intake，49项仅校正历史提交包含维度。六项旧认领/准备/归一写路径410，不因merged校正恢复入口；closing/USD仍未在main。新[证明](tasks/completed/2026-10-28-convergence-capability-reconciliation.md)和[逐cap回执](tasks/completed/2026-10-28-convergence-capability-reconciliation/receipt.json)已独立冻结为a082187a619636c8c8b376bd0b4d031c96be5c2f，再追加593号Gitblob document证据；旧592逐对象保留、68cap状态除49merged外全部相同，两个财务scope前向更新且仍未合并。部署/Source/人工接受、runtime与旧证据均不变，产品/SQL/UI或环境不改。\n\n本片仅运行现有release-baseline-guard状态/证据相关10项，10/10、0skip、56202.6179ms；未重跑182/811/18/9或触发Hosted。独立复审实际manifest增量和a082冻结字节，无剩余P1/P2，未运行测试或网络。原日志outputs/approved-support-flow-20261028/convergence-ledger-status-tests.log。最终metadata commit后使用main6479执行精确门禁，真实checkedHead/exit以同目录convergence-ledger-final-guard.log为准，不借9baa旧守卫预报新结果。当前HEAD从Git核实；NETWORK_DEGRADED不重推，PR131首次1pass/2fail和本地136测试修复待送达仍独立。\n\n2026-10-28；feat/closing-support-interfaces，阶段起点24f44284e94a0dbfda40dfc23915f0be665ea139 clean，最终HEAD从Git读取。本片只改完成证明/精简回执及状态文档；产品/SQL/UI/权限/依赖不变。最近核实main6479a713e2b80228f008049519ebbd50d10601a8，PR130已批准合并；本片没有fetch、push、远端元数据写或新CI。完整Goal继续active，不能因本片READY标complete。\n\n## 当前工程与运行\n\n- 精确产品a198d1829675092006708727624ee867be0e7b60；来源数量复核、执行方匹配/无产出恢复、报价中心USD工价采用及原请求保护已获批准并实现。此前18实机/811项目/182发布/定向SQL和新测试兼容47/47分别绑定原源码，没有重复执行；见[最终业务证明](tasks/completed/2026-10-28-closing-support-final-validation.md)。\n- 本片[完整持久化证明](tasks/completed/2026-10-28-closing-support-persistent-runtime.md)与[机器回执](tasks/completed/2026-10-28-support-persistent-runtime/receipt.json)。3258canonical blob、0overlay，原Dockerfile/package/lock不改。原USTC失败保留；一次官方默认CDN GET200/TLS有效后，原default选项一次受控build退出0。内容image sha256:90e36de7c3d61ca137b2d5a4227e848b83ed57579bd146ce25501dbc6fe35f4f，build closing-support-default-a198d182-b7ae3db3a4 /2026-10-28T06:12:40.247Z，51项迁移/最高0052。\n- 原owned双project完整非空恢复9/9，0fail/cancel/skip，369010.8379ms：重启、冷重建、原工具备份/独立恢复、附件原文、全121public表/sequence和恢复后app启动前0051/0052保护核对；两个锁定期、4财务归属、USD采用、2.125件无产出归属恢复及原回执保持。原harness成功，仅清理自己的临时双项目。\n- 汇总wrapper直接JSON.parse TAP额外转义导致误报FAIL，原report/log保留。reconcile-support-recovery-tap-offline.mjs只离线解码唯一诊断并逐字重编码，绑定原件两SHA256、原exit0/9项及五个恢复标志，另存PASS_RECONCILED_OFFLINE；没有重跑恢复/Docker/网络。不要误写第二次通过或把原wrapper失败掩去。\n- 新持久空候选https://localhost:65139，project zhixu-quote-trial-support-60b2e53765，私密root D:/zhixu-server-convergence/support-empty-a198-60b2e53765。运维固定到新canonical source中的17个ops文件；5healthy/4owned卷，default internal10.253.240.32/28和gateway ingress10.253.240.48/28。原check→prepare→init→objects-init→start→restart各一次；121表中原10项技术白名单之外111表全0，仅新local.admin/role-server-admin。重启前后计数/身份/51迁移/完整0051与0052目录body相等，health/build TLS200。未登录、导入、业务写入、系统信任变更或浏览器人工接受；技术密码只在新私密文件。\n- 三阶段均核对原69container/195volume/35network选定身份state集合，missingChanged[]，不是旧业务内容审计。当前合成演示仍http://closing-current.localhost:52251/closing-center?year=2027，closing.editor或labor.editor /synthetic-closing（后者仅工价）。旧62428仍cf77/0051，62411/59846/3001/50426等及其所有用户输入/库/卷/refs保留；不要用65139空库替代体验或自动切50426。\n\n## GitHub与下一步\n\n唯一草稿https://github.com/clearisok/zhixu-erp/pull/131，精确远端4584deb786e0dd2fada0d998a16d166b00ccaadc。用户4584例外已实际push1/退出0/5373ms并独立Git/API/连接器核实，后建唯一草稿。首次Hosted Release40639447810通过；source40639447798与first-team40639447804被旧颜色总count/closing路由断言阻断，后续步骤未运行，不是全绿。\n\n两份测试修复136ba1675c54d2ae147fdc50c72a99169aec6495：显式disabled/snapshot环境、未知路径负控及并发前后全库颜色身份完整比较；47/47、类型/lint及精确6479守卫PASS、review0P1/P2。普通checkpoint上传一次exit128 uncertain_transport64秒，Git/API及连接器确认远端仍4584。后继24f及本片仅文档/证据待送达。NETWORK_DEGRADED继续；原diagnose三种只读方式均30秒超时，完整根因未定，不重复推送/诊断或要求用户拼相同命令。普通安全恢复常设授权保留，但需具体外部状态变化后再核验；新的auth/ref/cert异常仍停。现有独立工具worktree git-delivery-preflight /fix/git-delivery-upload-budget@c91d904d8751275dd6a7830893ce237efa021905 clean、未上传，用180秒push工具不改变唯一性/STOP保护。\n\n独立终审已核对六份私密原件hash、三份24f旧状态Git字节及公开/私有回执逐对象相符，9份docs增量无P1/P2，reviewer未重跑测试或操作环境。主控只stage本片增量并独立commit，随后一次最终精确6479基线守卫；恢复会话先读outputs/approved-support-flow-20261028/support-persistence-final-guard.log核其checkedHead/exit，已通过且后继无源码变化时复用，不重复业务套件。最终HEAD从git查，不伪造尚未写入的hash或Hosted结果。\n\n下一步：不因新镜像成功而推断Git通道恢复，不再触发旧CI。待可证实恢复后集中交付本地修复并检查一次必要CI，保持草稿，明确批准后才合并。目标切换/完整业务接受、新真实Source范围及旧资产依赖解除独立，未授予正式部署、既有账号/业务库操作或删除。前一接力逐字/hash在[本片输入](tasks/completed/2026-10-28-support-persistence-input-state/receipt.json)，更早失败/日期/source沿其中链接保留。\n"
+      }
+    ]
+  },
+  "conclusions": {
+    "currentTargetHasMutableWorktreeBinds": false,
+    "currentTargetIs50426": false,
+    "defaultInputGeneratorRejects50426": true,
+    "currentCookieName": "zhixu_v1_session",
+    "cookiePath": "/",
+    "cookieDomainIsolationByPort": false,
+    "sourceActivationVerified": false,
+    "databaseContentsRead": false,
+    "browserStoresRead": false,
+    "processCommandLinesRead": false,
+    "oldAssetRetirementAuthorized": false,
+    "runtimeMutations": 0,
+    "gitPushes": 0,
+    "newCiRuns": 0
+  },
+  "limits": [
+    "Listener absence proves neither empty data nor safe deletion.",
+    "All Docker objects are metadata inventory, not business-content or recoverability audits.",
+    "Worktree ancestry proves only committed history; dirty and ignored/private files remain protected.",
+    "Public build identity is not authenticated browser acceptance or database binding verification.",
+    "Preparing a 50426 candidate needs a dedicated guarded flow; no protected-port exclusion was removed and no config was hand-edited."
+  ]
+}

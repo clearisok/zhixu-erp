@@ -1,0 +1,21 @@
+{
+  "baselineSha": "6479a713e2b80228f008049519ebbd50d10601a8",
+  "level": "V3",
+  "visibleDifference": "Specifically approved compact executor matching entry and full-order dialog. Only unassigned portions can split into same-order/color assignments plus an exact unassigned remainder; frozen/source/drift boundaries and original request protocol remain.",
+  "paths": [
+    "features/closing-center/components/server-closing-adjustment-page.tsx",
+    "features/closing-center/components/server-closing-executor-dialog.tsx",
+    "features/closing-center/server/closing-executor-draft.ts"
+  ],
+  "pages": [
+    "closing-adjustment"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/completed/2026-10-28-closing-support-and-pr130-approval.md"
+  },
+  "evidence": [
+    "docs/tasks/active/closing-executor-support-ui-20261028.md",
+    "docs/features/SERVER_CLOSING_EXECUTOR_MATCHING.md"
+  ]
+}

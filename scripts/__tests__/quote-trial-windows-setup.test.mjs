@@ -70,6 +70,11 @@ test('existing inputs and existing destination are never overwritten', { skip: !
   assert.equal(readFileSync(join(root, 'secrets/cos-key'), 'utf8'), 'SENTINEL');
   assert.equal(existsSync(join(root, 'secrets/cos-id')), false);
 }));
+
+test('a destination appearing after the existence probe is never adopted or re-ACLd', { skip: !windows }, () => fixture(root => {
+  const output = run(`[void][IO.Directory]::CreateDirectory(${quote(root)}); $before=(Get-Acl -LiteralPath ${quote(root)}).Sddl; function Test-Path { return $false }; try { New-PrivateDirectory ${quote(root)}; throw 'unexpected_success' } catch { if ($_.Exception.Message -ne 'private_directory_create_failed_or_exists') { throw } }; if ((Get-Acl -LiteralPath ${quote(root)}).Sddl -ne $before) { throw 'acl_changed' }; 'REJECTED'`);
+  assert.equal(output.trim(), 'REJECTED');
+}));
 test('unsafe inherited ACL and junction path fail closed', { skip: !windows }, () => fixture((root, parent) => {
   const output = run(`try { Assert-PrivateDirectory ${quote(parent)}; throw 'unexpected_success' } catch { if ($_.Exception.Message -ne 'private_acl_required') { throw } }; New-PrivateDirectory ${quote(root)}; [void](New-Item -ItemType Junction -Path ${quote(join(parent, 'junction'))} -Target ${quote(root)}); try { Assert-NoReparsePath ${quote(join(parent, 'junction/new-file'))}; throw 'unexpected_success' } catch { if ($_.Exception.Message -ne 'unsafe_path') { throw } }; 'REJECTED'`);
   assert.equal(output.trim(), 'REJECTED');

@@ -1283,7 +1283,7 @@ export function QuoteEditor({ initialQuote, isNew = false, persistence }: { init
     primaryAction: quoteFrozen ? undefined : primaryAction, quickNavigationItems };
 
   const headerActions = <div className="qc-quote-header-controls">
-    {serverMode&&!isNew&&revision.baseInfo.quoteType!=='processing'&&<QuoteOrderPriceEntry key={quote.id+serverSession.user?.id} quoteId={quote.id} disabled={serverBusy||isDirty}/>}
+    {serverMode&&!isNew&&<QuoteOrderPriceEntry key={quote.id+serverSession.user?.id} quoteId={quote.id} disabled={serverBusy||isDirty} laborOnly={revision.baseInfo.quoteType==='processing'}/>}
     <QuoteActionBar {...quoteActionBarProps} keepPrimaryVisible={serverMode} onModeChange={setHeaderActionMode} />
   </div>;
 

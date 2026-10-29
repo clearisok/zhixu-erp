@@ -1,0 +1,3 @@
+# Gate8G2a输入状态原件
+
+2026-10-27；三个文件逐字保留自clean起点f00c20bfff1688c6911f240d58efe42b1b0c4a5e。旧结果/日期/source保持；其中PROJECT_INDEX的UI待批准已由同一基点中的明确批准记录替代，不能作为再次询问的理由。本片当前入口见docs/CURRENT_STATE和D170。

@@ -178,7 +178,8 @@ function AppShellFrame({ title, children, onRequestNavigation, onRequestLogout, 
     { label: "生产排单", symbol: "▦", href: "/production-scheduling", active: pathname.startsWith("/production-scheduling") },
     { label: "关账中心", symbol: "结", href: "/closing-center", active: pathname.startsWith("/closing-center") },
   ].filter((route) => !freshServer || route.href === "/quote-center" || route.href === "/order-center" && isEnabledServerRoute(route.href)
-    || route.href === "/production-scheduling" && isEnabledServerRoute(route.href) && serverSession.hasPermission("order.view") && serverSession.hasPermission("schedule.view"));
+    || route.href === "/production-scheduling" && isEnabledServerRoute(route.href) && serverSession.hasPermission("order.view") && serverSession.hasPermission("schedule.view")
+    || route.href === "/closing-center" && isEnabledServerRoute(route.href) && serverSession.hasPermission("closing.view") && serverSession.hasPermission("order.view") && serverSession.hasPermission("schedule.view"));
 
   const basicMenuItems = <>
     {visibleBasicRoutes.map((item) => <button key={item.href} type="button" role="menuitem" className={pathname === item.href ? "active" : ""} onClick={() => navigate(item.href)}>{item.label}</button>)}

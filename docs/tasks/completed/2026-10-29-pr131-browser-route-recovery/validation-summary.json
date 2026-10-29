@@ -1,0 +1,224 @@
+{
+  "date": "2026-10-29",
+  "baseline": "40b1a7f712fce70026b90f3f795e28b691b17de2",
+  "artifact": {
+    "environment": "production",
+    "buildId": "support-verified-a198d182",
+    "gitCommit": "a198d1829675092006708727624ee867be0e7b60",
+    "buildTime": "2026-10-28T04:26:11.404Z",
+    "masterSettingsAuthority": "server",
+    "identityMode": "session",
+    "quoteWriterMode": "writable",
+    "quoteAuthority": "server",
+    "orderRead": "snapshot"
+  },
+  "kind": "actual Chromium, Node and owned disposable PostgreSQL",
+  "tests": 119,
+  "pass": 119,
+  "fail": 0,
+  "items": [
+    {
+      "file": "ainuoke-continuous-ui.integration.test.mjs",
+      "exitCode": 0,
+      "elapsedMs": 56814,
+      "counts": {
+        "tests": 15,
+        "pass": 15,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "duration_ms": 56581.6664
+      },
+      "logSha256": "306736c08ac14d28ee4ecb911dcdfceba1deed827326ce1396bd7a93ad590d05"
+    },
+    {
+      "file": "processing-batch-ui.integration.test.mjs",
+      "exitCode": 0,
+      "elapsedMs": 23711,
+      "counts": {
+        "tests": 8,
+        "pass": 8,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "duration_ms": 23456.2748
+      },
+      "logSha256": "c4f11f8d696449bebd1f9550e3aa1731b401eca12beb5361f94e51db7064960d"
+    },
+    {
+      "file": "processing-quote-push-ui.integration.test.mjs",
+      "exitCode": 0,
+      "elapsedMs": 13683,
+      "counts": {
+        "tests": 8,
+        "pass": 8,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "duration_ms": 13444.3193
+      },
+      "logSha256": "40b58bc1f4e996fe7c939faa1a8c3649f8a92d92491a0c6a2e0ae755ff7266ad"
+    },
+    {
+      "file": "order-business-source-ui.integration.test.mjs",
+      "exitCode": 0,
+      "elapsedMs": 13281,
+      "counts": {
+        "tests": 7,
+        "pass": 7,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "duration_ms": 13037.2839
+      },
+      "logSha256": "18429dad6507524d268d1a65a737642a32a6eec0b63876e6fd8356cc6d82662b"
+    },
+    {
+      "file": "order-sale-adjustment-ui.integration.test.mjs",
+      "exitCode": 0,
+      "elapsedMs": 15706,
+      "tests": 7,
+      "pass": 7,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "duration_ms": 15471.4153,
+      "counts": {
+        "tests": 7,
+        "pass": 7,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "duration_ms": 15471.4153
+      },
+      "logSha256": "a2694e4c763030ab0a00fb90cfe4d969b99ad7ff8b14fac0463ad4f9e8c2e414"
+    },
+    {
+      "file": "material-history-ui.integration.test.mjs",
+      "exitCode": 0,
+      "elapsedMs": 11787,
+      "tests": 9,
+      "pass": 9,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "duration_ms": 11530.8738,
+      "counts": {
+        "tests": 9,
+        "pass": 9,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "duration_ms": 11530.8738
+      },
+      "logSha256": "c81b3dabecfb7b1df330ad84a38e1caca21aa2f9f831413f62b31875214cdefe"
+    },
+    {
+      "file": "material-display-ui.integration.test.mjs",
+      "exitCode": 0,
+      "elapsedMs": 16564,
+      "tests": 10,
+      "pass": 10,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "duration_ms": 16325.2435,
+      "counts": {
+        "tests": 10,
+        "pass": 10,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "duration_ms": 16325.2435
+      },
+      "logSha256": "637cba298aa1c37bd43ef21313bc3b2a2126afbde176f6b69dd1b182c9cac9e3"
+    },
+    {
+      "file": "garment-shipments-ui.integration.test.mjs",
+      "exitCode": 0,
+      "elapsedMs": 23674,
+      "tests": 14,
+      "pass": 14,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "duration_ms": 23435.5113,
+      "counts": {
+        "tests": 14,
+        "pass": 14,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "duration_ms": 23435.5113
+      },
+      "logSha256": "2da967ea797eb3d6df6808f6979643f06fefe2f5a977d0f104e7ccaadc6f4010"
+    },
+    {
+      "file": "delivery-plan-maintenance-ui.integration.test.mjs",
+      "exitCode": 0,
+      "elapsedMs": 20053,
+      "tests": 14,
+      "pass": 14,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "duration_ms": 19810.3443,
+      "counts": {
+        "tests": 14,
+        "pass": 14,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "duration_ms": 19810.3443
+      },
+      "logSha256": "e95a2329ea9375defffc36b65084cb3ed0911144edb8aa7ee45338de876c49e5"
+    },
+    {
+      "file": "payment-read-panel-ui.integration.test.mjs",
+      "exitCode": 0,
+      "elapsedMs": 21099,
+      "tests": 9,
+      "pass": 9,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "duration_ms": 20849.1536,
+      "counts": {
+        "tests": 9,
+        "pass": 9,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "duration_ms": 20849.1536
+      },
+      "logSha256": "2865291f1f948a95eff2a44c5b0b7c4d0eeaa3ff449920b1731f20c136bdf50d"
+    },
+    {
+      "file": "closing-adjustment-ui.integration.test.mjs",
+      "exitCode": 0,
+      "elapsedMs": 25488,
+      "tests": 18,
+      "pass": 18,
+      "fail": 0,
+      "cancelled": 0,
+      "skipped": 0,
+      "duration_ms": 25223.7153,
+      "counts": {
+        "tests": 18,
+        "pass": 18,
+        "fail": 0,
+        "cancelled": 0,
+        "skipped": 0,
+        "duration_ms": 25223.7153
+      },
+      "logSha256": "6cdd0712ac350b6a4d7f77abde675d76da18f7754f15b1948c9692b913c1df01"
+    }
+  ],
+  "workflowCheck": "all steps, triggers, cache and concurrency byte-equivalent except timeout20to25 and explanatory comments",
+  "ownedStaticJunctionRemoved": true,
+  "priorFailuresPreserved": [
+    "p6-route-recovery-order-sale-adjustment-ui.log",
+    "p6-route-recovery-v2-order-sale-adjustment-ui.log"
+  ],
+  "realSourceRequests": 0
+}
