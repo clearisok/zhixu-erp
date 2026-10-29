@@ -1,6 +1,6 @@
 # 当前状态：宁波staging及三合同固定初始化已完成
 
-**当前开发**：最新GitHub main本轮核实仍562fbf07、0开放PR。Gate4本地候选修正“可信新合同尚未采物料却404”的读取空态，沿用not_connected和原权限/来源校验；相关回归79通过/1既有Windows跳过，最终新增用例7/7、类型/局部lint/Server编译通过。见[本片](tasks/completed/2026-10-30-bound-order-material-empty-state.md)。发布证据/CI待最终交付；未合并或更新宁波，不新增Source查询。下方为实际已部署事实，不用候选替代。
+**当前开发**：main本轮核实仍562fbf07、开始时0开放PR。Gate4候选修正“可信新合同尚未采物料却404”，沿用not_connected和原权限/来源校验。源码92be38f5、证据82bb45be；新增7/7、相关79通过/1既有Windows跳过、类型/局部lint/Server编译及最终基线182/182通过，独立复审无P1/P2。见[最终验收](tasks/completed/2026-10-30-bound-order-material-empty-validation.md)。远端精确交付/唯一草稿PR/必要CI待核实；不自动合并或更新宁波，不新增Source查询。下方为实际已部署事实，不用候选替代。
 
 2026-10-30（北京时间）；产品main **562fbf07f2caccfc9ba0d9c1a8e6a7e58436ee94**，应用d0685f。经明确批准，宁波全新project/空库/四卷/新staging.admin已部署，https://staging.weaveops.top 已切此版本，127.0.0.1:3003；原3000/3002及5旧容器/3卷/6网络保持。实际PG16.15、51迁移/121表、合成报价/附件、重启、独立备份恢复及外部公网session/Origin/TLS验收通过。见[部署事实](tasks/completed/2026-10-30-ningbo-isolated-staging-deployment.md)。
 

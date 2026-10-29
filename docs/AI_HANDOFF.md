@@ -1,6 +1,6 @@
 # 接力：Gate4新合同未采物料空态修复候选
 
-2026-10-30；分支fix/bound-order-material-empty-state，开始944e72bd，main562fbf07已通过GitHub API再次核实且0开放PR。见[范围/测试](tasks/completed/2026-10-30-bound-order-material-empty-state.md)。只有reader和selected-binding集成测试的产品增量：启用可信绑定且尚未首采或完整Discovery仍含合同、无本run物料时200/not_connected；现有材料/归属/权限/TTL不改，无生产/真实Source写入。红测两场景复现404，最终7/7；相关79通过/1Windows既有Linux子检查跳过、类型/变更文件lint/Server编译通过。首次基线运行因文档后续更新被明确取消，不算通过；feature文档须在源码checkpoint后追加manifest supersedes，再最终基线验证，不覆盖旧record。最终独立静态复审无P1/P2。后续仅集中一次安全交付/唯一草稿PR/必要CI，不自动合并或部署；宁波运行版本仍562。
+2026-10-30；分支fix/bound-order-material-empty-state，开始944e72bd；源码92be38f5、证据82bb45be，产品main562fbf07。见[最终验证](tasks/completed/2026-10-30-bound-order-material-empty-validation.md)。只有reader/selected-binding测试的产品增量；正式绑定未采材料返回not_connected，无归属/权限/TTL或新Source变化。最终7/7、相关79通过/1既有Windows跳过、类型/局部lint/Server编译及最终182/182发布基线均通过，独立只读复审无P1/P2。第一次未完成基线明确取消，不冒称通过；feature新record已追加supersedes、旧记录全部保持。不要再跑绿组或新采集。最后文档提交后只跑精确HEAD守卫，回执outputs/material-empty-final-delivery-readiness.json；接着仅一次安全交付/远端SHA/唯一草稿PR/必要CI。当前未merge/部署，宁波main562、原Source窗口停止。
 
 # 已完成接力：宁波三合同固定初始化完成，待人工体验
 
