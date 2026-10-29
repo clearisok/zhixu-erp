@@ -9,3 +9,5 @@
 5. 真实本窗口2登录27报表29HTTP；旧固定证明2/4/6另算。最新失败raw未保留；保留旧C1 raw0/0及createTime作为离线夹具，只验证兼容，不冒充新执行证明/新快照。outputs/c1-admission-current/original-stage-receipts.json与私密卷保留。当前修复没有新Source或业务库操作。
 6. 新capture/page v2绑定actual request/ordinal，原1登录2报表3HTTP/180秒不变，限定完整首页≤100，严格0/0或1/100、合同/总数/两遍。v1严格不改，private createTime不公开，DTO/客户端兼容。独立复审发现client拒收已修，旧ID golden补齐；最终定向/质量/守卫/CI按后置结果，勿预写PASS。
 7. 集中交付一个修复PR及一次必要CI；不重复前件已绿检查。新PR merge不在旧132/133许可内，Source新额度另批。宁波目标staging.weaveops.top仍未部署，现有Tunnel具体route/publicTLS/cookie/附件/Access和人工接受未完成。完整Gate0–8/R不缩成仅修复或镜像完成。
+
+首轮PR134 head1ca已精确送达，Release成功；Team发现最后新增测试rows未收窄（之前本地typecheck早于该测试，不能称最终PASS），Source当时仍运行。仅补测试Array.isArray断言，业务代码不变；库内临时TS夹具已完整移到库外自有验证目录，实际typecheck/修改测试lint及worker10通过。原182发布、811补充根检查及32/45/41/155等按精确范围保留，最终head/守卫/远端/CI见outputs/garment-first-page-validation后置回执。不要重跑旧workflow或把旧CI借给新head；新交付只更新唯一134。

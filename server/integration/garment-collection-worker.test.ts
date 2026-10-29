@@ -76,7 +76,9 @@ test("observed private createTime is retained in evidence without becoming outda
   const result = valid(workerFrameV2(scope, now, [sourceRow(scope.salesContractNo,
     { createTime: "2026-10-07 12:34:56", outdate: null })]));
   assert.equal(result.snapshot.rows[0].businessDate.state, "unknown");
-  assert.equal(Object.hasOwn(result.input.firstPass[0].rows[0], "createTime"), true);
+  const evidenceRows = result.input.firstPass[0].rows;
+  assert.ok(Array.isArray(evidenceRows));
+  assert.equal(Object.hasOwn(evidenceRows[0], "createTime"), true);
   assert.equal(JSON.stringify(result.snapshot).includes("createTime"), false);
   assert.throws(() => valid(workerFrameV2(scope, now, [sourceRow(scope.salesContractNo, { newUnknownField: "not-approved" })])));
 });
