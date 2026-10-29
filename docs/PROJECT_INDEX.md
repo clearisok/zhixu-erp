@@ -1,3 +1,11 @@
+# 当前入口：已批准发布收口与成衣固定证明
+
+2026-10-29；用户已明确批准132/133合并和成衣固定只读范围。#133已以merge commit进入main **8da5644cb5f3202955b39224065fbab5aea3f4b6**；双父/tree和三项首次CI已核对。当前feat/staging-controlled-runtime为#132前向整合候选，原015dec及032/3c4/5e历史全部保留；实际main合入后产品tree不变。最终head、精确守卫、远端交付和必要新CI按后置回执核实，不能借前件CI称当前head已绿。尚未合并132、构建最终main镜像或部署。
+
+先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)和[本次批准后证据](tasks/completed/2026-10-29-approved-pr133-and-garment-proof.md)。[本地组合](tasks/completed/2026-10-29-local-staging-release-integration.md)与[真实两合同窗口](tasks/active/real-source-acceptance-current-2026-10-29.md)均保留原日期/范围，不把PI2606-008过滤验证当已绑定或发布。
+
+## 前件本地组合索引（历史，保留原文）
+
 # 本地组合发布入口
 
 2026-10-29；此处是 `codex/staging-release-local-integration` 的本地组合验证，包含 #132@015dec7409e6109b9adbd638624d28dfd6ebc7f0、真实来源文档 checkpoint032c553fc4ec2f30e9d4e8402e2ee86d3393c8e5 及 #133@3c481949b9f13306f7901f63cde213f27ccc8370。远端 main 仍是5c8cb8037376288aa71043e799a057e21f1b985d；没有合并 main、更新两个 PR head、构建新镜像或部署。最终 HEAD/工作树及守卫另查。
