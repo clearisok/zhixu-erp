@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "8da5644cb5f3202955b39224065fbab5aea3f4b6",
-  "verifiedAt": "2026-10-29T05:48:54.306Z",
+  "verifiedAt": "2026-10-29T05:51:38.580Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -5445,6 +5445,15 @@
       "recordedAtSha": "25fa26cd4f077712caa727b60ce01ca3575c324c",
       "sha256": "cf488181ac57a24eae54e7f6af15faf4c0f5be0ea82c15fef41610324129f773",
       "changeReason": "Record human-approved PR133 merge, exact signed object import, unchanged-product PR132 forward integration and fixed 6086979 read-only proof; retain original history and distinct binding/deployment/real business boundaries."
+    },
+    {
+      "id": "staging-profile-d178-main8da-import-20261029",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "69c398e5422d85a348561c561a5991e404c71be2",
+      "sha256": "83336ffba90995bd18b41b586ce314c4904bcf884d49c49cf13523b3be66d4fa",
+      "supersedes": "staging-profile-d178-20261029",
+      "changeReason": "Forward witness at the actual two-parent integration of approved main8da and validated staging source5e; import the exact D178 leaf without changing its bytes or any prior evidence. Preserve all main/source history and deployment/acceptance dimensions."
     }
   ],
   "pages": [
