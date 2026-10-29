@@ -1,0 +1,135 @@
+{
+  "schemaVersion": 1,
+  "state": "PASS_WITH_DOCUMENTED_OPERATOR_FINALIZATION",
+  "at": "2026-10-29T04:14:59.850Z",
+  "source": "5c8cb8037376288aa71043e799a057e21f1b985d",
+  "image": "sha256:80ff7e5318e0f9345cdb63715d2c6e6f4eb2087dc34527abc942056e39d85ff8",
+  "profileCodeSource": "015dec7409e6109b9adbd638624d28dfd6ebc7f0",
+  "project": "zhixu-quote-trial-protocol-5b16a665dd",
+  "root": "D:/zhixu-server-convergence/protocol-staging-origin-5b16a665dd",
+  "originalReceiptSha256": "beb49f82fe331a53174140b1008dc8911ebfeafa43629c1b932e22caa79562a1",
+  "originalState": "STOPPED",
+  "protocolChecks": [
+    {
+      "name": "exact staging browser Origin and distinct loopback probe model"
+    },
+    {
+      "name": "loopback HTTPS health remains available"
+    },
+    {
+      "name": "anonymous access rejected"
+    },
+    {
+      "name": "loopback/foreign/null browser Origins rejected under staging profile"
+    },
+    {
+      "name": "missing explicit mutation marker rejected"
+    },
+    {
+      "name": "staging Host/Origin login accepts verified localhost TLS and host-only secure cookie"
+    },
+    {
+      "name": "authenticated empty Server ledger accessible"
+    },
+    {
+      "name": "wrong origin TLS name fails verification"
+    },
+    {
+      "name": "logout clears and revokes session"
+    },
+    {
+      "name": "synthetic protocol target has no business or upstream Source state"
+    }
+  ],
+  "protocolChecksPassed": 10,
+  "failureClassification": "operator adapter requested unsupported trial stop action after all protocol assertions; application assertions passed; original failure receipt retained",
+  "finalization": "validated existing model, image/config hashes, five owned service labels, stopped only this project; containers/volumes preserved",
+  "containersRetained": 5,
+  "volumesRetained": 4,
+  "loopbackOrigin": "https://localhost:56810",
+  "browserOrigin": "https://staging.weaveops.top",
+  "realSourceRequests": 0,
+  "realCredentialAccess": false,
+  "publicRouteValidated": false,
+  "browserAcceptance": false,
+  "attachmentUploadAcceptance": false,
+  "existingSourceFiveServicesUnchangedDuringFinalization": true,
+  "finalizationReceiptSha256": "92aad8950a8d036659338ba122b9a83673743efbc98649789ac12101e7b441ad",
+  "originalFailureReceiptPreserved": true,
+  "protocolRerun": false,
+  "testsRepeatedFromPreviousRelease": false,
+  "newHostedCI": 0,
+  "routeObservations": [
+    {
+      "receiptSha256": "5cdeacea39bca29835de6f591cc3ba59626e04e771332014914931b39dff5721",
+      "state": "OBSERVED",
+      "startedAt": "2026-10-29T03:55:44.073Z",
+      "endedAt": "2026-10-29T03:55:45.049Z",
+      "result": {
+        "mode": "READ_ONLY_ROUTING_METADATA",
+        "nginxBinary": false,
+        "caddyBinary": false,
+        "directoryCreated": false,
+        "sudo": false,
+        "databaseAccess": "none",
+        "sourceRequests": 0,
+        "configs": [],
+        "proposedDirectoryExists": false,
+        "proposedParentWritable": true
+      }
+    },
+    {
+      "receiptSha256": "6dcdbb1c0277bf72adb1d1d0007555fe19dcbb328ac196744caf8efb178e05c8",
+      "state": "OBSERVED",
+      "startedAt": "2026-10-29T03:56:55.568Z",
+      "endedAt": "2026-10-29T03:56:56.437Z",
+      "result": {
+        "mode": "READ_ONLY_PROCESS_METADATA",
+        "processes": [
+          "cloudflared",
+          "tailscaled"
+        ],
+        "routingContainers": [],
+        "services": [
+          {
+            "name": "cloudflared.service",
+            "loadState": "loaded",
+            "activeState": "active",
+            "unitFilePresent": true
+          }
+        ],
+        "sourceRequests": 0,
+        "databaseAccess": "none",
+        "configurationRead": false,
+        "configurationChanged": false
+      }
+    },
+    {
+      "receiptSha256": "0f649564240494b2be4369ad69aee02ac44a3e669a2b87da5a08fc746e963fd9",
+      "state": "OBSERVED",
+      "startedAt": "2026-10-29T03:59:04.289Z",
+      "endedAt": "2026-10-29T03:59:05.035Z",
+      "result": {
+        "mode": "READ_ONLY_TUNNEL_CONFIGURATION_SHAPE",
+        "credentialValuesReturned": false,
+        "configurationChanged": false,
+        "sourceRequests": 0,
+        "databaseAccess": "none",
+        "serviceUser": "root-default",
+        "dynamicUser": "no",
+        "protectHome": "no",
+        "protectSystem": "no",
+        "hasExplicitReadOnlyPaths": false,
+        "hasInaccessiblePaths": false,
+        "tokenFlagPresent": true,
+        "configFlagPresent": false,
+        "unitFlagObservation": "available",
+        "localIngressConfigObserved": false
+      }
+    }
+  ],
+  "routeInference": "remote-managed tunnel shape; actual published application configuration not inspected",
+  "ningboWrites": false,
+  "existingCredentialsReturned": false,
+  "publicStagingRouteCheckedThisRun": false
+}
