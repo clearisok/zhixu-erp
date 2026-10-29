@@ -1,0 +1,74 @@
+{
+  "schemaVersion": 1,
+  "productBase": "5c8cb8037376288aa71043e799a057e21f1b985d",
+  "source": "6ec7a56671284f236a553afbfcedae376e1ca43a",
+  "changes": {
+    "runtimeFiles": [
+      "server/app.ts"
+    ],
+    "testFiles": [
+      "server/integration/normalization-case-service.integration.test.ts"
+    ],
+    "schema": false,
+    "permissions": false,
+    "ui": false,
+    "dependencyChanges": false
+  },
+  "before": {
+    "tests": 14,
+    "pass": 12,
+    "fail": 2,
+    "failedChildTests": 1,
+    "httpStatus": 200,
+    "observedCaseVersion": 2,
+    "logSha256": "02613259f4fa8bdbc0c6c77b6b1af7267d5878376ad16398650a12c1248f65e2",
+    "durationMs": 22204.9938,
+    "scope": "new regression with unchanged main product in disposable synthetic database"
+  },
+  "after": {
+    "tests": 14,
+    "pass": 14,
+    "fail": 0,
+    "cancelled": 0,
+    "skipped": 0,
+    "logSha256": "7d9f8ba716bf04cc10c1e25f0e13393d21c2465505a2244de489ae2b14577fff",
+    "durationMs": 14553.5009
+  },
+  "types": {
+    "state": "PASS",
+    "checks": [
+      {
+        "configPath": "tsconfig.json",
+        "canonicalTrackedRoots": 961,
+        "diagnostics": []
+      },
+      {
+        "configPath": "server/tsconfig.json",
+        "canonicalTrackedRoots": 254,
+        "diagnostics": []
+      }
+    ],
+    "scope": "existing project options with tracked canonical root inputs only; no emit, no build artifact overwrite or deletion of ignored fixtures",
+    "receiptSha256": "582937b44894f79d86d7c476b61b6ec11e99e2e0caa6310c166536ee5626c4d5"
+  },
+  "lint": {
+    "exitCode": 0,
+    "files": 2,
+    "evidence": "actual exec result fe3e8c; zero stdout, source inputs unchanged at commit"
+  },
+  "review": {
+    "independent": true,
+    "remainingP1": 0,
+    "remainingP2": 0,
+    "reviewerExecutedTests": false,
+    "scope": "actual two-file diff; case-policy parity, HTTP regressions, auth/CSRF/history preservation"
+  },
+  "realSourceRequests": 0,
+  "realBusinessDatabaseAccess": false,
+  "existingAccountsChanged": false,
+  "oldAssetsChanged": false,
+  "newHostedCI": 0,
+  "runningMainImageContainsFix": false,
+  "remoteDeliveryVerified": false,
+  "newBuildClaim": false
+}

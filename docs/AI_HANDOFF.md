@@ -1,4 +1,10 @@
-# 接力：正常交付后修复浏览器验收，继续完整闭环目标
+# 接力：先交付旧归一命令大小写保护，完整目标继续
+
+2026-10-29；基线main **5c8cb8037376288aa71043e799a057e21f1b985d**，分支codex/retired-normalization-route-guard，源码6ec7a56671284f236a553afbfcedae376e1ca43a。先读[本片](tasks/completed/2026-10-29-retired-normalization-route-guard.md)。独立审查发现退役case/workspace正则区分大小写而后继/iu；实际合成复现HTTP200/版本1→2。两正则加/iu后14/14通过，961/254 canonical类型及相关lint通过，独立复审P2关闭。新guard/交付/CI仍按结果后置；不重跑已成功大套件或改变#132 head。
+
+此前当前状态完整checkpoint为codex/real-source-acceptance@032c553fc4ec2f30e9d4e8402e2ee86d3393c8e5；其新本机Source target D:/zhixu-server-convergence/main-empty-5c8-4e7c5853f7保留两合同/三代物料/货款，窗口停止、配额已用，不借旧许可重采。#132015dec merge、新6086979固定证明仍待人类答复；本修复无自动merge/部署。当前工作树复用并从main建立独立小分支，未覆盖原分支/输出/数据；outputs/retired-route-guard-phase-bridge.json保存桥接。旧9容器24缺失bind未修复/清理，canonical候选在D:/zhixu-server-convergence/legacy-bind-code-2e8610bde5。
+
+## 继承main原接力（历史，非本片当前结果）
 
 2026-10-29；feat/closing-support-interfaces；phase baseline40b1a7f712fce70026b90f3f795e28b691b17de2 clean；main6479a713e2b80228f008049519ebbd50d10601a8。最终HEAD/dirty从Git读。[本片证据](tasks/completed/2026-10-29-pr131-browser-route-recovery.md)及[原摘要全文/hash](tasks/completed/2026-10-29-pr131-browser-route-recovery/input-state.json)。
 

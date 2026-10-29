@@ -1,5 +1,7 @@
 # 当前任务入口
 
+2026-10-29前向状态：main **5c8cb8037376288aa71043e799a057e21f1b985d**，独立分支codex/retired-normalization-route-guard，先读[当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)及[退役路由保护修复](tasks/completed/2026-10-29-retired-normalization-route-guard.md)。#131已merge；#132015dec及新成衣固定读取仍待许可；两合同真实窗口已完成并停止。本片只修归一命令的大小写拦截，不重写业务、迁移旧数据或部署。以下旧日期目录/结果保留为历史。
+
 2026-10-29；main **6479a713e2b80228f008049519ebbd50d10601a8**；feat/closing-support-interfaces。先读[当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[业务规则](BUSINESS_RULES.md)及DECISION_LOG D145–D177。[本片原三摘要全文/hash](tasks/completed/2026-10-29-pr131-browser-route-recovery/input-state.json)保留全部旧日期/SHA/结果/限制。
 
 - [PR131正常交付与浏览器路由验收](tasks/completed/2026-10-29-pr131-browser-route-recovery.md)：40b1正常送达；team/release成功，source过期P6断言失败，后续本地修复与实际页面验收按实记录。
