@@ -1,11 +1,11 @@
-# 当前状态：最终main已就位，C1接纳成功、出货兼容修复中
+# 当前状态：宁波staging及三合同固定初始化已完成
 
-2026-10-29；比较main **e11b3c3cbd1dcf751b6fa5cb16e9323fdc67ac9e**，分支codex/garment-collection-first-page-proof。#132/#133已按具体批准merge commit，原历史保留；当前新兼容修复尚未合并或部署。
+**当前开发**：main本轮核实仍562fbf07、开始时0开放PR。Gate4候选修正“可信新合同尚未采物料却404”，沿用not_connected和原权限/来源校验。源码92be38f5、证据82bb45be；新增7/7、相关79通过/1既有Windows跳过、类型/局部lint/Server编译及最终基线182/182通过，独立复审无P1/P2。见[最终验收](tasks/completed/2026-10-30-bound-order-material-empty-validation.md)。远端精确交付/唯一草稿PR/必要CI待核实；不自动合并或更新宁波，不新增Source查询。下方为实际已部署事实，不用候选替代。
 
-e11应用442b1c及源码工具5568fc已冻结，确切镜像非空恢复9/9；本机https://localhost:54315五服务健康、原四卷保留，其他环境未变。发布包仅本机，没有宁波传输/部署；浏览器证书及人工接受仍待。各失败、校正、hash与备份范围见[本片证据](tasks/completed/2026-10-29-garment-first-page-compatibility.md)。
+2026-10-30（北京时间）；产品main **562fbf07f2caccfc9ba0d9c1a8e6a7e58436ee94**，应用d0685f。经明确批准，宁波全新project/空库/四卷/新staging.admin已部署，https://staging.weaveops.top 已切此版本，127.0.0.1:3003；原3000/3002及5旧容器/3卷/6网络保持。实际PG16.15、51迁移/121表、合成报价/附件、重启、独立备份恢复及外部公网session/Origin/TLS验收通过。见[部署事实](tasks/completed/2026-10-30-ningbo-isolated-staging-deployment.md)。
 
-获准C1窗口已停止：PI2606-008已创建唯一SO，6颜色9250件；target v1已启用。原两单在出货采集前摘要不变。成衣读取第一遍后因page_mismatch完成not_published，未第二遍/快照；本窗口2登录27报表29HTTP，不重复合同查询、不借剩余额度自动重试。失败原文未保留；旧同合同证明0/0不能冒充本次响应。
+宁波用户另批的三合同固定窗口已完成，见[来源实证](tasks/completed/2026-10-30-ningbo-fixed-source-initialization.md)。PI2608-257/PI2609-039各三轮物料，间隔均超过五分钟，当前分别9/31项、货款18/15行；随后新增PI2606-008，只采成衣16行、全匹配6色。新SO三个、颜色尺码可读；约10分32秒、0重试，操作者exit0，无持续调度。没有采C1物料/货款、原两单成衣，也未填造生产、商业版本或关账。合同9250不等于出货合计，申请不等于银行实付。
 
-离线修复只对原有界完整首页增加实际请求证据及成对0/0兼容，保留原文hash/两遍一致/≤100/时效/旧v1标识。保留报表还暴露createTime私密字段缺口，定点补齐、不输出或替代outdate。工程与剩余验证详见[契约](features/SERVER_GARMENT_FIRST_PAGE_COMPATIBILITY.md)和本片，最终候选/CI不借前件结果。
+新库保留1合成报价/1附件和staging.admin，未复制旧账号/本机SO。有效配置为新runtime/trial.source.conf，只增加payment/garment snapshot读取；原配置保留。外部公网已读回三单、物料当前/历史、货款、出货、交期/生产/月分配展示；当前未采物料的C1物料接口404，不能当零数量。初始化后新dump 947996字节/hash3993468f...已保存，未声称再次恢复此新dump。时效10分钟保持，过期不重采。宁波主机出站公网回读仍失败/超时；外部客户端与浏览器登录页通过，不混作登录后人工验收。
 
-完整Goal/Gate0–8/R继续：原两单已有物料四流/货款历史，C1尚未发布成衣且未采物料/货款；真实生产、商业采用和关账人工业务接受不被合成测试替代。新修复merge、新真实读取及宁波发布分别需要具体批准。没有修改旧账号/业务库、持续调度或删除旧资产。前件原状态完整保留于e11的Git及[原窗口](tasks/active/real-source-acceptance-current-2026-10-29.md)。
+本机原恢复套件7通过/2超时取消及补充恢复、三单历史/旧资产保护继续按原日期保存，没有重跑或改写。完整[Gate0–8/R](tasks/active/server-convergence-gate0-2026-10-20.md)、真实来源/人工业务接受和具体旧入口退役仍继续。未改正式环境/旧业务库/旧账号、未清理或自动合并PR。
