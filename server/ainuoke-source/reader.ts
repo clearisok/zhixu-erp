@@ -2,6 +2,8 @@ import type { Pool, PoolClient } from "pg";
 import type { MaterialConfirmation } from '../../features/ainuoke-material-progress/confirmed-facts.js';
 import type { MaterialReadPorts } from "../../features/ainuoke-material-progress/read-service.js";
 import { createMaterialSourceLoader } from "../../features/ainuoke-material-progress/source-adapter.js";
+import { adaptAinuokeOrderDiscoverySnapshots } from "../../features/ainuoke-api/source/ainuoke-order-discovery-adapter.js";
+import { normalizeAinuokeSalesContractNo } from "../../features/ainuoke-sync/source/ainuoke-garment-color-size-adapter.js";
 import type { AinuokeOrderDiscoveryQuery, AinuokeReportSnapshot } from "../../features/ainuoke-api/model/ainuoke-api.js";
 import { hash, SourceError, sourceKeyValid } from "./contract.js";
 import { sourceActor, boundOrders, supportsSourceAttribution, supportsMaterialCaptureContext } from "./service.js";
@@ -52,10 +54,13 @@ export async function prepareMaterialPortsInTransaction(client: PoolClient, conf
     const wanted = new Set(ids);
     const orders = new Map((await boundOrders(client)).filter(order => wanted.has(order.id)).map(order => [order.id, order]));
     const attributed = await supportsSourceAttribution(client), context = await supportsMaterialCaptureContext(client);
+    const profile = (await client.query<{enabled:boolean;latest_run_id:string|null}>(
+        'SELECT enabled,latest_run_id::text FROM ainuoke_source_profiles WHERE source_key=$1', [localConfig.sourceKey])).rows[0];
     const header = (await client.query<Header>(`SELECT r.id::text AS run_id,p.account_fingerprint,r.discovery,r.discovery_hash,p.last_error_code,
         ${context ? 'r.order_scope' : 'NULL::jsonb'} AS order_scope,${attributed ? 'r.order_scope_hash' : 'NULL::text'} AS order_scope_hash
         FROM ainuoke_source_profiles p JOIN ainuoke_source_runs r ON r.id=p.latest_run_id AND r.source_key=p.source_key
         WHERE p.source_key=$1 AND p.enabled=true`, [localConfig.sourceKey])).rows[0];
+    if (profile?.enabled && profile.latest_run_id !== null && !header) throw new SourceError('source_snapshot_changed');
     if (header && hash(header.discovery) !== header.discovery_hash) throw new SourceError('source_snapshot_changed');
     const records = header ? (await client.query<Stored>(`SELECT s.sales_order_id::text,s.snapshots,s.sales_contract_no,s.content_hash,
         ${attributed ? 's.attribution_change_id::text' : 'NULL::text'} AS attribution_change_id,
@@ -63,13 +68,19 @@ export async function prepareMaterialPortsInTransaction(client: PoolClient, conf
         ${context ? 's.captured_order_version' : 'NULL::integer'} AS captured_order_version
         FROM ainuoke_material_source_snapshots s WHERE s.run_id=$1::uuid AND s.sales_order_id=ANY($2::uuid[])`, [header.run_id, ids])).rows : [];
     const indexed = new Map(records.map(record => [record.sales_order_id, record]));
+    const beforeFirstCapture = profile?.enabled === true && profile.latest_run_id === null;
+    // A trusted intake can precede its first material capture. Reuse complete
+    // Discovery identity validation; an absent material record is never a zero.
+    const uncapturedContracts = header && [...orders.values()].some(order => !order.attributionChangeId && !indexed.has(order.id))
+        ? new Set((await adaptAinuokeOrderDiscoverySnapshots(header.discovery)).rows.map(row => row.salesContractNo)) : null;
     const verifyIdentity = (other: Identity) => {
         if (other.userId !== actor.userId || other.internalUserId !== actor.internalUserId) throw new SourceError('source_actor_unavailable');
     };
     const resolveVisibleOrder: MaterialReadPorts['resolveVisibleOrder'] = async (other, id) => {
         verifyIdentity(other); const order = orders.get(id), record = indexed.get(id);
         if (!order) return null;
-        if (!record) return order.attributionChangeId ? order : null;
+        if (!record) return order.attributionChangeId || beforeFirstCapture
+            || uncapturedContracts?.has(normalizeAinuokeSalesContractNo(order.salesContractNo)) ? order : null;
         return record.sales_contract_no === order.salesContractNo ? order : null;
     };
     const ports: MaterialReadPorts = {

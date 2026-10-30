@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "562fbf07f2caccfc9ba0d9c1a8e6a7e58436ee94",
-  "verifiedAt": "2026-10-29T18:20:01.559Z",
+  "baselineSha": "b1b24186a300b330f29a2950e507711555c35b6c",
+  "verifiedAt": "2026-10-30T02:27:27.454Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -5454,6 +5454,24 @@
       "sha256": "83336ffba90995bd18b41b586ce314c4904bcf884d49c49cf13523b3be66d4fa",
       "supersedes": "staging-profile-d178-20261029",
       "changeReason": "Forward witness at the actual two-parent integration of approved main8da and validated staging source5e; import the exact D178 leaf without changing its bytes or any prior evidence. Preserve all main/source history and deployment/acceptance dimensions."
+    },
+    {
+      "id": "ainuoke-material-empty-state-20261030",
+      "path": "docs/features/AINUOKE_SERVER_SOURCE.md",
+      "supersedes": "ainuoke-bound-refresh-current-20261024",
+      "changeReason": "Separate trusted order visibility from uncaptured material; preserve snapshot, permissions and TTL checks.",
+      "kind": "document",
+      "recordedAtSha": "92be38f5a2fe2c99e75a35fd913caeb32b5f0d03",
+      "renderedSourceSha": "92be38f5a2fe2c99e75a35fd913caeb32b5f0d03",
+      "sha256": "f7c6fc8564b2d50d6fa52998b602b7578844c47721bc88d99e7c1e297add8f47"
+    },
+    {
+      "id": "bound-order-material-empty-engineering-20261030",
+      "path": "docs/tasks/completed/2026-10-30-bound-order-material-empty-state.md",
+      "kind": "document",
+      "recordedAtSha": "92be38f5a2fe2c99e75a35fd913caeb32b5f0d03",
+      "renderedSourceSha": "92be38f5a2fe2c99e75a35fd913caeb32b5f0d03",
+      "sha256": "5d1c5c6d1560ce7953dde085942c959fcc6b601d09bcd945a6366d71af19ba2b"
     }
   ],
   "pages": [

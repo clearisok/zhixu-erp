@@ -1,3 +1,11 @@
+## 当前候选：可信订单尚未采物料的空态（2026-10-30）
+
+main562fbf07的宁波固定初始化证明新增合同虽存在，但未落入当前物料run时会得到404/order_not_available。本地候选在原persisted reader区分订单身份与物料快照：正式绑定、profile启用且尚未首采，或完整Discovery仍精确包含该合同但本run无物料，复用既有200/not_connected。rows/groups为空不等于零数量或齐套；不生成来源代际，不能为到货写入提供ready事实。不做新采集、自动刷新或Browser回退。
+
+RBAC仍由数据库重验；未绑定/不存在、未启用profile及完整Discovery已移除的普通合同维持不可见，非空指针却缺run及损坏Discovery失败关闭。复用既有Discovery adapter的完整分页、唯一合同和规范化；不以款号匹配。原有效归属兼容分支、已有快照link/context/content hash及时效路径保留，不扩大到历史归一规则。见[本片范围与测试](../tasks/completed/2026-10-30-bound-order-material-empty-state.md)。此为工程候选，未合并或更新宁波；[宁波已部署事实](../tasks/completed/2026-10-30-ningbo-fixed-source-initialization.md)按原main和时点阅读。
+
+## 历史执行与工程记录
+
 2026-10-16执行后更新：用户另批新两合同隔离空库方案及一次首绑补读，已通过原D143/D142落地2 SO、2物料/2财务快照，7合成角色读回39项物料与21行申请。仅新本机只读演示、无调度，原10分钟时效不变；物料历史过期后可读，财务历史ERP入口仍缺。见[执行报告](../tasks/completed/2026-10-16-selected-demo-execution.md)及[冻结证据](../tasks/completed/evidence/2026-10-16-selected-demo-execution.json)。main064e3afaf7d08b3cb62907d4402f97d9c292f1e5、PR116草稿未合并；不是生产/全量Source激活。下文旧日期/SHA与“未授权/0操作”保留历史含义。
 
 2026-10-16 D143新增内部两合同一次采集预算：selected-bindings/selected-materials复用原可信Discovery与映射；1登录80报表81HTTP180秒、0网络重试/认证续期，逐行合同身份/完整分页/时效重新校验。13项Node/实际Python/一次性PG及全Python131通过，转义秘密值保护经双红测复现后修复，最终源码71b；root898/基线94通过；没有新CLI/HTTP/scheduler或真实写入授权。详情见[活动任务](../tasks/active/ainuoke-selected-source-once.md)。PR115精确db4236cf三CI全绿/复审、仍草稿未合并。旧真实两合同许可已用完，不重复采集。
