@@ -98,7 +98,7 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
    }
    await command('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
   });
-  await t.test("top-right logout preserves dirty Server Quote until explicit discard, including logout failure",async()=>{
+  await t.test("sidebar logout preserves dirty Server Quote until explicit discard, including logout failure",async()=>{
    await login(x.users[0]);await navigate('/quote-center/detail?id=synthetic-unified-demo');
    await until(()=>evaluate("!!document.querySelector('input[placeholder=\"请输入款式名称\"]')"),'Server quote editor');
    await input('input[placeholder="请输入款式名称"]','合成：尚未保存的退出保护');
@@ -120,7 +120,9 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
    await has("数量0");await has("单位为空");
    assert.equal(await evaluate("document.querySelectorAll('.qc-server-session-floating').length"),0);
    assert.equal(await evaluate("document.querySelectorAll('.qc-user-popover').length"),0);
-   if(width===390){await click("用户菜单");}else{
+   if(width===390){
+    await click("打开主导航");await has("业务导航");await click("用户菜单");
+   }else{
     const position=await evaluate("(()=>{const r=document.querySelector('.qc-user-menu').getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2};})()");
     await command("Input.dispatchMouseEvent",{type:"mouseMoved",...position});
    }
@@ -129,6 +131,7 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
    await evaluate("document.querySelector('.qc-user-menu button').focus()");
    await command("Input.dispatchKeyEvent",{type:"keyDown",key:"Escape",code:"Escape",windowsVirtualKeyCode:27});
    await until(()=>evaluate("!document.querySelector('.qc-user-popover')"),"Escape closes user menu");
+   if(width===390)await until(()=>evaluate("!document.querySelector('.ops-navigation-drawer')"),"Escape closes mobile navigation");
 
    assert.equal(await evaluate("document.querySelectorAll('.oc-order-alert-chip').length>=2"),true);
    assert.equal(await evaluate("getComputedStyle(document.querySelector('.qc-toolbar')).display"),"flex");
