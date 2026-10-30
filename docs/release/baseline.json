@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "b1b24186a300b330f29a2950e507711555c35b6c",
-  "verifiedAt": "2026-10-30T06:45:26.677Z",
+  "verifiedAt": "2026-10-30T06:46:11.291Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -5498,6 +5498,13 @@
       "recordedAtSha": "11862e945f2e64bfd1f05d89c7244de75059854c",
       "renderedSourceSha": "11862e945f2e64bfd1f05d89c7244de75059854c",
       "sha256": "216be76149c7ef663164ddf9774073a7077e8cd311aaa7b5de3f913d82d0173f"
+    },
+    {
+      "id": "expanded-sidebar-binding-correction-20261030",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-30-sidebar-evidence-binding-correction.md",
+      "recordedAtSha": "97c655556125cc74d098e4e18e664e0d7bb65156",
+      "sha256": "90fb54e81c7a09527ac0995cf27b4111c6ecf8a1f5c6be4b346c9b6d20f03e63"
     }
   ],
   "pages": [
@@ -5725,7 +5732,8 @@
         "server-user-menu-approved-20261014",
         "expanded-sidebar-v1-engineering-20261030",
         "expanded-sidebar-review-correction-20261030",
-        "expanded-sidebar-local-validation-20261030"
+        "expanded-sidebar-local-validation-20261030",
+        "expanded-sidebar-binding-correction-20261030"
       ]
     },
     {
