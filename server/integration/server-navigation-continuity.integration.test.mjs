@@ -170,13 +170,16 @@ test('built Server navigation keeps the workspace continuous without changing au
       const legacy = () => evaluate(`(()=>{const shell=document.querySelector('#legacy-sidebar-regression'),style=selector=>getComputedStyle(shell.querySelector(selector));return {width:innerWidth,coarse:matchMedia('(pointer: coarse)').matches,noHover:matchMedia('(hover: none)').matches,shellDisplay:getComputedStyle(shell).display,sidebarPosition:style('.ops-sidebar').position,sidebarHeight:style('.ops-sidebar').height,organizationDisplay:style('.organization').display,userDisplay:style('.ops-user').display,brandDisplay:style('.ops-brand').display,brandDetailsDisplay:style('.ops-brand div').display,subnavDisplay:style('.ops-subnav').display,buttonFont:parseFloat(style('nav button').fontSize),buttonHeight:style('nav button').height};})()`);
       try {
         await command('Emulation.setDeviceMetricsOverride', { width: 1135, height: 900, deviceScaleFactor: 1, mobile: false });
+        await until(() => evaluate("innerWidth===1135&&document.querySelector('.qc-app-shell').dataset.responsiveMode==='primary'"), 'legacy desktop resize committed');
         const desktop = await legacy();
-        assert.equal(desktop.buttonFont, 0); assert.equal(desktop.organizationDisplay, 'flex'); assert.equal(desktop.userDisplay, 'flex');
+        await writeFile(join(evidence, 'legacy-sidebar-desktop.json'), JSON.stringify(desktop, null, 2));
+        assert.equal(desktop.width, 1135); assert.equal(desktop.buttonFont, 0); assert.equal(desktop.organizationDisplay, 'flex'); assert.equal(desktop.userDisplay, 'flex');
         assert.equal(desktop.brandDetailsDisplay, 'none'); assert.equal(desktop.subnavDisplay, 'none');
         await command('Emulation.setDeviceMetricsOverride', { width: 390, height: 900, deviceScaleFactor: 1, mobile: true });
         await command('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
-        await until(() => evaluate("matchMedia('(max-width: 620px) and (hover: none) and (pointer: coarse)').matches"), 'legacy touch media');
+        await until(() => evaluate("innerWidth===390&&matchMedia('(max-width: 620px) and (hover: none) and (pointer: coarse)').matches"), 'legacy touch media');
         const touch = await legacy();
+        await writeFile(join(evidence, 'legacy-sidebar-touch.json'), JSON.stringify(touch, null, 2));
         assert.equal(touch.width, 390); assert.equal(touch.coarse, true); assert.equal(touch.noHover, true);
         assert.equal(touch.shellDisplay, 'block'); assert.equal(touch.sidebarPosition, 'fixed'); assert.equal(touch.sidebarHeight, '62px');
         assert.equal(touch.organizationDisplay, 'none'); assert.equal(touch.userDisplay, 'none'); assert.equal(touch.brandDisplay, 'none');
