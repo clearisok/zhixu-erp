@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "b1b24186a300b330f29a2950e507711555c35b6c",
-  "verifiedAt": "2026-10-30T06:38:47.792Z",
+  "verifiedAt": "2026-10-30T06:45:26.677Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -5485,8 +5485,8 @@
       "id": "expanded-sidebar-review-correction-20261030",
       "kind": "document",
       "path": "docs/tasks/active/server-expanded-sidebar-labels-2026-10-30.md",
-      "recordedAtSha": "6954fdf57e8c0e40cb783c70ca0c92aea35b2606",
-      "renderedSourceSha": "6954fdf57e8c0e40cb783c70ca0c92aea35b2606",
+      "recordedAtSha": "4922db1b3a2e40fdfac27d5db9767073addf8073",
+      "renderedSourceSha": "4922db1b3a2e40fdfac27d5db9767073addf8073",
       "sha256": "2973ebbe1d4cc3ef3b03aae3a3ee23e307b0cfbc4fedec808a52c21025312363",
       "supersedes": "expanded-sidebar-v1-engineering-20261030",
       "changeReason": "Independent review correction preserves original legacy specificity; initial checks and deliberately incomplete baseline attempt retained, corrected-source validation pending"
