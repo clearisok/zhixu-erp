@@ -61,6 +61,8 @@ export type FabricCostLine = {
 
 export type TrimCostLine = CostLine & {
   sourceLibraryItemId: string | null;
+  /** Recorded when defaults/library are explicitly applied; absent on older snapshots. */
+  sourceOrigin?: "brand" | "salesperson" | "library";
   supplier: string;
 };
 

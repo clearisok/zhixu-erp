@@ -160,6 +160,12 @@ test("Quote Editor Server dependencies preserve Server identities, null/zero def
   assert.equal(defaults.otherCost?.amount, null);
   assert.equal(defaults.trims[0].unitPrice, 0);
   assert.equal(defaults.trims[0].usage, null);
+  assert.equal(defaults.trims[0].sourceOrigin, "brand");
+  const businessDefaults = createServerQuoteMasterDependencies(["quote.view"], { ...client, resolveDefaults: async () => {
+    const value = await client.resolveDefaults();
+    return { ...value, source: { ...value.source, trims: "salesperson" } };
+  } });
+  assert.equal((await businessDefaults.resolveDefaults()).trims[0].sourceOrigin, "salesperson");
   const next = { ...initial.state, brands: [{ id: "temporary", name: "Server Brand", status: "active" as const, defaults: { defaultUsdCnyRate: null, defaultOtherCost: null, defaultTrims: [] } }] };
   const saved = await dependencies.persist("brands", initial.state, next);
   assert.equal(saved.createdId, serverId);

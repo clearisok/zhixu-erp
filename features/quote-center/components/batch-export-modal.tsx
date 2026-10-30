@@ -5,7 +5,7 @@ import { Button, Checkbox, Modal } from "@/components/foundation";
 import { listColumnOptions, type ListColumnKey } from "../model/quote-settings";
 import type { Quote } from "../model/quote-view-model";
 import { indexedDbAttachmentRepository } from "../repository/indexeddb-attachment-repository";
-import { exportQuoteSummary, exportQuoteZip, type EstimateSummaryColumn, type QuoteSummaryRowMode } from "../export/quote-batch-exporter";
+import type { EstimateSummaryColumn, QuoteSummaryRowMode } from "../export/quote-batch-exporter";
 import { usePermissions } from "@/features/permissions";
 import { createBatchExportQuoteSnapshots, createOperationLogDraft, operationLogRepository } from "@/features/operation-logs";
 
@@ -24,6 +24,7 @@ export function BatchExportModal({ open, quotes, visibleColumns, onClose }: { op
     if (!quotes.length || busy) return;
     setBusy(true); setResult("");
     try {
+      const { exportQuoteSummary, exportQuoteZip } = await import("../export/quote-batch-exporter");
       const exportQuotes = createBatchExportQuoteSnapshots(quotes);
       if (type === "quote") {
         const outcome = await exportQuoteZip({ quotes, attachmentRepository: indexedDbAttachmentRepository });

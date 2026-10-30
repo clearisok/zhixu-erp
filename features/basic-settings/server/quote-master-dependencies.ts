@@ -48,6 +48,7 @@ export function createServerQuoteMasterDependencies(permissions: readonly Permis
           id: trim.id,
           lineGroupId: createCostLineGroupId(),
           sourceLibraryItemId: trim.trimLibraryItemId,
+          ...(defaults.source.trims === "brand" || defaults.source.trims === "salesperson" ? { sourceOrigin: defaults.source.trims } : {}),
           name: trim.name,
           specification: trim.specification,
           supplier: trim.supplier,

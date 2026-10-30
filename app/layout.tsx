@@ -19,6 +19,7 @@ export const metadata: Metadata = {
   metadataBase: new URL("http://localhost:3000"),
   title: "织序 ZHIXU｜成衣报价、订单协同与生产排单",
   description: "面向服装工厂的成衣报价、订单跟踪和产线排单协同系统。",
+  icons: { icon: [{ url: "/favicon.svg", type: "image/svg+xml" }] },
   openGraph: {
     title: "织序 ZHIXU｜工厂协同工作台",
     description: "成衣报价 · 订单协同 · 智能排单",

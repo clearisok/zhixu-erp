@@ -39,6 +39,7 @@ export function validateQuote(quote: ServerQuote): void {
   }
   for (const snapshot of [...quote.revisions.flatMap((r) => r.priceVersions), ...estimates]) {
     unique(snapshot.fabrics.map((r) => r.id)); unique(snapshot.trims.map((r) => r.id)); unique(snapshot.otherCosts.map((r) => r.id));
+    for (const row of snapshot.trims) requireInvariant(row.sourceOrigin === undefined || ["brand", "salesperson", "library"].includes(row.sourceOrigin), "Invalid trim source origin");
   }
 }
 
