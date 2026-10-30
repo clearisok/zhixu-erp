@@ -163,6 +163,32 @@ test('built Server navigation keeps the workspace continuous without changing au
       await command('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
       await until(() => evaluate("document.querySelector('.qc-app-shell').dataset.responsiveMode==='wide'"), 'restore navigation test viewport');
     });
+    await phase('legacy fallback retains the original desktop and coarse-touch cascade', async () => {
+      // Owned synthetic DOM exercises the old shell against the actual built stylesheet.
+      // It has no Foundation mode attribute and is removed before the routing checks.
+      await evaluate(`(()=>{const shell=document.createElement('div');shell.id='legacy-sidebar-regression';shell.className='ops-shell';shell.innerHTML='<aside class="ops-sidebar"><header class="ops-brand"><span>织</span><div>品牌</div></header><div class="organization"><span>织</span><div>组织</div><i>组织详情</i></div><nav><button><span>¥</span>报价中心<em>1</em></button><div class="ops-subnav">设置</div></nav><div class="ops-user"><span>人</span><div>用户</div></div></aside></div>';document.body.append(shell);})()`);
+      const legacy = () => evaluate(`(()=>{const shell=document.querySelector('#legacy-sidebar-regression'),style=selector=>getComputedStyle(shell.querySelector(selector));return {width:innerWidth,coarse:matchMedia('(pointer: coarse)').matches,noHover:matchMedia('(hover: none)').matches,shellDisplay:getComputedStyle(shell).display,sidebarPosition:style('.ops-sidebar').position,sidebarHeight:style('.ops-sidebar').height,organizationDisplay:style('.organization').display,userDisplay:style('.ops-user').display,brandDisplay:style('.ops-brand').display,brandDetailsDisplay:style('.ops-brand div').display,subnavDisplay:style('.ops-subnav').display,buttonFont:parseFloat(style('nav button').fontSize),buttonHeight:style('nav button').height};})()`);
+      try {
+        await command('Emulation.setDeviceMetricsOverride', { width: 1135, height: 900, deviceScaleFactor: 1, mobile: false });
+        const desktop = await legacy();
+        assert.equal(desktop.buttonFont, 0); assert.equal(desktop.organizationDisplay, 'flex'); assert.equal(desktop.userDisplay, 'flex');
+        assert.equal(desktop.brandDetailsDisplay, 'none'); assert.equal(desktop.subnavDisplay, 'none');
+        await command('Emulation.setDeviceMetricsOverride', { width: 390, height: 900, deviceScaleFactor: 1, mobile: true });
+        await command('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
+        await until(() => evaluate("matchMedia('(max-width: 620px) and (hover: none) and (pointer: coarse)').matches"), 'legacy touch media');
+        const touch = await legacy();
+        assert.equal(touch.width, 390); assert.equal(touch.coarse, true); assert.equal(touch.noHover, true);
+        assert.equal(touch.shellDisplay, 'block'); assert.equal(touch.sidebarPosition, 'fixed'); assert.equal(touch.sidebarHeight, '62px');
+        assert.equal(touch.organizationDisplay, 'none'); assert.equal(touch.userDisplay, 'none'); assert.equal(touch.brandDisplay, 'none');
+        assert.equal(touch.buttonFont, 7); assert.equal(touch.buttonHeight, '52px'); assert.equal(touch.subnavDisplay, 'none');
+        records.legacySidebar = { desktop, touch };
+      } finally {
+        await evaluate("document.querySelector('#legacy-sidebar-regression')?.remove()");
+        await command('Emulation.setTouchEmulationEnabled', { enabled: false });
+        await command('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+        await until(() => evaluate("document.querySelector('.qc-app-shell').dataset.responsiveMode==='wide'"), 'restore desktop after legacy probe');
+      }
+    });
     await mark(); const documentStart = documents.length;
     await click('订单中心'); await until(() => evaluate("location.pathname==='/order-center'"), 'order navigation'); await has('导入加工订单'); await wait(100);
     const first = await measure('quote-to-order'); first.documentRequests = documents.slice(documentStart);
