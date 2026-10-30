@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "b1b24186a300b330f29a2950e507711555c35b6c",
-  "verifiedAt": "2026-10-30T06:17:44.604Z",
+  "verifiedAt": "2026-10-30T06:38:47.792Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -5490,6 +5490,14 @@
       "sha256": "2973ebbe1d4cc3ef3b03aae3a3ee23e307b0cfbc4fedec808a52c21025312363",
       "supersedes": "expanded-sidebar-v1-engineering-20261030",
       "changeReason": "Independent review correction preserves original legacy specificity; initial checks and deliberately incomplete baseline attempt retained, corrected-source validation pending"
+    },
+    {
+      "id": "expanded-sidebar-local-validation-20261030",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-30-expanded-sidebar-validation.md",
+      "recordedAtSha": "11862e945f2e64bfd1f05d89c7244de75059854c",
+      "renderedSourceSha": "11862e945f2e64bfd1f05d89c7244de75059854c",
+      "sha256": "216be76149c7ef663164ddf9774073a7077e8cd311aaa7b5de3f913d82d0173f"
     }
   ],
   "pages": [
@@ -5716,7 +5724,8 @@
         "ainuoke-readiness-engineering",
         "server-user-menu-approved-20261014",
         "expanded-sidebar-v1-engineering-20261030",
-        "expanded-sidebar-review-correction-20261030"
+        "expanded-sidebar-review-correction-20261030",
+        "expanded-sidebar-local-validation-20261030"
       ]
     },
     {
