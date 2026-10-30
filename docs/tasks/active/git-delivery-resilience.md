@@ -153,3 +153,11 @@ old TLS evidence retained, not rewritten as current network failure.
 ## 2026-10-23：远端事实与命令安全分开
 
 修复只涉及回执：独立核实remote.verified且完整SHA精确为目标时，remoteStatus为EXACT_HEAD_VERIFIED，即使认证、TLS身份、ref拒绝等仍使state保持STOP。保留continueLocal=false、错误类别、非零退出和retry=false；不以已送达豁免安全异常。精确目标不再附冗余重推命令，旧/缺失/无法核实的远端仍分别标识。没有collision白名单、共享配置或认证变化，也不据布尔采样判断全历史根因。详细红绿及56/134验收见[本轮任务](pr127-main-forward-2026-10-23.md)。
+
+## 2026-10-28：上传与证据读取分开计时
+
+累计关账候选的一次实际上传被原runCommand默认30秒中止，不能据此推定仓库拒绝或必然未送达。独立工具分支只为唯一一次`git push`传显式180000ms上限；预检、API、Git只读和本地证据检查仍用原默认30000ms。没有新CLI/environment配置项、无限等待、延长证据读取或自动重试。
+
+上传超时仍按原流程独立核实：已精确送达不再上传，无法证明则保留REMOTE_PENDING；认证/证书/拒绝/分歧或本地变更仍STOP。新真实交付不因工具修复获得次数/目标授权，旧许可已消耗时不能重复使用。现有代理/认证/TLS配置不由工具修改。
+
+隔离Git/state79项及语法/lint通过，新预算先红后绿；覆盖有/无已记录远端的超时、仅push传预算及原停止/脱敏保护。完整范围、实际发布门禁和剩余远端边界见[工程证明](../completed/2026-10-28-upload-budget-engineering.md)。这不证明三分钟一定足够或原网络全部根因已解决。

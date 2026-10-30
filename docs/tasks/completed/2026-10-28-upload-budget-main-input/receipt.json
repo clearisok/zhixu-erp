@@ -1,0 +1,22 @@
+{
+  "files": [
+    {
+      "path": "docs/CURRENT_STATE.md",
+      "sha256": "642c2eb66c4346156381501f3a6de6f9920cd956b4b533a7843198efbec8e3c1"
+    },
+    {
+      "path": "docs/PROJECT_INDEX.md",
+      "sha256": "fee3724db632e541eca7901fa9bfcfb77e55e55f124af66de50cf33df41f09ff"
+    },
+    {
+      "path": "docs/AI_HANDOFF.md",
+      "sha256": "bd3910fc33884bda99717897b7b8c4512a3330eb8f56a4d0a79366521f17e531"
+    }
+  ],
+  "base": "6479a713e2b80228f008049519ebbd50d10601a8",
+  "branch": "fix/git-delivery-upload-budget",
+  "knownDirty": [
+    "scripts/git-delivery.mjs",
+    "scripts/__tests__/git-delivery.test.mjs"
+  ]
+}
