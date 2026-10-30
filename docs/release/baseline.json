@@ -5581,6 +5581,16 @@
       "sha256": "df860000458626d3f88d9f64dc667a5e9513e40278412e7f4bbf1507b4b8deb5",
       "approvalEvidence": "brand-shell-approved-20261030",
       "changeReason": "Freeze synthetic browser evidence for the six user-approved changes and the later transparent, 30-percent smaller logo request. Preserve all prior screenshots; not a claim of deployment or final human acceptance."
+    },
+    {
+      "id": "brand-shell-ci-compat-20261030",
+      "kind": "document",
+      "path": "docs/tasks/active/brand-shell-navigation-2026-10-30.md",
+      "recordedAtSha": "dea39f275c6250138136d5783488b17b24252ddd",
+      "renderedSourceSha": "e4413f0fbb72736ebf0d5f750f73778c8a441e67",
+      "sha256": "6414b994a0863f8a88c1084021f0cfe9425d55fb21e6f56d21532945c15df47f",
+      "supersedes": "brand-shell-approved-20261030",
+      "changeReason": "Record exact PR138 delivery, first CI failure, scoped mobile test compatibility verification and authorized preview update. Preserve original approval, screenshots and deployment limits."
     }
   ],
   "pages": [
