@@ -22,7 +22,7 @@ test("current local UI removes login and Browser test-user management surfaces",
   const userPage = await read("app/basic-settings/user-permissions/page.tsx");
   assert.match(loginCard, /browserIdentityMode\(\) === "local-single-user"/u);
   assert.match(logoutAction, /browserIdentityMode\(\) === "local-single-user"\) return null/u);
-  assert.match(shell, /serverIdentityMode \|\| localSingleUser \? <ServerUserMenu/u);
+  assert.match(shell, /serverIdentityMode \|\| localSingleUser\s*\? <ServerUserMenu placement="sidebar"/u);
   assert.match(shell, /canLogout=\{!localSingleUser && serverSession.status === "authenticated"\}/u);
   assert.match(await read("components/foundation/server-user-menu.tsx"), /if \(!canLogout\) return <div/u);
   assert.match(shell, /route.href !== "\/basic-settings\/user-permissions"/u);
@@ -52,7 +52,7 @@ test("local Server production pages retain unified navigation and hide user mana
     assert.match(shell, new RegExp(`/basic-settings/${path}`, "u"));
   }
   assert.match(shell, /route\.href !== "\/basic-settings\/user-permissions"/u);
-  assert.match(shell, /serverIdentityMode \|\| localSingleUser \? <ServerUserMenu/u);
+  assert.match(shell, /serverIdentityMode \|\| localSingleUser\s*\? <ServerUserMenu placement="sidebar"/u);
 });
 
 test("formal Q3 pages stay on Server adapters while Quote aggregates stay in Browser storage", async () => {

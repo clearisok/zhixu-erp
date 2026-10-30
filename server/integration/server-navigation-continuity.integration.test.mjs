@@ -24,10 +24,20 @@ test('built Server navigation keeps the workspace continuous without changing au
   const observing = process.env.NAVIGATION_OBSERVE_ONLY === '1';
   const build = JSON.parse(readFileSync('dist/client/build-info.json', 'utf8'));
   assert.equal(build.quoteAuthority, 'server'); assert.equal(build.identityMode, 'session');
-  const x = await startCommercialSecurityFixture(resolve('dist/client'));
+  const x = await startCommercialSecurityFixture(resolve('dist/client'),quote=>{
+    for(const revision of quote.revisions){revision.garmentMedia=[];revision.quoteDocuments=[];
+      for(const pv of revision.priceVersions)pv.trims=['brand','salesperson','library',undefined].map((origin,index)=>({id:`origin-${index}`,lineGroupId:`origin-group-${index}`,sourceLibraryItemId:'fixture-library',...(origin?{sourceOrigin:origin}:{}),name:`辅料来源-${origin??'历史'}`,specification:'',supplier:'',usage:null,unit:'个',lossRate:0,unitPrice:0}));
+    }
+  });
   t.after(x.close);
   const password = 'Synthetic-Navigation-Only-2026';
   await bootstrapAdmin(x.pool, { username: 'navigation.root', displayName: '合成导航管理员', password });
+  const setupLogin=await x.request('/api/v1/auth/login',undefined,{username:'navigation.root',password},'POST');
+  assert.equal(setupLogin.response.status,200);
+  const setupCookie=setupLogin.response.headers.get('set-cookie').split(';')[0];
+  const upload=await fetch(x.base+x.quotePath+'/revisions/'+x.record.quote.defaultRevisionId+'/attachments?name=synthetic.png&kind=image',{method:'POST',headers:{Cookie:setupCookie,Origin:x.base,'X-Zhixu-Request':'1','X-Quote-Version':String(x.record.version),'Idempotency-Key':'a349790b-a4d6-4e36-8d33-472bb0933490','Content-Type':'image/png'},body:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jY9kAAAAASUVORK5CYII=','base64')});
+  assert.equal(upload.status,201,await upload.text());
+  await x.request('/api/v1/auth/logout',setupCookie,{},'POST');
   await x.user('navigation.second', ['quote.view', 'commercial.sale.view']);
   const evidence = resolve(process.env.NAVIGATION_EVIDENCE_DIR ?? 'outputs/server-navigation-continuity');
   await mkdir(evidence, { recursive: true });
@@ -198,6 +208,10 @@ test('built Server navigation keeps the workspace continuous without changing au
       assert.equal(await evaluate("document.querySelector('.ops-brand-full image').getAttribute('href')"),'/branding/weaveops-original.png');
       const centered=await evaluate("(()=>{const a=document.querySelector('.ops-sidebar').getBoundingClientRect(),b=document.querySelector('.ops-brand-full').getBoundingClientRect();return Math.abs((a.left+a.right)-(b.left+b.right))/2;})()");
       assert.ok(centered<2);
+      const brand=await evaluate("(()=>{const n=document.querySelector('.ops-brand-full'),r=n.getBoundingClientRect();return {width:r.width,height:r.height,background:getComputedStyle(n).backgroundColor};})()");
+      assert.ok(Math.abs(brand.width-102.2)<0.1&&Math.abs(brand.height-86.8)<0.1);
+      assert.equal(brand.background,'rgba(0, 0, 0, 0)');
+      await screenshot('brand-transparent-reduced');
       for(const collapsed of [false,true]){
         if(collapsed)await click('收起侧边栏');
         await click('用户菜单');
@@ -213,10 +227,31 @@ test('built Server navigation keeps the workspace continuous without changing au
       await command('Emulation.setTouchEmulationEnabled',{enabled:true,maxTouchPoints:1});
       await click('打开主导航');await has('业务导航');await click('用户菜单');await has('退出登录');
       assert.equal(await evaluate("Boolean(document.querySelector('.qc-user-menu-drawer .qc-user-popover button'))"),true);
+      await evaluate("document.querySelector('.qc-user-menu-drawer').scrollIntoView({block:'end'})");
+      assert.ok(await evaluate("(()=>{const b=document.querySelector('.qc-user-menu-drawer .qc-user-popover button').getBoundingClientRect();return b.top>=0&&b.bottom<=innerHeight;})()"));
       await screenshot('brand-account-mobile');await click('关闭业务导航');
       await command('Emulation.setTouchEmulationEnabled',{enabled:false});
       await command('Emulation.setDeviceMetricsOverride',{width:1440,height:900,deviceScaleFactor:1,mobile:false});
       await until(()=>evaluate("document.querySelector('.qc-app-shell').dataset.responsiveMode==='wide'"),'account desktop restore');
+    });
+    await phase('recorded trim origins and attachment action anchors survive actual Server loading at desktop and mobile sizes',async()=>{
+      await full('/quote-center/detail?id='+encodeURIComponent(x.record.quote.id));await has('款式报价明细');await until(()=>evaluate("[...document.querySelectorAll('input')].some(n=>n.value==='辅料来源-brand')"),'trim inputs rendered');
+      const badgeTexts=await evaluate("[...document.querySelectorAll('.qc-source-badge')].filter(n=>n.getClientRects().length).map(n=>n.textContent)");
+      for(const label of ['品牌','业务','库'])assert.ok(badgeTexts.includes(label),label);
+      assert.equal(await evaluate("document.querySelectorAll('.qc-source-badge.is-brand').length"),3);
+      await evaluate("document.querySelector('.qc-source-badge.is-brand').scrollIntoView({block:'center'})");await screenshot('trim-origin-badges');
+      for(const width of [1440,390]){
+        await command('Emulation.setDeviceMetricsOverride',{width,height:900,deviceScaleFactor:1,mobile:width===390});
+        await until(()=>evaluate(`innerWidth===${width}`),'attachment viewport');
+        await until(()=>evaluate("Boolean(document.querySelector('.qc-attachment-image-item .qc-attachment-more button'))"),'attachment rendered');
+        await evaluate("document.querySelector('.qc-attachment-image-item').scrollIntoView({block:'center'})");
+        const g=await evaluate("(()=>{const card=document.querySelector('.qc-attachment-image-item').getBoundingClientRect(),a=document.querySelector('.qc-attachment-image-item .qc-attachment-more').getBoundingClientRect();return {inside:a.left>=card.left&&a.right<=card.right&&a.top>=card.top&&a.bottom<=card.bottom,right:card.right-a.right,bottom:card.bottom-a.bottom,width:a.width,height:a.height};})()");
+        assert.equal(g.inside,true);assert.ok(g.right<=10&&g.bottom<=10);if(width===390){assert.ok(g.width>=44&&g.height>=44);}
+        await click('synthetic.png 更多操作');await has('编辑名称');
+        assert.ok(await evaluate("(()=>{const r=document.querySelector('.qc-attachment-action-menu').getBoundingClientRect();return r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight;})()"));
+        await screenshot('attachment-actions-'+width);await command('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape'});await command('Input.dispatchKeyEvent',{type:'keyUp',key:'Escape',code:'Escape'});
+      }
+      await command('Emulation.setDeviceMetricsOverride',{width:1440,height:900,deviceScaleFactor:1,mobile:false});await click('报价中心');await quoteReady();
     });
     await mark(); const documentStart = documents.length;
     await click('订单中心'); await until(() => evaluate("location.pathname==='/order-center'"), 'order navigation'); await has('导入加工订单'); await wait(100);
