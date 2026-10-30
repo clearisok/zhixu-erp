@@ -1,6 +1,6 @@
 # 当前入口：staging b1与展开侧栏文字修复
 
-2026-10-30；比较main **b1b24186a300b330f29a2950e507711555c35b6c**。先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[当前切片](tasks/active/server-expanded-sidebar-labels-2026-10-30.md)。现网隔离staging已更新到b1；本片V1修复尚未测试、交付或部署，不混用状态。
+2026-10-30；比较main **b1b24186a300b330f29a2950e507711555c35b6c**。先读[状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[当前切片](tasks/active/server-expanded-sidebar-labels-2026-10-30.md)及[最终本地验收](tasks/completed/2026-10-30-expanded-sidebar-validation.md)。现网隔离staging已更新到b1；本片V1修复本地验收通过，尚未交付或部署，不混用状态。
 
 - [完整Gate0–8/R](tasks/active/server-convergence-gate0-2026-10-20.md)、[业务规则](BUSINESS_RULES.md)、[决策](DECISION_LOG.md)：完整目标和保护边界不变。
 - [发布守卫](features/RELEASE_BASELINE_GUARD.md)、[V1路径影响](release/ui-changes/server-expanded-sidebar-labels-20261030.json)、[导航工程](tasks/active/server-navigation-main-forward-2026-10-24.md)。

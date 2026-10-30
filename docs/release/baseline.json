@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "b1b24186a300b330f29a2950e507711555c35b6c",
-  "verifiedAt": "2026-10-30T06:02:55.112Z",
+  "verifiedAt": "2026-10-30T06:17:44.604Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -5480,6 +5480,16 @@
       "recordedAtSha": "b141210085b6c3d1d56e3d0c2a645e92284afff2",
       "renderedSourceSha": "b141210085b6c3d1d56e3d0c2a645e92284afff2",
       "sha256": "6c69ded766a69c52d0c633d57f2e673f732983a97b61f6ee117089252483add2"
+    },
+    {
+      "id": "expanded-sidebar-review-correction-20261030",
+      "kind": "document",
+      "path": "docs/tasks/active/server-expanded-sidebar-labels-2026-10-30.md",
+      "recordedAtSha": "6954fdf57e8c0e40cb783c70ca0c92aea35b2606",
+      "renderedSourceSha": "6954fdf57e8c0e40cb783c70ca0c92aea35b2606",
+      "sha256": "2973ebbe1d4cc3ef3b03aae3a3ee23e307b0cfbc4fedec808a52c21025312363",
+      "supersedes": "expanded-sidebar-v1-engineering-20261030",
+      "changeReason": "Independent review correction preserves original legacy specificity; initial checks and deliberately incomplete baseline attempt retained, corrected-source validation pending"
     }
   ],
   "pages": [
@@ -5705,7 +5715,8 @@
         "unified-demo-engineering",
         "ainuoke-readiness-engineering",
         "server-user-menu-approved-20261014",
-        "expanded-sidebar-v1-engineering-20261030"
+        "expanded-sidebar-v1-engineering-20261030",
+        "expanded-sidebar-review-correction-20261030"
       ]
     },
     {

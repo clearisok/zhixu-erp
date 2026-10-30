@@ -3,7 +3,7 @@
 2026-10-30；比较main **b1b24186a300b330f29a2950e507711555c35b6c**，当前分支fix/server-expanded-sidebar-labels。任务见[本片](tasks/active/server-expanded-sidebar-labels-2026-10-30.md)。main/API只读核对完成，当前唯一开放PR为136工具草稿。原已交付材料修复分支和所有输出保留。
 
 - 新实际缺陷：staging b1的1135px primary/expanded sidebar宽186但菜单font0/label宽0；旧1180 CSS仍在隐藏brand/组织/身份/子菜单。修复仅app/globals.css，将该sidebar fallback限制到无data-responsive-mode的旧shell；既有断点、菜单、权限、密度和业务不变，V1路径记录已写。
-- 既有production-built navigation test已补七种展开宽度、1135设置子菜单、收起/再展开和1099↔1135检查。当前尚未运行新构建/测试，不写PASS。下一步创建独立冻结源码构建目录、复用既有node_modules（不安装），运行对应浏览器及必要本地门禁；集中完成后一次交付/必要CI，不merge/部署。
+- [最终本地验收](tasks/completed/2026-10-30-expanded-sidebar-validation.md)通过：构建6954fdf5、最终测试6d307348仅测试差异；实际Chromium20/20、类型/lint和发布基线182/182通过，独立复审0P1/P2。新probe涵盖legacy390px触控，初版P2和两次探针时序失败保留，不重写结果。新构建在D:/zhixu-server-convergence/candidates/expanded-sidebar-6954fdf5-46da3bcd，未替换现网/旧本机。下一步绑定最终证据、精确守卫/最终提交，集中一次安全交付、唯一草稿PR与必要CI；不merge/部署，不重跑已绿产品项。
 - 已完成的宁波b1更新不用重跑：outputs/pr135-staging-update-final.json、outputs/pr135-approved-staging-update/independent-final-review.json及convergence-goal-audit-staging-b1-20261030.json为本机操作事实。121表/序列新配对恢复、33恢复/33公网读回、附件/原密码/身份保护通过，浏览器原会话已进入b1订单中心。运行配置runtime/trial.b1b24186-a3b2ee80.conf；原config/owner/三SO/两用户/DB对象卷、全部旧资产和备份保留。认证变化限定admin登录时间、server-admin启动时间、已精确匹配原会话的last_seen单调读更新和一次公网验收登录增量。
 - 所有此前部署/恢复/上传会话已终结，无需再等旧handle；恢复副本已停、卷保留。公网POST在复用连接时中断，独立TLS连接后正负认证和33接口全部成功；原失败与403布尔字段残留均保留并以前向更正说明，不重跑绿项。
 - 本片Source0/调度0；旧快照已过期，用历史，不续TTL。不得重跑任何旧outputs中的prepare/run/backup/update helper。私密输入仍只由已有本机文件消费，不输出密码/Token/报告正文。
