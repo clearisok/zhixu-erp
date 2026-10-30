@@ -223,8 +223,10 @@ test('built Server navigation keeps the workspace continuous without changing au
         assert.equal(await evaluate("document.activeElement?.getAttribute('aria-label')"),'用户菜单');
       }
       await screenshot('brand-account-collapsed');await click('展开侧边栏');
+      await click('用户菜单');await until(()=>evaluate("Boolean(document.querySelector('.qc-user-popover-portal'))"),'account open before responsive change');
       await command('Emulation.setDeviceMetricsOverride',{width:390,height:900,deviceScaleFactor:1,mobile:true});
       await command('Emulation.setTouchEmulationEnabled',{enabled:true,maxTouchPoints:1});
+      await until(()=>evaluate("document.querySelector('.qc-app-shell').dataset.responsiveMode==='mobile'&&!document.querySelector('.qc-user-popover-portal')"),'mobile switch removes hidden sidebar account portal');
       await click('打开主导航');await has('业务导航');await click('用户菜单');await has('退出登录');
       assert.equal(await evaluate("Boolean(document.querySelector('.qc-user-menu-drawer .qc-user-popover button'))"),true);
       await evaluate("document.querySelector('.qc-user-menu-drawer').scrollIntoView({block:'end'})");
@@ -242,7 +244,8 @@ test('built Server navigation keeps the workspace continuous without changing au
       await evaluate("document.querySelector('.qc-source-badge.is-brand').scrollIntoView({block:'center'})");await screenshot('trim-origin-badges');
       for(const width of [1440,390]){
         await command('Emulation.setDeviceMetricsOverride',{width,height:900,deviceScaleFactor:1,mobile:width===390});
-        await until(()=>evaluate(`innerWidth===${width}`),'attachment viewport');
+        await command('Emulation.setTouchEmulationEnabled',{enabled:width===390,maxTouchPoints:1});
+        await until(()=>evaluate(`innerWidth===${width}&&document.querySelector('.qc-app-shell').dataset.responsiveMode==='${width===390?'mobile':'wide'}'`),'attachment viewport');
         await until(()=>evaluate("Boolean(document.querySelector('.qc-attachment-image-item .qc-attachment-more button'))"),'attachment rendered');
         await evaluate("document.querySelector('.qc-attachment-image-item').scrollIntoView({block:'center'})");
         const g=await evaluate("(()=>{const card=document.querySelector('.qc-attachment-image-item').getBoundingClientRect(),a=document.querySelector('.qc-attachment-image-item .qc-attachment-more').getBoundingClientRect();return {inside:a.left>=card.left&&a.right<=card.right&&a.top>=card.top&&a.bottom<=card.bottom,right:card.right-a.right,bottom:card.bottom-a.bottom,width:a.width,height:a.height};})()");
@@ -251,7 +254,7 @@ test('built Server navigation keeps the workspace continuous without changing au
         assert.ok(await evaluate("(()=>{const r=document.querySelector('.qc-attachment-action-menu').getBoundingClientRect();return r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight;})()"));
         await screenshot('attachment-actions-'+width);await command('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape'});await command('Input.dispatchKeyEvent',{type:'keyUp',key:'Escape',code:'Escape'});
       }
-      await command('Emulation.setDeviceMetricsOverride',{width:1440,height:900,deviceScaleFactor:1,mobile:false});await click('报价中心');await quoteReady();
+      await command('Emulation.setTouchEmulationEnabled',{enabled:false});await command('Emulation.setDeviceMetricsOverride',{width:1440,height:900,deviceScaleFactor:1,mobile:false});await until(()=>evaluate("document.querySelector('.qc-app-shell').dataset.responsiveMode==='wide'"),'attachment desktop restore');await click('报价中心');await quoteReady();
     });
     await mark(); const documentStart = documents.length;
     await click('订单中心'); await until(() => evaluate("location.pathname==='/order-center'"), 'order navigation'); await has('导入加工订单'); await wait(100);

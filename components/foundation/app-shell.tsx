@@ -223,9 +223,9 @@ function AppShellFrame({ title, children, onRequestNavigation, onRequestLogout, 
           <SidebarFloatingMenu id="sidebar-system-menu" open={systemOpen && compactSidebar} anchorRef={systemTriggerRef} label="系统设置菜单" onClose={closeMenus}>{systemMenuItems}</SidebarFloatingMenu>
         </div>}
       </nav>
-      {serverIdentityMode || localSingleUser
+      {!touchNavigation && (serverIdentityMode || localSingleUser
         ? <ServerUserMenu placement="sidebar" name={visibleUserName} detail={visibleUserDetail} initial={userInitial} canLogout={!localSingleUser && serverSession.status === "authenticated"} onLogout={requestLogout} />
-        : <button type="button" className={`ops-user ${personalActive ? "active" : ""}`} title="我的设置" onClick={() => navigate("/my-settings/ainuoke-account")}><span>{userInitial}</span><div><strong>{visibleUserName}</strong><small>{visibleUserDetail}</small></div></button>}
+        : <button type="button" className={`ops-user ${personalActive ? "active" : ""}`} title="我的设置" onClick={() => navigate("/my-settings/ainuoke-account")}><span>{userInitial}</span><div><strong>{visibleUserName}</strong><small>{visibleUserDetail}</small></div></button>)}
     </aside>
 
     <section className="ops-workspace">
