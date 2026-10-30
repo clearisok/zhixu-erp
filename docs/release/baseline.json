@@ -5505,6 +5505,70 @@
       "path": "docs/tasks/completed/2026-10-30-sidebar-evidence-binding-correction.md",
       "recordedAtSha": "97c655556125cc74d098e4e18e664e0d7bb65156",
       "sha256": "90fb54e81c7a09527ac0995cf27b4111c6ecf8a1f5c6be4b346c9b6d20f03e63"
+    },
+    {
+      "id": "brand-shell-approved-20261030",
+      "kind": "document",
+      "path": "docs/tasks/active/brand-shell-navigation-2026-10-30.md",
+      "recordedAtSha": "f289db7e14d71f3fad5585a94f9532bf32f887f5",
+      "renderedSourceSha": "e4413f0fbb72736ebf0d5f750f73778c8a441e67",
+      "sha256": "e287d929f5285633f32744b3a4951436784e87594d56a7bfd1b9181da8142c6c"
+    },
+    {
+      "id": "brand-shell-validation-20261030",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-30-brand-shell-validation.md",
+      "recordedAtSha": "f289db7e14d71f3fad5585a94f9532bf32f887f5",
+      "renderedSourceSha": "e4413f0fbb72736ebf0d5f750f73778c8a441e67",
+      "sha256": "de8f6743d4e01c46ee773d0e8b4a9b2f121b1d814d4e803af9fd9b338c96a19a"
+    },
+    {
+      "id": "brand-shell-brand-transparent-reduced-20261030",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/brand-shell-20261030/brand-transparent-reduced.png",
+      "recordedAtSha": "f289db7e14d71f3fad5585a94f9532bf32f887f5",
+      "renderedSourceSha": "e4413f0fbb72736ebf0d5f750f73778c8a441e67",
+      "sha256": "dafaaf03cf22f9ead5d845ca014c3ce3890d4e2800a5ce3be21ceb544747071b"
+    },
+    {
+      "id": "brand-shell-brand-account-collapsed-20261030",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/brand-shell-20261030/brand-account-collapsed.png",
+      "recordedAtSha": "f289db7e14d71f3fad5585a94f9532bf32f887f5",
+      "renderedSourceSha": "e4413f0fbb72736ebf0d5f750f73778c8a441e67",
+      "sha256": "e2cbd07d06fe8836f1fb7358cf1c8071d476dcb3e478265f2a685aa718c2c224"
+    },
+    {
+      "id": "brand-shell-brand-account-mobile-20261030",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/brand-shell-20261030/brand-account-mobile.png",
+      "recordedAtSha": "f289db7e14d71f3fad5585a94f9532bf32f887f5",
+      "renderedSourceSha": "e4413f0fbb72736ebf0d5f750f73778c8a441e67",
+      "sha256": "04b36acbe3aca94774dec4ebd9bba1d143e1cdbe1254c38c2cef580c3c9680f9"
+    },
+    {
+      "id": "brand-shell-trim-origin-badges-20261030",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/brand-shell-20261030/trim-origin-badges.png",
+      "recordedAtSha": "f289db7e14d71f3fad5585a94f9532bf32f887f5",
+      "renderedSourceSha": "e4413f0fbb72736ebf0d5f750f73778c8a441e67",
+      "sha256": "ad7886422de76a02cce5469c335fb850509016829c9cd59e28d7494e4429d897"
+    },
+    {
+      "id": "brand-shell-attachment-actions-1440-20261030",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/brand-shell-20261030/attachment-actions-1440.png",
+      "recordedAtSha": "f289db7e14d71f3fad5585a94f9532bf32f887f5",
+      "renderedSourceSha": "e4413f0fbb72736ebf0d5f750f73778c8a441e67",
+      "sha256": "9265a0a76ea096fe5d39954e88ebd3207917270f75ca324b05cf1c4be4c807ac"
+    },
+    {
+      "id": "brand-shell-attachment-actions-390-20261030",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/brand-shell-20261030/attachment-actions-390.png",
+      "recordedAtSha": "f289db7e14d71f3fad5585a94f9532bf32f887f5",
+      "renderedSourceSha": "e4413f0fbb72736ebf0d5f750f73778c8a441e67",
+      "sha256": "df860000458626d3f88d9f64dc667a5e9513e40278412e7f4bbf1507b4b8deb5"
     }
   ],
   "pages": [
