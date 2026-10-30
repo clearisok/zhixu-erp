@@ -1,11 +1,9 @@
-# 接力：品牌、账号菜单与导航体验
+# 接力：标签页图标同源修复
 
-2026-10-30；分支 fix/brand-shell-navigation，base/main e37a131a7182a5488f440dcc8fde3ea66de1c6e4。六图及后续透明/缩小30%的具体批准见[范围](tasks/active/brand-shell-navigation-2026-10-30.md)。产品源码e4413f0fbb72736ebf0d5f750f73778c8a441e67。原图字节保持，新来源类别只记录未来明确应用。
+2026-10-31；base/main e37a131a7182a5488f440dcc8fde3ea66de1c6e4，分支fix/brand-shell-navigation，输入2432c955ccbb6651c496c1ada64c6461af504b60。[范围与证据](tasks/active/favicon-origin-2026-10-31.md)。
 
-本地构建、22浏览器、14报价API、18附件、30定向、类型/lint通过。首轮964项中23个失败（3旧菜单断言+20清单锚点测试），修复后12项兼容及59项基线定向通过；不要重跑已绿全仓检查。独立复审0P1/P2。源码及截图冻结见[验收](tasks/completed/2026-10-30-brand-shell-validation.md)。e460已精确交付唯一草稿 #138；首轮CI基线/权限通过，来源旧手机菜单测试失败。本次仅测试兼容及文档更新，三组受影响浏览器43/43通过，原失败保留，复审0P1/P2。
+前一阶段交付及体验站已完成，outputs/pr138-completion.json为恢复点；三项CI全绿，PR138仍草稿未合并。实际镜像源码e460e5d0（2432后续只有测试/文档，等价证明已存）；不要误报当前仍e37或重跑旧交付。
 
-e37批准应用更新已READY；当前配置runtime/trial.e37a131a-334a3e41.conf。新备份、独立恢复121表/序列、34路径读回通过；公网后续宁波到公网21请求后超时但退出成功，完整公网仍未通过。最终readonly-preservation已核对两笔验证会话撤销，原业务/身份/旧资产均保持，状态DATA_PRESERVED_PUBLIC_ACCEPTANCE_PENDING。保留 outputs/pr137-approved-staging-update 全部原回执，不重跑备份/切换/Source；原最终PASS工具要求公网全套通过，不能绕过。
+新图标修复从实际公网HTML定位localhost绝对地址，RootLayout显式相对PNG。原mark-only SVG渲染64×64透明PNG，原品牌图片不变；需验证构建输出同源地址/PNG、完成本次精确守卫和一次推送、必要CI，再生成新镜像同步隔离体验站。后续使用独立新回执目录，不能覆盖旧部署/备份/CI记录；当前尚未部署新图标。
 
-第二轮02806591已精确交付，基线/权限CI通过，来源CI手机退出已通过；后续颜色价格测试误用页面其他卡片的“无权查看”作为就绪条件，在独立颜色请求尚未返回时读取details失败。只改测试等待实际非空分组，并增加受限分组数量断言，产品未改；本地7/7、复审0P1/P2。日志SHA256 `3d65aa7162b0fbbced5dbe5045628e0604702226cca0aee3168127ec5c181758`，前两轮失败原文均保留。下一提交需一次正常交付和必要CI，不能重跑旧任务冒充新head结果；更新镜像等价证明的精确测试白名单并保留旧证明。
-
-用户已批准本片同步体验站，未批准合并；下一步测试兼容提交精确门禁、一次推送和必要CI。已封装e460镜像；复用须证明新CI提交仅测试/文档变化且全部产品blob一致，镜像不改标。全绿后使用 outputs/pr138-approved-staging-update.mjs 执行新备份、独立恢复、隔离应用切换及公网核验，未执行前不记部署PASS。完整G1–G5/Gate0–8/R未缩减，旧环境/数据/卷/备份保留，#136不动，7bf3不重建，不新增Source。原完整接力在 [输入归档](tasks/completed/2026-10-30-brand-shell-input-state/AI_HANDOFF.md)。
+用户明确要求同步体验站，未批准合并。原账户/业务/旧资产保留，无新Source、迁移或清理。过程级直连Git经上轮验证可用，仍先有界核对；不改共享代理/TLS/auth。7bf3工作树不重建。旧接力[归档](tasks/completed/2026-10-31-favicon-input-state/AI_HANDOFF.md)。

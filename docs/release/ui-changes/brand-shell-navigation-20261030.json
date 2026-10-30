@@ -1,9 +1,35 @@
 {
   "baselineSha": "e37a131a7182a5488f440dcc8fde3ea66de1c6e4",
   "level": "V3",
-  "paths": ["app/foundation.css", "app/layout.tsx", "app/quote-center/quote-center.css", "components/foundation/app-shell.tsx", "components/foundation/server-user-menu.tsx", "components/foundation/weaveops-brand.tsx", "features/basic-settings/model/basic-settings.ts", "features/basic-settings/server/quote-master-dependencies.ts", "features/quote-center/components/batch-export-modal.tsx", "features/quote-center/components/cost-table.tsx", "features/quote-center/model/quote-view-model.ts", "public/favicon.svg", "public/branding/weaveops-original.png"],
-  "pages": ["navigation", "quote-list", "quote-detail"],
-  "visibleDifference": "Use the supplied WeaveOps brand with transparent sidebar background and 30% smaller dimensions per the follow-up screenshot; centered full wordmark and mark-only favicon. Move account actions to sidebar/mobile navigation; distinguish recorded brand and salesperson trim origins; anchor attachment menus inside their cards; show route transition feedback and prefetch on intent. Export modules load on explicit export.",
-  "evidence": ["docs/tasks/active/brand-shell-navigation-2026-10-30.md", "server/integration/server-navigation-continuity.integration.test.mjs"],
-  "approval": {"status": "user-approved", "reference": "docs/tasks/active/brand-shell-navigation-2026-10-30.md"}
+  "paths": [
+    "app/foundation.css",
+    "app/layout.tsx",
+    "app/quote-center/quote-center.css",
+    "components/foundation/app-shell.tsx",
+    "components/foundation/server-user-menu.tsx",
+    "components/foundation/weaveops-brand.tsx",
+    "features/basic-settings/model/basic-settings.ts",
+    "features/basic-settings/server/quote-master-dependencies.ts",
+    "features/quote-center/components/batch-export-modal.tsx",
+    "features/quote-center/components/cost-table.tsx",
+    "features/quote-center/model/quote-view-model.ts",
+    "public/favicon.svg",
+    "public/branding/weaveops-original.png",
+    "public/branding/weaveops-mark-64.png"
+  ],
+  "pages": [
+    "navigation",
+    "quote-list",
+    "quote-detail"
+  ],
+  "visibleDifference": "Use the supplied WeaveOps brand with transparent sidebar background and 30% smaller dimensions per the follow-up screenshot; centered full wordmark and mark-only favicon. Move account actions to sidebar/mobile navigation; distinguish recorded brand and salesperson trim origins; anchor attachment menus inside their cards; show route transition feedback and prefetch on intent. Export modules load on explicit export. Follow-up: same-origin 64px transparent PNG favicon, avoiding metadataBase localhost resolution; no sidebar change.",
+  "evidence": [
+    "docs/tasks/active/brand-shell-navigation-2026-10-30.md",
+    "server/integration/server-navigation-continuity.integration.test.mjs",
+    "docs/tasks/active/favicon-origin-2026-10-31.md"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/favicon-origin-2026-10-31.md"
+  }
 }

@@ -19,7 +19,6 @@ export const metadata: Metadata = {
   metadataBase: new URL("http://localhost:3000"),
   title: "织序 ZHIXU｜成衣报价、订单协同与生产排单",
   description: "面向服装工厂的成衣报价、订单跟踪和产线排单协同系统。",
-  icons: { icon: [{ url: "/favicon.svg", type: "image/svg+xml" }] },
   openGraph: {
     title: "织序 ZHIXU｜工厂协同工作台",
     description: "成衣报价 · 订单协同 · 智能排单",
@@ -35,5 +34,6 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="zh-CN"><body data-build-id={buildInfo.buildId} data-environment={buildInfo.environment}>{buildInfo.quoteAuthority === "server" && <Script id="zhixu-workspace-history" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: serverNavigationHistoryScript }} />}<ServerSessionProvider><LocalDataBootstrap><QuoteServerBoundary>{children}</QuoteServerBoundary></LocalDataBootstrap></ServerSessionProvider><BuildInfoIndicator /></body></html>;
+  // Keep the tab icon relative to the serving origin; metadataBase is not the runtime host.
+  return <html lang="zh-CN"><head><link rel="icon" href="/branding/weaveops-mark-64.png" type="image/png" sizes="64x64" /></head><body data-build-id={buildInfo.buildId} data-environment={buildInfo.environment}>{buildInfo.quoteAuthority === "server" && <Script id="zhixu-workspace-history" strategy="beforeInteractive" dangerouslySetInnerHTML={{ __html: serverNavigationHistoryScript }} />}<ServerSessionProvider><LocalDataBootstrap><QuoteServerBoundary>{children}</QuoteServerBoundary></LocalDataBootstrap></ServerSessionProvider><BuildInfoIndicator /></body></html>;
 }
