@@ -63,7 +63,7 @@ export async function routeQuoteAttachments(request: IncomingMessage, response: 
   }
   if (request.method === "GET" && attachmentId && command === "download") {
     const controller = new AbortController();
-    const cancel = () => controller.abort();
+    const cancel = () => { if (!response.writableFinished) controller.abort(); };
     response.once("close", cancel);
     try {
     const found = await service.download(actor, quoteId, revisionId, attachmentId, controller.signal);
@@ -80,7 +80,7 @@ export async function routeQuoteAttachments(request: IncomingMessage, response: 
   if (request.method === "GET" && attachmentId && command === "thumbnail") {
     if (url.search) throw new HttpError(400, "invalid_attachment_query", "Query is not supported");
     const controller = new AbortController();
-    const cancel = () => controller.abort();
+    const cancel = () => { if (!response.writableFinished) controller.abort(); };
     response.once("close", cancel);
     try {
       const thumbnail = await service.thumbnail(actor, quoteId, revisionId, attachmentId, controller.signal);

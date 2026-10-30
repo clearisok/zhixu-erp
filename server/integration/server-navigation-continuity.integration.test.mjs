@@ -42,6 +42,11 @@ test('built Server navigation keeps the workspace continuous without changing au
   const evidence = resolve(process.env.NAVIGATION_EVIDENCE_DIR ?? 'outputs/server-navigation-continuity');
   await mkdir(evidence, { recursive: true });
   const records = { observingOnly: observing, build, rsc: [], transitions: [] };
+  const requestJournal=[];
+  x.server.on('request',(request,response)=>{
+    const row={path:new URL(request.url,x.base).pathname,method:request.method,id:response.getHeader('X-Request-Id'),closed:false,finished:false};requestJournal.push(row);
+    response.on('close',()=>{row.closed=true;row.finished=response.writableFinished;});
+  });
   let failureSnapshot = async () => ({});
   const phase = async (name, run) => {
     if (observing) return;
@@ -396,6 +401,7 @@ test('built Server navigation keeps the workspace continuous without changing au
         assert.equal(await evaluate('location.pathname'), '/login'); assert.equal(await evaluate("document.querySelectorAll('.qc-app-shell').length"), 0);
         assert.equal(await evaluate("Object.keys(localStorage).some(k=>k.includes('zhixu.erp.local.'))"), false);
       });
+      await writeFile(join(evidence,'request-errors.json'),JSON.stringify(x.errors.map(error=>({...error,request:requestJournal.find(row=>row.id===error.requestId)})),null,2));
       assert.deepEqual(exceptions, []); assert.deepEqual(x.errors, []);
     }
     records.documents = documents;
