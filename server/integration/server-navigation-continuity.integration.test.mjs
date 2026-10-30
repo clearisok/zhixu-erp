@@ -132,6 +132,37 @@ test('built Server navigation keeps the workspace continuous without changing au
     };
     await full('/quote-center'); await has('欢迎回来');
     await input('username', 'navigation.root'); await input('password', password); await click('登录织序'); await quoteReady();
+    await phase('expanded Foundation sidebars keep readable labels across the legacy 1180px breakpoint', async () => {
+      const sidebars = [];
+      const sidebar = () => evaluate(`(()=>{const shell=document.querySelector('.qc-app-shell'),side=shell.querySelector('.ops-sidebar'),button=side.querySelector('nav button'),label=button.querySelector('b');return {width:innerWidth,mode:shell.dataset.responsiveMode,state:shell.dataset.sidebarState,sidebarWidth:side.getBoundingClientRect().width,labelFont:parseFloat(getComputedStyle(label).fontSize),labelWidth:label.getBoundingClientRect().width,labelDisplay:getComputedStyle(label).display,brandDisplay:getComputedStyle(side.querySelector('.ops-brand div')).display,organizationDisplay:getComputedStyle(side.querySelector('.organization div')).display,userDisplay:getComputedStyle(side.querySelector('.ops-user div')).display};})()`);
+      for (const width of [1100, 1135, 1180, 1181, 1280, 1440, 1920]) {
+        await command('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
+        await until(() => evaluate(`document.querySelector('.qc-app-shell').dataset.responsiveMode===${JSON.stringify(width >= 1440 ? 'wide' : 'primary')}`), 'expanded responsive mode');
+        const value = await sidebar(); sidebars.push(value);
+        assert.equal(value.state, 'expanded'); assert.equal(value.sidebarWidth, 186);
+        assert.ok(value.labelFont > 0, `navigation font at ${width}px`); assert.ok(value.labelWidth > 0, `navigation label at ${width}px`);
+        for (const key of ['brandDisplay', 'organizationDisplay', 'userDisplay']) assert.notEqual(value[key], 'none', `${key} at ${width}px`);
+      }
+      await command('Emulation.setDeviceMetricsOverride', { width: 1135, height: 900, deviceScaleFactor: 1, mobile: false });
+      await until(() => evaluate("document.querySelector('.qc-app-shell').dataset.responsiveMode==='primary'"), 'primary mode');
+      await click('系统设置'); await has('角色权限');
+      assert.equal(await evaluate("getComputedStyle(document.querySelector('.ops-subnav')).display"), 'grid');
+      assert.ok(await evaluate("[...document.querySelectorAll('.ops-subnav button')].every(n=>parseFloat(getComputedStyle(n).fontSize)>0&&n.getBoundingClientRect().width>0)"));
+      await screenshot('after-expanded-sidebar-1135'); await click('系统设置');
+      await click('收起侧边栏'); await until(() => evaluate("document.querySelector('.qc-app-shell').dataset.sidebarState==='collapsed'"), 'collapsed sidebar');
+      let value = await sidebar(); sidebars.push(value); assert.equal(value.sidebarWidth, 78); assert.equal(value.labelDisplay, 'none');
+      await click('展开侧边栏'); await until(() => evaluate("document.querySelector('.qc-app-shell').dataset.sidebarState==='expanded'"), 'reexpanded sidebar');
+      value = await sidebar(); sidebars.push(value); assert.equal(value.sidebarWidth, 186); assert.ok(value.labelFont > 0); assert.ok(value.labelWidth > 0);
+      await command('Emulation.setDeviceMetricsOverride', { width: 1099, height: 900, deviceScaleFactor: 1, mobile: false });
+      await until(() => evaluate("document.querySelector('.qc-app-shell').dataset.responsiveMode==='compact'"), 'compact boundary');
+      value = await sidebar(); sidebars.push(value); assert.equal(value.sidebarWidth, 78); assert.equal(value.labelDisplay, 'none');
+      await command('Emulation.setDeviceMetricsOverride', { width: 1135, height: 900, deviceScaleFactor: 1, mobile: false });
+      await until(() => evaluate("document.querySelector('.qc-app-shell').dataset.responsiveMode==='primary'"), 'return from compact boundary');
+      value = await sidebar(); sidebars.push(value); assert.equal(value.sidebarWidth, 186); assert.ok(value.labelFont > 0); assert.ok(value.labelWidth > 0);
+      records.sidebars = sidebars;
+      await command('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
+      await until(() => evaluate("document.querySelector('.qc-app-shell').dataset.responsiveMode==='wide'"), 'restore navigation test viewport');
+    });
     await mark(); const documentStart = documents.length;
     await click('订单中心'); await until(() => evaluate("location.pathname==='/order-center'"), 'order navigation'); await has('导入加工订单'); await wait(100);
     const first = await measure('quote-to-order'); first.documentRequests = documents.slice(documentStart);

@@ -1,0 +1,12 @@
+{
+  "baselineSha": "b1b24186a300b330f29a2950e507711555c35b6c",
+  "level": "V1",
+  "paths": ["app/globals.css"],
+  "pages": ["navigation"],
+  "visibleDifference": "Restore the approved expanded Foundation sidebar at 1100–1180px: labels, brand, organization, user details and opened settings submenu remain visible. Scope only the old 1180px sidebar fallback to shells without a responsive-mode attribute. Existing widths, mode boundaries, collapsed/touch behavior, menu order, permissions, routes and non-sidebar media rules are unchanged.",
+  "evidence": [
+    "docs/tasks/active/server-expanded-sidebar-labels-2026-10-30.md",
+    "docs/tasks/active/server-convergence-gate0-2026-10-20.md",
+    "server/integration/server-navigation-continuity.integration.test.mjs"
+  ]
+}
