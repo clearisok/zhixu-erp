@@ -147,6 +147,39 @@ test('built Server navigation keeps the workspace continuous without changing au
     };
     await full('/quote-center'); await has('欢迎回来');
     await input('username', 'navigation.root'); await input('password', password); await click('登录织序'); await quoteReady();
+    await phase('quote list does not load editor, attachments or optional command panels', async () => {
+      await until(() => evaluate("Boolean(document.querySelector('[aria-label=\"报价列表\"]'))"), 'quote list data');
+      const scripts=requestJournal.filter(row=>row.path.startsWith('/assets/')&&row.path.endsWith('.js')).map(row=>row.path);
+      for(const name of ['production-quote-pages-','quote-editor-','attachment-panel-','quote-order-pricing-','processing-quote-push-']) {
+        assert.equal(scripts.some(path=>path.split('/').at(-1).startsWith(name)),false,`${name} must not block the list`);
+      }
+    });
+    await phase('rapid pointer, focus and click load one route request even on a slow connection', async () => {
+      await click('系统设置');
+      const before=requestJournal.length;
+      await command('Network.emulateNetworkConditions',{offline:false,latency:300,downloadThroughput:2000000,uploadThroughput:2000000});
+      try {
+        await evaluate("(()=>{const b=[...document.querySelectorAll('[role=menuitem]')].find(n=>n.textContent==='进度设置');b.dispatchEvent(new PointerEvent('pointerover',{bubbles:true}));b.focus();b.click();})()");
+        await has('辅料关键词优先级');
+        const requests=requestJournal.slice(before).filter(row=>row.path==='/system-settings/progress-settings.rsc');
+        assert.equal(requests.length,1,'in-flight intent must not issue an extra RSC request');
+        assert.equal(requestJournal.slice(before).filter(row=>row.path==='/api/v1/auth/me').length,0);
+      } finally { await command('Network.emulateNetworkConditions',{offline:false,latency:0,downloadThroughput:-1,uploadThroughput:-1}); }
+      await click('报价中心'); await quoteReady();
+    });
+    await phase('an unavailable optional module leaves the list usable and sends no business command', async () => {
+      const before=requestJournal.length;
+      await command('Network.setBlockedURLs',{urls:['*quote-order-pricing-*.js']});
+      try {
+        await click('更多报价操作'); await click('批量调整订单成交价');
+        await has('功能加载失败'); await click('取消打开');
+        assert.equal((await body()).includes('功能加载失败'),false);
+        assert.equal(requestJournal.slice(before).some(row=>row.method!=='GET'),false);
+        assert.equal(await evaluate("Boolean(document.querySelector('[aria-label=\"报价列表\"]'))"),true);
+      } finally { await command('Network.setBlockedURLs',{urls:[]}); }
+      // A native failed module is retried by explicit refresh, never by replaying a command.
+      await full('/quote-center'); await quoteReady();
+    });
     await phase('expanded Foundation sidebars keep readable labels across the legacy 1180px breakpoint', async () => {
       const sidebars = [];
       const sidebar = () => evaluate(`(()=>{const shell=document.querySelector('.qc-app-shell'),side=shell.querySelector('.ops-sidebar'),button=side.querySelector('nav button'),label=button.querySelector('b');return {width:innerWidth,mode:shell.dataset.responsiveMode,state:shell.dataset.sidebarState,sidebarWidth:side.getBoundingClientRect().width,labelFont:parseFloat(getComputedStyle(label).fontSize),labelWidth:label.getBoundingClientRect().width,labelDisplay:getComputedStyle(label).display,brandDisplay:getComputedStyle(side.querySelector('.ops-brand-full')).display,organizationDisplay:getComputedStyle(side.querySelector('.organization div')).display,userDisplay:getComputedStyle(side.querySelector('.ops-user div')).display};})()`);

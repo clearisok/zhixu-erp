@@ -1,0 +1,27 @@
+{
+  "baselineSha": "e37a131a7182a5488f440dcc8fde3ea66de1c6e4",
+  "level": "V1",
+  "paths": [
+    "app/quote-center/page.tsx",
+    "components/foundation/app-shell.tsx",
+    "components/foundation/deferred-module.tsx",
+    "components/foundation/navigation-module-loader.ts",
+    "components/foundation/server-navigation-modules.ts",
+    "features/quote-center/components/production-quote-list-page.tsx",
+    "features/quote-center/components/production-quote-pages.tsx"
+  ],
+  "pages": [
+    "navigation",
+    "quote-list",
+    "quote-detail",
+    "order-list",
+    "quote-settings",
+    "user-permissions",
+    "material-progress-settings"
+  ],
+  "visibleDifference": "Restore responsive approved navigation with shared code-only intent loads instead of duplicate pending RSC requests. Split the quote list from editor dependencies; retain original command-panel UI and commands after a cancellable loading/error state. No new business navigation or permissions.",
+  "evidence": [
+    "docs/tasks/active/navigation-performance-2026-10-31.md",
+    "server/integration/server-navigation-continuity.integration.test.mjs"
+  ]
+}

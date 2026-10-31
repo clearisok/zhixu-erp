@@ -14,6 +14,7 @@ import { browserIdentityMode } from "@/features/server-auth/identity-mode";
 import { loadSidebarPreference, saveSidebarPreference } from "./sidebar-preference";
 import { isEnabledServerRoute, quoteAuthority } from "@/features/quote-center/authority/quote-authority";
 import { useProtectedRouter, useServerNavigationControls } from "./server-navigation-protection";
+import { preloadServerNavigationModule } from "./server-navigation-modules";
 
 const basicRoutes = [
   { label: "品牌设置", href: "/basic-settings/brands" },
@@ -95,11 +96,25 @@ function AppShellFrame({ title, children, onRequestNavigation, onRequestLogout, 
   const serverSession = useServerSession();
   const navigationControls = useServerNavigationControls();
   const [isNavigating, startNavigation] = useTransition();
+  const canWarmQuotes = serverSession.hasPermission("quote.view");
+  const canWarmOrders = serverSession.hasPermission("order.view");
+  useEffect(() => {
+    if (!freshServer || serverSession.status !== "authenticated") return;
+    const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+    if (connection?.saveData) return;
+    const target = pathname.startsWith("/quote-center") ? "/order-center" : "/quote-center";
+    if (!isEnabledServerRoute(target) || (target === "/order-center" ? !canWarmOrders : !canWarmQuotes)) return;
+    // Warm only the other primary workspace's code after the current view settles.
+    // There is no RSC/API prefetch and no cross-user data cache to invalidate.
+    const timer = window.setTimeout(() => { void preloadServerNavigationModule(target); }, 1500);
+    return () => window.clearTimeout(timer);
+  }, [freshServer, serverSession.status, pathname, canWarmOrders, canWarmQuotes]);
   const prefetchRoute = (target: string) => {
-    if (freshServer && serverSession.status === "authenticated" && target !== pathname) router.prefetch(target);
+    if (freshServer && serverSession.status === "authenticated" && target !== pathname && isEnabledServerRoute(target)) void preloadServerNavigationModule(target);
   };
   const navigateRequest = (target: string) => {
     if (navigationControls && !navigationControls.check(Boolean(onRequestNavigation))) return;
+    prefetchRoute(target);
     const run = () => startNavigation(() => onRequestNavigation ? onRequestNavigation(target) : router.push(target));
     if (navigationControls) navigationControls.confirmed(run); else run();
   };
