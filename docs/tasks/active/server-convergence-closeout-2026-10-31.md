@@ -39,6 +39,29 @@
 4. 如需新鲜来源或持续同步，先明确合同、报表、次数/时间、目标库和调度范围；现有已消耗的固定许可不能复用。
 5. [逐资产依赖/退役预检](server-convergence-cutover-preflight-2026-10-28.md)保留原观察时点。3001必须保留；其余环境只有在替代接受、数据/私有文件保护、junction/bind/自动化引用解除及逐项明确批准后才退出。没有“全量prune”清单，也没有因容器停止就认定无数据。
 
-## 本次文档收口
+## 导航交付文档收口
 
 开始于干净17c，归档4份原文后前向更新状态，不改应用/SQL/测试/UI基线/权限/业务规则。新增完整目标审计回执outputs/convergence-goal-audit-navigation-20261031.json及独立审查回执，保持原证据。仅本地文档checkpoint，不因状态文字触发新CI或镜像；旧17c交付/部署证明不自动扩成新提交已交付。文档范围、原文归档字节、相对链接与diff检查另记本轮结果，不声称重跑完整工程测试。全局目标未完成。
+
+## Gate R后继保护准备（2026-10-31）
+
+干净输入6e4618fe9a1594dc670f7db8ecf71916d01008f0，仍只在本地准备退役证据，未改变远端PR138或体验站17c。当前本机Docker元数据116容器、13运行；相对10月29日清单新增11项、旧105项无缺失。此数量不证明容器内容可丢弃，也不归因其他任务的活动。
+
+从原依赖清单选取6棵历史工作树，重新核对其干净状态、提交已在e37 main祖先中、当前Docker自身/祖先/后代路径绑定为0、其他登记工作树的node_modules入向解析目标为0。不能将这些有限检查称为全部功能依赖已解除。
+
+| 工作树短名 | 冻结HEAD | 备份ignored文件 |
+| --- | --- | ---: |
+| animated-login | caf99c35b82d6c2f633209dd2385869ffeb8ea54 | 760 |
+| order-commercial-versions | e70deacfe446088677aa3d96e998436b730cb7af | 834 |
+| order-effective-attribution | 4b7ac1e8e8806bb62cbb24c292ad57bd99c43b00 | 1375 |
+| order-identity-and-contract-claim | 7ef6e665886c937cb01cf82ed2700e33029746fe | 358 |
+| order-normalization-preview | 4c59d974edd29cc82798884e70ff7586319f95ac | 354 |
+| processing-order-batches | 4da3590b46e201857223c09bb951331196ba352a | 367 |
+
+在全新受保护目录D:/zhixu-server-convergence/retirement-preservation-20261031-6e4618fe保存6份精确HEAD代码tar和4,048个ignored文件，共110,620,149字节（约105.5MiB，不含代码tar）。文件复制前后SHA一致，后继一次完整集合/路径/大小/修改时点/SHA核对一致。原目录、Git历史、分支、依赖junction、数据卷均未改变。根目录ACL关闭继承，后继4,400项权限只读检查无非当前管理员/Administrators/SYSTEM的允许规则；私密原文、命令行和提示词不进入仓库或聊天。
+
+另一次有限绝对路径检索观察531个进程（202条命令行不可读）、203个计划任务、320个服务、默认Codex目录0份automation.toml；六根路径无明确命中。**不可读进程、相对路径、环境变量展开、其他调度器、其他junction和未登记引用仍未排除**。不能把0命中写成无其他任务依赖；此结果不改变原用户资产保护边界。
+
+证据位于ignored outputs/retirement-candidate-evidence-20261031.json、retirement-preservation-receipt-20261031.json、retirement-preservation-verified-20261031.json、retirement-explicit-reference-check-20261031.json，完整私密备份manifest仅在受保护目录。独立审查核实复制边界；初审指出祖先挂载和文件全集缺口，后继有限核验关闭这两个时点缺口，无新增P1/P2。字节核验不是数据库或运行恢复演练，node_modules/.git未复制。
+
+这些对象仅升级为“已有保护副本、待引用释放及明确归档批准的候选”；**本轮未归档、停止、删除或迁移任何原资产**。未来归档前还须重新核对源变化、任务归属、剩余引用和最终体验接受，不能重用本次时点证明免去复核。3001、50426、54315真实来源历史、65139候选、共享依赖目录及宁波旧资产继续保留。无新测试、CI、Source、业务命令或运行配置变更。
