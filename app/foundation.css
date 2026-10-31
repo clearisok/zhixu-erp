@@ -336,7 +336,7 @@
   .qc-server-quote-detail .qc-other-compact-grid :is(.is-usage, .is-unit, .is-loss, .is-price) { grid-column: span 3; }
 }
 
-/* Approved top-right session action; no sidebar/floating logout. */
+/* Session disclosure and its sidebar / mobile placements. */
 .qc-user-menu { position: relative; }
 .qc-user-menu > button { cursor: pointer; text-align: left; font: inherit; }
 .qc-user-menu > button:focus-visible { outline: 2px solid var(--forest); outline-offset: 3px; }
@@ -346,3 +346,24 @@
 .qc-user-popover button:hover, .qc-user-popover button:focus-visible { background: #edf5f1; }
 .qc-user-popover button:disabled { opacity: .6; cursor: wait; }
 .qc-user-popover [role="alert"] { display: block; max-width: 220px; padding: 6px; color: #a32345; font-size: 12px; }
+
+/* A single account action lives with the sidebar identity; mobile uses the navigation drawer. */
+.qc-user-menu-sidebar { flex: 0 0 auto; width: 100%; margin-top: auto; }
+.qc-user-menu-sidebar > .ops-user { cursor: pointer; min-height: 72px; }
+.qc-user-popover-portal { position: fixed; right: auto; min-width: 180px; max-width: calc(100vw - 16px); padding: 0; z-index: 100; }
+.qc-user-menu-drawer { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); }
+.qc-user-menu-drawer > .qc-server-identity { width: 100%; }
+.qc-user-menu-drawer .qc-user-popover { position: static; padding-top: 8px; }
+.ops-sidebar .ops-weaveops-brand { justify-content: center; min-height: 104px; padding: 7px; }
+.ops-brand-full { display: block; width: 102.2px; height: 86.8px; padding: 5.6px; background: transparent; }
+.ops-brand-mark { display: none; width: 28px; height: 28px; padding: 2.8px; background: transparent; }
+.ops-shell:is([data-responsive-mode="compact"], [data-sidebar-state="collapsed"]) .ops-weaveops-brand { min-height: 52px; padding: 6px 0; }
+.ops-shell:is([data-responsive-mode="compact"], [data-sidebar-state="collapsed"]) .ops-brand-full { display: none; }
+.ops-shell:is([data-responsive-mode="compact"], [data-sidebar-state="collapsed"]) .ops-brand-mark { display: block; }
+.ops-route-progress { position: fixed; z-index: 80; top: 12px; right: 24px; padding: 8px 14px; border: 1px solid #d1e2d9; border-radius: 999px; background: #f3f8f5; color: var(--forest); font-size: 12px; box-shadow: 0 3px 12px #183c2510; pointer-events: none; }
+@media (max-width: 700px) {
+  .ops-route-progress { top: 64px; right: 12px; }
+  .qc-attachment-image-item .qc-attachment-more,
+  .qc-attachment-image-item .qc-attachment-more .qc-floating-menu-trigger { width: 44px; height: 44px; min-width: 44px; min-height: 44px; }
+  .qc-attachment-image-meta { min-height: 60px; padding-right: 58px; }
+}

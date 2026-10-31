@@ -25,11 +25,13 @@ type MaterialComboboxProps<T extends { id: string }> = {
   onSelect: (option: T) => void;
 };
 
-type MaterialSourceStatus = "fabric-library" | "trim-library" | "modified" | "manual";
+type MaterialSourceStatus = "fabric-library" | "trim-library" | "brand" | "salesperson" | "modified" | "manual";
 
 const sourceLabels: Record<MaterialSourceStatus, string> = {
   "fabric-library": "库",
   "trim-library": "库",
+  brand: "品牌",
+  salesperson: "业务",
   modified: "已修改",
   manual: "手工",
 };
@@ -37,6 +39,8 @@ const sourceLabels: Record<MaterialSourceStatus, string> = {
 const sourceTitles: Record<MaterialSourceStatus, string> = {
   "fabric-library": "来自面料库",
   "trim-library": "来自辅料库",
+  brand: "来自品牌默认辅料；后续修改不会改变来源",
+  salesperson: "来自客户业务员默认辅料；后续修改不会改变来源",
   modified: "本报价已修改",
   manual: "手工输入",
 };
@@ -174,6 +178,8 @@ function fabricStatus(line: FabricCostLine, library: FabricLibraryItem[]): Mater
 }
 
 function trimStatus(line: TrimCostLine, library: TrimLibraryItem[]): MaterialSourceStatus | null {
+  if (line.sourceOrigin === "brand" || line.sourceOrigin === "salesperson") return line.sourceOrigin;
+  if (line.sourceOrigin === "library") return "trim-library";
   const hasManualValue = Boolean(line.name.trim() || line.specification.trim() || line.supplier.trim() || line.usage !== null || line.unit.trim() || line.lossRate !== null || line.unitPrice !== null);
   if (!line.sourceLibraryItemId) return hasManualValue ? "manual" : null;
   const source = library.find((item) => item.id === line.sourceLibraryItemId);

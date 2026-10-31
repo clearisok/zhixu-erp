@@ -1,11 +1,12 @@
 "use client";
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, useTransition, type ReactNode } from "react";
 import { useResponsiveMode } from "./responsive";
 import { SidebarFloatingMenu } from "./sidebar-floating-menu";
 import { Drawer } from "./drawer";
 import { ServerUserMenu } from "./server-user-menu";
+import { WeaveOpsBrand } from "./weaveops-brand";
 import { usePermissions } from "@/features/permissions";
 import { GlobalSearchPalette } from "@/features/global-search";
 import { useServerSession } from "@/features/server-auth";
@@ -13,6 +14,7 @@ import { browserIdentityMode } from "@/features/server-auth/identity-mode";
 import { loadSidebarPreference, saveSidebarPreference } from "./sidebar-preference";
 import { isEnabledServerRoute, quoteAuthority } from "@/features/quote-center/authority/quote-authority";
 import { useProtectedRouter, useServerNavigationControls } from "./server-navigation-protection";
+import { preloadServerNavigationModule } from "./server-navigation-modules";
 
 const basicRoutes = [
   { label: "品牌设置", href: "/basic-settings/brands" },
@@ -93,9 +95,27 @@ function AppShellFrame({ title, children, onRequestNavigation, onRequestLogout, 
   const pathname = usePathname();
   const serverSession = useServerSession();
   const navigationControls = useServerNavigationControls();
+  const [isNavigating, startNavigation] = useTransition();
+  const canWarmQuotes = serverSession.hasPermission("quote.view");
+  const canWarmOrders = serverSession.hasPermission("order.view");
+  useEffect(() => {
+    if (!freshServer || serverSession.status !== "authenticated") return;
+    const connection = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection;
+    if (connection?.saveData) return;
+    const target = pathname.startsWith("/quote-center") ? "/order-center" : "/quote-center";
+    if (!isEnabledServerRoute(target) || (target === "/order-center" ? !canWarmOrders : !canWarmQuotes)) return;
+    // Warm only the other primary workspace's code after the current view settles.
+    // There is no RSC/API prefetch and no cross-user data cache to invalidate.
+    const timer = window.setTimeout(() => { void preloadServerNavigationModule(target); }, 1500);
+    return () => window.clearTimeout(timer);
+  }, [freshServer, serverSession.status, pathname, canWarmOrders, canWarmQuotes]);
+  const prefetchRoute = (target: string) => {
+    if (freshServer && serverSession.status === "authenticated" && target !== pathname && isEnabledServerRoute(target)) void preloadServerNavigationModule(target);
+  };
   const navigateRequest = (target: string) => {
     if (navigationControls && !navigationControls.check(Boolean(onRequestNavigation))) return;
-    const run = () => onRequestNavigation ? onRequestNavigation(target) : router.push(target);
+    prefetchRoute(target);
+    const run = () => startNavigation(() => onRequestNavigation ? onRequestNavigation(target) : router.push(target));
     if (navigationControls) navigationControls.confirmed(run); else run();
   };
   const requestLogout = async () => {
@@ -182,10 +202,10 @@ function AppShellFrame({ title, children, onRequestNavigation, onRequestLogout, 
     || route.href === "/closing-center" && isEnabledServerRoute(route.href) && serverSession.hasPermission("closing.view") && serverSession.hasPermission("order.view") && serverSession.hasPermission("schedule.view"));
 
   const basicMenuItems = <>
-    {visibleBasicRoutes.map((item) => <button key={item.href} type="button" role="menuitem" className={pathname === item.href ? "active" : ""} onClick={() => navigate(item.href)}>{item.label}</button>)}
+    {visibleBasicRoutes.map((item) => <button key={item.href} type="button" role="menuitem" className={pathname === item.href ? "active" : ""} onPointerEnter={() => prefetchRoute(item.href)} onFocus={() => prefetchRoute(item.href)} onClick={() => navigate(item.href)}>{item.label}</button>)}
   </>;
   const systemMenuItems = <>
-    {visibleSystemRoutes.map((item) => <button key={item.href} type="button" role="menuitem" className={pathname === item.href ? "active" : ""} onClick={() => navigate(item.href)}>{item.label}</button>)}
+    {visibleSystemRoutes.map((item) => <button key={item.href} type="button" role="menuitem" className={pathname === item.href ? "active" : ""} onPointerEnter={() => prefetchRoute(item.href)} onFocus={() => prefetchRoute(item.href)} onClick={() => navigate(item.href)}>{item.label}</button>)}
   </>;
   const desktopSidebar = viewportMode === "wide" || viewportMode === "primary";
   const expandedSidebar = desktopSidebar && !sidebarCollapsed;
@@ -201,26 +221,26 @@ function AppShellFrame({ title, children, onRequestNavigation, onRequestLogout, 
 
   return <main className="ops-shell qc-app-shell" data-responsive-mode={viewportMode} data-sidebar-state={sidebarCollapsed ? "collapsed" : "expanded"}>
     <aside className="ops-sidebar">
-      <div className="ops-brand"><span>纫</span><div><strong>织序 ZHIXU</strong><small>GARMENT OPERATIONS</small></div></div>
+      <WeaveOpsBrand />
       {desktopSidebar && <button type="button" className="ops-sidebar-toggle" aria-label={sidebarCollapsed ? "展开侧边栏" : "收起侧边栏"} title={sidebarCollapsed ? "展开侧边栏" : "收起侧边栏"} onClick={toggleSidebar}><span aria-hidden="true">{sidebarCollapsed ? "›" : "‹"}</span><b>{sidebarCollapsed ? "展开" : "收起"}</b></button>}
       <div className="organization"><span>织</span><div><small>当前组织</small><strong>{quoteAuthority() === "server" ? "尚未配置组织" : "苏州织序服饰"}</strong></div><i>报价 UI V1</i></div>
       <nav aria-label="主导航">
-        {!serverSettingsMode && nav.slice(0, 2).map((item) => <button key={item.label} type="button" title={item.label} aria-label={item.label} className={item.active ? "active" : ""} onClick={() => navigate(item.href)}><span>{item.symbol}</span><b>{item.label}</b></button>)}
+        {!serverSettingsMode && nav.slice(0, 2).map((item) => <button key={item.label} type="button" title={item.label} aria-label={item.label} className={item.active ? "active" : ""} onPointerEnter={() => prefetchRoute(item.href)} onFocus={() => prefetchRoute(item.href)} onClick={() => navigate(item.href)}><span>{item.symbol}</span><b>{item.label}</b></button>)}
         {showSettingsNavigation && <div className="ops-nav-item">
           <button ref={basicTriggerRef} type="button" title="基础设置" aria-label="基础设置" className={basicActive ? "active" : ""} aria-expanded={basicOpen} aria-haspopup="menu" aria-controls="sidebar-basic-menu" onClick={() => { setSystemOpen(false); setBasicOpen((open) => !open); }}><span>⚙</span><b>基础设置</b><i>{basicOpen ? "⌃" : "⌄"}</i></button>
           {basicOpen && expandedSidebar && <div className="ops-subnav" role="menu" aria-label="基础设置菜单">{basicMenuItems}</div>}
           <SidebarFloatingMenu id="sidebar-basic-menu" open={basicOpen && compactSidebar} anchorRef={basicTriggerRef} label="基础设置菜单" onClose={closeMenus}>{basicMenuItems}</SidebarFloatingMenu>
         </div>}
-        {!serverSettingsMode && nav.slice(2).map((item) => <button key={item.label} type="button" title={item.label} aria-label={item.label} className={item.active ? "active" : ""} onClick={() => navigate(item.href)}><span>{item.symbol}</span><b>{item.label}</b></button>)}
+        {!serverSettingsMode && nav.slice(2).map((item) => <button key={item.label} type="button" title={item.label} aria-label={item.label} className={item.active ? "active" : ""} onPointerEnter={() => prefetchRoute(item.href)} onFocus={() => prefetchRoute(item.href)} onClick={() => navigate(item.href)}><span>{item.symbol}</span><b>{item.label}</b></button>)}
         {showSettingsNavigation && <div className="ops-nav-item ops-system-entry">
           <button ref={systemTriggerRef} type="button" title="系统设置" aria-label="系统设置" className={systemActive ? "active" : ""} aria-expanded={systemOpen} aria-haspopup="menu" aria-controls="sidebar-system-menu" onClick={() => { setBasicOpen(false); setSystemOpen((open) => !open); }}><span>⋯</span><b>系统设置</b><i>{systemOpen ? "⌃" : "⌄"}</i></button>
           {systemOpen && expandedSidebar && <div className="ops-subnav" role="menu" aria-label="系统设置菜单">{systemMenuItems}</div>}
           <SidebarFloatingMenu id="sidebar-system-menu" open={systemOpen && compactSidebar} anchorRef={systemTriggerRef} label="系统设置菜单" onClose={closeMenus}>{systemMenuItems}</SidebarFloatingMenu>
         </div>}
       </nav>
-      {serverIdentityMode || localSingleUser
-        ? <div className="ops-user ops-server-user" aria-label="可信 Server 身份"><span>{userInitial}</span><div><strong>{visibleUserName}</strong><small>{visibleUserDetail}</small></div></div>
-        : <button type="button" className={`ops-user ${personalActive ? "active" : ""}`} title="我的设置" onClick={() => navigate("/my-settings/ainuoke-account")}><span>{userInitial}</span><div><strong>{visibleUserName}</strong><small>{visibleUserDetail}</small></div></button>}
+      {!touchNavigation && (serverIdentityMode || localSingleUser
+        ? <ServerUserMenu placement="sidebar" name={visibleUserName} detail={visibleUserDetail} initial={userInitial} canLogout={!localSingleUser && serverSession.status === "authenticated"} onLogout={requestLogout} />
+        : <button type="button" className={`ops-user ${personalActive ? "active" : ""}`} title="我的设置" onClick={() => navigate("/my-settings/ainuoke-account")}><span>{userInitial}</span><div><strong>{visibleUserName}</strong><small>{visibleUserDetail}</small></div></button>)}
     </aside>
 
     <section className="ops-workspace">
@@ -230,15 +250,17 @@ function AppShellFrame({ title, children, onRequestNavigation, onRequestLogout, 
           {backTarget && <button type="button" className="ops-topbar-back" aria-label={backTarget.label} title={backTarget.label} onClick={() => navigateRequest(backTarget.href)}><span aria-hidden="true">‹</span></button>}
           <div className="ops-topbar-title"><small>织序 / 业务中心 / {personalActive ? "我的设置" : basicActive ? "基础设置" : systemActive ? "系统设置" : pathname.startsWith("/ainuoke-sync") || pathname.startsWith("/order-center") ? "订单中心" : pathname.startsWith("/closing-center") ? "关账中心" : pathname.startsWith("/production-scheduling") ? "生产排单" : "报价中心"}</small><strong>{title}</strong></div>
         </div>
-        <div className="topbar-actions">{serverIdentityMode || localSingleUser ? <ServerUserMenu name={visibleUserName} detail={visibleUserDetail} initial={userInitial} canLogout={!localSingleUser && serverSession.status === "authenticated"} onLogout={requestLogout} /> : <><button type="button" className="qc-global-search-trigger" aria-label="打开全局搜索" title="全局搜索（Ctrl+K）" onClick={() => setGlobalSearchOpen(true)}><span>⌕</span><b>搜索</b><kbd>Ctrl K</kbd></button><button type="button" className="icon-button" title="通知">♢</button><label className="qc-test-user-switcher" title="切换测试账号"><span>{userInitial}</span><select aria-label="切换测试账号" value={currentUser.id} onChange={(event) => setCurrentUser(event.target.value)}>{permissionState.users.filter((user) => user.status === "active").map((user) => <option key={user.id} value={user.id}>{user.name} · {permissionState.roles.find((role) => role.id === user.roleId)?.name ?? "未分配"}</option>)}</select></label></>}</div>
+        <div className="topbar-actions">{!serverIdentityMode && !localSingleUser && <><button type="button" className="qc-global-search-trigger" aria-label="打开全局搜索" title="全局搜索（Ctrl+K）" onClick={() => setGlobalSearchOpen(true)}><span>⌕</span><b>搜索</b><kbd>Ctrl K</kbd></button><button type="button" className="icon-button" title="通知">♢</button><label className="qc-test-user-switcher" title="切换测试账号"><span>{userInitial}</span><select aria-label="切换测试账号" value={currentUser.id} onChange={(event) => setCurrentUser(event.target.value)}>{permissionState.users.filter((user) => user.status === "active").map((user) => <option key={user.id} value={user.id}>{user.name} · {permissionState.roles.find((role) => role.id === user.roleId)?.name ?? "未分配"}</option>)}</select></label></>}</div>
       </header>
+      {isNavigating && <div className="ops-route-progress" role="status" aria-live="polite">正在打开页面…</div>}
       {children}
     </section>
     <Drawer open={navigationOpen && touchNavigation} className="ops-navigation-drawer" placement="left" title="业务导航" description="报价、订单、排单与系统设置" eyebrow="ZHIXU ERP" onClose={() => setNavigationOpen(false)}>
       <nav className="ops-touch-navigation" aria-label="完整业务导航">
-        {!serverSettingsMode&&<section><strong>业务工作区</strong>{nav.map((item) => <button key={item.href} type="button" className={item.active ? "active" : ""} aria-current={item.active ? "page" : undefined} onClick={() => navigate(item.href)}><span aria-hidden="true">{item.symbol}</span><b>{item.label}</b><i aria-hidden="true">›</i></button>)}</section>}
-        {showSettingsNavigation && <><section><strong>基础设置</strong>{visibleBasicRoutes.map((item) => <button key={item.href} type="button" className={pathname === item.href ? "active" : ""} aria-current={pathname === item.href ? "page" : undefined} onClick={() => navigate(item.href)}><span aria-hidden="true">⚙</span><b>{item.label}</b><i aria-hidden="true">›</i></button>)}</section><section><strong>系统设置</strong>{visibleSystemRoutes.map((item) => <button key={item.href} type="button" className={pathname === item.href ? "active" : ""} aria-current={pathname === item.href ? "page" : undefined} onClick={() => navigate(item.href)}><span aria-hidden="true">⋯</span><b>{item.label}</b><i aria-hidden="true">›</i></button>)}</section>{!serverIdentityMode&&<section><strong>我的设置</strong><button type="button" className={personalActive ? "active" : ""} aria-current={personalActive ? "page" : undefined} onClick={() => navigate("/my-settings/ainuoke-account")}><span aria-hidden="true">我</span><b>艾诺科账号</b><i aria-hidden="true">›</i></button></section>}</>}
+        {!serverSettingsMode&&<section><strong>业务工作区</strong>{nav.map((item) => <button key={item.href} type="button" className={item.active ? "active" : ""} aria-current={item.active ? "page" : undefined} onPointerEnter={() => prefetchRoute(item.href)} onFocus={() => prefetchRoute(item.href)} onClick={() => navigate(item.href)}><span aria-hidden="true">{item.symbol}</span><b>{item.label}</b><i aria-hidden="true">›</i></button>)}</section>}
+        {showSettingsNavigation && <><section><strong>基础设置</strong>{visibleBasicRoutes.map((item) => <button key={item.href} type="button" className={pathname === item.href ? "active" : ""} aria-current={pathname === item.href ? "page" : undefined} onPointerEnter={() => prefetchRoute(item.href)} onFocus={() => prefetchRoute(item.href)} onClick={() => navigate(item.href)}><span aria-hidden="true">⚙</span><b>{item.label}</b><i aria-hidden="true">›</i></button>)}</section><section><strong>系统设置</strong>{visibleSystemRoutes.map((item) => <button key={item.href} type="button" className={pathname === item.href ? "active" : ""} aria-current={pathname === item.href ? "page" : undefined} onPointerEnter={() => prefetchRoute(item.href)} onFocus={() => prefetchRoute(item.href)} onClick={() => navigate(item.href)}><span aria-hidden="true">⋯</span><b>{item.label}</b><i aria-hidden="true">›</i></button>)}</section>{!serverIdentityMode&&<section><strong>我的设置</strong><button type="button" className={personalActive ? "active" : ""} aria-current={personalActive ? "page" : undefined} onClick={() => navigate("/my-settings/ainuoke-account")}><span aria-hidden="true">我</span><b>艾诺科账号</b><i aria-hidden="true">›</i></button></section>}</>}
       </nav>
+      {(serverIdentityMode || localSingleUser) && <ServerUserMenu placement="drawer" name={visibleUserName} detail={visibleUserDetail} initial={userInitial} canLogout={!localSingleUser && serverSession.status === "authenticated"} onLogout={requestLogout} />}
     </Drawer>
     {!serverIdentityMode && <GlobalSearchPalette open={globalSearchOpen} context={{ userId: currentUser.id, can }} onClose={() => setGlobalSearchOpen(false)} onNavigate={navigate} />}
   </main>;

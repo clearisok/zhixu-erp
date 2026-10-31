@@ -5,7 +5,10 @@ const source = (path) => readFileSync(new URL(`../${path}`, import.meta.url), "u
 
 test("fresh formal routes keep explicit default Browser branch and no candidate redirect", () => {
   const pages = source("features/quote-center/components/production-quote-pages.tsx");
-  for (const browser of ["QuoteList", "QuoteNewLoader", "QuoteDetailLoader"]) assert.match(pages, new RegExp(`: <${browser} />`, "u"));
+  for (const browser of ["QuoteNewLoader", "QuoteDetailLoader"]) assert.match(pages, new RegExp(`: <${browser} />`, "u"));
+  const list = source("features/quote-center/components/production-quote-list-page.tsx");
+  assert.match(list, /quoteAuthority\(\) === "server" \? <ServerList \/> : <DeferredModule load=\{loadBrowserList\}/u);
+  assert.match(list, /import\("\.\/quote-list"\)/u);
   assert.match(pages, /quoteAuthority\(\) === "server"/u);
   assert.doesNotMatch(pages, /router\.(push|replace)\("\/quote-center\/server-/u);
 });

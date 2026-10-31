@@ -52,6 +52,6 @@ export async function startCommercialSecurityFixture(staticDirectory?: string, p
       const result=await request("/api/v1/auth/login",undefined,{username,password:"synthetic-only"},"POST"); assert.equal(result.response.status,200);
       return result.response.headers.get("set-cookie")!.split(";")[0];
     };
-    return { pool, record, errors, base, origins, quotePath:`/api/v1/quotes/${quote.id}`, orderPath:`/api/v1/sales-orders/${order.id}/confirmed-commercial-terms`, quoteTermsPath:`/api/v1/quotes/${quote.id}/revisions/${revision.revisionId}/price-versions/${pv.id}/confirmed-commercial-terms`, user,request,close };
+    return { pool, record, errors, server, base, origins, quotePath:`/api/v1/quotes/${quote.id}`, orderPath:`/api/v1/sales-orders/${order.id}/confirmed-commercial-terms`, quoteTermsPath:`/api/v1/quotes/${quote.id}/revisions/${revision.revisionId}/price-versions/${pv.id}/confirmed-commercial-terms`, user,request,close };
   } catch(error) { await close(); throw error; }
 }

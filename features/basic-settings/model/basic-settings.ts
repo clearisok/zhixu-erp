@@ -486,7 +486,7 @@ export function createFabricCostLineFromLibrary(item: FabricLibraryItem, id: str
 }
 
 export function createTrimCostLineFromLibrary(item: TrimLibraryItem, id: string, config?: DefaultTrimConfig, lineGroupId = createCostLineGroupId()): TrimCostLine {
-  return { id, lineGroupId, sourceLibraryItemId: item.id, name: item.name, specification: item.specification, supplier: item.supplier, usage: config?.quantity ?? null, unit: item.unit, lossRate: config?.overrideLossRate ?? item.defaultLossRate, unitPrice: config?.overrideUnitPrice ?? item.unitPrice };
+  return { id, lineGroupId, sourceLibraryItemId: item.id, sourceOrigin: "library", name: item.name, specification: item.specification, supplier: item.supplier, usage: config?.quantity ?? null, unit: item.unit, lossRate: config?.overrideLossRate ?? item.defaultLossRate, unitPrice: config?.overrideUnitPrice ?? item.unitPrice };
 }
 
 export function fabricLibraryItemFromCostLine(line: FabricCostLine, id: string, existing?: FabricLibraryItem, now = new Date().toISOString()): FabricLibraryItem {
@@ -515,7 +515,7 @@ export function resolveQuoteDefaults(
   const trimConfigs = salesperson?.defaults.defaultTrims.length ? salesperson.defaults.defaultTrims : brand?.defaults.defaultTrims ?? [];
   const trims = trimConfigs.flatMap((config, index) => {
     const item = state.trimLibrary.find((libraryItem) => libraryItem.id === config.trimLibraryItemId);
-    return item ? [createTrimCostLineFromLibrary(item, `resolved-default-trim-${index + 1}`, config)] : [];
+    return item ? [{ ...createTrimCostLineFromLibrary(item, `resolved-default-trim-${index + 1}`, config), sourceOrigin: salesperson?.defaults.defaultTrims.length ? "salesperson" as const : "brand" as const }] : [];
   });
   return {
     usdCnyRate: salesperson?.defaults.defaultUsdCnyRate ?? brand?.defaults.defaultUsdCnyRate ?? systemDefaults.usdCnyRate,

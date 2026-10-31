@@ -1,11 +1,7 @@
-# 当前状态：staging b1已更新，Gate3侧栏文字修复中
+# 当前状态：体验站29d6；导航优化本地验收
 
-2026-10-30；本片比较main **b1b24186a300b330f29a2950e507711555c35b6c**，分支 `fix/server-expanded-sidebar-labels`。先读[当前切片](tasks/active/server-expanded-sidebar-labels-2026-10-30.md)和[接力](AI_HANDOFF.md)。
+2026-10-31；main/base e37a131a7182a5488f440dcc8fde3ea66de1c6e4，分支fix/brand-shell-navigation。PR138草稿实际远端29d6ca76885bac41dc674dc97122a5c19798d416、三项CI成功，未合并；体验站同版本，镜像sha256:e3adf272ccef31a1e16cce236387f3cd6f91b93ed6676b19273d70ab03d1d7b7，配置runtime/trial.29d6ca76-7ad89096.conf。图标同源PNG已验证；配对备份/恢复、旧账号业务/附件/资产保留。完成回执outputs/favicon-completion.json。
 
-宁波 https://staging.weaveops.top 已按明确批准更新至b1/app7ac76889，仍为原隔离project和127.0.0.1:3003。新鲜配对备份、独立PG16.15恢复的121表/序列、33项恢复/公网接口、原账号密码及附件字节验收通过，独立复审无P1/P2。原3SO、2用户、报价和附件、DB/MinIO容器及所有旧资产保留。当前有效配置是runtime/trial.b1b24186-a3b2ee80.conf；原trial.source.conf和原owner保持，不能用旧配置重启撤回版本。原传输超时/前缀核验续传、验收脚本修正和公网连接池中断如实留档；独立连接完成最终公网验收，没有重跑CI或Source。
+[导航修复](tasks/active/navigation-performance-2026-10-31.md)：快速点击重复RSC、报价列表加载编辑器/可选窗口；已改为代码预热复用、独立列表和按需窗口。数据权限、离开/未知提交保护不变。类型/lint/Server构建、5项定向、25项导航、8项加工窗口、7项议价窗口、993项项目回归通过；其中包含发布守卫和响应式回归，另验证正式测试目录中的3项加载器检查。源码checkpoint f034bb955a258e7bafc71797dd5ec32821ff3eb6精确发布门禁通过。本片未上传/部署，最终文档提交门禁、集中交付与新CI待完成，不能声称公网已提速。
 
-实际浏览器发现1135px展开侧栏文字为0px/宽0：旧1180px CSS与1100px起的Foundation primary规则冲突。现已用零权重作用域限制旧sidebar fallback，保留既有断点、菜单、触屏及业务规则。[本片最终本地验收](tasks/completed/2026-10-30-expanded-sidebar-validation.md)：真实Server构建、Chromium20/20、类型/定向lint及发布基线182/182通过，独立复审无P1/P2；初版级联问题和探针时序失败均保留。产品构建6954fdf5、最终测试6d307348，差异只有测试。尚未交付/部署本片，staging仍是已验收b1。
-
-PI2608-257/PI2609-039各3轮物料历史及货款快照保持；PI2606-008为9250件/6色/16成衣观察行，未采物料正确显示not_connected。来源时效不延长、已过期不重采；没有填造商业价格、生产、关账或银行实付。固定额度已用完，任何新增真实读取/绑定/激活/调度仍需具体范围批准。
-
-完整[Gate0–8/R](tasks/active/server-convergence-gate0-2026-10-20.md)没有缩减。当前人工业务接受、50426/最终入口选择及逐项旧资产退役仍待决策；3001及旧入口保留。#136工具草稿保持未合并，原三项CI已成功，不重跑。前一版状态/索引/接力完整归档于[本片输入](tasks/completed/2026-10-30-expanded-sidebar-input-state/CURRENT_STATE.md)，保留各自原日期、SHA、结果与限制。
+完整Gate0–8/R继续；无新Source采集/绑定/调度或TTL延长，不填造生产/关账。人工业务接受、最终入口、旧资产退役待决策；#136独立草稿不混入。[前一状态逐字归档](tasks/completed/2026-10-31-navigation-input-state/CURRENT_STATE.md)。

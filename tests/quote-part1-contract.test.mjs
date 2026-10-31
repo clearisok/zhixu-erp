@@ -74,6 +74,7 @@ test("7/8. DefaultTrimConfig 的单价与损耗率 override 生效", () => {
   assert.equal(line.lossRate, 6);
   assert.equal(line.unitPrice, 0.88);
   assert.equal(line.usage, null);
+  assert.equal(line.sourceOrigin, "library");
 });
 
 test("10. 汇率优先级为 Salesperson > Brand > System", () => {
@@ -109,6 +110,8 @@ test("12. Salesperson 有默认辅料时整组优先于 Brand，不自动合并"
   const brand = resolveQuoteDefaults(state, "zara", "sales-zhouyan");
   assert.deepEqual(salesperson.trims.map((line) => line.sourceLibraryItemId), ["trim-zip-bag"]);
   assert.deepEqual(brand.trims.map((line) => line.sourceLibraryItemId), ["trim-main-label", "trim-hangtag"]);
+  assert.ok(salesperson.trims.every((line) => line.sourceOrigin === "salesperson"));
+  assert.ok(brand.trims.every((line) => line.sourceOrigin === "brand"));
 });
 
 test("13/14. 默认辅料进入报价后生成新 row.id，修改报价不污染辅料库", () => {
@@ -121,6 +124,7 @@ test("13/14. 默认辅料进入报价后生成新 row.id，修改报价不污染
   assert.ok(filled.priceVersions[0].trims.every((line) => line.usage === null));
   const libraryPrice = state.trimLibrary.find((item) => item.id === "trim-main-label").unitPrice;
   filled.priceVersions[0].trims[0].unitPrice = 99;
+  assert.equal(filled.priceVersions[0].trims[0].sourceOrigin, "brand");
   assert.equal(state.trimLibrary.find((item) => item.id === "trim-main-label").unitPrice, libraryPrice);
 });
 

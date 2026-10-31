@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "b1b24186a300b330f29a2950e507711555c35b6c",
-  "verifiedAt": "2026-10-30T06:46:11.291Z",
+  "baselineSha": "e37a131a7182a5488f440dcc8fde3ea66de1c6e4",
+  "verifiedAt": "2026-10-30T10:24:48.184Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -5505,6 +5505,92 @@
       "path": "docs/tasks/completed/2026-10-30-sidebar-evidence-binding-correction.md",
       "recordedAtSha": "97c655556125cc74d098e4e18e664e0d7bb65156",
       "sha256": "90fb54e81c7a09527ac0995cf27b4111c6ecf8a1f5c6be4b346c9b6d20f03e63"
+    },
+    {
+      "id": "brand-shell-approved-20261030",
+      "kind": "document",
+      "path": "docs/tasks/active/brand-shell-navigation-2026-10-30.md",
+      "recordedAtSha": "f289db7e14d71f3fad5585a94f9532bf32f887f5",
+      "renderedSourceSha": "e4413f0fbb72736ebf0d5f750f73778c8a441e67",
+      "sha256": "e287d929f5285633f32744b3a4951436784e87594d56a7bfd1b9181da8142c6c"
+    },
+    {
+      "id": "brand-shell-validation-20261030",
+      "kind": "document",
+      "path": "docs/tasks/completed/2026-10-30-brand-shell-validation.md",
+      "recordedAtSha": "f289db7e14d71f3fad5585a94f9532bf32f887f5",
+      "renderedSourceSha": "e4413f0fbb72736ebf0d5f750f73778c8a441e67",
+      "sha256": "de8f6743d4e01c46ee773d0e8b4a9b2f121b1d814d4e803af9fd9b338c96a19a"
+    },
+    {
+      "id": "brand-shell-brand-transparent-reduced-20261030",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/brand-shell-20261030/brand-transparent-reduced.png",
+      "recordedAtSha": "f289db7e14d71f3fad5585a94f9532bf32f887f5",
+      "renderedSourceSha": "e4413f0fbb72736ebf0d5f750f73778c8a441e67",
+      "sha256": "dafaaf03cf22f9ead5d845ca014c3ce3890d4e2800a5ce3be21ceb544747071b",
+      "approvalEvidence": "brand-shell-approved-20261030",
+      "changeReason": "Freeze synthetic browser evidence for the six user-approved changes and the later transparent, 30-percent smaller logo request. Preserve all prior screenshots; not a claim of deployment or final human acceptance."
+    },
+    {
+      "id": "brand-shell-brand-account-collapsed-20261030",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/brand-shell-20261030/brand-account-collapsed.png",
+      "recordedAtSha": "f289db7e14d71f3fad5585a94f9532bf32f887f5",
+      "renderedSourceSha": "e4413f0fbb72736ebf0d5f750f73778c8a441e67",
+      "sha256": "e2cbd07d06fe8836f1fb7358cf1c8071d476dcb3e478265f2a685aa718c2c224",
+      "approvalEvidence": "brand-shell-approved-20261030",
+      "changeReason": "Freeze synthetic browser evidence for the six user-approved changes and the later transparent, 30-percent smaller logo request. Preserve all prior screenshots; not a claim of deployment or final human acceptance."
+    },
+    {
+      "id": "brand-shell-brand-account-mobile-20261030",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/brand-shell-20261030/brand-account-mobile.png",
+      "recordedAtSha": "f289db7e14d71f3fad5585a94f9532bf32f887f5",
+      "renderedSourceSha": "e4413f0fbb72736ebf0d5f750f73778c8a441e67",
+      "sha256": "04b36acbe3aca94774dec4ebd9bba1d143e1cdbe1254c38c2cef580c3c9680f9",
+      "approvalEvidence": "brand-shell-approved-20261030",
+      "changeReason": "Freeze synthetic browser evidence for the six user-approved changes and the later transparent, 30-percent smaller logo request. Preserve all prior screenshots; not a claim of deployment or final human acceptance."
+    },
+    {
+      "id": "brand-shell-trim-origin-badges-20261030",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/brand-shell-20261030/trim-origin-badges.png",
+      "recordedAtSha": "f289db7e14d71f3fad5585a94f9532bf32f887f5",
+      "renderedSourceSha": "e4413f0fbb72736ebf0d5f750f73778c8a441e67",
+      "sha256": "ad7886422de76a02cce5469c335fb850509016829c9cd59e28d7494e4429d897",
+      "approvalEvidence": "brand-shell-approved-20261030",
+      "changeReason": "Freeze synthetic browser evidence for the six user-approved changes and the later transparent, 30-percent smaller logo request. Preserve all prior screenshots; not a claim of deployment or final human acceptance."
+    },
+    {
+      "id": "brand-shell-attachment-actions-1440-20261030",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/brand-shell-20261030/attachment-actions-1440.png",
+      "recordedAtSha": "f289db7e14d71f3fad5585a94f9532bf32f887f5",
+      "renderedSourceSha": "e4413f0fbb72736ebf0d5f750f73778c8a441e67",
+      "sha256": "9265a0a76ea096fe5d39954e88ebd3207917270f75ca324b05cf1c4be4c807ac",
+      "approvalEvidence": "brand-shell-approved-20261030",
+      "changeReason": "Freeze synthetic browser evidence for the six user-approved changes and the later transparent, 30-percent smaller logo request. Preserve all prior screenshots; not a claim of deployment or final human acceptance."
+    },
+    {
+      "id": "brand-shell-attachment-actions-390-20261030",
+      "kind": "screenshot",
+      "path": "docs/tasks/assets/brand-shell-20261030/attachment-actions-390.png",
+      "recordedAtSha": "f289db7e14d71f3fad5585a94f9532bf32f887f5",
+      "renderedSourceSha": "e4413f0fbb72736ebf0d5f750f73778c8a441e67",
+      "sha256": "df860000458626d3f88d9f64dc667a5e9513e40278412e7f4bbf1507b4b8deb5",
+      "approvalEvidence": "brand-shell-approved-20261030",
+      "changeReason": "Freeze synthetic browser evidence for the six user-approved changes and the later transparent, 30-percent smaller logo request. Preserve all prior screenshots; not a claim of deployment or final human acceptance."
+    },
+    {
+      "id": "brand-shell-ci-compat-20261030",
+      "kind": "document",
+      "path": "docs/tasks/active/brand-shell-navigation-2026-10-30.md",
+      "recordedAtSha": "dea39f275c6250138136d5783488b17b24252ddd",
+      "renderedSourceSha": "e4413f0fbb72736ebf0d5f750f73778c8a441e67",
+      "sha256": "6414b994a0863f8a88c1084021f0cfe9425d55fb21e6f56d21532945c15df47f",
+      "supersedes": "brand-shell-approved-20261030",
+      "changeReason": "Record exact PR138 delivery, first CI failure, scoped mobile test compatibility verification and authorized preview update. Preserve original approval, screenshots and deployment limits."
     }
   ],
   "pages": [

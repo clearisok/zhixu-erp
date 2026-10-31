@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
+import { Readable } from "node:stream";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
@@ -41,7 +42,8 @@ test("Q4A attachment foundation uses disposable PostgreSQL and fake object stora
   const pool = new pg.Pool({ connectionString: await postgres.createDatabase("q4a_attachment") });
   const directory = await mkdtemp(join(tmpdir(), "zhixu-q4a-migrations-"));
   const storage = new MemoryAttachmentStorage();
-  const server = createServer(createApp({ pool, allowedOrigins: [origin], attachmentStorage: storage }));
+  const errors: Record<string, unknown>[] = [];
+  const server = createServer(createApp({ pool, allowedOrigins: [origin], attachmentStorage: storage, logger: { error: event => errors.push(event) } }));
   t.after(async () => { await new Promise<void>((done) => server.close(() => done())); await pool.end(); await postgres.stop(); await rm(directory, { recursive: true, force: true }); });
   const prior = [
     "0001_trusted_auth_rbac_operation_logs.sql", "0002_sales_order_foundation.sql", "0003_sales_order_number_sequence.sql",
@@ -244,6 +246,26 @@ test("Q4A attachment foundation uses disposable PostgreSQL and fake object stora
     const downloaded = await request(base, `${path}/${attachment.id}/download`, "GET", viewerCookie);
     assert.equal(downloaded.response.status, 200);
     assert.equal(Buffer.from(await downloaded.response.arrayBuffer()).toString(), "api bytes");
+    await new Promise<void>(done => setImmediate(done));
+    assert.deepEqual(errors, [], "completed download must not abort its own response pipeline");
+    const get = storage.get.bind(storage);
+    let observedSignal: AbortSignal | undefined;
+    let observeAbort!: () => void;
+    const aborted = new Promise<void>(done => { observeAbort = done; });
+    storage.get = async (_key: string, signal?: AbortSignal) => {
+      observedSignal = signal;
+      signal?.addEventListener("abort", observeAbort, { once: true });
+      let sent = false;
+      return new Readable({ read() { if (!sent) { sent = true; this.push(Buffer.from("a")); } } });
+    };
+    try {
+      const partial = await request(base, `${path}/${attachment.id}/download`, "GET", viewerCookie);
+      const reader = partial.response.body!.getReader();
+      assert.equal((await reader.read()).value!.byteLength, 1);
+      await reader.cancel();
+      await Promise.race([aborted, new Promise<never>((_, reject) => { const timer = setTimeout(() => reject(new Error("disconnect did not abort storage")), 2000); timer.unref(); })]);
+      assert.equal(observedSignal?.aborted, true, "premature client close must still cancel storage");
+    } finally { storage.get = get; }
     const invalid = await request(base, `${path}/${attachment.id}`, "PATCH", editorCookie,
       { expectedVersion: version + 1, name: "x", actor: viewer.userId }, { Origin: origin, "X-Zhixu-Request": "1" });
     assert.equal(invalid.response.status, 400);

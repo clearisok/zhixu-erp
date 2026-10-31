@@ -24,14 +24,29 @@ test('built Server navigation keeps the workspace continuous without changing au
   const observing = process.env.NAVIGATION_OBSERVE_ONLY === '1';
   const build = JSON.parse(readFileSync('dist/client/build-info.json', 'utf8'));
   assert.equal(build.quoteAuthority, 'server'); assert.equal(build.identityMode, 'session');
-  const x = await startCommercialSecurityFixture(resolve('dist/client'));
+  const x = await startCommercialSecurityFixture(resolve('dist/client'),quote=>{
+    for(const revision of quote.revisions){revision.garmentMedia=[];revision.quoteDocuments=[];
+      for(const pv of revision.priceVersions)pv.trims=['brand','salesperson','library',undefined].map((origin,index)=>({id:`origin-${index}`,lineGroupId:`origin-group-${index}`,sourceLibraryItemId:'fixture-library',...(origin?{sourceOrigin:origin}:{}),name:`辅料来源-${origin??'历史'}`,specification:'',supplier:'',usage:null,unit:'个',lossRate:0,unitPrice:0}));
+    }
+  });
   t.after(x.close);
   const password = 'Synthetic-Navigation-Only-2026';
   await bootstrapAdmin(x.pool, { username: 'navigation.root', displayName: '合成导航管理员', password });
+  const setupLogin=await x.request('/api/v1/auth/login',undefined,{username:'navigation.root',password},'POST');
+  assert.equal(setupLogin.response.status,200);
+  const setupCookie=setupLogin.response.headers.get('set-cookie').split(';')[0];
+  const upload=await fetch(x.base+x.quotePath+'/revisions/'+x.record.quote.defaultRevisionId+'/attachments?name=synthetic.png&kind=image',{method:'POST',headers:{Cookie:setupCookie,Origin:x.base,'X-Zhixu-Request':'1','X-Quote-Version':String(x.record.version),'Idempotency-Key':'a349790b-a4d6-4e36-8d33-472bb0933490','Content-Type':'image/png'},body:Buffer.from('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jY9kAAAAASUVORK5CYII=','base64')});
+  assert.equal(upload.status,201,await upload.text());
+  await x.request('/api/v1/auth/logout',setupCookie,{},'POST');
   await x.user('navigation.second', ['quote.view', 'commercial.sale.view']);
   const evidence = resolve(process.env.NAVIGATION_EVIDENCE_DIR ?? 'outputs/server-navigation-continuity');
   await mkdir(evidence, { recursive: true });
   const records = { observingOnly: observing, build, rsc: [], transitions: [] };
+  const requestJournal=[];
+  x.server.on('request',(request,response)=>{
+    const row={path:new URL(request.url,x.base).pathname,method:request.method,id:response.getHeader('X-Request-Id'),closed:false,finished:false};requestJournal.push(row);
+    response.on('close',()=>{row.closed=true;row.finished=response.writableFinished;});
+  });
   let failureSnapshot = async () => ({});
   const phase = async (name, run) => {
     if (observing) return;
@@ -132,9 +147,42 @@ test('built Server navigation keeps the workspace continuous without changing au
     };
     await full('/quote-center'); await has('欢迎回来');
     await input('username', 'navigation.root'); await input('password', password); await click('登录织序'); await quoteReady();
+    await phase('quote list does not load editor, attachments or optional command panels', async () => {
+      await until(() => evaluate("Boolean(document.querySelector('[aria-label=\"报价列表\"]'))"), 'quote list data');
+      const scripts=requestJournal.filter(row=>row.path.startsWith('/assets/')&&row.path.endsWith('.js')).map(row=>row.path);
+      for(const name of ['production-quote-pages-','quote-editor-','attachment-panel-','quote-order-pricing-','processing-quote-push-']) {
+        assert.equal(scripts.some(path=>path.split('/').at(-1).startsWith(name)),false,`${name} must not block the list`);
+      }
+    });
+    await phase('rapid pointer, focus and click load one route request even on a slow connection', async () => {
+      await click('系统设置');
+      const before=requestJournal.length;
+      await command('Network.emulateNetworkConditions',{offline:false,latency:300,downloadThroughput:2000000,uploadThroughput:2000000});
+      try {
+        await evaluate("(()=>{const b=[...document.querySelectorAll('[role=menuitem]')].find(n=>n.textContent==='进度设置');b.dispatchEvent(new PointerEvent('pointerover',{bubbles:true}));b.focus();b.click();})()");
+        await has('辅料关键词优先级');
+        const requests=requestJournal.slice(before).filter(row=>row.path==='/system-settings/progress-settings.rsc');
+        assert.equal(requests.length,1,'in-flight intent must not issue an extra RSC request');
+        assert.equal(requestJournal.slice(before).filter(row=>row.path==='/api/v1/auth/me').length,0);
+      } finally { await command('Network.emulateNetworkConditions',{offline:false,latency:0,downloadThroughput:-1,uploadThroughput:-1}); }
+      await click('报价中心'); await quoteReady();
+    });
+    await phase('an unavailable optional module leaves the list usable and sends no business command', async () => {
+      const before=requestJournal.length;
+      await command('Network.setBlockedURLs',{urls:['*quote-order-pricing-*.js']});
+      try {
+        await click('更多报价操作'); await click('批量调整订单成交价');
+        await has('功能加载失败'); await click('取消打开');
+        assert.equal((await body()).includes('功能加载失败'),false);
+        assert.equal(requestJournal.slice(before).some(row=>row.method!=='GET'),false);
+        assert.equal(await evaluate("Boolean(document.querySelector('[aria-label=\"报价列表\"]'))"),true);
+      } finally { await command('Network.setBlockedURLs',{urls:[]}); }
+      // A native failed module is retried by explicit refresh, never by replaying a command.
+      await full('/quote-center'); await quoteReady();
+    });
     await phase('expanded Foundation sidebars keep readable labels across the legacy 1180px breakpoint', async () => {
       const sidebars = [];
-      const sidebar = () => evaluate(`(()=>{const shell=document.querySelector('.qc-app-shell'),side=shell.querySelector('.ops-sidebar'),button=side.querySelector('nav button'),label=button.querySelector('b');return {width:innerWidth,mode:shell.dataset.responsiveMode,state:shell.dataset.sidebarState,sidebarWidth:side.getBoundingClientRect().width,labelFont:parseFloat(getComputedStyle(label).fontSize),labelWidth:label.getBoundingClientRect().width,labelDisplay:getComputedStyle(label).display,brandDisplay:getComputedStyle(side.querySelector('.ops-brand div')).display,organizationDisplay:getComputedStyle(side.querySelector('.organization div')).display,userDisplay:getComputedStyle(side.querySelector('.ops-user div')).display};})()`);
+      const sidebar = () => evaluate(`(()=>{const shell=document.querySelector('.qc-app-shell'),side=shell.querySelector('.ops-sidebar'),button=side.querySelector('nav button'),label=button.querySelector('b');return {width:innerWidth,mode:shell.dataset.responsiveMode,state:shell.dataset.sidebarState,sidebarWidth:side.getBoundingClientRect().width,labelFont:parseFloat(getComputedStyle(label).fontSize),labelWidth:label.getBoundingClientRect().width,labelDisplay:getComputedStyle(label).display,brandDisplay:getComputedStyle(side.querySelector('.ops-brand-full')).display,organizationDisplay:getComputedStyle(side.querySelector('.organization div')).display,userDisplay:getComputedStyle(side.querySelector('.ops-user div')).display};})()`);
       for (const width of [1100, 1135, 1180, 1181, 1280, 1440, 1920]) {
         await command('Emulation.setDeviceMetricsOverride', { width, height: 900, deviceScaleFactor: 1, mobile: false });
         await until(() => evaluate(`document.querySelector('.qc-app-shell').dataset.responsiveMode===${JSON.stringify(width >= 1440 ? 'wide' : 'primary')}`), 'expanded responsive mode');
@@ -192,6 +240,59 @@ test('built Server navigation keeps the workspace continuous without changing au
         await command('Emulation.setDeviceMetricsOverride', { width: 1440, height: 900, deviceScaleFactor: 1, mobile: false });
         await until(() => evaluate("document.querySelector('.qc-app-shell').dataset.responsiveMode==='wide'"), 'restore desktop after legacy probe');
       }
+    });
+    await phase('brand and account menu stay centered, reachable and unclipped on expanded, collapsed and mobile navigation', async () => {
+      assert.equal(await evaluate("document.querySelectorAll('.ops-topbar .qc-user-menu').length"),0);
+      assert.equal(await evaluate("document.querySelector('.ops-brand-full image').getAttribute('href')"),'/branding/weaveops-original.png');
+      const centered=await evaluate("(()=>{const a=document.querySelector('.ops-sidebar').getBoundingClientRect(),b=document.querySelector('.ops-brand-full').getBoundingClientRect();return Math.abs((a.left+a.right)-(b.left+b.right))/2;})()");
+      assert.ok(centered<2);
+      const brand=await evaluate("(()=>{const n=document.querySelector('.ops-brand-full'),r=n.getBoundingClientRect();return {width:r.width,height:r.height,background:getComputedStyle(n).backgroundColor};})()");
+      assert.ok(Math.abs(brand.width-102.2)<0.1&&Math.abs(brand.height-86.8)<0.1);
+      assert.equal(brand.background,'rgba(0, 0, 0, 0)');
+      await screenshot('brand-transparent-reduced');
+      for(const collapsed of [false,true]){
+        if(collapsed)await click('收起侧边栏');
+        await click('用户菜单');
+        await until(()=>evaluate("Boolean(document.querySelector('.qc-user-popover-portal'))&&getComputedStyle(document.querySelector('.qc-user-popover-portal')).visibility==='visible'"),'account menu positioning');
+        const geometry=await evaluate("(()=>{const p=document.querySelector('.qc-user-popover-portal'),r=p.getBoundingClientRect(),b=p.querySelector('button').getBoundingClientRect(),hit=document.elementFromPoint(b.left+b.width/2,b.top+b.height/2);return {width:r.width,left:r.left,right:r.right,top:r.top,bottom:r.bottom,viewport:innerWidth,height:innerHeight,clickable:!!hit&&p.contains(hit),portal:p.parentElement===document.body};})()");
+        assert.ok(geometry.width>=180&&geometry.left>=0&&geometry.right<=geometry.viewport&&geometry.top>=0&&geometry.bottom<=geometry.height);assert.equal(geometry.clickable,true);assert.equal(geometry.portal,true);
+        await command('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape'});await command('Input.dispatchKeyEvent',{type:'keyUp',key:'Escape',code:'Escape'});
+        await until(()=>evaluate("!document.querySelector('.qc-user-popover')"),'account escape');
+        assert.equal(await evaluate("document.activeElement?.getAttribute('aria-label')"),'用户菜单');
+      }
+      await screenshot('brand-account-collapsed');await click('展开侧边栏');
+      await click('用户菜单');await until(()=>evaluate("Boolean(document.querySelector('.qc-user-popover-portal'))"),'account open before responsive change');
+      await command('Emulation.setDeviceMetricsOverride',{width:390,height:900,deviceScaleFactor:1,mobile:true});
+      await command('Emulation.setTouchEmulationEnabled',{enabled:true,maxTouchPoints:1});
+      await until(()=>evaluate("document.querySelector('.qc-app-shell').dataset.responsiveMode==='mobile'&&!document.querySelector('.qc-user-popover-portal')"),'mobile switch removes hidden sidebar account portal');
+      await click('打开主导航');await has('业务导航');await click('用户菜单');await has('退出登录');
+      assert.equal(await evaluate("Boolean(document.querySelector('.qc-user-menu-drawer .qc-user-popover button'))"),true);
+      await evaluate("document.querySelector('.qc-user-menu-drawer').scrollIntoView({block:'end'})");
+      assert.ok(await evaluate("(()=>{const b=document.querySelector('.qc-user-menu-drawer .qc-user-popover button').getBoundingClientRect();return b.top>=0&&b.bottom<=innerHeight;})()"));
+      await screenshot('brand-account-mobile');await click('关闭业务导航');
+      await command('Emulation.setTouchEmulationEnabled',{enabled:false});
+      await command('Emulation.setDeviceMetricsOverride',{width:1440,height:900,deviceScaleFactor:1,mobile:false});
+      await until(()=>evaluate("document.querySelector('.qc-app-shell').dataset.responsiveMode==='wide'"),'account desktop restore');
+    });
+    await phase('recorded trim origins and attachment action anchors survive actual Server loading at desktop and mobile sizes',async()=>{
+      await full('/quote-center/detail?id='+encodeURIComponent(x.record.quote.id));await has('款式报价明细');await until(()=>evaluate("[...document.querySelectorAll('input')].some(n=>n.value==='辅料来源-brand')"),'trim inputs rendered');
+      const badgeTexts=await evaluate("[...document.querySelectorAll('.qc-source-badge')].filter(n=>n.getClientRects().length).map(n=>n.textContent)");
+      for(const label of ['品牌','业务','库'])assert.ok(badgeTexts.includes(label),label);
+      assert.equal(await evaluate("document.querySelectorAll('.qc-source-badge.is-brand').length"),3);
+      await evaluate("document.querySelector('.qc-source-badge.is-brand').scrollIntoView({block:'center'})");await screenshot('trim-origin-badges');
+      for(const width of [1440,390]){
+        await command('Emulation.setDeviceMetricsOverride',{width,height:900,deviceScaleFactor:1,mobile:width===390});
+        await command('Emulation.setTouchEmulationEnabled',{enabled:width===390,maxTouchPoints:1});
+        await until(()=>evaluate(`innerWidth===${width}&&document.querySelector('.qc-app-shell').dataset.responsiveMode==='${width===390?'mobile':'wide'}'`),'attachment viewport');
+        await until(()=>evaluate("Boolean(document.querySelector('.qc-attachment-image-item .qc-attachment-more button'))"),'attachment rendered');
+        await evaluate("document.querySelector('.qc-attachment-image-item').scrollIntoView({block:'center'})");
+        const g=await evaluate("(()=>{const card=document.querySelector('.qc-attachment-image-item').getBoundingClientRect(),a=document.querySelector('.qc-attachment-image-item .qc-attachment-more').getBoundingClientRect();return {inside:a.left>=card.left&&a.right<=card.right&&a.top>=card.top&&a.bottom<=card.bottom,right:card.right-a.right,bottom:card.bottom-a.bottom,width:a.width,height:a.height};})()");
+        assert.equal(g.inside,true);assert.ok(g.right<=10&&g.bottom<=10);if(width===390){assert.ok(g.width>=44&&g.height>=44);}
+        await click('synthetic.png 更多操作');await has('编辑名称');
+        assert.ok(await evaluate("(()=>{const r=document.querySelector('.qc-attachment-action-menu').getBoundingClientRect();return r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight;})()"));
+        await screenshot('attachment-actions-'+width);await command('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape'});await command('Input.dispatchKeyEvent',{type:'keyUp',key:'Escape',code:'Escape'});
+      }
+      await command('Emulation.setTouchEmulationEnabled',{enabled:false});await command('Emulation.setDeviceMetricsOverride',{width:1440,height:900,deviceScaleFactor:1,mobile:false});await until(()=>evaluate("document.querySelector('.qc-app-shell').dataset.responsiveMode==='wide'"),'attachment desktop restore');await click('报价中心');await quoteReady();
     });
     await mark(); const documentStart = documents.length;
     await click('订单中心'); await until(() => evaluate("location.pathname==='/order-center'"), 'order navigation'); await has('导入加工订单'); await wait(100);
@@ -333,6 +434,7 @@ test('built Server navigation keeps the workspace continuous without changing au
         assert.equal(await evaluate('location.pathname'), '/login'); assert.equal(await evaluate("document.querySelectorAll('.qc-app-shell').length"), 0);
         assert.equal(await evaluate("Object.keys(localStorage).some(k=>k.includes('zhixu.erp.local.'))"), false);
       });
+      await writeFile(join(evidence,'request-errors.json'),JSON.stringify(x.errors.map(error=>({...error,request:requestJournal.find(row=>row.id===error.requestId)})),null,2));
       assert.deepEqual(exceptions, []); assert.deepEqual(x.errors, []);
     }
     records.documents = documents;

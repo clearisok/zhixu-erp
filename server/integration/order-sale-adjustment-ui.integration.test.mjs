@@ -117,14 +117,20 @@ test("quote center negotiates selected orders and recovers original receipts", {
       const result=await commitSaleAdjustment(x.pool,actor,{requestId:randomUUID(),reason:'Synthetic color price summary',rule,items:[{salesOrderId:id,expectedVersion:item.expectedVersion,fingerprint:item.fingerprint,overrides}]});assert.equal(result.items[0].status,'updated');
       await navigate('/order-center/server-detail?id='+id);await has('订单调价历史');await until(()=>evaluate("Boolean(document.querySelector('.oc-price-summary'))"),'price summary loaded');
     };
-    const groups=()=>evaluate("[...[...document.querySelectorAll('details')].find(n=>n.querySelector('summary')?.textContent==='按价格方案查看颜色').querySelectorAll('p')].map(n=>n.textContent)");
+    const groups=async()=>{
+      // Other cards can show "无权查看" before this independent request settles.
+      // Wait for the actual color groups, not an unrelated page-wide label.
+      await until(()=>evaluate("Boolean([...document.querySelectorAll('details')].find(n=>n.querySelector('summary')?.textContent==='按价格方案查看颜色')?.querySelectorAll('p').length)"),'color price groups loaded');
+      return evaluate("[...[...document.querySelectorAll('details')].find(n=>n.querySelector('summary')?.textContent==='按价格方案查看颜色').querySelectorAll('p')].map(n=>n.textContent)");
+    };
     await adjust('120');
     assert.deepEqual((await groups()).sort(),['素色 · 120 CNY/件：白','素色 · 128 CNY/件：蓝、黑','印花 · 128 CNY/件：红'].sort());
     assert.doesNotMatch(await evaluate("document.querySelector('.oc-price-summary').textContent"),/不适用/);
     await screenshot('color-summary-distinct-20261019');
     await adjust('0');assert.ok((await groups()).includes('素色 · 0 CNY/件：白'));
     await login('demo.material');await navigate('/order-center/server-detail?id='+id);await has('无权查看');
-    assert.ok((await groups()).every(v=>!v.includes('128')&&!v.includes('120')&&!v.includes('0 CNY')));
+    const restrictedGroups=await groups();assert.equal(restrictedGroups.length,2);
+    assert.ok(restrictedGroups.every(v=>!v.includes('128')&&!v.includes('120')&&!v.includes('0 CNY')));
     await login('demo.admin');await adjust('128');await has('统一成交价 128 CNY/件');
     assert.equal(await evaluate("document.querySelector('.oc-server-color-table').innerText.includes('实际成交价')"),false);
     await click('查看价格明细');assert.equal(await evaluate("[...document.querySelectorAll('.oc-server-color-table tbody tr')].filter(n=>n.innerText.includes('128 CNY')).length"),4);
