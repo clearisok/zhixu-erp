@@ -1,7 +1,9 @@
-# 当前状态：体验站29d6；导航优化本地验收
+# 当前状态：PR138已合并，继续艾诺科有界刷新
 
-2026-10-31；main/base e37a131a7182a5488f440dcc8fde3ea66de1c6e4，分支fix/brand-shell-navigation。PR138草稿实际远端29d6ca76885bac41dc674dc97122a5c19798d416、三项CI成功，未合并；体验站同版本，镜像sha256:e3adf272ccef31a1e16cce236387f3cd6f91b93ed6676b19273d70ab03d1d7b7，配置runtime/trial.29d6ca76-7ad89096.conf。图标同源PNG已验证；配对备份/恢复、旧账号业务/附件/资产保留。完成回执outputs/favicon-completion.json。
+2026-10-31；main e3ccec0f910d5924dca8dc513201d28b7fb2ecd8，PR138 merge commit已核实双父[e37a131a,17c20e11]及树3ca488bf3bbe378dbccea61d632f043848daffae。原分支保留，三项CI复用既有成功结果。宁波运行17c20e11相同代码树和原镜像，无新增部署。用户已确认staging.weaveops.top为最终验收入口，旧50426等资产不清理。
 
-[导航修复](tasks/active/navigation-performance-2026-10-31.md)：快速点击重复RSC、报价列表加载编辑器/可选窗口；已改为代码预热复用、独立列表和按需窗口。数据权限、离开/未知提交保护不变。类型/lint/Server构建、5项定向、25项导航、8项加工窗口、7项议价窗口、993项项目回归通过；其中包含发布守卫和响应式回归，另验证正式测试目录中的3项加载器检查。源码checkpoint f034bb955a258e7bafc71797dd5ec32821ff3eb6精确发布门禁通过。本片未上传/部署，最终文档提交门禁、集中交付与新CI待完成，不能声称公网已提速。
+后继分支feat/ainuoke-bounded-refresh，保留原6e/0c32文档历史。新增明确合同集合的一次材料刷新，解决三合同与旧两合同受控工具不兼容；不扩旧v1，不扩大总请求/行数/时间预算，不创建/启用来源，不启动调度。本地最终检查及独立复审已完成：13项协议、4项PG、20项Source（另1项Windows跳过）、158项Python、182项发布回归通过；类型、Server编译、相关lint和精确门禁通过，无剩余P1/P2。远端交付/CI尚待本次单次上传结果，准确收口见[任务](tasks/active/ainuoke-bounded-refresh-2026-10-31.md)。
 
-完整Gate0–8/R继续；无新Source采集/绑定/调度或TTL延长，不填造生产/关账。人工业务接受、最终入口、旧资产退役待决策；#136独立草稿不混入。[前一状态逐字归档](tasks/completed/2026-10-31-navigation-input-state/CURRENT_STATE.md)。
+真实来源仍只有原固定窗口：前两合同颜色尺码/三轮物料/18与15行申请，第三合同6色/16行出货。原时点与TTL保留，无本片新采集；三SO、报价附件、生产/商业/关账均未改。完整目标仍需真实刷新授权、人工业务验收及逐资产退役，不能把工程能力当已持续运营。
+
+旧6树6代码tar/4048文件保护副本已核验，原资产不动；不可读/间接引用仍未知。#136保持独立。回执outputs/pr138-approved-merge/result.json；[合并前状态](tasks/completed/2026-10-31-before-pr138-merge/CURRENT_STATE.md)、[完整账本](tasks/active/server-convergence-closeout-2026-10-31.md)。

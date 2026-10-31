@@ -1,4 +1,14 @@
-## 当前候选：可信订单尚未采物料的空态（2026-10-30）
+## 当前后继：既有合同有界物料刷新（2026-10-31）
+
+PR138已合并为main e3ccec0f910d5924dca8dc513201d28b7fb2ecd8；宁波继续运行相同产品树17c20e11。下方2026-10-30空态修复已随此前main进入体验站，原日期“候选/未合并”仅表示原记录时点。最终人工验收入口已由用户确认为staging.weaveops.top，旧50426及其他资产保留。
+
+本地后继新增`--execute-bounded=<source key> --contracts=<完整已绑定BillNo集合> --expected-target=<指纹> --config=<私密文件>`，只刷新已有启用profile及首绑审计对应的物料。`bound-materials`使用独立`ainuoke-bound-materials-once.v1`协议，允许显式1–25合同，但整次仍最多1登录、80报表/81HTTP、4000来源行、4MiB/响应、32MiB累计和180秒；超额失败，不按合同数扩额。旧`selected-*`两合同v1不变。工程上限不是本次真实采集许可。
+
+来源锁内拒绝创建profile；首个网络请求前核对批准集合、全部绑定目标/版本、来源账号、启用状态和首绑审计。继续复用原captureSource的权限复核、完整Discovery及物料校验、CAS与原子快照发布；失败不覆盖已接受指针。不新增HTTP写入口、迁移、定时任务或自动重试，不更新合同镜像/颜色、不写生产、报价、货款、出货或关账。合同/颜色变化另走既有bound-order-refresh的预览/回执；不能用材料刷新冒充合同刷新。
+
+本次工程、测试与实际执行范围见[有界刷新任务](../tasks/active/ainuoke-bounded-refresh-2026-10-31.md)。新真实读取仍须冻结具体清单后授权；不得重复旧宁波初始化脚本或延长旧TTL。
+
+## 历史候选：可信订单尚未采物料的空态（2026-10-30）
 
 main562fbf07的宁波固定初始化证明新增合同虽存在，但未落入当前物料run时会得到404/order_not_available。本地候选在原persisted reader区分订单身份与物料快照：正式绑定、profile启用且尚未首采，或完整Discovery仍精确包含该合同但本run无物料，复用既有200/not_connected。rows/groups为空不等于零数量或齐套；不生成来源代际，不能为到货写入提供ready事实。不做新采集、自动刷新或Browser回退。
 

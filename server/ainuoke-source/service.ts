@@ -56,6 +56,7 @@ export async function captureSource(pool: Pool, identity: Pick<TrustedIdentity, 
     accountFingerprint: string;
     collect: Collector;
     maxAgeMs: number;
+    requireExistingProfile?: boolean;
     now?: () => number;
 }) {
     if (!sourceKeyValid(options.sourceKey) || !/^[0-9a-f]{64}$/u.test(options.accountFingerprint))
@@ -73,12 +74,13 @@ export async function captureSource(pool: Pool, identity: Pick<TrustedIdentity, 
         const targets = await boundOrders(client);
         if (!targets.length)
             throw new SourceError("source_no_bound_orders");
-        await client.query("INSERT INTO ainuoke_source_profiles(source_key,account_fingerprint) VALUES($1,$2) ON CONFLICT DO NOTHING", [options.sourceKey, options.accountFingerprint]);
+        if(!options.requireExistingProfile)
+            await client.query("INSERT INTO ainuoke_source_profiles(source_key,account_fingerprint) VALUES($1,$2) ON CONFLICT DO NOTHING", [options.sourceKey, options.accountFingerprint]);
         const profile = (await client.query<{
             account_fingerprint: string;
             enabled: boolean;
         }>("SELECT account_fingerprint,enabled FROM ainuoke_source_profiles WHERE source_key=$1", [options.sourceKey])).rows[0];
-        if (!profile.enabled || profile.account_fingerprint !== options.accountFingerprint)
+        if (!profile || !profile.enabled || profile.account_fingerprint !== options.accountFingerprint)
             throw new SourceError("source_account_mismatch");
         registered = true;
         const data = await options.collect(targets.map(order => order.salesContractNo!));

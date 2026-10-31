@@ -76,13 +76,15 @@ def validate_input(data):
     for key in ("username", "password"):
         if not isinstance(data[key], str) or not data[key].strip() or len(data[key]) > 1024 or any(ord(c) < 32 for c in data[key]):
             raise ValueError("invalid_credentials")
-    if "mode" in data and data["mode"] not in ("bindings", "probe", "audit", "targeted", "discovery", "additions", "quality", "selected-bindings", "selected-materials"):
+    if "mode" in data and data["mode"] not in ("bindings", "probe", "audit", "targeted", "discovery", "additions", "quality", "selected-bindings", "selected-materials", "bound-materials"):
         raise ValueError("invalid_mode")
-    if data.get("mode") in ("selected-bindings", "selected-materials"):
+    if data.get("mode") in ("selected-bindings", "selected-materials", "bound-materials"):
         import re
-        if set(data) - (required | {"mode", "transportPolicy"}) or not isinstance(data["contracts"], list) or len(data["contracts"]) != 2:
+        bounded = data.get("mode") == "bound-materials"
+        if (set(data) - (required | {"mode", "transportPolicy"}) or not isinstance(data["contracts"], list)
+                or not (1 <= len(data["contracts"]) <= 25 if bounded else len(data["contracts"]) == 2)):
             raise ValueError("invalid_selected_scope")
-        if any(not isinstance(c, str) or not re.fullmatch(r"[A-Z0-9][A-Z0-9/._-]{0,79}", c) for c in data["contracts"]) or len(set(data["contracts"])) != 2:
+        if any(not isinstance(c, str) or not re.fullmatch(r"[A-Z0-9][A-Z0-9/._-]{0,79}", c) for c in data["contracts"]) or len(set(data["contracts"])) != len(data["contracts"]):
             raise ValueError("invalid_selected_scope")
         if url.scheme == "http" and not approved_http:
             raise ValueError("protected_source_transport_required")
@@ -136,7 +138,7 @@ def validate_input(data):
 
 def collect(data, client=None):
     data = validate_input(data)
-    if data.get("mode") in ("selected-bindings", "selected-materials"):
+    if data.get("mode") in ("selected-bindings", "selected-materials", "bound-materials"):
         if client is not None:
             raise ValueError("selected_transport_owned_by_budget")
         from .selected_source_once import collect_selected
@@ -361,7 +363,7 @@ def main():
         if len(output) > MAX_BYTES:
             raise ValueError("output_limit")
         sys.stdout.buffer.write(output)
-        if not args and data.get("mode") in ("selected-bindings", "selected-materials") and result.get("result") != "complete":
+        if not args and data.get("mode") in ("selected-bindings", "selected-materials", "bound-materials") and result.get("result") != "complete":
             return 1
     except InvalidCredentialError:
         sys.stdout.write('{"error":"invalid_credential"}')

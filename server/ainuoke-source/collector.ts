@@ -68,7 +68,7 @@ export const accountFingerprint = (config: CollectorConfig) => hash({ origin: co
 export function collectWithPython(config: CollectorConfig, contracts: string[], options: {
     python?: string;
     timeoutMs?: number;
-    mode?: "bindings" | "probe" | "discovery" | "additions" | "selected-bindings" | "selected-materials";
+    mode?: "bindings" | "probe" | "discovery" | "additions" | "selected-bindings" | "selected-materials" | "bound-materials";
 } = {}): Promise<unknown> {
     return new Promise((resolveResult, reject) => {
         const child = spawn(options.python ?? (process.platform === "win32" ? "python" : "python3"), ["-m", "ainuoke_bridge.server_source"], {
@@ -94,8 +94,8 @@ export function collectWithPython(config: CollectorConfig, contracts: string[], 
             try {
                 const value = JSON.parse(Buffer.concat(chunks).toString("utf8"));
                 if (code !== 0) {
-                    if (code === 1 && ['selected-bindings', 'selected-materials'].includes(options.mode ?? '')
-                        && value.schemaVersion === 'ainuoke-selected-source-once.v1' && value.result === 'failed') {
+                    if (code === 1 && ['selected-bindings', 'selected-materials', 'bound-materials'].includes(options.mode ?? '')
+                        && value.schemaVersion === (options.mode === 'bound-materials' ? 'ainuoke-bound-materials-once.v1' : 'ainuoke-selected-source-once.v1') && value.result === 'failed') {
                         settled = true; resolveResult(value); return;
                     }
                     fail(["invalid_credential", "auth_expired", "source_unavailable"].includes(value.error) ? value.error : "source_invalid");

@@ -13,6 +13,44 @@ CONFIG = {"baseUrl": "https://example.invalid", "username": "synthetic", "passwo
 
 
 class SelectedSourceOnceTests(TestCase):
+    def test_bound_material_scope_uses_distinct_protocol_and_same_aggregate_budget(self):
+        for count in (1, 3, 25):
+            contracts = sorted(f"SYN-SALES-{i+1}" for i in range(count))
+            result = collect_selected({**CONFIG, "mode": "bound-materials", "contracts": contracts}, FakeSelectedTransport(total=max(3, count)))
+            self.assertEqual(result["result"], "complete")
+            self.assertEqual(result["schemaVersion"], "ainuoke-bound-materials-once.v1")
+            self.assertEqual(result["limits"], {**LIMITS, "contracts": 25})
+            self.assertEqual(result["metrics"]["reportRequests"], count+2)
+            self.assertEqual(set(result["bundle"]["materials"]), set(contracts))
+        for contracts in ([], ["SYN-SALES-1"]*2, [f"SYN-SALES-{i+1}" for i in range(26)]):
+            transport = FakeSelectedTransport()
+            with self.assertRaises(ValueError):
+                collect_selected({**CONFIG, "mode": "bound-materials", "contracts": contracts}, transport)
+            self.assertEqual(transport.calls, [])
+        with self.assertRaises(ValueError):
+            collect_selected({**CONFIG, "mode": "selected-materials", "contracts": ["SYN-SALES-1", "SYN-SALES-2", "SYN-SALES-3"]})
+
+    def test_bound_material_third_contract_failure_cannot_publish_partial_or_retry(self):
+        counts = [0]
+        def expire(report, page, payload):
+            if report == 6087050:
+                counts[0] += 1
+                if counts[0] == 3:
+                    raise AuthExpiredError("synthetic")
+        transport = FakeSelectedTransport(expire)
+        result = collect_selected({**CONFIG, "mode": "bound-materials", "contracts": ["SYN-SALES-1", "SYN-SALES-2", "SYN-SALES-3"]}, transport)
+        self.assertEqual(result["code"], "auth_expired")
+        self.assertIsNone(result["bundle"])
+        self.assertEqual(result["metrics"], {"logins": 1, "reportRequests": 4, "httpAttempts": 5, "networkRetries": 0, "authRenewals": 0})
+
+    def test_bound_material_aggregate_budget_not_multiplied_by_contract_count(self):
+        transport = FakeSelectedTransport(total=1000, detail_total=1000)
+        result = collect_selected({**CONFIG, "mode": "bound-materials", "contracts": ["SYN-SALES-1", "SYN-SALES-2", "SYN-SALES-3"]}, transport)
+        self.assertEqual(result["code"], "selected_source_request_limit")
+        self.assertIsNone(result["bundle"])
+        self.assertEqual(result["metrics"]["reportRequests"], 80)
+        self.assertEqual(result["metrics"]["httpAttempts"], 81)
+
     def test_binding_exact_fixed_queries_only_selected_details_and_one_login(self):
         transport = FakeSelectedTransport()
         result = collect_selected(CONFIG, transport)
