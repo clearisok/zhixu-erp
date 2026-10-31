@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "e37a131a7182a5488f440dcc8fde3ea66de1c6e4",
-  "verifiedAt": "2026-10-30T10:24:48.184Z",
+  "baselineSha": "e3ccec0f910d5924dca8dc513201d28b7fb2ecd8",
+  "verifiedAt": "2026-10-31T02:59:22.788Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -5591,6 +5591,26 @@
       "sha256": "6414b994a0863f8a88c1084021f0cfe9425d55fb21e6f56d21532945c15df47f",
       "supersedes": "brand-shell-approved-20261030",
       "changeReason": "Record exact PR138 delivery, first CI failure, scoped mobile test compatibility verification and authorized preview update. Preserve original approval, screenshots and deployment limits."
+    },
+    {
+      "id": "ainuoke-bound-material-refresh-20261031",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SERVER_SOURCE.md",
+      "supersedes": "ainuoke-material-empty-state-20261030",
+      "changeReason": "Document the bounded complete-scope refresh; preserve existing-only profile, budgets and real-source authorization boundaries.",
+      "recordedAtSha": "f8d650c798c84ac62679176949b82c8810c2a9d0",
+      "renderedSourceSha": "f8d650c798c84ac62679176949b82c8810c2a9d0",
+      "sha256": "111bae48ebb203fe720035268ec0ba5ba46b0aab3bb43430e24cfefbdc450a25"
+    },
+    {
+      "id": "decisions-pr138-staging-entry-20261031",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "supersedes": "staging-profile-d178-main8da-import-20261029",
+      "changeReason": "Record approved PR138 merge and unified staging acceptance without expanding real-source allowances.",
+      "recordedAtSha": "f8d650c798c84ac62679176949b82c8810c2a9d0",
+      "renderedSourceSha": "f8d650c798c84ac62679176949b82c8810c2a9d0",
+      "sha256": "336fdfed2b348e8036e6de64785d31f10033de0b7e1b730c11993651dd83c725"
     }
   ],
   "pages": [
