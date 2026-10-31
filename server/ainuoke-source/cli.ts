@@ -10,6 +10,7 @@ import { previewBindings, previewSelectedBindings, bindOrders } from "./binding.
 import { addOrders, discoverAdditions, previewAdditions, readBoundIdentities, requireAdditionProfile, selectContracts } from "./additions.js";
 import { runSchedule, schedulePolicy } from "./scheduler.js";
 import { requirePermission } from "../auth/permissions.js";
+import { refreshBoundMaterialsOnce } from './bounded-material-refresh.js';
 
 export function parseSourceArguments(args: string[]) {
   const values = new Map<string,string>();
@@ -18,21 +19,21 @@ export function parseSourceArguments(args: string[]) {
     if(!match || values.has(match[1])) throw new SourceError("explicit_source_action_required");
     values.set(match[1],match[2]??"");
   }
-  const actions=["check","preview-bind","bind","preview-bind-selected","bind-selected","discover-add","preview-add","add","execute","schedule"].filter(key=>values.has(key));
+  const actions=["check","preview-bind","bind","preview-bind-selected","bind-selected","discover-add","preview-add","add","execute","execute-bounded","schedule"].filter(key=>values.has(key));
   if(actions.length!==1 || !values.get("config")) throw new SourceError("explicit_source_action_required");
   const action=actions[0];
   const allowed=["config",action,...(action==="check"?[]:["expected-target"]),...(["bind","bind-selected","add"].includes(action)?["expected-preview"]:[]),
-    ...(["preview-add","add","preview-bind-selected","bind-selected"].includes(action)?["contracts"]:[]),...(action==="schedule"?["interval-ms","max-backoff-ms"]:[])];
+    ...(["preview-add","add","preview-bind-selected","bind-selected","execute-bounded"].includes(action)?["contracts"]:[]),...(action==="schedule"?["interval-ms","max-backoff-ms"]:[])];
   if([...values.keys()].some(k=>!allowed.includes(k)) || action==="check"&&values.get(action)!==""
     || action!=="check"&&(!/^[a-z][a-z0-9_-]{2,63}$/u.test(values.get(action)!)||!/^[a-f0-9]{64}$/u.test(values.get("expected-target")??""))
     || ["bind","bind-selected","add"].includes(action)&&!/^[a-f0-9]{64}$/u.test(values.get("expected-preview")??"")
-    || ["preview-add","add","preview-bind-selected","bind-selected"].includes(action)&&!values.get("contracts")) throw new SourceError("explicit_source_action_required");
-  if(["preview-add","add","preview-bind-selected","bind-selected"].includes(action)) selectContracts(values.get("contracts")!);
+    || ["preview-add","add","preview-bind-selected","bind-selected","execute-bounded"].includes(action)&&!values.get("contracts")) throw new SourceError("explicit_source_action_required");
+  if(["preview-add","add","preview-bind-selected","bind-selected","execute-bounded"].includes(action)) selectContracts(values.get("contracts")!);
   return {action,values};
 }
 export async function main(args: string[] = process.argv.slice(2)): Promise<void> {
   if(args.length===0 || args.length===1&&args[0]==="--help") {
-    process.stdout.write("check: --check --config=<absolute private file>\nread-only source preview: --preview-bind=<source key> --expected-target=<check fingerprint> --config=<file>\nbind: --bind=<source key> --expected-target=<fingerprint> --expected-preview=<reviewHash> --config=<file>\nselected first binding: --preview-bind-selected=<source key> --contracts=<BillNo,...> --expected-target=<fingerprint> --config=<file>\nconfirm first selection: --bind-selected=<source key> --contracts=<BillNo,...> --expected-preview=<reviewHash> --expected-target=<fingerprint> --config=<file>\nnew contracts: --discover-add=<source key> --expected-target=<fingerprint> --config=<file>\npreview selected: --preview-add=<source key> --contracts=<BillNo,...> --expected-target=<fingerprint> --config=<file>\nconfirm selected: --add=<source key> --contracts=<BillNo,...> --expected-preview=<reviewHash> --expected-target=<fingerprint> --config=<file>\ncapture: --execute=<source key> --expected-target=<fingerprint> --config=<file>\nscheduler: --schedule=<source key> --expected-target=<fingerprint> --config=<file> [--interval-ms=300000] [--max-backoff-ms=1800000]\nNo migration, account bootstrap or deployment is performed. Scheduling does not bind orders.\n"); return;
+    process.stdout.write("check: --check --config=<absolute private file>\nread-only source preview: --preview-bind=<source key> --expected-target=<check fingerprint> --config=<file>\nbind: --bind=<source key> --expected-target=<fingerprint> --expected-preview=<reviewHash> --config=<file>\nselected first binding: --preview-bind-selected=<source key> --contracts=<BillNo,...> --expected-target=<fingerprint> --config=<file>\nconfirm first selection: --bind-selected=<source key> --contracts=<BillNo,...> --expected-preview=<reviewHash> --expected-target=<fingerprint> --config=<file>\nnew contracts: --discover-add=<source key> --expected-target=<fingerprint> --config=<file>\npreview selected: --preview-add=<source key> --contracts=<BillNo,...> --expected-target=<fingerprint> --config=<file>\nconfirm selected: --add=<source key> --contracts=<BillNo,...> --expected-preview=<reviewHash> --expected-target=<fingerprint> --config=<file>\ncapture: --execute=<source key> --expected-target=<fingerprint> --config=<file>\nbounded material capture: --execute-bounded=<source key> --contracts=<exact bound BillNos> --expected-target=<fingerprint> --config=<file>\nscheduler: --schedule=<source key> --expected-target=<fingerprint> --config=<file> [--interval-ms=300000] [--max-backoff-ms=1800000]\nNo migration, account bootstrap or deployment is performed. Scheduling does not bind orders.\n"); return;
   }
   const {action,values}=parseSourceArguments(args);
   const path=values.get("config")!;
@@ -53,6 +54,10 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
       process.stdout.write(JSON.stringify({result:"CHECKED_NO_SOURCE_READ",targetFingerprint:fingerprint,sourceKey:cfg.sourceKey,boundOrders:(await boundOrders(pool)).length})+"\n");return;
     }
     if(values.get("expected-target")!==fingerprint)throw new SourceError("source_target_mismatch");
+    if(action==='execute-bounded'){
+      const result=await refreshBoundMaterialsOnce(pool,actor,cfg,selectContracts(values.get('contracts')!));
+      process.stdout.write(JSON.stringify({result:'BOUNDED_MATERIAL_CAPTURED',...result})+'\n');return;
+    }
     if(action==="preview-bind"||action==="bind"){
       requirePermission((await sourceActor(pool,actor,true)).permissions,"ainuoke.bind");
       const collect=()=>collectWithPython(cfg,[],{mode:"bindings"});

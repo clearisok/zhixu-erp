@@ -1,4 +1,4 @@
-"""Strict two-contract budget around the existing fixed Source collector.
+"""Strict shared budget for selected two-contract or full-bound-scope capture.
 
 No new mapper, database writer, scheduler, or report catalog. The original
 collector may ask for renewal; this client refuses before another login/HTTP.
@@ -10,7 +10,7 @@ from time import monotonic
 from .ainuoke_client import AinuokeClient, AuthExpiredError, InvalidCredentialError, NetworkAinuokeError, UpstreamSchemaError
 from .server_source import ProtectedTransport, collect, validate_input, identity, MAX_BYTES
 
-MODES = ("selected-bindings", "selected-materials")
+MODES = ("selected-bindings", "selected-materials", "bound-materials")
 LIMITS = {"contracts": 2, "logins": 1, "reportRequests": 80, "httpAttempts": 81,
           "pageSize": 50, "pagesPerReport": 20, "rowsPerReport": 1000,
           "sourceRows": 4000, "responseBytes": 4*1024*1024, "workerBytes": MAX_BYTES, "timeoutMs": 180000}
@@ -127,7 +127,9 @@ def collect_selected(data, transport=None, clock=monotonic):
     if data.get("mode") not in MODES:
         raise ValueError("invalid_selected_scope")
     budget = BudgetTransport(data["baseUrl"], transport or ProtectedTransport(LIMITS["responseBytes"]), clock)
-    common = {"schemaVersion": "ainuoke-selected-source-once.v1", "mode": data["mode"], "limits": dict(LIMITS),
+    bounded = data["mode"] == "bound-materials"
+    common = {"schemaVersion": "ainuoke-bound-materials-once.v1" if bounded else "ainuoke-selected-source-once.v1",
+              "mode": data["mode"], "limits": {**LIMITS, **({"contracts": 25} if bounded else {})},
               "sourceFingerprint": fingerprint(data), "selectedContracts": list(data["contracts"]),
               "databaseAccess": "none", "sourceActivation": "not-activated"}
     try:

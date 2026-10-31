@@ -8,6 +8,9 @@ import {synchronizePermissionCatalog} from '../auth/permissions.js';
 import {bootstrapAdmin} from '../auth/bootstrap.js';
 import {loadExistingBootstrapActor} from '../sales-orders/bootstrap-runner.js';
 import {bindOrders} from '../ainuoke-source/binding.js';
+import {addOrders,previewAdditions,readBoundIdentities} from '../ainuoke-source/additions.js';
+import type {AdditionBundle} from '../ainuoke-source/additions.js';
+import {refreshBoundMaterialsOnce} from '../ainuoke-source/bounded-material-refresh.js';
 import {boundOrders,captureSource} from '../ainuoke-source/service.js';
 import {accountFingerprint} from '../ainuoke-source/collector.js';
 import {validateSelectedSourceOnce} from '../ainuoke-source/selected-source-once.js';
@@ -55,6 +58,45 @@ test('bounded synthetic worker feeds existing atomic binding and persisted four-
         }
       }
       assert.equal(await count('ainuoke_payment_source_targets'),0);assert.equal(await count('ainuoke_payment_snapshots'),0);
+    });
+    await t.test('third bound order refreshes atomically; scope and malformed captures preserve accepted generation',async()=>{
+      const third='SYN-SALES-3',contracts=[...selectedContracts,third];
+      const raw=selectedWorkerFixture('selected-bindings','',[selectedContracts[0],third]) as {bundle:AdditionBundle};
+      delete raw.bundle.colors[selectedContracts[0]];
+      const preview=await previewAdditions(raw.bundle,[third],await readBoundIdentities(pool));
+      await addOrders(pool,actor,{sourceKey:options.sourceKey,accountFingerprint:options.accountFingerprint,
+        selected:[third],expectedPreview:preview.reviewHash,collect:async()=>raw.bundle});
+      let calls=0;
+      const collect=async()=>{calls++;return selectedWorkerFixture('bound-materials','',contracts);};
+      const profilesBefore=await count('ainuoke_source_profiles');
+      await assert.rejects(refreshBoundMaterialsOnce(pool,actor,{...selectedConfig,sourceKey:'nonexistent-source'},contracts,collect),/source_account_mismatch/);
+      assert.equal(calls,0);assert.equal(await count('ainuoke_source_profiles'),profilesBefore);
+      await assert.rejects(captureSource(pool,actor,{sourceKey:'nonexistent-source',accountFingerprint:options.accountFingerprint,
+        maxAgeMs:600000,requireExistingProfile:true,collect:async()=>{calls++;return {};}}),/source_account_mismatch/);
+      assert.equal(calls,0);assert.equal(await count('ainuoke_source_profiles'),profilesBefore);
+      await pool.query('INSERT INTO ainuoke_source_profiles(source_key,account_fingerprint) VALUES($1,$2)',['profile-without-binding',options.accountFingerprint]);
+      await assert.rejects(refreshBoundMaterialsOnce(pool,actor,{...selectedConfig,sourceKey:'profile-without-binding'},contracts,collect),/addition_requires_first_binding/);
+      assert.equal(calls,0);assert.equal(await count('ainuoke_source_profiles'),profilesBefore+1);
+      await assert.rejects(refreshBoundMaterialsOnce(pool,actor,selectedConfig,selectedContracts,collect),/bounded_material_scope_changed/);
+      assert.equal(calls,0);assert.equal(await count('ainuoke_source_runs'),1);
+      const result=await refreshBoundMaterialsOnce(pool,actor,selectedConfig,contracts,collect);
+      assert.equal(result.orders,3);assert.equal(calls,1);assert.equal(result.metrics?.reportRequests,5);
+      const latest=(await pool.query('SELECT latest_run_id::text id FROM ainuoke_source_profiles WHERE source_key=$1',[options.sourceKey])).rows[0].id;
+      const acceptedRuns=await count('ainuoke_source_runs');
+      await assert.rejects(refreshBoundMaterialsOnce(pool,actor,selectedConfig,contracts,async()=>
+        selectedWorkerFixture('bound-materials',"if report == 6087050: mutate_rows(payload, lambda rows: rows[0].update({'ExpContractNo': 'SYN-SALES-99'}))",contracts)),/selected_source_row_scope_mismatch/);
+      assert.equal(await count('ainuoke_source_runs'),acceptedRuns);
+      assert.equal((await pool.query('SELECT latest_run_id::text id FROM ainuoke_source_profiles WHERE source_key=$1',[options.sourceKey])).rows[0].id,latest);
+      await assert.rejects(refreshBoundMaterialsOnce(pool,actor,selectedConfig,contracts,async()=>{
+        const snapshot=selectedWorkerFixture('bound-materials','',contracts);
+        await pool.query('UPDATE sales_orders SET version=version+1 WHERE id=$1',(await boundOrders(pool)).slice(0,1).map(r=>r.id));
+        return snapshot;
+      }),/source_order_changed/);
+      assert.equal(await count('ainuoke_source_runs'),acceptedRuns);
+      assert.equal((await pool.query('SELECT latest_run_id::text id FROM ainuoke_source_profiles WHERE source_key=$1',[options.sourceKey])).rows[0].id,latest);
+      assert.equal(await count('sales_orders'),3);assert.equal(await count('quote_center_quotes'),0);
+      assert.equal(await count('ainuoke_payment_source_targets'),0);assert.equal(await count('ainuoke_payment_snapshots'),0);
+      assert.equal(await count('sales_order_commercial_versions'),0);assert.equal(await count('production_schedule_assignments'),0);
     });
   } finally {await pool.end();await db.stop();}
 });

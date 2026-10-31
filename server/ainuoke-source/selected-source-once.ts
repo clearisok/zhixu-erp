@@ -10,11 +10,14 @@ import {normalizeAinuokeSalesContractNo} from '../../features/ainuoke-sync/sourc
 export const SELECTED_SOURCE_LIMITS = Object.freeze({contracts:2,logins:1,reportRequests:80,httpAttempts:81,
   pageSize:50,pagesPerReport:20,rowsPerReport:1000,sourceRows:4000,responseBytes:4*1024*1024,
   workerBytes:32*1024*1024,timeoutMs:180000});
+/** Separate protocol: an explicit bound-order scope, with the SAME aggregate
+ * request/row/time budget. Existing two-contract v1 permits stay unchanged. */
+export const BOUND_MATERIAL_LIMITS = Object.freeze({...SELECTED_SOURCE_LIMITS,contracts:25});
 const failureCodes = new Set(['selected_source_timeout','selected_source_request_limit','selected_source_endpoint_refused',
   'selected_source_response_limit','selected_source_page_limit','selected_source_row_limit','selected_source_query_refused',
   'selected_source_secret_reflection','invalid_credential','auth_expired','source_unavailable','selected_source_invalid']);
 export type SelectedSourceRequest = {mode:'selected-bindings';contracts:string[]}
-  | {mode:'selected-materials';targets:VisibleMaterialOrder[]};
+  | {mode:'selected-materials'|'bound-materials';targets:VisibleMaterialOrder[]};
 export type SelectedSourceMetrics = {logins:number;reportRequests:number;httpAttempts:number;networkRetries:0;authRenewals:0};
 const keys = (o:object) => Object.keys(o).sort().join(',');
 function object(input:unknown):Record<string,unknown> {
@@ -31,16 +34,20 @@ function rejectSecretValue(value:unknown,secret:string,depth=0):void {
 }
 function scope(config:CollectorConfig,request:SelectedSourceRequest) {
   const checked=parseCollectorConfig(config),r=object(request);
-  if(!['selected-bindings','selected-materials'].includes(String(r.mode))
+  if(!['selected-bindings','selected-materials','bound-materials'].includes(String(r.mode))
     || keys(r)!==(r.mode==='selected-bindings'?'contracts,mode':'mode,targets'))
     throw new SourceError('selected_source_scope_invalid');
   // Generic legacy loopback transport is deliberately outside this fixed permit.
   if(checked.baseUrl.startsWith('http:')&&(checked.baseUrl!==APPROVED_HTTP_ORIGIN||checked.transportPolicy!==APPROVED_HTTP_POLICY))
     throw new SourceError('protected_source_transport_required');
   const values=r.mode==='selected-bindings'?r.contracts:Array.isArray(r.targets)?r.targets.map(t=>object(t).salesContractNo):null;
-  if(!Array.isArray(values)||values.length!==2||values.some(c=>typeof c!=='string'||!/^[A-Z0-9][A-Z0-9/._-]{0,79}$/u.test(c))
-    ||new Set(values).size!==2)throw new SourceError('selected_source_scope_invalid');
-  return {config:checked,contracts:[...values].sort() as string[],request:structuredClone(request)};
+  const bounded=r.mode==='bound-materials';
+  if(!Array.isArray(values)||(bounded ? values.length<1||values.length>25 : values.length!==2)
+    ||values.some(c=>typeof c!=='string'||!/^[A-Z0-9][A-Z0-9/._-]{0,79}$/u.test(c))
+    ||new Set(values).size!==values.length)throw new SourceError('selected_source_scope_invalid');
+  return {config:checked,contracts:[...values].sort() as string[],request:structuredClone(request),
+    limits:bounded?BOUND_MATERIAL_LIMITS:SELECTED_SOURCE_LIMITS,
+    schemaVersion:bounded?'ainuoke-bound-materials-once.v1':'ainuoke-selected-source-once.v1'};
 }
 
 /** Revalidate untrusted child output before handing it to the existing domain mappers.
@@ -56,9 +63,9 @@ export async function validateSelectedSourceOnce(input:unknown,config:CollectorC
     rejectSecretValue(input,checked.config.password);
     const value=object(structuredClone(input));
     if(keys(value)!=='bundle,code,databaseAccess,limits,metrics,mode,result,schemaVersion,selectedContracts,sourceActivation,sourceFingerprint'
-      ||value.schemaVersion!=='ainuoke-selected-source-once.v1'||value.mode!==checked.request.mode
+      ||value.schemaVersion!==checked.schemaVersion||value.mode!==checked.request.mode
       ||value.databaseAccess!=='none'||value.sourceActivation!=='not-activated'
-      ||hash(value.limits)!==hash(SELECTED_SOURCE_LIMITS)||value.sourceFingerprint!==accountFingerprint(checked.config)
+      ||hash(value.limits)!==hash(checked.limits)||value.sourceFingerprint!==accountFingerprint(checked.config)
       ||hash(value.selectedContracts)!==hash(checked.contracts))throw new SourceError('selected_source_scope_mismatch');
     const m=object(value.metrics);
     if(keys(m)!=='authRenewals,httpAttempts,logins,networkRetries,reportRequests'||m.networkRetries!==0||m.authRenewals!==0
@@ -105,8 +112,8 @@ export async function validateSelectedSourceOnce(input:unknown,config:CollectorC
       return {result:'complete' as const,mode:'selected-bindings' as const,metrics,bundle:value.bundle as AdditionBundle,preview};
     }
     const validated=await validateBundle(value.bundle,checked.request.targets,now,600000);
-    if(validated.rows.length!==2)throw new SourceError('selected_source_scope_mismatch');
-    return {result:'complete' as const,mode:'selected-materials' as const,metrics,bundle:validated.bundle,validated};
+    if(validated.rows.length!==checked.contracts.length)throw new SourceError('selected_source_scope_mismatch');
+    return {result:'complete' as const,mode:checked.request.mode,metrics,bundle:validated.bundle,validated};
   } catch(error) {throw error instanceof SourceError?error:new SourceError('selected_source_invalid');}
 }
 

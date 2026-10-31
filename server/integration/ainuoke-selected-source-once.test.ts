@@ -3,13 +3,52 @@ import assert from 'node:assert/strict';
 import {mkdtempSync,writeFileSync,unlinkSync,rmdirSync} from 'node:fs';
 import {tmpdir} from 'node:os';
 import {resolve,join,delimiter} from 'node:path';
-import {collectSelectedSourceOnce,validateSelectedSourceOnce,SELECTED_SOURCE_LIMITS,type SelectedSourceMetrics} from '../ainuoke-source/selected-source-once.js';
+import {collectSelectedSourceOnce,validateSelectedSourceOnce,SELECTED_SOURCE_LIMITS,BOUND_MATERIAL_LIMITS,type SelectedSourceMetrics} from '../ainuoke-source/selected-source-once.js';
+import {parseSourceArguments} from '../ainuoke-source/cli.js';
 import type {AdditionBundle} from '../ainuoke-source/additions.js';
 import {selectedConfig,selectedContracts,selectedWorkerFixture} from './selected-source-fixture.js';
 
 type Envelope=Record<string,unknown>&{bundle:AdditionBundle;metrics:SelectedSourceMetrics;limits:Record<string,number>};
 const request={mode:'selected-bindings' as const,contracts:selectedContracts};
 const envelope=()=>selectedWorkerFixture('selected-bindings') as Envelope;
+
+test('bounded material protocol covers explicit 1, 3 and 25 contracts without changing old v1',async()=>{
+  for(const count of [1,3,25]){
+    const contracts=Array.from({length:count},(_,i)=>`SYN-SALES-${i+1}`).sort();
+    const targets=contracts.map((salesContractNo,i)=>({id:`target-${i}`,version:1,salesContractNo,
+      styleNo:`SYN-STYLE-${salesContractNo.split('-').at(-1)}`,insideOrderNo:`SYN-IN-${salesContractNo.split('-').at(-1)}`}));
+    const input=selectedWorkerFixture('bound-materials','',contracts) as Envelope;
+    assert.deepEqual(input.limits,BOUND_MATERIAL_LIMITS);
+    const result=await validateSelectedSourceOnce(input,selectedConfig,{mode:'bound-materials',targets});
+    assert.ok(result.result==='complete'&&result.mode==='bound-materials');
+    assert.equal(result.validated.rows.length,count);assert.equal(result.metrics.reportRequests,count+2);
+    assert.equal(input.schemaVersion,'ainuoke-bound-materials-once.v1');
+    await assert.rejects(validateSelectedSourceOnce({...input,schemaVersion:'ainuoke-selected-source-once.v1'},selectedConfig,{mode:'bound-materials',targets}));
+    await assert.rejects(validateSelectedSourceOnce(input,selectedConfig,{mode:'selected-materials',targets}));
+  }
+  assert.equal(SELECTED_SOURCE_LIMITS.contracts,2);assert.equal(BOUND_MATERIAL_LIMITS.reportRequests,80);
+});
+
+test('bounded material rejects foreign rows, missing scope and enlarged request budget',async()=>{
+  const contracts=['SYN-SALES-1','SYN-SALES-2','SYN-SALES-3'];
+  const targets=contracts.map((salesContractNo,i)=>({id:`target-${i}`,version:1,salesContractNo,styleNo:`SYN-STYLE-${i+1}`,insideOrderNo:`SYN-IN-${i+1}`}));
+  const request={mode:'bound-materials' as const,targets};
+  const original=selectedWorkerFixture('bound-materials','',contracts) as Envelope;
+  for(const delta of [{selectedContracts:contracts.slice(0,2)},{limits:{...BOUND_MATERIAL_LIMITS,reportRequests:100}},
+    {metrics:{...original.metrics,networkRetries:1}},{mode:'selected-bindings'}])
+    await assert.rejects(validateSelectedSourceOnce({...original,...delta},selectedConfig,request));
+  const mixed=selectedWorkerFixture('bound-materials',"if report == 6087050: mutate_rows(payload, lambda rows: rows[0].update({'ExpContractNo': 'SYN-SALES-99'}))",contracts);
+  await assert.rejects(validateSelectedSourceOnce(mixed,selectedConfig,request),/selected_source_row_scope_mismatch/);
+  for(const bad of [[],[targets[0],targets[0]],Array.from({length:26},(_,i)=>({...targets[0],salesContractNo:`SYN-${i}`}))])
+    await assert.rejects(collectSelectedSourceOnce(selectedConfig,{mode:'bound-materials',targets:bad},{python:'unavailable'}),/selected_source_scope_invalid/);
+});
+
+test('bounded CLI requires explicit contracts and target, and cannot enable a scheduler',()=>{
+  const args=['--execute-bounded=synthetic-selected-once','--config=/private/source.json','--expected-target='+'a'.repeat(64)];
+  assert.throws(()=>parseSourceArguments(args));
+  assert.equal(parseSourceArguments([...args,'--contracts=SYN-SALES-1,SYN-SALES-2,SYN-SALES-3']).action,'execute-bounded');
+  assert.throws(()=>parseSourceArguments([...args,'--contracts=SYN-SALES-1','--interval-ms=300000']));
+});
 
 test('actual Python stdout uses the same fixed limits and formal selected-binding mapper',async()=>{
   const input=envelope();assert.deepEqual(input.limits,SELECTED_SOURCE_LIMITS);
@@ -34,11 +73,12 @@ test('real parent subprocess accepts validated success and closed nonzero failur
   const fixturePath=resolve('tools/ainuoke-bridge/tests').replaceAll('\\','/');
   try {
     process.env.PYTHONPATH=[directory,resolve('tools/ainuoke-bridge'),...(previous?[previous]:[])].join(delimiter);
-    for(const fail of [false,true]) {
-      writeFileSync(site,`import sys\nsys.path.insert(0, ${JSON.stringify(fixturePath)})\nfrom selected_source_fixture import FakeSelectedTransport\nimport ainuoke_bridge.selected_source_once as module\nfrom ainuoke_bridge.ainuoke_client import AuthExpiredError\ndef change(report, page, payload):\n    if ${fail?'True':'False'} and report == 6087105: raise AuthExpiredError('synthetic')\nmodule.ProtectedTransport = lambda *args: FakeSelectedTransport(change)\n`,{mode:0o600});
-      const result=await collectSelectedSourceOnce(selectedConfig,request,{timeoutMs:10000});
+    for(const mode of ['selected-bindings','bound-materials'] as const)for(const fail of [false,true]) {
+      writeFileSync(site,`import sys\nsys.path.insert(0, ${JSON.stringify(fixturePath)})\nfrom selected_source_fixture import FakeSelectedTransport\nimport ainuoke_bridge.selected_source_once as module\nfrom ainuoke_bridge.ainuoke_client import AuthExpiredError\ndef change(report, page, payload):\n    if ${fail?'True':'False'} and report == ${mode==='selected-bindings'?6087105:6087050}: raise AuthExpiredError('synthetic')\nmodule.ProtectedTransport = lambda *args: FakeSelectedTransport(change)\n`,{mode:0o600});
+      const current=mode==='selected-bindings'?request:{mode,targets:['SYN-SALES-1','SYN-SALES-2','SYN-SALES-3'].map((salesContractNo,i)=>({id:`target-${i}`,version:1,salesContractNo,styleNo:`SYN-STYLE-${i+1}`,insideOrderNo:`SYN-IN-${i+1}`}))};
+      const result=await collectSelectedSourceOnce(selectedConfig,current,{timeoutMs:10000});
       assert.equal(result.result,fail?'failed':'complete');
-      assert.equal(result.metrics.httpAttempts,fail?3:5);
+      assert.equal(result.metrics.httpAttempts,fail?3:mode==='selected-bindings'?5:6);
     }
   } finally {
     if(previous===undefined)delete process.env.PYTHONPATH;else process.env.PYTHONPATH=previous;
