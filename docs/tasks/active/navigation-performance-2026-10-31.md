@@ -1,4 +1,14 @@
-# 导航等待修复：页面代码预载与报价列表拆分
+# 导航修复已交付：页面代码预载与报价列表拆分
+
+## 当前交付状态（2026-10-31前向补记）
+
+产品与最终交付源码17c20e111e8ec66e21b9309616b3baab28cbc8de，base/main e37a131a7182a5488f440dcc8fde3ea66de1c6e4。PR138仍草稿且未合并，精确17c已一次推送并核实；Release baseline 41150962542、First team access 41150962547、Ainuoke server source 41150962566均首次SUCCESS，无重跑/手动触发。独立只读审查未发现新增P1/P2，本补记修复其P3过期接力问题；旧交付前全文见[逐字归档](../completed/2026-10-31-navigation-delivery-input-state/navigation-performance-2026-10-31.md)。
+
+授权的staging更新已完成：精确镜像sha256:85200578e877c5d22ea92c48c56df07bebe7b623ede349f682e9c528cc976263；新配对备份、121表/序列独立恢复、34路径读回及保留审计通过，旧账号/业务/附件/容器/卷/路由保留。实际浏览器单样本报价→订单1437.6ms、订单→报价1506.8ms、订单→进度设置2172.9ms；各1次RSC、0次重复auth/me。计时为首个页面请求至主要数据响应，非完整交互绘制或长期速度保证。报价列表的一个旧合成附件缩略图仍503，D1992缩略图200；不冒称所有网络请求无错。
+
+回执：outputs/navigation-completion.json、navigation-ci-final.json、navigation-browser-public.json、navigation-approved-staging-update/final-preservation.json、navigation-independent-review-20261031.json。构建依赖比较另见navigation-image-verification.json，994786→603770字节仅为未压缩静态导入图，不能解释成下载流量或速度改善39.3%。本次后继文档checkpoint未另行推送、构建或部署，不替换上述源码身份。
+
+以下为交付前工程事实，保留原日期/失败记录；其中29d6和“待交付”描述只对应当时状态。
 
 2026-10-31；分支fix/brand-shell-navigation；干净输入29d6ca76885bac41dc674dc97122a5c19798d416；本轮API核实main e37a131a7182a5488f440dcc8fde3ea66de1c6e4、PR138草稿。沿用[用户已批准导航改进范围](brand-shell-navigation-2026-10-30.md)，再次反馈慢后继续完整Gate0–8/R，不改变业务规则。
 

@@ -1,7 +1,11 @@
-# 当前状态：体验站29d6；导航优化本地验收
+# 当前状态：导航17c已交付及部署，PR138未合并
 
-2026-10-31；main/base e37a131a7182a5488f440dcc8fde3ea66de1c6e4，分支fix/brand-shell-navigation。PR138草稿实际远端29d6ca76885bac41dc674dc97122a5c19798d416、三项CI成功，未合并；体验站同版本，镜像sha256:e3adf272ccef31a1e16cce236387f3cd6f91b93ed6676b19273d70ab03d1d7b7，配置runtime/trial.29d6ca76-7ad89096.conf。图标同源PNG已验证；配对备份/恢复、旧账号业务/附件/资产保留。完成回执outputs/favicon-completion.json。
+2026-10-31；main e37a131a7182a5488f440dcc8fde3ea66de1c6e4，分支fix/brand-shell-navigation。PR138仍为草稿，精确远端17c20e111e8ec66e21b9309616b3baab28cbc8de、三项CI首次成功，无重跑；明确合并问题已提出，未获答复。体验站https://staging.weaveops.top已运行同一源码，镜像sha256:85200578e877c5d22ea92c48c56df07bebe7b623ede349f682e9c528cc976263，配置runtime/trial.17c20e11-e354170c.conf。本次后继提交仅补交付状态文档，不代表远端或站点源码改变。
 
-[导航修复](tasks/active/navigation-performance-2026-10-31.md)：快速点击重复RSC、报价列表加载编辑器/可选窗口；已改为代码预热复用、独立列表和按需窗口。数据权限、离开/未知提交保护不变。类型/lint/Server构建、5项定向、25项导航、8项加工窗口、7项议价窗口、993项项目回归通过；其中包含发布守卫和响应式回归，另验证正式测试目录中的3项加载器检查。源码checkpoint f034bb955a258e7bafc71797dd5ec32821ff3eb6精确发布门禁通过。本片未上传/部署，最终文档提交门禁、集中交付与新CI待完成，不能声称公网已提速。
+[导航修复](tasks/active/navigation-performance-2026-10-31.md)：代码预热复用、独立列表及按需窗口，保留权限、离开和未知提交保护。类型/lint/Server构建、993项项目回归（含182项发布/响应式检查）、另3项加载器、25项导航、8项加工、7项议价浏览器检查通过；精确17c发布守卫通过。独立只读复审无新增P1/P2；本次补齐其P3接力文档问题。公网单样本报价→订单1437.6ms、订单→报价1506.8ms、订单→进度设置2172.9ms，各1次RSC、无重复auth/me，不是长期性能承诺。
 
-完整Gate0–8/R继续；无新Source采集/绑定/调度或TTL延长，不填造生产/关账。人工业务接受、最终入口、旧资产退役待决策；#136独立草稿不混入。[前一状态逐字归档](tasks/completed/2026-10-31-navigation-input-state/CURRENT_STATE.md)。
+部署经新配对备份、121表/序列独立恢复、34路径读回及数据保留核对；原账号、3张SO、2张报价、附件、数据库/对象容器和旧资产保留。回执outputs/navigation-completion.json、navigation-ci-final.json、navigation-approved-staging-update/final-preservation.json；不重复执行这些变更工具。
+
+[完整Gate0–8/R账本](tasks/active/server-convergence-closeout-2026-10-31.md)仍未完成：真实采集仅限原3合同固定范围，未开启持续调度，原时效不延长；生产/关账合成闭环不冒充真实业务完成。最终入口、人工业务验收和逐资产退役仍待决定。#136独立草稿不混入。[交付前状态逐字归档](tasks/completed/2026-10-31-navigation-delivery-input-state/CURRENT_STATE.md)。
+
+Gate R后继准备：6棵已合并且干净的旧工作树完成独立保护副本，6份代码tar及4,048个ignored文件逐项核验；原目录不动。Docker路径绑定与已登记node_modules引用未发现关联，有限进程/计划任务/服务路径检索无命中，但不可读及间接引用仍未知。尚未具备无条件退役结论，未停止或删除资产；详见整体账本的后继保护准备。此片仅本地文档/备份，不另推送或触发CI。
