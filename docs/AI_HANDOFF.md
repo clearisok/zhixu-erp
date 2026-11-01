@@ -1,6 +1,6 @@
 # 接力：侧栏定位已部署宁波
 
-工作树sidebar-collapse-alignment，分支fix/sidebar-collapse-alignment；代码f21c96c1899126028ba9a272727ad8d564ccf185已按用户“同步到体验站”部署。当前文档提交仅记录部署；不可因文档HEAD不同误判运行代码。main基线cb5cc29，尚无本片PR/合并/新CI，Git NETWORK_DEGRADED未重试。
+工作树sidebar-collapse-alignment，分支fix/sidebar-collapse-alignment；代码f21c96c1899126028ba9a272727ad8d564ccf185已按用户“同步到体验站”部署。当前文档提交仅记录部署；不可因文档HEAD不同误判运行代码。main基线cb5cc29baa49ed7115fdb6c9506b6a80356936ea，尚无本片PR/合并/新CI，Git NETWORK_DEGRADED未重试。
 
 运行镜像0bc513c4c45a718faf718bbe529a1e3c3c820506c4ecdb933a058e953d0bcd17，配置/home/jackson/weaveops-staging-preview/runtime/trial.sidebar-f21c96c1.conf。持续同步和备份policy已更新精确身份，旧policy归档；operator/三合同范围未变。物料第30轮HEALTHY（2026-11-01T12:05:11Z），勿重复激活或强制采集。更新前后成对备份及恢复镜像在宁波与D:/WeaveOps-Backups/ningbo-trial验证；旧环境/卷不清理。
 
