@@ -1,6 +1,6 @@
 # 侧栏展开与折叠定位修复
 
-2026-11-01；独立分支 fix/sidebar-collapse-alignment，干净起点及本轮 GitHub API 核实 main：cb5cc29baa49ed7115fdb6c9506b6a80356936ea。未使用旧7bf3目录，不修改其他工作树、宁波应用、数据库或持续物料同步。
+2026-11-01；独立分支 fix/sidebar-collapse-alignment，干净起点及本轮 GitHub API 核实 main：cb5cc29baa49ed7115fdb6c9506b6a80356936ea。第一阶段未使用旧7bf3目录，不修改其他工作树或宁波；后续经用户明确要求同步体验站，交付记录见下。
 
 ## 已确认范围
 
@@ -10,7 +10,7 @@
 
 原桌面折叠把品牌区104px缩为52px、组织区75px缩为49px，六个主导航项整体上移78px；侧栏和按钮padding配合居中使图标右移4px。现桌面两状态保留104px品牌区与75px组织区，图标沿用展开态的26px左起点（折叠侧栏9px+按钮17px）。展开态行位置与原版相同。正文仍由186px左边距变为78px，窄屏Compact及触屏Drawer保持原规则。子菜单仍沿用展开内联/折叠浮层，不改变交互模型。
 
-仅产品文件 app/foundation.css 变化。没有JS、路由、数据、权限或构建配置变更，未新增镜像或迁移。当前页面仍有原品牌低对比文字等历史问题，本片不扩大范围。
+仅产品文件 app/foundation.css 变化。没有JS、路由、数据、权限或构建配置变更，第一阶段未新增镜像；第二阶段构建并同步同一代码镜像，无数据库迁移。当前页面仍有原品牌低对比文字等历史问题，本片不扩大范围。
 
 ## 验证与限制
 
@@ -18,4 +18,19 @@
 
 已有导航/响应式相关测试28项通过。浏览器验证器初次因CDP传入null sessionId停止，修正后触屏夹具缺viewport导致390按980布局宽度计算；改为明确CSS视口后通过，两次失败不属于产品缺陷。未安装依赖；沿用锁文件一致的现有node_modules。临时打包工具单独引用已有esbuild，不修改依赖或锁文件。
 
-验收数字及合成截图见 artifacts/sidebar-collapse-alignment-20261101；详细临时工具与结果在 outputs/sidebar-alignment。生产构建与最终源码门禁结果在本地收口日志，未完成前不声明通过。本次只本地修复，未合并或部署；已知Git网络问题不反复上传，GitHub交付/CI另行核实。
+验收数字及合成截图见 artifacts/sidebar-collapse-alignment-20261101；详细临时工具与结果在 outputs/sidebar-alignment。生产构建与最终源码门禁结果在本地收口日志，未完成前不声明通过。第一阶段只本地修复；第二阶段已同步宁波，仍未合并。已知Git网络问题不反复上传，GitHub交付/CI另行核实。
+
+
+## 经批准同步宁波体验站（2026-11-01）
+
+用户明确要求“同步到体验站”。部署精确代码 f21c96c1899126028ba9a272727ad8d564ccf185，镜像 sha256:0bc513c4c45a718faf718bbe529a1e3c3c820506c4ecdb933a058e953d0bcd17，构建 server-preview-f21c96c1-e4874825be。它是本地任务提交，不冒称已合并 main 或通过新 CI。原运行代码17c20e11到本次的差异包含main已经合并的固定物料采集工具修复；持续同步仍使用原冻结operator镜像，采集范围、间隔及预算未改变。
+
+镜像从3394个精确Git blob构建，无覆盖文件；51个迁移文件与原运行版本一致。首次离线构建因系统包无缓存失败；中科大镜像HEAD返回403；核对官方Alpine和npm TLS可达后，使用官方源的单次构建成功。未改宿主代理、TLS或Docker全局配置。已有28项相关检查与真实组件浏览器结果复用；补充完整发布基线182项全部通过。
+
+切换前备份20261101T120114Z-a1d88e95。在全新独立项目恢复121张表、序列及2份附件，逐项一致，精确候选启动成功；验收副本停止并保留。切换仅替换app/gateway/objects-tls，数据库和附件存储容器及卷不变。冻结比较中业务表、账号与角色内容保持一致；仅已有启动机制更新服务器管理员角色时间及用户序列一次。旧镜像、配置、证书、路由、备份及旧环境保留。
+
+新运行配置为/home/jackson/weaveops-staging-preview/runtime/trial.sidebar-f21c96c1.conf。备份与同步policy仅更新经过验证的应用/配置身份；归档旧policy，不重置同步状态。更新后备份20261101T120345Z-91506e7c及恢复镜像已在D:/WeaveOps-Backups/ningbo-trial验证，OFFHOST_VERIFIED。12:05:11 UTC物料同步完成第30轮，HEALTHY，disabled标记已移入发布回执保存。未扩展三合同范围、重读合同目录或强制额外采集。
+
+公网TLS、管理员登录/退出、3单及2报价读取通过；源站校验通过。浏览器实际加载index-DWX5uEhc.css，CSSOM已确认75px组织区与17px折叠按钮规则。登录后的真实侧栏点击本轮未重复，零位移结论来自已验收的实际组件本地几何与相同正式CSS；不能冒称已做真实业务浏览器闭环。宁波Python公网探针HTTP403，本机Node公网已认证读取成功，浏览器登录页正常，未降低访问安全设置。
+
+可公开回执：[staging-delivery.json](../../../artifacts/sidebar-collapse-alignment-20261101/staging-delivery.json)。完整运维脚本及脱敏回执在本机outputs/sidebar-alignment，私密备份及凭据不入Git。没有推送、触发CI或合并。
