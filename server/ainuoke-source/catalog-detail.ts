@@ -6,6 +6,7 @@ import { addOrders, previewAdditions, readBoundIdentities } from './additions.js
 import { hash, SourceError, sourceKeyValid } from './contract.js';
 import { projectMaterialProgress } from '../../features/ainuoke-material-progress/projection.js';
 import { adaptAinuokeGarmentColorSizeSnapshots } from '../../features/ainuoke-sync/source/ainuoke-garment-color-size-adapter.js';
+import { adaptAinuokeOrderDiscoverySnapshots } from '../../features/ainuoke-api/source/ainuoke-order-discovery-adapter.js';
 type Identity=Pick<TrustedIdentity,'internalUserId'|'userId'>;
 type Scope={sourceKey:string;sourceId:string};
 async function observation(pool:Pool,identity:Identity,scope:Scope){
@@ -24,8 +25,12 @@ async function observation(pool:Pool,identity:Identity,scope:Scope){
 export async function readCatalogDetail(pool:Pool,identity:Identity,scope:Scope){
  const {row}=await observation(pool,identity,scope);
  if(!row.evidence)return {salesContractNo:row.sales_contract_no,status:'not_fetched',observedAt:null,colors:[],materials:[]};
- const colors=await adaptAinuokeGarmentColorSizeSnapshots({snapshots:row.evidence.addition.colors[row.sales_contract_no],requestedSalesContractNo:row.sales_contract_no,discoveryInsideOrderNo:row.inside_order_no,expectedStyleNo:row.style_no});
- const view=projectMaterialProgress({salesContractNo:row.sales_contract_no,styleNo:row.style_no,insideOrderNo:row.inside_order_no},row.evidence.materials);
+ const frozen=(await adaptAinuokeOrderDiscoverySnapshots(row.evidence.addition.discoveryAfter)).rows.find(r=>r.sourceId===scope.sourceId&&r.salesContractNo===row.sales_contract_no);
+ if(!frozen)throw new SourceError('source_snapshot_changed');
+ // The directory may have refreshed before this contract's next detail slot.
+ // Interpret historical facts with their own frozen identity, never today's name.
+ const colors=await adaptAinuokeGarmentColorSizeSnapshots({snapshots:row.evidence.addition.colors[row.sales_contract_no],requestedSalesContractNo:row.sales_contract_no,discoveryInsideOrderNo:frozen.insideOrderNo,expectedStyleNo:frozen.styleNo});
+ const view=projectMaterialProgress({salesContractNo:row.sales_contract_no,styleNo:frozen.styleNo,insideOrderNo:frozen.insideOrderNo},row.evidence.materials);
  // Catalogue browsing doesn't expose purchase prices, quote terms or raw evidence.
  return {salesContractNo:row.sales_contract_no,status:row.last_error_code?'last_attempt_failed':'observed',observedAt:row.captured_at,
   colors:colors.usableRows.map(c=>({id:c.sourceRowIdentity,colorName:c.colorName,sizes:c.sizeAllocations.map(s=>({name:s.sizeName,quantity:s.quantity})),quantity:c.quantity})),

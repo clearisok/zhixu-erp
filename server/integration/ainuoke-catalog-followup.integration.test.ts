@@ -28,7 +28,7 @@ import { parseSourceArguments } from '../ainuoke-source/cli.js';
 import { captureCatalogOnce } from '../ainuoke-source/catalog-capture.js';
 
 test('catalogue is not a business ledger; active groups publish and fail independently',{timeout:180000},async t=>{
- const db=await startDisposablePostgres(),pool=new pg.Pool({connectionString:await db.createDatabase('catalog_followup')});
+ const db=await startDisposablePostgres(),pool=new pg.Pool({connectionString:await db.createDatabase('catalog_followup'),max:4});
  try{
   await runMigrations(pool,resolve('database/migrations'));await synchronizePermissionCatalog(pool);
   await bootstrapAdmin(pool,{username:selectedConfig.operatorUsername,displayName:'Synthetic catalogue admin',password:'synthetic-catalogue'});
@@ -153,7 +153,14 @@ test('catalogue is not a business ledger; active groups publish and fail indepen
     assert.equal((await runSyncTick(pool,actor,selectedConfig,{collect:async()=>{requests++;return null;}})).status,'busy');
     await assert.rejects(recoverSync(pool,actor,sourceKey),/sync_worker_busy/);assert.equal(requests,0);
     await assert.rejects(captureCatalogOnce(pool,actor,selectedConfig,randomUUID(),async()=>{requests++;return null;}),/sync_worker_busy/);assert.equal(requests,0);
+    assert.equal((await captureCatalogOnce(pool,actor,selectedConfig,randomUUID(),async()=>selectedWorkerFixture('catalog-discovery','',[]),lock)).status,'complete');
+    await assert.rejects(recoverSync(pool,actor,sourceKey),/sync_worker_busy/);
    }finally{await lock.query('SELECT pg_advisory_unlock(hashtextextended($1,0))',['ainuoke-sync-worker:'+sourceKey]);lock.release();}
+  });
+  await t.test('historical detail retains its captured identity after a directory-only style change',async()=>{
+   const scope={sourceKey,sourceId:'3'},before=await readCatalogDetail(pool,actor,scope);
+   await pool.query("UPDATE ainuoke_catalog_entries SET style_no='RENAMED-SYNTHETIC',inside_order_no='RENAMED-IN' WHERE source_key=$1 AND source_id='3'",[sourceKey]);
+   const after=await readCatalogDetail(pool,actor,scope);assert.deepEqual(after.colors,before.colors);assert.deepEqual(after.materials,before.materials);assert.ok(after.materials.length);
   });
   await t.test('invalid historical date fails only that contract while valid contracts from the same capture publish',async()=>{
    await pool.query("UPDATE ainuoke_contract_sync_state SET last_success_at=now()-interval '1 hour',last_automatic_attempt_at=now()-interval '1 hour' WHERE source_key=$1",[sourceKey]);

@@ -5611,6 +5611,36 @@
       "recordedAtSha": "f8d650c798c84ac62679176949b82c8810c2a9d0",
       "renderedSourceSha": "f8d650c798c84ac62679176949b82c8810c2a9d0",
       "sha256": "336fdfed2b348e8036e6de64785d31f10033de0b7e1b730c11993651dd83c725"
+    },
+    {
+      "id": "catalog-followup-business-rules-20261102",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "e21f64ee03c6b177e4cabe91473d760ab96920f2",
+      "renderedSourceSha": "e21f64ee03c6b177e4cabe91473d760ab96920f2",
+      "sha256": "b8f44aa448a051d5e27bb5862f1b1169f7bdbda148ec0df30e6a0d334e65db43",
+      "supersedes": "closing-support-main6479-integration-3-20261028",
+      "changeReason": "Freeze the approved catalogue and calendar-based synchronization contract, preserving prior source evidence, immutable SO/commercial facts and separate Ningbo activation boundaries."
+    },
+    {
+      "id": "catalog-followup-source-contract-20261102",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SERVER_SOURCE.md",
+      "recordedAtSha": "e21f64ee03c6b177e4cabe91473d760ab96920f2",
+      "renderedSourceSha": "e21f64ee03c6b177e4cabe91473d760ab96920f2",
+      "sha256": "489cec163a7844c07e2e49193a11f4c6fe48053f3b34f1f5da117cebff61ca45",
+      "supersedes": "ainuoke-bound-material-refresh-20261031",
+      "changeReason": "Freeze the approved catalogue and calendar-based synchronization contract, preserving prior source evidence, immutable SO/commercial facts and separate Ningbo activation boundaries."
+    },
+    {
+      "id": "catalog-followup-decisions-20261102",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "e21f64ee03c6b177e4cabe91473d760ab96920f2",
+      "renderedSourceSha": "e21f64ee03c6b177e4cabe91473d760ab96920f2",
+      "sha256": "9c5e88771cf873a3f515ba2e9ae42706b6bc8d745e4d544277340923847e5401",
+      "supersedes": "decisions-pr138-staging-entry-20261031",
+      "changeReason": "Freeze the approved catalogue and calendar-based synchronization contract, preserving prior source evidence, immutable SO/commercial facts and separate Ningbo activation boundaries."
     }
   ],
   "pages": [
