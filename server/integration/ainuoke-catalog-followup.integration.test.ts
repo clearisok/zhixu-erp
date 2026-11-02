@@ -12,6 +12,7 @@ import {bindOrders} from '../ainuoke-source/binding.js';
 import {previewCatalog,publishCatalog,readCatalog} from '../ainuoke-source/catalog.js';
 import {setFollowup,planFollowupGroups} from '../ainuoke-source/followup.js';
 import {boundOrders} from '../ainuoke-source/service.js';
+import { SourceError } from '../ainuoke-source/contract.js';
 import {accountFingerprint} from '../ainuoke-source/collector.js';
 import {validateSelectedSourceOnce} from '../ainuoke-source/selected-source-once.js';
 import {refreshFollowupGroup} from '../ainuoke-source/group-refresh.js';
@@ -21,6 +22,10 @@ import {selectedConfig,selectedContracts,selectedWorkerFixture} from './selected
 import { configureSync, enqueueAutomaticSync, requestContractSync, readSyncRequest } from '../ainuoke-source/sync-queue.js';
 import { DEFAULT_SYNC_POLICY } from '../ainuoke-source/sync-schedule.js';
 import { runSyncTick } from '../ainuoke-source/sync-worker.js';
+import { readCatalogDetail,previewCatalogIntake,adoptCatalogContract } from '../ainuoke-source/catalog-detail.js';
+import { recoverSync } from '../ainuoke-source/sync-recovery.js';
+import { parseSourceArguments } from '../ainuoke-source/cli.js';
+import { captureCatalogOnce } from '../ainuoke-source/catalog-capture.js';
 
 test('catalogue is not a business ledger; active groups publish and fail independently',{timeout:180000},async t=>{
  const db=await startDisposablePostgres(),pool=new pg.Pool({connectionString:await db.createDatabase('catalog_followup')});
@@ -117,6 +122,51 @@ test('catalogue is not a business ledger; active groups publish and fail indepen
    const after=(await readCatalog(pool,actor,{search:'SYN-SALES-3',scope:'all',offset:0,limit:50})).rows[0];
    assert.deepEqual(after.lastSuccessAt,success);assert.equal(after.lastErrorCode,'source_capture_failed');
    assert.equal((await requestContractSync(pool,actor,{...input,requestId:randomUUID()})).replayed,false);
+  });
+  await t.test('catalogue request replay never reuses its upstream allowance, including a failed attempt',async()=>{
+   const id=randomUUID();let upstream=0;
+   await assert.rejects(captureCatalogOnce(pool,actor,selectedConfig,id,async()=>{upstream++;throw new SourceError('source_unavailable');}));
+   assert.equal((await captureCatalogOnce(pool,actor,selectedConfig,id,async()=>{upstream++;return null;})).replayed,true);assert.equal(upstream,1);
+   const success=await captureCatalogOnce(pool,actor,selectedConfig,randomUUID(),async()=>selectedWorkerFixture('catalog-discovery','',[]));assert.equal(success.status,'complete');
+   await assert.rejects(pool.query("UPDATE ainuoke_catalog_requests SET result='{}' WHERE source_key=$1 AND request_id=$2",[sourceKey,id]),/immutable/);
+  });
+  await t.test('read-only detail has no raw or commercial amounts; explicit adoption uses original SO service and atomic receipt',async()=>{
+   await runSyncTick(pool,actor,selectedConfig,{automatic:false,collect:async(_c,r)=>{if(r.mode!=='catalog-contracts')throw new Error('scope');return selectedWorkerFixture('catalog-contracts','',r.contracts);}});
+   const entry=(await readCatalog(pool,actor,{search:'SYN-SALES-3',scope:'all',offset:0,limit:50})).rows[0],scope={sourceKey,sourceId:entry.sourceId};
+   const detail=await readCatalogDetail(pool,actor,scope);assert.ok(detail.colors.length);assert.ok(detail.materials.length);
+   assert.doesNotMatch(JSON.stringify(detail),/unitPrice|sourcePricing|"amount"|"evidence"|"password"/);
+   const preview=await previewCatalogIntake(pool,actor,scope);
+   assert.equal(await count('sales_orders'),baseCounts[0]);
+   const command={...scope,observationId:preview.observationId,expectedPreview:preview.expectedPreview,requestId:randomUUID()};
+   const added=await adoptCatalogContract(pool,actor,command);assert.equal(added.created,1);
+   assert.equal((await adoptCatalogContract(pool,actor,command)).replayed,true);
+   assert.equal(await count('sales_orders'),baseCounts[0]+1);assert.equal(await count('ainuoke_catalog_intake_receipts'),1);
+   assert.equal(await count('quote_center_quotes'),baseCounts[1]);assert.equal(await count('production_schedule_assignments'),baseCounts[3]);
+  });
+  await t.test('invalid batch cannot spend a source request; active worker excludes recovery and another worker',async()=>{
+   let requests=0;
+   await assert.rejects(runSyncTick(pool,actor,selectedConfig,{batchSize:0,collect:async()=>{requests++;return null;}}),/sync_batch_invalid/);
+   assert.equal(requests,0);
+   assert.throws(()=>parseSourceArguments(['--sync-once='+sourceKey,'--config=synthetic','--expected-target='+'a'.repeat(64),'--batch-size=0']),/sync_batch_invalid/);
+   const lock=await pool.connect();try{
+    await lock.query('SELECT pg_advisory_lock(hashtextextended($1,0))',['ainuoke-sync-worker:'+sourceKey]);
+    assert.equal((await runSyncTick(pool,actor,selectedConfig,{collect:async()=>{requests++;return null;}})).status,'busy');
+    await assert.rejects(recoverSync(pool,actor,sourceKey),/sync_worker_busy/);assert.equal(requests,0);
+    await assert.rejects(captureCatalogOnce(pool,actor,selectedConfig,randomUUID(),async()=>{requests++;return null;}),/sync_worker_busy/);assert.equal(requests,0);
+   }finally{await lock.query('SELECT pg_advisory_unlock(hashtextextended($1,0))',['ainuoke-sync-worker:'+sourceKey]);lock.release();}
+  });
+  await t.test('crashed worker pauses, preserves success and requires exact reviewed recovery without upstream requests',async()=>{
+   const entry=(await readCatalog(pool,actor,{search:'SYN-SALES-3',scope:'all',offset:0,limit:50})).rows[0];
+   const req={sourceKey,sourceId:entry.sourceId,requestId:randomUUID()};const {jobId}=await requestContractSync(pool,actor,req);
+   await pool.query("UPDATE ainuoke_sync_jobs SET status='running',started_at=now() WHERE id=$1",[jobId]);
+   let calls=0;assert.equal((await runSyncTick(pool,actor,selectedConfig,{collect:async()=>{calls++;return null;}})).status,'paused');assert.equal(calls,0);
+   assert.equal((await readSyncRequest(pool,actor,req.requestId)).status,'unknown');
+   assert.deepEqual((await readCatalog(pool,actor,{search:'SYN-SALES-3',scope:'all',offset:0,limit:50})).rows[0].lastSuccessAt,entry.lastSuccessAt);
+   const review=await recoverSync(pool,actor,sourceKey);assert.ok('jobs' in review&&review.jobs.length===1);
+   await assert.rejects(recoverSync(pool,actor,sourceKey,{expectedHash:'a'.repeat(64),reason:'合成恢复核对'}),/sync_recovery_preview_changed/);
+   const result=await recoverSync(pool,actor,sourceKey,{expectedHash:review.reviewHash,reason:'合成恢复核对，未重新采集'});assert.equal(result.sourceRequests,0);
+   assert.equal((await readSyncRequest(pool,actor,req.requestId)).status,'failed');
+   assert.equal((await pool.query('SELECT paused_reason FROM ainuoke_sync_controls WHERE source_key=$1',[sourceKey])).rows[0].paused_reason,null);
   });
  }finally{await pool.end();await db.stop();}
 });

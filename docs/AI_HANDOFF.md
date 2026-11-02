@@ -2,6 +2,6 @@
 
 分支 feat/ainuoke-full-catalog-followup；独立工作树 ainuoke-full-catalog-followup。main已只读核实为cb5cc29baa49ed7115fdb6c9506b6a80356936ea；工作baseline前向包含侧栏修复274d6f3c2f216fb80f937f5575e761d3e70162f7，未回退其他工作。宁波运行仍为f21c96c1899126028ba9a272727ad8d564ccf185；长期业务/附件/备份/原三合同同步保持，未对真实环境执行新操作。
 
-当前已通过7项日期规则单测、9项隔离PostgreSQL/合成SDK检查和TypeScript。仅验证当前工程片段，不是最终验收；新UI、持续运行运维、目录请求恢复、全量回归与发布守卫仍待收口。未执行真实Source请求、迁移/部署宁波、上传或CI。Git仍沿用已确认NETWORK_DEGRADED，不重复撞通道。
+阶段A已提交eaec8b3bf052501c8d08f495e633a8f0473e55cb；阶段B接口/刷新/恢复/接纳/移动UI正在版本收口。已通过24项新目录/调度/API/非空升级检查、6项Chromium检查、完整lint、TypeScript、Server及前端snapshot构建。Python新增3项连同原选定来源共23通过，归一证据12通过。完整项目回归仍在运行；最终来源/归一/关账回归和发布门禁待执行。未执行真实Source请求、迁移/部署宁波、上传或CI。Git仍沿用已确认NETWORK_DEGRADED，不重复撞通道。
 
-用户最新四档和手动规则见D179及[当前任务](tasks/active/ainuoke-full-catalog-followup-2026-11-02.md)。不要恢复最初“历史停止同步”方案。下一步接刷新按钮/回执、worker配置运行与备份协作、正式接纳预览，完成权限/容量/崩溃恢复/升级/浏览器测试；集中交付。原部署证据和接力保存在[归档](tasks/completed/2026-11-02-before-full-catalog/AI_HANDOFF.md)。
+用户最新四档和手动规则见D179及[当前任务](tasks/active/ainuoke-full-catalog-followup-2026-11-02.md)。缺交期已确认30分钟且待核对，不恢复“历史停止同步”。下一步复审全量历史的单合同错误隔离、桌面操作列可见性，完成剩余验证/精确清单并集中交付。原部署证据和接力保存在[归档](tasks/completed/2026-11-02-before-full-catalog/AI_HANDOFF.md)。

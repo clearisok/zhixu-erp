@@ -347,7 +347,7 @@ export function ServerOrderCenterPage() {
   }
 
   return (
-    <OrderCenterFrame count={loadedScope===scopeKey?`${page.total} 条${query.includeHistorical?'（含历史记录）':''}`:"—"} actions={<><Button variant="secondary" onClick={()=>setCatalogOpen(value=>!value)}>{catalogOpen?"当前跟进":"全部合同 / 历史查阅"}</Button><ProcessingBatchDialog key={serverSession.user.id} mode="import" /></>}>
+    <OrderCenterFrame count={loadedScope===scopeKey?`${page.total} 条${query.includeHistorical?'（含历史记录）':''}`:"—"} actions={<><Button className="oc-catalog-toggle" variant="secondary" onClick={()=>setCatalogOpen(value=>!value)}>{catalogOpen?"当前跟进":"全部合同 / 历史查阅"}</Button><ProcessingBatchDialog key={serverSession.user.id} mode="import" /></>}>
       <div className="oc-server-source-bar">
         <span><i aria-hidden="true" />数据源：PostgreSQL</span>
         <small>Server identity：{trustedIdentity}</small>

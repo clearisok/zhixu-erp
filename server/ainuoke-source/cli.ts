@@ -1,5 +1,10 @@
-import { collectSelectedSourceOnce } from './selected-source-once.js';
-import { publishCatalog } from './catalog.js';
+import { readFileSync, statSync } from 'node:fs';
+import { recoverSync } from './sync-recovery.js';
+import { setTimeout as delay } from 'node:timers/promises';
+import { captureCatalogOnce, readCatalogCaptureReceipt } from './catalog-capture.js';
+import { configureSync } from './sync-queue.js';
+import { DEFAULT_SYNC_POLICY } from './sync-schedule.js';
+import { runSyncTick } from './sync-worker.js';
 import { planFollowupGroups } from './followup.js';
 import { refreshFollowupGroup } from './group-refresh.js';
 import { pathToFileURL } from "node:url";
@@ -23,11 +28,11 @@ export function parseSourceArguments(args: string[]) {
     if(!match || values.has(match[1])) throw new SourceError("explicit_source_action_required");
     values.set(match[1],match[2]??"");
   }
-  const actions=["check","preview-bind","bind","preview-bind-selected","bind-selected","discover-add","preview-add","add","execute","execute-bounded","catalog","catalog-receipt","plan-followup","execute-group","group-receipt","schedule"].filter(key=>values.has(key));
+  const actions=["check","preview-bind","bind","preview-bind-selected","bind-selected","discover-add","preview-add","add","execute","execute-bounded","catalog","catalog-receipt","plan-followup","execute-group","group-receipt","sync-configure","sync-once","sync-run","sync-status","sync-recovery-preview","sync-recover","schedule"].filter(key=>values.has(key));
   if(actions.length!==1 || !values.get("config")) throw new SourceError("explicit_source_action_required");
   const action=actions[0];
   const allowed=["config",action,...(action==="check"?[]:["expected-target"]),...(["bind","bind-selected","add"].includes(action)?["expected-preview"]:[]),
-    ...(["preview-add","add","preview-bind-selected","bind-selected","execute-bounded","execute-group"].includes(action)?["contracts"]:[]),...(action==="schedule"?["interval-ms","max-backoff-ms"]:[]),...(["catalog","catalog-receipt","execute-group","group-receipt"].includes(action)?["request-id"]:[]),...(action==="execute-group"?["expected-scope"]:[]),...(action==="plan-followup"?["batch-size"]:[])];
+    ...(["preview-add","add","preview-bind-selected","bind-selected","execute-bounded","execute-group"].includes(action)?["contracts"]:[]),...(action==="schedule"?["interval-ms","max-backoff-ms"]:[]),...(["catalog","catalog-receipt","execute-group","group-receipt"].includes(action)?["request-id"]:[]),...(action==="execute-group"?["expected-scope"]:[]),...(["plan-followup","sync-once","sync-run"].includes(action)?["batch-size"]:[]),...(action==="sync-configure"?["enabled","expected-version","policy-file"]:[]),...(action==="sync-recover"?["expected-preview","reason"]:[])];
   if([...values.keys()].some(k=>!allowed.includes(k)) || action==="check"&&values.get(action)!==""
     || action!=="check"&&(!/^[a-z][a-z0-9_-]{2,63}$/u.test(values.get(action)!)||!/^[a-f0-9]{64}$/u.test(values.get("expected-target")??""))
     || ["bind","bind-selected","add"].includes(action)&&!/^[a-f0-9]{64}$/u.test(values.get("expected-preview")??"")
@@ -35,10 +40,13 @@ export function parseSourceArguments(args: string[]) {
   if(["preview-add","add","preview-bind-selected","bind-selected","execute-bounded","execute-group"].includes(action)) selectContracts(values.get("contracts")!);
   if(["catalog","catalog-receipt","execute-group","group-receipt"].includes(action)&&!/^[a-f0-9-]{36}$/i.test(values.get('request-id')??''))throw new SourceError('source_request_required');
   if(action==='execute-group'&&!/^[a-f0-9]{64}$/.test(values.get('expected-scope')??''))throw new SourceError('source_group_scope_required');
+  if(values.has('batch-size')&&(!/^\d+$/.test(values.get('batch-size')!)||Number(values.get('batch-size'))<1||Number(values.get('batch-size'))>25))throw new SourceError('sync_batch_invalid');
+  if(action==='sync-recover'&&(!/^[a-f0-9]{64}$/.test(values.get('expected-preview')??'')||(values.get('reason')??'').trim().length<3||(values.get('reason')??'').length>300))throw new SourceError('sync_recovery_invalid');
   return {action,values};
 }
 export async function main(args: string[] = process.argv.slice(2)): Promise<void> {
   if(args.length===0 || args.length===1&&args[0]==="--help") {
+    process.stdout.write("sync-configure: --sync-configure=<source key> --enabled=true|false --expected-version=<version> [--policy-file=<bounded JSON>] --expected-target=<fingerprint> --config=<private file>\nsync-run / sync-once: --sync-run=<source key> [--batch-size=5] --expected-target=<fingerprint> --config=<private file>. No automatic retry after unknown outcomes.\nsync-status / sync-recovery-preview: database only. Recovery uses --sync-recover=<source key> --expected-preview=<reviewHash> --reason=<reviewed reason> with the same config/target. Never makes upstream requests.\n");
     process.stdout.write("catalog: --catalog=<source key> --request-id=<UUID> --expected-target=<fingerprint> --config=<private file>; bounded 1 login/40 reports/180s, no retry. Replay first checks receipt.\nplan-followup: --plan-followup=<source key> [--batch-size=5] --expected-target=<fingerprint> --config=<file>; DB only.\nexecute-group: --execute-group=<source key> --contracts=<selected BillNos> --expected-scope=<plan hash> --request-id=<UUID> --expected-target=<fingerprint> --config=<file>; at most one group, never repeats request.\nReceipts: --catalog-receipt or --group-receipt=<source key> --request-id=<UUID> --expected-target=<fingerprint> --config=<file>.\ncheck: --check --config=<absolute private file>\nread-only source preview: --preview-bind=<source key> --expected-target=<check fingerprint> --config=<file>\nbind: --bind=<source key> --expected-target=<fingerprint> --expected-preview=<reviewHash> --config=<file>\nselected first binding: --preview-bind-selected=<source key> --contracts=<BillNo,...> --expected-target=<fingerprint> --config=<file>\nconfirm first selection: --bind-selected=<source key> --contracts=<BillNo,...> --expected-preview=<reviewHash> --expected-target=<fingerprint> --config=<file>\nnew contracts: --discover-add=<source key> --expected-target=<fingerprint> --config=<file>\npreview selected: --preview-add=<source key> --contracts=<BillNo,...> --expected-target=<fingerprint> --config=<file>\nconfirm selected: --add=<source key> --contracts=<BillNo,...> --expected-preview=<reviewHash> --expected-target=<fingerprint> --config=<file>\ncapture: --execute=<source key> --expected-target=<fingerprint> --config=<file>\nbounded material capture: --execute-bounded=<source key> --contracts=<exact bound BillNos> --expected-target=<fingerprint> --config=<file>\nscheduler: --schedule=<source key> --expected-target=<fingerprint> --config=<file> [--interval-ms=300000] [--max-backoff-ms=1800000]\nNo migration, account bootstrap or deployment is performed. Scheduling does not bind orders.\n"); return;
   }
   const {action,values}=parseSourceArguments(args);
@@ -48,7 +56,7 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
   const policy=action==="schedule"?schedulePolicy(Number(values.get("interval-ms")??300000),Number(values.get("max-backoff-ms")??1800000)):null;
   const server=loadServerConfig();
   if(server.identityMode!=="session")throw new SourceError("source_session_required");
-  const pool=createDatabasePool({connectionString:server.databaseUrl,max:2});
+  const pool=createDatabasePool({connectionString:server.databaseUrl,max:4});
   try {
     await verifyMigrationsCurrent(pool,server.migrationsDirectory);
     const actor=await loadExistingBootstrapActor(pool,cfg.operatorUsername);
@@ -61,15 +69,49 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
     }
     if(values.get("expected-target")!==fingerprint)throw new SourceError("source_target_mismatch");
     if(action==='catalog'||action==='catalog-receipt'){
-      requirePermission((await sourceActor(pool,actor,true)).permissions,'ainuoke.bind');
-      await requireAdditionProfile(pool,cfg.sourceKey,accountFingerprint(cfg));
-      const prior=(await pool.query('SELECT id AS "runId",content_hash AS "contentHash",captured_at AS "capturedAt" FROM ainuoke_catalog_runs WHERE source_key=$1 AND request_id=$2 AND actor_user_id=$3',[cfg.sourceKey,values.get('request-id'),actor.internalUserId])).rows[0];
-      if(prior||action==='catalog-receipt'){process.stdout.write(JSON.stringify({result:prior?'CATALOG_RECORDED':'NOT_FOUND',receipt:prior??null,sourceRequests:0})+'\n');return;}
-      const captured=await collectSelectedSourceOnce(cfg,{mode:'catalog-discovery',contracts:[]});
-      if(captured.result!=='complete')throw new SourceError(captured.code);
-      if(captured.mode!=='catalog-discovery')throw new SourceError('catalog_invalid');
-      const result=await publishCatalog(pool,actor,{sourceKey:cfg.sourceKey,accountFingerprint:accountFingerprint(cfg),requestId:values.get('request-id')!,input:captured.bundle,expectedHash:captured.preview.contentHash});
-      process.stdout.write(JSON.stringify({result:'CATALOG_RECORDED',...result,metrics:captured.metrics})+'\n');return;
+      const result=action==='catalog-receipt'?await readCatalogCaptureReceipt(pool,actor,cfg.sourceKey,values.get('request-id')!):await captureCatalogOnce(pool,actor,cfg,values.get('request-id')!);
+      process.stdout.write(JSON.stringify({event:'CATALOG_RECEIPT',receipt:result})+'\n');return;
+    }
+    if(action==='sync-recovery-preview'||action==='sync-recover'){
+      const result=await recoverSync(pool,actor,cfg.sourceKey,action==='sync-recover'?{expectedHash:values.get('expected-preview')!,reason:values.get('reason')!}:undefined);
+      process.stdout.write(JSON.stringify({event:'SYNC_RECOVERY',...result})+'\n');return;
+    }
+    if(action==='sync-configure'){
+      if(!['true','false'].includes(values.get('enabled')??'')||!/^\d+$/.test(values.get('expected-version')??''))throw new SourceError('sync_configuration_invalid');
+      if(values.get('policy-file')&&statSync(values.get('policy-file')!).size>16384)throw new SourceError('sync_configuration_invalid');
+      const rawPolicy=values.get('policy-file')?readFileSync(values.get('policy-file')!,'utf8'):null;
+      if(rawPolicy&&Buffer.byteLength(rawPolicy)>16384)throw new SourceError('sync_configuration_invalid');
+      const result=await configureSync(pool,actor,{sourceKey:cfg.sourceKey,enabled:values.get('enabled')==='true',expectedVersion:Number(values.get('expected-version')),policy:rawPolicy?JSON.parse(rawPolicy):{...DEFAULT_SYNC_POLICY}});
+      process.stdout.write(JSON.stringify({event:'SYNC_CONFIGURED',...result})+'\n');return;
+    }
+    if(action==='sync-status'){
+      const control=(await pool.query('SELECT enabled,version,policy,paused_reason,heartbeat_at FROM ainuoke_sync_controls WHERE source_key=$1',[cfg.sourceKey])).rows[0]??null;
+      const queue=(await pool.query('SELECT status,kind,count(*)::int AS count,min(requested_at) AS oldest FROM ainuoke_sync_jobs WHERE source_key=$1 GROUP BY status,kind',[cfg.sourceKey])).rows;
+      process.stdout.write(JSON.stringify({event:'SYNC_STATUS',control,queue,sourceRequests:0})+'\n');return;
+    }
+    if(action==='sync-once'||action==='sync-run'){
+      const batchSize=Number(values.get('batch-size')??5);
+      const controller=new AbortController(),stop=()=>controller.abort();
+      process.once('SIGINT',stop);process.once('SIGTERM',stop);
+      // PostgreSQL notification wakes manual requests immediately. The one-second
+      // fallback also catches notifications missed while processing another job.
+      const listener=await pool.connect();let wake:(()=>void)|null=null;
+      listener.on('notification',message=>{if(message.channel==='ainuoke_sync_requested'&&message.payload===cfg.sourceKey)wake?.();});
+      await listener.query('LISTEN ainuoke_sync_requested');
+      let automaticAt=0;
+      try{do{
+        const current=readPrivateCollectorConfig(path);
+        if(accountFingerprint(current)!==accountFingerprint(cfg)||current.sourceKey!==cfg.sourceKey||current.operatorUsername!==cfg.operatorUsername)throw new SourceError('source_account_mismatch');
+        await verifyMigrationsCurrent(pool,server.migrationsDirectory);
+        const automatic=Date.now()>=automaticAt;
+        const result=await runSyncTick(pool,actor,current,{batchSize,automatic});
+        if(automatic)automaticAt=Date.now()+60000;
+        if(result.status!=='idle')process.stdout.write(JSON.stringify({event:'SYNC_TICK',...result})+'\n');
+        if(action==='sync-once'||result.status==='paused'||result.status==='failed')break;
+        if(result.status==='processed')continue;
+        await Promise.race([delay(1000,undefined,{signal:controller.signal}).catch(()=>undefined),new Promise<void>(resolve=>{wake=resolve;})]);wake=null;
+      }while(!controller.signal.aborted);}finally{await listener.query('UNLISTEN ainuoke_sync_requested').catch(()=>undefined);listener.release();process.removeListener('SIGINT',stop);process.removeListener('SIGTERM',stop);}
+      return;
     }
     if(action==='plan-followup'){
       await requireAdditionProfile(pool,cfg.sourceKey,accountFingerprint(cfg));

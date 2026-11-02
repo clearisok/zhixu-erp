@@ -14,11 +14,13 @@ export async function followupModes(c:Pool|PoolClient,ids:readonly string[]) {
  return ids.map(id=>{const row=rows.find(r=>r.sales_order_id===id);return {id,mode:row?.mode??'active',version:row?.version??0};});
 }
 export async function setFollowup(pool:Pool,identity:Pick<TrustedIdentity,'internalUserId'|'userId'>,input:{orderId:string;mode:'active'|'history';expectedVersion:number;requestId:string}) {
- if(!/^[0-9a-f-]{36}$/i.test(input.orderId)||!/^[0-9a-f-]{36}$/i.test(input.requestId)||!['active','history'].includes(input.mode)
+ const uuid=/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
+ if(!uuid.test(input.orderId)||!uuid.test(input.requestId)||!['active','history'].includes(input.mode)
   ||!Number.isSafeInteger(input.expectedVersion)||input.expectedVersion<0)throw new SourceError('followup_invalid');
  const c=await pool.connect();
  try {
   await c.query('BEGIN');
+  await c.query("SELECT pg_advisory_xact_lock(hashtextextended($1,0))",['ainuoke-followup-request:'+identity.internalUserId+':'+input.requestId]);
   await c.query("SELECT pg_advisory_xact_lock(hashtextextended($1,0))",['ainuoke-followup:'+input.orderId]);
   const actor=await sourceActor(c,identity,true);requirePermission(actor.permissions,'ainuoke.bind');
   const digest=hash(input),old=(await c.query('SELECT request_hash,result FROM ainuoke_followup_receipts WHERE actor_user_id=$1 AND request_id=$2',[actor.internalUserId,input.requestId])).rows[0];

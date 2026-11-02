@@ -13,6 +13,44 @@ CONFIG = {"baseUrl": "https://example.invalid", "username": "synthetic", "passwo
 
 
 class SelectedSourceOnceTests(TestCase):
+    def test_catalogue_discovery_reads_two_complete_passes_only(self):
+        for total in (0, 3, 51, 1000):
+            transport = FakeSelectedTransport(total=total)
+            result = collect_selected({**CONFIG, "mode": "catalog-discovery", "contracts": []}, transport)
+            self.assertEqual(result["result"], "complete")
+            self.assertEqual(result["schemaVersion"], "ainuoke-catalog-discovery.v1")
+            self.assertEqual(result["metrics"]["reportRequests"], 2*max(1, (total+49)//50))
+            self.assertTrue(all(c["body"]["reportId"] == 6086103 for c in transport.calls[1:]))
+        overflow = collect_selected({**CONFIG, "mode": "catalog-discovery", "contracts": []}, FakeSelectedTransport(total=1001))
+        self.assertEqual(overflow["result"], "failed")
+        self.assertIsNone(overflow["bundle"])
+
+    def test_catalogue_combined_details_only_read_selected_contracts(self):
+        transport = FakeSelectedTransport()
+        result = collect_selected({**CONFIG, "mode": "catalog-contracts", "contracts": ["SYN-SALES-3"]}, transport)
+        self.assertEqual(result["result"], "complete")
+        self.assertEqual(result["schemaVersion"], "ainuoke-catalog-contracts.v1")
+        self.assertEqual(result["metrics"]["reportRequests"], 4)
+        self.assertEqual(set(result["bundle"]["colors"]), {"SYN-SALES-3"})
+        self.assertEqual(set(result["bundle"]["materials"]), {"SYN-SALES-3"})
+        self.assertEqual({int(c["body"]["reportId"]) for c in transport.calls[1:]}, {6086103,6087105,6087050})
+
+    def test_catalogue_modes_reject_wrong_scope_before_network_and_never_retry(self):
+        for mode, contracts in (("catalog-discovery", ["SYN-SALES-1"]),("catalog-contracts",[]),("catalog-contracts",["SYN-SALES-1"]*2)):
+            transport = FakeSelectedTransport()
+            with self.assertRaises(ValueError):
+                collect_selected({**CONFIG, "mode":mode, "contracts":contracts}, transport)
+            self.assertEqual(transport.calls, [])
+        def fail(report, page, payload):
+            if report == 6087050:
+                raise NetworkAinuokeError("synthetic")
+        transport = FakeSelectedTransport(fail)
+        result = collect_selected({**CONFIG, "mode":"catalog-contracts", "contracts":["SYN-SALES-1"]}, transport)
+        self.assertEqual(result["result"], "failed")
+        self.assertIsNone(result["bundle"])
+        self.assertEqual(result["metrics"]["networkRetries"], 0)
+        self.assertEqual(sum(c.get("body",{}).get("reportId") == 6087050 for c in transport.calls), 1)
+
     def test_bound_material_scope_uses_distinct_protocol_and_same_aggregate_budget(self):
         for count in (1, 3, 25):
             contracts = sorted(f"SYN-SALES-{i+1}" for i in range(count))

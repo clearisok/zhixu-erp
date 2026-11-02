@@ -2,7 +2,8 @@ import { randomUUID } from 'node:crypto';
 import type { Pool, PoolClient } from 'pg';
 import type { TrustedIdentity } from '../auth/session.js';
 import { requirePermission } from '../auth/permissions.js';
-import { sourceActor } from './service.js';
+import { appendOperationLog } from '../operation-logs/repository.js';
+import { sourceActor, boundOrders } from './service.js';
 import { SourceError, hash, sourceKeyValid } from './contract.js';
 import { syncSchedule, validateSyncPolicy, type SyncPolicy } from './sync-schedule.js';
 
@@ -44,6 +45,8 @@ export async function configureSync(pool: Pool, identity: Identity, input: {
     await c.query(`INSERT INTO ainuoke_sync_controls(source_key,enabled,version,policy,operator_id) VALUES($1,$2,$3,$4::jsonb,$5)
       ON CONFLICT(source_key) DO UPDATE SET enabled=excluded.enabled,version=excluded.version,policy=excluded.policy,operator_id=excluded.operator_id,updated_at=now()`,
       [input.sourceKey,input.enabled,version,JSON.stringify(policy),actor.internalUserId]);
+    await appendOperationLog(c,actor,{module:'艾诺科同步',action:'设置自动同步',entityType:'AinuokeSyncPolicy',entityId:input.sourceKey,
+      metadata:{version},afterData:{objectName:'合同来源同步',values:{enabled:input.enabled?'启用':'停用',...policy}}});
     return { sourceKey: input.sourceKey, enabled: input.enabled, version, policy };
   });
 }
@@ -80,12 +83,14 @@ export async function enqueueAutomaticSync(pool: Pool, identity: Identity, sourc
   return tx(pool, async c => {
     await lockSource(c,sourceKey); const actor = await sourceActor(c,identity,true), settings = await control(c,sourceKey);
     if (String(settings.operator_id) !== actor.internalUserId) throw new SourceError('sync_operator_changed');
-    const rows = (await c.query(`SELECT e.source_id,e.sales_contract_no,e.delivery_date,s.last_success_at,s.last_automatic_attempt_at
+    const rows = (await c.query(`SELECT e.source_id,e.sales_contract_no,e.delivery_date,s.last_success_at,s.last_automatic_attempt_at,
+      EXISTS(SELECT 1 FROM ainuoke_sync_jobs j WHERE j.source_key=e.source_key AND j.source_id=e.source_id AND j.status IN ('queued','running','unknown')) AS pending
       FROM ainuoke_catalog_entries e LEFT JOIN ainuoke_contract_sync_state s USING(source_key,source_id)
       WHERE e.source_key=$1 AND e.visible=true ORDER BY e.sales_contract_no LIMIT 1001`, [sourceKey])).rows;
     if (rows.length > 1000) throw new SourceError('sync_catalog_capacity_exceeded');
     let queued = 0;
     for (const row of rows) {
+      if(row.pending)continue;
       const schedule = syncSchedule({deliveryDate:row.delivery_date,now,lastSuccessAt:iso(row.last_success_at),lastAutomaticAttemptAt:iso(row.last_automatic_attempt_at)},settings.policy);
       if (!schedule.due) continue;
       const result = await c.query(`INSERT INTO ainuoke_sync_jobs(id,source_key,source_id,sales_contract_no,kind,status,requested_by,scheduled_slot,requested_at)
@@ -108,6 +113,13 @@ export async function claimSyncJobs(pool: Pool, identity: Identity, sourceKey: s
     // A manual operation captures only the selected contract, even if auto jobs await.
     const selected = rows[0]?.kind === 'manual' ? rows.slice(0,1) : rows;
     for (const job of selected) {
+      if(job.kind==='automatic'){
+        const current=(await c.query(`SELECT e.visible,e.delivery_date,s.last_success_at,s.last_automatic_attempt_at FROM ainuoke_catalog_entries e
+          LEFT JOIN ainuoke_contract_sync_state s USING(source_key,source_id) WHERE e.source_key=$1 AND e.source_id=$2`,[sourceKey,job.source_id])).rows[0];
+        if(!current?.visible||!syncSchedule({deliveryDate:current.delivery_date,now,lastSuccessAt:iso(current.last_success_at),lastAutomaticAttemptAt:iso(current.last_automatic_attempt_at)},settings.policy).due){
+          await c.query("UPDATE ainuoke_sync_jobs SET status='failed',finished_at=$2,result=$3::jsonb WHERE id=$1",[job.id,new Date(now),JSON.stringify({code:'sync_schedule_changed'})]);continue;
+        }
+      }
       // A revoked requester must not retain a queued write capability.
       const requester = (await c.query('SELECT public_id::text FROM app_users WHERE id=$1',[job.requested_by])).rows[0];
       try { await sourceActor(c,{internalUserId:String(job.requested_by),userId:requester?.public_id ?? ''},true); }
@@ -126,4 +138,23 @@ export async function readSyncRequest(pool: Pool, identity: Identity, requestId:
   const row = (await pool.query(`SELECT j.id::text AS "jobId",j.status,j.kind,j.requested_at AS "requestedAt",j.started_at AS "startedAt",j.finished_at AS "finishedAt",j.result
     FROM ainuoke_sync_requests r JOIN ainuoke_sync_jobs j ON j.id=r.job_id WHERE r.actor_id=$1 AND r.request_id=$2`,[identity.internalUserId,requestId])).rows[0];
   return row ?? {status:'not_found',absenceProvesFailure:false};
+}
+export async function resolveOrderSync(pool:Pool,identity:Identity,orderId:string) {
+  if(!uuid.test(orderId))throw new SourceError('sync_order_invalid');
+  await sourceActor(pool,identity,false,false);
+  const targets=await boundOrders(pool,false,[orderId]);
+  if(targets.length!==1)throw new SourceError('sync_contract_not_available');
+  const rows=(await pool.query(`SELECT e.source_key AS "sourceKey",e.source_id AS "sourceId",e.sales_contract_no AS "salesContractNo",e.delivery_date AS "deliveryDate",
+    s.last_success_at AS "lastSuccessAt",s.last_automatic_attempt_at AS "lastAutomaticAttemptAt",s.last_error_code AS "lastErrorCode",
+    coalesce(c.enabled,false) AND c.paused_reason IS NULL AS enabled,c.policy,c.heartbeat_at AS "workerHeartbeatAt",
+    (SELECT j.status FROM ainuoke_sync_jobs j WHERE j.source_key=e.source_key AND j.source_id=e.source_id ORDER BY j.requested_at DESC LIMIT 1) AS status
+    FROM ainuoke_catalog_entries e JOIN ainuoke_source_profiles p ON p.source_key=e.source_key AND p.enabled=true
+    JOIN sales_order_source_links l ON l.sales_order_id=$1 AND l.external_id=e.source_id AND l.sales_contract_no=e.sales_contract_no
+      AND l.source_system='ainuoke' AND l.source_entity_type='sales_contract'
+    LEFT JOIN ainuoke_contract_sync_state s ON s.source_key=e.source_key AND s.source_id=e.source_id
+    LEFT JOIN ainuoke_sync_controls c ON c.source_key=e.source_key`,[targets[0].sourceOwnerOrderId])).rows;
+  if(rows.length!==1)throw new SourceError('sync_catalog_not_ready');
+  const {policy,lastAutomaticAttemptAt,...row}=rows[0];
+  const schedule=policy?syncSchedule({deliveryDate:row.deliveryDate,now:Date.now(),lastSuccessAt:iso(row.lastSuccessAt),lastAutomaticAttemptAt:iso(lastAutomaticAttemptAt)},policy):null;
+  return {...row,schedule};
 }

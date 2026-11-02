@@ -9,6 +9,8 @@ import { requireAdditionProfile } from './additions.js';
 import { refreshCollectedBoundOrderInTransaction } from './bound-order-refresh.js';
 import { claimSyncJobs, enqueueAutomaticSync, type SyncJob } from './sync-queue.js';
 import { collectSelectedSourceOnce, validateSelectedSourceOnce, type SelectedSourceRequest } from './selected-source-once.js';
+import { captureCatalogOnce } from './catalog-capture.js';
+import { HttpError } from '../http/errors.js';
 
 type Identity = Pick<TrustedIdentity,'internalUserId'|'userId'>;
 type Captured = Extract<Awaited<ReturnType<typeof validateSelectedSourceOnce>>, {mode:'catalog-contracts'}>;
@@ -69,6 +71,7 @@ async function publishContract(pool:Pool,identity:Identity,config:CollectorConfi
 async function failJob(pool:Pool,job:SyncJob,code:string,unknown=false) {
   const c=await pool.connect();try {
     await c.query('BEGIN');
+    await c.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',['ainuoke-source:'+job.source_key]);
     // A lost COMMIT response is checked before recording failure; a completed
     // job and its business publications share one transaction.
     const state=(await c.query('SELECT status,result FROM ainuoke_sync_jobs WHERE id=$1 FOR UPDATE',[job.id])).rows[0];
@@ -89,6 +92,8 @@ export async function runSyncTick(pool:Pool,identity:Identity,raw:CollectorConfi
   automatic?:boolean;batchSize?:number;now?:()=>number;
   collect?:(config:CollectorConfig,request:SelectedSourceRequest)=>Promise<unknown>;
 }={}) {
+  const batchSize=options.batchSize??5;
+  if(!Number.isSafeInteger(batchSize)||batchSize<1||batchSize>25)throw new SourceError('sync_batch_invalid');
   const config=parseCollectorConfig(raw),now=options.now??Date.now,lease=await pool.connect();let locked=false;
   try {
     locked=(await lease.query('SELECT pg_try_advisory_lock(hashtextextended($1,0)) AS locked',['ainuoke-sync-worker:'+config.sourceKey])).rows[0].locked;
@@ -100,8 +105,20 @@ export async function runSyncTick(pool:Pool,identity:Identity,raw:CollectorConfi
     for(const job of orphaned)await failJob(pool,job,'sync_result_unknown',true);
     if(orphaned.length)return {status:'paused' as const,jobs:orphaned.map(j=>({id:j.id,status:'unknown'}))};
     await pool.query('UPDATE ainuoke_sync_controls SET heartbeat_at=$2 WHERE source_key=$1',[config.sourceKey,new Date(now())]);
-    if(options.automatic!==false)await enqueueAutomaticSync(pool,identity,config.sourceKey,now());
-    const jobs=await claimSyncJobs(pool,identity,config.sourceKey,options.batchSize??5,now());
+    if(options.automatic!==false){
+      const settings=(await pool.query('SELECT enabled,paused_reason,policy FROM ainuoke_sync_controls WHERE source_key=$1',[config.sourceKey])).rows[0];
+      if(!settings?.enabled||settings.paused_reason)throw new SourceError('sync_worker_paused');
+      const manual=(await pool.query("SELECT 1 FROM ainuoke_sync_jobs WHERE source_key=$1 AND kind='manual' AND status='queued' LIMIT 1",[config.sourceKey])).rowCount;
+      const latest=(await pool.query('SELECT status,created_at FROM ainuoke_catalog_requests WHERE source_key=$1 ORDER BY created_at DESC LIMIT 1',[config.sourceKey])).rows[0];
+      if(latest?.status==='unknown'||latest?.status==='running'&&now()-new Date(latest.created_at).getTime()>300000){
+        await pool.query("UPDATE ainuoke_sync_controls SET paused_reason='catalog_result_unknown' WHERE source_key=$1",[config.sourceKey]);throw new SourceError('catalog_result_unknown');
+      }
+      if(!manual&&latest?.status!=='running'&&(!latest||now()-new Date(latest.created_at).getTime()>=settings.policy.catalogMinutes*60000)){
+        await captureCatalogOnce(pool,identity,config,randomUUID(),options.collect,lease);
+      }
+      await enqueueAutomaticSync(pool,identity,config.sourceKey,now());
+    }
+    const jobs=await claimSyncJobs(pool,identity,config.sourceKey,batchSize,now());
     if(!jobs.length)return {status:'idle' as const,jobs:[]};
     const request:SelectedSourceRequest={mode:'catalog-contracts',contracts:jobs.map(j=>j.sales_contract_no).sort()};
     let captured:Captured;
@@ -113,7 +130,7 @@ export async function runSyncTick(pool:Pool,identity:Identity,raw:CollectorConfi
     const results=[];
     for(const job of jobs) {
       try{results.push({id:job.id,status:'complete',result:await publishContract(pool,identity,config,job,captured,now())});}
-      catch(e){const code=e instanceof SourceError?e.code:'sync_publish_failed';const result=await failJob(pool,job,code,!(e instanceof SourceError));results.push({id:job.id,...result});}
+      catch(e){const code=e instanceof SourceError||e instanceof HttpError?e.code:'sync_publish_failed';const result=await failJob(pool,job,code,!(e instanceof SourceError)&&!(e instanceof HttpError));results.push({id:job.id,...result});}
     }
     return {status:'processed' as const,jobs:results};
   }finally{if(locked)await lease.query('SELECT pg_advisory_unlock(hashtextextended($1,0))',['ainuoke-sync-worker:'+config.sourceKey]).catch(()=>undefined);lease.release();}

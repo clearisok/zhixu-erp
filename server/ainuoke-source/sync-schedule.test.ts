@@ -47,10 +47,12 @@ test('due-date changes reclassify immediately without changing completion or bus
   assert.equal(schedule('2026-12-01','2026-11-02T12:00:00',last).due,true);
   assert.equal(schedule('2026-12-01','2026-11-02T12:00:00',last).tier,'frequent');
 });
-test('missing dates stay explicit and policy supports a manual-only fallback', () => {
+test('missing or invalid dates keep the approved frequent cadence and review label', () => {
   const input = {deliveryDate:null,now:at('2026-11-02T12:00:00'),lastSuccessAt:null,lastAutomaticAttemptAt:null};
   assert.equal(syncSchedule(input).dateNeedsReview,true);
   assert.equal(syncSchedule(input).due,true);
-  assert.equal(syncSchedule(input,{...DEFAULT_SYNC_POLICY,missingDate:'manual'}).due,false);
+  assert.equal(syncSchedule({...input,deliveryDate:'2026-02-30'}).tier,'date-review');
+  assert.equal(syncSchedule({...input,lastSuccessAt:'2026-11-02T11:45:00+08:00'}).due,false);
+  assert.equal(syncSchedule({...input,lastSuccessAt:'2026-11-02T11:30:00+08:00'}).due,true);
   assert.throws(()=>syncSchedule(input,{...DEFAULT_SYNC_POLICY,dailyTime:'25:00'}),/sync_policy_invalid/);
 });

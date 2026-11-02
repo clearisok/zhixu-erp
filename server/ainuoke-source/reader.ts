@@ -78,15 +78,17 @@ export async function prepareMaterialPortsInTransaction(client: PoolClient, conf
     const beforeFirstCapture = profile?.enabled === true && profile.latest_run_id === null;
     // A trusted intake can precede its first material capture. Reuse complete
     // Discovery identity validation; an absent material record is never a zero.
-    const uncapturedContracts = !perOrder && legacyHeader && [...orders.values()].some(order => !order.attributionChangeId && !indexed.has(order.id))
+    const needsIntakeEvidence = legacyHeader && [...orders.values()].some(order => !order.attributionChangeId && !indexed.has(order.id) && (!perOrder || !headers.get(order.id)));
+    if(needsIntakeEvidence&&hash(legacyHeader.discovery)!==legacyHeader.discovery_hash)throw new SourceError('source_snapshot_changed');
+    const uncapturedContracts = needsIntakeEvidence
         ? new Set((await adaptAinuokeOrderDiscoverySnapshots(legacyHeader.discovery)).rows.map(row => row.salesContractNo)) : null;
     const verifyIdentity = (other: Identity) => {
         if (other.userId !== actor.userId || other.internalUserId !== actor.internalUserId) throw new SourceError('source_actor_unavailable');
     };
     const resolveVisibleOrder: MaterialReadPorts['resolveVisibleOrder'] = async (other, id) => {
         verifyIdentity(other); const order = orders.get(id), record = indexed.get(id);
-        if (!order) return null;
-        if (!record) return perOrder || order.attributionChangeId || beforeFirstCapture
+        if (!order || profile?.enabled!==true || headers.get(id)?.last_error_code==='source_visibility_changed') return null;
+        if (!record) return perOrder && (!legacyHeader || !!headers.get(id)) || order.attributionChangeId || beforeFirstCapture
             || uncapturedContracts?.has(normalizeAinuokeSalesContractNo(order.salesContractNo)) ? order : null;
         return record.sales_contract_no === order.salesContractNo ? order : null;
     };

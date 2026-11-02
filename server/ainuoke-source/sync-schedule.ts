@@ -1,15 +1,17 @@
 /** Beijing wall-clock scheduling. Business order status never determines a tier. */
 export type SyncTier = 'frequent' | 'daily' | 'weekly' | 'monthly' | 'date-review';
 export type SyncPolicy = {
+  catalogMinutes: number;
   frequentMinutes: number;
   dailyTime: string;
   weeklyDay: number; // ISO weekday: Monday=1 ... Sunday=7
   weeklyTime: string;
   monthlyDay: number; // 1..28 keeps every month representable
   monthlyTime: string;
-  missingDate: 'frequent' | 'manual';
+  missingDate: 'frequent';
 };
 export const DEFAULT_SYNC_POLICY: Readonly<SyncPolicy> = Object.freeze({
+  catalogMinutes: 30,
   frequentMinutes: 30, dailyTime: '02:00', weeklyDay: 1,
   weeklyTime: '03:00', monthlyDay: 1, monthlyTime: '04:00', missingDate: 'frequent',
 });
@@ -24,10 +26,11 @@ export function validDateOnly(value: unknown): value is string {
 export function validateSyncPolicy(policy: SyncPolicy): SyncPolicy {
   if (Object.keys(policy).sort().join(',') !== Object.keys(DEFAULT_SYNC_POLICY).sort().join(',')
     || !Number.isSafeInteger(policy.frequentMinutes) || policy.frequentMinutes < 5 || policy.frequentMinutes > 1440
+    || !Number.isSafeInteger(policy.catalogMinutes) || policy.catalogMinutes < 5 || policy.catalogMinutes > 1440
     || !timePattern.test(policy.dailyTime) || !timePattern.test(policy.weeklyTime) || !timePattern.test(policy.monthlyTime)
     || !Number.isSafeInteger(policy.weeklyDay) || policy.weeklyDay < 1 || policy.weeklyDay > 7
     || !Number.isSafeInteger(policy.monthlyDay) || policy.monthlyDay < 1 || policy.monthlyDay > 28
-    || !['frequent', 'manual'].includes(policy.missingDate)) throw new Error('sync_policy_invalid');
+    || policy.missingDate !== 'frequent') throw new Error('sync_policy_invalid');
   return { ...policy };
 }
 export function beijingDate(now: number): string {
@@ -91,7 +94,6 @@ export function syncSchedule(input: {
   };
   const success = parsed(input.lastSuccessAt), attempted = parsed(input.lastAutomaticAttemptAt);
   const last = Math.max(success ?? 0, attempted ?? 0);
-  if (tier === 'date-review' && p.missingDate === 'manual') return { tier, due: false, slot: null, nextAt: null, dateNeedsReview: true };
   if (tier === 'frequent' || tier === 'date-review') {
     const next = last === 0 ? input.now : last + p.frequentMinutes * 60_000;
     return { tier, due: next <= input.now, slot: new Date(next).toISOString(), nextAt: new Date(next).toISOString(), dateNeedsReview: tier === 'date-review' };
@@ -100,4 +102,12 @@ export function syncSchedule(input: {
   // A newly discovered historical contract gets one first observation promptly.
   const due = last < latest;
   return { tier, due, slot: new Date(latest).toISOString(), nextAt: new Date(due ? input.now : next).toISOString(), dateNeedsReview: false };
+}
+
+export function syncScheduleLabel(tier: SyncTier, policy: SyncPolicy = DEFAULT_SYNC_POLICY): string {
+  const p = validateSyncPolicy(policy);
+  if (tier === 'frequent' || tier === 'date-review') return `每${p.frequentMinutes}分钟${tier === 'date-review' ? ' · 交期待核对' : ''}`;
+  if (tier === 'daily') return `每日${p.dailyTime}`;
+  if (tier === 'weekly') return `每周${'一二三四五六日'[p.weeklyDay - 1]}${p.weeklyTime}`;
+  return `每月${p.monthlyDay}日${p.monthlyTime}`;
 }

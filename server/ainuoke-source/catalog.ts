@@ -1,4 +1,4 @@
-import { DEFAULT_SYNC_POLICY, syncSchedule } from './sync-schedule.js';
+import { DEFAULT_SYNC_POLICY, syncSchedule, syncScheduleLabel } from './sync-schedule.js';
 import { randomUUID } from 'node:crypto';
 import type { Pool } from 'pg';
 import type { TrustedIdentity } from '../auth/session.js';
@@ -92,8 +92,11 @@ export async function readCatalog(pool:Pool,identity:Pick<TrustedIdentity,'inter
    state.last_error_code AS "lastErrorCode",control.policy,coalesce(control.enabled,false) AND control.paused_reason IS NULL AS "syncEnabled",job.status AS "syncStatus",
    ${active} AS active,coalesce(f.version,0) AS "followupVersion" ${from} ORDER BY e.sales_contract_no,e.source_key LIMIT ${val(query.limit)} OFFSET ${val(query.offset)}`,args)).rows;
   const state=(await c.query('SELECT source_key AS "sourceKey",catalog_run_id::text AS "runId" FROM ainuoke_source_profiles WHERE enabled=true')).rows;
-  const projected=rows.map(({policy,lastAutomaticAttemptAt,...row})=>({...row,...syncSchedule({deliveryDate:row.deliveryDate,now:Date.now(),
-    lastSuccessAt:row.lastSuccessAt?new Date(row.lastSuccessAt).toISOString():null,lastAutomaticAttemptAt:lastAutomaticAttemptAt?new Date(lastAutomaticAttemptAt).toISOString():null},policy??DEFAULT_SYNC_POLICY)}));
+  const projected=rows.map(({policy,lastAutomaticAttemptAt,...row})=>{
+    const schedule=syncSchedule({deliveryDate:row.deliveryDate,now:Date.now(),lastSuccessAt:row.lastSuccessAt?new Date(row.lastSuccessAt).toISOString():null,
+      lastAutomaticAttemptAt:lastAutomaticAttemptAt?new Date(lastAutomaticAttemptAt).toISOString():null},policy??DEFAULT_SYNC_POLICY);
+    return {...row,...schedule,scheduleLabel:syncScheduleLabel(schedule.tier,policy??DEFAULT_SYNC_POLICY)};
+  });
   await c.query('COMMIT');return {rows:projected,total,offset:query.offset,limit:query.limit,sources:state};
  }catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}
 }
