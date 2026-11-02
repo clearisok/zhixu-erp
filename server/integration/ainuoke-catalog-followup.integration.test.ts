@@ -155,6 +155,20 @@ test('catalogue is not a business ledger; active groups publish and fail indepen
     await assert.rejects(captureCatalogOnce(pool,actor,selectedConfig,randomUUID(),async()=>{requests++;return null;}),/sync_worker_busy/);assert.equal(requests,0);
    }finally{await lock.query('SELECT pg_advisory_unlock(hashtextextended($1,0))',['ainuoke-sync-worker:'+sourceKey]);lock.release();}
   });
+  await t.test('invalid historical date fails only that contract while valid contracts from the same capture publish',async()=>{
+   await pool.query("UPDATE ainuoke_contract_sync_state SET last_success_at=now()-interval '1 hour',last_automatic_attempt_at=now()-interval '1 hour' WHERE source_key=$1",[sourceKey]);
+   const before=(await readCatalog(pool,actor,{search:'SYN-SALES-1',scope:'all',offset:0,limit:50})).rows[0];
+   await enqueueAutomaticSync(pool,actor,sourceKey);let calls=0;
+   const result=await runSyncTick(pool,actor,selectedConfig,{automatic:false,collect:async(_c,r)=>{
+    calls++;if(r.mode!=='catalog-contracts')throw Error('wrong scope');
+    return selectedWorkerFixture('catalog-contracts',"if report == 6086103: mutate_rows(payload, lambda rows: rows[0].update(DeliveryDate='2026-02-30'))",r.contracts);
+   }});
+   assert.equal(calls,1);assert.equal(result.status,'processed');
+   assert.equal(result.jobs.filter(j=>j.status==='failed').length,1);assert.equal(result.jobs.filter(j=>j.status==='complete').length,2);
+   const after=(await readCatalog(pool,actor,{search:'SYN-SALES-1',scope:'all',offset:0,limit:50})).rows[0];
+   assert.deepEqual(after.lastSuccessAt,before.lastSuccessAt);assert.equal(after.lastErrorCode,'binding_date_invalid');
+   assert.equal((await pool.query('SELECT paused_reason FROM ainuoke_sync_controls WHERE source_key=$1',[sourceKey])).rows[0].paused_reason,null);
+  });
   await t.test('crashed worker pauses, preserves success and requires exact reviewed recovery without upstream requests',async()=>{
    const entry=(await readCatalog(pool,actor,{search:'SYN-SALES-3',scope:'all',offset:0,limit:50})).rows[0];
    const req={sourceKey,sourceId:entry.sourceId,requestId:randomUUID()};const {jobId}=await requestContractSync(pool,actor,req);

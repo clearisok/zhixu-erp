@@ -59,6 +59,7 @@ test("production query normalizes search and always requests a 50-row server pag
     sortBy: "updatedAt",
     sortDirection: "desc",
   }), {
+    followupMode: 'active',
     limit: 50,
     offset: 50,
     search: "STYLE",

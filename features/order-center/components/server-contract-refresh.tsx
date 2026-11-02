@@ -16,9 +16,9 @@ async function api<T>(url:string,body?:unknown):Promise<T>{
  return value as T;
 }
 /** Persist only the actor-scoped request identifier/target, never source data or credentials. */
-type Props={scope:Scope;lastSuccessAt?:string|null;onComplete?:()=>void};
+type Props={scope:Scope;lastSuccessAt?:string|null;onComplete?:()=>void;showLastSuccess?:boolean};
 export function ServerContractRefresh(props:Props){const session=useServerSession();return <RefreshControl key={session.user?.id+':'+JSON.stringify(props.scope)} {...props}/>;}
-function RefreshControl({scope,lastSuccessAt,onComplete}:Props){
+function RefreshControl({scope,lastSuccessAt,onComplete,showLastSuccess=true}:Props){
  const session=useServerSession(),scopeKey=JSON.stringify(scope),key='weaveops-source-sync:'+session.user?.id+':'+scopeKey;
  const [pending,setPending]=useState<Pending|null>(null),[receipt,setReceipt]=useState<Receipt|null>(null),[message,setMessage]=useState<string|null>(null),[busy,setBusy]=useState(false),[success,setSuccess]=useState<string|null>(lastSuccessAt??null);
  const epoch=useRef(0),complete=useRef(onComplete);useEffect(()=>{complete.current=onComplete;},[onComplete]);
@@ -74,7 +74,7 @@ function RefreshControl({scope,lastSuccessAt,onComplete}:Props){
   {allowed?<Button variant="text" disabled={busy} onClick={()=>void(pending?check(pending):submit())}>{pending?'核对同步结果':'刷新来源'}</Button>:<span>没有来源同步权限</span>}
   {pending&&receipt?.status==='not_found'&&allowed&&<Button variant="text" disabled={busy} onClick={()=>void submit(pending)}>重送原请求</Button>}
   {receipt&&<span role="status">{labels[receipt.status]??'正在核对同步结果'}</span>}
-  </div>{(success??lastSuccessAt)&&<small>最近同步成功：{format((success??lastSuccessAt)!)}（北京时间）</small>}
+  </div>{showLastSuccess&&(success??lastSuccessAt)&&<small>最近同步成功：{format((success??lastSuccessAt)!)}（北京时间）</small>}
   {message&&<p role="status">{message}</p>}
  </div>;
 }

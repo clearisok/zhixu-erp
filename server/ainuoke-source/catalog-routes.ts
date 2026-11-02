@@ -73,5 +73,5 @@ export async function routeSourceCatalog(request:IncomingMessage,response:Server
    sendJson(response,200,{status:row?'complete':'not_found',result:row?.result??null});return true;
   }
   throw new HttpError(404,'not_found','Route not found');
- }catch(e){if(e instanceof SourceError)throw new HttpError(e.code.includes('invalid')?400:e.code.includes('conflict')||['sync_worker_not_enabled','sync_worker_paused','sync_catalog_not_ready','sync_result_unknown','catalog_refresh_required','catalog_already_adopted','catalog_preview_changed','source_preview_changed'].includes(e.code)?409:503,e.code,'合同目录操作未完成，请重新核对状态。');throw e;}
+ }catch(e){if(e instanceof SourceError)throw new HttpError(e.code.includes('invalid')?400:e.code.includes('conflict')||['sync_worker_not_enabled','sync_worker_paused','sync_catalog_not_ready','sync_result_unknown','catalog_refresh_required','catalog_already_adopted','catalog_intake_preview_changed','source_preview_changed'].includes(e.code)?409:503,e.code,'合同目录操作未完成，请重新核对状态。');throw e;}
 }

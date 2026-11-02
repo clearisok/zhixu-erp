@@ -14,8 +14,9 @@ import { HttpError } from '../http/errors.js';
 
 type Identity = Pick<TrustedIdentity,'internalUserId'|'userId'>;
 type Captured = Extract<Awaited<ReturnType<typeof validateSelectedSourceOnce>>, {mode:'catalog-contracts'}>;
+type ContractCapture=Exclude<Captured['contracts'][string],{code:string}>;
 
-async function publishContract(pool:Pool,identity:Identity,config:CollectorConfig,job:SyncJob,captured:Captured,now:number) {
+async function publishContract(pool:Pool,identity:Identity,config:CollectorConfig,job:SyncJob,captured:ContractCapture&{directory:Captured['directory']},now:number) {
   const c=await pool.connect();
   try {
     await c.query('BEGIN');await c.query("SET LOCAL lock_timeout='5s'");await c.query("SET LOCAL statement_timeout='30s'");
@@ -129,7 +130,9 @@ export async function runSyncTick(pool:Pool,identity:Identity,raw:CollectorConfi
     }catch(e){const code=e instanceof SourceError?e.code:'source_capture_failed';for(const job of jobs)await failJob(pool,job,code);return {status:'failed' as const,jobs:jobs.map(j=>({id:j.id,status:'failed',code}))};}
     const results=[];
     for(const job of jobs) {
-      try{results.push({id:job.id,status:'complete',result:await publishContract(pool,identity,config,job,captured,now())});}
+      const single=captured.contracts[job.sales_contract_no];
+      if(!single||'code' in single){results.push({id:job.id,...await failJob(pool,job,single?.code??'source_contract_missing')});continue;}
+      try{results.push({id:job.id,status:'complete',result:await publishContract(pool,identity,config,job,{...single,directory:captured.directory},now())});}
       catch(e){const code=e instanceof SourceError||e instanceof HttpError?e.code:'sync_publish_failed';const result=await failJob(pool,job,code,!(e instanceof SourceError)&&!(e instanceof HttpError));results.push({id:job.id,...result});}
     }
     return {status:'processed' as const,jobs:results};

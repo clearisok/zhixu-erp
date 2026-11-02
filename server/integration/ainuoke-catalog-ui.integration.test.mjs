@@ -35,7 +35,7 @@ test('built catalogue pages, actor-scoped recovery and single-order refresh in C
   await t.test('manual refresh bypasses monthly tier and survives a page reload without another submission',async()=>{
    const before=x.captures();await click('刷新来源',"[...document.querySelectorAll('tr')].find(r=>r.innerText.includes('SYN-SALES-3'))");await has('等待同步');
    assert.equal(x.captures(),before);await navigate('/order-center');await click('全部合同 / 历史查阅');await has('核对同步结果');
-   const tick=await x.tick();assert.equal(tick.jobs.length,1);await has('同步成功');await has('最近同步成功');assert.equal(x.captures(),before+1);
+   const tick=await x.tick();assert.equal(tick.jobs.length,1);await has('同步成功');assert.equal(x.captures(),before+1);
   });
   await t.test('lost queue response is checked and resends the same request rather than creating two jobs',async()=>{
    await evaluate("window.originalFetch=fetch;window.dropOnce=true;window.fetch=(...a)=>{if(dropOnce&&String(a[0]).endsWith('/catalog/sync')&&a[1]?.method==='POST'){dropOnce=false;return Promise.reject(Error('synthetic offline'));}return originalFetch(...a);}");

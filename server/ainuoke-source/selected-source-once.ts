@@ -124,13 +124,24 @@ export async function validateSelectedSourceOnce(input:unknown,config:CollectorC
       if(b.schemaVersion!=='ainuoke-contract-details.v1'||keys(b)!=='colors,discoveryAfter,discoveryBefore,materials,schemaVersion')throw new SourceError('selected_source_invalid');
       const directory=await previewCatalog({schemaVersion:'ainuoke-order-addition-discovery.v1',discoveryBefore:b.discoveryBefore,discoveryAfter:b.discoveryAfter},now);
       const addition={schemaVersion:'ainuoke-order-addition.v1',discoveryBefore:b.discoveryBefore,discoveryAfter:b.discoveryAfter,colors:b.colors} as AdditionBundle;
-      const candidates=await previewAdditions(addition,checked.contracts,[],now,600000);
-      if(candidates.candidates.some(c=>c.colorDetailStatus!=='usable'))throw new SourceError('source_color_incomplete');
       const selected=directory.rows.filter(r=>checked.contracts.includes(r.salesContractNo));
       if(selected.length!==checked.contracts.length)throw new SourceError('selected_source_scope_mismatch');
-      const materials=await validateBundle({schemaVersion:'ainuoke-server-source.v1',discoveryBefore:b.discoveryBefore,discoveryAfter:b.discoveryAfter,materials:b.materials},
-        selected.map(r=>({id:r.sourceId,version:1,salesContractNo:r.salesContractNo,styleNo:r.styleNo,insideOrderNo:r.insideOrderNo})),now,600000);
-      return {result:'complete' as const,mode:'catalog-contracts' as const,metrics,directory,addition,candidates,materials};
+      const contracts:Record<string,{code:string}|{addition:AdditionBundle;candidates:Awaited<ReturnType<typeof previewAdditions>>;materials:Awaited<ReturnType<typeof validateBundle>>}>={};
+      // Transport scope, all rows, pagination and stable directory were checked
+      // above. A historical contract's invalid business facts must not reject
+      // another valid contract from this same already-spent network request.
+      for(const row of selected){
+        const contract=row.salesContractNo;
+        try {
+          const oneAddition={...addition,colors:{[contract]:addition.colors[contract]}};
+          const candidates=await previewAdditions(oneAddition,[contract],[],now,600000);
+          if(candidates.candidates.some(c=>c.colorDetailStatus!=='usable'))throw new SourceError('source_color_incomplete');
+          const materials=await validateBundle({schemaVersion:'ainuoke-server-source.v1',discoveryBefore:b.discoveryBefore,discoveryAfter:b.discoveryAfter,materials:{[contract]:detail[contract]}},
+            [{id:row.sourceId,version:1,salesContractNo:contract,styleNo:row.styleNo,insideOrderNo:row.insideOrderNo}],now,600000);
+          contracts[contract]={addition:oneAddition,candidates,materials};
+        }catch(e){contracts[contract]={code:e instanceof SourceError?e.code:'source_contract_invalid'};}
+      }
+      return {result:'complete' as const,mode:'catalog-contracts' as const,metrics,directory,contracts};
     }
     if(checked.request.mode==='selected-bindings') {
       const preview=await previewSelectedBindings(value.bundle,checked.contracts,now,600000);
