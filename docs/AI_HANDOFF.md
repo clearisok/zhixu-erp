@@ -1,7 +1,7 @@
-# 接力：侧栏定位已部署宁波
+# 接力：全量合同目录与交期分档同步（本地开发）
 
-工作树sidebar-collapse-alignment，分支fix/sidebar-collapse-alignment；代码f21c96c1899126028ba9a272727ad8d564ccf185已按用户“同步到体验站”部署。当前文档提交仅记录部署；不可因文档HEAD不同误判运行代码。main基线cb5cc29baa49ed7115fdb6c9506b6a80356936ea，尚无本片PR/合并/新CI，Git NETWORK_DEGRADED未重试。
+分支 feat/ainuoke-full-catalog-followup；独立工作树 ainuoke-full-catalog-followup。main已只读核实为cb5cc29baa49ed7115fdb6c9506b6a80356936ea；工作baseline前向包含侧栏修复274d6f3c2f216fb80f937f5575e761d3e70162f7，未回退其他工作。宁波运行仍为f21c96c1899126028ba9a272727ad8d564ccf185；长期业务/附件/备份/原三合同同步保持，未对真实环境执行新操作。
 
-运行镜像0bc513c4c45a718faf718bbe529a1e3c3c820506c4ecdb933a058e953d0bcd17，配置/home/jackson/weaveops-staging-preview/runtime/trial.sidebar-f21c96c1.conf。持续同步和备份policy已更新精确身份，旧policy归档；operator/三合同范围未变。物料第30轮HEALTHY（2026-11-01T12:05:11Z），勿重复激活或强制采集。更新前后成对备份及恢复镜像在宁波与D:/WeaveOps-Backups/ningbo-trial验证；旧环境/卷不清理。
+当前已通过7项日期规则单测、9项隔离PostgreSQL/合成SDK检查和TypeScript。仅验证当前工程片段，不是最终验收；新UI、持续运行运维、目录请求恢复、全量回归与发布守卫仍待收口。未执行真实Source请求、迁移/部署宁波、上传或CI。Git仍沿用已确认NETWORK_DEGRADED，不重复撞通道。
 
-本片28相关测试、182完整发布回归、生产构建、独立121表+序列+2附件恢复、候选启动、公网登录/读取、CSSOM规则全部通过；不要重复已完成检查。登录后实站折叠未重复，实际组件本地几何已通过。详见[任务](tasks/active/sidebar-collapse-alignment-2026-11-01.md)、artifacts/sidebar-collapse-alignment-20261101/staging-delivery.json、outputs/sidebar-alignment。需要再部署时读取新policy，勿使用旧17c20e11容器ID。原全局接力在[tasks/completed归档](tasks/completed/2026-11-01-before-sidebar-alignment/AI_HANDOFF.md)。
+用户最新四档和手动规则见D179及[当前任务](tasks/active/ainuoke-full-catalog-followup-2026-11-02.md)。不要恢复最初“历史停止同步”方案。下一步接刷新按钮/回执、worker配置运行与备份协作、正式接纳预览，完成权限/容量/崩溃恢复/升级/浏览器测试；集中交付。原部署证据和接力保存在[归档](tasks/completed/2026-11-02-before-full-catalog/AI_HANDOFF.md)。

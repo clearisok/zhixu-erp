@@ -1,3 +1,4 @@
+import { routeSourceCatalog } from './ainuoke-source/catalog-routes.js';
 import {previewProcessingQuotePush,pushProcessingQuotes,readProcessingPushReceipt} from './sales-orders/processing-quote-push.js';
 import {previewColorSource,adoptColorSource} from './sales-orders/color-commercial.js';
 import {previewSaleAdjustment,commitSaleAdjustment,listQuoteOrderPrices,readSaleAdjustmentHistory,readSaleAdjustmentReceipt,resumeSaleAdjustment} from './sales-orders/sale-adjustment-service.js';
@@ -173,8 +174,10 @@ function integerQuery(value: string | null, fallback: number, label: string, min
 
 function salesOrderListQuery(requestUrl: string | undefined) {
   const params = new URL(requestUrl ?? "/", "http://localhost").searchParams;
-  const allowed=new Set(['limit','offset','search','lifecycleState','creationSource','sortBy','sortDirection','includeHistorical']);
+  const allowed=new Set(['limit','offset','search','lifecycleState','creationSource','sortBy','sortDirection','includeHistorical','followupMode']);
   if([...params.keys()].some(key=>!allowed.has(key)||params.getAll(key).length!==1))throw new HttpError(400,'invalid_sales_order_list_query','Unsupported or repeated list field');
+  const followupMode=params.get('followupMode')??'all';
+  if(!['active','history','all'].includes(followupMode))throw new HttpError(400,'invalid_sales_order_list_query','Invalid followup mode');
   const historical=params.get('includeHistorical');
   if(historical!==null&&!['true','false'].includes(historical))throw new HttpError(400,'invalid_sales_order_list_query','includeHistorical must be true or false');
   const limit = integerQuery(params.get("limit"), SALES_ORDER_LIST_DEFAULT_LIMIT, "limit", 1);
@@ -205,6 +208,7 @@ function salesOrderListQuery(requestUrl: string | undefined) {
     offset,
     search,
     includeHistorical:historical==='true',
+    followupMode:followupMode as 'active'|'history'|'all',
     lifecycleState: lifecycleState as SalesOrderLifecycleState | undefined,
     creationSource: creationSource as SalesOrderCreationSource | undefined,
     sortBy: sortBy as "orderNo" | "updatedAt" | "contractDeliveryDate" | "salesContractNo",
@@ -405,6 +409,8 @@ async function route(
     return;
   }
   if (await routeQuoteAttachments(request, response, dependencies)) return;
+
+  if (await routeSourceCatalog(request,response,dependencies)) return;
 
   if (request.method === "GET" && path === "/api/v1/sales-orders") {
     const identity = await dependencies.identityAuthority.resolve(request);

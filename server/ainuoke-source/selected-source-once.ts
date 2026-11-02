@@ -1,9 +1,10 @@
+import { previewCatalog } from './catalog.js';
 import type { VisibleMaterialOrder } from '../../features/ainuoke-material-progress/read-service.js';
 import { accountFingerprint, APPROVED_HTTP_ORIGIN, APPROVED_HTTP_POLICY, collectWithPython,
   parseCollectorConfig, type CollectorConfig } from './collector.js';
 import { SourceError, hash, inspect, validateBundle } from './contract.js';
 import { previewSelectedBindings } from './binding.js';
-import type { AdditionBundle } from './additions.js';
+import { previewAdditions, type AdditionBundle } from './additions.js';
 import {normalizeAinuokeSalesContractNo} from '../../features/ainuoke-sync/source/ainuoke-garment-color-size-adapter.js';
 
 /** Fixed engineering budget, not human authorization or a scheduler lease. */
@@ -16,7 +17,10 @@ export const BOUND_MATERIAL_LIMITS = Object.freeze({...SELECTED_SOURCE_LIMITS,co
 const failureCodes = new Set(['selected_source_timeout','selected_source_request_limit','selected_source_endpoint_refused',
   'selected_source_response_limit','selected_source_page_limit','selected_source_row_limit','selected_source_query_refused',
   'selected_source_secret_reflection','invalid_credential','auth_expired','source_unavailable','selected_source_invalid']);
-export type SelectedSourceRequest = {mode:'selected-bindings';contracts:string[]}
+export const CATALOG_LIMITS = Object.freeze({...SELECTED_SOURCE_LIMITS,contracts:0,reportRequests:40,httpAttempts:41});
+export type SelectedSourceRequest = {mode:'catalog-discovery';contracts:[]}
+  | {mode:'catalog-contracts';contracts:string[]}
+  | {mode:'selected-bindings';contracts:string[]}
   | {mode:'selected-materials'|'bound-materials';targets:VisibleMaterialOrder[]};
 export type SelectedSourceMetrics = {logins:number;reportRequests:number;httpAttempts:number;networkRetries:0;authRenewals:0};
 const keys = (o:object) => Object.keys(o).sort().join(',');
@@ -34,20 +38,20 @@ function rejectSecretValue(value:unknown,secret:string,depth=0):void {
 }
 function scope(config:CollectorConfig,request:SelectedSourceRequest) {
   const checked=parseCollectorConfig(config),r=object(request);
-  if(!['selected-bindings','selected-materials','bound-materials'].includes(String(r.mode))
-    || keys(r)!==(r.mode==='selected-bindings'?'contracts,mode':'mode,targets'))
+  if(!['selected-bindings','selected-materials','bound-materials','catalog-discovery','catalog-contracts'].includes(String(r.mode))
+    || keys(r)!==(['selected-bindings','catalog-discovery','catalog-contracts'].includes(String(r.mode))?'contracts,mode':'mode,targets'))
     throw new SourceError('selected_source_scope_invalid');
   // Generic legacy loopback transport is deliberately outside this fixed permit.
   if(checked.baseUrl.startsWith('http:')&&(checked.baseUrl!==APPROVED_HTTP_ORIGIN||checked.transportPolicy!==APPROVED_HTTP_POLICY))
     throw new SourceError('protected_source_transport_required');
-  const values=r.mode==='selected-bindings'?r.contracts:Array.isArray(r.targets)?r.targets.map(t=>object(t).salesContractNo):null;
-  const bounded=r.mode==='bound-materials';
-  if(!Array.isArray(values)||(bounded ? values.length<1||values.length>25 : values.length!==2)
+  const values=['selected-bindings','catalog-discovery','catalog-contracts'].includes(String(r.mode))?r.contracts:Array.isArray(r.targets)?r.targets.map(t=>object(t).salesContractNo):null;
+  const bounded=r.mode==='bound-materials'||r.mode==='catalog-contracts', catalog=r.mode==='catalog-discovery';
+  if(!Array.isArray(values)||(catalog ? values.length!==0 : bounded ? values.length<1||values.length>25 : values.length!==2)
     ||values.some(c=>typeof c!=='string'||!/^[A-Z0-9][A-Z0-9/._-]{0,79}$/u.test(c))
     ||new Set(values).size!==values.length)throw new SourceError('selected_source_scope_invalid');
   return {config:checked,contracts:[...values].sort() as string[],request:structuredClone(request),
-    limits:bounded?BOUND_MATERIAL_LIMITS:SELECTED_SOURCE_LIMITS,
-    schemaVersion:bounded?'ainuoke-bound-materials-once.v1':'ainuoke-selected-source-once.v1'};
+    limits:catalog?CATALOG_LIMITS:bounded?BOUND_MATERIAL_LIMITS:SELECTED_SOURCE_LIMITS,
+    schemaVersion:r.mode==='catalog-contracts'?'ainuoke-catalog-contracts.v1':catalog?'ainuoke-catalog-discovery.v1':bounded?'ainuoke-bound-materials-once.v1':'ainuoke-selected-source-once.v1'};
 }
 
 /** Revalidate untrusted child output before handing it to the existing domain mappers.
@@ -70,7 +74,7 @@ export async function validateSelectedSourceOnce(input:unknown,config:CollectorC
     const m=object(value.metrics);
     if(keys(m)!=='authRenewals,httpAttempts,logins,networkRetries,reportRequests'||m.networkRetries!==0||m.authRenewals!==0
       ||!Number.isSafeInteger(m.logins)||!Number.isSafeInteger(m.reportRequests)||!Number.isSafeInteger(m.httpAttempts)
-      ||Number(m.logins)<0||Number(m.logins)>1||Number(m.reportRequests)<0||Number(m.reportRequests)>80
+      ||Number(m.logins)<0||Number(m.logins)>1||Number(m.reportRequests)<0||Number(m.reportRequests)>checked.limits.reportRequests
       ||m.httpAttempts!==Number(m.logins)+Number(m.reportRequests)||(m.logins===0&&m.reportRequests!==0))
       throw new SourceError('selected_source_metrics_invalid');
     const metrics=m as SelectedSourceMetrics;
@@ -79,22 +83,27 @@ export async function validateSelectedSourceOnce(input:unknown,config:CollectorC
       return {result:'failed' as const,code:value.code,metrics};
     }
     if(value.result!=='complete'||value.code!==null||metrics.logins!==1)throw new SourceError('selected_source_invalid');
-    const b=object(value.bundle),detail=object(checked.request.mode==='selected-bindings'?b.colors:b.materials);
+    const b=object(value.bundle),detail=checked.request.mode==='catalog-discovery'?{}:object(checked.request.mode==='selected-bindings'?b.colors:b.materials);
     if(hash(Object.keys(detail).sort())!==hash([...checked.contracts].sort()))throw new SourceError('selected_source_scope_mismatch');
     // 6087105's existing catalog uses contains. Do not mistake a successful
     // query for proof that every returned row belongs to the requested contract.
-    for(const [contract,pages] of Object.entries(detail)) {
+    const details=checked.request.mode==='catalog-contracts'?[{value:detail,field:'ExpContractNo'},{value:object(b.colors),field:'BillNo'}]
+      :[{value:detail,field:checked.request.mode==='selected-bindings'?'BillNo':'ExpContractNo'}];
+    for(const item of details) {
+     if(hash(Object.keys(item.value).sort())!==hash([...checked.contracts].sort()))throw new SourceError('selected_source_scope_mismatch');
+     for(const [contract,pages] of Object.entries(item.value)) {
       if(!Array.isArray(pages))throw new SourceError('selected_source_invalid');
       for(const page of pages) {
         const rows=object(page).rows;if(!Array.isArray(rows))throw new SourceError('selected_source_invalid');
         for(const row of rows) {
-          const values=object(object(row).values),raw=values[checked.request.mode==='selected-bindings'?'BillNo':'ExpContractNo'];
+          const values=object(object(row).values),raw=values[item.field];
           if(typeof raw!=='string'||normalizeAinuokeSalesContractNo(raw)!==contract)throw new SourceError('selected_source_row_scope_mismatch');
         }
       }
+     }
     }
     let pageCount=0,rowCount=0;
-    for(const group of [b.discoveryBefore,b.discoveryAfter,...Object.values(detail)]) {
+    for(const group of [b.discoveryBefore,b.discoveryAfter,...details.flatMap(d=>Object.values(d.value))]) {
       if(!Array.isArray(group)||group.length<1||group.length>20)throw new SourceError('selected_source_page_limit');
       const first=object(group[0]),total=first.total;
       if(!Number.isSafeInteger(total)||Number(total)<0||Number(total)>1000||group.length!==Math.max(1,Math.ceil(Number(total)/50)))
@@ -107,6 +116,22 @@ export async function validateSelectedSourceOnce(input:unknown,config:CollectorC
       }
     }
     if(pageCount!==metrics.reportRequests||rowCount>4000)throw new SourceError('selected_source_metrics_invalid');
+    if(checked.request.mode==='catalog-discovery'){
+      const preview=await previewCatalog(value.bundle,now);
+      return {result:'complete' as const,mode:'catalog-discovery' as const,metrics,bundle:preview.bundle,preview};
+    }
+    if(checked.request.mode==='catalog-contracts'){
+      if(b.schemaVersion!=='ainuoke-contract-details.v1'||keys(b)!=='colors,discoveryAfter,discoveryBefore,materials,schemaVersion')throw new SourceError('selected_source_invalid');
+      const directory=await previewCatalog({schemaVersion:'ainuoke-order-addition-discovery.v1',discoveryBefore:b.discoveryBefore,discoveryAfter:b.discoveryAfter},now);
+      const addition={schemaVersion:'ainuoke-order-addition.v1',discoveryBefore:b.discoveryBefore,discoveryAfter:b.discoveryAfter,colors:b.colors} as AdditionBundle;
+      const candidates=await previewAdditions(addition,checked.contracts,[],now,600000);
+      if(candidates.candidates.some(c=>c.colorDetailStatus!=='usable'))throw new SourceError('source_color_incomplete');
+      const selected=directory.rows.filter(r=>checked.contracts.includes(r.salesContractNo));
+      if(selected.length!==checked.contracts.length)throw new SourceError('selected_source_scope_mismatch');
+      const materials=await validateBundle({schemaVersion:'ainuoke-server-source.v1',discoveryBefore:b.discoveryBefore,discoveryAfter:b.discoveryAfter,materials:b.materials},
+        selected.map(r=>({id:r.sourceId,version:1,salesContractNo:r.salesContractNo,styleNo:r.styleNo,insideOrderNo:r.insideOrderNo})),now,600000);
+      return {result:'complete' as const,mode:'catalog-contracts' as const,metrics,directory,addition,candidates,materials};
+    }
     if(checked.request.mode==='selected-bindings') {
       const preview=await previewSelectedBindings(value.bundle,checked.contracts,now,600000);
       return {result:'complete' as const,mode:'selected-bindings' as const,metrics,bundle:value.bundle as AdditionBundle,preview};

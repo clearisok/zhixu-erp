@@ -163,6 +163,10 @@ export type OperationLogAction =
   | "艾诺科手工绑定"
   | "首次绑定艾诺科订单"
   | "受控接纳新增合同"
+  | "更新合同目录"
+  | "加入持续跟进"
+  | "转为历史查阅"
+  | "申请合同跟进"
   | "采集艾诺科来源"
   | "启停艾诺科货款来源"
   | "启停艾诺科成衣来源"
@@ -265,7 +269,7 @@ export type OperationLog = {
   userName: string;
   module: "报价中心" | "模板设置" | "权限管理" | "基础设置" | "系统设置" | "生产基础资料" | "订单中心" | "生产排单" | "关账中心" | "关账设置" | "艾诺科同步" | "艾诺科个人账号" | "款式进度";
   entityType: "AinuokeGarmentTarget" | "AinuokePaymentTarget" | "MaterialProgressSettings" | "OrderNormalizationCase" | "ProcessingOrderBatch" | "OrderCommercialVersion" | "SalesOrderIdentity" | "OrderPreparation" | "AinuokeSourceBinding" | "AinuokeSourceAddition"
-  | "AinuokeSourceRun" | "Quote" | "QuoteRevision" | "PriceVersion" | "FabricCostLine" | "TrimCostLine" | "FabricLibraryItem" | "TrimLibraryItem" | "LaborCost" | "OtherCostLine" | "Attachment" | "EstimateCost" | "Export" | "Template" | "User" | "Role" | "Brand" | "CustomerSalesperson" | "ManufacturingPreset" | "QuoteSettings" | "SalesOrder" | "OrderItem" | "DeliveryPlan" | "OrderQuantityChange" | "OrderPriceVersion" | "ConfirmedCommercialTerms" | "ProductionPlan" | "ScheduleAssignment" | "OrderExecutionTracking" | "ClosingPeriod" | "ClosingAllocation" | "ProductionGroup" | "OutsourceFactory" | "ProductionCalendar" | "ProductionSite" | "SupplyHub" | "SupplyRoute" | "TransportMode" | "MonthlyProductionTarget" | "ClosingSettings" | "AinuokeContract" | "AinuokeImportReview" | "AinuokeAccount" | "OrderColorLine" | "BrandAlias" | "PurchasedTrimCostRule" | "MaterialImportBatch" | "MaterialDemand" | "MaterialExpectedArrivalBatch" | "MaterialExpectedArrivalPlan";
+  | "AinuokeCatalogRun" | "AinuokeCatalogIntake" | "AinuokeSourceRun" | "Quote" | "QuoteRevision" | "PriceVersion" | "FabricCostLine" | "TrimCostLine" | "FabricLibraryItem" | "TrimLibraryItem" | "LaborCost" | "OtherCostLine" | "Attachment" | "EstimateCost" | "Export" | "Template" | "User" | "Role" | "Brand" | "CustomerSalesperson" | "ManufacturingPreset" | "QuoteSettings" | "SalesOrder" | "OrderItem" | "DeliveryPlan" | "OrderQuantityChange" | "OrderPriceVersion" | "ConfirmedCommercialTerms" | "ProductionPlan" | "ScheduleAssignment" | "OrderExecutionTracking" | "ClosingPeriod" | "ClosingAllocation" | "ProductionGroup" | "OutsourceFactory" | "ProductionCalendar" | "ProductionSite" | "SupplyHub" | "SupplyRoute" | "TransportMode" | "MonthlyProductionTarget" | "ClosingSettings" | "AinuokeContract" | "AinuokeImportReview" | "AinuokeAccount" | "OrderColorLine" | "BrandAlias" | "PurchasedTrimCostRule" | "MaterialImportBatch" | "MaterialDemand" | "MaterialExpectedArrivalBatch" | "MaterialExpectedArrivalPlan";
   entityId: string;
   /** 独立索引字段，用于从报价详情聚合其 Revision、成本和附件日志。 */
   quoteId: string | null;

@@ -76,13 +76,13 @@ def validate_input(data):
     for key in ("username", "password"):
         if not isinstance(data[key], str) or not data[key].strip() or len(data[key]) > 1024 or any(ord(c) < 32 for c in data[key]):
             raise ValueError("invalid_credentials")
-    if "mode" in data and data["mode"] not in ("bindings", "probe", "audit", "targeted", "discovery", "additions", "quality", "selected-bindings", "selected-materials", "bound-materials"):
+    if "mode" in data and data["mode"] not in ("bindings", "probe", "audit", "targeted", "discovery", "additions", "quality", "selected-bindings", "selected-materials", "bound-materials", "catalog-discovery", "catalog-contracts"):
         raise ValueError("invalid_mode")
-    if data.get("mode") in ("selected-bindings", "selected-materials", "bound-materials"):
+    if data.get("mode") in ("selected-bindings", "selected-materials", "bound-materials", "catalog-discovery", "catalog-contracts"):
         import re
-        bounded = data.get("mode") == "bound-materials"
+        bounded = data.get("mode") in ("bound-materials", "catalog-contracts")
         if (set(data) - (required | {"mode", "transportPolicy"}) or not isinstance(data["contracts"], list)
-                or not (1 <= len(data["contracts"]) <= 25 if bounded else len(data["contracts"]) == 2)):
+                or not (1 <= len(data["contracts"]) <= 25 if bounded else len(data["contracts"]) == (0 if data.get("mode") == "catalog-discovery" else 2))):
             raise ValueError("invalid_selected_scope")
         if any(not isinstance(c, str) or not re.fullmatch(r"[A-Z0-9][A-Z0-9/._-]{0,79}", c) for c in data["contracts"]) or len(set(data["contracts"])) != len(data["contracts"]):
             raise ValueError("invalid_selected_scope")
@@ -136,9 +136,9 @@ def validate_input(data):
         raise ValueError("addition_scope_limit")
     return data
 
-def collect(data, client=None):
+def collect(data, client=None, include_colors=False):
     data = validate_input(data)
-    if data.get("mode") in ("selected-bindings", "selected-materials", "bound-materials"):
+    if data.get("mode") in ("selected-bindings", "selected-materials", "bound-materials", "catalog-discovery", "catalog-contracts"):
         if client is not None:
             raise ValueError("selected_transport_owned_by_budget")
         from .selected_source_once import collect_selected
@@ -250,12 +250,17 @@ def collect(data, client=None):
         after = pages("order_discovery", {})
         return {"schemaVersion": "ainuoke-order-addition.v1", "discoveryBefore": before,
                 "discoveryAfter": after, "colors": colors}
+    colors = {}
     materials = {}
     for contract in data["contracts"]:
         key = identity(contract)
         if key in lookup:
+            if include_colors:
+                colors[key] = pages("garment_color_size_details", {"salesContractNo": key})
             materials[key] = pages("material_purchase_statistics", {"insideOrderNo": lookup[key]})
     after = pages("order_discovery", {})
+    if include_colors:
+        return {"schemaVersion": "ainuoke-contract-details.v1", "discoveryBefore": before, "discoveryAfter": after, "materials": materials, "colors": colors}
     return {"schemaVersion": "ainuoke-server-source.v1", "discoveryBefore": before, "discoveryAfter": after, "materials": materials}
 
 
@@ -363,7 +368,7 @@ def main():
         if len(output) > MAX_BYTES:
             raise ValueError("output_limit")
         sys.stdout.buffer.write(output)
-        if not args and data.get("mode") in ("selected-bindings", "selected-materials", "bound-materials") and result.get("result") != "complete":
+        if not args and data.get("mode") in ("selected-bindings", "selected-materials", "bound-materials", "catalog-discovery", "catalog-contracts") and result.get("result") != "complete":
             return 1
     except InvalidCredentialError:
         sys.stdout.write('{"error":"invalid_credential"}')

@@ -10,7 +10,7 @@ export const selectedContracts=['SYN-SALES-1','SYN-SALES-2'];
 /** Exercises the real SDK, common collector and worker stdout with a synthetic
  * in-memory HTTP transport. No host connections, credential files or DB access.
  */
-export function selectedWorkerFixture(mode:'selected-bindings'|'selected-materials'|'bound-materials',mutation='',contracts=selectedContracts) : unknown {
+export function selectedWorkerFixture(mode:'selected-bindings'|'selected-materials'|'bound-materials'|'catalog-discovery'|'catalog-contracts',mutation='',contracts=selectedContracts) : unknown {
   const script=`
 import sys
 from unittest.mock import patch

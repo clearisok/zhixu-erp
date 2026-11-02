@@ -10,7 +10,7 @@ from time import monotonic
 from .ainuoke_client import AinuokeClient, AuthExpiredError, InvalidCredentialError, NetworkAinuokeError, UpstreamSchemaError
 from .server_source import ProtectedTransport, collect, validate_input, identity, MAX_BYTES
 
-MODES = ("selected-bindings", "selected-materials", "bound-materials")
+MODES = ("selected-bindings", "selected-materials", "bound-materials", "catalog-discovery", "catalog-contracts")
 LIMITS = {"contracts": 2, "logins": 1, "reportRequests": 80, "httpAttempts": 81,
           "pageSize": 50, "pagesPerReport": 20, "rowsPerReport": 1000,
           "sourceRows": 4000, "responseBytes": 4*1024*1024, "workerBytes": MAX_BYTES, "timeoutMs": 180000}
@@ -44,7 +44,8 @@ class Refused(Exception):
 
 
 class BudgetTransport:
-    def __init__(self, base, transport, clock):
+    def __init__(self, base, transport, clock, report_limit=80):
+        self.report_limit = report_limit
         self.base, self.transport, self.clock = base.rstrip("/"), transport, clock
         self.deadline = clock() + LIMITS["timeoutMs"]/1000
         self.logins = self.reports = self.bytes = 0
@@ -59,7 +60,7 @@ class BudgetTransport:
                 raise AuthExpiredError("auth_expired")
             self.logins += 1
         elif method == "POST" and url == self.base + AinuokeClient.REPORT_PATH:
-            if self.logins != 1 or self.reports >= LIMITS["reportRequests"]:
+            if self.logins != 1 or self.reports >= self.report_limit:
                 raise Refused("selected_source_request_limit")
             self.reports += 1
         else:
@@ -96,12 +97,12 @@ class BudgetClient:
 
     def read_report(self, definition, *, jwt_token, page, page_size, query_context):
         report = str(definition.report_id)
-        detail = "6087105" if self.mode == "selected-bindings" else "6087050"
+        detail = "none" if self.mode == "catalog-discovery" else "6087105" if self.mode == "selected-bindings" else "6087050"
         if not 1 <= page <= LIMITS["pagesPerReport"] or page_size != 50:
             raise Refused("selected_source_page_limit")
         if report == "6086103":
             allowed = definition.key == "order_discovery" and query_context == {}
-        elif report == detail and detail == "6087105":
+        elif report == "6087105" and (detail == "6087105" or self.mode == "catalog-contracts"):
             allowed = set(query_context) == {"salesContractNo"} and query_context["salesContractNo"] in self.selected
         elif report == detail:
             allowed = (set(query_context) == {"insideOrderNo"} and isinstance(query_context["insideOrderNo"], str)
@@ -126,24 +127,27 @@ def collect_selected(data, transport=None, clock=monotonic):
     data = validate_input(data)
     if data.get("mode") not in MODES:
         raise ValueError("invalid_selected_scope")
-    budget = BudgetTransport(data["baseUrl"], transport or ProtectedTransport(LIMITS["responseBytes"]), clock)
-    bounded = data["mode"] == "bound-materials"
-    common = {"schemaVersion": "ainuoke-bound-materials-once.v1" if bounded else "ainuoke-selected-source-once.v1",
-              "mode": data["mode"], "limits": {**LIMITS, **({"contracts": 25} if bounded else {})},
+    catalog = data["mode"] == "catalog-discovery"
+    budget = BudgetTransport(data["baseUrl"], transport or ProtectedTransport(LIMITS["responseBytes"]), clock, 40 if catalog else 80)
+    bounded = data["mode"] in ("bound-materials", "catalog-contracts")
+    common = {"schemaVersion": "ainuoke-catalog-contracts.v1" if data["mode"] == "catalog-contracts" else "ainuoke-catalog-discovery.v1" if catalog else "ainuoke-bound-materials-once.v1" if bounded else "ainuoke-selected-source-once.v1",
+              "mode": data["mode"], "limits": {**LIMITS, **({"contracts": 0, "reportRequests": 40, "httpAttempts": 41} if catalog else {"contracts": 25} if bounded else {})},
               "sourceFingerprint": fingerprint(data), "selectedContracts": list(data["contracts"]),
               "databaseAccess": "none", "sourceActivation": "not-activated"}
     try:
         sdk = AinuokeClient(base_url=data["baseUrl"], transport=budget, network_retries=0)
         client = BudgetClient(sdk, budget, data["contracts"], data["mode"])
         engine = {**data}
-        if data["mode"] == "selected-bindings":
+        if data["mode"] == "catalog-discovery":
+            engine["mode"] = "discovery"
+        elif data["mode"] == "selected-bindings":
             engine["mode"] = "additions"
         else:
             engine.pop("mode")
-        bundle = collect(engine, client)
+        bundle = collect(engine, client, include_colors=data["mode"] == "catalog-contracts")
         reject_secret_values(bundle, client.secrets)
         if sum(len(p["rows"]) for p in [*bundle["discoveryBefore"], *bundle["discoveryAfter"],
-              *(p for pages in bundle.get("colors", bundle.get("materials", {})).values() for p in pages)]) > LIMITS["sourceRows"]:
+              *(p for key in ("colors", "materials") for pages in bundle.get(key, {}).values() for p in pages)]) > LIMITS["sourceRows"]:
             raise Refused("selected_source_row_limit")
         return {**common, "result": "complete", "code": None, "metrics": budget.metrics(), "bundle": bundle}
     except (Exception, KeyboardInterrupt) as error:
