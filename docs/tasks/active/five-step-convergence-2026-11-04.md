@@ -23,3 +23,10 @@
 - 在当前范围内完成可自主处理项。业务事实和外部条件不具备时保留缺口，不能造生产、价格、出货或关账记录来宣布闭环。
 
 本机过程回执：outputs/five-step-convergence-20261104/。执行结果、最终CI及阶段checkpoint在后续接力/本文件追加，不预记成功。
+
+## 本轮核验结果
+
+- 51960627的Release baseline与First team access通过；Ainuoke server source失败于effective-attribution-source旧错误码断言：新follow-up范围保护先返回source_group_changed，旧测试期待source_order_changed。修正精确错误码并增加快照行数不变断言；9项隔离PostgreSQL检查通过，生产代码不因测试失败放宽保护。
+- 新诊断2a51a68c已在宁波network=none完成11项离线测试，再执行唯一1登录/0报表探针。415ms返回isOk=false，serverHint=unclassified；未命中text1=-2，不得断言为覆盖登录或密码错误。此次reservation已关闭，worker保持PAUSED，剩余58未采集。
+- Git远端519完整SHA已确认；后续同SHA只读dry-run退出0、无拒绝信号，但不能反推此前退出1的原因。没有第二次实际push。
+- 备份演练采用已验证20261104T075135Z-7898850c配对，拟在新隔离目标应用候选迁移并二次备份恢复；不替代升级前紧邻窗口的新备份，也不将字节/数据库验证冒充附件HTTP验收。
