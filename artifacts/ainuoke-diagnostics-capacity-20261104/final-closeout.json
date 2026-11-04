@@ -1,0 +1,54 @@
+{
+  "sourceRequests": 0,
+  "operators": [
+    {
+      "name": "weaveops-catalog-capacity-frequent-20261104",
+      "running": false,
+      "exitCode": 0
+    },
+    {
+      "name": "weaveops-catalog-capacity-full-20261104",
+      "running": false,
+      "exitCode": 0
+    },
+    {
+      "name": "weaveops-catalog-capacity-full45-20261104",
+      "running": false,
+      "exitCode": 0
+    }
+  ],
+  "storage": [
+    {
+      "databaseBytes": 144718871,
+      "catalogRunRows": 248,
+      "catalogRunBytes": 31301632,
+      "observationRows": 247,
+      "observationBytes": 64094208,
+      "enabledControls": 0,
+      "mode": "frequent"
+    },
+    {
+      "databaseBytes": 87497751,
+      "catalogRunRows": 101,
+      "catalogRunBytes": 12812288,
+      "observationRows": 100,
+      "observationBytes": 26083328,
+      "enabledControls": 0,
+      "mode": "full"
+    },
+    {
+      "databaseBytes": 81894423,
+      "catalogRunRows": 86,
+      "catalogRunBytes": 10928128,
+      "observationRows": 85,
+      "observationBytes": 22233088,
+      "enabledControls": 0,
+      "mode": "full45"
+    }
+  ],
+  "oldWorkerState": "PAUSED",
+  "testControlsEnabled": 0,
+  "ownedCloneDatabaseStopped": true,
+  "volumesRetained": true,
+  "productionWrites": 0
+}
