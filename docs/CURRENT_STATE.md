@@ -1,5 +1,7 @@
 # 当前切片：宁波准备与真实容量核验
 
+续作进行中：新白名单逐请求诊断169项Python在本机与Linux通过，原Node协议13项通过。原失败5合同一次定向核验完整成功（36报表、最慢物料971ms），旧故障类别仍无法追溯确定；247高频独立恢复库测试已启动，全量另用新库。尚未取得最终容量结论，见[诊断续作](tasks/active/ainuoke-request-diagnostics-capacity-2026-11-04.md)。下方首批0成功是前次测试时点。
+
 2026-11-04；分支feat/ainuoke-full-catalog-followup，工程候选bae837a152cb223039afc94fa06c571b3ee8328e。main基线沿用此前已核实cb5cc29baa49ed7115fdb6c9506b6a80356936ea，本轮未刷新远端。新用户指示覆盖备份、升级/替换准备和容量实测。本轮未合并或切换正式试用栈；Git单次交付仍未成功，无PR/新CI，详见[11月2日本地工程状态](tasks/completed/2026-11-04-before-ningbo-capacity/CURRENT_STATE.md)。
 
 宁波正式应用仍f21c96c1、51迁移、3SO/2报价/2附件。旧三合同worker自11月2日12:14北京时间PAUSED，DB原因discovery_changed，最后成功12:08:09；190成功run及最后指针保留。本次没有重启旧采集。先前“持续同步健康”只表示其原记录日期，不能当作当前事实。

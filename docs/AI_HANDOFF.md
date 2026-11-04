@@ -2,6 +2,8 @@
 
 续作D1：用户要求定位并复测；新增封闭错误分类、仅私密操作者开启的白名单逐请求诊断，正常协议/15秒请求超时/180秒预算/零重试不变。169项Python通过；尚未使用该诊断发真实请求。下一步固定原失败5合同、1登录80报表180秒诊断，随后冻结新的高频/全量隔离测试范围。见[续作](tasks/active/ainuoke-request-diagnostics-capacity-2026-11-04.md)。
 
+D2已推进：a94aa254诊断镜像6f2c8d0b，Linux169/Node协议13通过。原5单一次真实诊断成功：1登录36报表37HTTP，无错误、最慢物料971ms，旧故障不可追溯为具体类别；不冒称解决。新的247高频恢复库正在跑，exec session87721，远端/home/jackson/weaveops-catalog-diagnostics-20261104/campaign-frequent/result.json与trace-*.json实时更新，本机outputs/ainuoke-diagnostics-capacity-20261104/frequent.log。不要重复启动。结束后核对故障/未知；只有无来源故障才启动已准备的全量新库campaign.py full，不复用旧603队列。容量操作者每批5、单次30分钟、固定剩余预算和无重试；此前make.py capacity不可复用。所有原始source仅远端私密目录，不打印collector.json或任何完整环境。最新结果以前向本段为准。
+
 2026-11-04；分支feat/ainuoke-full-catalog-followup，产品候选bae837a152cb223039afc94fa06c571b3ee8328e。main基线沿用此前已核实cb5cc29baa49ed7115fdb6c9506b6a80356936ea，本轮未刷新远端。本轮仅备份、独立恢复/前向升级、候选镜像构建/私网启动和有界容量实测；没有正式切换、main合并或真实账号修改。先读[本轮报告](tasks/active/ningbo-catalog-capacity-2026-11-04.md)；[此前接力](tasks/completed/2026-11-04-before-ningbo-capacity/AI_HANDOFF.md)保留本地工程与失败/修复证据。GitHub单次交付失败后未重推，无PR/新CI，不复跑成功的工程测试。
 
 正式宁波f21c96c1、镜像0bc513c4、51迁移、3SO/2报价/2附件。旧worker从11月2日12:14北京时间暂停，已只读查明discovery_changed；最后成功12:08:09/run0d04e2fe，累计190成功。旧cron仍在、状态保持PAUSED，不擅改状态重启。
