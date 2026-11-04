@@ -88,7 +88,7 @@ AI 开发的实际限制与改善方式：
 | `test:ainuoke-server-source` | 21 项中 20 通过、0 失败、1 Linux CLI 专属检查在 Windows 跳过；不能称 21 全通过。 |
 | Python 离线 | contracts 10、client 11、service 12、login diagnostic 9，共 42 通过；无真实艾诺科请求。 |
 | 类型/构建/lint | TypeScript、Server 编译、8 个相关 TS 路径 lint 通过；新测试最初的联合类型访问错误已修复。 |
-| 发布守卫 | 最终本地提交后对本轮核实的 main 完整 SHA 执行；最终结果见当前接力/交付记录。182 项守卫自身回归沿用未变脚本的既有成功结果，不计为本轮新跑。 |
+| 发布守卫 | 代码/报告冻结于 `078d0cf5b7f273d4b8fcdeb38b606cc7451fa603` 后，为四份已冻结文档新增前向修订，原记录与状态不变。中间态因文档尚未绑定而报4项漂移，已按原规则补齐新版本；最终提交对核实的 main 完整 SHA 运行，回执存 `outputs/project-audit-20261104/release-guard-final.log`，实际结果见交付回复。182 项守卫自身回归沿用未变脚本的既有成功结果，不计为本轮新跑。 |
 | 未执行 | 完整前端构建/浏览器、全部业务模块、依赖漏洞扫描、真实来源、staging 升级、新备份恢复、远端新提交 CI。 |
 
 原始本机日志在 `outputs/project-audit-20261104/`，不上传临时日志/真实数据。新增 `server/integration/ainuoke-sync-stop.integration.test.ts` 已纳入标准目录回归命令，后续 source CI 会运行。此次为主控代码复审与自动检查，未另起独立外部审计。

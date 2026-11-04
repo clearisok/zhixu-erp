@@ -5671,6 +5671,46 @@
       "sha256": "f211fb1e8fb8aa539d9c1ab5aa7abf20609b2257f55a14deef86e58337afd400",
       "supersedes": "catalog-followup-decisions-20261102",
       "changeReason": "Record approved bounded queue recovery and shared immutable catalogue evidence; preserve old capture identity, zero per-capture internal retries, unknown-result protection and separate staging activation gates."
+    },
+    {
+      "id": "project-audit-production-current-20261104",
+      "kind": "document",
+      "path": "docs/features/PRODUCTION_SCHEDULING.md",
+      "recordedAtSha": "078d0cf5b7f273d4b8fcdeb38b606cc7451fa603",
+      "renderedSourceSha": "078d0cf5b7f273d4b8fcdeb38b606cc7451fa603",
+      "sha256": "f4acead08bb022c326dafe44cac24726845e0af2fbb5af6aeab5a9480e9f947c",
+      "supersedes": "production-garment-controlled-main-869e-20261026-merge",
+      "changeReason": "Clarify current Server execution ownership and preserve dated Browser history; no UI, business-rule, acceptance or deployment change."
+    },
+    {
+      "id": "project-audit-closing-current-20261104",
+      "kind": "document",
+      "path": "docs/features/SERVER_CLOSING_ADJUSTMENT_UI.md",
+      "recordedAtSha": "078d0cf5b7f273d4b8fcdeb38b606cc7451fa603",
+      "renderedSourceSha": "078d0cf5b7f273d4b8fcdeb38b606cc7451fa603",
+      "sha256": "73801250d2ad769d0e1b1f96f980657ded285c9f1cabefe9b8db02f9ed544ac5",
+      "supersedes": "closing-adjustment-ui-contract-20261027",
+      "changeReason": "Clarify already implemented source review and executor matching while preserving the original UI milestone and evidence; no new UI acceptance claim."
+    },
+    {
+      "id": "project-audit-source-stop-20261104",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SERVER_SOURCE.md",
+      "recordedAtSha": "078d0cf5b7f273d4b8fcdeb38b606cc7451fa603",
+      "renderedSourceSha": "078d0cf5b7f273d4b8fcdeb38b606cc7451fa603",
+      "sha256": "fe3717e76464d082810a1a4de173c90c38c50ad021f775160d4ebec239496bea",
+      "supersedes": "catalog-sync-resilience-source-20261104",
+      "changeReason": "Record persistent pause for non-transient capture failures, strict UUID validation and neutral login-refusal wording; synthetic regression only, no real source recovery or deployment."
+    },
+    {
+      "id": "project-audit-decisions-stop-20261104",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "078d0cf5b7f273d4b8fcdeb38b606cc7451fa603",
+      "renderedSourceSha": "078d0cf5b7f273d4b8fcdeb38b606cc7451fa603",
+      "sha256": "ba8d1acd606ef30498c77f9740e62d316921bf7e088745c3ad339450e49e6d75",
+      "supersedes": "catalog-sync-resilience-decisions-20261104",
+      "changeReason": "Record the audit correction enforcing already approved D180 stop semantics without changing business policy or real source authorization."
     }
   ],
   "pages": [
