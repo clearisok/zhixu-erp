@@ -5641,6 +5641,16 @@
       "sha256": "9c5e88771cf873a3f515ba2e9ae42706b6bc8d745e4d544277340923847e5401",
       "supersedes": "decisions-pr138-staging-entry-20261031",
       "changeReason": "Freeze the approved catalogue and calendar-based synchronization contract, preserving prior source evidence, immutable SO/commercial facts and separate Ningbo activation boundaries."
+    },
+    {
+      "id": "catalog-request-diagnostics-capacity-20261104",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SERVER_SOURCE.md",
+      "recordedAtSha": "e39cada451968436115f5a0291e7125f4dc86500",
+      "renderedSourceSha": "e39cada451968436115f5a0291e7125f4dc86500",
+      "sha256": "f892ddc6d949975d3a7930db69fa282eb3332f0640e0686a214562dcf4084b3a",
+      "supersedes": "catalog-followup-source-contract-20261102",
+      "changeReason": "Document bounded catalogue request diagnostics and 45-second per-request waiting under the unchanged 180-second total deadline; preserve measured frequent-pass and full-source-timeout results without claiming deployment or full coverage."
     }
   ],
   "pages": [
