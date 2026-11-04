@@ -68,10 +68,12 @@ export const accountFingerprint = (config: CollectorConfig) => hash({ origin: co
 export function collectWithPython(config: CollectorConfig, contracts: string[], options: {
     python?: string;
     timeoutMs?: number;
+    diagnostics?: boolean;
     mode?: "bindings" | "probe" | "discovery" | "additions" | "selected-bindings" | "selected-materials" | "bound-materials" | "catalog-discovery" | "catalog-contracts";
 } = {}): Promise<unknown> {
     return new Promise((resolveResult, reject) => {
-        const child = spawn(options.python ?? (process.platform === "win32" ? "python" : "python3"), ["-m", "ainuoke_bridge.server_source"], {
+        if(options.diagnostics && !['catalog-discovery','catalog-contracts'].includes(options.mode??'')) { reject(new SourceError('sync_diagnostics_invalid')); return; }
+        const child = spawn(options.python ?? (process.platform === "win32" ? "python" : "python3"), ["-m", options.diagnostics ? "ainuoke_bridge.request_diagnostics" : "ainuoke_bridge.server_source"], {
             cwd: resolve("tools/ainuoke-bridge"), windowsHide: true, stdio: ["pipe", "pipe", "pipe"],
             env: { ...process.env, PYTHONUTF8: "1", PYTHONDONTWRITEBYTECODE: "1" },
         });
@@ -94,6 +96,7 @@ export function collectWithPython(config: CollectorConfig, contracts: string[], 
             try {
                 const value = JSON.parse(Buffer.concat(chunks).toString("utf8"));
                 if (code !== 0) {
+                    if(code===1&&options.diagnostics&&value.schemaVersion==='ainuoke-request-diagnostics.v1'&&value.capture?.result==='failed') { settled=true; resolveResult(value); return; }
                     if (code === 1 && ['selected-bindings', 'selected-materials', 'bound-materials', 'catalog-discovery','catalog-contracts'].includes(options.mode ?? '')
                         && value.schemaVersion === (options.mode === 'catalog-contracts' ? 'ainuoke-catalog-contracts.v1' : options.mode === 'catalog-discovery' ? 'ainuoke-catalog-discovery.v1' : options.mode === 'bound-materials' ? 'ainuoke-bound-materials-once.v1' : 'ainuoke-selected-source-once.v1') && value.result === 'failed') {
                         settled = true; resolveResult(value); return;

@@ -5,10 +5,12 @@ import { Button, Modal, Card, DataTable, EmptyState, AlertBanner, type DataColum
 import { ServerCatalogDetail } from './server-catalog-detail';
 import { ServerContractRefresh } from './server-contract-refresh';
 import { useProtectedRouter } from '@/components/foundation/server-navigation-protection';
+import { sourceSyncMessage, sourceFailureMessage } from '../source-sync-status';
 
 type Row={sourceKey:string;sourceId:string;salesContractNo:string;styleNo:string;insideOrderNo:string;customerName:string|null;brandName:string|null;
- quantity:string|null;deliveryDate:string|null;sourceStatus:string;observedAt:string;visible:boolean;orderId:string|null;active:boolean;followupVersion:number;lastSuccessAt:string|null;tier:string;scheduleLabel:string;syncStatus:string|null;syncEnabled:boolean;dateNeedsReview:boolean};
-type Result={rows:Row[];total:number;offset:number;limit:number;sources:{runId:string|null}[]};
+ quantity:string|null;deliveryDate:string|null;sourceStatus:string;observedAt:string;visible:boolean;orderId:string|null;active:boolean;followupVersion:number;lastSuccessAt:string|null;tier:string;scheduleLabel:string;syncStatus:string|null;syncEnabled:boolean;dateNeedsReview:boolean;
+ retryAt:string|null;attemptNumber:number|null;lastDiagnostic:{outcome:string}|null;lastErrorCode:string|null};
+type Result={rows:Row[];total:number;offset:number;limit:number;sources:{runId:string|null}[];syncSummary?:{contracts:number;observed:number;neverObserved:number;pending:number;retrying:number;failed:number}};
 async function read<T>(path:string,body?:unknown):Promise<T>{
  const r=await fetch(path,{method:body?'POST':'GET',credentials:'include',cache:'no-store',...(body?{headers:{'Content-Type':'application/json','X-Zhixu-Request':'1'},body:JSON.stringify(body)}:{})});
  const value=await r.json();if(!r.ok){const error=new Error(r.status===401?'登录已过期，请重新登录。':r.status===403?'没有此操作权限。':'操作未完成，请核对当前状态。');Object.assign(error,{status:r.status});throw error;}return value;
@@ -38,11 +40,12 @@ export function ServerSourceCatalog({canManage,onChanged}:{canManage:boolean;onC
   {key:'customer',header:'客户 / 品牌',render:r=><>{r.customerName??'—'}<div>{r.brandName??'—'}</div></>},
   {key:'quantity',header:'数量 / 合同交期',render:r=><>{r.quantity??'待核对'}<div>{r.deliveryDate??'待核对'}</div></>},
   {key:'status',header:'跟进范围',render:r=><>{r.active?'当前跟进':'历史查阅'}<div>{r.visible?`艾诺科：${r.sourceStatus}`:'本次目录未见，保留上次资料'}</div></>},
-  {key:'observed',header:'同步频率 / 最近成功',render:r=><>{r.scheduleLabel}<div>{r.lastSuccessAt?new Date(r.lastSuccessAt).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false}):'尚未同步详情'}</div><small>北京时间</small><div>{({queued:'已提交，等待同步',running:'正在同步',complete:'同步成功',failed:'最近同步未成功，保留上次资料',unknown:'结果待核对'} as Record<string,string>)[r.syncStatus??'']}</div>{!r.syncEnabled&&<small>自动同步未启用或已暂停</small>}</>},
+  {key:'observed',header:'同步频率 / 最近成功',render:r=><>{r.scheduleLabel}<div>{r.lastSuccessAt?new Date(r.lastSuccessAt).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false}):'尚未同步详情'}</div><small>北京时间</small><div>{sourceSyncMessage({status:r.syncStatus,retryAt:r.retryAt,attemptNumber:r.attemptNumber})}</div>{r.lastErrorCode&&<small>{sourceFailureMessage(r.lastDiagnostic?.outcome,r.lastErrorCode)}</small>}{!r.syncEnabled&&<small>自动同步未启用或已暂停</small>}</>},
   {key:'actions',header:'操作',width:200,render:r=><div className="oc-source-actions"><Button variant="text" onClick={()=>setDetail(r)}>查看来源资料</Button>{r.orderId?<><Button variant="text" onClick={()=>router.push('/order-center/server-detail?id='+r.orderId)}>查看订单</Button>
    {canManage&&<Button variant="text" disabled={!!pending} onClick={()=>{setPending({row:r,requestId:crypto.randomUUID(),mode:r.active?'history':'active'});setUnknown(false);}}>{r.active?'移入历史':'加入跟进'}</Button>}</>:<span>尚未接纳为正式订单</span>}<ServerContractRefresh key={r.sourceKey+':'+r.sourceId} scope={{sourceKey:r.sourceKey,sourceId:r.sourceId}} lastSuccessAt={r.lastSuccessAt} showLastSuccess={false} onComplete={()=>void load()} /></div>},
  ];
  return <><Card className="oc-source-catalog"><h2>艾诺科合同目录</h2><p>全部资料可查询；历史查阅不代表订单已完成。合同目录不会自动建立报价、生产或关账记录。</p>
+  {result?.syncSummary&&<p role="status">已有成功资料 {result.syncSummary.observed} / {result.syncSummary.contracts} 张；待处理 {result.syncSummary.pending} 张（其中待重试 {result.syncSummary.retrying} 张）；最近失败 {result.syncSummary.failed} 张。筛选不改变全目录统计。</p>}
   <form className="oc-server-pagination" onSubmit={e=>{e.preventDefault();if(offset===0&&applied===search){void load();return;}setLoading(true);setOffset(0);setApplied(search);}}>
    <input className="qc-control" aria-label="搜索合同目录" placeholder="合同号、款号、客户、品牌；空格表示同时匹配" value={search} onChange={e=>setSearch(e.target.value)} maxLength={200}/>
    <select className="qc-control" aria-label="合同跟进范围" value={scope} onChange={e=>{setLoading(true);setScope(e.target.value);setOffset(0);}}><option value="all">全部合同</option><option value="active">当前跟进</option><option value="history">历史查阅</option></select><Button type="submit">查询</Button>

@@ -2,12 +2,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useServerSession } from '@/features/server-auth';
 import { Button } from '@/components/foundation';
+import { sourceSyncMessage } from '../source-sync-status';
 
 type Scope = {orderId:string} | {sourceKey:string;sourceId:string};
-type Receipt = {status:string;result?:{code?:string;observedAt?:string};requestId?:string};
+type Receipt = {status:string;result?:{code?:string;observedAt?:string};requestId?:string;retryAt?:string|null;attemptNumber?:number};
 type Pending = {requestId:string;scope:Scope};
 const prefix='/api/v1/ainuoke/catalog';
-const labels:Record<string,string>={queued:'已提交，等待同步',running:'正在同步当前订单',complete:'同步成功',failed:'同步未成功，可重新刷新',unknown:'结果待核对，请勿重复提交',not_found:'尚未查到回执，请继续核对'};
 const format=(date:string)=>new Date(date).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false});
 async function api<T>(url:string,body?:unknown):Promise<T>{
  const response=await fetch(url,{method:body?'POST':'GET',credentials:'include',cache:'no-store',...(body?{headers:{'Content-Type':'application/json','X-Zhixu-Request':'1'},body:JSON.stringify(body)}:{})});
@@ -53,12 +53,12 @@ function RefreshControl({scope,lastSuccessAt,onComplete,showLastSuccess=true}:Pr
   let active=true;const generation=epoch.current;let timer:ReturnType<typeof setTimeout>;
   const poll=async()=>{try{const result=await api<Receipt>(prefix+'/sync/'+pending.requestId);if(!active||generation!==epoch.current)return;setReceipt(result);
     if(result.status==='complete'||result.status==='failed'){sessionStorage.removeItem(key);setPending(null);setMessage(null);if(result.status==='complete'){setSuccess(result.result?.observedAt??null);complete.current?.();}return;}
-    if(['queued','running'].includes(result.status))timer=setTimeout(()=>void poll(),2000);
+    if(['queued','running'].includes(result.status))timer=setTimeout(()=>void poll(),result.retryAt?10000:2000);
    }catch{if(active)setMessage('暂时无法核对同步结果；不会重复提交。');}};
   void poll();return()=>{active=false;clearTimeout(timer);};
  },[pending,key]);
  const submit=async(resend?:Pending)=>{
-  if(busy||pending&&!resend)return;
+  if(busy||pending&&!resend&&!receipt?.retryAt)return;
   const request=resend??{requestId:crypto.randomUUID(),scope};setBusy(true);setMessage(null);
   try{sessionStorage.setItem(key,JSON.stringify(request));}catch{setMessage('无法保存本次操作编号，未发起同步。');setBusy(false);return;}
   try{
@@ -71,9 +71,9 @@ function RefreshControl({scope,lastSuccessAt,onComplete,showLastSuccess=true}:Pr
   }finally{setBusy(false);}
  };
  return <div className="oc-source-refresh"><div>
-  {allowed?<Button variant="text" disabled={busy} onClick={()=>void(pending?check(pending):submit())}>{pending?'核对同步结果':'刷新来源'}</Button>:<span>没有来源同步权限</span>}
+  {allowed?<Button variant="text" disabled={busy} onClick={()=>void(receipt?.retryAt?submit():pending?check(pending):submit())}>{receipt?.retryAt?'立即重试':pending?'核对同步结果':'刷新来源'}</Button>:<span>没有来源同步权限</span>}
   {pending&&receipt?.status==='not_found'&&allowed&&<Button variant="text" disabled={busy} onClick={()=>void submit(pending)}>重送原请求</Button>}
-  {receipt&&<span role="status">{labels[receipt.status]??'正在核对同步结果'}</span>}
+  {receipt&&<span role="status">{sourceSyncMessage(receipt)||'正在核对同步结果'}</span>}
   </div>{showLastSuccess&&(success??lastSuccessAt)&&<small>最近同步成功：{format((success??lastSuccessAt)!)}（北京时间）</small>}
   {message&&<p role="status">{message}</p>}
  </div>;

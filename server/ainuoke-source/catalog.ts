@@ -86,12 +86,13 @@ export async function readCatalog(pool:Pool,identity:Pick<TrustedIdentity,'inter
    LEFT JOIN ainuoke_order_followups f ON f.sales_order_id=mapping.effective_order_id
    LEFT JOIN ainuoke_sync_controls control ON control.source_key=e.source_key
    LEFT JOIN ainuoke_contract_sync_state state ON state.source_key=e.source_key AND state.source_id=e.source_id
-   LEFT JOIN LATERAL(SELECT status FROM ainuoke_sync_jobs j WHERE j.source_key=e.source_key AND j.source_id=e.source_id ORDER BY j.requested_at DESC LIMIT 1) job ON true WHERE ${where.join(' AND ')}`;
+   LEFT JOIN LATERAL(SELECT status,available_at,retry_of,attempt_number FROM ainuoke_sync_jobs j WHERE j.source_key=e.source_key AND j.source_id=e.source_id ORDER BY j.requested_at DESC,j.attempt_number DESC LIMIT 1) job ON true WHERE ${where.join(' AND ')}`;
   const total=Number((await c.query('SELECT count(*) '+from,args)).rows[0].count);
   const rows=(await c.query(`SELECT e.source_key AS "sourceKey",e.source_id AS "sourceId",e.sales_contract_no AS "salesContractNo",e.inside_order_no AS "insideOrderNo",
    e.style_no AS "styleNo",e.customer_name AS "customerName",e.brand_name AS "brandName",e.quantity::text,e.delivery_date AS "deliveryDate",e.contract_date AS "contractDate",
    e.lifecycle_status_raw AS "sourceStatus",e.visible,r.captured_at AS "observedAt",mapping.effective_order_id::text AS "orderId",state.last_success_at AS "lastSuccessAt",state.last_automatic_attempt_at AS "lastAutomaticAttemptAt",
-   state.last_error_code AS "lastErrorCode",control.policy,coalesce(control.enabled,false) AND control.paused_reason IS NULL AS "syncEnabled",job.status AS "syncStatus",
+   state.last_error_code AS "lastErrorCode",state.last_diagnostic AS "lastDiagnostic",state.last_attempt_at AS "lastAttemptAt",control.policy,coalesce(control.enabled,false) AND control.paused_reason IS NULL AS "syncEnabled",job.status AS "syncStatus",
+   CASE WHEN job.status='queued' AND job.retry_of IS NOT NULL THEN job.available_at ELSE NULL END AS "retryAt",job.attempt_number AS "attemptNumber",
    ${active} AS active,coalesce(f.version,0) AS "followupVersion" ${from} ORDER BY e.sales_contract_no,e.source_key LIMIT ${val(query.limit)} OFFSET ${val(query.offset)}`,args)).rows;
   const state=(await c.query('SELECT source_key AS "sourceKey",catalog_run_id::text AS "runId" FROM ainuoke_source_profiles WHERE enabled=true')).rows;
   const projected=rows.map(({policy,lastAutomaticAttemptAt,...row})=>{
@@ -99,6 +100,16 @@ export async function readCatalog(pool:Pool,identity:Pick<TrustedIdentity,'inter
       lastAutomaticAttemptAt:lastAutomaticAttemptAt?new Date(lastAutomaticAttemptAt).toISOString():null},policy??DEFAULT_SYNC_POLICY);
     return {...row,...schedule,scheduleLabel:syncScheduleLabel(schedule.tier,policy??DEFAULT_SYNC_POLICY)};
   });
-  await c.query('COMMIT');return {rows:projected,total,offset:query.offset,limit:query.limit,sources:state};
+  const syncSummary=(await c.query(`SELECT count(*)::int AS contracts,count(s.last_success_at)::int AS observed,
+   count(*) FILTER(WHERE s.last_success_at IS NULL)::int AS "neverObserved",
+   count(*) FILTER(WHERE j.status IN ('queued','running','unknown'))::int AS pending,
+   count(*) FILTER(WHERE j.status='queued' AND j.retry_of IS NOT NULL)::int AS retrying,
+   count(*) FILTER(WHERE j.status IN ('failed','unknown'))::int AS failed,
+   min(j.requested_at) FILTER(WHERE j.status='queued') AS "oldestPendingAt"
+   FROM ainuoke_catalog_entries e JOIN ainuoke_source_profiles p ON p.source_key=e.source_key AND p.enabled=true
+   LEFT JOIN ainuoke_contract_sync_state s ON s.source_key=e.source_key AND s.source_id=e.source_id
+   LEFT JOIN LATERAL(SELECT status,retry_of,requested_at FROM ainuoke_sync_jobs j WHERE j.source_key=e.source_key AND j.source_id=e.source_id ORDER BY j.requested_at DESC,j.attempt_number DESC LIMIT 1) j ON true
+   WHERE e.visible=true`)).rows[0];
+  await c.query('COMMIT');return {rows:projected,total,offset:query.offset,limit:query.limit,sources:state,syncSummary};
  }catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}
 }

@@ -7,7 +7,7 @@ import {hash, SourceError, sourceKeyValid} from './contract.js';
 
 type Identity=Pick<TrustedIdentity,'internalUserId'|'userId'>;
 async function snapshot(c:PoolClient,sourceKey:string){
- const control=(await c.query('SELECT enabled,version,paused_reason,operator_id::text FROM ainuoke_sync_controls WHERE source_key=$1',[sourceKey])).rows[0];
+ const control=(await c.query('SELECT enabled,version,paused_reason,operator_id::text,catalog_failure_count,catalog_retry_at FROM ainuoke_sync_controls WHERE source_key=$1',[sourceKey])).rows[0];
  if(!control)throw new SourceError('sync_configuration_invalid');
  const jobs=(await c.query("SELECT id::text,status,result FROM ainuoke_sync_jobs WHERE source_key=$1 AND status IN ('running','unknown') ORDER BY id",[sourceKey])).rows;
  const captures=(await c.query(`SELECT r.request_id::text,r.status,r.result,run.id::text AS committed_run
@@ -33,7 +33,7 @@ export async function recoverSync(pool:Pool,identity:Identity,sourceKey:string,a
   for(const job of before.jobs)await c.query("UPDATE ainuoke_sync_jobs SET status='failed',finished_at=now(),result=$2::jsonb WHERE id=$1",[job.id,JSON.stringify({code:'operator_reconciled_unknown',previousResult:job.result,reason:approval.reason})]);
   for(const capture of before.captures)await c.query('UPDATE ainuoke_catalog_requests SET status=$3,finished_at=now(),result=$4::jsonb WHERE source_key=$1 AND request_id=$2',
    [sourceKey,capture.request_id,capture.committed_run?'complete':'failed',JSON.stringify(capture.committed_run?{runId:capture.committed_run}:{code:'operator_reconciled_unknown',previousResult:capture.result,reason:approval.reason})]);
-  await c.query('UPDATE ainuoke_sync_controls SET paused_reason=NULL,version=version+1,updated_at=now() WHERE source_key=$1',[sourceKey]);
+  await c.query('UPDATE ainuoke_sync_controls SET paused_reason=NULL,catalog_failure_count=0,catalog_retry_at=NULL,version=version+1,updated_at=now() WHERE source_key=$1',[sourceKey]);
   await appendOperationLog(c,actor,{module:'艾诺科同步',action:'设置自动同步',entityType:'AinuokeSyncPolicy',entityId:sourceKey,
    metadata:{reason:approval.reason,reviewHash,jobIds:before.jobs.map(j=>j.id),catalogRequests:before.captures.map(r=>r.request_id),sourceRequests:0},afterData:{values:{result:'核对暂停记录；未重新采集'}}});
   await c.query('COMMIT');return {sourceKey,reviewHash,resolvedJobs:before.jobs.length,resolvedCatalogRequests:before.captures.length,sourceRequests:0};

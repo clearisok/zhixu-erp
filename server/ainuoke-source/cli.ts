@@ -85,7 +85,7 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
       process.stdout.write(JSON.stringify({event:'SYNC_CONFIGURED',...result})+'\n');return;
     }
     if(action==='sync-status'){
-      const control=(await pool.query('SELECT enabled,version,policy,paused_reason,heartbeat_at FROM ainuoke_sync_controls WHERE source_key=$1',[cfg.sourceKey])).rows[0]??null;
+      const control=(await pool.query('SELECT enabled,version,policy,paused_reason,heartbeat_at,catalog_failure_count,catalog_retry_at FROM ainuoke_sync_controls WHERE source_key=$1',[cfg.sourceKey])).rows[0]??null;
       const queue=(await pool.query('SELECT status,kind,count(*)::int AS count,min(requested_at) AS oldest FROM ainuoke_sync_jobs WHERE source_key=$1 GROUP BY status,kind',[cfg.sourceKey])).rows;
       process.stdout.write(JSON.stringify({event:'SYNC_STATUS',control,queue,sourceRequests:0})+'\n');return;
     }
@@ -107,7 +107,7 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
         const result=await runSyncTick(pool,actor,current,{batchSize,automatic});
         if(automatic)automaticAt=Date.now()+60000;
         if(result.status!=='idle')process.stdout.write(JSON.stringify({event:'SYNC_TICK',...result})+'\n');
-        if(action==='sync-once'||result.status==='paused'||result.status==='failed')break;
+        if(action==='sync-once'||result.status==='paused'||result.status==='failed'&&!result.retryScheduled)break;
         if(result.status==='processed')continue;
         await Promise.race([delay(1000,undefined,{signal:controller.signal}).catch(()=>undefined),new Promise<void>(resolve=>{wake=resolve;})]);wake=null;
       }while(!controller.signal.aborted);}finally{await listener.query('UNLISTEN ainuoke_sync_requested').catch(()=>undefined);listener.release();process.removeListener('SIGINT',stop);process.removeListener('SIGTERM',stop);}

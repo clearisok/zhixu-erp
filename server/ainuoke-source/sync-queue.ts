@@ -72,7 +72,7 @@ export async function requestContractSync(pool: Pool, identity: Identity, input:
     const jobId: string = existing?.id ?? randomUUID();
     if (!existing) await c.query(`INSERT INTO ainuoke_sync_jobs(id,source_key,source_id,sales_contract_no,kind,status,requested_by)
       VALUES($1,$2,$3,$4,'manual','queued',$5)`, [jobId,input.sourceKey,input.sourceId,entry.sales_contract_no,actor.internalUserId]);
-    else if (existing.status === 'queued') await c.query("UPDATE ainuoke_sync_jobs SET kind='manual',requested_by=$2 WHERE id=$1", [jobId,actor.internalUserId]);
+    else if (existing.status === 'queued') await c.query("UPDATE ainuoke_sync_jobs SET kind='manual',requested_by=$2,available_at=now() WHERE id=$1", [jobId,actor.internalUserId]);
     await c.query('INSERT INTO ainuoke_sync_requests(actor_id,request_id,payload_hash,job_id) VALUES($1,$2,$3,$4)', [actor.internalUserId,input.requestId,digest,jobId]);
     await c.query("SELECT pg_notify('ainuoke_sync_requested',$1)", [input.sourceKey]);
     return { jobId, requestId: input.requestId, replayed: false };
@@ -101,22 +101,22 @@ export async function enqueueAutomaticSync(pool: Pool, identity: Identity, sourc
     return { queued, catalogCount: rows.length };
   });
 }
-export type SyncJob = {id:string;source_key:string;source_id:string;sales_contract_no:string;kind:'manual'|'automatic';requested_by:string;started_at:Date};
+export type SyncJob = {id:string;source_key:string;source_id:string;sales_contract_no:string;kind:'manual'|'automatic';requested_by:string;started_at:Date;retry_of:string|null;root_job_id:string|null;attempt_number:number};
 /** The caller additionally holds the source's session-level worker lock through IO. */
 export async function claimSyncJobs(pool: Pool, identity: Identity, sourceKey: string, maximum = 5, now = Date.now()): Promise<SyncJob[]> {
   if (!Number.isSafeInteger(maximum) || maximum < 1 || maximum > 25) throw new SourceError('sync_batch_invalid');
   return tx(pool, async c => {
     await lockSource(c,sourceKey); const actor = await sourceActor(c,identity,true), settings = await control(c,sourceKey);
     if (String(settings.operator_id) !== actor.internalUserId) throw new SourceError('sync_operator_changed');
-    const rows = (await c.query(`SELECT j.*,j.requested_by::text FROM ainuoke_sync_jobs j WHERE j.source_key=$1 AND j.status='queued'
-      ORDER BY (j.kind='manual') DESC,j.requested_at,j.id LIMIT $2 FOR UPDATE SKIP LOCKED`,[sourceKey,maximum])).rows;
+    const rows = (await c.query(`SELECT j.*,j.requested_by::text FROM ainuoke_sync_jobs j WHERE j.source_key=$1 AND j.status='queued' AND j.available_at<=$3
+      ORDER BY (j.kind='manual') DESC,j.requested_at,j.id LIMIT $2 FOR UPDATE SKIP LOCKED`,[sourceKey,maximum,new Date(now)])).rows;
     // A manual operation captures only the selected contract, even if auto jobs await.
-    const selected = rows[0]?.kind === 'manual' ? rows.slice(0,1) : rows;
+    const selected = rows[0]?.kind === 'manual' || rows[0]?.retry_of ? rows.slice(0,1) : rows.filter(j=>!j.retry_of);
     for (const job of selected) {
       if(job.kind==='automatic'){
         const current=(await c.query(`SELECT e.visible,e.delivery_date,s.last_success_at,s.last_automatic_attempt_at FROM ainuoke_catalog_entries e
           LEFT JOIN ainuoke_contract_sync_state s USING(source_key,source_id) WHERE e.source_key=$1 AND e.source_id=$2`,[sourceKey,job.source_id])).rows[0];
-        if(!current?.visible||!syncSchedule({deliveryDate:current.delivery_date,now,lastSuccessAt:iso(current.last_success_at),lastAutomaticAttemptAt:iso(current.last_automatic_attempt_at)},settings.policy).due){
+        if(!current?.visible||!job.retry_of&&!syncSchedule({deliveryDate:current.delivery_date,now,lastSuccessAt:iso(current.last_success_at),lastAutomaticAttemptAt:iso(current.last_automatic_attempt_at)},settings.policy).due){
           await c.query("UPDATE ainuoke_sync_jobs SET status='failed',finished_at=$2,result=$3::jsonb WHERE id=$1",[job.id,new Date(now),JSON.stringify({code:'sync_schedule_changed'})]);continue;
         }
       }
@@ -135,8 +135,13 @@ export async function claimSyncJobs(pool: Pool, identity: Identity, sourceKey: s
 export async function readSyncRequest(pool: Pool, identity: Identity, requestId: string) {
   if (!uuid.test(requestId)) throw new SourceError('sync_request_invalid');
   await sourceActor(pool,identity,false,false);
-  const row = (await pool.query(`SELECT j.id::text AS "jobId",j.status,j.kind,j.requested_at AS "requestedAt",j.started_at AS "startedAt",j.finished_at AS "finishedAt",j.result
-    FROM ainuoke_sync_requests r JOIN ainuoke_sync_jobs j ON j.id=r.job_id WHERE r.actor_id=$1 AND r.request_id=$2`,[identity.internalUserId,requestId])).rows[0];
+  const row = (await pool.query(`SELECT current.id::text AS "jobId",current.status,current.kind,current.requested_at AS "requestedAt",current.started_at AS "startedAt",current.finished_at AS "finishedAt",current.result,
+    j.id::text AS "originalJobId",j.status AS "originalStatus",current.attempt_number AS "attemptNumber",current.retry_of::text AS "retryOf",
+    CASE WHEN current.status='queued' AND current.retry_of IS NOT NULL THEN current.available_at ELSE NULL END AS "retryAt"
+    FROM ainuoke_sync_requests r JOIN ainuoke_sync_jobs j ON j.id=r.job_id
+    JOIN LATERAL(SELECT x.* FROM ainuoke_sync_jobs x WHERE x.source_key=j.source_key AND x.source_id=j.source_id
+      AND (x.id=coalesce(j.root_job_id,j.id) OR x.root_job_id=coalesce(j.root_job_id,j.id)) ORDER BY x.attempt_number DESC LIMIT 1) current ON true
+    WHERE r.actor_id=$1 AND r.request_id=$2`,[identity.internalUserId,requestId])).rows[0];
   return row ?? {status:'not_found',absenceProvesFailure:false};
 }
 export async function resolveOrderSync(pool:Pool,identity:Identity,orderId:string) {
@@ -145,9 +150,10 @@ export async function resolveOrderSync(pool:Pool,identity:Identity,orderId:strin
   const targets=await boundOrders(pool,false,[orderId]);
   if(targets.length!==1)throw new SourceError('sync_contract_not_available');
   const rows=(await pool.query(`SELECT e.source_key AS "sourceKey",e.source_id AS "sourceId",e.sales_contract_no AS "salesContractNo",e.delivery_date AS "deliveryDate",
-    s.last_success_at AS "lastSuccessAt",s.last_automatic_attempt_at AS "lastAutomaticAttemptAt",s.last_error_code AS "lastErrorCode",
+    s.last_success_at AS "lastSuccessAt",s.last_automatic_attempt_at AS "lastAutomaticAttemptAt",s.last_error_code AS "lastErrorCode",s.last_diagnostic AS "lastDiagnostic",s.last_attempt_at AS "lastAttemptAt",
     coalesce(c.enabled,false) AND c.paused_reason IS NULL AS enabled,c.policy,c.heartbeat_at AS "workerHeartbeatAt",
-    (SELECT j.status FROM ainuoke_sync_jobs j WHERE j.source_key=e.source_key AND j.source_id=e.source_id ORDER BY j.requested_at DESC LIMIT 1) AS status
+    (SELECT j.status FROM ainuoke_sync_jobs j WHERE j.source_key=e.source_key AND j.source_id=e.source_id ORDER BY j.requested_at DESC,j.attempt_number DESC LIMIT 1) AS status,
+    (SELECT j.available_at FROM ainuoke_sync_jobs j WHERE j.source_key=e.source_key AND j.source_id=e.source_id AND j.status='queued' AND j.retry_of IS NOT NULL LIMIT 1) AS "retryAt"
     FROM ainuoke_catalog_entries e JOIN ainuoke_source_profiles p ON p.source_key=e.source_key AND p.enabled=true
     JOIN sales_order_source_links l ON l.sales_order_id=$1 AND l.external_id=e.source_id AND l.sales_contract_no=e.sales_contract_no
       AND l.source_system='ainuoke' AND l.source_entity_type='sales_contract'

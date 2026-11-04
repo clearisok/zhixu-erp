@@ -48,6 +48,18 @@ test('built catalogue pages, actor-scoped recovery and single-order refresh in C
    x.setMaterialOffset(1800001);await navigate('/order-center/server-detail?id='+x.orderIds[0]);await has('这不表示没有采购');
    assert.equal(await evaluate("document.querySelector('.oc-server-detail-material-summary .sp-server-summary')===null"),true);x.setMaterialOffset(0);
   });
+  await t.test('temporary failure shows deferred retry and manual acceleration without duplicate jobs',async()=>{
+   await navigate('/order-center');await click('全部合同 / 历史查阅');await has('已有成功资料');
+   const row="[...document.querySelectorAll('tr')].find(r=>r.innerText.includes('SYN-SALES-2'))";
+   const before=x.captures();x.failNextCapture();await click('刷新来源',row);await has('等待同步');await x.tick();await has('等待重试');await has('立即重试');
+   await navigate('/order-center');await click('全部合同 / 历史查阅');await has('来源响应超时');await has('其中待重试 1 张');await has('立即重试');
+   await click('立即重试',row);await has('等待重试');
+   const deadline=Date.now()+5000;let ready=false;
+   while(Date.now()<deadline){ready=(await x.pool.query("SELECT available_at<=now() AS ready FROM ainuoke_sync_jobs WHERE source_id='2' AND status='queued'")).rows[0]?.ready===true;if(ready)break;await new Promise(r=>setTimeout(r,50));}
+   assert.equal(ready,true,'manual promotion committed before the worker wakes');
+   assert.equal(Number((await x.pool.query("SELECT count(*) n FROM ainuoke_sync_jobs WHERE source_id='2' AND status='queued'")).rows[0].n),1);
+   const retried=await x.tick();assert.equal(retried.jobs.length,1);await until(row+"?.innerText.includes('同步成功')",'retry completed');assert.equal(x.captures(),before+2);
+  });
   await t.test('readonly role cannot refresh or adopt; mobile drawer fits and closes',async()=>{
    await login(x.reader);await navigate('/order-center');await click('全部合同 / 历史查阅');await has('艾诺科合同目录');await has('SYN-SALES-3');
    assert.equal(await evaluate("[...document.querySelectorAll('button')].some(n=>n.textContent.trim()==='刷新来源')"),false);
