@@ -1,3 +1,5 @@
+E4最新：固定5单两时点全过（7登录212报表，0失败），原sample进程已结束。应用镜像42e18da526ec82bcefc2cdba7531c05595274b4a84c5fbc0a9121604bffa749b离线构建通过、未启动或部署。准备coverage action：全新副本仅补原508，保留100旧成功；150登录/12000报表/60分钟，连续3公共失败停。不要重跑sample或旧campaign；新scope见任务E4，后继coverage-review/progress.json为最新。下文sample正在运行已成为历史时点。
+
 # 接力：新恢复候选，固定样本正在分时验证
 
 2026-11-04，分支feat/ainuoke-full-catalog-followup；main本轮API重新核实cb5cc29baa49ed7115fdb6c9506b6a80356936ea。E1 a3f07bfe共享存储，E2候选1c93fe4e0e74d3948a6cfb6d4267c70e70938504。先读[任务](tasks/active/ainuoke-sync-resilience-2026-11-04.md)、D180、来源feature与CURRENT_STATE。[输入接力全文](tasks/completed/2026-11-04-before-sync-resilience/AI_HANDOFF.md)保留老测量和所有失败，不能把旧“已结束”或未刷新main当作本段当前状态。

@@ -1,0 +1,47 @@
+{
+  "source": "1c93fe4e0e74d3948a6cfb6d4267c70e70938504",
+  "startedAt": "2026-11-04T10:26:05.395Z",
+  "stage": "wave_2",
+  "sourceLogins": 7,
+  "sourceReports": 212,
+  "captures": 7,
+  "networkRetries": 0,
+  "waves": [
+    {
+      "wave": 1,
+      "startedAt": "2026-11-04T10:26:09.625Z",
+      "finishedAt": "2026-11-04T10:26:32.777Z",
+      "complete": true,
+      "contracts": 5
+    },
+    {
+      "wave": 2,
+      "startedAt": "2026-11-04T10:36:32.871Z",
+      "finishedAt": "2026-11-04T10:37:09.537Z",
+      "complete": true,
+      "contracts": 5
+    }
+  ],
+  "maximumLogins": 29,
+  "maximumReports": 2200,
+  "maximumMs": 2400000,
+  "lastCapture": {
+    "index": 6,
+    "mode": "catalog-contracts",
+    "result": "complete",
+    "failures": []
+  },
+  "excludedQueueEntries": 603,
+  "lastTick": {
+    "status": "processed",
+    "jobs": 1
+  },
+  "pending": 0,
+  "nextWaveAt": "2026-11-04T10:36:32.777Z",
+  "state": "FIXED_SAMPLE_STABLE",
+  "finishedAt": "2026-11-04T10:37:09.538Z",
+  "elapsedMs": 664143,
+  "sourceRequests": 212,
+  "productionWrites": 0,
+  "onlyIsolatedDatabase": true
+}

@@ -1,0 +1,14 @@
+{
+  "candidate": "1c93fe4e0e74d3948a6cfb6d4267c70e70938504",
+  "scope": "original 608 account-visible contracts, in a new clone of the preserved partial-full test database",
+  "originalSuccessesPreserved": 100,
+  "remainingContracts": 508,
+  "maximumLogins": 150,
+  "maximumReportRequests": 12000,
+  "maximumDurationMs": 3600000,
+  "maximumConsecutiveCaptureFailures": 3,
+  "perCapture": {"maximumLogins": 1, "maximumReports": 80, "maximumMs": 180000, "networkRetries": 0},
+  "retryPolicy": {"maximumAttempts": 3, "backoffMs": [60000,300000]},
+  "productionWrites": 0,
+  "forbidden": ["recollect original 100 successful details", "create formal orders", "payment 6086941", "garment 6086979", "deploy or activate a persistent service before gates pass"]
+}
