@@ -72,7 +72,7 @@ async function publishContract(pool:Pool,identity:Identity,config:CollectorConfi
     await c.query('COMMIT');return result;
   }catch(e){await c.query('ROLLBACK').catch(()=>undefined);throw e;}finally{c.release();}
 }
-async function failJob(pool:Pool,job:SyncJob,code:string,unknown=false,options:{diagnostics?:RequestDiagnostic[]|null;retry?:boolean;now?:number}={}) {
+async function failJob(pool:Pool,job:SyncJob,code:string,unknown=false,options:{diagnostics?:RequestDiagnostic[]|null;retry?:boolean;pauseCapture?:boolean;now?:number}={}) {
   const c=await pool.connect();try {
     await c.query('BEGIN');
     await c.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',['ainuoke-sync-queue:'+job.source_key]);
@@ -88,7 +88,7 @@ async function failJob(pool:Pool,job:SyncJob,code:string,unknown=false,options:{
     const targets=(await boundOrders(c)).filter(o=>o.salesContractNo===job.sales_contract_no);
     for(const target of targets)await c.query(`INSERT INTO ainuoke_material_order_heads(source_key,sales_order_id,last_error_code) VALUES($1,$2,$3)
       ON CONFLICT(source_key,sales_order_id) DO UPDATE SET last_error_code=excluded.last_error_code,last_attempt_at=now()`,[job.source_key,target.id,code]);
-    if(unknown||['invalid_credential','auth_expired','source_account_mismatch'].includes(code))await c.query('UPDATE ainuoke_sync_controls SET paused_reason=$2 WHERE source_key=$1',[job.source_key,code]);
+    if(unknown||options.pauseCapture||['invalid_credential','auth_expired','source_account_mismatch'].includes(code))await c.query('UPDATE ainuoke_sync_controls SET paused_reason=$2 WHERE source_key=$1',[job.source_key,code]);
     let retry:null|{jobId:string;at:string;attempt:number}=null;
     const delay=retryDelayMs(job.attempt_number);
     if(!unknown&&options.retry&&delay!==null){
@@ -171,7 +171,10 @@ export async function runSyncTick(pool:Pool,identity:Identity,raw:CollectorConfi
       const code=e instanceof SourceError?e.code:'source_capture_failed';
       await finishCaptureAttempt(pool,attemptId,code,diagnostics,metrics,now());
       const results=[];
-      for(const job of jobs)results.push({id:job.id,...await failJob(pool,job,code,false,{diagnostics,retry:retryableCapture(code,diagnostics),now:now()})});
+      const retry=retryableCapture(code,diagnostics);
+      // Refusing a retry child is insufficient: the next tick could claim a new
+      // contract or a new scheduled slot. Unsafe captures require explicit recovery.
+      for(const job of jobs)results.push({id:job.id,...await failJob(pool,job,code,false,{diagnostics,retry,pauseCapture:!retry,now:now()})});
       return {status:'failed' as const,retryScheduled:results.some(r=>r.retry),jobs:results};
     }
     await finishCaptureAttempt(pool,attemptId,null,diagnostics,metrics,now());

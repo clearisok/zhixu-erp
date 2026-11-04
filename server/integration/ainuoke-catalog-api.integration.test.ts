@@ -28,6 +28,18 @@ test('catalogue HTTP authentication, source permissions, CSRF and replay boundar
    const done=await(await request(path+'/sync/'+input.requestId)).json();assert.equal(done.status,'complete');assert.equal(x.captures(),calls+1);
    assert.equal((await request(path+'/sync-order',reader,{orderId:x.orderIds[0],requestId:randomUUID()})).status,403);
   });
+  await t.test('malformed receipt and intake identifiers are client errors without writes',async()=>{
+   const row=(await(await request(path)).json()).rows[0],calls=x.captures();
+   const before=(await x.pool.query('SELECT count(*) n FROM ainuoke_catalog_intake_receipts')).rows[0].n;
+   for(const id of ['-'.repeat(36),'f'.repeat(36)]){
+    for(const kind of ['intake','receipts','sync'])assert.equal((await request(path+'/'+kind+'/'+id)).status,400);
+    const input={sourceKey:x.sourceKey,sourceId:row.sourceId,requestId:randomUUID(),observationId:randomUUID(),expectedPreview:'0'.repeat(64)};
+    assert.equal((await request(path+'/intake',admin,{...input,requestId:id})).status,400);
+    assert.equal((await request(path+'/intake',admin,{...input,observationId:id})).status,400);
+   }
+   assert.equal((await x.pool.query('SELECT count(*) n FROM ainuoke_catalog_intake_receipts')).rows[0].n,before);
+   assert.equal(x.captures(),calls);
+  });
   assert.deepEqual(x.errors,[]);
  }finally{await x.close();}
 });

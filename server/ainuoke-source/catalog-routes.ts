@@ -7,7 +7,7 @@ import { sendJson } from '../http/responses.js';
 import { readCatalog } from './catalog.js';
 import { setFollowup } from './followup.js';
 import { sourceActor } from './service.js';
-import { SourceError } from './contract.js';
+import { SourceError, sourceUuidValid } from './contract.js';
 import { requestContractSync, readSyncRequest, resolveOrderSync } from './sync-queue.js';
 import { readCatalogDetail, previewCatalogIntake, adoptCatalogContract } from './catalog-detail.js';
 
@@ -36,8 +36,9 @@ export async function routeSourceCatalog(request:IncomingMessage,response:Server
    if(Object.keys(body).sort().join(',')!=='expectedPreview,observationId,requestId,sourceId,sourceKey')throw new SourceError('catalog_intake_invalid');
    sendJson(response,200,await adoptCatalogContract(dependencies.pool,actor,body as Parameters<typeof adoptCatalogContract>[2]));return true;
   }
-  const intakeReceipt=/^\/api\/v1\/ainuoke\/catalog\/intake\/([a-f0-9-]{36})$/i.exec(u.pathname);
+  const intakeReceipt=/^\/api\/v1\/ainuoke\/catalog\/intake\/([^/]+)$/i.exec(u.pathname);
   if(intakeReceipt&&request.method==='GET'&&!u.search){
+   if(!sourceUuidValid(intakeReceipt[1]))throw new SourceError('catalog_intake_invalid');
    await sourceActor(dependencies.pool,actor,false,false);
    const row=(await dependencies.pool.query('SELECT result FROM ainuoke_catalog_intake_receipts WHERE actor_id=$1 AND request_id=$2',[actor.internalUserId,intakeReceipt[1]])).rows[0];
    sendJson(response,200,{status:row?'complete':'not_found',result:row?.result??null});return true;
@@ -62,12 +63,14 @@ export async function routeSourceCatalog(request:IncomingMessage,response:Server
    if([...u.searchParams.keys()].join(',')!=='orderId')throw new SourceError('sync_order_invalid');
    sendJson(response,200,await resolveOrderSync(dependencies.pool,actor,u.searchParams.get('orderId')!));return true;
   }
-  const syncReceipt=/^\/api\/v1\/ainuoke\/catalog\/sync\/([a-f0-9-]{36})$/i.exec(u.pathname);
+  const syncReceipt=/^\/api\/v1\/ainuoke\/catalog\/sync\/([^/]+)$/i.exec(u.pathname);
   if(syncReceipt&&request.method==='GET'&&!u.search){
+   if(!sourceUuidValid(syncReceipt[1]))throw new SourceError('sync_request_invalid');
    sendJson(response,200,await readSyncRequest(dependencies.pool,actor,syncReceipt[1]));return true;
   }
-  const receipt=/^\/api\/v1\/ainuoke\/catalog\/receipts\/([a-f0-9-]{36})$/i.exec(u.pathname);
+  const receipt=/^\/api\/v1\/ainuoke\/catalog\/receipts\/([^/]+)$/i.exec(u.pathname);
   if(receipt&&request.method==='GET'&&!u.search){
+   if(!sourceUuidValid(receipt[1]))throw new SourceError('followup_invalid');
    await sourceActor(dependencies.pool,actor,false);
    const row=(await dependencies.pool.query('SELECT result FROM ainuoke_followup_receipts WHERE actor_user_id=$1 AND request_id=$2',[actor.internalUserId,receipt[1]])).rows[0];
    sendJson(response,200,{status:row?'complete':'not_found',result:row?.result??null});return true;

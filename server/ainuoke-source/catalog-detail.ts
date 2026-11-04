@@ -3,7 +3,7 @@ import type { TrustedIdentity } from '../auth/session.js';
 import { requirePermission } from '../auth/permissions.js';
 import { sourceActor } from './service.js';
 import { addOrders, previewAdditions, readBoundIdentities } from './additions.js';
-import { hash, SourceError, sourceKeyValid } from './contract.js';
+import { hash, SourceError, sourceKeyValid, sourceUuidValid } from './contract.js';
 import { projectMaterialProgress } from '../../features/ainuoke-material-progress/projection.js';
 import { adaptAinuokeGarmentColorSizeSnapshots } from '../../features/ainuoke-sync/source/ainuoke-garment-color-size-adapter.js';
 import { adaptAinuokeOrderDiscoverySnapshots } from '../../features/ainuoke-api/source/ainuoke-order-discovery-adapter.js';
@@ -50,8 +50,8 @@ export async function previewCatalogIntake(pool:Pool,identity:Identity,scope:Sco
   effects:['建立正式订单','保留报价来源待维护','按合同交期初始化默认交期与关账月份归属']};
 }
 export async function adoptCatalogContract(pool:Pool,identity:Identity,input:Scope&{observationId:string;expectedPreview:string;requestId:string}){
+ if(!sourceUuidValid(input.requestId)||!sourceUuidValid(input.observationId)||typeof input.expectedPreview!=='string'||!/^[a-f0-9]{64}$/i.test(input.expectedPreview))throw new SourceError('catalog_intake_invalid');
  const {row}=await observation(pool,identity,input);
- if(!/^[a-f0-9-]{36}$/i.test(input.requestId)||!/^[a-f0-9-]{36}$/i.test(input.observationId)||!/^[a-f0-9]{64}$/i.test(input.expectedPreview))throw new SourceError('catalog_intake_invalid');
  // Existing immutable observation can service a receipt replay even if a later
  // capture moved the pointer; addOrders checks the saved request before TTL.
  const saved=(await pool.query('SELECT source_key,evidence,content_hash,capture_evidence_id::text FROM ainuoke_contract_observations WHERE id=$1 AND source_key=$2 AND source_id=$3',[input.observationId,input.sourceKey,input.sourceId])).rows[0];

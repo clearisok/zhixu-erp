@@ -114,19 +114,24 @@ test('catalogue is not a business ledger; active groups publish and fail indepen
    for(const target of targets){const view=await createOrderMaterialReader(createPersistedMaterialPorts(pool,{sourceKey,maxAgeMs:600000}))(actor,{salesOrderId:target.id});assert.equal(view.status,200);if(view.status===200)assert.equal(view.body.progress.sourceStatus,'ready');}
    assert.equal((await enqueueAutomaticSync(pool,actor,sourceKey)).queued,0);
   });
-  await t.test('failed request retains last success and next manual attempt bypasses automatic interval',async()=>{
+  await t.test('unclassified capture failure retains success and requires reviewed recovery before a new manual attempt',async()=>{
    const entry=(await readCatalog(pool,actor,{search:'SYN-SALES-3',scope:'all',offset:0,limit:50})).rows[0],success=entry.lastSuccessAt;
    const input={sourceKey,sourceId:entry.sourceId,requestId:randomUUID()};await requestContractSync(pool,actor,input);
    const result=await runSyncTick(pool,actor,selectedConfig,{automatic:false,collect:async()=>{throw new Error('synthetic failure');}});
    assert.equal(result.status,'failed');assert.equal((await readSyncRequest(pool,actor,input.requestId)).status,'failed');
    const after=(await readCatalog(pool,actor,{search:'SYN-SALES-3',scope:'all',offset:0,limit:50})).rows[0];
    assert.deepEqual(after.lastSuccessAt,success);assert.equal(after.lastErrorCode,'source_capture_failed');
+   await assert.rejects(requestContractSync(pool,actor,{...input,requestId:randomUUID()}),/sync_worker_paused/);
+   const review=await recoverSync(pool,actor,sourceKey);
+   await recoverSync(pool,actor,sourceKey,{expectedHash:review.reviewHash,reason:'合成未知采集错误已核对'});
    assert.equal((await requestContractSync(pool,actor,{...input,requestId:randomUUID()})).replayed,false);
   });
   await t.test('catalogue request replay never reuses its upstream allowance, including a failed attempt',async()=>{
    const id=randomUUID();let upstream=0;
    await assert.rejects(captureCatalogOnce(pool,actor,selectedConfig,id,async()=>{upstream++;throw new SourceError('source_unavailable');}));
    assert.equal((await captureCatalogOnce(pool,actor,selectedConfig,id,async()=>{upstream++;return null;})).replayed,true);assert.equal(upstream,1);
+   const review=await recoverSync(pool,actor,sourceKey);
+   await recoverSync(pool,actor,sourceKey,{expectedHash:review.reviewHash,reason:'合成目录错误已核对；不复用旧请求'});
    const success=await captureCatalogOnce(pool,actor,selectedConfig,randomUUID(),async()=>selectedWorkerFixture('catalog-discovery','',[]));assert.equal(success.status,'complete');
    await assert.rejects(pool.query("UPDATE ainuoke_catalog_requests SET result='{}' WHERE source_key=$1 AND request_id=$2",[sourceKey,id]),/immutable/);
   });

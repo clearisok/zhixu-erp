@@ -8,7 +8,7 @@ import { validateSelectedSourceOnce, type SelectedSourceRequest } from './select
 import { publishCatalog } from './catalog.js';
 import { SourceError } from './contract.js';
 import { randomUUID } from 'node:crypto';
-import { collectCatalogDiagnostic, validateCatalogDiagnostic, finishCaptureAttempt, type RequestDiagnostic } from './sync-diagnostics.js';
+import { collectCatalogDiagnostic, validateCatalogDiagnostic, finishCaptureAttempt, retryableCapture, type RequestDiagnostic } from './sync-diagnostics.js';
 type Identity=Pick<TrustedIdentity,'internalUserId'|'userId'>;
 export async function readCatalogCaptureReceipt(pool:Pool,identity:Identity,sourceKey:string,requestId:string){
  const actor=await sourceActor(pool,identity,true);
@@ -68,7 +68,9 @@ async function captureUnderLease(pool:Pool,identity:Identity,raw:CollectorConfig
   const code=e instanceof SourceError?e.code:'catalog_result_unknown';
   if(diagnosticId)await finishCaptureAttempt(pool,diagnosticId,code,diagnostics,metrics,Date.now());
   await pool.query('UPDATE ainuoke_catalog_requests SET status=$3,result=$4::jsonb,finished_at=now() WHERE source_key=$1 AND request_id=$2',[config.sourceKey,requestId,e instanceof SourceError?'failed':'unknown',JSON.stringify({code})]).catch(()=>undefined);
-  if(!(e instanceof SourceError)||['invalid_credential','auth_expired','source_account_mismatch'].includes(code))await pool.query('UPDATE ainuoke_sync_controls SET paused_reason=$2 WHERE source_key=$1',[config.sourceKey,code]).catch(()=>undefined);
+  // Only proven transient failures can be scheduled again. Certificate, scope,
+  // permission, pagination and unknown failures must also stop future ticks.
+  if(!retryableCapture(code,diagnostics))await pool.query('UPDATE ainuoke_sync_controls SET paused_reason=$2 WHERE source_key=$1',[config.sourceKey,code]).catch(()=>undefined);
   throw e;
  }
 }

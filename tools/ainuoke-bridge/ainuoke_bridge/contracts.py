@@ -283,7 +283,8 @@ def sanitized_source_error(code: str) -> dict[str, str]:
     allowed = {
         "network_timeout": "艾诺科连接超时",
         "network_unavailable": "艾诺科暂时不可访问",
-        "invalid_credential": "艾诺科账号或密码无效",
+        # loginsys2 uses isOk=false for every refusal, not only a bad password.
+        "invalid_credential": "艾诺科登录未获接受，请核对登录限制或账号状态",
         "auth_expired": "艾诺科登录已失效",
         "upstream_schema_error": "艾诺科报表响应格式无法识别",
         "unknown_report": "不支持该报表",

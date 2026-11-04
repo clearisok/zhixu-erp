@@ -1,23 +1,33 @@
-# 接力：PR140首次CI结束，测试兼容修复未上传
+# 接力：全项目复审完成，本地修复待精确交付
 
-2026-11-04；feat/ainuoke-full-catalog-followup。本轮输入32100b27d3b14dcbfef5ce6a83ace6c3d4ce5836、干净工作树；main API再次精确cb5cc29baa49ed7115fdb6c9506b6a80356936ea。先读[状态](CURRENT_STATE.md)和[本轮任务](tasks/active/pr140-ci-and-staging-status-2026-11-04.md)。前文原样归档至[输入接力](tasks/completed/2026-11-04-before-pr140-ci-fix/AI_HANDOFF.md)。
+2026-11-04。实际仓库为 C:/Users/Administrator/.codex/worktrees/ainuoke-full-catalog-followup/zhixu-ainuoke-api，branch feat/ainuoke-full-catalog-followup。传入的7bf3旧目录已不是有效仓库入口，不在那里实施。输入为干净00baeb6c38a879106666c8cef65cb6662f37769c；本轮main API核实cb5cc29baa49ed7115fdb6c9506b6a80356936ea。先读[当前状态](CURRENT_STATE.md)和[完整审计](tasks/active/project-audit-2026-11-04.md)。[原接力](tasks/completed/2026-11-04-before-project-audit/AI_HANDOFF.md)原样保留。
 
-## GitHub与本地修复
+## 本轮完成
 
-远端head32100b27已精确核实。此前Git旧代理17989无监听，进程级直连成功；一次push送达但退出1/STOP_AUTH_OR_DIVERGENCE，原文未留，不能假报已解释异常。用户后续明确批准只创建草稿PR并检查CI，已执行为唯一[140](https://github.com/clearisok/zhixu-erp/pull/140)，无冲突、保持draft；不自动追加Git写入、更换认证、合并或部署。
+- 审查认证/角色、报价CCT/商业版本、加工、来源目录/worker/读取、生产归属、关账冻结、导航及CI/迁移；没有宣称逐行覆盖全仓或重新运行全部历史验收。
+- sync-worker.ts与catalog-capture.ts对不能证明暂时性故障的capture统一持久暂停。旧CLI本已停止，但数据库未统一paused；本次防止新tick/队列绕过暂停。不改变临时故障三次上限、旧成功指针或单合同部分成功规则。
+- 目录接纳/回执UUID在数据库前完整验证，畸形36字符返回400；登录拒绝提示改为中性描述，认证协议/错误码保持，不宣称故障解决。
+- 校准报价/生产/关账当前入口，来源feature与D180补工程修复事实；无UI、SQL、依赖、业务规则或工作流改动。
+- 新暂停测试已加入test:ainuoke-catalog。先红灯复现；最终目录49通过，共享source20通过/1Linux跳过，Python10+11+12+9=42通过，类型/Server编译/8路径lint通过。首次测试/类型失败均已修复，日志保留于outputs/project-audit-20261104。182项发布守卫回归复用未变脚本既有PASS；最终checkpoint后另执行精确源码守卫，结果以最终回执/报告为准。不称完整浏览器、全部模块或新远端CI通过。
 
-首次CI Release baseline 41843109476、First team access 41843109177成功；Ainuoke source 41843109164/job126619587024失败，旧到仓升级快照新增catalog_run_id:null、旧模拟仅改profile错误而绕过逐订单head。后继只修测试：冻结升级前实际列，新增负向控制证明原值/增删行/原列丢失仍检出；迁移文件精确清单、新owner空表及目录指针NULL断言保留。失败测试走合成capture真实失败并保护原成功run。无生产代码/迁移变化。
+## 远端与授权
 
-本地第一次2文件23项通过；共享列冻结后7文件18项通过，二者重叠3项、不相加。最终类型/9路径lint通过；最终提交后另做精确源码守卫。未重跑已成功182发布回归或3项远端CI，业务构建/浏览器/Python均复用未变代码证据。后继本地commit以实际git HEAD/最终报告为准，远端与CI仍32100b27，不能混为通过。
+唯一[PR140](https://github.com/clearisok/zhixu-erp/pull/140)仍draft、head32100b27d3b14dcbfef5ce6a83ace6c3d4ce5836。首轮Release baseline41843109476、First team access41843109177成功；Ainuoke source41843109164失败、后续步骤未跑。00ba中的升级/到仓测试兼容修复和本轮增量均未上传；无第二次push/CI/合并/部署。
 
-## 实际订单与来源边界
+上次Git虽精确送达32100但退出1/STOP_AUTH_OR_DIVERGENCE，原因未解释；用户明确批准的例外仅创建草稿PR/首次CI，已完成。对00ba的单次上传询问未获答复，用户转为本次全面审计；本次不是对新HEAD写入异常的具体例外。普通网络恢复常设授权不取消该STOP。不得擅自恢复Git写入或更换认证；集中修复后按精确候选获取所需具体范围，避免重复小推送/CI。旧代理17989无监听、进程直连可读不是可靠上传证明；不更改全局/共享Git配置。
 
-本次staging公网build-info为f21c96c1899126028ba9a272727ad8d564ccf185；Ningbo project zhixu-quote-trial-staging-562fbf07只读核对3 SO/2 quote/121 public tables，0业务写入、0来源请求、无服务启停。新能力未部署。当前账号可见608目录；550成功仅在隔离覆盖库，5失败53排队，不是550正式订单。
+## 真实来源、staging及资产
 
-固定恢复call_66ecaab已在20:19:55、1登录0报表/276ms/isOk=false停止并关闭，不可用余量29再次登录。私密review-v2及approval-closed、scope5d87、helper f60c、原550完整proof4d2058cb等见原接力/任务。owned容器/恢复库已停、卷和历史保留；本轮未改变它们、旧worker或备份。
+本轮0真实艾诺科请求、0真实账号/业务库写入、0服务启停。复用同日已核验staging f21c96c1899126028ba9a272727ad8d564ccf185 / 3SO / 2quote / 121表；没有再次查真实库。账号可见608目录，550成功/5失败/53排队在隔离覆盖库，不是550正式SO。自动链只含合同/颜色尺码/物料；成衣出货和货款仍独立。原库/卷/备份/550成功证明保留，新137表备份重新绑定及配对/异机恢复未完成。
 
-两端凭据此前私密临时HMAC比对完全相同，禁止打印原文件、用户名、密码、令牌或派生值。用户本次自行在IAB原登录页成功登录，已通过DOM只读确认首页/我的应用及无登录按钮；没有由采集器重登。拒绝原文没有保留；invalid_credential覆盖全部isOk=false，不能认定密码错误或猜测会话/IP根因。Chrome旧policy错误与这次IAB成功分别记录，不清cookie或改变isCoverLogin。
+固定登录恢复call_66ecaab在1登录0报表/276ms/isOk=false后已停止关闭，不可复用余量。用户后续网页登录成功，两端凭据此前私密比对一致；拒绝原文未保存，不能归因密码/会话/IP。严禁打印私密文件/密码/令牌/派生值或自动登录；新诊断/采集须固定范围。原scope、helper、owned库与回执见输入接力和[登录恢复任务](tasks/active/ainuoke-login-recovery-2026-11-04.md)。
 
-## 下一步
+## 下一阶段
 
-有界交付本地兼容修复前须遵守Git STOP范围；现有例外只完成PR元数据/首次CI，不默许新push。登录诊断先准备可靠安全原因提取；新真实登录/采集、绑定/激活/持续调度需新具体许可。部署另需批准、137表备份重新绑定及配对/异机恢复，不重建长期库。没有完成608覆盖、PR全绿或staging升级。
+1. 单一候选精确交付与PR140三项必要CI，明确源码/镜像/部署差异，不自动merge。
+2. 安全诊断解释登录拒绝，在新固定范围内只补58张，保留550。
+3. 高频247连续容量及低频重合、手动刷新/积压验证；单轮10分18.801秒不等于持续SLA。
+4. 137表配对/异机恢复通过后申请长期试用站升级与worker替换，不清库重建。
+5. 同版本完成代表性经销/加工/多色/外发业务链人工验收，出货与货款扩围另列范围。
+
+最终本地提交以当前git HEAD及最终回复为准。已完成检查无新差异不反复重跑；未做的验收不得冒称通过。本轮未启用子代理或新增目标模式。
