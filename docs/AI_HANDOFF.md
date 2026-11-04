@@ -1,11 +1,15 @@
-# 接力：全量合同目录与交期分档同步（本地验收完成）
+# 接力：宁波准备完成部分，真实详情来源失败待定位
 
-2026-11-02；分支`feat/ainuoke-full-catalog-followup`，工作树`ainuoke-full-catalog-followup`。代码检查点`b8401fc3b85384925536d24fe0546a491f0cd8a9`；main已只读核实`cb5cc29baa49ed7115fdb6c9506b6a80356936ea`。前向保留已部署侧栏`274d6f3c2f216fb80f937f5575e761d3e70162f7`历史，未回退其他工作。阶段A/B/C检查点、失败及修复证据见[当前任务](tasks/active/ainuoke-full-catalog-followup-2026-11-02.md)，[此前接力](tasks/completed/2026-11-02-full-catalog-checkpoints/AI_HANDOFF-before-final.md)已归档。
+2026-11-04；分支feat/ainuoke-full-catalog-followup，产品候选bae837a152cb223039afc94fa06c571b3ee8328e。本轮仅备份、独立恢复/前向升级、候选镜像构建/私网启动和有界容量实测；没有正式切换、main合并或真实账号修改。先读[本轮报告](tasks/active/ningbo-catalog-capacity-2026-11-04.md)；[此前接力](tasks/completed/2026-11-04-before-ningbo-capacity/AI_HANDOFF.md)保留本地工程与失败/修复证据。GitHub单次交付失败后未重推，无PR/新CI，不复跑成功的工程测试。
 
-新目录/API18、日期7、非空升级1、兼容85、最终Chromium6、Python23、列表兼容8及发布基线182均有通过记录；类型/lint/Server和前端构建通过。完整项目初轮833通过，另外旧断言失败及主动中断基线均已分别补验，不重跑整套或冒称原命令通过。发布守卫通过12页面/68能力/10UI路径；最终文档提交后执行精确HEAD守卫，结果保存在ignored `outputs/catalog-validation/guard-exact-head.log`。没有独立审查agent声明，日志目录/截图来源详见任务。
+正式宁波f21c96c1、镜像0bc513c4、51迁移、3SO/2报价/2附件。旧worker从11月2日12:14北京时间暂停，已只读查明discovery_changed；最后成功12:08:09/run0d04e2fe，累计190成功。旧cron仍在、状态保持PAUSED，不擅改状态重启。
 
-缺交期或无效交期按30分钟并标注待核对；按北京时间日历月自动分档，手动刷新独立优先。合同目录不隐式生成SO，历史资料使用自身冻结身份。0053/0054升级默认关闭新采集；货款6086941/成衣出货6086979不扩范围。用户规则见D179，不恢复“历史停止同步”。
+备份20261104T075135Z-7898850c宁波及D:/WeaveOps-Backups/ningbo-trial异机验证通过，121表/2对象；恢复到独立weaveops-catalog-capacity-20261104项目，121表逐一匹配，0053/0054仅副本应用。测试容器已停止，卷、镜像、回执保留。正式库、旧3000/3002及原资产不变。
 
-REMOTE DELIVERY PENDING：未推送/建PR/触发CI，继承NETWORK_DEGRADED，不重复撞通道。下一步按既有工具单次安全交付、独立核对完整SHA和唯一PR，安排必要CI；不自动合并。无新真实Source请求、Ningbo读写或新服务启用。宁波仍为`f21c96c1899126028ba9a272727ad8d564ccf185`，长期报价/订单/附件/账号/备份及原3合同worker均保留；本轮未重新探测。
+候选精确3422 Git blob。Windows git archive换行改变48旧迁移被拒，已用cat-file原字节修正；没有改旧迁移或账本。操作者镜像a4e975add946，应用最终镜像sha256:6081a3de95a2ad1ef0578605ec334db1877a7421a09ecb6d028c1cebf9b978bf。health/build-info 200来自d01ca882；最终仅改created标签，RootFS列表完全一致、七项发布身份一致。附件IO禁用，不冒称完整附件运行验收；未部署正式栈。
 
-后续候选镜像和宁波受控升级须按[任务运行清单](tasks/active/ainuoke-full-catalog-followup-2026-11-02.md)：固定版本、备份恢复、停旧worker、升级默认disabled、一次全目录容量核验、原3合同小组验证再替换调度。新旧worker不可并跑；30分钟全量覆盖尚无实测证明。保留未知结果恢复、安静备份窗口和旧资产，不以重试或自动重启掩盖失败。
+目录608：247高频/120每日/191每周/50每月。首个目录包装回调错误已纠正且保留失败，第二轮完整目录4.348秒；第一组5单29报表/22.677秒后source_unavailable，成功0/失败5/排队603。来源错误后停止，不能报告30分钟吞吐通过或超时不足。两轮总3登录/81报表/84HTTP/0网络重试。副本同步控制已关闭，603测试任务不可迁入正式库。不重复执行manage.py capacity，也不能用同一失败回执当新额度；下一真实诊断须固定范围和剩余额度。
+
+本机ignored outputs/ningbo-catalog-preparation-20261104/final-review.json、app-image-final-result.json及ops脚本；宁波同名/home/jackson目录仅本人可读。原始来源只在私密review目录，不输出。计时包装v2通过只读bind使用，正式产品源码仍为bae837a1。下一步补安全报表ID/页码/耗时/错误类别诊断，明确失败环节，再分别测全量首轮与247高频稳态；保持串行及每批预算，禁止靠并发/重试掩盖问题。正式服务替换与备份安静窗口协调尚未安装或验收。
+
+曾误输出来源配置敏感字段，已向用户说明，后续输出均白名单；不在Git/报告保存其值，建议轮换密码，未自行修改。所有后续命令不得直接cat/打印collector.json、完整Docker环境或秘密配置。
