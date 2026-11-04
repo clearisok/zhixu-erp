@@ -1,19 +1,21 @@
-E5最新停止点：coverage进程69589已结束，550成功/5登录拒绝/53排队；96登录3472报表、0未知，最后仅1登录0报表299ms。按SDK可知data.isOk=false，原因不能细分；已向用户询问网页登录情况，禁止再真实登录/刷新或自动解除暂停。原100指针和规范化成功时间独立只读比对全一致，控制disabled+invalid_credential。新私密事件把显式登录拒绝标auth_error（正常协议不变），Windows171过；主机监管5测试过，尚未安装启用。应用42首次runtime失败EACCES（COPY700/600配合cap-drop导致），需源码只读权限重建；旧容器日志保留。下一步只做离线新候选/禁用态监管烟测、交付收口，不再Ainuoke读取。
+# 接力：自主改进已验收，来源认证暂停
 
-E4最新：固定5单两时点全过（7登录212报表，0失败），原sample进程已结束。应用镜像42e18da526ec82bcefc2cdba7531c05595274b4a84c5fbc0a9121604bffa749b离线构建通过、未启动或部署。准备coverage action：全新副本仅补原508，保留100旧成功；150登录/12000报表/60分钟，连续3公共失败停。不要重跑sample或旧campaign；新scope见任务E4，后继coverage-review/progress.json为最新。下文sample正在运行已成为历史时点。
+2026-11-04；feat/ainuoke-full-catalog-followup。main本轮API重新核实cb5cc29baa49ed7115fdb6c9506b6a80356936ea；业务/运行候选fadf834b233736857f9e1e4babb524ebab677dde，后继仅收口文档与白名单证据。先读[当前状态](CURRENT_STATE.md)、[任务](tasks/active/ainuoke-sync-resilience-2026-11-04.md)、D180及[监管契约](ops/ainuoke-catalog-sync-supervisor.md)。[收口前完整接力](tasks/completed/2026-11-04-before-resilience-closeout/AI_HANDOFF.md)保存旧运行中时点，不据其重启任何任务。
 
-# 接力：新恢复候选，固定样本正在分时验证
+## 已停止，无进程待续
 
-2026-11-04，分支feat/ainuoke-full-catalog-followup；main本轮API重新核实cb5cc29baa49ed7115fdb6c9506b6a80356936ea。E1 a3f07bfe共享存储，E2候选1c93fe4e0e74d3948a6cfb6d4267c70e70938504。先读[任务](tasks/active/ainuoke-sync-resilience-2026-11-04.md)、D180、来源feature与CURRENT_STATE。[输入接力全文](tasks/completed/2026-11-04-before-sync-resilience/AI_HANDOFF.md)保留老测量和所有失败，不能把旧“已结束”或未刷新main当作本段当前状态。
+sample exec93881、coverage exec69589、runtime-v2 build均已完成；不要重跑。覆盖550成功/5invalid_credential/53排队，96登录3472报表/0未知。最后登录data.isOk=false，0报表299ms；没有登录原文，原因不能细分。已询问用户网页登录状态，尚待答复；禁止再次真实登录/查询、自动解除暂停、改isCoverLogin或凭据。用户没有艾诺科日志入口。原100指针和完整时间独立只读比对一致；当前550全部保留。后续只处理剩余58，不能重置成功。
 
-## 正在运行，不要重启
+宁波私密证据/home/jackson/weaveops-sync-resilience-20261104，原文不出私密目录；不要打印collector.json、Docker完整环境、token/原始异常。三类新库在本任务owned PostgreSQL容器内，容器weaveops-catalog-capacity-20261104-database已正常停，卷weaveops-catalog-capacity-20261104-data保留；原旧库不改。所有本任务操作者停止，新控制disabled；旧三合同worker仍PAUSED，正式试用栈/账号/数据/备份策略未动。
 
-exec session93881：仅宁波/home/jackson/weaveops-sync-resilience-20261104/stability-review，progress.json/summary.json/attempts.jsonl/capture-*.json。固定5单私密scope，SHA256=1618bd35d85accdb28e38d69238bf5bcfd5836d16975dc91158ff370d49b1fa9；29登录/2200报表/40分钟最多，单capture0网络重试。第一轮5成功（2登录67报表含目录），第二轮10:36:32.777Z开始；中间10分钟不查询。只读进度即可，勿重复sample动作或旧campaign。原始来源只在受保护目录；绝不cat collector.json/完整环境。旧worker必须保持PAUSED，正式库和账号未改。
+## 已验收，不重复执行
 
-Linux操作者sha256:fffc7640e2c33870a9c164aafd81eeb5dd8645e5d41945552633d417f2987c1f，代码1c93。工具resilience_ops.py（避免operator.py遮蔽标准库），COPY必须--chown=1000:1000；初次封装/冷PG就绪失败均在真实查询前，失败日志保留。storage-review已完成：新独立catalog_storage_resilience_20261104仅探针表，旧247观察/248目录不改；95,395,840B→3,252,224B，96.59%，所有证据精确还原。该数据库不是当前业务或新采集账本。
+共享存储95,395,840→3,252,224B（96.59%）精确重建；固定5单两时点7登录212报表全过。类型/lint/构建与相关SQL/API、最终7Chromium通过，初轮失败及针对性修复记录在任务。连续兼容81中80过/0失败/1平台跳过；Windows/Linux各171Python，监管5过。原182发布回归沿用，守卫实现未变，不为重复证明重跑整仓。
 
-工程：类型/lint、Server/前端构建通过；82初轮80过/旧迁移清单及父2失败，修复后16过；30核心29过/目录smallint1失败，修复后9项全过；7Chromium最终全过（立即重试pending保护已修），1440/390实看。Python未变170历史结果复用。原182发布回归不重复，最终冻结/精确守卫后置。无新push/PR/CI，API main成功不等同Git可靠。
+Linux操作者6756163545332cd57b5b0d68519657f107f7a0d04d24f55da8165287ba675ebd；应用ec79a51842fd31e6c62c6000138c8315f926117d7f20af95f20d41d9255540c7，build server-preview-fadf834b-sync-resilience /2026-11-04T11:20:12.720714Z。私网健康/版本精确一致、55迁移、用户订单报价行不变、0源请求/0公网端口；本次附件I/O明确disabled。首次42镜像EACCES失败保留，新镜像以普通只读源码权限修复，不扩容器权限。Linux监管禁用态tick/backup-check/拒绝activate通过，未创建worker或安装cron。
 
-## 后续顺序
+## 剩余与边界
 
-固定样本全过后，在新的隔离副本中续作608首轮，保留原full库100成功及回执，余503排队+5失败另行新请求，不从零重采。必须先冻结实际集合、预算、单worker/回退及退出条件；未知/认证/证书停止。之后才考虑新应用、服务替换与分档启用；先备份恢复，保留长期报价/用户/附件/卷，03:20–03:50不采集。正式替换依赖精确远端交付/必要CI，不能因镜像构建或一次样本成功就冒称已上线。不自动合并main。
+先完成精确源码守卫/干净提交；Git仍NETWORK_DEGRADED，普通网络恢复已有用户常设授权，但每轮至多一次安全工具、独立核对完整SHA，认证/拒绝/分歧/证书异常仍停止；未核实不建重复PR/不称CI通过。不自动merge或部署。新监管尚未安装/启用。正式宁波仍f21/121表，旧备份策略不能用于新137表版本；将来升级须保留旧策略，重新绑定实际源码/服务/文件并完成配对、异机恢复。
+
+等待用户对网页登录情况的答复；该答复本身不证明采集凭据已好，也不自动授权覆盖在线会话。若需认证STOP例外，先准备一次登录、0报表、不改凭据/不覆盖会话的可审阅固定核验，再明确恢复范围。完整608和持续分档仍未PASS，不能以550的部分覆盖或此前247吞吐单轮代替。

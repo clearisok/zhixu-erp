@@ -1,0 +1,25 @@
+{
+  "state": "ISOLATED_WORK_CLOSED",
+  "source": "fadf834b233736857f9e1e4babb524ebab677dde",
+  "taskOperatorsStopped": true,
+  "controls": [
+    {
+      "database": "catalog_stability_resilience_20261104",
+      "count": 1,
+      "enabled": false,
+      "paused": false
+    },
+    {
+      "database": "catalog_coverage_resilience_20261104",
+      "count": 1,
+      "enabled": false,
+      "paused": true
+    }
+  ],
+  "oldWorker": "PAUSED",
+  "onlyOwnedCloneDatabaseStopped": true,
+  "volumePreserved": true,
+  "sourceRequests": 0,
+  "productionWrites": 0,
+  "deploymentChanged": false
+}

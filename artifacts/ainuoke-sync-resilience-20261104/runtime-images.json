@@ -1,0 +1,12 @@
+{
+  "state": "RUNTIME_CANDIDATES_BUILT",
+  "source": "fadf834b233736857f9e1e4babb524ebab677dde",
+  "operatorImage": "sha256:6756163545332cd57b5b0d68519657f107f7a0d04d24f55da8165287ba675ebd",
+  "applicationImage": "sha256:ec79a51842fd31e6c62c6000138c8315f926117d7f20af95f20d41d9255540c7",
+  "buildId": "server-preview-fadf834b-sync-resilience",
+  "buildTime": "2026-11-04T11:20:12.720714Z",
+  "linuxPythonChecks": 171,
+  "supervisorChecks": 5,
+  "sourceRequests": 0,
+  "newDependenciesInstalled": false
+}

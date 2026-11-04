@@ -1,0 +1,26 @@
+{
+  "state": "LINUX_DISABLED_SUPERVISOR_VERIFIED",
+  "source": "fadf834b233736857f9e1e4babb524ebab677dde",
+  "checks": [
+    {
+      "action": "tick",
+      "exitCode": 0,
+      "state": "DISABLED"
+    },
+    {
+      "action": "backup-check",
+      "exitCode": 0,
+      "state": "BACKUP_WORKER_QUIET"
+    },
+    {
+      "action": "activate",
+      "exitCode": 1,
+      "state": "SUPERVISOR_REQUIRES_REVIEW"
+    }
+  ],
+  "workerCreated": false,
+  "sourceRequests": 0,
+  "databaseWrites": 0,
+  "installed": false,
+  "scheduled": false
+}

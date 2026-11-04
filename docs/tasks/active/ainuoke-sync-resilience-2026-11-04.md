@@ -53,3 +53,17 @@
 主机监管脚本scripts/ainuoke_sync_supervisor.py已准备，默认disabled、需显式activate；固定镜像/目标/来源，单实例锁，旧worker必须PAUSED，故障退出不自动重启。03:12提前TERM、等待当前有界采集/发布完成，03:20–03:50安静；只在同项目/源码、当日新备份BACKUP_VERIFIED且原服务恢复后再启动。备份动作与监管共用锁，不会在备份中途因时钟到了恢复worker；不强杀挂起任务或以强杀结果假报备份一致。5项纯监管安全检查通过，Linux禁用态烟测后续记录；未安装cron/启用持续服务。CI仅给既有Python步骤加5项廉价检查，不新增workflow或触发器。
 
 候选应用首次私网启动拒绝，已定位为新目录/SQL的复制权限在cap-drop=ALL下触发EACCES；未接触正式栈，失败容器及日志保留。需要按普通只读源码权限重建镜像再验收，不能把前面的“构建成功”当运行PASS。当前备份策略仍固定旧source f21c96c1/121表和旧服务身份；将来切换须新策略绑定实际新source/137业务表/实际服务及文件清单，并完成新的配对/异机恢复验收，旧策略与备份保留。认证未澄清、完整覆盖/远端交付及必要CI未过前，不启用新持续同步。
+
+## E6 离线运行收口，不再发来源请求
+
+最终运行源码fadf834b233736857f9e1e4babb524ebab677dde。Windows/Linux各171项Python、监管5项通过；连续同步81项中80通过、0失败、1原平台跳过。类型/lint/前后端构建及先前相关SQL/API和最终7项Chromium结果按变更范围复用，不为重复计数重跑。182发布回归沿用守卫未变的既有结果；精确最终源码守卫另记。
+
+首次应用42的EACCES已通过只给代码/SQL普通只读权限修复，保持cap-drop/只读根等限制。新操作者镜像sha256:6756163545332cd57b5b0d68519657f107f7a0d04d24f55da8165287ba675ebd；新应用sha256:ec79a51842fd31e6c62c6000138c8315f926117d7f20af95f20d41d9255540c7，build server-preview-fadf834b-sync-resilience，2026-11-04T11:20:12.720714Z。[精确镜像](../../../artifacts/ainuoke-sync-resilience-20261104/runtime-images.json)。离线构建没有装依赖或发来源请求。
+
+新应用仅在catalog_stability_resilience_20261104隔离恢复库及私网实际启动；健康/版本接口200，7个运行身份值一致，55迁移，用户/订单/报价记录哈希前后一致，0公网端口/0源请求。附件I/O本次明确禁用，保留原配对对象恢复证据，不冒称本次完整附件上传验证。[运行结果](../../../artifacts/ainuoke-sync-resilience-20261104/runtime-check.json)。
+
+Linux监管烟测只用新私密合成配置、enabled=false、假Source及不存在的专用容器名：tick=DISABLED，backup-check=BACKUP_WORKER_QUIET，activate拒绝；状态仍DISABLED，未创建worker/调度或读真实collector。[禁用态结果](../../../artifacts/ainuoke-sync-resilience-20261104/supervisor-disabled-smoke.json)。该测试不是持续运行、备份故障恢复或真实服务已启用声明。
+
+最后只读确认所有任务操作者退出、两个新运行库控制disabled（覆盖库保留invalid_credential暂停）、旧worker仍PAUSED。仅停止本任务固定镜像/标签/卷身份的恢复库容器，卷及所有数据库/原始证据/失败和成功回执保留；正式试用应用/账号/旧资产未变。[收口](../../../artifacts/ainuoke-sync-resilience-20261104/final-closeout.json)。没有后续艾诺科登录、刷新、绑定或调度。
+
+独立外部复审未执行；本轮按真实采集停止边界、旧成功保护、有限次数、金额/来源数据不进入诊断、备份互锁与默认禁用进行自查，已修复的问题保留失败证据。用户网页登录状态仍待答复，不能解除认证暂停；完整608首轮及正式持续同步尚未完成。后续精确GitHub送达/必要CI及新137表备份策略、恢复/升级验收分别报告，不自动merge main。
