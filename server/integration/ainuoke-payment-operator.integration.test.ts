@@ -6,6 +6,7 @@ import { tmpdir } from 'node:os';
 import { execFileSync, spawnSync } from 'node:child_process';
 import pg from 'pg';
 import { startDisposablePostgres } from './postgres-container.js';
+import { freezeExistingPublicRows } from './legacy-row-snapshot-fixture.js';
 import { runMigrations, inspectMigrationStatus } from '../db/migration-runner.js';
 import { synchronizePermissionCatalog } from '../auth/permissions.js';
 import { bootstrapAdmin } from '../auth/bootstrap.js';
@@ -270,19 +271,12 @@ test('payment operator: owned PG, target lifecycle and durable one-shot commands
       assert.equal((await collectAndPublishPaymentContracts(old,user,request,plan.scopeHash,{now,collect})).published,2);
       const tables=['app_users','sales_orders','ainuoke_sales_order_contract_mirrors','ainuoke_source_profiles','ainuoke_payment_source_targets',
         'ainuoke_payment_snapshots','ainuoke_payment_heads','operation_logs'];
-      const inventory=async()=>{
-        const entries:Record<string,unknown>={};
-        for(const table of tables){
-          // 0032 adds lifecycle metadata; compare every pre-existing field and check the new defaults separately.
-          const row=table==='app_users'?"to_jsonb(t)-'archived_at'-'last_login_at'-'password_reset_required'":'to_jsonb(t)';
-          entries[table]=(await old.query(`SELECT ${row} row FROM ${table} t ORDER BY (${row})::text`)).rows;
-        }
-        return entries;
-      };
+      const inventory=await freezeExistingPublicRows(old,tables);
       const before=await inventory(),upgraded=await runMigrations(old,resolve('database/migrations'));
       assert.deepEqual(upgraded.applied,migrationFilesAfter(25));assert.deepEqual(await inventory(),before);
       assert.deepEqual((await old.query('SELECT archived_at,last_login_at,password_reset_required FROM app_users')).rows,
         [{archived_at:null,last_login_at:null,password_reset_required:false}]);
+      assert.deepEqual((await old.query('SELECT catalog_run_id FROM ainuoke_source_profiles')).rows,[{catalog_run_id:null}]);
       assert.equal((await old.query('SELECT count(*)::int n FROM ainuoke_payment_operator_commands')).rows[0].n,0);
       assert.deepEqual((await runMigrations(old,resolve('database/migrations'))).applied,[]);
       await assert.rejects(()=>inspectMigrationStatus(old,directory),/Applied migration 26 .* is missing from the migration directory/u);

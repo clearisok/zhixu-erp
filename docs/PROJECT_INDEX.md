@@ -1,7 +1,7 @@
-# 当前入口：五步交付与长期体验收敛
+# 当前入口：PR140收敛与长期体验升级准备
 
-先读[当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[本轮五步任务](tasks/active/five-step-convergence-2026-11-04.md)。用户要求完成PR140必要CI、只补58张、247连续验证、配对恢复及升级长期体验站。当前两项CI通过、来源旧断言本地已修复；真实登录仍拒绝，未扩大采集。
+2026-11-05；main完整基线cb5cc29baa49ed7115fdb6c9506b6a80356936ea。先读[当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[五步任务](tasks/active/five-step-convergence-2026-11-04.md)。
 
-完整工程入口及历史证据保留于[上一入口](tasks/completed/2026-11-04-before-five-step-convergence/PROJECT_INDEX.md)。本轮只用一个候选，实际GitHub、隔离覆盖与staging分别核实，不将工程通过当部署完成。
+候选0e661880已交付并构建精确镜像，来源CI新增旧测试遗漏已本地修复，26组后续检查通过；新旧配对与真实550内容异机恢复通过。真实登录仍拒绝，58与247连续运行未执行，staging未升级。各门槛分别报告。
 
-本轮完整main基线：`cb5cc29baa49ed7115fdb6c9506b6a80356936ea`；与发布清单一致。
+[上一入口](tasks/completed/2026-11-05-before-final-ci-compatibility/PROJECT_INDEX.md)及此前完整审计保留。
