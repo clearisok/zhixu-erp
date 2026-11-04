@@ -58,6 +58,24 @@ class LoginDiagnosticTests(TestCase):
                          {"data": {"isOk": False, "message": "x" * 257 + "账号已登录"}}]:
             self.assertEqual(run_login_diagnostic(CONFIG, FakeTransport(response))["serverHint"], "unclassified")
 
+    def test_public_client_cover_confirmation_signal_is_safe_and_never_overrides_login(self):
+        for code in ("-2", -2):
+            transport = FakeTransport({"data": {"isOk": False, "text1": code, "errorMsg": SECRET}})
+            result = run_login_diagnostic(CONFIG, transport)
+            self.assertEqual(result["serverHint"], "cover_confirmation_required")
+            self.assertEqual(result["result"], "rejected")
+            self.assertEqual(len(transport.calls), 1)
+            self.assertEqual(transport.calls[0]["body"]["isCoverLogin"], "false")
+            self.assertFalse(result["coverLogin"])
+            self.assertNotIn(SECRET, json.dumps(result))
+
+    def test_unknown_or_conflicting_server_codes_do_not_claim_cover_confirmation(self):
+        for code in ("-20", "-2 " + SECRET, -3, None, {}, []):
+            result = run_login_diagnostic(CONFIG, FakeTransport({"data": {"isOk": False, "text1": code}}))
+            self.assertEqual(result["serverHint"], "unclassified")
+        result = run_login_diagnostic(CONFIG, FakeTransport({"data": {"isOk": False, "text1": "-2", "errorMsg": "密码错误"}}))
+        self.assertEqual(result["serverHint"], "unclassified")
+
     def test_network_failure_has_one_attempt_no_secret_or_retry(self):
         error = NetworkAinuokeError(SECRET)
         error.transport_category, error.http_status = "http_error", 429

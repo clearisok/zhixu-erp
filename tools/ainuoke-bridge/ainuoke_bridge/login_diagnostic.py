@@ -51,6 +51,13 @@ class LoginEvidenceTransport:
                             matches.add(hint)
             if len(matches) == 1:
                 self.server_hint = matches.pop()
+            # The public DLogin client handles text1=-2 by asking the user to
+            # confirm isCoverLogin=1. Record that closed signal without copying
+            # dynamic errorMsg/user details or changing our non-covering login.
+            if data.get("text1") in ("-2", -2):
+                self.server_hint = ("cover_confirmation_required"
+                                    if self.server_hint in ("unclassified", "session_exists") and len(matches) <= 1
+                                    else "unclassified")
         return response
 
 
