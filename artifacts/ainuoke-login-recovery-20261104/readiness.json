@@ -1,0 +1,26 @@
+{
+  "state": "LOGIN_RECOVERY_EXECUTION_READY",
+  "source": "97449e9400623fc8178de98bbb6b361c382ce684",
+  "image": "sha256:0031993e3ce9e5fd25b1118474a08e5622fdb90982c27b13d46781ddef48b74a",
+  "scopeHash": "5d87ab8a13dc9389ed57ae482a4c330c152ab93f6694bcb58fb2a5acab26dc2e",
+  "helperSha256": "f60c0d137a4f0ae6f29f717486821d06b11d45b5a947e9e75bfb0cf0296be19c",
+  "guards": [
+    {
+      "case": "unapproved",
+      "state": "EXPLICIT_APPROVAL_REQUIRED",
+      "exitCode": 1
+    },
+    {
+      "case": "spent",
+      "state": "RESERVATION_ALREADY_SPENT",
+      "exitCode": 1
+    }
+  ],
+  "recoveryPreviewMatched": true,
+  "scopePreserved": true,
+  "sourceRequests": 0,
+  "databaseWrites": 0,
+  "databaseStopped": true,
+  "approvalFileExists": false,
+  "freshActorAndProfileBeforeLogin": true
+}

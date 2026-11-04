@@ -19,3 +19,15 @@ Windows新9项合成单测通过，涵盖零报表/二次登录阻断/覆盖登�
 5. 退出后控制disabled、原550指针/时间精确比对；私密原文仅保留原受保护目录。只操作原隔离恢复库，不修改体验站业务库、账号、持续服务或备份策略，不合并或部署。
 
 上述是具体可审阅范围，不是授权或执行证明。当前Git仍NETWORK_DEGRADED；本轮不重复上传或触发CI。D147“新艾诺科采集/绑定/激活/调度仍需具体授权”及D180“认证……不自动重试”保持。
+
+## 准备与只读验收完成，尚未真实执行
+
+诊断源码97449e9400623fc8178de98bbb6b361c382ce684；Linux固定操作者sha256:0031993e3ce9e5fd25b1118474a08e5622fdb90982c27b13d46781ddef48b74a，基于fadf操作者离线补丁构建，未安装依赖。Windows/Linux新9项各通过；正常SDK、原171测试涉及的代码与主应用未变，未重复整仓检查。[镜像证据](../../../artifacts/ainuoke-login-recovery-20261104/image.json)。
+
+只读预检已冻结实际550成功、5登录拒绝及53排队，原608身份未变；550的指针和规范化完整成功时间SHA256为4d2058cbe19491834b53f85542a5bbf38915bb2e34db38571dd00e701aff2895。范围hash为5d87ab8a13dc9389ed57ae482a4c330c152ab93f6694bcb58fb2a5acab26dc2e；私密合同集合只在宁波/home/jackson/weaveops-login-recovery-20261104/review-v2/scope.private.json。[白名单预览](../../../artifacts/ainuoke-login-recovery-20261104/review.json)。首次review在封装自审发现Date对象规范化前后hash不稳定，未执行；新review-v2先转ISO值再冻结并验证回读，原review证据保留，不修改全局旧hash协议。
+
+实际调用原recoverSync的预览路径（未提交恢复命令），当前actor/控制版本/暂停原因、无未知任务/目录回执与冻结范围匹配。执行器只复用原recoverSync、configureSync、captureCatalogOnce与runSyncTick；来源HTTP前再次校验新鲜RBAC、启用的Source profile和账号身份。一次性reservation在请求前落盘；已经有reservation/summary则拒绝重跑，不覆盖旧结果。完整目录仍复核，合同详情只允许58白名单。03:12提前停止新capture，为03:20备份窗口留缓冲。
+
+两项实际Linux阻断烟测均按预期退出1：无approved.json为EXPLICIT_APPROVAL_REQUIRED；合成已消耗额度为RESERVATION_ALREADY_SPENT。它们均在cfg/数据库/来源I/O前拒绝；没有制造批准记录或消耗真实额度。[准备结果](../../../artifacts/ainuoke-login-recovery-20261104/readiness.json)。最终执行器私密文件/home/jackson/weaveops-login-recovery-20261104/login-resume.mjs，SHA256 f60c0d137a4f0ae6f29f717486821d06b11d45b5a947e9e75bfb0cf0296be19c；不能改用旧c7bc范围或旧helper版本。
+
+本轮新艾诺科请求0、业务写入0，未建立approved.json或真实reservation。预检临时启动的本任务PostgreSQL已再次正常停止，数据卷及550成功/全部旧失败保留；旧worker仍PAUSED、体验站不变。GitHub API本轮核实main仍cb5cc29baa49ed7115fdb6c9506b6a80356936ea；不重推已知失败通道、不创建PR或触发CI。自审与本地准备不替代尚未运行的远端CI，也不等于真实核验已获批准。

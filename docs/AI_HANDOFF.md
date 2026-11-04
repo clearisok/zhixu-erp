@@ -19,3 +19,14 @@ Linux操作者6756163545332cd57b5b0d68519657f107f7a0d04d24f55da8165287ba675ebd�
 0d3db5473df2f2675fd22211acbbc05db3811454精确源码守卫PASS（12页面68能力11UI路径），工作树干净后仅执行一次安全交付；2267ms传输中断，独立matching-refs API证明分支不存在，未建PR/触发CI。后继仅文档记录，本轮不再推送。Git仍NETWORK_DEGRADED，普通网络恢复已有用户常设授权，但每轮至多一次安全工具、独立核对完整SHA，认证/拒绝/分歧/证书异常仍停止；未核实不建重复PR/不称CI通过。不自动merge或部署。新监管尚未安装/启用。正式宁波仍f21/121表，旧备份策略不能用于新137表版本；将来升级须保留旧策略，重新绑定实际源码/服务/文件并完成配对、异机恢复。
 
 用户已答复网页登录正常。已补login_diagnostic模块，只登录不查报表，严格1登录/0报表/4MiB/30秒、零网络重试，SDK isCoverLogin=false不变；只对白名单完全匹配的拒绝提示输出封闭分类，不输出原文或留存session。新9项合成单测通过。具体真实核验及仅剩余58的范围见[恢复清单](tasks/active/ainuoke-login-recovery-2026-11-04.md)，授权前不能执行；不重复推送同一失败通道。完整608和持续分档仍未PASS，不能以550的部分覆盖或此前247吞吐单轮代替。
+
+
+## 最新准备点：网页登录正常，具体恢复许可待答复
+
+新增工具源码97449e9400623fc8178de98bbb6b361c382ce684（应用业务代码仍fadf），Windows/Linux9项各通过；原171与主应用已成功结果复用。宁波离线操作者0031993e3ce9e5fd25b1118474a08e5622fdb90982c27b13d46781ddef48b74a；readiness已通过无批准/已消耗两项阻断及原recoverSync只读预览核对，0新Source请求。真实批准文件/额度reservation均不存在。
+
+准确范围只在登录恢复目录的review-v2，实际路径/home/jackson/weaveops-login-recovery-20261104/review-v2，scopeHash=5d87ab8a13dc9389ed57ae482a4c330c152ab93f6694bcb58fb2a5acab26dc2e。只允许使用helper /home/jackson/weaveops-login-recovery-20261104/login-resume.mjs，SHA256=f60c0d137a4f0ae6f29f717486821d06b11d45b5a947e9e75bfb0cf0296be19c；旧review的c7bc hash未规范化Date不可使用。实际550指针/完整时间proof=4d2058cbe19491834b53f85542a5bbf38915bb2e34db38571dd00e701aff2895。
+
+若用户批准完整范围，后继才在该私密review-v2生成approved.json（source97449完整SHA、上述scopeHash、decision APPROVED_LOGIN_AND_REMAINING_58、approvedAt/expiresAt，最长1小时有效）并启动一次固定helper。总预算30登录/2400报表/40分钟，含第一笔1登录0报表30秒；该笔不接受即停，不解除暂停/查报表。只写catalog_coverage_resilience_20261104，550详情严格拒绝重采。新instance用该操作者镜像、原内部网络并仅为实际Source连接bridge、只读collector挂载；凭据不传命令/环境或日志。先核对owned PG固定镜像/标签/卷、旧worker PAUSED及helper/image/scope完整身份；不能复用旧运行reservation或更换认证/覆盖会话。新真实核验授权之前不执行这些步骤。
+
+本轮只读预检后owned PG已停，所有测试容器已退；旧worker、正式试用栈/库/账号和备份不变。准备说明与三份白名单证据见[恢复任务](tasks/active/ainuoke-login-recovery-2026-11-04.md)。没有新Git push/PR/CI。
