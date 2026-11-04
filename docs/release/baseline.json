@@ -5651,6 +5651,26 @@
       "sha256": "f892ddc6d949975d3a7930db69fa282eb3332f0640e0686a214562dcf4084b3a",
       "supersedes": "catalog-followup-source-contract-20261102",
       "changeReason": "Document bounded catalogue request diagnostics and 45-second per-request waiting under the unchanged 180-second total deadline; preserve measured frequent-pass and full-source-timeout results without claiming deployment or full coverage."
+    },
+    {
+      "id": "catalog-sync-resilience-source-20261104",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SERVER_SOURCE.md",
+      "recordedAtSha": "1c93fe4e0e74d3948a6cfb6d4267c70e70938504",
+      "renderedSourceSha": "1c93fe4e0e74d3948a6cfb6d4267c70e70938504",
+      "sha256": "3cfa25a48458f81ef92b4ec0f8963fcbaadfe12930ff35f1621b826b9602e571",
+      "supersedes": "catalog-request-diagnostics-capacity-20261104",
+      "changeReason": "Record approved bounded queue recovery and shared immutable catalogue evidence; preserve old capture identity, zero per-capture internal retries, unknown-result protection and separate staging activation gates."
+    },
+    {
+      "id": "catalog-sync-resilience-decisions-20261104",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "1c93fe4e0e74d3948a6cfb6d4267c70e70938504",
+      "renderedSourceSha": "1c93fe4e0e74d3948a6cfb6d4267c70e70938504",
+      "sha256": "f211fb1e8fb8aa539d9c1ab5aa7abf20609b2257f55a14deef86e58337afd400",
+      "supersedes": "catalog-followup-decisions-20261102",
+      "changeReason": "Record approved bounded queue recovery and shared immutable catalogue evidence; preserve old capture identity, zero per-capture internal retries, unknown-result protection and separate staging activation gates."
     }
   ],
   "pages": [
