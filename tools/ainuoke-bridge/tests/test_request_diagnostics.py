@@ -18,6 +18,20 @@ REQUEST={'url':'https://example.invalid/'+SECRET,'method':'POST',
          'headers':{'Authorization':SECRET,'Cookie':SECRET},'timeout':15}
 
 class RequestDiagnosticsTests(TestCase):
+    def test_catalogue_waits_45_seconds_without_changing_legacy_or_total_budget(self):
+        for mode,contracts,expected in [('catalog-contracts',['SYN-SALES-1'],45),('catalog-discovery',[],45),('selected-bindings',['SYN-SALES-1','SYN-SALES-2'],15)]:
+            transport=FakeSelectedTransport()
+            result=collect_selected({**CONFIG,'mode':mode,'contracts':contracts},transport)
+            self.assertEqual(result['result'],'complete')
+            self.assertEqual(result['limits']['timeoutMs'],180000)
+            self.assertTrue(all(call['timeout']==expected for call in transport.calls))
+            self.assertEqual(result['metrics']['networkRetries'],0)
+        calls=iter([0]+[179]*100)
+        transport=FakeSelectedTransport()
+        result=collect_selected(CONFIG,transport,clock=lambda:next(calls))
+        self.assertEqual(result['result'],'complete')
+        self.assertTrue(all(call['timeout']==1 for call in transport.calls))
+
     def test_http_status_and_report_page_are_preserved_without_sensitive_values(self):
         events=[]
         with patch('ainuoke_bridge.server_source.build_opener') as opener:

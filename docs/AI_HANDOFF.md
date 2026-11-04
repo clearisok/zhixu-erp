@@ -6,6 +6,8 @@ D2已推进：a94aa254诊断镜像6f2c8d0b，Linux169/Node协议13通过。原5�
 
 D3后继：高频已247/247全过，618801ms，51登录1857报表1908HTTP，零失败/重试；summary已冻结artifacts/ainuoke-diagnostics-capacity-20261104/frequent.json。全量正在运行exec session77373，远端campaign-full/result.json，本机full.log；不得重复启动或同时跑其他来源测试。远端同目录summarize.py full只在finishedAt存在时执行一次，随后取summary白名单而非raw capture。计时scope608，目标30分钟/单批5。高频新两证据表实占95.4MB/轮，按每日48轮估4.58GB/日；是代码重复完整目录导致的已验证风险和线性推算，不是一天实测。先完成全量，不自动扩大到去重改造。guard在17bd6797通过；最终文档提交后仅补精确守卫，不重跑169/13或已通过182回归。
 
+D4最新：全量第一轮已结束（session77373完成），100成功/5失败/503未测，明确复现6086103第二次目录校验第13页timeout 15022ms，详情请求均成功。803报表22登录，回执已冻结full-first-failed.json。不是5个数据缺陷；旧原始失败页不可追溯。仅catalog模式请求等待改45秒、总180剩余截断/零重试/旧模式15秒不变，170Python通过。下一步构建精确45秒操作者，Linux170后仅跑一次新full45恢复库；最大123登录9800报表，与已用74/2696合计197/12496；若再失败停止，不无限加时或重跑。高频247仍为15秒配置实际10分18.801秒，full45覆盖其中247，不必另重复高频。原full/frequent的终态库和证据保留，不能重复旧脚本。
+
 2026-11-04；分支feat/ainuoke-full-catalog-followup，产品候选bae837a152cb223039afc94fa06c571b3ee8328e。main基线沿用此前已核实cb5cc29baa49ed7115fdb6c9506b6a80356936ea，本轮未刷新远端。本轮仅备份、独立恢复/前向升级、候选镜像构建/私网启动和有界容量实测；没有正式切换、main合并或真实账号修改。先读[本轮报告](tasks/active/ningbo-catalog-capacity-2026-11-04.md)；[此前接力](tasks/completed/2026-11-04-before-ningbo-capacity/AI_HANDOFF.md)保留本地工程与失败/修复证据。GitHub单次交付失败后未重推，无PR/新CI，不复跑成功的工程测试。
 
 正式宁波f21c96c1、镜像0bc513c4、51迁移、3SO/2报价/2附件。旧worker从11月2日12:14北京时间暂停，已只读查明discovery_changed；最后成功12:08:09/run0d04e2fe，累计190成功。旧cron仍在、状态保持PAUSED，不擅改状态重启。

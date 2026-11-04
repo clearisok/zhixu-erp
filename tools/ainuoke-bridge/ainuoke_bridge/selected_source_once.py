@@ -18,6 +18,10 @@ FAILURE_CODES = frozenset({"selected_source_timeout", "selected_source_request_l
     "selected_source_response_limit", "selected_source_page_limit", "selected_source_row_limit", "selected_source_query_refused",
     "selected_source_secret_reflection", "invalid_credential", "auth_expired", "source_unavailable", "selected_source_invalid"})
 
+# The entire fixed capture still expires after 180s. A single catalogue request
+# may wait 45s for a delayed response; it is never retried or renewed.
+CATALOG_REQUEST_TIMEOUT_SECONDS = 45
+
 
 def fingerprint(data):
     value = {"origin": data["baseUrl"].rstrip("/"), "username": unicodedata.normalize("NFKC", data["username"]).strip()}
@@ -139,7 +143,8 @@ def collect_selected(data, transport=None, clock=monotonic, diagnostics=None):
               "sourceFingerprint": fingerprint(data), "selectedContracts": list(data["contracts"]),
               "databaseAccess": "none", "sourceActivation": "not-activated"}
     try:
-        sdk = AinuokeClient(base_url=data["baseUrl"], transport=budget, network_retries=0)
+        sdk = AinuokeClient(base_url=data["baseUrl"], transport=budget, network_retries=0,
+                           timeout_seconds=CATALOG_REQUEST_TIMEOUT_SECONDS if data["mode"] in ("catalog-discovery", "catalog-contracts") else 15)
         client = BudgetClient(sdk, budget, data["contracts"], data["mode"])
         engine = {**data}
         if data["mode"] == "catalog-discovery":
