@@ -1,5 +1,7 @@
 # 当前入口：全量合同可查与交期分档同步
 
+当前交付续作：[Git旧代理只读定位与进程级直连恢复](tasks/active/github-delivery-recovery-2026-11-04.md)；用户明确授权上传，实际送达与CI以工具回执/唯一PR为准，不据读取成功预记。
+
 当前续作：[来源稳定性、有限恢复与共享证据](tasks/active/ainuoke-sync-resilience-2026-11-04.md)。当前550/608成功，登录拒绝暂停；用户已批准的[固定恢复](tasks/active/ainuoke-login-recovery-2026-11-04.md)在1登录/0报表时再次被拒绝并关闭；两端凭据一致，原因尚未确定。先读当前状态，不重启旧运行中任务。[上一诊断与容量复核](tasks/active/ainuoke-request-diagnostics-capacity-2026-11-04.md)保留原失败。
 
 2026-11-04；新增[宁波备份/恢复/升级准备及容量实测](tasks/active/ningbo-catalog-capacity-2026-11-04.md)。main上次只读核实为cb5cc29baa49ed7115fdb6c9506b6a80356936ea，本轮GitHub API重新核实了该main，未据此宣称Git传输恢复。先读[当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[当前任务/运行清单](tasks/active/ainuoke-full-catalog-followup-2026-11-02.md)、[来源模块](features/AINUOKE_SERVER_SOURCE.md)、D179和[发布守卫](features/RELEASE_BASELINE_GUARD.md)。
