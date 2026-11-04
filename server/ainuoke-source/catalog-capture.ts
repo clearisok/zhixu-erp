@@ -11,7 +11,9 @@ type Identity=Pick<TrustedIdentity,'internalUserId'|'userId'>;
 export async function readCatalogCaptureReceipt(pool:Pool,identity:Identity,sourceKey:string,requestId:string){
  const actor=await sourceActor(pool,identity,true);
  const row=(await pool.query(`SELECT status,result FROM ainuoke_catalog_requests WHERE source_key=$1 AND request_id=$2 AND actor_id=$3`,[sourceKey,requestId,actor.internalUserId])).rows[0];
- const committed=(await pool.query(`SELECT id::text AS "runId",jsonb_array_length(discovery) AS pages FROM ainuoke_catalog_runs WHERE source_key=$1 AND request_id=$2 AND actor_user_id=$3`,[sourceKey,requestId,actor.internalUserId])).rows[0];
+ const committed=(await pool.query(`SELECT r.id::text AS "runId",jsonb_array_length(CASE WHEN r.capture_evidence_id IS NULL THEN r.discovery ELSE e.directory->'discoveryAfter' END) AS pages
+  FROM ainuoke_catalog_runs r LEFT JOIN ainuoke_catalog_capture_evidence e ON e.source_key=r.source_key AND e.id=r.capture_evidence_id
+  WHERE r.source_key=$1 AND r.request_id=$2 AND r.actor_user_id=$3`,[sourceKey,requestId,actor.internalUserId])).rows[0];
  return committed?{status:'complete',result:committed}:row??null;
 }
 /** Persist the attempt before any HTTP, so a lost receipt cannot spend it twice. */

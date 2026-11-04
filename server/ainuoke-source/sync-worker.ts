@@ -11,6 +11,7 @@ import { claimSyncJobs, enqueueAutomaticSync, type SyncJob } from './sync-queue.
 import { collectSelectedSourceOnce, validateSelectedSourceOnce, type SelectedSourceRequest } from './selected-source-once.js';
 import { captureCatalogOnce } from './catalog-capture.js';
 import { HttpError } from '../http/errors.js';
+import { saveCatalogEvidence } from './catalog-evidence.js';
 
 type Identity = Pick<TrustedIdentity,'internalUserId'|'userId'>;
 type Captured = Extract<Awaited<ReturnType<typeof validateSelectedSourceOnce>>, {mode:'catalog-contracts'}>;
@@ -47,17 +48,18 @@ async function publishContract(pool:Pool,identity:Identity,config:CollectorConfi
       await publishMaterialSnapshotsInTransaction(c,actor,config.sourceKey,materials,refreshed);
     }
     const observationId=randomUUID(),directoryId=randomUUID();
-    const evidence={addition:singleAddition,materials:captured.materials.bundle.materials[job.sales_contract_no]};
-    await c.query(`INSERT INTO ainuoke_catalog_runs(id,source_key,account_fingerprint,request_id,actor_user_id,captured_at,discovery,content_hash)
-      VALUES($1,$2,$3,$4,$5,$6,$7::jsonb,$8)`,[directoryId,config.sourceKey,accountFingerprint(config),job.id,actor.internalUserId,captured.directory.capturedAt,
-      JSON.stringify(captured.directory.bundle.discoveryAfter),captured.directory.contentHash]);
+    const captureId=await saveCatalogEvidence(c,config.sourceKey,accountFingerprint(config),captured.directory.bundle);
+    const evidence={schemaVersion:'ainuoke-contract-observation.v2',captureId,colors:singleAddition.colors,materials:captured.materials.bundle.materials[job.sales_contract_no]};
+    await c.query(`INSERT INTO ainuoke_catalog_runs(id,source_key,account_fingerprint,request_id,actor_user_id,captured_at,discovery,content_hash,capture_evidence_id)
+      VALUES($1,$2,$3,$4,$5,$6,'[]'::jsonb,$7,$8)`,[directoryId,config.sourceKey,accountFingerprint(config),job.id,actor.internalUserId,captured.directory.capturedAt,
+      captured.directory.contentHash,captureId]);
     // Only this contract's current catalogue row is refreshed. The full directory
     // capture is retained as identity evidence, not silently published for others.
     await c.query(`UPDATE ainuoke_catalog_entries SET inside_order_no=$3,style_no=$4,customer_name=$5,brand_name=$6,quantity=$7,
       contract_date=$8,delivery_date=$9,lifecycle_status_raw=$10,visible=true,observed_run_id=$11 WHERE source_key=$1 AND source_id=$2`,
       [config.sourceKey,job.source_id,observed.insideOrderNo,observed.styleNo,observed.customerName,observed.brandName,observed.quantity,observed.contractDate,observed.deliveryDate,observed.lifecycleStatusRaw,directoryId]);
-    await c.query(`INSERT INTO ainuoke_contract_observations(id,source_key,source_id,job_id,captured_at,evidence,content_hash) VALUES($1,$2,$3,$4,$5,$6::jsonb,$7)`,
-      [observationId,config.sourceKey,job.source_id,job.id,new Date(now),JSON.stringify(evidence),hash(evidence)]);
+    await c.query(`INSERT INTO ainuoke_contract_observations(id,source_key,source_id,job_id,captured_at,evidence,content_hash,capture_evidence_id) VALUES($1,$2,$3,$4,$5,$6::jsonb,$7,$8)`,
+      [observationId,config.sourceKey,job.source_id,job.id,new Date(now),JSON.stringify(evidence),hash(evidence),captureId]);
     await c.query(`INSERT INTO ainuoke_contract_sync_state(source_key,source_id,observation_id,last_success_at,last_error_code) VALUES($1,$2,$3,$4,NULL)
       ON CONFLICT(source_key,source_id) DO UPDATE SET observation_id=excluded.observation_id,last_success_at=excluded.last_success_at,last_error_code=NULL`,[config.sourceKey,job.source_id,observationId,new Date(now)]);
     const result={code:'complete',orderId,observedAt:new Date(now).toISOString(),contract:job.sales_contract_no,

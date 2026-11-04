@@ -8,6 +8,7 @@ import { adaptAinuokeOrderDiscoverySnapshots } from '../../features/ainuoke-api/
 import { sourceActor } from './service.js';
 import { requireAdditionProfile, type AdditionDiscoveryBundle } from './additions.js';
 import { SourceError, inspect, pagesValid, discoveryContentHash } from './contract.js';
+import { saveCatalogEvidence } from './catalog-evidence.js';
 
 const text = (v:unknown) => typeof v==='string' && v.trim() ? v.normalize('NFKC').trim() : null;
 const date = (v:unknown) => {
@@ -52,8 +53,9 @@ export async function publishCatalog(pool:Pool,identity:Pick<TrustedIdentity,'in
   const links=(await c.query("SELECT external_id,sales_contract_no FROM sales_order_source_links WHERE source_system='ainuoke' AND source_entity_type='sales_contract'")).rows;
   for(const r of checked.rows)if(links.some(s=>(s.external_id===r.sourceId)!==(s.sales_contract_no===r.salesContractNo)))throw new SourceError('catalog_identity_changed');
   const id=randomUUID();
-  await c.query('INSERT INTO ainuoke_catalog_runs(id,source_key,account_fingerprint,request_id,actor_user_id,captured_at,discovery,content_hash) VALUES($1,$2,$3,$4,$5,$6,$7::jsonb,$8)',
-   [id,options.sourceKey,options.accountFingerprint,options.requestId,actor.internalUserId,checked.capturedAt,JSON.stringify(checked.bundle.discoveryAfter),checked.contentHash]);
+  const captureId=await saveCatalogEvidence(c,options.sourceKey,options.accountFingerprint,checked.bundle);
+  await c.query("INSERT INTO ainuoke_catalog_runs(id,source_key,account_fingerprint,request_id,actor_user_id,captured_at,discovery,content_hash,capture_evidence_id) VALUES($1,$2,$3,$4,$5,$6,'[]'::jsonb,$7,$8)",
+   [id,options.sourceKey,options.accountFingerprint,options.requestId,actor.internalUserId,checked.capturedAt,checked.contentHash,captureId]);
   await c.query('UPDATE ainuoke_catalog_entries SET visible=false WHERE source_key=$1',[options.sourceKey]);
   for(const r of checked.rows)await c.query(`INSERT INTO ainuoke_catalog_entries(source_key,source_id,sales_contract_no,inside_order_no,style_no,customer_name,brand_name,quantity,contract_date,delivery_date,lifecycle_status_raw,observed_run_id)
    VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) ON CONFLICT(source_key,source_id) DO UPDATE SET

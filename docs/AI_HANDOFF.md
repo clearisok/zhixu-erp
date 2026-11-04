@@ -1,3 +1,5 @@
+当前续作E1：用户批准五步执行；没有艾诺科日志入口。0055共享目录行内容/采集引用、v2观察与旧v1读取已实现；类型通过，初轮22项21通过/旧迁移预期1失败，修正后该项1/1通过。下一步持久安全诊断、有限1/5分钟恢复链及合成验证。见[新任务](tasks/active/ainuoke-sync-resilience-2026-11-04.md)。下文为本轮前的已结束测量。
+
 # 接力：本轮诊断与容量测量结束，不自动重采
 
 2026-11-04；分支feat/ainuoke-full-catalog-followup。main沿用已核实cb5cc29baa49ed7115fdb6c9506b6a80356936ea，未刷新远端。诊断a94aa254，45秒候选951af181e0bc7bf588fecf22e407af4bc82b5d03；最终文档和清单前向收口。先读[当前状态](CURRENT_STATE.md)、[完整报告](tasks/active/ainuoke-request-diagnostics-capacity-2026-11-04.md)。[输入接力归档](tasks/completed/2026-11-04-before-capacity-diagnostics-final/AI_HANDOFF.md)保留此前所有日期、hash与运行记录，旧“正在运行”不再是当前状态。
@@ -17,3 +19,4 @@
 ## 后续重点
 
 247轮catalog_runs31,301,632B、observations64,094,208B约95.4MB，因逐合同重复完整目录；48轮/日线性估4.58GB/日，非日级实测。先核对来源端失败时点/报表执行，再决定有界复核；长期启用前处理共享不可变证据/内容去重。不得跳过身份/分页完整性、删历史、无限重试或默认为全量可持续30分钟。当前任务诊断和测量已完成，但全量覆盖验收未过，正式替换仍未执行。
+
