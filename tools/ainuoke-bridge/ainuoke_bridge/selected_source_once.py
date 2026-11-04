@@ -122,13 +122,17 @@ class BudgetClient:
         return result
 
 
-def collect_selected(data, transport=None, clock=monotonic):
+def collect_selected(data, transport=None, clock=monotonic, diagnostics=None):
     """Injection is an internal testing seam, never an argv/stdin flag."""
     data = validate_input(data)
     if data.get("mode") not in MODES:
         raise ValueError("invalid_selected_scope")
     catalog = data["mode"] == "catalog-discovery"
-    budget = BudgetTransport(data["baseUrl"], transport or ProtectedTransport(LIMITS["responseBytes"]), clock, 40 if catalog else 80)
+    underlying = transport or ProtectedTransport(LIMITS["responseBytes"])
+    if diagnostics is not None:
+        from .request_diagnostics import DiagnosticTransport
+        underlying = DiagnosticTransport(underlying, diagnostics, clock)
+    budget = BudgetTransport(data["baseUrl"], underlying, clock, 40 if catalog else 80)
     bounded = data["mode"] in ("bound-materials", "catalog-contracts")
     common = {"schemaVersion": "ainuoke-catalog-contracts.v1" if data["mode"] == "catalog-contracts" else "ainuoke-catalog-discovery.v1" if catalog else "ainuoke-bound-materials-once.v1" if bounded else "ainuoke-selected-source-once.v1",
               "mode": data["mode"], "limits": {**LIMITS, **({"contracts": 0, "reportRequests": 40, "httpAttempts": 41} if catalog else {"contracts": 25} if bounded else {})},

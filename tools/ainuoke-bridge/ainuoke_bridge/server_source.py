@@ -9,6 +9,8 @@ import unicodedata
 from urllib.parse import urlsplit
 from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
 from urllib.error import HTTPError, URLError
+import socket
+import ssl
 from .ainuoke_client import AinuokeClient, AuthExpiredError, InvalidCredentialError, NetworkAinuokeError, UpstreamSchemaError
 from .contracts import REPORT_CATALOG, build_report_snapshot
 
@@ -22,6 +24,20 @@ def identity(value):
 class NoRedirect(HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         return None
+
+def transport_failure(error, status=None):
+    """Closed diagnostic categories only; never retain error text or URLs."""
+    reason = error.reason if isinstance(error, URLError) else error
+    category = ('http_error' if status is not None else
+                'timeout' if isinstance(reason, TimeoutError) else
+                'dns_error' if isinstance(reason, socket.gaierror) else
+                'tls_error' if isinstance(reason, ssl.SSLError) else
+                'connection_refused' if isinstance(reason, ConnectionRefusedError) else
+                'connection_reset' if isinstance(reason, ConnectionResetError) else 'network_error')
+    failure = NetworkAinuokeError('upstream_http_error' if status is not None else 'network_unavailable')
+    failure.transport_category = category
+    failure.http_status = status if type(status) is int and 100 <= status <= 599 else None
+    return failure
 
 class ProtectedTransport:
     """No redirects (including credential-bearing login GET); no ambient proxy."""
@@ -47,9 +63,9 @@ class ProtectedTransport:
                 raise AuthExpiredError("auth_expired") from None
             if 300 <= error.code < 400:
                 raise UpstreamSchemaError("redirect_refused") from None
-            raise NetworkAinuokeError("upstream_http_error") from None
-        except (URLError, TimeoutError, OSError):
-            raise NetworkAinuokeError("network_unavailable") from None
+            raise transport_failure(error, error.code) from None
+        except (URLError, TimeoutError, OSError) as error:
+            raise transport_failure(error) from None
         if len(raw) > self.max_response_bytes:
             raise UpstreamSchemaError("response_limit")
         try:
