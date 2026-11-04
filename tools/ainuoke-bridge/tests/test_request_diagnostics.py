@@ -18,6 +18,21 @@ REQUEST={'url':'https://example.invalid/'+SECRET,'method':'POST',
          'headers':{'Authorization':SECRET,'Cookie':SECRET},'timeout':15}
 
 class RequestDiagnosticsTests(TestCase):
+    def test_http_success_with_explicit_login_refusal_is_an_auth_failure_not_a_password_diagnosis(self):
+        class Rejected(FakeSelectedTransport):
+            def request(self,**request):
+                self.calls.append(request)
+                return {'data':{'isOk':False,'message':SECRET}}
+        events=[];transport=Rejected()
+        result=collect_selected(CONFIG,transport,diagnostics=events)
+        self.assertEqual(result['code'],'invalid_credential')
+        self.assertEqual(result['metrics']['logins'],1)
+        self.assertEqual(result['metrics']['reportRequests'],0)
+        self.assertEqual(len(events),1)
+        self.assertEqual(events[0]['kind'],'login')
+        self.assertEqual(events[0]['outcome'],'auth_error')
+        self.assertNotIn(SECRET,json.dumps(result)+json.dumps(events))
+
     def test_catalogue_waits_45_seconds_without_changing_legacy_or_total_budget(self):
         for mode,contracts,expected in [('catalog-contracts',['SYN-SALES-1'],45),('catalog-discovery',[],45),('selected-bindings',['SYN-SALES-1','SYN-SALES-2'],15)]:
             transport=FakeSelectedTransport()

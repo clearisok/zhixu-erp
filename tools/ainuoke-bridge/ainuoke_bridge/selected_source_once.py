@@ -160,6 +160,10 @@ def collect_selected(data, transport=None, clock=monotonic, diagnostics=None):
             raise Refused("selected_source_row_limit")
         return {**common, "result": "complete", "code": None, "metrics": budget.metrics(), "bundle": bundle}
     except (Exception, KeyboardInterrupt) as error:
+        # HTTP can finish normally while the login payload explicitly refuses
+        # access. Mark the semantic failure without retaining its message/token.
+        if isinstance(error, InvalidCredentialError) and diagnostics and diagnostics[-1]["kind"] == "login":
+            diagnostics[-1]["outcome"] = "auth_error"
         code = error.code if isinstance(error, Refused) else "invalid_credential" if isinstance(error, InvalidCredentialError) \
             else "auth_expired" if isinstance(error, AuthExpiredError) else "source_unavailable" if isinstance(error, NetworkAinuokeError) \
             else "selected_source_response_limit" if isinstance(error, UpstreamSchemaError) and str(error) == "response_limit" \

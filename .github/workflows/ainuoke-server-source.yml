@@ -132,4 +132,6 @@ jobs:
         working-directory: tools/ainuoke-bridge
         env:
           PYTHONDONTWRITEBYTECODE: '1'
-        run: python3 -m unittest discover -s tests
+        run: |
+          python3 -m unittest discover -s tests
+          python3 -m unittest discover -s ../../scripts/tests -p test_ainuoke_sync_supervisor.py

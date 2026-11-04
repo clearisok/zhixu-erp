@@ -1,3 +1,5 @@
+E5最新停止点：coverage进程69589已结束，550成功/5登录拒绝/53排队；96登录3472报表、0未知，最后仅1登录0报表299ms。按SDK可知data.isOk=false，原因不能细分；已向用户询问网页登录情况，禁止再真实登录/刷新或自动解除暂停。原100指针和规范化成功时间独立只读比对全一致，控制disabled+invalid_credential。新私密事件把显式登录拒绝标auth_error（正常协议不变），Windows171过；主机监管5测试过，尚未安装启用。应用42首次runtime失败EACCES（COPY700/600配合cap-drop导致），需源码只读权限重建；旧容器日志保留。下一步只做离线新候选/禁用态监管烟测、交付收口，不再Ainuoke读取。
+
 E4最新：固定5单两时点全过（7登录212报表，0失败），原sample进程已结束。应用镜像42e18da526ec82bcefc2cdba7531c05595274b4a84c5fbc0a9121604bffa749b离线构建通过、未启动或部署。准备coverage action：全新副本仅补原508，保留100旧成功；150登录/12000报表/60分钟，连续3公共失败停。不要重跑sample或旧campaign；新scope见任务E4，后继coverage-review/progress.json为最新。下文sample正在运行已成为历史时点。
 
 # 接力：新恢复候选，固定样本正在分时验证
