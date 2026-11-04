@@ -31,3 +31,17 @@ Windows新9项合成单测通过，涵盖零报表/二次登录阻断/覆盖登�
 两项实际Linux阻断烟测均按预期退出1：无approved.json为EXPLICIT_APPROVAL_REQUIRED；合成已消耗额度为RESERVATION_ALREADY_SPENT。它们均在cfg/数据库/来源I/O前拒绝；没有制造批准记录或消耗真实额度。[准备结果](../../../artifacts/ainuoke-login-recovery-20261104/readiness.json)。最终执行器私密文件/home/jackson/weaveops-login-recovery-20261104/login-resume.mjs，SHA256 f60c0d137a4f0ae6f29f717486821d06b11d45b5a947e9e75bfb0cf0296be19c；不能改用旧c7bc范围或旧helper版本。
 
 本轮新艾诺科请求0、业务写入0，未建立approved.json或真实reservation。预检临时启动的本任务PostgreSQL已再次正常停止，数据卷及550成功/全部旧失败保留；旧worker仍PAUSED、体验站不变。GitHub API本轮核实main仍cb5cc29baa49ed7115fdb6c9506b6a80356936ea；不重推已知失败通道、不创建PR或触发CI。自审与本地准备不替代尚未运行的远端CI，也不等于真实核验已获批准。
+
+## 用户已批准并执行：仅登录阶段拒绝，固定范围关闭
+
+用户明确批准call_66ecaab4114e435bb28d2c5c31ffdba3的完整固定范围。执行前核对SOURCE97449、操作者0031993e、scope5d87、helper f60c、owned PG镜像/标签/唯一卷、内部网络及旧worker PAUSED；仅建立本次私密批准/一次性reservation后启动。没有更改认证方式或覆盖会话。
+
+UTC2026-11-04T12:19:55.051Z开始、12:19:55.483Z结束（北京时间20:19:55），432ms；实际1登录、0报表、0未知/内部重试。请求耗时276ms，传输返回后SDK看到payload isOk=false，封闭serverHint为unclassified；按条件立即停止，未解除暂停/启用控制或进入报表查询，容器退出1。[执行回执](../../../artifacts/ainuoke-login-recovery-20261104/execution-result.json)。这不是密码错误的确定诊断；当前没有保存拒绝原文，不能反推具体原因。
+
+用户随后确认是同一账号且密码未改。原本机D:/workspace/ainuoke-key.txt已验证仅owner/System权限、非reparse；本机/宁波两个私密进程使用临时随机HMAC密钥比较，只返回账号原值、规范化值及密码三项bool，全部true。没有输出用户名/密码、持久存储比较密钥/派生值或修改任一凭据。[只读比较](../../../artifacts/ainuoke-login-recovery-20261104/credential-comparison.json)。这排除两份配置不一致，不能证明服务端当前接受该SDK登录。
+
+尝试只读现有Chrome网页时，getState及一次针对性listTabs均因浏览器request-header policy加载错误失败；可见IAB仅Cloudflare/试用站登录页，未读取艾诺科页面内容，未新建/导航/刷新/退出或登录。该工具限制与艾诺科拒绝、Git传输分别记录，不互相归因。不尝试读取浏览器cookie或缓存绕过。
+
+收口首次只读SQL在冷启动后未等ready，命令失败，finally正常停库；补就绪检查后只读复核通过（未新增Source请求）。独立确认仍550成功/5失败/53排队，控制disabled/invalid_credential，原550指针及完整成功时间保留；原worker PAUSED，操作者/owned PG均停、卷保留。真实批准附加approval-closed.json，不修改历史批准/失败回执；不能用未消费的理论额度再次尝试。[保护收口](../../../artifacts/ainuoke-login-recovery-20261104/closeout.json)。
+
+本轮没有修改业务代码、真实账户/体验库、备份策略或持续服务，没有推送/PR/CI/合并/部署。已成功工程测试按相同代码复用；最终收口提交后仅运行精确源码守卫。下一步必须先取得可安全解释的拒绝原因（现有封闭分类线索不足）或维护方登录规则，再决定客户端修复及新的固定核验，不能继续盲目重登或重采550。会话数量、频率、IP、许可等均为待验证方向，不是本次已定位根因。

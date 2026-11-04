@@ -1,0 +1,29 @@
+{
+  "source": "97449e9400623fc8178de98bbb6b361c382ce684",
+  "scopeHash": "5d87ab8a13dc9389ed57ae482a4c330c152ab93f6694bcb58fb2a5acab26dc2e",
+  "startedAt": "2026-11-04T12:19:55.051Z",
+  "finishedAt": "2026-11-04T12:19:55.483Z",
+  "elapsedMs": 432,
+  "state": "STOPPED",
+  "stage": "login_only",
+  "code": "login_check_not_accepted",
+  "reservedLogins": 1,
+  "reservedReports": 0,
+  "knownLogins": 1,
+  "knownReports": 0,
+  "metricsUnknown": 0,
+  "captures": 1,
+  "maximumLogins": 30,
+  "maximumReports": 2400,
+  "maximumMs": 2400000,
+  "loginResult": {
+    "result": "rejected",
+    "code": "login_refused",
+    "serverHint": "unclassified",
+    "payloadRefused": true
+  },
+  "original550Preserved": true,
+  "productionWrites": 0,
+  "onlyIsolatedDatabase": true,
+  "containerExitCode": 1
+}

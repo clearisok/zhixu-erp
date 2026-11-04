@@ -1,0 +1,36 @@
+{
+  "state": "AUTH_REJECTION_CLOSEOUT_VERIFIED",
+  "source": "97449e9400623fc8178de98bbb6b361c382ce684",
+  "scopeHash": "5d87ab8a13dc9389ed57ae482a4c330c152ab93f6694bcb58fb2a5acab26dc2e",
+  "successes": 550,
+  "failed": 5,
+  "queued": 53,
+  "original550Preserved": true,
+  "control": [
+    {
+      "enabled": false,
+      "pausedReason": "invalid_credential"
+    }
+  ],
+  "loginRequests": [
+    {
+      "kind": "login",
+      "reportId": null,
+      "page": null,
+      "elapsedMs": 276,
+      "outcome": "auth_error",
+      "httpStatus": null
+    }
+  ],
+  "knownLogins": 1,
+  "knownReports": 0,
+  "metricsUnknown": 0,
+  "approvalClosed": true,
+  "automaticResumeAllowed": false,
+  "operatorStopped": true,
+  "ownedDatabaseStopped": true,
+  "volumePreserved": true,
+  "oldWorker": "PAUSED",
+  "productionWrites": 0,
+  "newSourceRequestsInThisCheck": 0
+}
