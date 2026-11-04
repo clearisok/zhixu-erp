@@ -1,6 +1,6 @@
 # 当前切片：宁波准备与真实容量核验
 
-2026-11-04；分支feat/ainuoke-full-catalog-followup，工程候选bae837a152cb223039afc94fa06c571b3ee8328e。新用户指示覆盖备份、升级/替换准备和容量实测。本轮未合并或切换正式试用栈；Git单次交付仍未成功，无PR/新CI，详见[11月2日本地工程状态](tasks/completed/2026-11-04-before-ningbo-capacity/CURRENT_STATE.md)。
+2026-11-04；分支feat/ainuoke-full-catalog-followup，工程候选bae837a152cb223039afc94fa06c571b3ee8328e。main基线沿用此前已核实cb5cc29baa49ed7115fdb6c9506b6a80356936ea，本轮未刷新远端。新用户指示覆盖备份、升级/替换准备和容量实测。本轮未合并或切换正式试用栈；Git单次交付仍未成功，无PR/新CI，详见[11月2日本地工程状态](tasks/completed/2026-11-04-before-ningbo-capacity/CURRENT_STATE.md)。
 
 宁波正式应用仍f21c96c1、51迁移、3SO/2报价/2附件。旧三合同worker自11月2日12:14北京时间PAUSED，DB原因discovery_changed，最后成功12:08:09；190成功run及最后指针保留。本次没有重启旧采集。先前“持续同步健康”只表示其原记录日期，不能当作当前事实。
 

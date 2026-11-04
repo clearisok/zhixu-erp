@@ -52,4 +52,6 @@
 
 本机ignored outputs/ningbo-catalog-preparation-20261104/final-review.json冻结镜像、恢复、升级、容量及正式只读回查；OFFHOST状态位于既有本机备份目录。[公开白名单回执](../../../artifacts/ningbo-catalog-capacity-20261104/review.json)保留关键数值和精确候选，不包含秘密或来源原文。具体执行代码、构建失败日志和原始响应保留，不纳入Git。未触发CI、合并或正式部署。
 
+本次文档检查点的首轮发布守卫发现CURRENT_STATE/AI_HANDOFF未在当前正文保留完整main基线，报告STATE_BASELINE_DRIFT；已补回此前核实的完整cb5cc29baa49ed7115fdb6c9506b6a80356936ea并明确本轮未刷新远端。未修改基线规则或重跑已通过的182项回归，修正后单独核对守卫。
+
 一次运维读取误将来源配置敏感字段带入工具输出，已向用户说明并改为白名单输出；报告和Git均不含其值，建议轮换来源密码，未自行修改账号。该问题不应隐藏为“零敏感输出”。
