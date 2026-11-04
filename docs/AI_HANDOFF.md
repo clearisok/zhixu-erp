@@ -1,23 +1,23 @@
-# 接力：本次授权已执行并因登录拒绝关闭
+# 接力：PR140首次CI结束，测试兼容修复未上传
 
-2026-11-04；feat/ainuoke-full-catalog-followup。输入HEAD6c27172e63642380829a6cc4358c71f60f55e716、工作树干净；main最近核实cb5cc29baa49ed7115fdb6c9506b6a80356936ea，本轮未刷新或上传。当前先读[状态](CURRENT_STATE.md)、[真实执行任务](tasks/active/ainuoke-login-recovery-2026-11-04.md)与[此前完整接力](tasks/completed/2026-11-04-before-approved-login-result/AI_HANDOFF.md)。旧接力中的“待批准/可恢复”现已失效，不据其重启。
+2026-11-04；feat/ainuoke-full-catalog-followup。本轮输入32100b27d3b14dcbfef5ce6a83ace6c3d4ce5836、干净工作树；main API再次精确cb5cc29baa49ed7115fdb6c9506b6a80356936ea。先读[状态](CURRENT_STATE.md)和[本轮任务](tasks/active/pr140-ci-and-staging-status-2026-11-04.md)。前文原样归档至[输入接力](tasks/completed/2026-11-04-before-pr140-ci-fix/AI_HANDOFF.md)。
 
-## 已执行，禁止再用本次授权
+## GitHub与本地修复
 
-用户批准call_66ecaab固定恢复；97449诊断/0031993e操作者、scope5d87、helper f60c完整身份已核对。UTC12:19:55.051–12:19:55.483（北京时间20:19:55），实际1登录/0报表/0未知，HTTP读取276ms后payload isOk=false；serverHint unclassified。按批准条件立即停止，未调用recoverSync提交或启用控制。不能用总上限30中未用的29登录再次尝试，更不能改isCoverLogin=false、凭据或反复跑helper。
+远端head32100b27已精确核实。此前Git旧代理17989无监听，进程级直连成功；一次push送达但退出1/STOP_AUTH_OR_DIVERGENCE，原文未留，不能假报已解释异常。用户后续明确批准只创建草稿PR并检查CI，已执行为唯一[140](https://github.com/clearisok/zhixu-erp/pull/140)，无冲突、保持draft；不自动追加Git写入、更换认证、合并或部署。
 
-私密路径/home/jackson/weaveops-login-recovery-20261104/review-v2，现有approved.json、execution-submitted.json、resume-reserved.json、login-result.json、resume-summary.json及approval-closed.json均保留。真实容器weaveops-login-recovery-execute-20261104已退出1；owned PostgreSQL weaveops-catalog-capacity-20261104-database已正常停止，卷weaveops-catalog-capacity-20261104-data保留。旧worker仍PAUSED；不改真实试用栈/库/账号/备份/旧资产。
+首次CI Release baseline 41843109476、First team access 41843109177成功；Ainuoke source 41843109164/job126619587024失败，旧到仓升级快照新增catalog_run_id:null、旧模拟仅改profile错误而绕过逐订单head。后继只修测试：冻结升级前实际列，新增负向控制证明原值/增删行/原列丢失仍检出；迁移文件精确清单、新owner空表及目录指针NULL断言保留。失败测试走合成capture真实失败并保护原成功run。无生产代码/迁移变化。
 
-独立只读复核仍550成功/5失败/53排队，enabled=false/invalid_credential；原550指针与完整成功时间proof=4d2058cbe19491834b53f85542a5bbf38915bb2e34db38571dd00e701aff2895全部一致。首轮收口读库未等待PG ready而命令失败，finally已停库；补就绪等待后只读复核通过，原失败保留，不将其写成首轮PASS。
+本地第一次2文件23项通过；共享列冻结后7文件18项通过，二者重叠3项、不相加。最终类型/9路径lint通过；最终提交后另做精确源码守卫。未重跑已成功182发布回归或3项远端CI，业务构建/浏览器/Python均复用未变代码证据。后继本地commit以实际git HEAD/最终报告为准，远端与CI仍32100b27，不能混为通过。
 
-## 已排除与仍未知
+## 实际订单与来源边界
 
-用户确认网页同一账号、密码未改。D:/workspace/ainuoke-key.txt已核对为owner/System私密ACL；两端私密进程用临时HMAC比较，用户名原值/规范化值与密码全部相同。密钥/派生值/凭据均未进入输出、Git或持久日志，不要读取或打印原文件。该证据只证明两份配置一致，不证明SDK登录请求被接受。
+本次staging公网build-info为f21c96c1899126028ba9a272727ad8d564ccf185；Ningbo project zhixu-quote-trial-staging-562fbf07只读核对3 SO/2 quote/121 public tables，0业务写入、0来源请求、无服务启停。新能力未部署。当前账号可见608目录；550成功仅在隔离覆盖库，5失败53排队，不是550正式订单。
 
-登录拒绝原文未保存，封闭分类未识别，所以具体业务原因仍未知。SDK每个capture重新登录、不强制覆盖会话是代码事实；在线会话/次数/接入规则只是候选解释，不得冒称已定位。只读Chrome getState/listTabs因request-header policy错误失败；没有实际访问艾诺科网页、刷新或退出，勿继续重复浏览器命令或绕过到浏览器cookie/缓存。
+固定恢复call_66ecaab已在20:19:55、1登录0报表/276ms/isOk=false停止并关闭，不可用余量29再次登录。私密review-v2及approval-closed、scope5d87、helper f60c、原550完整proof4d2058cb等见原接力/任务。owned容器/恢复库已停、卷和历史保留；本轮未改变它们、旧worker或备份。
 
-## 后续边界
+两端凭据此前私密临时HMAC比对完全相同，禁止打印原文件、用户名、密码、令牌或派生值。用户本次自行在IAB原登录页成功登录，已通过DOM只读确认首页/我的应用及无登录按钮；没有由采集器重登。拒绝原文没有保留；invalid_credential覆盖全部isOk=false，不能认定密码错误或猜测会话/IP根因。Chrome旧policy错误与这次IAB成功分别记录，不清cookie或改变isCoverLogin。
 
-先准备更有效且不泄露凭据的拒绝原因诊断或获得维护方规则说明；任何新的真实登录/采集需要新的具体范围，不能根据用户“同一账号/密码未改”自动恢复。当前550只在隔离覆盖验收库，不是608张正式SO。随后用户明确授权网络恢复上传；默认旧代理17989无监听，仅进程级直连三读通过，main/API精确cb5cc29b，无既有PR。见[本次Git交付范围](tasks/active/github-delivery-recovery-2026-11-04.md)。最终提交后同路径最多一次安全push，精确API核实再建唯一草稿PR及必要CI；未核实不预记送达。没有真实来源新调用，不重复既有成功测试、不改共享配置或自动合并部署。
+## 下一步
 
-业务代码未变，复用类型/lint/构建、既有SQL/API、7Chromium、Windows/Linux171及新9诊断、5监管和182发布回归；本轮只追加实际拒绝/私密比较/只读保护证据与最后精确源码守卫。工程、真实来源完整覆盖、远端交付、宁波137表备份与升级/持续服务分别验收，未完成不称PASS。
+有界交付本地兼容修复前须遵守Git STOP范围；现有例外只完成PR元数据/首次CI，不默许新push。登录诊断先准备可靠安全原因提取；新真实登录/采集、绑定/激活/持续调度需新具体许可。部署另需批准、137表备份重新绑定及配对/异机恢复，不重建长期库。没有完成608覆盖、PR全绿或staging升级。

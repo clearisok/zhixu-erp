@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { freezeExistingPublicRows } from "./legacy-row-snapshot-fixture.js";
 import { randomUUID } from "node:crypto";
 import { copyFile, mkdtemp, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -42,7 +43,7 @@ test("0038 to 0039 creates empty arrival owner and preserves nonempty Source/tra
   const command = { requestId: randomUUID(), intent: tracking.intent, previewHash: tracking.previewHash }, saved = await executeOrderTracking(pool, actor, command); assert.equal(saved.status, "applied");
   const config = { sourceKey: source.sourceKey, maxAgeMs: 1800000 }, material = await createOrderMaterialReader(createPersistedMaterialPorts(pool, config))(actor, { salesOrderId: orderId }); assert.equal(material.status, 200);
   const tables = (await pool.query<{ tablename: string }>("SELECT tablename FROM pg_tables WHERE schemaname='public' AND tablename<>'schema_migrations' ORDER BY tablename")).rows.map(row => row.tablename);
-  const snapshot = () => Promise.all(tables.map(async table => ({ table, rows: (await pool.query(`SELECT to_jsonb(row)::text payload FROM "${table}" row ORDER BY payload`)).rows })));
+  const snapshot = await freezeExistingPublicRows(pool, tables);
   const before = await snapshot();
   await t.test("old schema fails closed for arrivals while original source and tracking remain readable", async () => {
     await assert.rejects(() => verifyMigrationsCurrent(pool, resolve("database/migrations")), PendingMigrationsError);
@@ -51,9 +52,10 @@ test("0038 to 0039 creates empty arrival owner and preserves nonempty Source/tra
     const client = await pool.connect(); try { assert.equal((await normalizationReferences(client)).some(([table]) => table === "material_arrival_plans"), false); } finally { client.release(); }
     assert.equal((await readOrderTracking(pool, actor, orderId)).tracking?.remark, "合成升级保留备注"); assert.deepEqual(await snapshot(), before);
   });
-  await t.test("forward upgrade seeds nothing and preserves every old public row and receipt", async () => {
+  await t.test("forward upgrade preserves every old column and receipt and leaves arrival owners empty", async () => {
     assert.deepEqual((await runMigrations(pool, resolve("database/migrations"))).applied, migrationFilesAfter(38));
     await verifyMigrationsCurrent(pool, resolve("database/migrations")); assert.deepEqual(await snapshot(), before);
+    assert.deepEqual((await pool.query("SELECT catalog_run_id FROM ainuoke_source_profiles ORDER BY source_key")).rows, [{ catalog_run_id: null }]);
     for (const table of ["material_arrival_demands", "material_arrival_plans", "material_arrival_plan_versions", "material_arrival_commands", "material_arrival_command_orders"]) assert.equal((await pool.query("SELECT count(*)::int n FROM " + table)).rows[0].n, 0);
     const result = await readMaterialArrivals(pool, actor, orderId, config); assert.equal(result.source.status, "ready"); assert.ok(result.source.demands.length); assert.deepEqual(result.plans, []);
     assert.deepEqual(await createOrderMaterialReader(createPersistedMaterialPorts(pool, config))(actor, { salesOrderId: orderId }), material);

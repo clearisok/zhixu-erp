@@ -1,4 +1,5 @@
 import test from "node:test";
+import { freezeExistingPublicRows } from "./legacy-row-snapshot-fixture.js";
 import assert from "node:assert/strict";
 import { mkdtemp, readdir, copyFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -45,7 +46,7 @@ test("0042 to 0043 preserves nonempty old source/order/history rows and leaves c
   const scope = { sourceFingerprint: fingerprint, salesContractNo: "SYN-UPGRADE-C1" }, collected = validateGarmentCollectionResult(workerFrame(scope, clock + 100), request.config, scope, clock + 100);
   await publishGarmentObservation(pool, actor, context, collected.input, scope, clock + 100);
   const tables = (await pool.query<{ tablename: string }>("SELECT tablename FROM pg_tables WHERE schemaname='public' AND tablename<>'schema_migrations' ORDER BY tablename")).rows.map(row => row.tablename);
-  const snapshot = () => Promise.all(tables.map(async table => ({ table, rows: (await pool.query(`SELECT to_jsonb(r)::text AS payload FROM "${table}" r ORDER BY payload`)).rows })));
+  const snapshot = await freezeExistingPublicRows(pool, tables);
   const before = await snapshot();
   await t.test("missing command schema is rejected without a migration, target change or upstream request", async () => {
     await assert.rejects(() => verifyMigrationsCurrent(pool, resolve("database/migrations")), PendingMigrationsError);

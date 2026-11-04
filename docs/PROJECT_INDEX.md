@@ -1,6 +1,6 @@
 # 当前入口：全量合同可查与交期分档同步
 
-当前交付续作：[Git旧代理只读定位与进程级直连恢复](tasks/active/github-delivery-recovery-2026-11-04.md)；用户明确授权上传，实际送达与CI以工具回执/唯一PR为准，不据读取成功预记。
+当前交付续作：[PR140首轮CI、兼容修复与体验站范围](tasks/active/pr140-ci-and-staging-status-2026-11-04.md)。唯一草稿140的基线/权限CI成功、来源CI失败；后继仅测试兼容修复已本地验收、未上传。staging仍旧f21、3正式订单，隔离550成功不冒充全量上线。[此前Git交付定位](tasks/active/github-delivery-recovery-2026-11-04.md)保留。
 
 当前续作：[来源稳定性、有限恢复与共享证据](tasks/active/ainuoke-sync-resilience-2026-11-04.md)。当前550/608成功，登录拒绝暂停；用户已批准的[固定恢复](tasks/active/ainuoke-login-recovery-2026-11-04.md)在1登录/0报表时再次被拒绝并关闭；两端凭据一致，原因尚未确定。先读当前状态，不重启旧运行中任务。[上一诊断与容量复核](tasks/active/ainuoke-request-diagnostics-capacity-2026-11-04.md)保留原失败。
 

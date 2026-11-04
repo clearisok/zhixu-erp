@@ -1,4 +1,5 @@
 import test from 'node:test';
+import { freezeExistingPublicRows } from './legacy-row-snapshot-fixture.js';
 import assert from 'node:assert/strict';
 import {mkdtemp,readdir,copyFile,rm} from 'node:fs/promises';
 import {realpathSync} from 'node:fs';
@@ -36,7 +37,7 @@ test('0053/0054 forward upgrade preserves nonempty legacy data and initializes p
   await captureSource(pool,actor,{...scope,maxAgeMs:600000,collect:async()=>materials.bundle});
   await createQuoteService(pool).createAggregate(quoteSnapshotFromBrowser(createQuoteDraft('synthetic-catalog-upgrade','QT-UPGRADE','2026-11-02')));
   const tables=(await pool.query("SELECT tablename FROM pg_tables WHERE schemaname='public' AND tablename<>'schema_migrations' ORDER BY tablename")).rows.map(r=>r.tablename);
-  const snapshot=()=>Promise.all(tables.map(async table=>({table,rows:(await pool.query(`SELECT (to_jsonb(r)${table==='ainuoke_source_profiles'?"-'catalog_run_id'":''})::text AS payload FROM "${table}" r ORDER BY payload`)).rows})));
+  const snapshot=await freezeExistingPublicRows(pool,tables);
   const before=await snapshot(),reader=createOrderMaterialReader(createPersistedMaterialPorts(pool,{sourceKey:scope.sourceKey,maxAgeMs:600000})),oldView=await reader(actor,{salesOrderId:bound.orderIds[0]});
   assert.equal(oldView.status,200);if(oldView.status===200)assert.equal(oldView.body.progress.sourceStatus,'ready');
   assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,['0053_ainuoke_catalog_followup.sql','0054_ainuoke_catalog_receipts.sql','0055_ainuoke_shared_catalog_evidence.sql','0056_ainuoke_sync_attempt_recovery.sql']);
@@ -48,4 +49,20 @@ test('0053/0054 forward upgrade preserves nonempty legacy data and initializes p
   assert.deepEqual(foreign.filter(r=>!NORMALIZATION_REFERENCES.some(([table,column])=>table===r.table_name&&column===r.column_name)),[]);
   assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,[]);await verifyMigrationsCurrent(pool,resolve('database/migrations'));
  }finally{await pool.end();await db.stop();const distance=relative(tempRoot,resolve(prefix));assert.ok(distance&&!distance.startsWith('..')&&!isAbsolute(distance));await rm(prefix,{recursive:true});}
+});
+
+test('legacy row snapshots permit new columns while detecting changes or loss of original data',async t=>{
+ const db=await startDisposablePostgres(),pool=new pg.Pool({connectionString:await db.createDatabase('frozen_columns')});
+ t.after(async()=>{try{await pool.end();}finally{await db.stop();}});
+ await pool.query("CREATE TABLE retained_rows(id integer PRIMARY KEY, name text, quantity numeric); INSERT INTO retained_rows VALUES(1,'original',12.50)");
+ const snapshot=await freezeExistingPublicRows(pool,['retained_rows']),before=await snapshot();
+ await pool.query("ALTER TABLE retained_rows ADD COLUMN new_namespace text DEFAULT 'new value'");
+ assert.deepEqual(await snapshot(),before);
+ await pool.query("UPDATE retained_rows SET name='changed'");assert.notDeepEqual(await snapshot(),before);
+ await pool.query("UPDATE retained_rows SET name='original'; INSERT INTO retained_rows(id,name,quantity) VALUES(2,'additional',1)");
+ assert.notDeepEqual(await snapshot(),before);
+ await pool.query('DELETE FROM retained_rows WHERE id=2');assert.deepEqual(await snapshot(),before);
+ await pool.query('DELETE FROM retained_rows');assert.notDeepEqual(await snapshot(),before);
+ await pool.query('ALTER TABLE retained_rows DROP COLUMN quantity');await assert.rejects(()=>snapshot(),{code:'42703'});
+ await assert.rejects(()=>freezeExistingPublicRows(pool,['retained_rows;DROP TABLE retained_rows']),/snapshot_identifier_invalid/);
 });
