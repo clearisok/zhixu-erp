@@ -1,3 +1,4 @@
+import { retryThumbnail } from "./thumbnail-retry";
 import { quoteAttachmentClient } from "./quote-attachment-client";
 import { inspectListImage, LIST_IMAGE_MAX_BYTES, LIST_IMAGE_MAX_PIXELS, LIST_IMAGE_TOTAL_BYTES, LIST_IMAGE_TOTAL_PIXELS, ListImagePolicyError, type ListImageFailure } from "./list-image-policy";
 import type { QuoteServerListItem } from "./quote-server-client";
@@ -31,7 +32,7 @@ export function createListImageLoader(options: {
       const { quoteId, revisionId, image } = entry.reference;
       void (async () => {
         try {
-          const { blob, sha256 } = await download(quoteId, revisionId, image.attachmentId, entry.controller.signal);
+          const { blob, sha256 } = await retryThumbnail(() => download(quoteId, revisionId, image.attachmentId, entry.controller.signal), entry.controller.signal);
           if (!blob.size || blob.size > LIST_IMAGE_MAX_BYTES || blob.type !== "image/jpeg") throw new Error("Invalid thumbnail object");
           if (disposed || !entry.listeners.size || entry.controller.signal.aborted) return;
           const bytes = new Uint8Array(await blob.arrayBuffer());
