@@ -5711,6 +5711,16 @@
       "sha256": "ba8d1acd606ef30498c77f9740e62d316921bf7e088745c3ad339450e49e6d75",
       "supersedes": "catalog-sync-resilience-decisions-20261104",
       "changeReason": "Record the audit correction enforcing already approved D180 stop semantics without changing business policy or real source authorization."
+    },
+    {
+      "id": "catalog-rejected-capture-diagnostics-20261105",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SERVER_SOURCE.md",
+      "recordedAtSha": "fed83ce98b212abf4d0637ba36426806e78297af",
+      "renderedSourceSha": "fed83ce98b212abf4d0637ba36426806e78297af",
+      "sha256": "c325f68faf7598b257737585fe5812dfb266964dae9703b3c46fdaa65f23bebe",
+      "supersedes": "project-audit-source-stop-20261104",
+      "changeReason": "Preserve whitelisted request diagnostics after domain rejection without trusting payload metrics or changing pause/retry/publication boundaries; local tests only, no live deployment claim."
     }
   ],
   "pages": [

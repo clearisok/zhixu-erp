@@ -119,5 +119,38 @@
     "Nonselected benchmark jobs were excluded/deferred only in restored test DB; never import its queue to staging.",
     "Original 608 coverage archive predates continuous benchmark and excludes its queue artifacts.",
     "Staging unchanged; no main merge; attachment HTTP and live-policy rebind still pending."
-  ]
+  ],
+  "localDiagnosticFix": {
+    "sourceCommit": "fed83ce98b212abf4d0637ba36426806e78297af",
+    "unitTests": {
+      "pass": 3,
+      "fail": 0
+    },
+    "relatedPostgresTests": {
+      "uniqueCases": 21,
+      "allPassedAfterTestClockCorrection": true,
+      "initialRun": {
+        "pass": 20,
+        "fail": 1
+      },
+      "finalFocusedRun": {
+        "pass": 2,
+        "fail": 0
+      }
+    },
+    "typecheck": "passed",
+    "changedFileLint": "passed",
+    "build": "passed",
+    "releaseRegression": "not passed: stopped because started before required evidence re-freeze; 20 responsive checks completed",
+    "remoteDelivery": false,
+    "ciForFix": "not run",
+    "productionApplied": false,
+    "review": "local diff review; no change to publication, retry classification or pause rules",
+    "sourceGuard": {
+      "status": "PASS",
+      "checkedHead": "fed83ce98b212abf4d0637ba36426806e78297af",
+      "baseline": "cb5cc29baa49ed7115fdb6c9506b6a80356936ea",
+      "workingTreeEvidence": true
+    }
+  }
 }

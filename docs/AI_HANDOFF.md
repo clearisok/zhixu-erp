@@ -15,3 +15,7 @@
 长期站只读preflight已核仍f21/121表/2报价/3SO/2附件/2用户，未写入。精确738应用镜像c7898b30、操作者3883247d/sourcecba3aef4（运行代码等价738）；不得把后继本地修复说成在这些镜像。staging候选升级仍待连续验收、新鲜live配对、附件HTTP、policy重绑；保留所有旧资产。不要再读取真实来源或触发旧CI以“补证据”。
 
 [证据](../artifacts/five-step-convergence-20261104/continuous-and-608-backup.json)、[任务](tasks/active/five-step-convergence-2026-11-04.md)、[上一接力](tasks/completed/2026-11-05-before-continuous-stop/AI_HANDOFF.md)。
+
+本地修复源checkpoint fed83ce98b212abf4d0637ba36426806e78297af；3纯测试、21唯一相关PG回归（初次20/21，测试时钟修正后2领域用例补跑通过）、typecheck、变更文件lint、build通过。本轮完整发布回归在证据重新冻结前启动，被明确停止、不算通过；20响应式检查完成。守卫脚本未改，既有候选CI不重跑。重新冻结后源码守卫PASS（fed83ce，当前工作树证据）；新修复尚未上传/CI/部署，集中后续固定恢复改进再做一次必要交付。
+
+后续需用户决策的精确范围见[目录变化恢复提案](tasks/active/catalog-content-change-recovery-proposal-2026-11-05.md)，尚未实施，不自动恢复已暂停真实采集。
