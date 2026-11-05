@@ -17,7 +17,8 @@ export const BOUND_MATERIAL_LIMITS = Object.freeze({...SELECTED_SOURCE_LIMITS,co
 const failureCodes = new Set(['selected_source_timeout','selected_source_request_limit','selected_source_endpoint_refused',
   'selected_source_response_limit','selected_source_page_limit','selected_source_row_limit','selected_source_query_refused',
   'selected_source_secret_reflection','invalid_credential','auth_expired','source_unavailable','selected_source_invalid']);
-export const CATALOG_LIMITS = Object.freeze({...SELECTED_SOURCE_LIMITS,contracts:0,reportRequests:40,httpAttempts:41});
+export const CATALOG_LIMITS = Object.freeze({...SELECTED_SOURCE_LIMITS,contracts:0,reportRequests:56,httpAttempts:57,pagesPerReport:28,rowsPerReport:1400});
+export const CATALOG_CONTRACT_LIMITS = Object.freeze({...BOUND_MATERIAL_LIMITS,pagesPerReport:28,rowsPerReport:1400});
 export type SelectedSourceRequest = {mode:'catalog-discovery';contracts:[]}
   | {mode:'catalog-contracts';contracts:string[]}
   | {mode:'selected-bindings';contracts:string[]}
@@ -50,7 +51,7 @@ function scope(config:CollectorConfig,request:SelectedSourceRequest) {
     ||values.some(c=>typeof c!=='string'||!/^[A-Z0-9][A-Z0-9/._-]{0,79}$/u.test(c))
     ||new Set(values).size!==values.length)throw new SourceError('selected_source_scope_invalid');
   return {config:checked,contracts:[...values].sort() as string[],request:structuredClone(request),
-    limits:catalog?CATALOG_LIMITS:bounded?BOUND_MATERIAL_LIMITS:SELECTED_SOURCE_LIMITS,
+    limits:catalog?CATALOG_LIMITS:r.mode==='catalog-contracts'?CATALOG_CONTRACT_LIMITS:bounded?BOUND_MATERIAL_LIMITS:SELECTED_SOURCE_LIMITS,
     schemaVersion:r.mode==='catalog-contracts'?'ainuoke-catalog-contracts.v1':catalog?'ainuoke-catalog-discovery.v1':bounded?'ainuoke-bound-materials-once.v1':'ainuoke-selected-source-once.v1'};
 }
 
@@ -103,10 +104,12 @@ export async function validateSelectedSourceOnce(input:unknown,config:CollectorC
      }
     }
     let pageCount=0,rowCount=0;
-    for(const group of [b.discoveryBefore,b.discoveryAfter,...details.flatMap(d=>Object.values(d.value))]) {
-      if(!Array.isArray(group)||group.length<1||group.length>20)throw new SourceError('selected_source_page_limit');
+    for(const [groupIndex,group] of [b.discoveryBefore,b.discoveryAfter,...details.flatMap(d=>Object.values(d.value))].entries()) {
+      const extendedDirectory=groupIndex<2&&['catalog-discovery','catalog-contracts'].includes(checked.request.mode);
+      const maximumRows=extendedDirectory?1400:1000,maximumPages=extendedDirectory?28:20;
+      if(!Array.isArray(group)||group.length<1||group.length>maximumPages)throw new SourceError('selected_source_page_limit');
       const first=object(group[0]),total=first.total;
-      if(!Number.isSafeInteger(total)||Number(total)<0||Number(total)>1000||group.length!==Math.max(1,Math.ceil(Number(total)/50)))
+      if(!Number.isSafeInteger(total)||Number(total)<0||Number(total)>maximumRows||group.length!==Math.max(1,Math.ceil(Number(total)/50)))
         throw new SourceError('selected_source_page_limit');
       for(const [i,raw] of group.entries()) {
         const p=object(raw);

@@ -194,5 +194,17 @@ test('catalogue is not a business ledger; active groups publish and fail indepen
    assert.equal((await readSyncRequest(pool,actor,req.requestId)).status,'failed');
    assert.equal((await pool.query('SELECT paused_reason FROM ainuoke_sync_controls WHERE source_key=$1',[sourceKey])).rows[0].paused_reason,null);
   });
+  await t.test('1400 directory entries enqueue without SO creation; 1401 fails without partial queue changes',async()=>{
+   const ordersBefore=(await pool.query('SELECT count(*)::int n FROM sales_orders')).rows[0].n;
+   await captureCatalogOnce(pool,actor,selectedConfig,randomUUID(),async()=>selectedWorkerFixture('catalog-discovery','',[],1400));
+   const queued=await enqueueAutomaticSync(pool,actor,sourceKey);
+   assert.equal(queued.catalogCount,1400);
+   assert.equal((await pool.query('SELECT count(*)::int n FROM sales_orders')).rows[0].n,ordersBefore);
+   await pool.query(`INSERT INTO ainuoke_catalog_entries(source_key,source_id,sales_contract_no,inside_order_no,style_no,lifecycle_status_raw,observed_run_id)
+    SELECT source_key,'1401','SYN-SALES-1401','SYN-IN-1401','SYN-STYLE-1401',lifecycle_status_raw,observed_run_id FROM ainuoke_catalog_entries WHERE source_key=$1 LIMIT 1`,[sourceKey]);
+   const before=(await pool.query('SELECT count(*)::int n FROM ainuoke_sync_jobs')).rows[0].n;
+   await assert.rejects(enqueueAutomaticSync(pool,actor,sourceKey),/sync_catalog_capacity_exceeded/);
+   assert.equal((await pool.query('SELECT count(*)::int n FROM ainuoke_sync_jobs')).rows[0].n,before);
+  });
  }finally{await pool.end();await db.stop();}
 });

@@ -5,6 +5,7 @@ collector may ask for renewal; this client refuses before another login/HTTP.
 """
 import json
 import unicodedata
+from dataclasses import replace
 from hashlib import sha256
 from time import monotonic
 from .ainuoke_client import AinuokeClient, AuthExpiredError, InvalidCredentialError, NetworkAinuokeError, UpstreamSchemaError
@@ -14,6 +15,9 @@ MODES = ("selected-bindings", "selected-materials", "bound-materials", "catalog-
 LIMITS = {"contracts": 2, "logins": 1, "reportRequests": 80, "httpAttempts": 81,
           "pageSize": 50, "pagesPerReport": 20, "rowsPerReport": 1000,
           "sourceRows": 4000, "responseBytes": 4*1024*1024, "workerBytes": MAX_BYTES, "timeoutMs": 180000}
+CATALOG_LIMITS = {**LIMITS, "contracts": 0, "reportRequests": 56, "httpAttempts": 57,
+                  "pagesPerReport": 28, "rowsPerReport": 1400}
+CATALOG_CONTRACT_LIMITS = {**LIMITS, "contracts": 25, "pagesPerReport": 28, "rowsPerReport": 1400}
 FAILURE_CODES = frozenset({"selected_source_timeout", "selected_source_request_limit", "selected_source_endpoint_refused",
     "selected_source_response_limit", "selected_source_page_limit", "selected_source_row_limit", "selected_source_query_refused",
     "selected_source_secret_reflection", "invalid_credential", "auth_expired", "source_unavailable", "selected_source_invalid"})
@@ -88,6 +92,7 @@ class BudgetClient:
     def __init__(self, sdk, transport, selected, mode):
         self.sdk, self.transport, self.selected, self.mode = sdk, transport, set(selected), mode
         self.lookup = {}
+        self.directory_row_limit = 1400 if mode in ("catalog-discovery", "catalog-contracts") else 1000
         self.secrets = set()
 
     def login(self, username, password):
@@ -102,7 +107,7 @@ class BudgetClient:
     def read_report(self, definition, *, jwt_token, page, page_size, query_context):
         report = str(definition.report_id)
         detail = "none" if self.mode == "catalog-discovery" else "6087105" if self.mode == "selected-bindings" else "6087050"
-        if not 1 <= page <= LIMITS["pagesPerReport"] or page_size != 50:
+        if not 1 <= page <= (self.directory_row_limit // 50 if report == "6086103" else LIMITS["pagesPerReport"]) or page_size != 50:
             raise Refused("selected_source_page_limit")
         if report == "6086103":
             allowed = definition.key == "order_discovery" and query_context == {}
@@ -116,9 +121,13 @@ class BudgetClient:
         if not allowed:
             raise Refused("selected_source_query_refused")
         result = self.sdk.read_report(definition, jwt_token=jwt_token, page=page, page_size=page_size, query_context=query_context)
-        if result.total > LIMITS["rowsPerReport"]:
+        if result.total > (self.directory_row_limit if report == "6086103" else LIMITS["rowsPerReport"]):
             raise Refused("selected_source_row_limit")
         if report == "6086103":
+            # The user excludes source images. Project before building evidence
+            # fingerprints; keep every other field, and never fetch image URLs.
+            result = replace(result, rows=[{key: value for key, value in row.items() if key != "ImageFile"}
+                                           for row in result.rows])
             for row in result.rows:
                 contract, inside = identity(row.get("BillNo")), row.get("InsideOrderNo")
                 if contract in self.selected and isinstance(inside, str) and inside.strip():
@@ -136,10 +145,10 @@ def collect_selected(data, transport=None, clock=monotonic, diagnostics=None):
     if diagnostics is not None:
         from .request_diagnostics import DiagnosticTransport
         underlying = DiagnosticTransport(underlying, diagnostics, clock)
-    budget = BudgetTransport(data["baseUrl"], underlying, clock, 40 if catalog else 80)
+    budget = BudgetTransport(data["baseUrl"], underlying, clock, CATALOG_LIMITS["reportRequests"] if catalog else 80)
     bounded = data["mode"] in ("bound-materials", "catalog-contracts")
     common = {"schemaVersion": "ainuoke-catalog-contracts.v1" if data["mode"] == "catalog-contracts" else "ainuoke-catalog-discovery.v1" if catalog else "ainuoke-bound-materials-once.v1" if bounded else "ainuoke-selected-source-once.v1",
-              "mode": data["mode"], "limits": {**LIMITS, **({"contracts": 0, "reportRequests": 40, "httpAttempts": 41} if catalog else {"contracts": 25} if bounded else {})},
+              "mode": data["mode"], "limits": CATALOG_LIMITS if catalog else CATALOG_CONTRACT_LIMITS if data["mode"] == "catalog-contracts" else {**LIMITS, **({"contracts": 25} if bounded else {})},
               "sourceFingerprint": fingerprint(data), "selectedContracts": list(data["contracts"]),
               "databaseAccess": "none", "sourceActivation": "not-activated"}
     try:

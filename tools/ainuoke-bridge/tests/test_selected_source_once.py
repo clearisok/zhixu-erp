@@ -14,16 +14,50 @@ CONFIG = {"baseUrl": "https://example.invalid", "username": "synthetic", "passwo
 
 class SelectedSourceOnceTests(TestCase):
     def test_catalogue_discovery_reads_two_complete_passes_only(self):
-        for total in (0, 3, 51, 1000):
+        for total in (0, 3, 51, 1000, 1001, 1400):
             transport = FakeSelectedTransport(total=total)
             result = collect_selected({**CONFIG, "mode": "catalog-discovery", "contracts": []}, transport)
             self.assertEqual(result["result"], "complete")
             self.assertEqual(result["schemaVersion"], "ainuoke-catalog-discovery.v1")
             self.assertEqual(result["metrics"]["reportRequests"], 2*max(1, (total+49)//50))
             self.assertTrue(all(c["body"]["reportId"] == 6086103 for c in transport.calls[1:]))
-        overflow = collect_selected({**CONFIG, "mode": "catalog-discovery", "contracts": []}, FakeSelectedTransport(total=1001))
+        overflow = collect_selected({**CONFIG, "mode": "catalog-discovery", "contracts": []}, FakeSelectedTransport(total=1401))
         self.assertEqual(overflow["result"], "failed")
         self.assertIsNone(overflow["bundle"])
+
+    def test_catalogue_image_reference_is_not_collected_or_hashed(self):
+        seen = [0]
+        def change(report, page, payload):
+            if report == 6086103:
+                seen[0] += 1
+                mutate_rows(payload, lambda rows: rows[0].update(
+                    ImageFile="" if seen[0] == 1 else "synthetic-new-image.png",
+                    UnknownBusinessField="keep-this-value"))
+        transport = FakeSelectedTransport(change)
+        result = collect_selected({**CONFIG, "mode": "catalog-contracts", "contracts": ["SYN-SALES-1"]}, transport)
+        self.assertEqual(result["result"], "complete")
+        before, after = result["bundle"]["discoveryBefore"][0], result["bundle"]["discoveryAfter"][0]
+        self.assertEqual(before["snapshotHash"], after["snapshotHash"])
+        self.assertEqual(before["rows"], after["rows"])
+        self.assertNotIn("ImageFile", before["rows"][0]["values"])
+        self.assertEqual(before["rows"][0]["values"]["UnknownBusinessField"], "keep-this-value")
+        self.assertTrue(all(c["url"].endswith((AinuokeClient.LOGIN_PATH, AinuokeClient.REPORT_PATH)) for c in transport.calls))
+
+    def test_catalogue_1400_keeps_detail_and_total_budgets(self):
+        config = {**CONFIG, "mode": "catalog-contracts", "contracts": ["SYN-SALES-1"]}
+        result = collect_selected(config, FakeSelectedTransport(total=1400))
+        self.assertEqual(result["result"], "complete")
+        self.assertEqual(result["metrics"]["reportRequests"], 58)
+        self.assertEqual(len(result["bundle"]["discoveryBefore"]), 28)
+        self.assertEqual(set(result["bundle"]["materials"]), {"SYN-SALES-1"})
+        overflow = collect_selected(config, FakeSelectedTransport(total=1401))
+        self.assertEqual(overflow["code"], "selected_source_row_limit")
+        detail_overflow = collect_selected(config, FakeSelectedTransport(total=1400, detail_total=1001))
+        self.assertEqual(detail_overflow["code"], "selected_source_row_limit")
+        aggregate = collect_selected(config, FakeSelectedTransport(total=1400, detail_total=1000))
+        self.assertEqual(aggregate["code"], "selected_source_request_limit")
+        self.assertEqual(aggregate["metrics"]["reportRequests"], 80)
+        self.assertIsNone(aggregate["bundle"])
 
     def test_catalogue_combined_details_only_read_selected_contracts(self):
         transport = FakeSelectedTransport()

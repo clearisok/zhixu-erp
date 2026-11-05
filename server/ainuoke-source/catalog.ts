@@ -50,7 +50,7 @@ export async function previewCatalog(input:unknown,now=Date.now()) {
  if(b.schemaVersion!=='ainuoke-order-addition-discovery.v1'||Object.keys(b).sort().join(',')!=='discoveryAfter,discoveryBefore,schemaVersion')throw new SourceError('catalog_invalid');
  pagesValid(b.discoveryBefore,now,600000);pagesValid(b.discoveryAfter,now,600000);
  const before=await adaptAinuokeOrderDiscoverySnapshots(b.discoveryBefore),after=await adaptAinuokeOrderDiscoverySnapshots(b.discoveryAfter);
- if(before.total>1000||after.total>1000)throw new SourceError('catalog_changed_or_over_limit');
+ if(before.total>1400||after.total>1400)throw new SourceError('catalog_changed_or_over_limit');
  if(before.snapshotHash!==after.snapshotHash||discoveryContentHash(b.discoveryBefore)!==discoveryContentHash(b.discoveryAfter))
   throw new SourceError(onlyCatalogBusinessChanged(b)?'catalog_business_content_changed':'catalog_changed_or_over_limit');
  const raw=new Map(b.discoveryAfter.flatMap(p=>p.rows).map(r=>[String(r.values.id).trim(),r.values]));

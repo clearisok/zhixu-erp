@@ -1,13 +1,11 @@
-# 当前恢复点：612目录越出本次610范围，固定复验停止
+# 当前状态：同步因来源图片变化停止，图片排除与1400目录本地修复
 
-## 2026-11-05 13:04 最新固定恢复结果
+2026-11-05；branch feat/ainuoke-full-catalog-followup；main基线cb5cc29baa49ed7115fdb6c9506b6a80356936ea。远端PR140/运行候选仍d8774ba50446d4c894f2c756a363280382afe8b8；下述新修复尚未交付，不能套用旧CI结果。
 
-用户批准610目录、原243高频+1月频明细，并明确延长实际恢复后最多70分钟，剩余139登录/11160报表。实际13:03:59开始、截止14:13:59；13:04:03首个双遍目录返回612，新增PI2611-045、PI2611-046，原610身份不变。固定范围保护再次停止，未发布目录、未采明细；本次1登录26报表，保守占用1登录40报表，剩余138/11120。不得自动重置窗口或预算。
+用户批准目录新增上限1400、原610身份必须保留、明细仍原243+1。固定恢复13:19:47–13:26:48完成147张高频首轮，第二周期0；单月频在243积压中6847ms完成，幂等、一单指针和通知通过。最后一批41报表全部成功，但目录前后PI2611-046.ImageFile从空变PNG引用，其他身份/字段/分页无变，D181未知字段保护停止；不归因网络或登录失败。5张该批失败、91张高频排队，原608历史/未选成功指针保留。原截止14:13:59已过期，剩余保守101登录/8200报表未使用，不自动延长或恢复。
 
-新工装已修正类型化范围拒绝和先累计可信指标，metricsUnknown=0；原unknown经recoverSync核对为未发布后记failed，新回执failed/frozen_directory_scope_changed。只读数据库确认visible608/newRuns0/control disabled/version10；原608历史、未选指针保留，queued169/high57，running/unknown0。执行容器和PG停止，旧worker PAUSED，staging未变。首次只读PG检查在启动就绪前返回2；随后等待就绪后核对成功，未增加来源读取。
+用户随后明确不需要来源图片：新采集在构建快照前仅排除目录ImageFile，未知字段/身份校验不放宽，旧证据不改写。目录1400页数/预算同步两端，明细单表仍1000，单批80报表/4000行/180秒。已补调度1400容量及1401拒绝；无UI、迁移或6087051接入。相关本地类型/构建/25采集器/21协议检查及184 Python通过；数据库套件首次因Docker未运行未通过，启动已有Docker后隔离61/61通过；最终类型/lint/build通过，发布基线待收口。
 
-当前询问用户是否仅允许目录有限新增（既有1000上限，原610身份不得减少/改变，新增不采明细），或仅允许612；截止仍14:13:59及剩余138/11120。答复前不恢复。PR140既有d877三项CI继续复用，不重复测试/上传。见[新证据](../artifacts/five-step-convergence-20261104/content-recovery-612-stop.json)。
+测试副本control disabled/version12/paused catalog_changed_or_over_limit；操作者/PG停止、旧worker PAUSED；staging仍旧f21，未升级。原608配对及异机恢复仍有效，升级需最终新版本验收和临近live配对/附件HTTP/备份策略重绑。不合并main、不导入benchmark队列。
 
-此前候选及完整准备记录见[前次接力](tasks/completed/2026-11-05-before-612-scope-stop/CURRENT_STATE.md).
-
-候选d8774ba50446d4c894f2c756a363280382afe8b8；main基线cb5cc29baa49ed7115fdb6c9506b6a80356936ea。
+[本轮证据](../artifacts/five-step-convergence-20261104/directory-image-change-stop.json)、[此前接力](tasks/completed/2026-11-05-before-image-projection/AI_HANDOFF.md)。

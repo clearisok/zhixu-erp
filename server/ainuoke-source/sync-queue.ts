@@ -86,8 +86,8 @@ export async function enqueueAutomaticSync(pool: Pool, identity: Identity, sourc
     const rows = (await c.query(`SELECT e.source_id,e.sales_contract_no,e.delivery_date,s.last_success_at,s.last_automatic_attempt_at,
       EXISTS(SELECT 1 FROM ainuoke_sync_jobs j WHERE j.source_key=e.source_key AND j.source_id=e.source_id AND j.status IN ('queued','running','unknown')) AS pending
       FROM ainuoke_catalog_entries e LEFT JOIN ainuoke_contract_sync_state s USING(source_key,source_id)
-      WHERE e.source_key=$1 AND e.visible=true ORDER BY e.sales_contract_no LIMIT 1001`, [sourceKey])).rows;
-    if (rows.length > 1000) throw new SourceError('sync_catalog_capacity_exceeded');
+      WHERE e.source_key=$1 AND e.visible=true ORDER BY e.sales_contract_no LIMIT 1401`, [sourceKey])).rows;
+    if (rows.length > 1400) throw new SourceError('sync_catalog_capacity_exceeded');
     let queued = 0;
     for (const row of rows) {
       if(row.pending)continue;

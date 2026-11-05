@@ -22,7 +22,7 @@ export function validateRequestDiagnostics(input:unknown):RequestDiagnostic[] {
   if(!['login','report'].includes(d.kind)||!outcomes.has(d.outcome)||!Number.isSafeInteger(d.elapsedMs)||d.elapsedMs<0||d.elapsedMs>180000
    ||d.httpStatus!==null&&(!Number.isSafeInteger(d.httpStatus)||d.httpStatus<100||d.httpStatus>599)
    ||d.kind==='login'&&(d.reportId!==null||d.page!==null)
-   ||d.kind==='report'&&(typeof d.reportId!=='number'||![6086103,6087105,6087050].includes(d.reportId)||!Number.isSafeInteger(d.page)||Number(d.page)<1||Number(d.page)>20))throw new SourceError('sync_diagnostics_invalid');
+   ||d.kind==='report'&&(typeof d.reportId!=='number'||![6086103,6087105,6087050].includes(d.reportId)||!Number.isSafeInteger(d.page)||Number(d.page)<1||Number(d.page)>(d.reportId===6086103?28:20)))throw new SourceError('sync_diagnostics_invalid');
   return {...d};
  });
 }

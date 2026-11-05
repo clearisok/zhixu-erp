@@ -219,7 +219,7 @@ def collect(data, client=None, include_colors=False):
             if not key or key in lookup or not isinstance(inside, str) or not inside.strip():
                 raise UpstreamSchemaError("invalid_discovery_identity")
             lookup[key] = inside.strip()
-    if len(lookup) > 1000:
+    if len(lookup) > getattr(client, "directory_row_limit", 1000):
         raise UpstreamSchemaError("source_limit")
     if data.get("mode") == "targeted":
         selected = [identity(data["targetSalesContractNo"]), *map(identity, data["additionalSalesContracts"])]
