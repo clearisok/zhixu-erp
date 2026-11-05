@@ -1,21 +1,30 @@
-# 接力：同步因来源图片变化停止，图片排除与1400目录本地修复
+# 接力：固定复验因登录预算耗尽停止，28张第二轮待补
 
-2026-11-05；branch feat/ainuoke-full-catalog-followup；main基线cb5cc29baa49ed7115fdb6c9506b6a80356936ea。远端PR140/运行候选仍d8774ba50446d4c894f2c756a363280382afe8b8；下述新修复尚未交付，不能套用旧CI结果。
+main基线 cb5cc29baa49ed7115fdb6c9506b6a80356936ea（本轮已核对）；不代表允许合并或部署。
+先读CURRENT_STATE和artifacts/five-step-convergence-20261104/image-free-real-window-validation.json。业务候选与PR140仍b33888e4215ae70edebdf6ae079d86eb20d93b0c，镜像源06d56d101b73ebb22f656a9d61d729d7adb26ced；本轮仅验收/接力文档检查点，不重复推送或触发CI，不合并/部署。
 
-用户批准目录新增上限1400、原610身份必须保留、明细仍原243+1。固定恢复13:19:47–13:26:48完成147张高频首轮，第二周期0；单月频在243积压中6847ms完成，幂等、一单指针和通知通过。最后一批41报表全部成功，但目录前后PI2611-046.ImageFile从空变PNG引用，其他身份/字段/分页无变，D181未知字段保护停止；不归因网络或登录失败。5张该批失败、91张高频排队，原608历史/未选成功指针保留。原截止14:13:59已过期，剩余保守101登录/8200报表未使用，不自动延长或恢复。
+## 已完成与停止事实
 
-用户随后明确不需要来源图片：新采集在构建快照前仅排除目录ImageFile，未知字段/身份校验不放宽，旧证据不改写。目录1400页数/预算同步两端，明细单表仍1000，单批80报表/4000行/180秒。已补调度1400容量及1401拒绝；无UI、迁移或6087051接入。相关本地类型/构建/25采集器/21协议检查及184 Python通过；数据库套件首次因Docker未运行未通过，启动已有Docker后隔离61/61通过；最终类型/lint/build通过，完整发布回归182/182和精确源码门禁通过。
+原243高频首轮11分00.355秒全过；第二轮215/243，最短间隔30分09.799秒；月频单单6064ms、幂等/一单影响/通知通过，非UI点击。目录613原610身份保留，新5张仅目录。一次6086103第12页45.051秒超时、5单有限恢复成功。101份新采集原文不含ImageFile；原608历史及未选指针保留。
 
-测试副本control disabled/version12/paused catalog_changed_or_over_limit；操作者/PG停止、旧worker PAUSED；staging仍旧f21，未升级。原608配对及异机恢复仍有效，升级需最终新版本验收和临近live配对/附件HTTP/备份策略重绑。不合并main、不导入benchmark队列。
+新窗口从2026-11-05T08:09:35.935Z至09:19:35.935Z，但在08:49:11.567Z已因登录额度到顶停止；不能用剩余时间或报表额度代替登录额度。当前实际101登录/3597报表、预约101/8032，累计预约140/11032、剩余0/168。原流水priorKnown38/1304＋1未知来自旧领域拒绝，旧原文已另核为39/1345，不混用已验证计数与预算。
 
-[本轮证据](../artifacts/five-step-convergence-20261104/directory-image-change-stop.json)、[此前接力](tasks/completed/2026-11-05-before-image-projection/AI_HANDOFF.md)。
+执行器第102次拟采集在HTTP前抛budget_exhausted；worker通用转换为source_capture_failed，最后attempt requests=null。安全核验已证明是额度停止，不是新认证/网络拒绝；原回执不改写。control disabled/version14/paused source_capture_failed，running/unknown0，操作者/PG停止，旧worker PAUSED。测试遗留117 queued均非本次高频，不能导入live。
 
-远端执行目录/home/jackson/weaveops-five-step-convergence-20261104/continuous-additions-v1，scopeHash2ee0bcffe912c2115709c31a48a07f9e3d88e447f83e52a6406939d82d1355ce；runner SHA7d713673164acbee05d278f5f1c2aef417d833cbced1a8ac0b7354fec23e8f42。reservation已耗用且过期，不重跑。最后capture-36.private.json完整保存，last-capture-safe-diff.json仅字段名变化；metricsUnknown1表示领域校验前拒绝未累计，raw实为1登录41报表/42完整诊断。完整本轮37登录1293报表（含最后被拒绝），保守预约37/2920；此前2/80已经扣除，剩余101/8200。合计已知39登录1345报表、预约39/3000。
+## 精确恢复点
 
-旧d877三项CI成功，勿重跑。新测试日志outputs/five-step-convergence-20261104/image-free-*；本机Docker原来未启动，已正常启动已有安装，无安装/删卷/重置。184 Python通过；新目录/图片跨语言21通过；类型通过；queue1400增量最终类型/lint/build、数据库61/61通过；完整发布回归182/182和精确源码门禁通过。
+远端 /home/jackson/weaveops-five-step-convergence-20261104/continuous-image-free-v2；scopeHash6595779932d0a0cddadece4f7bf4baa820b52be70ff7817db1705f5953ac8a58；runner422484086f42b700fd0f1df66169d532a94fe81f44a7b1eced77cc627611c4d6；原reservation已使用，不重跑。
 
-知识库独立工作树D:/workspace/zhixu-ainuoke-knowledge，3ce658027e645132c8f59ac0caaa1de58d2e326f，入口docs/ainuoke/艾诺科系统知识库与织序协同依据.md。已只读核对：6087051按合同带采购/收发明细ID、需要分层去重，当前业务候选未接入。不要整枝覆盖主线恢复文档，也不能把本轮技术同步通过当成新报表或最终材料金额已可信。
+剩余28清单remaining-second-cycle.private.json，SHA2562536da7bf424bc0903c6ecae748b18d527211bd0e307aa80b40ed98dccd3eb03。已向用户提出只补28、已完成215和月频不重采，新增8登录/640报表、最多30分钟；尚未答复。不要把建议默认选项当授权。
 
-发布检查首次指出来源模块和D181文档仍引用旧冻结证据；修复采用新增前向证据，不覆盖旧ID/哈希。已停止尚未完成的首次完整基线测试，不算通过；冻结新文档后只完成一次最终检查。代码checkpoint5b06ddc3b89f441dc68350720ea3104b7ef69eed，真实来源保持停止。
+本地准备outputs/five-step-convergence-20261104/continuous-image-free-remaining28.mjs及run-continuous-image-free-remaining28.py；runner8fb0f6edec0479a76d1fc9c39a386cacc3728f6bbde53ec9449a3d318d74a4f7，syntax/py_compile通过，尚未上传/预检/执行。恢复前应新建私密root continuous-image-free-remaining28-v1，上传并用同一06d operator执行read-only review核对14/version/剩余清单与账号，然后仅在用户批准后execute。补验按原窗口08:09:35后的观察累计第二次成功，但必须注明中间预算暂停，不能说无间断全量两周期通过。
 
-最终候选06d56d101b73ebb22f656a9d61d729d7adb26ced：3522个Git源文件逐一核对，离线构建及隔离恢复库健康/build-info均200；附件HTTP未验，未部署。源码打包换行差异仅在新构建副本按Git字节纠正；运行后测试容器/数据库已停止。当前交付仅剩本次安全上传和必要CI，不沿用旧d877检查。
+## 备份与候选
+
+/home/jackson/weaveops-five-step-convergence-20261104/restore-v1/image-free-pair.tar.gz：46,136,442字节，SHA25612b1ab26d0baf82b27aff3a9d40f8d21382b33de0ac34a42d9e7d142eeee94ef；宁波新库image_free_pair_restored逐表/序列一致。异机D:/WeaveOps-Backups/ningbo-trial/image-free-06d56d10-20261105/candidate-pair.tar.gz；offhost-result.json为恢复通过，137表/1371观察/613目录/2附件，network none，保留容器/卷并已停。附件HTTP未验；新补采后需要新的增量配对，不覆盖本次归档。
+
+隔离PG weaveops-five-step-restore-20261104-db，volume同名-data，DB coverage608_restored；内部network weaveops-five-step-restore-20261104-net。operator sha256:41b929487e33389a4c0bbec74b043c50b89fc2ff7903fc2f5ea212d36101cc1f；app sha256:5b3533f2226281cc50a7c3ea56547507e8c8d1bab5a356a4f19aca68fd05c260。凭据仅已有私密文件挂载，不输出。
+
+staging仍f21c96c1899126028ba9a272727ad8d564ccf185；当前批准明确不升级/合并。后续来源事实导入必须排除benchmark队列、暂停及仅预算引起的运行错误，保留live报价、用户、附件；当前候选副本备份不替代live临近配对/恢复/HTTP附件验证/备份策略重绑。
+
+已有184 Python/21协议/61数据库/182发布/类型lint构建与b338三CI有效，不重跑。来源CI首次mobile touch超时未复现，同SHA失败job重跑通过。6087051未接入，知识库工作树D:/workspace/zhixu-ainuoke-knowledge；不可宣称全材料财务闭环。旧状态见tasks/completed/2026-11-05-before-image-free-live-validation/。

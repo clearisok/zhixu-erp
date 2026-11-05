@@ -1,7 +1,8 @@
-# 当前入口：图片字段排除与1400目录修复
+# 当前入口：高频首轮完成，第二轮215/243，预算停止
 
-2026-11-05；main基线cb5cc29baa49ed7115fdb6c9506b6a80356936ea。先读[当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[真实停止证据](../artifacts/five-step-convergence-20261104/directory-image-change-stop.json)。
+main基线 cb5cc29baa49ed7115fdb6c9506b6a80356936ea（本轮已核对）；不代表允许合并或部署。
+2026-11-05。先读[当前状态](CURRENT_STATE.md)、[精确接力](AI_HANDOFF.md)和[本轮证据](../artifacts/five-step-convergence-20261104/image-free-real-window-validation.json)。
 
-d877已交付PR140且旧CI成功；新本地修复不能复用旧CI结论。真实147/243首轮、第二周期0、单单月频刷新通过，窗口14:13:59到期，剩余101/8200。staging未升级，未合并main。
+PR140精确b338三项CI通过，镜像源06d56d10。新70分钟固定复验首轮243全部完成，第二轮215；0登录/168保守报表剩余，28张第二轮补验需要新增额度。新配对备份及异机恢复通过。未合并、未升级staging，不重跑旧CI或原reservation。
 
-[D181](DECISION_LOG.md)、[来源模块](features/AINUOKE_SERVER_SOURCE.md)、[前次入口](tasks/completed/2026-11-05-before-image-projection/PROJECT_INDEX.md)。
+规则见[D181](DECISION_LOG.md)、[来源模块](features/AINUOKE_SERVER_SOURCE.md)；[前次入口归档](tasks/completed/2026-11-05-before-image-free-live-validation/PROJECT_INDEX.md)。
