@@ -126,3 +126,15 @@ export async function applyBoundOrderRefresh(pool:Pool,identity:TrustedIdentity,
   return {replayed:false,historical:false,result};
  });
 }
+/** The durable source-sync job is the outer receipt/transaction. Reuse the same
+ * mapper, identity locks and source-only domain command as the reviewed refresh. */
+export async function refreshCollectedBoundOrderInTransaction(pool:Pool,client:PoolClient,actor:TrustedIdentity,
+ rawScope:BoundOrderRefreshScope,rawEvidence:unknown,jobId:string,now:number) {
+ const scope=scopeOf(rawScope),evidence=evidenceOf(rawEvidence);
+ await actorFor(client,actor,true);await available(client);await lockEffectiveAttribution(client);
+ const p=await prepare(client,scope,evidence,now,true,await paymentDatabaseFingerprint(pool,client));
+ await refreshAinuokeSalesOrderSourceInTransaction(client,actor,p.owner.id,
+  {...p.candidate,expectedSourceHash:p.mirror.source_hash,expectedPlanVersion:p.plans.version},
+  {operationId:'catalog-sync:'+jobId,operationSequence:0});
+ return {orderId:p.target.id,sourceOwnerOrderId:p.owner.id,colorLines:p.candidate.colors.length};
+}

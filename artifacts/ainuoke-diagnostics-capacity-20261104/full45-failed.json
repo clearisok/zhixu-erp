@@ -1,0 +1,94 @@
+{
+  "requestTimeoutSeconds": 45,
+  "measurementVariant": "full45",
+  "codeCommit": "951af181e0bc7bf588fecf22e407af4bc82b5d03",
+  "mode": "full",
+  "startedAt": "2026-11-04T09:14:03.95Z",
+  "finishedAt": "2026-11-04T09:18:06.563Z",
+  "state": "STOPPED_SOURCE_OR_RESULT_FAILURE",
+  "catalogCount": 608,
+  "selectedCount": 608,
+  "scopeHash": "24bd8343d7ca50e43c7c83290380857712953a0cb63a47dd12618178cc5cc2ef",
+  "expectedGroups": 122,
+  "maximumLogins": 123,
+  "maximumReports": 9800,
+  "completed": 85,
+  "elapsedMs": 242498,
+  "results": [
+    {
+      "status": "failed",
+      "count": 5
+    },
+    {
+      "status": "queued",
+      "count": 518
+    },
+    {
+      "status": "complete",
+      "count": 85
+    }
+  ],
+  "errors": [
+    {
+      "code": "source_unavailable",
+      "count": 5
+    }
+  ],
+  "allWithin30Minutes": false,
+  "logins": 19,
+  "reports": 680,
+  "requestEvents": 699,
+  "batchCount": 18,
+  "captureMs": 219261,
+  "groupMeanMs": 11921.56,
+  "groupP95Ms": 51070,
+  "perReport": {
+    "login": {
+      "errors": {},
+      "requests": 19,
+      "meanMs": 335.47,
+      "p50Ms": 310,
+      "p95Ms": 509,
+      "maxMs": 509
+    },
+    "6086103": {
+      "errors": {},
+      "requests": 481,
+      "meanMs": 121.32,
+      "p50Ms": 112,
+      "p95Ms": 176,
+      "maxMs": 460
+    },
+    "6087105": {
+      "errors": {
+        "timeout": 1
+      },
+      "requests": 90,
+      "meanMs": 621.1,
+      "p50Ms": 118,
+      "p95Ms": 169,
+      "maxMs": 45015
+    },
+    "6087050": {
+      "errors": {},
+      "requests": 109,
+      "meanMs": 655.94,
+      "p50Ms": 630,
+      "p95Ms": 1051,
+      "maxMs": 1798
+    }
+  },
+  "requestFailures": [
+    {
+      "trace": "trace-18.json",
+      "kind": "report",
+      "reportId": 6087105,
+      "page": 1,
+      "elapsedMs": 45015,
+      "outcome": "timeout",
+      "httpStatus": null
+    }
+  ],
+  "networkRetries": 0,
+  "contractsPerMinute": 21.03
+}

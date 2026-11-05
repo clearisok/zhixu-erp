@@ -1,0 +1,99 @@
+{
+  "date": "2026-11-05",
+  "remoteCandidate": "0e661880c6cb8889e8c6a7d19c813d92a73a856e",
+  "ci": {
+    "baseline": {
+      "id": 41861279208,
+      "result": "success"
+    },
+    "teamAccess": {
+      "id": 41861279238,
+      "officialState": "in_progress",
+      "allJobSteps": "success"
+    },
+    "source": {
+      "id": 41861279954,
+      "officialState": "in_progress",
+      "failedStep": "Compiled server and migration/session source tests",
+      "failure": "payment operator old row snapshot included new null catalog_run_id"
+    }
+  },
+  "localCompatibilityFix": {
+    "file": "server/integration/ainuoke-payment-operator.integration.test.ts",
+    "usesFrozenOldColumns": true,
+    "newCatalogPointerAssertedNull": true,
+    "paymentOperatorTests": 21,
+    "backendAndBoundaryGroups": 26,
+    "failedGroups": 0
+  },
+  "applicationImage": {
+    "state": "EXACT_APPLICATION_IMAGE_BUILT_NOT_DEPLOYED",
+    "source": "0e661880c6cb8889e8c6a7d19c813d92a73a856e",
+    "image": "sha256:09779f3f8c008403d648bfd86515fc5e6fc2824b8e40cb932069115976f1b039",
+    "buildId": "server-preview-0e661880-five-step",
+    "buildTime": "2026-11-04T15:50:14.906034+00:00",
+    "sourceRequests": 0,
+    "network": "none",
+    "newDependenciesInstalled": false
+  },
+  "isolatedRuntime": {
+    "state": "EXACT_IMAGE_ISOLATED_RUNTIME_VERIFIED",
+    "source": "0e661880c6cb8889e8c6a7d19c813d92a73a856e",
+    "image": "sha256:09779f3f8c008403d648bfd86515fc5e6fc2824b8e40cb932069115976f1b039",
+    "health": 200,
+    "database": "ready",
+    "buildInfo": 200,
+    "publicPorts": 0,
+    "sourceRequests": 0,
+    "attachmentStorage": "disabled",
+    "productionBusinessWrites": 0,
+    "newUsersCreated": 0
+  },
+  "populatedPair": {
+    "state": "POPULATED_CATALOG_PAIR_RESTORE_VERIFIED",
+    "candidateSchema": "0e661880c6cb8889e8c6a7d19c813d92a73a856e",
+    "tables": 137,
+    "objects": 2,
+    "coverage": {
+      "visibleContracts": 608,
+      "successfulContracts": 550,
+      "failedJobRecords": 10,
+      "distinctFailedContracts": 10,
+      "queuedContracts": 53
+    },
+    "sourceRequests": 0,
+    "originalCoverageBusinessWrites": 0,
+    "originalCoverageHashUnchanged": true,
+    "publicPorts": 0,
+    "offhostVerified": false
+  },
+  "offhostPopulatedPair": {
+    "state": "OFFHOST_DATABASE_ATTACHMENT_PAIR_RESTORE_VERIFIED",
+    "source": "0e661880c6cb8889e8c6a7d19c813d92a73a856e",
+    "tables": 137,
+    "successfulObservations": 550,
+    "catalogEntries": 608,
+    "objects": 2,
+    "postgresImage": "sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229",
+    "sourceRequests": 0,
+    "network": "none",
+    "liveBusinessWrites": 0,
+    "attachmentHttpVerified": false,
+    "assetsRetained": true
+  },
+  "backlog": {
+    "uncovered": 58,
+    "uncoveredQueued": 53,
+    "uncoveredFailed": 5,
+    "recoveredWithFailureHistory": 5
+  },
+  "liveTargetCheck": {
+    "state": "EXACT_TARGET_VERIFIED",
+    "sourceRequests": 0,
+    "businessWrites": 0
+  },
+  "sourceRequestsThisPhase": 0,
+  "stagingUpgraded": false,
+  "liveBackupPolicyRebound": false,
+  "attachmentHttpVerified": false
+}

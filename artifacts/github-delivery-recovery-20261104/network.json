@@ -1,0 +1,26 @@
+{
+  "date": "2026-11-04",
+  "repository": "clearisok/zhixu-erp",
+  "branch": "feat/ainuoke-full-catalog-followup",
+  "inputHead": "c1a345f035e5806d0abe2da9fb1e39ce7585e110",
+  "main": "cb5cc29baa49ed7115fdb6c9506b6a80356936ea",
+  "apiMainVerified": true,
+  "existingPullRequestsForHead": 0,
+  "configuredProxy": {"local": true, "port": 17989, "listenerPresent": false},
+  "configuredReadTests": [
+    {"name": "default", "exitCode": 128, "category": "uncertain_transport", "elapsedMs": 2279},
+    {"name": "http1.1", "exitCode": 128, "category": "uncertain_transport", "elapsedMs": 2263},
+    {"name": "openssl_http1.1", "exitCode": 128, "category": "uncertain_transport", "elapsedMs": 2298}
+  ],
+  "processDirectReadTests": [
+    {"name": "default", "exitCode": 0, "category": "command_pass", "elapsedMs": 3748},
+    {"name": "http1.1", "exitCode": 0, "category": "command_pass", "elapsedMs": 2081},
+    {"name": "openssl_http1.1", "exitCode": 0, "category": "command_pass", "elapsedMs": 2152}
+  ],
+  "allDirectReadHeadsMatchMain": true,
+  "sharedConfigurationChanged": false,
+  "credentialsPrinted": false,
+  "pushSubmittedDuringDiagnosis": false,
+  "sourceRequests": 0,
+  "limitation": "Read-only success does not establish push delivery or long-term network reliability. Historical network failures and Ainuoke login refusal remain separate."
+}

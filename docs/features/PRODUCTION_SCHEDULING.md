@@ -1,6 +1,10 @@
 # 生产队列、排单与物料运输
 
-## 当前Server候选与下文历史
+## 当前阅读入口（2026-11-04复核）
+
+当前源码已有独立Server计划、实际产出、执行方保护与交期覆盖，分别见`server/production-scheduling/repository.ts`、`execution-preview.ts`和`delivery-coverage.ts`及[Server计划](SERVER_PRODUCTION_PLANNING.md)。已完成量在取消/更换后保留原执行归属，不因来源订单刷新重建生产事实。下文“单浏览器localStorage mock”等仅描述旧Browser路径，不代表当前Server缺少持久化；旧路径及数据继续保留。实际部署范围见[CURRENT_STATE](../CURRENT_STATE.md)。
+
+## 历史：2026-10-24 Server候选与下文Browser记录
 
 2026-10-24，D147/G6B当前代码已接独立Server计划、版本/资源快照、可信查询与既有页面，见[Server排单](SERVER_PRODUCTION_PLANNING.md)及[本轮任务](../tasks/active/server-production-planning-current-2026-10-24.md)。尚待本轮冻结工程验收，不代表真实开工/完成、物流或关账闭环，也未部署或迁移Browser。下文当前行为/缺口按原Browser历史理解；公式、长期存储及旧日期说明保留。
 

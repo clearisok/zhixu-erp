@@ -70,8 +70,12 @@ test('Source target attribution and snapshot generations stay consistent on synt
   assert.deepEqual((await pool.query('SELECT row_to_json(o) AS row FROM sales_orders o ORDER BY id')).rows,before);
  });
  await t.test('attribution change during external collection aborts the entire publication',async()=>{
-  await assert.rejects(()=>capture(async()=>{await map(null);return structuredClone(data);}),/source_order_changed/);
+  const snapshotsBefore=(await pool.query('SELECT count(*)::int AS count FROM ainuoke_material_source_snapshots')).rows[0].count;
+  // Per-order follow-up scope detects the changed effective target before the
+  // older order comparison; neither guard may publish the collected payload.
+  await assert.rejects(()=>capture(async()=>{await map(null);return structuredClone(data);}),/source_group_changed/);
   assert.equal(await latest(),otherRootRun);
+  assert.equal((await pool.query('SELECT count(*)::int AS count FROM ainuoke_material_source_snapshots')).rows[0].count,snapshotsBefore);
   const next=await capture();assert.equal(next.replayed,false);assert.equal((await pool.query('SELECT sales_order_id::text FROM ainuoke_material_source_snapshots WHERE run_id=$1',[next.runId])).rows[0].sales_order_id,original);
  });
  await t.test('capture acquires attribution lock before profile lock, avoiding normalization lock inversion',async()=>{

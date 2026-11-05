@@ -1,0 +1,98 @@
+{
+  "dateBeijing": "2026-11-04",
+  "candidateCommit": "bae837a152cb223039afc94fa06c571b3ee8328e",
+  "state": "PREPARATION_VERIFIED_CAPACITY_INCONCLUSIVE_SOURCE_UNAVAILABLE",
+  "backup": {
+    "id": "20261104T075135Z-7898850c",
+    "tables": 121,
+    "objects": 2,
+    "server": "BACKUP_VERIFIED",
+    "offhost": "OFFHOST_VERIFIED"
+  },
+  "recovery": {
+    "originalTablesVerified": 121,
+    "appliedMigrations": [
+      "0053_ainuoke_catalog_followup.sql",
+      "0054_ainuoke_catalog_receipts.sql"
+    ],
+    "publicPorts": 0,
+    "databaseStopped": true,
+    "volumeRetained": true
+  },
+  "candidateImage": "sha256:6081a3de95a2ad1ef0578605ec334db1877a7421a09ecb6d028c1cebf9b978bf",
+  "runtimeTestImage": "sha256:d01ca882661a7f16ea00784498abfc2fb9730d2b56ba7a0db2f246e5c10313e1",
+  "imageFilesystemLayersIdentical": true,
+  "imageIdentityLabels": {
+    "org.opencontainers.image.revision": "bae837a152cb223039afc94fa06c571b3ee8328e",
+    "org.opencontainers.image.created": "2026-11-04T08:05:00Z",
+    "io.zhixu.build-id": "server-preview-bae837a1-catalog-capacity",
+    "io.zhixu.identity-mode": "session",
+    "io.zhixu.quote-authority": "server",
+    "io.zhixu.master-settings-authority": "server",
+    "io.zhixu.quote-writer-mode": "writable"
+  },
+  "runtimeChecks": [
+    "health 200 database ready",
+    "build-info 200 exact candidate"
+  ],
+  "attachmentIoDuringRuntimeCheck": "disabled",
+  "capacity": {
+    "startedAt": "2026-11-04T08:07:22.173Z",
+    "finishedAt": "2026-11-04T08:07:49.783Z",
+    "elapsedMs": 27596,
+    "visibleContracts": 608,
+    "tiers": {
+      "monthly": 50,
+      "weekly": 191,
+      "daily": 120,
+      "frequent": 247
+    },
+    "outcomes": [
+      {
+        "status": "queued",
+        "count": 603
+      },
+      {
+        "status": "failed",
+        "count": 5
+      }
+    ],
+    "errors": [
+      {
+        "code": "source_unavailable",
+        "count": 5
+      }
+    ],
+    "completed": 0,
+    "verdict": "INCONCLUSIVE",
+    "reason": "First batch source_unavailable; test stopped before full 30-minute coverage",
+    "directoryElapsedMs": 4348,
+    "failedBatchElapsedMs": 22677,
+    "failedBatchReports": 29,
+    "totalLoginsIncludingWrapperFailure": 3,
+    "totalReportsIncludingWrapperFailure": 81,
+    "totalHttpAttempts": 84,
+    "networkRetries": 0
+  },
+  "productionReadback": [
+    {
+      "orders": 3,
+      "quotes": 2,
+      "attachments": 2,
+      "migrations": 51,
+      "lastError": "discovery_changed",
+      "lastSuccess": "2026-11-02T12:08:09.17+08:00"
+    }
+  ],
+  "oldWorker": {
+    "state": "PAUSED",
+    "code": "capture_failed_or_unknown",
+    "at": "2026-11-02T12:14:09.803141+08:00"
+  },
+  "publicCutover": false,
+  "productionMigration": false,
+  "newSchedulerInstalled": false,
+  "remoteDelivery": "PENDING",
+  "ciTriggered": false,
+  "sensitiveOutputIncidentReported": true
+}

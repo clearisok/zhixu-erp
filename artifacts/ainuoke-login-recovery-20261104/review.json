@@ -1,0 +1,27 @@
+{
+  "state": "LOGIN_RECOVERY_REVIEW_READY",
+  "source": "97449e9400623fc8178de98bbb6b361c382ce684",
+  "contracts": 608,
+  "successes": 550,
+  "remaining": 58,
+  "failed": 5,
+  "queued": 53,
+  "scopeHash": "5d87ab8a13dc9389ed57ae482a4c330c152ab93f6694bcb58fb2a5acab26dc2e",
+  "successProofHash": "4d2058cbe19491834b53f85542a5bbf38915bb2e34db38571dd00e701aff2895",
+  "maximumLogins": 30,
+  "maximumReports": 2400,
+  "maximumMs": 2400000,
+  "probeLimits": {
+    "logins": 1,
+    "reportRequests": 0,
+    "responseBytes": 4194304,
+    "timeoutMs": 30000,
+    "networkRetries": 0
+  },
+  "coverLogin": false,
+  "controlsDisabled": true,
+  "pausedReason": "invalid_credential",
+  "sourceRequests": 0,
+  "productionWrites": 0,
+  "sourceAuthorization": "pending"
+}

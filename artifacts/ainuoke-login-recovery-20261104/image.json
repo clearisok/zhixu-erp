@@ -1,0 +1,8 @@
+{
+  "state": "LOGIN_DIAGNOSTIC_OPERATOR_READY",
+  "source": "97449e9400623fc8178de98bbb6b361c382ce684",
+  "image": "sha256:0031993e3ce9e5fd25b1118474a08e5622fdb90982c27b13d46781ddef48b74a",
+  "linuxChecks": 9,
+  "sourceRequests": 0,
+  "dependenciesInstalled": false
+}

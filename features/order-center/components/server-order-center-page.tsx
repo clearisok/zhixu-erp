@@ -1,5 +1,6 @@
 "use client";
 
+import {ServerSourceCatalog} from './server-source-catalog';
 import {ProcessingBatchDialog} from "./processing-batch-dialog";
 import { useCallback, useEffect, useState, useRef } from "react";
 import { OrderAlertTags } from "./order-alert-tags";
@@ -104,6 +105,7 @@ function OrderCenterFrame({
 
 export function ServerOrderCenterPage() {
   const router = useRouter();
+  const [catalogOpen,setCatalogOpen]=useState(false);
   const serverSession = useServerSession();
   const [items, setItems] = useState<OrderCenterServerListViewModel[]>([]);
   const [page, setPage] = useState<ServerSalesOrderPage>(emptyPage);
@@ -345,12 +347,13 @@ export function ServerOrderCenterPage() {
   }
 
   return (
-    <OrderCenterFrame count={loadedScope===scopeKey?`${page.total} 条${query.includeHistorical?'（含历史记录）':''}`:"—"} actions={<ProcessingBatchDialog key={serverSession.user.id} mode="import" />}>
+    <OrderCenterFrame count={loadedScope===scopeKey?`${page.total} 条${query.includeHistorical?'（含历史记录）':''}`:"—"} actions={<><Button className="oc-catalog-toggle" variant="secondary" onClick={()=>setCatalogOpen(value=>!value)}>{catalogOpen?"当前跟进":"全部合同 / 历史查阅"}</Button><ProcessingBatchDialog key={serverSession.user.id} mode="import" /></>}>
       <div className="oc-server-source-bar">
         <span><i aria-hidden="true" />数据源：PostgreSQL</span>
         <small>Server identity：{trustedIdentity}</small>
 
       </div>
+      {catalogOpen?<ServerSourceCatalog key={serverSession.user.id} canManage={serverSession.hasPermission("ainuoke.bind")} onChanged={()=>void loadList()}/>:<>
       <form
         onSubmit={(event) => {
           event.preventDefault();
@@ -422,6 +425,7 @@ export function ServerOrderCenterPage() {
           <Button variant="secondary" disabled={!page.hasMore || loading} onClick={() => setQuery((current) => ({ ...current, offset: current.offset + SERVER_ORDER_CENTER_PAGE_SIZE }))}>下一页</Button>
         </div>
       </Card>
+      </>}
     </OrderCenterFrame>
   );
 }

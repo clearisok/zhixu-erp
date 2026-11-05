@@ -1,0 +1,19 @@
+{
+  "state": "LOCAL_PASS_REMOTE_UNVERIFIED",
+  "repository": "clearisok/zhixu-erp",
+  "branch": "feat/ainuoke-full-catalog-followup",
+  "expectedHead": "0d3db5473df2f2675fd22211acbbc05db3811454",
+  "pushes": 1,
+  "pushCategory": "uncertain_transport",
+  "pushDiagnostic": {
+    "exitCode": 128,
+    "category": "uncertain_transport",
+    "timedOut": false,
+    "elapsedMs": 2267
+  },
+  "networkMode": "NETWORK_DEGRADED",
+  "postReadback": "TARGET_BRANCH_ABSENT_VERIFIED",
+  "additionalPushes": 0,
+  "prCreated": false,
+  "ciTriggered": false
+}

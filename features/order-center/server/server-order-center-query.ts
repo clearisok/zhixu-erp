@@ -41,6 +41,7 @@ export function toServerSalesOrderListQuery(
 ): ServerSalesOrderListQuery {
   return {
     ...(state.includeHistorical ? {includeHistorical:true} : {}),
+    followupMode: 'active',
     limit: SERVER_ORDER_CENTER_PAGE_SIZE,
     offset: state.offset,
     search: state.search || undefined,

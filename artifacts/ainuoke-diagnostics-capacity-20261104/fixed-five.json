@@ -1,0 +1,56 @@
+{
+  "state": "DIAGNOSTIC_COMPLETE",
+  "captureResult": "complete",
+  "code": null,
+  "metrics": {
+    "logins": 1,
+    "reportRequests": 36,
+    "httpAttempts": 37,
+    "networkRetries": 0,
+    "authRenewals": 0
+  },
+  "requests": 37,
+  "failedRequests": [],
+  "slowest": [
+    {
+      "kind": "report",
+      "reportId": 6087050,
+      "page": 1,
+      "elapsedMs": 971,
+      "outcome": "complete",
+      "httpStatus": null
+    },
+    {
+      "kind": "report",
+      "reportId": 6087050,
+      "page": 1,
+      "elapsedMs": 769,
+      "outcome": "complete",
+      "httpStatus": null
+    },
+    {
+      "kind": "report",
+      "reportId": 6087050,
+      "page": 1,
+      "elapsedMs": 716,
+      "outcome": "complete",
+      "httpStatus": null
+    },
+    {
+      "kind": "report",
+      "reportId": 6087050,
+      "page": 1,
+      "elapsedMs": 696,
+      "outcome": "complete",
+      "httpStatus": null
+    },
+    {
+      "kind": "report",
+      "reportId": 6087050,
+      "page": 1,
+      "elapsedMs": 508,
+      "outcome": "complete",
+      "httpStatus": null
+    }
+  ]
+}

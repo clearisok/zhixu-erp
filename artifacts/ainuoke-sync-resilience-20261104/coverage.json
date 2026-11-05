@@ -1,0 +1,55 @@
+{
+  "source": "1c93fe4e0e74d3948a6cfb6d4267c70e70938504",
+  "startedAt": "2026-11-04T10:44:29.381Z",
+  "stage": "resuming_remaining_508",
+  "maximumLogins": 150,
+  "maximumReports": 12000,
+  "maximumMs": 3600000,
+  "reservedLogins": 96,
+  "reservedReports": 7640,
+  "knownLogins": 96,
+  "knownReports": 3472,
+  "metricsUnknown": 0,
+  "captures": 96,
+  "networkRetriesPerCapture": 0,
+  "originalSuccesses": 100,
+  "targetContracts": 608,
+  "originalSuccessProofHash": "67315f360223876c656de0a27c74ac15ca370a99b8878fb7b094eeb41d6261a0",
+  "identityHash": "ed5dc04ac59295465b47c9eff4c93af5122eefd13ca9ace12fdd67a422dc2383",
+  "lastCapture": {
+    "index": 95,
+    "mode": "catalog-contracts",
+    "result": "failed",
+    "code": "invalid_credential",
+    "failures": []
+  },
+  "lastTick": {
+    "status": "paused",
+    "jobs": 0
+  },
+  "latestResults": [
+    {
+      "status": "complete",
+      "code": "complete",
+      "n": 550
+    },
+    {
+      "status": "failed",
+      "code": "invalid_credential",
+      "n": 5
+    },
+    {
+      "status": "queued",
+      "code": null,
+      "n": 53
+    }
+  ],
+  "pending": 53,
+  "successful": 550,
+  "elapsedMs": 941293,
+  "state": "STOPPED",
+  "code": "capture_or_worker_requires_review",
+  "finishedAt": "2026-11-04T11:00:10.674Z",
+  "productionWrites": 0,
+  "onlyIsolatedDatabase": true
+}

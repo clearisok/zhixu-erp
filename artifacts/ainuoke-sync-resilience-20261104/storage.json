@@ -1,0 +1,22 @@
+{
+  "state": "OFFLINE_STORAGE_VERIFIED",
+  "source": "1c93fe4e0e74d3948a6cfb6d4267c70e70938504",
+  "contracts": 247,
+  "catalogRuns": 248,
+  "oldRepresentationBytes": 95395840,
+  "newRepresentationBytes": 3252224,
+  "reductionPercent": 96.59,
+  "tables": {
+    "ainuoke_catalog_runs": 31301632,
+    "ainuoke_contract_observations": 64094208,
+    "capacity_catalog_run_probe": 188416,
+    "capacity_contract_observation_probe": 2449408,
+    "ainuoke_catalog_evidence_chunks": 204800,
+    "ainuoke_catalog_capture_evidence": 409600
+  },
+  "exactHistoricalProofsReconstructed": true,
+  "oldTablesUnchanged": true,
+  "sourceRequests": 0,
+  "productionWrites": 0,
+  "limitation": "Physical storage of new-format probe tables plus shared evidence on a cloned historical dataset; old tables are retained, not compacted or deleted. Not a day-long growth measurement."
+}

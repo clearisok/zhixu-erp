@@ -1,5 +1,7 @@
 # 正式Server关账调整界面（Gate8G2e）
 
+2026-11-04阅读校准：下文是2026-10-27阶段记录。后续源码已在`server-closing-adjustment-page.tsx`接入“复核来源数量”和“匹配执行方”，对应`server-closing-source-dialog.tsx`、`server-closing-executor-dialog.tsx`；报价侧USD采用见[ORDER_USD_LABOR_INTERFACE](ORDER_USD_LABOR_INTERFACE.md)。下文“当前UI不提供执行方匹配”“整体退役仍后续”等仅保留原阶段事实，不再作为现状判断。当前运行/远端/部署分开见[CURRENT_STATE](../CURRENT_STATE.md)，本次不重跑旧UI验收或改变关账规则。
+
 2026-10-27。依据D169–D172及[具体修订草图批准](../tasks/completed/2026-10-27-closing-adjustment-ui-approval.md)，复用既有年度读取、月份计划、财务快照及原请求协议，不引入价格、数量或财务的第二权威。
 
 ## 页面与操作

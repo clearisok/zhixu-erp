@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { freezeExistingPublicRows } from "./legacy-row-snapshot-fixture.js";
 import { copyFile, mkdtemp, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { isAbsolute, join, relative, resolve } from "node:path";
@@ -38,7 +39,7 @@ test("0034 to 0035 then 0036 preserves synthetic resources, identity, source, de
   const order = await createAinuokeSalesOrder(pool, actor, { source: { sourceId: "SYN-PLAN-UPGRADE", sourceRowIdentity: "SYN-PLAN-UPGRADE-ROW", salesContractNo: "SYN-PLAN-UPGRADE", insideOrderNo: "SYN-FACTORY-UPGRADE", lifecycleStatusRaw: "生效", contractDate: "2026-10-01", contractDeliveryDate: "2027-01-20", styleNo: "SYNTHETIC", companyNameSnapshot: "Synthetic", customerNameSnapshot: "Synthetic", brandNameSnapshot: "Synthetic", quantity: 100, sourceHash: "synthetic-source", fetchedAt: "2026-10-20T00:00:00Z" },
     colors: [{ sourceLineIdentity: "SYN-COLOR-UPGRADE", colorName: "红色", quantity: 100, deliveryDate: "2027-01-20", sourceHash: "synthetic-color" }] });
   const tables = ["app_users", "app_roles", "app_user_roles", "app_role_permissions", "production_calendars", "production_calendar_exceptions", "production_sites", "production_groups", "production_outsource_factories", "production_resource_commands", "sales_orders", "sales_order_source_links", "ainuoke_sales_order_contract_mirrors", "ainuoke_sales_order_color_mirrors", "sales_order_delivery_plan_sets", "sales_order_delivery_plans", "operation_logs"];
-  const snapshot = () => Promise.all(tables.map(async table => (await pool.query("SELECT to_jsonb(row)::text payload FROM " + table + " row ORDER BY payload")).rows));
+  const snapshot = await freezeExistingPublicRows(pool, tables);
   const before = await snapshot();
   const prefix35 = await mkdtemp(join(tmpdir(), "zhixu-plan-prefix35-"));
   try {

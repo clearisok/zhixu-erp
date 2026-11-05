@@ -1,3 +1,4 @@
+import { supportsOrderHeads, followupModes } from './followup.js';
 import { supportsEffectiveAttribution } from '../sales-orders/effective-attribution.js';
 import { HttpError } from "../http/errors.js";
 import { randomUUID } from "node:crypto";
@@ -58,12 +59,15 @@ export async function captureSource(pool: Pool, identity: Pick<TrustedIdentity, 
     maxAgeMs: number;
     requireExistingProfile?: boolean;
     now?: () => number;
+    selectedOrderIds?: readonly string[];
+    expectedScopeHash?: string;
 }) {
     if (!sourceKeyValid(options.sourceKey) || !/^[0-9a-f]{64}$/u.test(options.accountFingerprint))
         throw new SourceError("invalid_source_configuration");
     const now = options.now ?? Date.now;
     const client = await pool.connect();
     let locked = false, transaction = false, registered = false;
+    let perOrder = false; let targetIds: string[] = [];
     try {
         locked = Boolean((await client.query<{
             locked: boolean;
@@ -71,7 +75,13 @@ export async function captureSource(pool: Pool, identity: Pick<TrustedIdentity, 
         if (!locked)
             throw new SourceError("source_capture_busy");
         await sourceActor(client, identity, true);
-        const targets = await boundOrders(client);
+        perOrder = await supportsOrderHeads(client);
+        if(options.selectedOrderIds && (!perOrder || !options.selectedOrderIds.length || options.selectedOrderIds.length>25 || new Set(options.selectedOrderIds).size!==options.selectedOrderIds.length)) throw new SourceError('source_group_invalid');
+        const targets = await boundOrders(client,false,options.selectedOrderIds);
+        const followups = perOrder ? await followupModes(client,targets.map(o=>o.id)) : [];
+        if(options.selectedOrderIds && (targets.length!==options.selectedOrderIds.length
+          || hash({sourceKey:options.sourceKey,orders:targets,followups})!==options.expectedScopeHash))throw new SourceError('source_group_changed');
+        targetIds=targets.map(o=>o.id);
         if (!targets.length)
             throw new SourceError("source_no_bound_orders");
         if(!options.requireExistingProfile)
@@ -99,30 +109,25 @@ export async function captureSource(pool: Pool, identity: Pick<TrustedIdentity, 
         }>("SELECT account_fingerprint,enabled,latest_run_id::text FROM ainuoke_source_profiles WHERE source_key=$1 FOR UPDATE", [options.sourceKey])).rows[0];
         if (!currentProfile.enabled || currentProfile.account_fingerprint !== options.accountFingerprint)
             throw new SourceError("source_account_mismatch");
-        const current = await boundOrders(client, true);
+        const current = await boundOrders(client, true, options.selectedOrderIds);
+        const currentFollowups=perOrder?await followupModes(client,current.map(o=>o.id)):[];
+        if(hash(currentFollowups)!==hash(followups))throw new SourceError('source_group_changed');
         if (JSON.stringify(current) !== JSON.stringify(targets))
             throw new SourceError("source_order_changed");
         const scopeHash=hash(current);
-        const previous = currentProfile.latest_run_id ? (await client.query<{
+        const previous = !options.selectedOrderIds && currentProfile.latest_run_id ? (await client.query<{
             content_hash: string;order_scope_hash:string|null;order_scope:unknown[]|null;
         }>(`SELECT content_hash,${attributionSupported?'order_scope_hash':'NULL::text AS order_scope_hash'},${contextSupported?'order_scope':'NULL::jsonb AS order_scope'} FROM ainuoke_source_runs WHERE id=$1`, [currentProfile.latest_run_id])).rows[0] : null;
         if (previous?.content_hash === validated.contentHash && (!attributionSupported||previous.order_scope_hash===scopeHash) && (!contextSupported||previous.order_scope!==null&&hash(previous.order_scope)===scopeHash)) {
             await client.query("UPDATE ainuoke_source_profiles SET last_error_code=NULL,last_attempt_at=now() WHERE source_key=$1", [options.sourceKey]);
+            if(perOrder)for(const row of validated.rows)await client.query(`INSERT INTO ainuoke_material_order_heads(source_key,sales_order_id,run_id,last_error_code) VALUES($1,$2,$3,NULL)
+              ON CONFLICT(source_key,sales_order_id) DO UPDATE SET run_id=excluded.run_id,last_error_code=NULL,last_attempt_at=now()`,[options.sourceKey,row.order.id,currentProfile.latest_run_id]);
             await client.query("COMMIT");
             transaction = false;
             return { runId: currentProfile.latest_run_id!, replayed: true, orders: validated.rows.length };
         }
-        const runId = randomUUID();
-        const runValues=[runId,options.sourceKey,actor.internalUserId,validated.capturedAt,JSON.stringify(validated.bundle.discoveryAfter),hash(validated.bundle.discoveryAfter),validated.contentHash,...(attributionSupported?[scopeHash]:[])];if(contextSupported)runValues.push(JSON.stringify(current));
-        await client.query(`INSERT INTO ainuoke_source_runs(id,source_key,actor_user_id,captured_at,discovery,discovery_hash,content_hash${attributionSupported?',order_scope_hash':''}${contextSupported?',order_scope':''}) VALUES($1,$2,$3,$4,$5::jsonb,$6,$7${attributionSupported?',$8':''}${contextSupported?`, $${runValues.length}::jsonb`:''})`,runValues);
-        for (const row of validated.rows) {
-            const target=current.find(order=>order.id===row.order.id)!;
-            const values:Array<string|number|null>=[runId,row.order.id,row.contract,JSON.stringify(row.pages),row.contentHash,...(attributionSupported?[target.attributionChangeId]:[])];if(contextSupported)values.push(target.sourceLinkId,target.version);
-            await client.query(`INSERT INTO ainuoke_material_source_snapshots(run_id,sales_order_id,sales_contract_no,snapshots,content_hash${attributionSupported?',attribution_change_id':''}${contextSupported?',source_link_id,captured_order_version':''}) VALUES($1,$2,$3,$4::jsonb,$5${attributionSupported?',$6':''}${contextSupported?`, $${values.length-1}, $${values.length}`:''})`,values);
-        }
-        await appendOperationLog(client, actor, { module: "艾诺科同步", action: "采集艾诺科来源", entityType: "AinuokeSourceRun", entityId: runId,
-            metadata: { sourceKey: options.sourceKey, sourceRunId: runId, orderCount: validated.rows.length, contentHash: validated.contentHash, orderScopeHash: attributionSupported?scopeHash:null, sourceOnly: true } });
-        await client.query("UPDATE ainuoke_source_profiles SET latest_run_id=$2,last_error_code=NULL,last_attempt_at=now() WHERE source_key=$1", [options.sourceKey, runId]);
+        const runId=await publishMaterialSnapshotsInTransaction(client,actor,options.sourceKey,validated,current);
+        if(!options.selectedOrderIds)await client.query("UPDATE ainuoke_source_profiles SET latest_run_id=$2,last_error_code=NULL,last_attempt_at=now() WHERE source_key=$1", [options.sourceKey, runId]);
         await client.query("COMMIT");
         transaction = false;
         return { runId, replayed: false, orders: validated.rows.length };
@@ -131,7 +136,10 @@ export async function captureSource(pool: Pool, identity: Pick<TrustedIdentity, 
         if (transaction)
             await client.query("ROLLBACK");
         // A failed attempt never changes the accepted pointer. Suppress old facts as current.
-        if (registered)
+        if (registered && perOrder)for(const id of targetIds)await client.query(`INSERT INTO ainuoke_material_order_heads(source_key,sales_order_id,last_error_code)
+          VALUES($1,$2,$3) ON CONFLICT(source_key,sales_order_id) DO UPDATE SET last_error_code=excluded.last_error_code,last_attempt_at=now()`,
+          [options.sourceKey,id,error instanceof SourceError?error.code:'source_capture_failed']).catch(()=>undefined);
+        if (registered && !options.selectedOrderIds)
             await client.query("UPDATE ainuoke_source_profiles SET last_error_code=$2,last_attempt_at=now() WHERE source_key=$1", [options.sourceKey, error instanceof SourceError ? error.code : "source_capture_failed"]).catch(() => undefined);
         throw error instanceof SourceError ? error : new SourceError(error instanceof HttpError && error.status === 403 ? "forbidden" : "source_capture_failed");
     }
@@ -140,4 +148,30 @@ export async function captureSource(pool: Pool, identity: Pick<TrustedIdentity, 
             await client.query("SELECT pg_advisory_unlock(hashtextextended($1,0))", ["ainuoke-source:" + options.sourceKey]).catch(() => undefined);
         client.release();
     }
+}
+
+/** Caller holds the source profile and trusted order locks; no IO or transaction ownership. */
+export async function publishMaterialSnapshotsInTransaction(client:PoolClient,actor:TrustedIdentity,sourceKey:string,
+ validated:Awaited<ReturnType<typeof validateBundle>>,current:BoundSourceOrder[]) {
+ const attributionSupported=await supportsSourceAttribution(client),contextSupported=await supportsMaterialCaptureContext(client);
+ const perOrder=await supportsOrderHeads(client),scopeHash=hash(current);
+        const runId = randomUUID();
+        const runValues=[runId,sourceKey,actor.internalUserId,validated.capturedAt,JSON.stringify(validated.bundle.discoveryAfter),hash(validated.bundle.discoveryAfter),validated.contentHash,...(attributionSupported?[scopeHash]:[])];if(contextSupported)runValues.push(JSON.stringify(current));
+        await client.query(`INSERT INTO ainuoke_source_runs(id,source_key,actor_user_id,captured_at,discovery,discovery_hash,content_hash${attributionSupported?',order_scope_hash':''}${contextSupported?',order_scope':''}) VALUES($1,$2,$3,$4,$5::jsonb,$6,$7${attributionSupported?',$8':''}${contextSupported?`, $${runValues.length}::jsonb`:''})`,runValues);
+        for (const row of validated.rows) {
+            const target=current.find(order=>order.id===row.order.id)!;
+            const values:Array<string|number|null>=[runId,row.order.id,row.contract,JSON.stringify(row.pages),row.contentHash,...(attributionSupported?[target.attributionChangeId]:[])];if(contextSupported)values.push(target.sourceLinkId,target.version);
+            await client.query(`INSERT INTO ainuoke_material_source_snapshots(run_id,sales_order_id,sales_contract_no,snapshots,content_hash${attributionSupported?',attribution_change_id':''}${contextSupported?',source_link_id,captured_order_version':''}) VALUES($1,$2,$3,$4::jsonb,$5${attributionSupported?',$6':''}${contextSupported?`, $${values.length-1}, $${values.length}`:''})`,values);
+        }
+        if(perOrder)for(const target of current) {
+            const present=validated.rows.some(r=>r.order.id===target.id);
+            await client.query(`INSERT INTO ainuoke_material_order_heads(source_key,sales_order_id,run_id,last_error_code,last_attempt_at)
+             VALUES($1,$2,$3,$4,now()) ON CONFLICT(source_key,sales_order_id) DO UPDATE SET
+             run_id=coalesce(excluded.run_id,ainuoke_material_order_heads.run_id),last_error_code=excluded.last_error_code,last_attempt_at=now()`,
+             [sourceKey,target.id,present?runId:null,present?null:'source_visibility_changed']);
+        }
+        await appendOperationLog(client, actor, { module: "艾诺科同步", action: "采集艾诺科来源", entityType: "AinuokeSourceRun", entityId: runId,
+            metadata: { sourceKey: sourceKey, sourceRunId: runId, orderCount: validated.rows.length, contentHash: validated.contentHash, orderScopeHash: attributionSupported?scopeHash:null, sourceOnly: true } });
+
+ return runId;
 }

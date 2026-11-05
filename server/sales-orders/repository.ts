@@ -73,6 +73,7 @@ export type SalesOrderListOptions = {
   offset: number;
   search?: string;
   includeHistorical?: boolean;
+  followupMode?: 'active'|'history'|'all';
   lifecycleState?: SalesOrderLifecycleState;
   creationSource?: SalesOrderCreationSource;
   sortBy?: "orderNo" | "updatedAt" | "contractDeliveryDate" | "salesContractNo";
@@ -445,6 +446,10 @@ export async function listSalesOrders(
   const attributed=await supportsEffectiveAttribution(client);
   const values: unknown[] = [];
   const where: string[] = attributed&&!options.includeHistorical?["attribution.effective_order_id=so.id"]:[];
+  if(options.followupMode && options.followupMode!=='all' && (await client.query("SELECT to_regclass('ainuoke_order_followups') IS NOT NULL ready")).rows[0].ready) {
+   const historical="EXISTS(SELECT 1 FROM ainuoke_order_followups f WHERE f.sales_order_id=so.id AND f.mode='history')";
+   where.push(options.followupMode==='history'?historical:'NOT '+historical);
+  }
   const addValue = (value: unknown): string => {
     values.push(value);
     return `$${values.length}`;

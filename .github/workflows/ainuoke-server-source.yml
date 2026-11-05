@@ -74,6 +74,7 @@ jobs:
           npm run test:order-preparation-client
           npm run test:postgres
           npm run test:ainuoke-continuous
+          npm run test:ainuoke-catalog
           npm run test:ainuoke-readiness
           npm run test:ainuoke-readonly-audit
           npm run test:ainuoke-targeted-diagnostic
@@ -116,6 +117,7 @@ jobs:
           npm run test:production-resources-ui
           npm run test:production-planning-ui
           npm run test:ainuoke-continuous-ui
+          npm run test:ainuoke-catalog-ui
           npm run test:processing-batches-ui
           npm run test:processing-quote-push-ui
           npm run test:order-business-source-ui
@@ -130,4 +132,6 @@ jobs:
         working-directory: tools/ainuoke-bridge
         env:
           PYTHONDONTWRITEBYTECODE: '1'
-        run: python3 -m unittest discover -s tests
+        run: |
+          python3 -m unittest discover -s tests
+          python3 -m unittest discover -s ../../scripts/tests -p test_ainuoke_sync_supervisor.py
