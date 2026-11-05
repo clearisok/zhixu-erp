@@ -8,7 +8,7 @@ import { validateSelectedSourceOnce, type SelectedSourceRequest } from './select
 import { publishCatalog } from './catalog.js';
 import { SourceError } from './contract.js';
 import { randomUUID } from 'node:crypto';
-import { collectCatalogDiagnostic, validateCatalogDiagnostic, finishCaptureAttempt, retryableCapture, type RequestDiagnostic } from './sync-diagnostics.js';
+import { CatalogDiagnosticValidationError, collectCatalogDiagnostic, validateCatalogDiagnostic, finishCaptureAttempt, retryableCapture, type RequestDiagnostic } from './sync-diagnostics.js';
 type Identity=Pick<TrustedIdentity,'internalUserId'|'userId'>;
 export async function readCatalogCaptureReceipt(pool:Pool,identity:Identity,sourceKey:string,requestId:string){
  const actor=await sourceActor(pool,identity,true);
@@ -63,6 +63,7 @@ async function captureUnderLease(pool:Pool,identity:Identity,raw:CollectorConfig
   await pool.query("UPDATE ainuoke_catalog_requests SET status='complete',result=$3::jsonb,finished_at=now() WHERE source_key=$1 AND request_id=$2",[config.sourceKey,requestId,JSON.stringify({...result,metrics:captured.metrics})]);
   return {status:'complete',result,replayed:false};
  }catch(e){
+  if(e instanceof CatalogDiagnosticValidationError)diagnostics=e.diagnostics;
   const committed=(await pool.query('SELECT id::text FROM ainuoke_catalog_runs WHERE source_key=$1 AND request_id=$2',[config.sourceKey,requestId]).catch(()=>({rows:[]}))).rows[0];
   if(committed){await pool.query("UPDATE ainuoke_catalog_requests SET status='complete',result=$3::jsonb,finished_at=now() WHERE source_key=$1 AND request_id=$2",[config.sourceKey,requestId,JSON.stringify({runId:committed.id})]);return {status:'complete',result:{runId:committed.id},replayed:true};}
   const code=e instanceof SourceError?e.code:'catalog_result_unknown';

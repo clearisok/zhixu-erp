@@ -12,7 +12,7 @@ import { validateSelectedSourceOnce, type SelectedSourceRequest } from './select
 import { captureCatalogOnce } from './catalog-capture.js';
 import { HttpError } from '../http/errors.js';
 import { saveCatalogEvidence } from './catalog-evidence.js';
-import { collectCatalogDiagnostic, validateCatalogDiagnostic, diagnosticSummary, finishCaptureAttempt, retryDelayMs, retryableCapture, type RequestDiagnostic } from './sync-diagnostics.js';
+import { CatalogDiagnosticValidationError, collectCatalogDiagnostic, validateCatalogDiagnostic, diagnosticSummary, finishCaptureAttempt, retryDelayMs, retryableCapture, type RequestDiagnostic } from './sync-diagnostics.js';
 
 type Identity = Pick<TrustedIdentity,'internalUserId'|'userId'>;
 type Captured = Extract<Awaited<ReturnType<typeof validateSelectedSourceOnce>>, {mode:'catalog-contracts'}>;
@@ -168,6 +168,7 @@ export async function runSyncTick(pool:Pool,identity:Identity,raw:CollectorConfi
       if(response.result!=='complete')throw new SourceError(response.code);
       if(response.mode!=='catalog-contracts')throw new SourceError('selected_source_invalid');captured=response;
     }catch(e){
+      if(e instanceof CatalogDiagnosticValidationError)diagnostics=e.diagnostics;
       const code=e instanceof SourceError?e.code:'source_capture_failed';
       await finishCaptureAttempt(pool,attemptId,code,diagnostics,metrics,now());
       const results=[];

@@ -1,13 +1,17 @@
-# 接力：剩余58完成，进入247连续验证准备
+# 接力：连续验收暂停，608新配对已恢复
 
-2026-11-05 09:20北京时间；实际目录C:/Users/Administrator/.codex/worktrees/ainuoke-full-catalog-followup/zhixu-ainuoke-api。分支feat/ainuoke-full-catalog-followup，候选738b5471fbc6d3048e66120bb0c1732728cbc027，PR140三项CI41865113169/41865112833/41865112991均success，不重跑、不重复push。main基线cb5cc29baa49ed7115fdb6c9506b6a80356936ea，无新合并授权。
+2026-11-05；工作树C:/Users/Administrator/.codex/worktrees/ainuoke-full-catalog-followup/zhixu-ainuoke-api，feat/ainuoke-full-catalog-followup。输入clean4b8b599b3cdaff63f594adb1810f212ad1070a93。远端候选738b5471fbc6d3048e66120bb0c1732728cbc027，PR140三项CI41865113169/41865112833/41865112991已success，别重跑旧CI；本轮后继本地代码修复另行交付。main已知cb5cc29baa49ed7115fdb6c9506b6a80356936ea，无自动合并许可。
 
-本轮“下一步”衔接用户五步任务和明确退出成功对照。新私密/home/jackson/weaveops-five-step-convergence-20261104/remaining-58-v1复用原scope5d87及accepted-login.json，不重用任何旧reservation。wrapper保留550/58、目录608、当前控制版本、身份/RBAC、未知结果、备份安静窗口等保护；复用成功探针，最多29新登录/2400报表/40min。实际17登录/565报表、159361ms，608全部成功、0pending/unknown，原550 proof保持。容器weaveops-remaining-58-20261105与原覆盖PG均正常停止；worker PAUSED。该额度关闭，不重跑execute.py。
+用户要求高频连续/积压/手动、新608备份及升级。实际按日期243高频，其余daily123/weekly192/monthly50。原始608库保持stopped：weaveops-catalog-capacity-20261104-database / catalog_coverage_resilience_20261104。新配对在/home/jackson/weaveops-five-step-convergence-20261104/restore-v1/coverage608-pair，137表/2附件/608；宁波恢复到coverage608_restored，副本PG weaveops-five-step-restore-20261104-db。归档sha9d236293334b624f6e19c41769ab573fc3da6ad0a93d35dd2614ae0e0db74e53（41631723bytes），已复制D:/WeaveOps-Backups/ningbo-trial/coverage608-738b5471-20261105并networknone恢复通过，容器停止、卷保留。
 
-操作者固定3883247d（source cba3aef4）；git diff cba..738仅文档/工件和payment测试，运行代码一致。scope.source97449是原冻结范围来源，不是新runtime SHA。实际原始来源只留宁波私密目录，不入Git；白名单结果artifacts/five-step-convergence-20261104/remaining-58-complete.json，本机helper/results在outputs/five-step-convergence-20261104。闭环尚未完成：608仅隔离观测，不是正式SO或staging数据。
+连续测试私密目录/home/jackson/weaveops-five-step-convergence-20261104/continuous-v1。scopeHash9d3cc0b8f12a94d8595f739e0b7841a217e3344c690a972216c2d2041fb67d21；原窗口01:28:36.516Z起70min、140登录/11200报表，保留真实时钟。初次6086103page4 45051ms超时，v2只恢复既有有限重试与原窗口/累计预算，没有从零重采。01:43:25.122Z再因catalog_changed_or_over_limit停止；control enabled=false paused_reason同码 version6，running/unknown0。该许可窗口现关闭，不重跑runner/reservation；D180禁止自动恢复领域校验失败。
 
-下一步先只读重新冻结高频集合（日期动态变更，别无条件写死247），准备有限连续周期及手动刷新/积压验证，保留608已成功数据。此前247单轮和550恢复证据保留，但不能当持续验收或最新608归档。新608配对备份、附件HTTP、正式策略重绑、长期站升级仍待。staging旧f21、旧库/账户/报价/附件/卷保留；不自动merge或扩大源报表范围。
+最终155首次、0第二周期；34登录/1198报表是已知下限，35/2760预留上限。失败capture一次在验证前未落盘，metricsUnknown1不是DB提交未知；最后lastCapture/lastTick及backlog62均旧采样，不可当最后失败实测。post-stop-proof.json核实高频57queued，其他112deferred，原608观察和未选364成功指针/时间全保留。单独月频手动请求在217积压中5834ms完成、幂等同job/通知/一单更新通过，不是浏览器点击验证。原worker仍PAUSED，测试PG/两个execute操作者均已停。
 
-登录原因：网页登录退出前拒绝，退出后探针及17次采集登录全部接受，支持会话相关，但不证明具体服务端机制。无需继续反复登录探针或强制cover，也不应因SDK缺logout就擅加未验证接口。
+测试v1曾用终结失败排除低频，反复enqueue生成1792条benchmark-only失败；v2改推迟available_at到原deadline后。禁止将该测试队列迁入长期站。原608库/新配对/另行只读导出的catalog608-transfer不含这些测试标记；导出manifest4b584e29a3f1b811a243ec8d78b8c7c06eaa89f4b16f98f616612597b41f3718，10表608成功0未终结，未导入。outputs/import-catalog608.mjs仅语法核对草稿，未验收，不可用于live。
 
-[上一完整接力](tasks/completed/2026-11-05-before-608-complete/AI_HANDOFF.md)、[五步任务](tasks/active/five-step-convergence-2026-11-04.md)。本轮后继仅本地文档checkpoint，远端执行候选仍738，不为文档触发新CI。
+失败路径分析：selected-source-once先验证page total<=1000，再调用previewCatalog，故更支持前后目录内容差异；失败raw未留存，不能说明具体合同/字段或上游原因。不要删除完整目录一致性保护。当前本地修复CatalogDiagnosticValidationError，仅携带已白名单校验的请求trace，catalog-capture和sync-worker持久保存；拒绝payload的metrics仍null，原暂停/禁止重试保持。2个真实隔离PG领域失败回归及3个纯测试通过，原resilience/stop其他通过；新增合同测试最初用冻结now造成未来fetchedAt误触stale，已改真实时钟，无放宽业务校验。
+
+长期站只读preflight已核仍f21/121表/2报价/3SO/2附件/2用户，未写入。精确738应用镜像c7898b30、操作者3883247d/sourcecba3aef4（运行代码等价738）；不得把后继本地修复说成在这些镜像。staging候选升级仍待连续验收、新鲜live配对、附件HTTP、policy重绑；保留所有旧资产。不要再读取真实来源或触发旧CI以“补证据”。
+
+[证据](../artifacts/five-step-convergence-20261104/continuous-and-608-backup.json)、[任务](tasks/active/five-step-convergence-2026-11-04.md)、[上一接力](tasks/completed/2026-11-05-before-continuous-stop/AI_HANDOFF.md)。

@@ -6,6 +6,14 @@ import { SourceError } from './contract.js';
 export type RequestDiagnostic = { kind:'login'|'report'; reportId:6086103|6087105|6087050|null;
  page:number|null; elapsedMs:number; outcome:string; httpStatus:number|null };
 const outcomes=new Set(['complete','http_error','timeout','dns_error','tls_error','connection_refused','connection_reset','network_error','auth_error','schema_error','unknown_error']);
+/** A rejected payload is never publishable. Preserve only the independently
+ * checked request trace, not its raw response, credentials or unverified metrics. */
+export class CatalogDiagnosticValidationError extends SourceError {
+ readonly diagnostics:RequestDiagnostic[];
+ constructor(code:string,diagnostics:RequestDiagnostic[]) {
+  super(code);this.diagnostics=validateRequestDiagnostics(diagnostics);
+ }
+}
 export function validateRequestDiagnostics(input:unknown):RequestDiagnostic[] {
  if(!Array.isArray(input)||input.length>81)throw new SourceError('sync_diagnostics_invalid');
  return input.map(value=>{
@@ -32,7 +40,12 @@ export async function validateCatalogDiagnostic(value:unknown,cfg:CollectorConfi
  const wrapped=value as {schemaVersion:string;capture:unknown;requests:unknown};
  if(wrapped.schemaVersion!=='ainuoke-request-diagnostics.v1')throw new SourceError('sync_diagnostics_invalid');
  const diagnostics=validateRequestDiagnostics(wrapped.requests);
- const capture=await validateSelectedSourceOnce(wrapped.capture,cfg,request,now);
+ let capture;
+ try {capture=await validateSelectedSourceOnce(wrapped.capture,cfg,request,now);}
+ catch(error){
+  if(error instanceof SourceError)throw new CatalogDiagnosticValidationError(error.code,diagnostics);
+  throw error;
+ }
  if(diagnostics.length!==capture.metrics.httpAttempts||capture.result==='complete'&&diagnostics.some(d=>d.outcome!=='complete'))throw new SourceError('sync_diagnostics_invalid');
  return {capture,diagnostics};
 }
