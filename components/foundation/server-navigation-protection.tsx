@@ -1,5 +1,8 @@
 "use client";
 
+import { useServerSession } from "../../features/server-auth/components/server-session-provider";
+import { startServerNavigationReads } from "./server-navigation-data";
+
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "./button";
@@ -126,10 +129,11 @@ export function useServerNavigationProtection(value: Protection) {
 /** Public router operations used by protected Server pages and modal owners. */
 export function useProtectedRouter() {
   const router = useRouter(), controls = useContext(Context);
+  const session = useServerSession();
   return useMemo(() => !controls ? router : {
     ...router,
-    push: (...args: Parameters<typeof router.push>) => controls.navigate(args[0], false, () => router.push(...args)),
-    replace: (...args: Parameters<typeof router.replace>) => controls.navigate(args[0], true, () => router.replace(...args)),
+    push: (...args: Parameters<typeof router.push>) => controls.navigate(args[0], false, () => { if (session.status === "authenticated") startServerNavigationReads(args[0], session.user.id, session.permissions); router.push(...args); }),
+    replace: (...args: Parameters<typeof router.replace>) => controls.navigate(args[0], true, () => { if (session.status === "authenticated") startServerNavigationReads(args[0], session.user.id, session.permissions); router.replace(...args); }),
     refresh: () => { if (controls.check()) router.refresh(); },
-  }, [router, controls]);
+  }, [router, controls, session]);
 }
