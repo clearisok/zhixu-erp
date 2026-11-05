@@ -9,3 +9,5 @@
 测试副本control disabled/version12/paused catalog_changed_or_over_limit；操作者/PG停止、旧worker PAUSED；staging仍旧f21，未升级。原608配对及异机恢复仍有效，升级需最终新版本验收和临近live配对/附件HTTP/备份策略重绑。不合并main、不导入benchmark队列。
 
 [本轮证据](../artifacts/five-step-convergence-20261104/directory-image-change-stop.json)、[此前接力](tasks/completed/2026-11-05-before-image-projection/AI_HANDOFF.md)。
+
+发布检查首次指出来源模块和D181文档仍引用旧冻结证据；修复采用新增前向证据，不覆盖旧ID/哈希。已停止尚未完成的首次完整基线测试，不算通过；冻结新文档后只完成一次最终检查。代码checkpoint5b06ddc3b89f441dc68350720ea3104b7ef69eed，真实来源保持停止。
