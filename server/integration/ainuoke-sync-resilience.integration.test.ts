@@ -125,3 +125,68 @@ test('transient failures preserve success and create finite durable retry jobs',
   });
  }finally{await f.close();}
 });
+
+
+for(const mode of ['catalog-discovery','catalog-contracts'] as const){
+ test(`${mode}: approved content changes retry finitely, preserve facts, then pause`,{timeout:180000},async()=>{
+  const f=await startCatalogFixture();
+  try{
+   const baseline=(await f.pool.query('SELECT source_id,observation_id,last_success_at FROM ainuoke_contract_sync_state ORDER BY source_id')).rows;
+   const entry=(await f.pool.query('SELECT source_id,sales_contract_no FROM ainuoke_catalog_entries ORDER BY source_id LIMIT 1')).rows[0];
+   const input={sourceKey:f.sourceKey,sourceId:entry.source_id,requestId:randomUUID()};
+   if(mode==='catalog-contracts')await requestContractSync(f.pool,f.actor,input);
+   let now=Date.now()+31*60000,calls=0;
+   const collect=async()=>{
+    calls++;
+    const raw=selectedWorkerFixture(mode,'',mode==='catalog-discovery'?[]:[entry.sales_contract_no]) as {bundle:{discoveryBefore:Array<{fetchedAt:string;rows:Array<{values:Record<string,unknown>}>}>;discoveryAfter:Array<{fetchedAt:string;rows:Array<{values:Record<string,unknown>}>}>};metrics:{httpAttempts:number}};
+    if(mode==='catalog-contracts')for(const p of [...raw.bundle.discoveryBefore,...raw.bundle.discoveryAfter])p.fetchedAt=new Date(now).toISOString();
+    raw.bundle.discoveryAfter[0].rows[0].values.Num=123456;
+    return {schemaVersion:'ainuoke-request-diagnostics.v1',capture:raw,requests:Array.from({length:raw.metrics.httpAttempts},(_,i)=>i===0
+     ?{kind:'login',reportId:null,page:null,elapsedMs:10,outcome:'complete',httpStatus:200}
+     :{kind:'report',reportId:6086103,page:1,elapsedMs:20,outcome:'complete',httpStatus:200})};
+   };
+   const tick=()=>runSyncTick(f.pool,f.actor,selectedConfig,{automatic:mode==='catalog-discovery',now:()=>now,collect});
+   assert.equal((await tick()).status,mode==='catalog-discovery'?'catalog_retry_wait':'failed');assert.equal(calls,1);
+   now+=59000;assert.equal((await tick()).status,mode==='catalog-discovery'?'catalog_retry_wait':'idle');assert.equal(calls,1);
+   if(mode==='catalog-contracts'){
+    const receipt=await readSyncRequest(f.pool,f.actor,input.requestId);
+    const duplicate=await requestContractSync(f.pool,f.actor,{...input,requestId:randomUUID()});
+    assert.equal(duplicate.jobId,receipt.jobId);assert.equal(receipt.attemptNumber,2);
+   }
+   now+=1000;await tick();assert.equal(calls,2);
+   now+=299000;assert.equal((await tick()).status,mode==='catalog-discovery'?'catalog_retry_wait':'idle');assert.equal(calls,2);
+   now+=1000;await tick();assert.equal(calls,3);
+   const control=(await f.pool.query('SELECT paused_reason FROM ainuoke_sync_controls')).rows[0];
+   assert.equal(control.paused_reason,mode==='catalog-discovery'?'catalog_retries_exhausted':'catalog_business_content_changed');
+   now+=86400000;assert.equal((await tick()).status,'paused');assert.equal(calls,3);
+   await assert.rejects(requestContractSync(f.pool,f.actor,{...input,requestId:randomUUID()}));
+   assert.deepEqual((await f.pool.query('SELECT source_id,observation_id,last_success_at FROM ainuoke_contract_sync_state ORDER BY source_id')).rows,baseline);
+   assert.equal(Number((await f.pool.query("SELECT count(*) n FROM ainuoke_sync_capture_attempts WHERE result_code='catalog_business_content_changed' AND status='failed' AND requests IS NOT NULL")).rows[0].n),3);
+   assert.equal(Number((await f.pool.query("SELECT count(*) n FROM ainuoke_sync_jobs WHERE retry_of IS NOT NULL AND status='queued'")).rows[0].n),0);
+  }finally{await f.close();}
+ });
+}
+
+test('stable recapture publishes only its contract and preserves the original failed receipt',{timeout:180000},async()=>{
+ const f=await startCatalogFixture();
+ try{
+  const before=(await f.pool.query('SELECT source_id,observation_id FROM ainuoke_contract_sync_state ORDER BY source_id')).rows;
+  const entry=(await f.pool.query('SELECT source_id,sales_contract_no FROM ainuoke_catalog_entries ORDER BY source_id LIMIT 1')).rows[0];
+  const input={sourceKey:f.sourceKey,sourceId:entry.source_id,requestId:randomUUID()};
+  const first=await requestContractSync(f.pool,f.actor,input);let calls=0;
+  const collect=async()=>{
+   const raw=selectedWorkerFixture('catalog-contracts','',[entry.sales_contract_no]) as {bundle:{discoveryAfter:Array<{rows:Array<{values:Record<string,unknown>}>}>}};
+   if(++calls===1)raw.bundle.discoveryAfter[0].rows[0].values.Num=123456;
+   return raw;
+  };
+  assert.equal((await runSyncTick(f.pool,f.actor,selectedConfig,{automatic:false,collect})).status,'failed');
+  assert.deepEqual((await f.pool.query('SELECT source_id,observation_id FROM ainuoke_contract_sync_state ORDER BY source_id')).rows,before);
+  const result=await runSyncTick(f.pool,f.actor,selectedConfig,{automatic:false,now:()=>Date.now()+60001,collect});
+  assert.equal(result.status,'processed');assert.equal(result.jobs.length,1);assert.equal(result.jobs[0].status,'complete');assert.equal(calls,2);
+  const receipt=await readSyncRequest(f.pool,f.actor,input.requestId);assert.equal(receipt.status,'complete');assert.equal(receipt.attemptNumber,2);assert.equal(receipt.originalStatus,'failed');
+  assert.equal((await f.pool.query('SELECT result->>\'code\' code FROM ainuoke_sync_jobs WHERE id=$1',[first.jobId])).rows[0].code,'catalog_business_content_changed');
+  const changed=(await f.pool.query('SELECT source_id,observation_id FROM ainuoke_contract_sync_state ORDER BY source_id')).rows.filter((r,i)=>r.observation_id!==before[i].observation_id);
+  assert.deepEqual(changed.map(r=>r.source_id),[entry.source_id]);
+  assert.equal((await f.pool.query('SELECT paused_reason FROM ainuoke_sync_controls')).rows[0].paused_reason,null);
+ }finally{await f.close();}
+});

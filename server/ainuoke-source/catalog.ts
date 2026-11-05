@@ -7,7 +7,7 @@ import { appendOperationLog } from '../operation-logs/repository.js';
 import { adaptAinuokeOrderDiscoverySnapshots } from '../../features/ainuoke-api/source/ainuoke-order-discovery-adapter.js';
 import { sourceActor } from './service.js';
 import { requireAdditionProfile, type AdditionDiscoveryBundle } from './additions.js';
-import { SourceError, inspect, pagesValid, discoveryContentHash } from './contract.js';
+import { SourceError, inspect, pagesValid, discoveryContentHash, hash } from './contract.js';
 import { saveCatalogEvidence } from './catalog-evidence.js';
 
 const text = (v:unknown) => typeof v==='string' && v.trim() ? v.normalize('NFKC').trim() : null;
@@ -19,6 +19,30 @@ const quantity = (v:unknown) => {
  if(v===null||v===undefined||typeof v==='boolean'||String(v).trim()==='')return null;
  const n=Number(v); return Number.isFinite(n)&&n>=0&&n<=Number.MAX_SAFE_INTEGER?n:null;
 };
+// D180's approved narrow exception: a changed directory is still rejected, never
+// published. Only these business fields may qualify for a new bounded capture.
+const mutableCatalogFields=new Set(['DeliveryDate','ContractDate','Num','Status','GoodsDesc','Brand','CustomerName']);
+function onlyCatalogBusinessChanged(b:AdditionDiscoveryBundle):boolean {
+ if(b.discoveryBefore.length!==b.discoveryAfter.length)return false;
+ for(const [i,page] of b.discoveryBefore.entries()){
+  const metadata=({rows:ignoredRows,fetchedAt:ignoredTime,snapshotHash:ignoredContent,...rest}:typeof page)=>{void ignoredRows;void ignoredTime;void ignoredContent;return rest;};
+  if(hash(metadata(page))!==hash(metadata(b.discoveryAfter[i])))return false;
+ }
+ const before=b.discoveryBefore.flatMap(p=>p.rows),after=b.discoveryAfter.flatMap(p=>p.rows);
+ if(before.length!==after.length)return false;
+ const byId=new Map(after.map(r=>[String(r.values.id).trim(),r]));let changed=false;
+ for(const row of before){
+  const next=byId.get(String(row.values.id).trim());
+  if(!next||[row,next].some(r=>Object.keys(r).sort().join(',')!=='sourceRowIdentity,values'))return false;
+  const fixed=(values:typeof row.values)=>Object.fromEntries(Object.entries(values).filter(([key])=>!mutableCatalogFields.has(key)));
+  // Includes exact id/BillNo/InsideOrderNo and every unknown field. The SDK row
+  // fingerprint hashes the whole row and is not the stable contract identity.
+  if(hash(fixed(row.values))!==hash(fixed(next.values)))return false;
+  if(hash(row.values)!==hash(next.values))changed=true;
+  else if(row.sourceRowIdentity!==next.sourceRowIdentity)return false;
+ }
+ return changed;
+}
 export async function previewCatalog(input:unknown,now=Date.now()) {
  inspect(input);
  if(!input||typeof input!=='object'||Buffer.byteLength(JSON.stringify(input))>32*1024*1024)throw new SourceError('catalog_invalid');
@@ -26,7 +50,9 @@ export async function previewCatalog(input:unknown,now=Date.now()) {
  if(b.schemaVersion!=='ainuoke-order-addition-discovery.v1'||Object.keys(b).sort().join(',')!=='discoveryAfter,discoveryBefore,schemaVersion')throw new SourceError('catalog_invalid');
  pagesValid(b.discoveryBefore,now,600000);pagesValid(b.discoveryAfter,now,600000);
  const before=await adaptAinuokeOrderDiscoverySnapshots(b.discoveryBefore),after=await adaptAinuokeOrderDiscoverySnapshots(b.discoveryAfter);
- if(after.total>1000||before.snapshotHash!==after.snapshotHash||discoveryContentHash(b.discoveryBefore)!==discoveryContentHash(b.discoveryAfter))throw new SourceError('catalog_changed_or_over_limit');
+ if(before.total>1000||after.total>1000)throw new SourceError('catalog_changed_or_over_limit');
+ if(before.snapshotHash!==after.snapshotHash||discoveryContentHash(b.discoveryBefore)!==discoveryContentHash(b.discoveryAfter))
+  throw new SourceError(onlyCatalogBusinessChanged(b)?'catalog_business_content_changed':'catalog_changed_or_over_limit');
  const raw=new Map(b.discoveryAfter.flatMap(p=>p.rows).map(r=>[String(r.values.id).trim(),r.values]));
  const rows=after.rows.map(r=>{const v=raw.get(r.sourceId)!;return {...r,contractDate:date(r.contractDate),deliveryDate:date(r.deliveryDate),
   customerName:text(v.CustomerName),brandName:text(v.Brand),quantity:quantity(v.Num)};});

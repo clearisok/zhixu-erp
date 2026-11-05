@@ -1,0 +1,32 @@
+{
+  "authorization": "2026-11-05 user approved identity/scope-stable business-field bounded recapture and fixed verification",
+  "baselineHead": "5652cfdf31d4d89e2a90aa3dce03d80702b87d29",
+  "main": "cb5cc29baa49ed7115fdb6c9506b6a80356936ea",
+  "tests": {
+    "catalogSuiteInitial": {
+      "pass": 56,
+      "fail": 1,
+      "reason": "new directory test incorrectly stamped source data with future queue clock"
+    },
+    "focusedRetryCasesAfterTestCorrection": {
+      "pass": 2,
+      "fail": 0
+    },
+    "stableRecapture": {
+      "pass": 1,
+      "fail": 0
+    },
+    "protocolAndDiagnostics": {
+      "pass": 6,
+      "fail": 0
+    },
+    "totalUniqueCatalogCasesAfterCorrection": 58,
+    "typecheck": "passed",
+    "changedLint": "passed",
+    "build": "in progress"
+  },
+  "review": "local diff review; unstable data never publishable; unknown-field and identity drift stop; third failed content capture pauses; no schema or UI changes",
+  "realSourceRequests": 0,
+  "stagingChanged": false,
+  "remoteDelivery": "pending"
+}

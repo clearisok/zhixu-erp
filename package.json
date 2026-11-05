@@ -132,7 +132,7 @@
     "test:closing-year": "tsx --test --test-concurrency=1 server/closing/annual-model.test.ts server/integration/closing-annual-read.integration.test.ts",
     "test:closing-month-interface": "tsx --test --test-concurrency=1 features/closing-center/server/__tests__/closing-month-client.test.ts features/closing-center/server/__tests__/closing-month-controller.test.ts server/integration/closing-month-interface.integration.test.ts",
     "test:closing-source-reconciliation": "tsx --test --test-concurrency=1 server/closing/source-reconciliation-model.test.ts server/integration/closing-source-reconciliation.integration.test.ts",
-    "test:ainuoke-catalog": "tsx --test --test-concurrency=1 server/ainuoke-source/sync-schedule.test.ts server/ainuoke-source/sync-diagnostics.test.ts server/integration/ainuoke-catalog-followup.integration.test.ts server/integration/ainuoke-catalog-api.integration.test.ts server/integration/ainuoke-catalog-upgrade.integration.test.ts server/integration/ainuoke-sync-resilience.integration.test.ts server/integration/ainuoke-sync-stop.integration.test.ts",
+    "test:ainuoke-catalog": "tsx --test --test-concurrency=1 server/ainuoke-source/sync-schedule.test.ts server/ainuoke-source/sync-diagnostics.test.ts server/ainuoke-source/catalog-business-change.test.ts server/integration/ainuoke-catalog-followup.integration.test.ts server/integration/ainuoke-catalog-api.integration.test.ts server/integration/ainuoke-catalog-upgrade.integration.test.ts server/integration/ainuoke-sync-resilience.integration.test.ts server/integration/ainuoke-sync-stop.integration.test.ts",
     "test:ainuoke-catalog-ui": "tsx --test server/integration/ainuoke-catalog-ui.integration.test.mjs"
   },
   "dependencies": {

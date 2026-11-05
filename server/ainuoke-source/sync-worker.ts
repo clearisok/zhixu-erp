@@ -175,7 +175,8 @@ export async function runSyncTick(pool:Pool,identity:Identity,raw:CollectorConfi
       const retry=retryableCapture(code,diagnostics);
       // Refusing a retry child is insufficient: the next tick could claim a new
       // contract or a new scheduled slot. Unsafe captures require explicit recovery.
-      for(const job of jobs)results.push({id:job.id,...await failJob(pool,job,code,false,{diagnostics,retry,pauseCapture:!retry,now:now()})});
+      for(const job of jobs)results.push({id:job.id,...await failJob(pool,job,code,false,{diagnostics,retry,
+        pauseCapture:!retry||code==='catalog_business_content_changed'&&retryDelayMs(job.attempt_number)===null,now:now()})});
       return {status:'failed' as const,retryScheduled:results.some(r=>r.retry),jobs:results};
     }
     await finishCaptureAttempt(pool,attemptId,null,diagnostics,metrics,now());

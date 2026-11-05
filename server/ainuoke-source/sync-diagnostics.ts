@@ -43,6 +43,13 @@ export async function validateCatalogDiagnostic(value:unknown,cfg:CollectorConfi
  let capture;
  try {capture=await validateSelectedSourceOnce(wrapped.capture,cfg,request,now);}
  catch(error){
+  // A retryable domain rejection occurs only after envelope/metrics validation.
+  // Do not let a contradictory transport trace turn auth/schema failures into retries.
+  if(error instanceof SourceError&&error.code==='catalog_business_content_changed'){
+   const metrics=(wrapped.capture as {metrics:{httpAttempts:number}}).metrics;
+   if(diagnostics.length!==metrics.httpAttempts||diagnostics.some(d=>d.outcome!=='complete'))
+    throw new CatalogDiagnosticValidationError('sync_diagnostics_invalid',diagnostics);
+  }
   if(error instanceof SourceError)throw new CatalogDiagnosticValidationError(error.code,diagnostics);
   throw error;
  }
@@ -51,6 +58,7 @@ export async function validateCatalogDiagnostic(value:unknown,cfg:CollectorConfi
 }
 export const retryDelayMs=(attempt:number)=>attempt===1?60000:attempt===2?300000:null;
 export function retryableCapture(code:string,diagnostics:RequestDiagnostic[]|null) {
+ if(code==='catalog_business_content_changed')return true;
  if(code==='selected_source_timeout'||code==='source_timeout')return true;
  if(code!=='source_unavailable'||!diagnostics?.length)return false;
  const last=diagnostics.at(-1)!;

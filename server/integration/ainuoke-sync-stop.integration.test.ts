@@ -69,7 +69,7 @@ for (const mode of ['catalog-discovery', 'catalog-contracts'] as const) {
      metrics:{httpAttempts:number};
     };
     // Transport succeeded, but the before/after directory is no longer stable.
-    raw.bundle.discoveryAfter[0].rows[0].values.Status = 'changed during capture';
+    raw.bundle.discoveryAfter[0].rows[0].values.UnknownField = 'changed during capture';
     requests = Array.from({length:raw.metrics.httpAttempts},(_,i) => i===0
      ? {kind:'login',reportId:null,page:null,elapsedMs:11,outcome:'complete',httpStatus:200}
      : {kind:'report',reportId:6086103,page:1,elapsedMs:37+i,outcome:'complete',httpStatus:200});
