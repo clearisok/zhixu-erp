@@ -1,0 +1,159 @@
+{
+  "schemaVersion": "weaveops.ainuoke-fixed-recovery.v1",
+  "state": "SINGLE_RETRY_AUTHENTICATION_REFUSED",
+  "baseline": "cb5cc29baa49ed7115fdb6c9506b6a80356936ea",
+  "deliveredHead": "b33888e4215ae70edebdf6ae079d86eb20d93b0c",
+  "source": "06d56d101b73ebb22f656a9d61d729d7adb26ced",
+  "authorization": {
+    "instruction": "User requested retry and guaranteed nobody currently logged in",
+    "selectedDetails": 3,
+    "maximumLogins": 1,
+    "maximumReports": 80,
+    "maximumMs": 180000,
+    "newSingleAttemptWindow": true,
+    "newRequestQuota": false,
+    "pendingSha256": "6bcf5dfc124dfbdae93efb5387e45495a7bff6f4cf79c83a678cee1cf22496d6"
+  },
+  "runnerSha256": "a5347b31fc78c689ca2a3158a2b2f66a3b18dd99826908ebc6018384d392e8a4",
+  "execution": {
+    "state": "STOPPED",
+    "startedAt": "2026-11-05T09:58:24.421Z",
+    "candidate": "06d56d101b73ebb22f656a9d61d729d7adb26ced",
+    "scopeHash": "f3e3dc64adf9a069268ce9f6836553021fa55c0776d0ff1df5b31048a477ed1e",
+    "frequent": 3,
+    "priorKnownLogins": 146,
+    "priorKnownReports": 5110,
+    "priorMetricsUnknown": 1,
+    "priorReservedLogins": 147,
+    "priorReservedReports": 11568,
+    "knownLogins": 1,
+    "knownReports": 0,
+    "reservedLogins": 1,
+    "reservedReports": 80,
+    "captures": 1,
+    "metricsUnknown": 0,
+    "notifications": 0,
+    "excludedBenchmarkJobs": 357,
+    "maxBacklog": 3,
+    "maxOldestBacklogMs": 0,
+    "deadline": "2026-11-05T10:01:24.422Z",
+    "storageBefore": {
+      "ainuoke_catalog_evidence_chunks": {
+        "rows": 42,
+        "bytes": "483328"
+      },
+      "ainuoke_catalog_capture_evidence": {
+        "rows": 287,
+        "bytes": "1843200"
+      },
+      "ainuoke_contract_observations": {
+        "rows": 1396,
+        "bytes": "38854656"
+      }
+    },
+    "manual": {
+      "skipped": true,
+      "reason": "already_verified_in_parent_window"
+    },
+    "completedFirst": 3,
+    "completedSecond": 0,
+    "minimumVerifiedCycleIntervalMs": null,
+    "backlog": 0,
+    "elapsedMs": 21073,
+    "lastTick": {
+      "status": "idle",
+      "jobs": 0
+    },
+    "lastCapture": {
+      "result": "failed",
+      "code": "invalid_credential",
+      "failures": [
+        {
+          "kind": "login",
+          "reportId": null,
+          "page": null,
+          "elapsedMs": 303,
+          "outcome": "auth_error",
+          "httpStatus": null
+        }
+      ]
+    },
+    "privateRawBytes": 827,
+    "code": "worker_or_source_failure",
+    "storageAfter": {
+      "ainuoke_catalog_evidence_chunks": {
+        "rows": 42,
+        "bytes": "483328"
+      },
+      "ainuoke_catalog_capture_evidence": {
+        "rows": 287,
+        "bytes": "1843200"
+      },
+      "ainuoke_contract_observations": {
+        "rows": 1396,
+        "bytes": "38854656"
+      }
+    },
+    "unselectedSuccessPointersPreserved": true,
+    "original608ObservationsPreserved": true,
+    "finalJobs": [
+      {
+        "status": "queued",
+        "n": 357
+      }
+    ],
+    "finalFrequentBacklog": 0,
+    "remainingLogins": 0,
+    "remainingReports": 0,
+    "cumulativeReservedLogins": 148,
+    "cumulativeReservedReports": 11648,
+    "finishedAt": "2026-11-05T09:58:45.495Z",
+    "onlyRestoredCopy": true,
+    "stagingChanged": false
+  },
+  "audit": {
+    "state": "RETRY_AUTHENTICATION_STOP_VERIFIED",
+    "control": {
+      "enabled": false,
+      "version": 18,
+      "pausedReason": "invalid_credential",
+      "runningUnknown": 0,
+      "observations": 1396
+    },
+    "actualLogins": 1,
+    "actualReports": 0,
+    "authenticationElapsedMs": 303,
+    "totalSecond": 240,
+    "remainingSecond": 3,
+    "original608HistoryPreserved": true,
+    "unselectedPointersPreserved": true,
+    "sourceRequestsDuringAudit": 0,
+    "databaseStopped": true,
+    "operatorStopped": true,
+    "oldWorkerPaused": true,
+    "stagingChanged": false,
+    "authorizationClosedAt": "2026-11-05T09:59:37.193091+00:00"
+  },
+  "facts": [
+    "One real login returned authentication refusal after 303ms; zero reports.",
+    "No new source observations; original 1396 records remain.",
+    "User reported no concurrent web login during this attempt.",
+    "Exact upstream rejection reason not captured by generic collector."
+  ],
+  "inferences": [
+    "Concurrent active use does not sufficiently explain all observed rejections.",
+    "Residual server session or other login restrictions remain unverified possibilities."
+  ],
+  "nextStep": "Use existing bounded login diagnostic to classify rejection after explicit fixed authorization; do not force session overwrite or repeat collection blindly.",
+  "businessCodeChanged": false,
+  "newCITriggered": false,
+  "backupReused": {
+    "archiveSha256": "2060bb18cb7141fd25b817a6c34f3b91d35f49143401b8774e8b593f530198c9",
+    "observations": 1396,
+    "sourceFactsChanged": false,
+    "note": "Prior pair preserves all successful source facts and attachments; subsequent operational queue/audit changes are not represented in that prior database dump."
+  },
+  "preflight": "First local expected hash used LF text instead of actual CRLF file bytes; wrapper refused before DB/source I/O. Correct actual local file SHA verified and readonly review passed. No source quota consumed by failed preflight.",
+  "noMerge": true,
+  "noDeployment": true
+}
