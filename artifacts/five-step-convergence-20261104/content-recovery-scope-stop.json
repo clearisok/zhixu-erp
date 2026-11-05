@@ -1,0 +1,83 @@
+{
+  "candidate": "d8774ba50446d4c894f2c756a363280382afe8b8",
+  "branch": "feat/ainuoke-full-catalog-followup",
+  "pr": 140,
+  "localReleaseTests": {
+    "passed": 182,
+    "failed": 0
+  },
+  "ci": [
+    {
+      "runId": 41958363614,
+      "conclusion": "success"
+    },
+    {
+      "runId": 41958363689,
+      "conclusion": "success"
+    },
+    {
+      "runId": 41958363742,
+      "conclusion": "success"
+    }
+  ],
+  "state": "FIXED_SCOPE_STOPPED_NEW_CONTRACTS",
+  "startedAt": "2026-11-05T03:21:54.009Z",
+  "finishedAt": "2026-11-05T03:21:58.204Z",
+  "deadline": "2026-11-05T04:31:54.009Z",
+  "scopeBefore": 608,
+  "scopeObserved": 610,
+  "existingIdentitiesPreserved": 608,
+  "addedContracts": [
+    {
+      "contract": "PI2611-042",
+      "quantity": 7000,
+      "deliveryDate": "2027-02-04"
+    },
+    {
+      "contract": "PI2611-043",
+      "quantity": 10000,
+      "deliveryDate": "2027-02-15"
+    }
+  ],
+  "knownLogins": 1,
+  "knownReports": 26,
+  "rawDiagnostics": 27,
+  "reservedLogins": 1,
+  "reservedReports": 40,
+  "requestsRetried": 0,
+  "publishedRuns": 0,
+  "databaseVisibleContracts": 608,
+  "runningUnknownJobs": 0,
+  "control": {
+    "enabled": false,
+    "version": 8,
+    "pausedReason": "catalog_result_unknown"
+  },
+  "receipt": {
+    "status": "unknown",
+    "published": false,
+    "cause": "operational frozen scope guard raised untyped error; independent read-only check proves no publication"
+  },
+  "originalSuccessPreserved": true,
+  "unselectedSuccessPointersPreserved": true,
+  "stagingChanged": false,
+  "oldWorker": "PAUSED",
+  "remainingAuthorization": "requires explicit allowance for 610 directory; original243+1 detail scope and original deadline/budget unchanged",
+  "appImage": "sha256:f7898579f4ada8ddbdf9622e7380dfb4bafbd77f5906cce2aae6cf9e016febfd",
+  "operatorImage": "sha256:db478ff4c5a7bb8edb221d6150585be2f9bd7626cf2a1af181762a484c13c3c4",
+  "newImageHealth": 200,
+  "newImageBuildInfo": 200,
+  "importRehearsal": {
+    "contracts": 608,
+    "sourceTables": 10,
+    "protectedTablesUnchanged": 6,
+    "sourceRequests": 0
+  },
+  "limitations": [
+    "No two-cycle pass",
+    "No new manual refresh in this window",
+    "No staging upgrade",
+    "No main merge",
+    "No attachment HTTP acceptance"
+  ]
+}
