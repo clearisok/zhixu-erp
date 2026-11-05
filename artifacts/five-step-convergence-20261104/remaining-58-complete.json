@@ -1,0 +1,81 @@
+{
+  "execution": {
+    "source": "97449e9400623fc8178de98bbb6b361c382ce684",
+    "scopeHash": "5d87ab8a13dc9389ed57ae482a4c330c152ab93f6694bcb58fb2a5acab26dc2e",
+    "startedAt": "2026-11-05T01:16:28.619Z",
+    "finishedAt": "2026-11-05T01:19:07.980Z",
+    "elapsedMs": 159361,
+    "state": "ALL_608_HAVE_SUCCESS",
+    "stage": "remaining_58",
+    "reservedLogins": 17,
+    "reservedReports": 1320,
+    "knownLogins": 17,
+    "knownReports": 565,
+    "metricsUnknown": 0,
+    "captures": 17,
+    "maximumLogins": 29,
+    "maximumReports": 2400,
+    "maximumMs": 2400000,
+    "loginResult": {
+      "result": "accepted",
+      "evidenceOnly": true,
+      "previousProbeNotReexecuted": true
+    },
+    "lastCapture": {
+      "result": "complete",
+      "code": null,
+      "failures": []
+    },
+    "lastTick": {
+      "status": "processed",
+      "jobs": 3
+    },
+    "latestResults": [
+      {
+        "status": "complete",
+        "code": "complete",
+        "n": 608
+      }
+    ],
+    "pending": 0,
+    "successful": 608,
+    "original550Preserved": true,
+    "productionWrites": 0,
+    "onlyIsolatedDatabase": true,
+    "containerExitCode": 0,
+    "runtimeCandidate": "738b5471fbc6d3048e66120bb0c1732728cbc027"
+  },
+  "closeout": {
+    "state": "REMAINING_58_COMPLETE_AND_STOPPED",
+    "successful": 608,
+    "pending": 0,
+    "original550Preserved": true,
+    "runtimeCandidate": "738b5471fbc6d3048e66120bb0c1732728cbc027",
+    "containerStates": {
+      "weaveops-remaining-58-20261105": {
+        "running": false,
+        "exitCode": 0
+      },
+      "weaveops-catalog-capacity-20261104-database": {
+        "running": false,
+        "exitCode": 0
+      }
+    },
+    "workerState": "PAUSED",
+    "sourceRequestsAfterExecution": 0,
+    "stagingUpgraded": false
+  },
+  "scopeBaselineSource": "97449e9400623fc8178de98bbb6b361c382ce684",
+  "operatorImage": "sha256:3883247d78de7623c044b8dd34a7a6f5aff072bcd5029405d0fca21e6d3f67d3",
+  "operatorImageSource": "cba3aef48df322a3fc7f2ff1d5979876a33b67b3",
+  "businessCodeEquivalentToCandidate": "738b5471fbc6d3048e66120bb0c1732728cbc027",
+  "equivalenceEvidence": "git diff cba3aef4..738b5471 contains only documentation/artifacts and one integration test; no runtime code, schema, dependency, or UI changes",
+  "authorization": "user five-step remaining58 task and next-step instruction after successful explicit logout/login comparison",
+  "limits": "29 new logins, 2400 reports, 40 minutes; previous 1-login comparison not repeated",
+  "limitations": [
+    "Isolated coverage only, not 608 formal sales orders",
+    "No 247 continuous-run verification",
+    "No staging upgrade or main merge",
+    "Exact upstream rejection rule remains unverified"
+  ]
+}
