@@ -1,15 +1,13 @@
 # 页面切换优化接力
 
-2026-11-05；分支 fix/staging-navigation-latency；干净输入 main cb5cc29baa49ed7115fdb6c9506b6a80356936ea（GitHub API 已核实）。原艾诺科工作树及 PR140 不混入。
+2026-11-05；fix/staging-navigation-latency；输入main cb5cc29baa49ed7115fdb6c9506b6a80356936ea，交付前GitHub API再次核实未变。原艾诺科工作树和PR140不混入。
 
-用户要求先只读报告，已完成代码与 staging 浏览器调查并在聊天报告。第一片：会话隔离基础资料内存缓存，120秒 TTL、并发去重、保存/身份变化清除；4项缓存回归与 typecheck 通过。后续：导航数据前移、缩略图、元数据、完整本地验收。未推送、未部署、未改配置或业务数据。
+四片独立功能提交49e832b4、de70d3a4、ace78021、8abca4db：会话隔离120秒基础资料缓存；保护通过后的RSC/列表并发；有限缩略图重试及重新鉴权的ETag；HTTPS环境元数据与staging noindex。02432150保存测量/测试和30秒悬挂读取上界；b58b3da4前向绑定新决定，旧冻结证据原样保留。
 
-原接力原文见 [归档](tasks/completed/2026-11-05-before-navigation-latency/AI_HANDOFF.md)。
+本地验证：lint、类型、Server编译、生产构建通过；21项客户端/图片、11项新逻辑、8项一次性PG缩略图检查通过。全仓首次977项中957通过、20项发布基线文档不一致；对齐后仅重跑受影响的发布套件，182/182通过。精确守卫基线cb5；最终文档提交后再核对head。第一次构建参数错误和原测试失败日志均保留，未降低规则。
 
-第二片：导航保护通过后，报价/订单首屏与RSC并发，结果仅供一次挂载消费（5秒交接上限）；基础设置预载按精确路由与原权限。补齐基础设置JS白名单；修正报价个性列初次挂载后重复读取。第二次类型检查通过。
+测量：同构GET-only合成fixture每API/RSC增加300ms；订单654→324ms、辅料656→315ms、报价列表643→315ms，响应到达非绘制时间，非公网SLA。测试标签/进程已关闭，无业务数据写入。旧合成附件503底层原因仍未知；当前控制台未复现历史错误。
 
-第三片：缩略图502/503/504最多三次读取（500/1500ms退避，可取消），其余失败不重试；成功流不cancel。HTTP private/no-cache + ETag/Vary，每次仍先鉴权和原图校验。3项退避测试通过；新增304/403数据库回归待运行。
+远端送达与CI以outputs/navigation-latency交付回执和唯一PR为准；本地验收不冒充远端成功。仅一次集中上传，不自动合并/部署，不改服务器、Docker、隧道或Cloudflare配置。部署时用户需提供NEXT_PUBLIC_SITE_URL与NEXT_PUBLIC_SITE_ENV；本轮未修改这些部署值。
 
-第四片：站点元数据改用 NEXT_PUBLIC_SITE_URL（HTTPS origin）与 NEXT_PUBLIC_SITE_ENV；staging强制noindex，缺URL不伪造分享图片。仅源码，无部署配置变更；3项测试通过。
-
-收尾片：同条件浏览器测量、实际适配器21项回归、5项会话缓存/3项重试/3项元数据通过，lint/类型/构建通过。全仓977项首次957通过，20项仅为发布基线文档未对齐；先归档旧状态、对齐cb5基线并冻结新增决定，再复验发布套件。保留失败日志。Docker引擎未启动，304/403数据库验收待用户启动后运行；无远端交付、CI或部署。候选与基线GET-only合成fixture仅在loopback运行，未连接业务库。
+[详细报告](tasks/active/staging-navigation-latency-2026-11-05.md)；[旧接力逐字归档](tasks/completed/2026-11-05-before-navigation-latency/AI_HANDOFF.md)。
