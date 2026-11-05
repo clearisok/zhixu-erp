@@ -10,3 +10,4 @@
 
 此前候选及完整准备记录见[前次接力](tasks/completed/2026-11-05-before-612-scope-stop/CURRENT_STATE.md).
 
+候选d8774ba50446d4c894f2c756a363280382afe8b8；main基线cb5cc29baa49ed7115fdb6c9506b6a80356936ea。
