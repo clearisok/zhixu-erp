@@ -1,30 +1,28 @@
-# 接力：固定复验因登录预算耗尽停止，28张第二轮待补
+# 接力：28张补验已执行，25成功，余3因真实认证拒绝停止
 
-main基线 cb5cc29baa49ed7115fdb6c9506b6a80356936ea（本轮已核对）；不代表允许合并或部署。
-先读CURRENT_STATE和artifacts/five-step-convergence-20261104/image-free-real-window-validation.json。业务候选与PR140仍b33888e4215ae70edebdf6ae079d86eb20d93b0c，镜像源06d56d101b73ebb22f656a9d61d729d7adb26ced；本轮仅验收/接力文档检查点，不重复推送或触发CI，不合并/部署。
+main基线 cb5cc29baa49ed7115fdb6c9506b6a80356936ea；本轮只读核对PR140仍以此为base。分支 feat/ainuoke-full-catalog-followup。远端 b33888e4215ae70edebdf6ae079d86eb20d93b0c，三项CI通过；镜像源06d56d101b73ebb22f656a9d61d729d7adb26ced，业务代码一致。未合并或升级staging。
+先读CURRENT_STATE与artifacts/five-step-convergence-20261104/remaining28-supplement-validation.json。当前仅文档/验收检查点，不重复推送或触发CI。
 
-## 已完成与停止事实
+## 已执行及停止边界
 
-原243高频首轮11分00.355秒全过；第二轮215/243，最短间隔30分09.799秒；月频单单6064ms、幂等/一单影响/通知通过，非UI点击。目录613原610身份保留，新5张仅目录。一次6086103第12页45.051秒超时、5单有限恢复成功。101份新采集原文不含ImageFile；原608历史及未选指针保留。
+新授权28/8登录/640报表/30分钟。2026-11-05T09:27:36.710Z–09:28:42.392Z，25成功，累计240/243第二轮；最后一批3张登录724ms auth_error/invalid_credential，0报表，不重试。实际7/209，预约7/536；累计预约147/11568。本授权按认证停止规则关闭，剩余1/104及时间不授权恢复。前6次登录成功；用户确认同时间有人登录同一账号网页，优先怀疑会话冲突但没有具体服务端拒绝原因，不能断言密码错/限流/许可。
 
-新窗口从2026-11-05T08:09:35.935Z至09:19:35.935Z，但在08:49:11.567Z已因登录额度到顶停止；不能用剩余时间或报表额度代替登录额度。当前实际101登录/3597报表、预约101/8032，累计预约140/11032、剩余0/168。原流水priorKnown38/1304＋1未知来自旧领域拒绝，旧原文已另核为39/1345，不混用已验证计数与预算。
+原215和月频未重采；28范围之外成功指针、原608观察及610身份均保留，613目录新5仍无明细。7份capture无ImageFile。control disabled/version16/paused invalid_credential，running/unknown0，332 queued为基准环境非选任务，不能导入live。测试操作者和PG停止，旧worker PAUSED。全组无间断双周期仍未验收，不能仅把240+3假定完成。
 
-执行器第102次拟采集在HTTP前抛budget_exhausted；worker通用转换为source_capture_failed，最后attempt requests=null。安全核验已证明是额度停止，不是新认证/网络拒绝；原回执不改写。control disabled/version14/paused source_capture_failed，running/unknown0，操作者/PG停止，旧worker PAUSED。测试遗留117 queued均非本次高频，不能导入live。
+## 精确证据与恢复限制
 
-## 精确恢复点
+远端 /home/jackson/weaveops-five-step-convergence-20261104/continuous-image-free-remaining28-v1；runner SHA2568fb0f6edec0479a76d1fc9c39a386cacc3728f6bbde53ec9449a3d318d74a4f7；scopeHash686461ba9c2c0627457a28b82e845cdb6008a80f106a526da4ef9c3846b1fc71。result.json/stop-audit.json/authorization-closed.json均已保存。reservation已使用，禁止重跑。
 
-远端 /home/jackson/weaveops-five-step-convergence-20261104/continuous-image-free-v2；scopeHash6595779932d0a0cddadece4f7bf4baa820b52be70ff7817db1705f5953ac8a58；runner422484086f42b700fd0f1df66169d532a94fe81f44a7b1eced77cc627611c4d6；原reservation已使用，不重跑。
+新remaining3.private.json SHA2566bcf5dfc124dfbdae93efb5387e45495a7bff6f4cf79c83a678cee1cf22496d6，只在受保护远端，不上传身份清单。原28冻结SHA2536da7bf424bc0903c6ecae748b18d527211bd0e307aa80b40ed98dccd3eb03仍保留。需要明确无同账号网页使用的对照窗口和恢复许可后再准备新一次性范围，不能自动用剩余额度重登、退出用户网页或设置isCoverLogin=true。
 
-剩余28清单remaining-second-cycle.private.json，SHA2562536da7bf424bc0903c6ecae748b18d527211bd0e307aa80b40ed98dccd3eb03。已向用户提出只补28、已完成215和月频不重采，新增8登录/640报表、最多30分钟；尚未答复。不要把建议默认选项当授权。
+## 新备份及运行资产
 
-本地准备outputs/five-step-convergence-20261104/continuous-image-free-remaining28.mjs及run-continuous-image-free-remaining28.py；runner8fb0f6edec0479a76d1fc9c39a386cacc3728f6bbde53ec9449a3d318d74a4f7，syntax/py_compile通过，尚未上传/预检/执行。恢复前应新建私密root continuous-image-free-remaining28-v1，上传并用同一06d operator执行read-only review核对14/version/剩余清单与账号，然后仅在用户批准后execute。补验按原窗口08:09:35后的观察累计第二次成功，但必须注明中间预算暂停，不能说无间断全量两周期通过。
+remote restore-v1/remaining28-pair.tar.gz，46,259,319字节，SHA2562060bb18cb7141fd25b817a6c34f3b91d35f49143401b8774e8b593f530198c9；新恢复DB remaining28_pair_restored。异机D:/WeaveOps-Backups/ningbo-trial/remaining28-06d56d10-20261105/candidate-pair.tar.gz，offhost-result.json恢复通过，137表＋序列/1396观察/613目录/2附件，network none，容器weaveops-offhost-remaining28-06d56d10-20261105及同名-data卷保留、容器停止。此前image-free配对及所有旧资产保留。附件HTTP未验。
 
-## 备份与候选
+隔离PG weaveops-five-step-restore-20261104-db，volume weaveops-five-step-restore-20261104-data，DB coverage608_restored；内部network weaveops-five-step-restore-20261104-net。operator sha256:41b929487e33389a4c0bbec74b043c50b89fc2ff7903fc2f5ea212d36101cc1f；app sha256:5b3533f2226281cc50a7c3ea56547507e8c8d1bab5a356a4f19aca68fd05c260。凭据仅私密文件挂载，不输出。
 
-/home/jackson/weaveops-five-step-convergence-20261104/restore-v1/image-free-pair.tar.gz：46,136,442字节，SHA25612b1ab26d0baf82b27aff3a9d40f8d21382b33de0ac34a42d9e7d142eeee94ef；宁波新库image_free_pair_restored逐表/序列一致。异机D:/WeaveOps-Backups/ningbo-trial/image-free-06d56d10-20261105/candidate-pair.tar.gz；offhost-result.json为恢复通过，137表/1371观察/613目录/2附件，network none，保留容器/卷并已停。附件HTTP未验；新补采后需要新的增量配对，不覆盖本次归档。
+## 后续
 
-隔离PG weaveops-five-step-restore-20261104-db，volume同名-data，DB coverage608_restored；内部network weaveops-five-step-restore-20261104-net。operator sha256:41b929487e33389a4c0bbec74b043c50b89fc2ff7903fc2f5ea212d36101cc1f；app sha256:5b3533f2226281cc50a7c3ea56547507e8c8d1bab5a356a4f19aca68fd05c260。凭据仅已有私密文件挂载，不输出。
+本次不合并/升级，staging仍f21c96c1899126028ba9a272727ad8d564ccf185。未来来源事实转移排除benchmark队列/暂停/预算错误，保留live用户报价附件；live临近配对、附件HTTP和备份策略重绑仍须完成。6087051未接入，不宣称材料金额闭环。
 
-staging仍f21c96c1899126028ba9a272727ad8d564ccf185；当前批准明确不升级/合并。后续来源事实导入必须排除benchmark队列、暂停及仅预算引起的运行错误，保留live报价、用户、附件；当前候选副本备份不替代live临近配对/恢复/HTTP附件验证/备份策略重绑。
-
-已有184 Python/21协议/61数据库/182发布/类型lint构建与b338三CI有效，不重跑。来源CI首次mobile touch超时未复现，同SHA失败job重跑通过。6087051未接入，知识库工作树D:/workspace/zhixu-ainuoke-knowledge；不可宣称全材料财务闭环。旧状态见tasks/completed/2026-11-05-before-image-free-live-validation/。
+184 Python/21协议/61数据库/182发布/类型lint构建与b338三CI按同一业务代码复用。已有来源CI首次手机touch超时未复现，保留失败记录。新收口只运行精确源码守卫，不重跑完整CI。旧逐字接力见tasks/completed/2026-11-05-before-remaining28-supplement/。
