@@ -1,0 +1,53 @@
+{
+  "source": "2a51a68c50f3f6b90b9ddd598b856cb9f9d7c270",
+  "finishedAt": "2026-11-05T00:26:54.401929+00:00",
+  "result": {
+    "schemaVersion": "ainuoke-login-diagnostic.v1",
+    "result": "accepted",
+    "code": "login_accepted",
+    "limits": {
+      "logins": 1,
+      "reportRequests": 0,
+      "httpAttempts": 1,
+      "responseBytes": 4194304,
+      "timeoutMs": 30000,
+      "requestTimeoutMs": 15000,
+      "networkRetries": 0,
+      "authRenewals": 0
+    },
+    "metrics": {
+      "logins": 1,
+      "reportRequests": 0,
+      "httpAttempts": 1,
+      "networkRetries": 0,
+      "authRenewals": 0
+    },
+    "requests": [
+      {
+        "kind": "login",
+        "reportId": null,
+        "page": null,
+        "elapsedMs": 283,
+        "outcome": "complete",
+        "httpStatus": null
+      }
+    ],
+    "payloadRefused": false,
+    "serverHint": "unclassified",
+    "databaseAccess": "none",
+    "sourceActivation": "not-activated",
+    "coverLogin": false,
+    "sessionRetained": false
+  },
+  "allowanceClosed": true,
+  "ciCandidate": "738b5471fbc6d3048e66120bb0c1732728cbc027",
+  "ci": {
+    "41865113169": "success",
+    "41865112833": "success",
+    "41865112991": "success"
+  },
+  "worker": "PAUSED",
+  "remainingContracts": 58,
+  "reportsRead": 0,
+  "inference": "Logout-before-success supports a session-related explanation; exact upstream rule remains unverified. Local session disposal is not server-side logout."
+}
