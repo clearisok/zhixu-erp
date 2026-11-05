@@ -32,3 +32,9 @@ test("authorization failures clear other cached reads",async()=>{
   await assert.rejects(cache.read("denied",async()=>{throw Object.assign(Error("denied"),{status:403});}));
   await cache.read("x",load,120000);assert.equal(calls,2);
 });
+
+test("hung requests do not poison future reads indefinitely",async()=>{
+ let time=0;const cache=createSessionReadCache(()=>time);cache.setScope("a");
+ void cache.read("x",()=>new Promise(()=>{}),120000);time=30001;
+ assert.equal(await cache.read("x",async()=>"fresh",120000),"fresh");
+});

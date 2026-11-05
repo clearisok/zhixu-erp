@@ -72,7 +72,6 @@ export const salesOrderServerClient = createSalesOrderServerClient({ application
 export async function readServerDeliveryPlans(id: string, options: {
   baseUrl?: string;
   fetchImpl?: typeof fetch;
-  applicationCache?: boolean;
   lease?: DeliveryPlanLease;
   signal?: AbortSignal;
 } = {}): Promise<DeliveryPlanSetDto> {

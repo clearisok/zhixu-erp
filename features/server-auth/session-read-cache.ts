@@ -20,7 +20,7 @@ export function createSessionReadCache(now: () => number = Date.now) {
     }
     entries.delete(key);
     const generation = epoch;
-    const entry = { promise: Promise.resolve() as Promise<unknown>, expires: Infinity, once: preload };
+    const entry = { promise: Promise.resolve() as Promise<unknown>, expires: now() + 30_000, once: preload };
     entry.promise = Promise.resolve().then(load).then(value => {
       if (generation !== epoch) throw new Error("Read scope changed; discard obsolete response");
       entry.expires = now() + (preload ? 5_000 : ttl);

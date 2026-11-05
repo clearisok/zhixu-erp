@@ -1,9 +1,11 @@
-# 当前状态：PR138已合并，继续艾诺科有界刷新
+# 当前状态：页面切换候选，本机验证收尾
 
-2026-10-31；main e3ccec0f910d5924dca8dc513201d28b7fb2ecd8，PR138 merge commit已核实双父[e37a131a,17c20e11]及树3ca488bf3bbe378dbccea61d632f043848daffae。原分支保留，三项CI复用既有成功结果。宁波运行17c20e11相同代码树和原镜像，无新增部署。用户已确认staging.weaveops.top为最终验收入口，旧50426等资产不清理。
+2026-11-05；基线 main cb5cc29baa49ed7115fdb6c9506b6a80356936ea，分支 fix/staging-navigation-latency。当前 staging 浏览器显示 f21c96c1899126028ba9a272727ad8d564ccf185；本次未推送、合并、部署或改变任何基础设施配置、真实账号和业务数据。原艾诺科工作树与 PR140 保留。
 
-后继分支feat/ainuoke-bounded-refresh，保留原6e/0c32文档历史。新增明确合同集合的一次材料刷新，解决三合同与旧两合同受控工具不兼容；不扩旧v1，不扩大总请求/行数/时间预算，不创建/启用来源，不启动调度。本地最终检查及独立复审已完成：13项协议、4项PG、20项Source（另1项Windows跳过）、158项Python、182项发布回归通过；类型、Server编译、相关lint和精确门禁通过，无剩余P1/P2。远端交付/CI尚待本次单次上传结果，准确收口见[任务](tasks/active/ainuoke-bounded-refresh-2026-10-31.md)。
+已分别提交：会话隔离基础资料120秒内存缓存；导航保护通过后列表读取与RSC并行、报价/订单结果仅供一次交接；缩略图临时错误有限退避及重新鉴权的私有ETag；环境变量HTTPS分享地址与staging noindex。业务接口和权限规则不变。
 
-真实来源仍只有原固定窗口：前两合同颜色尺码/三轮物料/18与15行申请，第三合同6色/16行出货。原时点与TTL保留，无本片新采集；三SO、报价附件、生产/商业/关账均未改。完整目标仍需真实刷新授权、人工业务验收及逐资产退役，不能把工程能力当已持续运营。
+同条件合成浏览器实验（每个API/RSC增加300ms，单样本，响应到达非绘制时间）：订单654→324ms，辅料656→315ms，报价列表643→315ms；再次进入辅料由RSC+3API降为仅RSC。真实公网速度待用户后续部署验证。
 
-旧6树6代码tar/4048文件保护副本已核验，原资产不动；不可读/间接引用仍未知。#136保持独立。回执outputs/pr138-approved-merge/result.json；[合并前状态](tasks/completed/2026-10-31-before-pr138-merge/CURRENT_STATE.md)、[完整账本](tasks/active/server-convergence-closeout-2026-10-31.md)。
+lint、类型、生产构建、定向客户端/图片回归已通过。全项目首次回归发现发布清单仍指向旧main，与新接力不一致；正在前向对齐文档后复验，原冻结证据不改。Docker Linux引擎未启动，新增缩略图304/403数据库集成尚未运行；不冒称完整验收。
+
+未定位旧合成附件503的底层原因；当前只读浏览器console为空不代表用户历史错误已修复。下一步：完成发布回归和隔离数据库验收，单次交付候选。详见[任务证据](tasks/active/staging-navigation-latency-2026-11-05.md)及[原状态归档](tasks/completed/2026-11-05-before-navigation-latency/CURRENT_STATE.md)。
