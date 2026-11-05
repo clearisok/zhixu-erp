@@ -5721,6 +5721,36 @@
       "sha256": "c325f68faf7598b257737585fe5812dfb266964dae9703b3c46fdaa65f23bebe",
       "supersedes": "project-audit-source-stop-20261104",
       "changeReason": "Preserve whitelisted request diagnostics after domain rejection without trusting payload metrics or changing pause/retry/publication boundaries; local tests only, no live deployment claim."
+    },
+    {
+      "id": "catalog-business-retry-source-20261105",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SERVER_SOURCE.md",
+      "recordedAtSha": "4626de87ef9552f259066900bf9c56330f5b8651",
+      "renderedSourceSha": "4626de87ef9552f259066900bf9c56330f5b8651",
+      "sha256": "f3dcb615ea8b1eb68bab661b18329c933717c420385c8a0a432826d991a3cac6",
+      "supersedes": "catalog-rejected-capture-diagnostics-20261105",
+      "changeReason": "User approved D181 narrow content-only retry; preserve identity, visibility, pagination and pause boundaries. Local engineering only; no continuous verification or deployment claim."
+    },
+    {
+      "id": "catalog-business-retry-decision-20261105",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "4626de87ef9552f259066900bf9c56330f5b8651",
+      "renderedSourceSha": "4626de87ef9552f259066900bf9c56330f5b8651",
+      "sha256": "9dee6cc5d2546e42f3c73a2cd428ba4a1896d1f5eda76a41b8ffd0a685dc5dfc",
+      "supersedes": "project-audit-decisions-stop-20261104",
+      "changeReason": "User approved D181 narrow content-only retry; preserve identity, visibility, pagination and pause boundaries. Local engineering only; no continuous verification or deployment claim."
+    },
+    {
+      "id": "catalog-business-retry-rules-20261105",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "4626de87ef9552f259066900bf9c56330f5b8651",
+      "renderedSourceSha": "4626de87ef9552f259066900bf9c56330f5b8651",
+      "sha256": "0befdde2acd5045545e3269e8304759b393ecfb33bdb54a60da64c14b48d6d1a",
+      "supersedes": "catalog-followup-business-rules-20261102",
+      "changeReason": "User approved D181 narrow content-only retry; preserve identity, visibility, pagination and pause boundaries. Local engineering only; no continuous verification or deployment claim."
     }
   ],
   "pages": [
