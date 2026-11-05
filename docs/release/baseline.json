@@ -5611,6 +5611,16 @@
       "recordedAtSha": "f8d650c798c84ac62679176949b82c8810c2a9d0",
       "renderedSourceSha": "f8d650c798c84ac62679176949b82c8810c2a9d0",
       "sha256": "336fdfed2b348e8036e6de64785d31f10033de0b7e1b730c11993651dd83c725"
+    },
+    {
+      "id": "decisions-navigation-cache-20261105",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "supersedes": "decisions-pr138-staging-entry-20261031",
+      "changeReason": "Record scoped session-memory cache and guarded navigation handoff; retain original auth and deployment boundaries.",
+      "recordedAtSha": "02432150c918d19173acbd7f9955f6dbece736aa",
+      "renderedSourceSha": "02432150c918d19173acbd7f9955f6dbece736aa",
+      "sha256": "514ff6b808f2daf6567ce28985e861150979dfb4c3d676cccf917695cc32ae14"
     }
   ],
   "pages": [
