@@ -7,6 +7,14 @@ import { permissionsForUser } from "./permissions.js";
 
 export const SESSION_COOKIE_NAME = "zhixu_v1_session";
 const MAX_FAILED_ATTEMPTS = 10;
+const REMEMBERED_SESSION_TTL_SECONDS = 5 * 24 * 60 * 60;
+
+export function loginSessionSecurity(config: SessionSecurityConfig, rememberMe: unknown): SessionSecurityConfig {
+  if (rememberMe !== undefined && typeof rememberMe !== "boolean") {
+    throw new HttpError(400, "invalid_login_option", "Remember login must be a boolean");
+  }
+  return rememberMe === true ? { ...config, sessionTtlSeconds: REMEMBERED_SESSION_TTL_SECONDS } : config;
+}
 
 export type TrustedIdentity = {
   internalUserId: string;

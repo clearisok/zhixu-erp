@@ -88,3 +88,16 @@ test("server auth client exposes safe 401, 429, unknown, and network failures", 
       && !error.message.includes("network detail"),
   );
 });
+
+
+test("login only opts into remembered sessions explicitly", async () => {
+  const flags: unknown[] = [];
+  const client = createServerAuthClient({ fetchImpl: async (_input, init) => {
+    flags.push(JSON.parse(String(init?.body)).rememberMe);
+    return jsonResponse({ user: { id: "synthetic", username: "synthetic", name: "Synthetic" }, permissions: [] });
+  } });
+  await client.login("synthetic", "synthetic-only");
+  await client.login("synthetic", "synthetic-only", true);
+  await client.login("synthetic", "synthetic-only", false);
+  assert.deepEqual(flags, [false, true, false]);
+});

@@ -1,11 +1,7 @@
-# 当前状态：页面切换候选，本机验证收尾
+# 当前状态：五天登录本地验收
 
-2026-11-05；基线 main cb5cc29baa49ed7115fdb6c9506b6a80356936ea，分支 fix/staging-navigation-latency。当前 staging 浏览器显示 f21c96c1899126028ba9a272727ad8d564ccf185；本次未合并、部署或改变任何基础设施配置、真实账号和业务数据；远端交付以精确SHA回执和PR状态为准。原艾诺科工作树与 PR140 保留。
+2026-11-06；feat/login-remember-five-days从核实main cb5cc29baa49ed7115fdb6c9506b6a80356936ea前向纳入已部署ae5c4d0657bd5ce89ce6dc678ecd02cc56a52e98；工作树起始干净。
 
-已分别提交：会话隔离基础资料120秒内存缓存；导航保护通过后列表读取与RSC并行、报价/订单结果仅供一次交接；缩略图临时错误有限退避及重新鉴权的私有ETag；环境变量HTTPS分享地址与staging noindex。业务接口和权限规则不变。
+staging导航优化已部署且公网核验通过，PR141三项CI成功。数据和附件配对备份、独立恢复通过，来源同步保持PAUSED。新五天登录只增加可选固定期限和登录复选框，无迁移，不保存密码。42项定向会话检查通过，类型、lint、Server编译/生产构建、11项真实Chromium检查通过，发布守卫待最后绑定；尚未上传或部署此增量。
 
-同条件合成浏览器实验（每个API/RSC增加300ms，单样本，响应到达非绘制时间）：订单654→324ms，辅料656→315ms，报价列表643→315ms；再次进入辅料由RSC+3API降为仅RSC。真实公网速度待用户后续部署验证。
-
-lint、类型、生产构建和Server编译通过；21项定向客户端/图片、11项新逻辑、8项一次性PostgreSQL缩略图检查通过。全项目首次977项中957通过、20项发布文档基线问题；已前向对齐并保留原冻结证据，受影响发布套件复验182/182通过，精确源码门禁通过。未重跑已通过的业务测试。浏览器测试标签与fixture进程已关闭，仅保留日志、构建及独立工作树。
-
-未定位旧合成附件503的底层原因；当前只读浏览器console为空不代表用户历史错误已修复。下一步：集中单次交付草稿PR并核对必要CI；部署由用户后续另行执行。详见[任务证据](tasks/active/staging-navigation-latency-2026-11-05.md)及[原状态归档](tasks/completed/2026-11-05-before-navigation-latency/CURRENT_STATE.md)。
+[详细结果](tasks/active/login-five-days-2026-11-06.md)；[上一状态逐字归档](tasks/completed/2026-11-06-before-five-day-login/CURRENT_STATE.md)。不自动合并，不新增真实艾诺科请求。

@@ -23,6 +23,13 @@
 
 ## Active
 
+### LOGIN-20261106 可选保持登录五天
+
+- Active；2026-11-06 用户明确选择“保持登录5天”。正式登录页增加默认不勾选的选项；勾选后会话固定432000秒，普通登录保留现有配置（默认43200秒）。仅替代正式v1会话固定12小时这一限制，不改变legacy登录。
+- 同一服务端配置同时决定数据库expires_at和HttpOnly/SameSite=Strict/Secure Cookie有效期。读取只更新last_seen_at，不滑动续期。密码、会话令牌不写浏览器业务存储；无需数据库迁移，不更改已有会话。
+- 登录限流、可信身份/权限、退出以及管理员停用、归档、改角色、重置密码、撤销会话继续有效。rememberMe只接受可选boolean，不能由客户端指定任意期限。
+- 代码：server/auth/session.ts、server/app.ts、features/server-auth/components/animated-login-page.tsx；证据见tasks/active/login-five-days-2026-11-06.md。代码验收、远端CI和部署分别记录。
+
 ### NAV-20261105 会话内基础资料缓存与导航读取交接
 
 - 日期：2026-11-05；状态：Active；范围仅本次性能候选，不改变业务和部署授权。

@@ -31,7 +31,7 @@ import { clearSessionReads, setSessionReadScope } from "../session-read-cache";
 
 type ServerSessionContextValue = ServerSessionState & {
   hasPermission(permission: PermissionKey): boolean;
-  login(username: string, password: string): Promise<void>;
+  login(username: string, password: string, rememberMe?: boolean): Promise<void>;
   logout(): Promise<void>;
   refresh(): Promise<void>;
   invalidate(): void;
@@ -88,12 +88,12 @@ export function ServerSessionProvider({
     return () => { operation.current += 1; };
   }, [client]);
 
-  const login = useCallback(async (username: string, password: string) => {
+  const login = useCallback(async (username: string, password: string, rememberMe = false) => {
     if (browserIdentityMode() === "local-single-user") throw new Error("Login is disabled in local single-user mode");
     clearSessionReads();
     const currentOperation = ++operation.current;
     try {
-      const next = await loginServerSession(client, username, password);
+      const next = await loginServerSession(client, username, password, rememberMe);
       if (operation.current === currentOperation) setState(next);
     } catch (error) {
       if (operation.current === currentOperation) setState(anonymousServerSession);
