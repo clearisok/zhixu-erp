@@ -23,6 +23,14 @@
 
 ## Active
 
+### NAV-20261105 会话内基础资料缓存与导航读取交接
+
+- 日期：2026-11-05；状态：Active；范围仅本次性能候选，不改变业务和部署授权。
+- 基础资料客户端内存缓存120秒，按登录身份及权限集合隔离；退出、重新认证、权限变化及资料写入前后失效，不落盘、不共享Server缓存。其他用户修改最多延迟120秒可见。
+- 报价/订单列表不采用分钟级缓存；仅在未保存保护允许导航之后与RSC并行读取，供首次挂载一次消费，完成后最多保留5秒。直接深链仍走原会话恢复链。
+- 缩略图浏览器缓存必须重新鉴权；ETag只能在原身份/权限/关联/生命周期校验之后响应。仅502/503/504有限退避，不重试鉴权或内容校验失败。
+- 证据：features/server-auth/session-read-cache.ts、components/foundation/server-navigation-data.ts、server/attachments/routes.ts；测量与未验收边界见 tasks/active/staging-navigation-latency-2026-11-05.md。
+
 ### D-178 受控 staging 浏览器 Origin 与本机健康探针分离
 
 - 日期：2026-10-29；Active engineering，承接已批准的最终镜像与宁波体验准备，不改变业务规则或扩大真实部署/Source额度。

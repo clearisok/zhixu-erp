@@ -39,7 +39,7 @@ export function createQuoteAttachmentClient(options: { baseUrl?: string; fetchIm
     (await request(url, { method, headers: { "Content-Type": "application/json", "X-Zhixu-Request": "1" }, body: JSON.stringify(body) })).json() as Promise<T>;
   return {
     async thumbnail(quoteId: string, revisionId: string, attachmentId: string, signal?: AbortSignal) {
-      const response = await request(`${scope(quoteId, revisionId)}/${encodeURIComponent(attachmentId)}/thumbnail`, { signal });
+      const response = await request(`${scope(quoteId, revisionId)}/${encodeURIComponent(attachmentId)}/thumbnail`, { signal, cache: "no-cache" });
       const sha256 = response.headers.get("x-thumbnail-sha256");
       const length = Number(response.headers.get("content-length"));
       if (!sha256 || !/^[0-9a-f]{64}$/u.test(sha256) || !Number.isSafeInteger(length) || length < 1 || length > 96 * 1024
@@ -48,6 +48,7 @@ export function createQuoteAttachmentClient(options: { baseUrl?: string; fetchIm
       }
       const reader = response.body.getReader(), chunks: BlobPart[] = [];
       let size = 0;
+      let complete = false;
       try {
         while (true) {
           const { done, value } = await reader.read();
@@ -57,8 +58,9 @@ export function createQuoteAttachmentClient(options: { baseUrl?: string; fetchIm
           chunks.push(value);
         }
         if (size !== length) throw new QuoteAttachmentTransportError();
+        complete = true;
         return { blob: new Blob(chunks, { type: "image/jpeg" }), sha256 };
-      } finally { await reader.cancel().catch(() => {}); reader.releaseLock(); }
+      } finally { if (!complete) await reader.cancel().catch(() => {}); reader.releaseLock(); }
     },
     async list(quoteId: string, revisionId: string) {
       return (await (await request(scope(quoteId, revisionId))).json() as { attachments: ServerAttachment[] }).attachments;
