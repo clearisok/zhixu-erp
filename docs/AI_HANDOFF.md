@@ -11,3 +11,5 @@
 远端送达与CI以outputs/navigation-latency交付回执和唯一PR为准；本地验收不冒充远端成功。仅一次集中上传，不自动合并/部署，不改服务器、Docker、隧道或Cloudflare配置。部署时用户需提供NEXT_PUBLIC_SITE_URL与NEXT_PUBLIC_SITE_ENV；本轮未修改这些部署值。
 
 [详细报告](tasks/active/staging-navigation-latency-2026-11-05.md)；[旧接力逐字归档](tasks/completed/2026-11-05-before-navigation-latency/AI_HANDOFF.md)。
+
+2026-11-06 用户明确授权恢复上传并部署staging。旧Git有效代理17989无监听，进程级精确URL直连只读核验通过，cadc4443已精确送达并创建唯一草稿PR141（创建EOF后查询证实已存在，未重复创建）。main仍cb5。部署准备发现Dockerfile未声明新增公开metadata构建变量；仅补builder的ARG/ENV，不改daemon/Compose/网络。staging只读确认f21c96c1、五服务healthy、备份BACKUP_VERIFIED、同步PAUSED；升级必须保留暂停。新镜像与配对恢复验收待完成，不合并main。
