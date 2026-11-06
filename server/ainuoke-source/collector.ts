@@ -11,12 +11,14 @@ export type CollectorConfig = {
     password: string;
     operatorUsername: string;
     transportPolicy?: typeof APPROVED_HTTP_POLICY;
+    materialReport?: "6087051";
 };
 export function parseCollectorConfig(input: unknown): CollectorConfig {
     if (!input || typeof input !== "object" || Array.isArray(input))
         throw new SourceError("invalid_collector_configuration");
     const o = input as Record<string, unknown>;
-    if (!["baseUrl,operatorUsername,password,sourceKey,username", "baseUrl,operatorUsername,password,sourceKey,transportPolicy,username"].includes(Object.keys(o).sort().join(","))
+    if (!["baseUrl,operatorUsername,password,sourceKey,username", "baseUrl,operatorUsername,password,sourceKey,transportPolicy,username"].includes(Object.keys(o).filter(k => k !== "materialReport").sort().join(","))
+        || o.materialReport !== undefined && o.materialReport !== "6087051"
         || Object.values(o).some(v => typeof v !== "string" || !v.trim() || v.length > 1024 || /[\u0000-\u001f\u007f]/u.test(v))
         || !sourceKeyValid(o.sourceKey as string))
         throw new SourceError("invalid_collector_configuration");
@@ -112,6 +114,6 @@ export function collectWithPython(config: CollectorConfig, contracts: string[], 
             }
         });
         child.stdin.end(JSON.stringify({ baseUrl: config.baseUrl, username: config.username, password: config.password, contracts,
-            ...(options.mode ? {mode: options.mode} : {}), ...(config.transportPolicy ? {transportPolicy: config.transportPolicy} : {}) }));
+            ...(options.mode ? {mode: options.mode} : {}), ...(config.materialReport && ["catalog-contracts", "bound-materials"].includes(options.mode ?? "") ? {materialReport: config.materialReport} : {}), ...(config.transportPolicy ? {transportPolicy: config.transportPolicy} : {}) }));
     });
 }

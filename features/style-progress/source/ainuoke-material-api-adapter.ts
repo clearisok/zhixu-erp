@@ -1,3 +1,4 @@
+import { adaptItMaterialSnapshots } from "./ainuoke-it-material-adapter.ts";
 import type { AinuokeReportSnapshot, AinuokeSourceRow } from "../../ainuoke-api/model/ainuoke-api.ts";
 import type { RawCellValue } from "../model/style-progress.ts";
 import type { MaterialSemanticField, MaterialSourceRow } from "./material-source-row.ts";
@@ -9,10 +10,10 @@ type MaterialSnapshot = AinuokeReportSnapshot & { reportId: "6087050" };
 export type AinuokeMaterialApiSourceMetadata = {
   schemaVersion: typeof AINUOKE_MATERIAL_SOURCE_SCHEMA_VERSION;
   sourceKind: "api";
-  reportId: "6087050";
+  reportId: "6087050" | "6087051";
   sourceSchemaVersion: "ainuoke-direct-read.v2";
   fetchedAt: string;
-  query: { insideOrderNo: string };
+  query: { insideOrderNo: string; salesContractNo?: string };
   pages: Array<{ page: number; pageSize: number; total: number; rowCount: number; snapshotHash: string }>;
   reportedTotal: number;
   sourceRowCount: number;
@@ -123,6 +124,7 @@ function assertSnapshots(snapshots: AinuokeReportSnapshot[]): asserts snapshots 
 }
 
 export function adaptAinuokeMaterialApiSnapshots(snapshots: AinuokeReportSnapshot[]): AinuokeMaterialApiSource {
+  if (snapshots.some(page => page.reportId === "6087051")) return adaptItMaterialSnapshots(snapshots);
   assertSnapshots(snapshots);
   const orderedSnapshots = [...snapshots].sort((left, right) => left.page - right.page);
   const identityRows = new Map<string, { canonical: string; row: AinuokeSourceRow; snapshot: MaterialSnapshot }>();

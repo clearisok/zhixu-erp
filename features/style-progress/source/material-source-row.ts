@@ -21,11 +21,11 @@ export type MaterialExcelSourceTrace = {
 
 export type MaterialApiSourceTrace = {
   sourceKind: "api";
-  reportId: "6087050";
+  reportId: "6087050" | "6087051";
   sourceRowIdentity: string;
   snapshotHash: string;
   fetchedAt: string;
-  queryContext: { insideOrderNo: string };
+  queryContext: { insideOrderNo: string; salesContractNo?: string };
   sourceSchemaVersion: "ainuoke-direct-read.v2";
 };
 
@@ -35,6 +35,10 @@ export type MaterialSourceRow = {
   trace: MaterialSourceTrace;
   rawFields: Record<string, RawCellValue>;
   values: Partial<Record<MaterialSemanticField, unknown>>;
+  /** 6087051 verified entity references; absent for legacy inputs. */
+  detailIdentities?: { demand: string; purchase?: string; inbound?: string; shipment?: string; outbound?: string };
+  unallocatedFlows?: string[];
+  matchedUnits?: Partial<Record<'purchase' | 'inbound' | 'outbound', { unit: string | null; status: 'matched' | 'missing' | 'conflict' }>>;
 };
 
 export type MaterialNormalizedSourceRow = MaterialSourceRow & {

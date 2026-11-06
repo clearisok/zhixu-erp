@@ -83,7 +83,7 @@ class ProtectedTransport:
 def validate_input(data):
     required = {"baseUrl", "username", "password", "contracts"}
     target_keys = {"targetSalesContractNo", "targetPurchaseOrderNo", "expectedQuantities", "additionalSalesContracts"}
-    if not isinstance(data, dict) or not required <= set(data) <= required | {"mode", "transportPolicy", "qualityTargets"} | target_keys:
+    if not isinstance(data, dict) or not required <= set(data) <= required | {"mode", "transportPolicy", "qualityTargets", "materialReport"} | target_keys:
         raise ValueError("invalid_collector_input")
     url = urlsplit(data["baseUrl"])
     if url.username or url.password or url.query or url.fragment or url.path not in ("", "/"):
@@ -96,12 +96,14 @@ def validate_input(data):
     for key in ("username", "password"):
         if not isinstance(data[key], str) or not data[key].strip() or len(data[key]) > 1024 or any(ord(c) < 32 for c in data[key]):
             raise ValueError("invalid_credentials")
+    if "materialReport" in data and (data["materialReport"] != "6087051" or data.get("mode") not in ("catalog-contracts", "bound-materials")):
+        raise ValueError("invalid_material_report_scope")
     if "mode" in data and data["mode"] not in ("bindings", "probe", "audit", "targeted", "discovery", "additions", "quality", "selected-bindings", "selected-materials", "bound-materials", "catalog-discovery", "catalog-contracts"):
         raise ValueError("invalid_mode")
     if data.get("mode") in ("selected-bindings", "selected-materials", "bound-materials", "catalog-discovery", "catalog-contracts"):
         import re
         bounded = data.get("mode") in ("bound-materials", "catalog-contracts")
-        if (set(data) - (required | {"mode", "transportPolicy"}) or not isinstance(data["contracts"], list)
+        if (set(data) - (required | {"mode", "transportPolicy", "materialReport"}) or not isinstance(data["contracts"], list)
                 or not (1 <= len(data["contracts"]) <= 25 if bounded else len(data["contracts"]) == (0 if data.get("mode") == "catalog-discovery" else 2))):
             raise ValueError("invalid_selected_scope")
         if any(not isinstance(c, str) or not re.fullmatch(r"[A-Z0-9][A-Z0-9/._-]{0,79}", c) for c in data["contracts"]) or len(set(data["contracts"])) != len(data["contracts"]):
@@ -156,7 +158,7 @@ def validate_input(data):
         raise ValueError("addition_scope_limit")
     return data
 
-def collect(data, client=None, include_colors=False):
+def collect(data, client=None, include_colors=False, material_report=None):
     data = validate_input(data)
     if data.get("mode") in ("selected-bindings", "selected-materials", "bound-materials", "catalog-discovery", "catalog-contracts"):
         if client is not None:
@@ -277,7 +279,25 @@ def collect(data, client=None, include_colors=False):
         if key in lookup:
             if include_colors:
                 colors[key] = pages("garment_color_size_details", {"salesContractNo": key})
-            materials[key] = pages("material_purchase_statistics", {"insideOrderNo": lookup[key]})
+            if material_report == "6087051":
+                material_pages = pages("material_contract_statistics", {"salesContractNo": key})
+                # Validate exact contract BEFORE issuing any dependent lookup.
+                if any(identity(row["values"].get("ExpContractNo")) != key for page in material_pages for row in page["rows"]):
+                    raise UpstreamSchemaError("material_contract_mismatch")
+                lookups = set()
+                for page in material_pages:
+                    for row in page["rows"]:
+                        values = row["values"]
+                        inside = values.get("insideorderno")
+                        if not isinstance(inside, str) or not inside.strip():
+                            continue
+                        prefix = {"面料": "fabric", "辅料": "trim"}.get(values.get("lx"))
+                        if prefix:
+                            for reference, suffix in (("cgmxid", "purchase_units"), ("rkmxid", "inbound_units")):
+                                if values.get(reference): lookups.add((prefix + "_" + suffix, inside.strip()))
+                materials[key] = material_pages + [page for report, inside in sorted(lookups) for page in pages(report, {"insideOrderNo": inside})]
+            else:
+                materials[key] = pages("material_purchase_statistics", {"insideOrderNo": lookup[key]})
     after = pages("order_discovery", {})
     if include_colors:
         return {"schemaVersion": "ainuoke-contract-details.v1", "discoveryBefore": before, "discoveryAfter": after, "materials": materials, "colors": colors}

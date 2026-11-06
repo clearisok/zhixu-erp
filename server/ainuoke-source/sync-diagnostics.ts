@@ -4,7 +4,7 @@ import { SELECTED_SOURCE_LIMITS, validateSelectedSourceOnce, type SelectedSource
 import { SourceError } from './contract.js';
 
 export type LoginEvidence = { responseShape:'data_object'|'object_without_data_object'|'non_object'; result:'accepted'|'rejected'|'malformed'; serverCode:'absent'|'cover_confirmation'|'unrecognized'; serverHint:'unclassified'|'session_exists'|'verification_required'|'credentials_rejected'|'account_unavailable'|'throttling_hint'|'cover_confirmation_required' };
-export type RequestDiagnostic = { kind:'login'|'report'; reportId:6086103|6087105|6087050|null;
+export type RequestDiagnostic = { kind:'login'|'report'; reportId:6086103|6087105|6087050|6087051|6086405|6086408|6086875|6086354|null;
  page:number|null; elapsedMs:number; outcome:string; httpStatus:number|null; loginEvidence?:LoginEvidence };
 const outcomes=new Set(['complete','http_error','timeout','dns_error','tls_error','connection_refused','connection_reset','network_error','auth_error','schema_error','unknown_error']);
 /** A rejected payload is never publishable. Preserve only the independently
@@ -23,7 +23,7 @@ export function validateRequestDiagnostics(input:unknown):RequestDiagnostic[] {
   if(!['login','report'].includes(d.kind)||!outcomes.has(d.outcome)||!Number.isSafeInteger(d.elapsedMs)||d.elapsedMs<0||d.elapsedMs>180000
    ||d.httpStatus!==null&&(!Number.isSafeInteger(d.httpStatus)||d.httpStatus<100||d.httpStatus>599)
    ||d.kind==='login'&&(d.reportId!==null||d.page!==null)
-   ||d.kind==='report'&&(typeof d.reportId!=='number'||![6086103,6087105,6087050].includes(d.reportId)||!Number.isSafeInteger(d.page)||Number(d.page)<1||Number(d.page)>(d.reportId===6086103?28:20)))throw new SourceError('sync_diagnostics_invalid');
+   ||d.kind==='report'&&(typeof d.reportId!=='number'||![6086103,6087105,6087050,6087051,6086405,6086408,6086875,6086354].includes(d.reportId)||!Number.isSafeInteger(d.page)||Number(d.page)<1||Number(d.page)>(d.reportId===6086103?28:20)))throw new SourceError('sync_diagnostics_invalid');
   if('loginEvidence' in d){
    const e=d.loginEvidence;
    if(d.kind!=='login'||!e||typeof e!=='object'||Object.keys(e).sort().join(',')!=='responseShape,result,serverCode,serverHint'

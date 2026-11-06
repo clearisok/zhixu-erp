@@ -23,7 +23,7 @@ class DiagnosticTransport:
         body = request.get('body')
         body = body if isinstance(body, dict) else {}
         report = body.get('reportId')
-        report = report if type(report) is int and report in (6086103,6087105,6087050) else None
+        report = report if type(report) is int and report in (6086103,6087105,6087050,6087051,6086405,6086408,6086875,6086354) else None
         query = body.get('sqlCdtn')
         page = query.get('pageIndex') if isinstance(query, dict) else None
         page = page if report is not None and type(page) is int and 1 <= page <= 20 else None

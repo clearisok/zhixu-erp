@@ -6,6 +6,11 @@ import {tmpdir} from 'node:os';
 import {join,resolve,relative,isAbsolute} from 'node:path';
 import {startCatalogFixture} from './ainuoke-catalog-fixture.ts';
 import {waitForChromiumEndpoint} from './chromium-endpoint.mjs';
+import {randomUUID} from 'node:crypto';
+import {captureItMaterialFixture} from './it-material-fixture.ts';
+import {selectedConfig} from './selected-source-fixture.ts';
+import {requestContractSync} from '../ainuoke-source/sync-queue.ts';
+import {runSyncTick} from '../ainuoke-source/sync-worker.ts';
 
 test('built catalogue pages, actor-scoped recovery and single-order refresh in Chromium',{timeout:180000},async t=>{
  const x=await startCatalogFixture(),temp=await mkdtemp(join(tmpdir(),'zhixu-catalog-ui-'));let browser,ws,session,id=0;const pending=new Map(),errors=[];
@@ -28,9 +33,25 @@ test('built catalogue pages, actor-scoped recovery and single-order refresh in C
    await navigate('/order-center');await click('全部合同 / 历史查阅');await has('艾诺科合同目录');await has('每月1日04:00');await has('每30分钟 · 交期待核对');
    await click('查询');await has('SYN-SALES-3');await click('查询');await has('SYN-SALES-3');
    assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth+1'),true);
-   await click('查看来源资料',"[...document.querySelectorAll('tr')].find(r=>r.innerText.includes('SYN-SALES-3'))");await has('颜色尺码');await has('物料四流');await has('合成线');
+   await click('查看来源资料',"[...document.querySelectorAll('tr')].find(r=>r.innerText.includes('SYN-SALES-3'))");await has('颜色尺码');await has('物料采购与收发');await has('合成线');
    assert.equal((await x.pool.query('SELECT count(*)::int n FROM sales_orders')).rows[0].n,2);
    await click('关闭');
+  });
+  await t.test('IT details show one purchase and matched units on desktop and mobile without header sums',async()=>{
+   await requestContractSync(x.pool,x.actor,{sourceKey:x.sourceKey,sourceId:'1',requestId:randomUUID()});
+   await runSyncTick(x.pool,x.actor,{...selectedConfig,materialReport:'6087051'},{automatic:false,collect:async()=>captureItMaterialFixture()});
+   await click('查看来源资料',"[...document.querySelectorAll('tr')].find(r=>r.innerText.includes('SYN-SALES-1'))");
+   await has('合成面料');
+   const directory=resolve('outputs/it-material-20261106');await mkdir(directory,{recursive:true});
+   for(const width of [1440,390]){
+    await command('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:1,mobile:width===390});
+    await evaluate("[...document.querySelectorAll('summary')].filter(n=>n.textContent.includes('采购与收发明细')&&n.getClientRects().length).forEach(n=>{n.parentElement.open=true;n.scrollIntoView({block:'center'});})");
+    await has('952 千克');await has('418.7 千克');await has('349.3 千克');await has('213 千克');
+    assert.equal(await evaluate("document.body.innerText.includes('999999')"),false);
+    assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth+1'),true);
+    const shot=await command('Page.captureScreenshot',{format:'png'});await writeFile(join(directory,`it-material-${width}.png`),Buffer.from(shot.data,'base64'));
+   }
+   await click('关闭');await command('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
   });
   await t.test('manual refresh bypasses monthly tier and survives a page reload without another submission',async()=>{
    const before=x.captures();await click('刷新来源',"[...document.querySelectorAll('tr')].find(r=>r.innerText.includes('SYN-SALES-3'))");await has('等待同步');
@@ -51,7 +72,7 @@ test('built catalogue pages, actor-scoped recovery and single-order refresh in C
   await t.test('temporary failure shows deferred retry and manual acceleration without duplicate jobs',async()=>{
    await navigate('/order-center');await click('全部合同 / 历史查阅');await has('已有成功资料');
    const row="[...document.querySelectorAll('tr')].find(r=>r.innerText.includes('SYN-SALES-2'))";
-   const before=x.captures();x.failNextCapture();await click('刷新来源',row);await has('等待同步');await x.tick();await has('等待重试');await has('立即重试');
+   await until(row+'!==undefined','target contract row');const before=x.captures();x.failNextCapture();await click('刷新来源',row);await has('等待同步');await x.tick();await has('等待重试');await has('立即重试');
    await navigate('/order-center');await click('全部合同 / 历史查阅');await has('来源响应超时');await has('其中待重试 1 张');await has('立即重试');
    await click('立即重试',row);await has('等待重试');
    const deadline=Date.now()+5000;let ready=false;

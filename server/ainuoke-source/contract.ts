@@ -87,7 +87,8 @@ export async function validateBundle(input: unknown, targets: VisibleMaterialOrd
             if (!pages)
                 throw new SourceError("source_missing");
             pagesValid(pages, now, maxAgeMs);
-            if (pages.some(p => normalizeAinuokeInsideOrderNo(p.queryContext.insideOrderNo) !== normalizeAinuokeInsideOrderNo(discovered.insideOrderNo)))
+            if (pages.some(p => p.reportId === '6087050' ? normalizeAinuokeInsideOrderNo(p.queryContext.insideOrderNo) !== normalizeAinuokeInsideOrderNo(discovered.insideOrderNo)
+                : p.reportId === '6087051' && normalizeAinuokeSalesContractNo((p.queryContext as Record<string, unknown>).salesContractNo) !== contract))
                 throw new SourceError("source_scope_mismatch");
             const view = projectMaterialProgress({ salesContractNo: contract, styleNo: order.styleNo, insideOrderNo: order.insideOrderNo ?? "" }, pages);
             if (view.sourceStatus !== "ready")

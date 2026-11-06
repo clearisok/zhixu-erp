@@ -89,9 +89,11 @@ class BudgetTransport:
 
 
 class BudgetClient:
-    def __init__(self, sdk, transport, selected, mode):
+    def __init__(self, sdk, transport, selected, mode, material_report=None):
         self.sdk, self.transport, self.selected, self.mode = sdk, transport, set(selected), mode
         self.lookup = {}
+        self.material_report = material_report
+        self.unit_lookups = set()
         self.directory_row_limit = 1400 if mode in ("catalog-discovery", "catalog-contracts") else 1000
         self.secrets = set()
 
@@ -113,7 +115,11 @@ class BudgetClient:
             allowed = definition.key == "order_discovery" and query_context == {}
         elif report == "6087105" and (detail == "6087105" or self.mode == "catalog-contracts"):
             allowed = set(query_context) == {"salesContractNo"} and query_context["salesContractNo"] in self.selected
-        elif report == detail:
+        elif self.material_report == "6087051" and report == "6087051":
+            allowed = set(query_context) == {"salesContractNo"} and query_context["salesContractNo"] in self.selected
+        elif self.material_report == "6087051" and report in ("6086405", "6086408", "6086875", "6086354"):
+            allowed = set(query_context) == {"insideOrderNo"} and (definition.key, query_context["insideOrderNo"]) in self.unit_lookups
+        elif report == detail and self.material_report is None:
             allowed = (set(query_context) == {"insideOrderNo"} and isinstance(query_context["insideOrderNo"], str)
                        and query_context["insideOrderNo"] in {self.lookup[c] for c in self.selected if c in self.lookup})
         else:
@@ -123,6 +129,15 @@ class BudgetClient:
         result = self.sdk.read_report(definition, jwt_token=jwt_token, page=page, page_size=page_size, query_context=query_context)
         if result.total > (self.directory_row_limit if report == "6086103" else LIMITS["rowsPerReport"]):
             raise Refused("selected_source_row_limit")
+        if report == "6087051":
+            for row in result.rows:
+                if identity(row.get("ExpContractNo")) != query_context["salesContractNo"]:
+                    raise Refused("selected_source_query_refused")
+                prefix = {"面料": "fabric", "辅料": "trim"}.get(row.get("lx"))
+                inside = row.get("insideorderno")
+                if prefix and isinstance(inside, str) and inside.strip():
+                    for ref, suffix in (("cgmxid", "purchase_units"), ("rkmxid", "inbound_units")):
+                        if row.get(ref): self.unit_lookups.add((prefix + "_" + suffix, inside.strip()))
         if report == "6086103":
             # The user excludes source images. Project before building evidence
             # fingerprints; keep every other field, and never fetch image URLs.
@@ -154,7 +169,7 @@ def collect_selected(data, transport=None, clock=monotonic, diagnostics=None):
     try:
         sdk = AinuokeClient(base_url=data["baseUrl"], transport=budget, network_retries=0,
                            timeout_seconds=CATALOG_REQUEST_TIMEOUT_SECONDS if data["mode"] in ("catalog-discovery", "catalog-contracts") else 15)
-        client = BudgetClient(sdk, budget, data["contracts"], data["mode"])
+        client = BudgetClient(sdk, budget, data["contracts"], data["mode"], data.get("materialReport"))
         engine = {**data}
         if data["mode"] == "catalog-discovery":
             engine["mode"] = "discovery"
@@ -162,7 +177,7 @@ def collect_selected(data, transport=None, clock=monotonic, diagnostics=None):
             engine["mode"] = "additions"
         else:
             engine.pop("mode")
-        bundle = collect(engine, client, include_colors=data["mode"] == "catalog-contracts")
+        bundle = collect(engine, client, include_colors=data["mode"] == "catalog-contracts", material_report=engine.pop("materialReport", None))
         reject_secret_values(bundle, client.secrets)
         if sum(len(p["rows"]) for p in [*bundle["discoveryBefore"], *bundle["discoveryAfter"],
               *(p for key in ("colors", "materials") for pages in bundle.get(key, {}).values() for p in pages)]) > LIMITS["sourceRows"]:

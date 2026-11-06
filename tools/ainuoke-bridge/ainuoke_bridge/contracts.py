@@ -16,7 +16,7 @@ ReportKey = Literal[
     "sales_contracts",
     "sales_contract_color_sizes",
     "garment_color_size_details",
-    "material_purchase_statistics",
+    "material_purchase_statistics", "material_contract_statistics", "fabric_purchase_units", "trim_purchase_units", "fabric_inbound_units", "trim_inbound_units",
 ]
 ReportQueryKind = Literal["empty", "sales_contract", "inside_order"]
 SOURCE_SCHEMA_VERSION = "ainuoke-direct-read.v2"
@@ -82,6 +82,14 @@ REPORT_CATALOG: dict[ReportKey, ReportDefinition] = {
         query_flow_name="[内层]",
     ),
 }
+# Fixed, observed queries from the 2026-11-05 knowledge-base evidence. Only an
+# explicitly configured Server capture uses these; no arbitrary report IDs.
+REPORT_CATALOG.update({
+    "material_contract_statistics": ReportDefinition("material_contract_statistics", "6087051", "面辅料申购统计-IT", "Material Normalize -> Dedup -> Validate -> Preview", "sales_contract", "ExpContractNo", "contains", "[内层]"),
+    **{key: ReportDefinition(key, report, "物料单位核对", "Material unit evidence", "inside_order", "InsideOrderNo", compare, "[内层]")
+       for key, report, compare in (("fabric_purchase_units", "6086405", "contains"), ("trim_purchase_units", "6086408", "contains"),
+          ("fabric_inbound_units", "6086875", "contains"), ("trim_inbound_units", "6086354", "is"))},
+})
 
 
 class SourceContractError(ValueError):

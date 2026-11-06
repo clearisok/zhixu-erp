@@ -1,0 +1,31 @@
+{
+  "baselineSha": "cb5cc29baa49ed7115fdb6c9506b6a80356936ea",
+  "level": "V2",
+  "paths": [
+    "features/ainuoke-api/model/ainuoke-api.ts",
+    "features/ainuoke-material-progress/projection.ts",
+    "features/ainuoke-material-progress/source-adapter.ts",
+    "features/order-center/components/server-catalog-detail.tsx",
+    "features/style-progress/components/material-control-tower-read-only.tsx",
+    "features/style-progress/parser/material-normalization-pipeline.ts",
+    "features/style-progress/service/ainuoke-material-api-commit.ts",
+    "features/style-progress/service/ainuoke-material-api-preview.ts",
+    "features/style-progress/source/ainuoke-it-material-adapter.ts",
+    "features/style-progress/source/ainuoke-material-api-adapter.ts",
+    "features/style-progress/source/material-source-row.ts"
+  ],
+  "pages": [
+    "order-list",
+    "order-detail",
+    "material"
+  ],
+  "visibleDifference": "Existing contract drawer shows row-based purchase/inbound/shipment/outbound details below its summary table; formal-order material events show independently matched units or unknown. No new navigation or price writes.",
+  "evidence": [
+    "docs/tasks/active/ainuoke-it-material-2026-11-06.md",
+    "server/integration/ainuoke-catalog-ui.integration.test.mjs"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/ainuoke-it-material-2026-11-06.md"
+  }
+}

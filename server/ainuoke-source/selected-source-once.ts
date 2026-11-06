@@ -95,6 +95,11 @@ export async function validateSelectedSourceOnce(input:unknown,config:CollectorC
      for(const [contract,pages] of Object.entries(item.value)) {
       if(!Array.isArray(pages))throw new SourceError('selected_source_invalid');
       for(const page of pages) {
+        const report=object(page).reportId;
+        if(item.field==='ExpContractNo' && checked.config.materialReport==='6087051' && ['catalog-contracts','bound-materials'].includes(checked.request.mode)) {
+          if(!['6087051','6086405','6086408','6086875','6086354'].includes(String(report)))throw new SourceError('selected_source_query_refused');
+          if(report!=='6087051')continue; // Exact references and unit joins are checked by the IT adapter.
+        } else if(item.field==='ExpContractNo' && report!=='6087050')throw new SourceError('selected_source_query_refused');
         const rows=object(page).rows;if(!Array.isArray(rows))throw new SourceError('selected_source_invalid');
         for(const row of rows) {
           const values=object(object(row).values),raw=values[item.field];
@@ -104,7 +109,14 @@ export async function validateSelectedSourceOnce(input:unknown,config:CollectorC
      }
     }
     let pageCount=0,rowCount=0;
-    for(const [groupIndex,group] of [b.discoveryBefore,b.discoveryAfter,...details.flatMap(d=>Object.values(d.value))].entries()) {
+    const detailGroups=details.flatMap(d=>Object.values(d.value)).flatMap(value=>{
+      if(!Array.isArray(value))throw new SourceError('selected_source_invalid');
+      const groups=new Map<string,unknown[]>();
+      for(const raw of value){const p=object(raw),key=String(p.reportId)+':'+JSON.stringify(p.queryContext);groups.set(key,[...(groups.get(key)??[]),p]);}
+      if(!groups.size)throw new SourceError('selected_source_invalid');
+      return [...groups.values()];
+    });
+    for(const [groupIndex,group] of [b.discoveryBefore,b.discoveryAfter,...detailGroups].entries()) {
       const extendedDirectory=groupIndex<2&&['catalog-discovery','catalog-contracts'].includes(checked.request.mode);
       const maximumRows=extendedDirectory?1400:1000,maximumPages=extendedDirectory?28:20;
       if(!Array.isArray(group)||group.length<1||group.length>maximumPages)throw new SourceError('selected_source_page_limit');

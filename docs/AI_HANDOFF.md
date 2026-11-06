@@ -1,11 +1,9 @@
-# 接力：登录诊断1次成功，禁止重跑
+# 接力：6087051行数据候选，真实来源未启用
 
-先读CURRENT_STATE和tasks/active/ainuoke-login-diagnosis-2026-11-06.md。真实回执artifacts/ainuoke-login-diagnosis-20261106/result.json已保存；同一宁波配置/镜像唯一登录HTTP200、305ms，0报表。既有持续采集与单单刷新未恢复，数据库未访问。
+先读CURRENT_STATE、D182及tasks/active/ainuoke-it-material-2026-11-06.md。当前分支feat/ainuoke-it-material-details；工作树位于同名隔离worktree，不在已不存在的7bf3仓库中。基于970801b1ea2828d4f260c694ef2e43fcc8f8789b；main已知cb5cc29baa49ed7115fdb6c9506b6a80356936ea，没有远端刷新。
 
-远端受保护目录/home/jackson/weaveops-five-step-convergence-20261104/login-diagnosis-20261106-v1；reservation/result已落盘，不得重复执行execute-once.py。本机工具与测试日志在outputs/login-refusal-20261106/。临时诊断容器已退出，未留会话凭据；会话丢弃不是上游logout，不执行额外注销请求。
+新模式仅由私密配置materialReport选择6087051，用于catalog-contracts/bound-materials；未改真实配置。7051行精确合同校验，交易明细ID去重；单位从四张独立采购/入库表精确核对。顶部合计不保存/使用。未知单位/状态不造0、不自动齐套。合同目录在表格下展开明细，正式订单复用原控制台。
 
-代码修复安全诊断缺口，未证明历史认证拒绝根因；同凭据成功不授权补3张。需要后续固定补验而非再登录探针。全部原608和第二轮240/243及备份保留；staging未改动。当前远端基线main cb5cc29baa49ed7115fdb6c9506b6a80356936ea。本轮最终验证/交付结果随后追加，不能复用原b338 CI冒称新提交成功。
+本机日志/截图 outputs/it-material-20261106；只用合成fixture和临时Postgres。最终提交、文档冻结绑定、发布门禁和验收结果见任务记录。NETWORK_DEGRADED只做本地收口，旧PR140三项CI不是本次CI。不要上传真实数据或登录原文。
 
-此前完整接力保留于tasks/completed/2026-11-06-before-login-evidence/AI_HANDOFF.md。
-
-本地187项Python、5项诊断存储/兼容检查、类型、受影响TS lint及服务端编译通过；宁波镜像内25项离线诊断通过。首次Python假响应缺status引发1错，改为可选状态并全量187通过；首次源码门禁两项文档问题已修。发布回归初次176/182通过，6项受这两处文档影响；修正后仅复跑这6项，6/6通过，合计182项覆盖通过，原失败记录保留。复审为主执行者逐项检查，不冒称独立代理复审。交付状态以outputs/login-refusal-20261106/后续回执和PR当前HEAD检查为准，不借用旧CI。
+本轮没有艾诺科真实请求、来源启用、staging切换、merge。608历史和240/243第二轮、剩余3张保持；之前单次登录额度已消耗，根因仍未明。下一次真实采集必须明确合同、报表、预算和窗口，不将新代码默认视为授权。上阶段完整记录保留于tasks/completed/2026-11-06-before-it-material/。

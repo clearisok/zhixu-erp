@@ -36,8 +36,13 @@ export async function readCatalogDetail(pool:Pool,identity:Identity,scope:Scope)
  // Catalogue browsing doesn't expose purchase prices, quote terms or raw evidence.
  return {salesContractNo:row.sales_contract_no,status:row.last_error_code?'last_attempt_failed':'observed',observedAt:row.captured_at,
   colors:colors.usableRows.map(c=>({id:c.sourceRowIdentity,colorName:c.colorName,sizes:c.sizeAllocations.map(s=>({name:s.sizeName,quantity:s.quantity})),quantity:c.quantity})),
-  materials:view.rows.map(r=>({key:r.canonicalKey,name:r.demand.materialName,color:r.demand.materialColor,type:r.demand.materialType,
-    unit:r.unit,required:r.demand.requiredQuantity,purchased:r.purchased,inbound:r.inbound,shipped:r.shipped,outbound:r.outbound}))};
+  materialStatus:view.sourceStatus, materialMessage:view.message,
+  materials:view.rows.map(r=>({key:r.demand.id,name:r.demand.materialName,color:r.demand.materialColor,type:r.demand.materialType,
+    unit:r.unit,required:r.demand.requiredQuantity,purchased:r.purchased,inbound:r.inbound,shipped:r.shipped,outbound:r.outbound, issues:r.issues,
+    movements:[...r.purchases.map(e=>({kind:"采购",document:e.purchaseOrderNo,date:e.purchaseDate,quantity:e.quantity,unit:e.unit===undefined?r.unit:e.unit})),
+      ...r.inbounds.map(e=>({kind:"入库",document:e.documentNo,date:e.eventDate,quantity:e.quantity,unit:e.unit===undefined?r.unit:e.unit})),
+      ...r.shipments.map(e=>({kind:"出运",document:e.documentNo,date:e.eventDate,quantity:e.quantity,unit:e.unit===undefined?r.unit:e.unit})),
+      ...r.outbounds.map(e=>({kind:"出库",document:e.documentNo,date:e.eventDate,quantity:e.quantity,unit:e.unit===undefined?r.unit:e.unit}))]}))};
 }
 export async function previewCatalogIntake(pool:Pool,identity:Identity,scope:Scope){
  const {row,actor}=await observation(pool,identity,scope);requirePermission(actor.permissions,'ainuoke.bind');

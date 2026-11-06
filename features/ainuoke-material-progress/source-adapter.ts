@@ -1,3 +1,4 @@
+import { adaptItMaterialSnapshots } from '../style-progress/source/ainuoke-it-material-adapter.ts';
 import type { TrustedIdentity } from '../../server/auth/session.ts';
 import type { AinuokeOrderDiscoveryQuery, AinuokeReportSnapshot } from '../ainuoke-api/model/ainuoke-api.ts';
 import { AINUOKE_REPORT_CATALOG } from '../ainuoke-api/model/ainuoke-api.ts';
@@ -78,7 +79,10 @@ export function createMaterialSourceLoader(ports: MaterialSourceAdapterPorts): N
     catch { return failed(order, 'source_failed'); }
     if (pages === null) return null;
     if (!pages.length) return failed(order, 'source_missing');
-    if (pages.some(page => page.reportId !== AINUOKE_REPORT_CATALOG.material_purchase_statistics.reportId
+    if (pages.some(page => page.reportId === '6087051')) {
+      try { const parsed = adaptItMaterialSnapshots(pages); if (parsed.metadata.query.salesContractNo !== contract) return failed(order, 'identity_mismatch'); }
+      catch { return failed(order, 'incomplete'); }
+    } else if (pages.some(page => page.reportId !== AINUOKE_REPORT_CATALOG.material_purchase_statistics.reportId
       || Object.keys(page.queryContext).length !== 1
       || normalizeAinuokeInsideOrderNo(page.queryContext.insideOrderNo) !== normalizeAinuokeInsideOrderNo(insideOrderNo))) {
       return failed(order, 'identity_mismatch');
