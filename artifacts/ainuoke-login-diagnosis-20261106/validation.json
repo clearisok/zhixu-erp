@@ -1,5 +1,5 @@
 {
-  "state": "LOCAL_DIAGNOSTICS_PASS_RELEASE_PENDING",
+  "state": "LOCAL_VALIDATION_PASS",
   "python": 187,
   "typescriptDiagnosticTests": 5,
   "linuxOfflineDiagnosticTests": 25,
@@ -13,6 +13,19 @@
     "Python response fake lacked status; optional status capture fixed, full187 passed",
     "guard: frozen feature-document drift and missing index baseline; own append removed and new supplementary document created"
   ],
-  "releaseBaseline": "running",
-  "newCi": "not submitted"
+  "releaseBaseline": {
+    "initial": {
+      "tests": 182,
+      "pass": 176,
+      "fail": 6
+    },
+    "affectedRerun": {
+      "tests": 6,
+      "pass": 6,
+      "fail": 0
+    },
+    "result": "all 182 covered; initial failures retained",
+    "cause": "test fixtures copied frozen-feature drift and missing index baseline before correction"
+  },
+  "newCi": "delivery receipt and current PR head checks authoritative"
 }
