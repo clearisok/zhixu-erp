@@ -116,7 +116,8 @@ test("server source: isolated PostgreSQL, real session HTTP and Python fixed-cat
                 assert.equal(await latest(), previous);
                 const body = await (await read(cookies[0])).json();
                 assert.equal(body.progress.sourceStatus, "source_failed");
-                assert.equal(body.progress.rows.length, 0);
+                assert.ok(body.progress.rows.length > 0, 'failed new payload keeps the prior validated publication');
+                assert.ok(body.progress.rows.every((row: {status: unknown}) => row.status === null));
                 await capture();
             }
             const logs = JSON.stringify((await pool.query("SELECT metadata,context,before_data,after_data FROM operation_logs")).rows);

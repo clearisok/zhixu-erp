@@ -104,7 +104,10 @@ export async function prepareMaterialPortsInTransaction(client: PoolClient, conf
         loadSource: async (candidate, other) => {
             verifyIdentity(other); const order = orders.get(candidate.id), record = indexed.get(candidate.id), header=headers.get(candidate.id);
             if (!order || order.version !== candidate.version || order.salesContractNo !== candidate.salesContractNo) return null;
-            if (header?.last_error_code) return {salesOrderId:order.id,salesContractNo:order.salesContractNo!,provenance:'server_snapshot',snapshots:[],issue:'source_failed'};
+            // A failed new payload never invalidates a previously published
+            // snapshot. Access/identity changes still fail closed below/above.
+            const historicalFailure = header?.last_error_code && !/identity|account|visibility|permission|actor|scope|binding/.test(header.last_error_code);
+            if (header?.last_error_code && (!historicalFailure || !record)) return {salesOrderId:order.id,salesContractNo:order.salesContractNo!,provenance:'server_snapshot',snapshots:[],issue:'source_failed'};
             if (!header || !record || record.sales_contract_no !== order.salesContractNo) return null;
             const invalidIdentity = () => ({salesOrderId: order.id, salesContractNo: record.sales_contract_no, provenance: 'server_snapshot' as const, snapshots: [], issue: 'identity_mismatch' as const});
             if (record.attribution_change_id !== order.attributionChangeId) return invalidIdentity();
@@ -115,10 +118,11 @@ export async function prepareMaterialPortsInTransaction(client: PoolClient, conf
                 if (record.source_link_id !== order.sourceLinkId || scope.sourceOwnerOrderId !== order.sourceOwnerOrderId || scope.attributionChangeId !== order.attributionChangeId)
                     return invalidIdentity();
             } else if (header.order_scope !== null || record.captured_order_version !== null) throw new SourceError('source_snapshot_changed');
-            if (header.last_error_code) return {salesOrderId: order.id, salesContractNo: record.sales_contract_no, provenance: 'server_snapshot', snapshots: [], issue: 'source_failed'};
             if (hash(record.snapshots) !== record.content_hash) throw new SourceError('source_snapshot_changed');
-            return createMaterialSourceLoader({resolveVisibleOrder, provenance: 'server_snapshot', maxAgeMs: localConfig.maxAgeMs, now,
+            const result = await createMaterialSourceLoader({resolveVisibleOrder, provenance: 'server_snapshot', maxAgeMs: localConfig.maxAgeMs, now, retainPublishedHistory: true,
                 readDiscovery: async () => structuredClone(header.discovery), readMaterial: async () => structuredClone(record.snapshots)})(candidate, actor);
+            if (historicalFailure && result?.snapshots.length && (!result.issue || result.issue === 'stale')) result.issue = 'source_failed';
+            return result;
         },
     };
     return { ports, generation: (orderId: string) => {

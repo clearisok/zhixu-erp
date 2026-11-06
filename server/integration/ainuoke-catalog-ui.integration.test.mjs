@@ -81,6 +81,12 @@ test('built catalogue pages, actor-scoped recovery and single-order refresh in C
    assert.equal(Number((await x.pool.query("SELECT count(*) n FROM ainuoke_sync_jobs WHERE source_id='2' AND status='queued'")).rows[0].n),1);
    const retried=await x.tick();assert.equal(retried.jobs.length,1);await until(row+"?.innerText.includes('同步成功')",'retry completed');assert.equal(x.captures(),before+2);
   });
+  await t.test('material page refresh submits the current order and reloads its published facts',async()=>{
+   await navigate('/order-center/style-progress/detail?orderId='+x.orderIds[0]);await has('合成线');
+   const before=x.captures();await click('刷新来源');await has('等待同步');
+   assert.equal(x.captures(),before);const result=await x.tick();assert.equal(result.jobs.length,1);
+   await has('同步成功');await has('合成线');assert.equal(x.captures(),before+1);
+  });
   await t.test('readonly role cannot refresh or adopt; mobile drawer fits and closes',async()=>{
    await login(x.reader);await navigate('/order-center');await click('全部合同 / 历史查阅');await has('艾诺科合同目录');await has('SYN-SALES-3');
    assert.equal(await evaluate("[...document.querySelectorAll('button')].some(n=>n.textContent.trim()==='刷新来源')"),false);

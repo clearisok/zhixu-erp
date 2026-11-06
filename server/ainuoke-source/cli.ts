@@ -1,4 +1,5 @@
 import { readFileSync, statSync } from 'node:fs';
+import { requestMaterialRecovery } from './material-recovery.js';
 import { recoverSync } from './sync-recovery.js';
 import { setTimeout as delay } from 'node:timers/promises';
 import { captureCatalogOnce, readCatalogCaptureReceipt } from './catalog-capture.js';
@@ -28,10 +29,10 @@ export function parseSourceArguments(args: string[]) {
     if(!match || values.has(match[1])) throw new SourceError("explicit_source_action_required");
     values.set(match[1],match[2]??"");
   }
-  const actions=["check","preview-bind","bind","preview-bind-selected","bind-selected","discover-add","preview-add","add","execute","execute-bounded","catalog","catalog-receipt","plan-followup","execute-group","group-receipt","sync-configure","sync-once","sync-run","sync-status","sync-recovery-preview","sync-recover","schedule"].filter(key=>values.has(key));
+  const actions=["check","preview-bind","bind","preview-bind-selected","bind-selected","discover-add","preview-add","add","execute","execute-bounded","catalog","catalog-receipt","plan-followup","execute-group","group-receipt","sync-configure","sync-once","sync-run","sync-status","material-recover","sync-recovery-preview","sync-recover","schedule"].filter(key=>values.has(key));
   if(actions.length!==1 || !values.get("config")) throw new SourceError("explicit_source_action_required");
   const action=actions[0];
-  const allowed=["config",action,...(action==="check"?[]:["expected-target"]),...(["bind","bind-selected","add"].includes(action)?["expected-preview"]:[]),
+  const allowed=["config",action,...(action==="material-recover"?["source-ids","request-id"]:[]),...(action==="check"?[]:["expected-target"]),...(["bind","bind-selected","add"].includes(action)?["expected-preview"]:[]),
     ...(["preview-add","add","preview-bind-selected","bind-selected","execute-bounded","execute-group"].includes(action)?["contracts"]:[]),...(action==="schedule"?["interval-ms","max-backoff-ms"]:[]),...(["catalog","catalog-receipt","execute-group","group-receipt"].includes(action)?["request-id"]:[]),...(action==="execute-group"?["expected-scope"]:[]),...(["plan-followup","sync-once","sync-run"].includes(action)?["batch-size"]:[]),...(action==="sync-configure"?["enabled","expected-version","policy-file"]:[]),...(action==="sync-recover"?["expected-preview","reason"]:[])];
   if([...values.keys()].some(k=>!allowed.includes(k)) || action==="check"&&values.get(action)!==""
     || action!=="check"&&(!/^[a-z][a-z0-9_-]{2,63}$/u.test(values.get(action)!)||!/^[a-f0-9]{64}$/u.test(values.get("expected-target")??""))
@@ -42,10 +43,12 @@ export function parseSourceArguments(args: string[]) {
   if(action==='execute-group'&&!/^[a-f0-9]{64}$/.test(values.get('expected-scope')??''))throw new SourceError('source_group_scope_required');
   if(values.has('batch-size')&&(!/^\d+$/.test(values.get('batch-size')!)||Number(values.get('batch-size'))<1||Number(values.get('batch-size'))>25))throw new SourceError('sync_batch_invalid');
   if(action==='sync-recover'&&(!/^[a-f0-9]{64}$/.test(values.get('expected-preview')??'')||(values.get('reason')??'').trim().length<3||(values.get('reason')??'').length>300))throw new SourceError('sync_recovery_invalid');
+  if(action==='material-recover'&&(!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(values.get('request-id')??'')||!values.get('source-ids')))throw new SourceError('material_recovery_scope_invalid');
   return {action,values};
 }
 export async function main(args: string[] = process.argv.slice(2)): Promise<void> {
   if(args.length===0 || args.length===1&&args[0]==="--help") {
+    process.stdout.write("material-recover: --material-recover=<source key> --source-ids=<exact IDs separated by commas> --request-id=<stable recovery UUID> --expected-target=<fingerprint> --config=<private file>. Enqueues ordinary jobs only; replay the same UUID after interruption.\n");
     process.stdout.write("sync-configure: --sync-configure=<source key> --enabled=true|false --expected-version=<version> [--policy-file=<bounded JSON>] --expected-target=<fingerprint> --config=<private file>\nsync-run / sync-once: --sync-run=<source key> [--batch-size=5] --expected-target=<fingerprint> --config=<private file>. No automatic retry after unknown outcomes.\nsync-status / sync-recovery-preview: database only. Recovery uses --sync-recover=<source key> --expected-preview=<reviewHash> --reason=<reviewed reason> with the same config/target. Never makes upstream requests.\n");
     process.stdout.write("catalog: --catalog=<source key> --request-id=<UUID> --expected-target=<fingerprint> --config=<private file>; bounded 1 login/40 reports/180s, no retry. Replay first checks receipt.\nplan-followup: --plan-followup=<source key> [--batch-size=5] --expected-target=<fingerprint> --config=<file>; DB only.\nexecute-group: --execute-group=<source key> --contracts=<selected BillNos> --expected-scope=<plan hash> --request-id=<UUID> --expected-target=<fingerprint> --config=<file>; at most one group, never repeats request.\nReceipts: --catalog-receipt or --group-receipt=<source key> --request-id=<UUID> --expected-target=<fingerprint> --config=<file>.\ncheck: --check --config=<absolute private file>\nread-only source preview: --preview-bind=<source key> --expected-target=<check fingerprint> --config=<file>\nbind: --bind=<source key> --expected-target=<fingerprint> --expected-preview=<reviewHash> --config=<file>\nselected first binding: --preview-bind-selected=<source key> --contracts=<BillNo,...> --expected-target=<fingerprint> --config=<file>\nconfirm first selection: --bind-selected=<source key> --contracts=<BillNo,...> --expected-preview=<reviewHash> --expected-target=<fingerprint> --config=<file>\nnew contracts: --discover-add=<source key> --expected-target=<fingerprint> --config=<file>\npreview selected: --preview-add=<source key> --contracts=<BillNo,...> --expected-target=<fingerprint> --config=<file>\nconfirm selected: --add=<source key> --contracts=<BillNo,...> --expected-preview=<reviewHash> --expected-target=<fingerprint> --config=<file>\ncapture: --execute=<source key> --expected-target=<fingerprint> --config=<file>\nbounded material capture: --execute-bounded=<source key> --contracts=<exact bound BillNos> --expected-target=<fingerprint> --config=<file>\nscheduler: --schedule=<source key> --expected-target=<fingerprint> --config=<file> [--interval-ms=300000] [--max-backoff-ms=1800000]\nNo migration, account bootstrap or deployment is performed. Scheduling does not bind orders.\n"); return;
   }
@@ -68,6 +71,10 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
       process.stdout.write(JSON.stringify({result:"CHECKED_NO_SOURCE_READ",targetFingerprint:fingerprint,sourceKey:cfg.sourceKey,boundOrders:(await boundOrders(pool)).length})+"\n");return;
     }
     if(values.get("expected-target")!==fingerprint)throw new SourceError("source_target_mismatch");
+    if(action==='material-recover'){
+      const receipts=await requestMaterialRecovery(pool,actor,{sourceKey:cfg.sourceKey,sourceIds:values.get('source-ids')!.split(',').map(id=>id.trim()),recoveryId:values.get('request-id')!});
+      process.stdout.write(JSON.stringify({event:'MATERIAL_RECOVERY_QUEUED',receipts,sourceRequests:0})+'\n');return;
+    }
     if(action==='catalog'||action==='catalog-receipt'){
       const result=action==='catalog-receipt'?await readCatalogCaptureReceipt(pool,actor,cfg.sourceKey,values.get('request-id')!):await captureCatalogOnce(pool,actor,cfg,values.get('request-id')!);
       process.stdout.write(JSON.stringify({event:'CATALOG_RECEIPT',receipt:result})+'\n');return;

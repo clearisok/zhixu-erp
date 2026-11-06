@@ -44,7 +44,7 @@ function RefreshControl({scope,lastSuccessAt,onComplete,showLastSuccess=true}:Pr
   try{const result=await api<Receipt>(prefix+'/sync/'+current.requestId);if(generation!==epoch.current)return;setReceipt(result);setMessage(null);
    if(result.status==='complete'||result.status==='failed'){
     sessionStorage.removeItem(key);setPending(null);
-    if(result.status==='complete'){setSuccess(result.result?.observedAt??null);complete.current?.();}
+    if(result.status==='complete')setSuccess(result.result?.observedAt??null);complete.current?.();
    }
   }catch(e){if(generation===epoch.current)setMessage((e as Error).message);}finally{if(generation===epoch.current)setBusy(false);}
  };
@@ -52,7 +52,7 @@ function RefreshControl({scope,lastSuccessAt,onComplete,showLastSuccess=true}:Pr
   if(!pending)return;
   let active=true;const generation=epoch.current;let timer:ReturnType<typeof setTimeout>;
   const poll=async()=>{try{const result=await api<Receipt>(prefix+'/sync/'+pending.requestId);if(!active||generation!==epoch.current)return;setReceipt(result);
-    if(result.status==='complete'||result.status==='failed'){sessionStorage.removeItem(key);setPending(null);setMessage(null);if(result.status==='complete'){setSuccess(result.result?.observedAt??null);complete.current?.();}return;}
+    if(result.status==='complete'||result.status==='failed'){sessionStorage.removeItem(key);setPending(null);setMessage(null);if(result.status==='complete')setSuccess(result.result?.observedAt??null);complete.current?.();return;}
     if(['queued','running'].includes(result.status))timer=setTimeout(()=>void poll(),result.retryAt?10000:2000);
    }catch{if(active)setMessage('暂时无法核对同步结果；不会重复提交。');}};
   void poll();return()=>{active=false;clearTimeout(timer);};

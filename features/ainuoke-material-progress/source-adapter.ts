@@ -17,6 +17,8 @@ export type MaterialSourceAdapterPorts = {
   provenance: 'synthetic' | 'server_snapshot';
   /** Deployment policy is deliberately required, not an invented business default. */
   maxAgeMs: number;
+  /** Only a persisted, integrity-checked publication may survive freshness expiry. */
+  retainPublishedHistory?: boolean;
   now: () => number;
 };
 
@@ -69,7 +71,8 @@ export function createMaterialSourceLoader(ports: MaterialSourceAdapterPorts): N
       discovery = await adaptAinuokeOrderDiscoverySnapshots(discoveryPages);
     } catch { return failed(order, 'incomplete'); }
     const discoveryIssue = freshnessIssue(discoveryPages);
-    if (discoveryIssue) return failed(order, discoveryIssue);
+    if (discoveryPages.some(page => Date.parse(page.fetchedAt) > ports.now())) return failed(order, 'stale');
+    if (discoveryIssue && !(discoveryIssue === 'stale' && ports.retainPublishedHistory)) return failed(order, discoveryIssue);
     const relationship = discovery.rows.find(row => row.salesContractNo === contract);
     if (!relationship) return failed(order, 'source_missing');
     // Exact normalized BillNo only; never style matching or a second Matcher.
@@ -89,8 +92,10 @@ export function createMaterialSourceLoader(ports: MaterialSourceAdapterPorts): N
     }
     if (pages.some(page => !Number.isFinite(Date.parse(page.fetchedAt)))) return failed(order, 'incomplete');
     const materialIssue = freshnessIssue(pages);
-    if (materialIssue) return failed(order, materialIssue);
+    if (pages.some(page => Date.parse(page.fetchedAt) > ports.now())) return failed(order, 'stale');
+    if (materialIssue && !(materialIssue === 'stale' && ports.retainPublishedHistory)) return failed(order, materialIssue);
     // Detach provider snapshots; sole read projection performs Material Normalize/Dedup/Validate and completeness checks.
-    return { salesOrderId: order.id, salesContractNo: contract, provenance: ports.provenance, snapshots: structuredClone(pages) };
+    return { salesOrderId: order.id, salesContractNo: contract, provenance: ports.provenance, snapshots: structuredClone(pages),
+      ...(discoveryIssue === 'stale' || materialIssue === 'stale' ? {issue: 'stale' as const} : {}) };
   };
 }

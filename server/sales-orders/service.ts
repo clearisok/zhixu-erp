@@ -1,4 +1,5 @@
 import {orderCommandControlError} from './command-control.js';
+import {requestMissingMaterialPublication} from '../ainuoke-source/material-publication-request.js';
 import {lockEffectiveAttribution} from './effective-attribution.js';
 import { HttpError } from "../http/errors.js";
 import type { Pool, PoolClient } from "pg";
@@ -71,6 +72,7 @@ export async function createAinuokeSalesOrderInTransaction(client: PoolClient, a
       if ((detail.salesContractNo ?? '').normalize('NFKC').trim().toUpperCase() !== input.source.salesContractNo.normalize('NFKC').trim().toUpperCase()) {
         throw new HttpError(409, 'source_contract_identity_conflict', 'Existing source identity belongs to another sales contract');
       }
+      await requestMissingMaterialPublication(client,actor,{id:detail.id,sourceId:normalizedSourceId,salesContractNo:detail.salesContractNo!});
       return { created: false, salesOrder: detail };
     }
 
@@ -124,5 +126,6 @@ export async function createAinuokeSalesOrderInTransaction(client: PoolClient, a
 
     const detail = await getFoundationSalesOrderById(client, salesOrder.id);
     if (!detail) throw new Error("Created SalesOrder could not be read inside its transaction");
+    await requestMissingMaterialPublication(client,actor,{id:detail.id,sourceId:normalizedSourceId,salesContractNo:detail.salesContractNo!});
     return { created: true, salesOrder: detail };
 }

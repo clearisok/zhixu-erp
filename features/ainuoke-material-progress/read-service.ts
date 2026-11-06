@@ -70,6 +70,22 @@ export function createOrderMaterialReader(ports: MaterialReadPorts) {
         || !['synthetic', 'server_snapshot'].includes(source.provenance)) {
         return failure(503, 'source_binding_invalid', '物料来源与可信订单关联不一致。');
       }
+      if (source.provenance === 'server_snapshot' && source.snapshots.length && (source.issue === 'stale' || source.issue === 'source_failed')) {
+        const progress = projectMaterialProgress(progressOrder, source.snapshots, await scopedPorts.loadConfirmations?.(order, identity) ?? []);
+        // Re-run identity/completeness projection before preserving historical facts.
+        if (progress.sourceStatus === 'ready') {
+          progress.sourceStatus = source.issue;
+          progress.message = source.issue === 'stale'
+            ? '显示上次成功来源；数据较旧，不能视为本次同步成功。'
+            : '本次刷新失败；显示上次成功来源，来源时间保持不变。';
+          for (const row of progress.rows) row.status = null;
+          for (const summary of [progress.summary.fabric, progress.summary.trim]) {
+            summary.unknown = summary.demands;
+            summary.states = {not_purchased: 0, purchasing: 0, pending_inbound: 0, ready: 0};
+          }
+        }
+        return {status: 200, body: {salesOrderId: order.id, orderVersion: order.version, navigation, provenance: source.provenance, progress}};
+      }
       return { status: 200, body: { salesOrderId: order.id, orderVersion: order.version, navigation,
         provenance: source.provenance, progress: source.issue ? { ...projectMaterialProgress(progressOrder, null), sourceStatus: source.issue,
           message: ({ source_failed: '物料来源读取失败；未使用缓存或 Browser 数据。', source_missing: '当前来源缺少合同关联或物料 Snapshot。',

@@ -38,6 +38,7 @@ async function publishContract(pool:Pool,identity:Identity,config:CollectorConfi
     const target=(await boundOrders(c)).find(o=>o.salesContractNo===job.sales_contract_no);
     const singleAddition={...captured.addition,colors:{[job.sales_contract_no]:captured.addition.colors[job.sales_contract_no]}};
     let orderId:string|null=null;
+    let publicationRunId:string|null=null;
     if(target) {
       // Only an existing trusted binding can update business Source mirrors.
       const result=await refreshCollectedBoundOrderInTransaction(pool,c,actor,
@@ -46,7 +47,13 @@ async function publishContract(pool:Pool,identity:Identity,config:CollectorConfi
       const refreshed=await boundOrders(c,true,[target.id]);
       const materialBundle={...captured.materials.bundle,materials:{[job.sales_contract_no]:captured.materials.bundle.materials[job.sales_contract_no]}};
       const materials=await validateBundle(materialBundle,refreshed,now,600000);
-      await publishMaterialSnapshotsInTransaction(c,actor,config.sourceKey,materials,refreshed);
+      publicationRunId=await publishMaterialSnapshotsInTransaction(c,actor,config.sourceKey,materials,refreshed);
+      const published=await c.query(`SELECT 1 FROM ainuoke_material_order_heads h
+        JOIN ainuoke_material_source_snapshots s ON s.run_id=h.run_id AND s.sales_order_id=h.sales_order_id
+        WHERE h.source_key=$1 AND h.sales_order_id=$2 AND h.run_id=$3 AND h.last_error_code IS NULL
+        AND s.sales_contract_no=$4 AND s.source_link_id=$5 AND s.captured_order_version=$6`,
+        [config.sourceKey,target.id,publicationRunId,job.sales_contract_no,refreshed[0].sourceLinkId,refreshed[0].version]);
+      if(published.rowCount!==1)throw new SourceError('material_publication_not_readable');
     }
     const observationId=randomUUID(),directoryId=randomUUID();
     const captureId=await saveCatalogEvidence(c,config.sourceKey,accountFingerprint(config),captured.directory.bundle);
@@ -63,7 +70,7 @@ async function publishContract(pool:Pool,identity:Identity,config:CollectorConfi
       [observationId,config.sourceKey,job.source_id,job.id,new Date(now),JSON.stringify(evidence),hash(evidence),captureId]);
     await c.query(`INSERT INTO ainuoke_contract_sync_state(source_key,source_id,observation_id,last_success_at,last_attempt_at,last_error_code,last_diagnostic) VALUES($1,$2,$3,$4,$4,NULL,NULL)
       ON CONFLICT(source_key,source_id) DO UPDATE SET observation_id=excluded.observation_id,last_success_at=excluded.last_success_at,last_attempt_at=excluded.last_attempt_at,last_error_code=NULL,last_diagnostic=NULL`,[config.sourceKey,job.source_id,observationId,new Date(now)]);
-    const result={code:'complete',orderId,observedAt:new Date(now).toISOString(),contract:job.sales_contract_no,
+    const result={code:'complete',orderId,publicationRunId,publicationStatus:orderId?'published':'catalog_only',observedAt:new Date(now).toISOString(),contract:job.sales_contract_no,
       colorLines:captured.candidates.candidates.find(c=>c.source.salesContractNo===job.sales_contract_no)?.colors.length??0,
       materialRows:captured.materials.bundle.materials[job.sales_contract_no]
         .filter(p=>p.reportId==='6087050'||p.reportId==='6087051').reduce((n,p)=>n+p.rows.length,0)};
@@ -105,7 +112,7 @@ async function failJob(pool:Pool,job:SyncJob,code:string,unknown=false,options:{
 /** One wake handles a bounded group. Caller decides when to wake, backs up or
  * stops. No implicit activation, retries, credential changes or infinite loops. */
 export async function runSyncTick(pool:Pool,identity:Identity,raw:CollectorConfig,options:{
-  automatic?:boolean;batchSize?:number;now?:()=>number;
+  automatic?:boolean;batchSize?:number;now?:()=>number;sourceIds?:readonly string[];
   collect?:(config:CollectorConfig,request:SelectedSourceRequest)=>Promise<unknown>;
 }={}) {
   const batchSize=options.batchSize??5;
@@ -148,7 +155,7 @@ export async function runSyncTick(pool:Pool,identity:Identity,raw:CollectorConfi
       }
       await enqueueAutomaticSync(pool,identity,config.sourceKey,now());
     }
-    const jobs=await claimSyncJobs(pool,identity,config.sourceKey,batchSize,now());
+    const jobs=await claimSyncJobs(pool,identity,config.sourceKey,batchSize,now(),options.sourceIds);
     if(!jobs.length)return {status:'idle' as const,jobs:[]};
     const request:SelectedSourceRequest={mode:'catalog-contracts',contracts:jobs.map(j=>j.sales_contract_no).sort()};
     const attemptId=randomUUID(),startedAt=now();
@@ -177,7 +184,7 @@ export async function runSyncTick(pool:Pool,identity:Identity,raw:CollectorConfi
       // Refusing a retry child is insufficient: the next tick could claim a new
       // contract or a new scheduled slot. Unsafe captures require explicit recovery.
       for(const job of jobs)results.push({id:job.id,...await failJob(pool,job,code,false,{diagnostics,retry,
-        pauseCapture:!retry||code==='catalog_business_content_changed'&&retryDelayMs(job.attempt_number)===null,now:now()})});
+        pauseCapture:!retry,now:now()})});
       return {status:'failed' as const,retryScheduled:results.some(r=>r.retry),jobs:results};
     }
     await finishCaptureAttempt(pool,attemptId,null,diagnostics,metrics,now());

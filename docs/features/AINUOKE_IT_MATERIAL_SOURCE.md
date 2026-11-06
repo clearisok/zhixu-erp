@@ -1,6 +1,6 @@
 # 合同物料明细 6087051（D-182）
 
-2026-11-06，本地候选；未真实读取、未启用、未部署。复用既有 Python SDK、Server capture、不可变 observation、物料归一化管线和订单只读投影，不新建物料/价格数据库。
+2026-11-06，已在本机真实订单环境验证D1992，全部目标正在接入；未部署staging。复用既有 Python SDK、Server capture、不可变 observation、物料归一化管线和订单只读投影，不新建物料/价格数据库。
 
 ## 入口和所有权
 
@@ -38,3 +38,11 @@
 合同目录资料中沿用“物料采购与收发”汇总，逐物料展开采购/入库/出运/出库行，单位未知标待核对。正式订单的既有物料控制台显示对应流水单位及“明细匹配”标识。窄屏明细独立于表格列，不截断长单号。
 
 验收入口：`tests/ainuoke-it-material.test.mjs`、`tools/ainuoke-bridge/tests/test_it_material.py`、`server/integration/ainuoke-it-material.integration.test.ts`、`server/integration/ainuoke-catalog-ui.integration.test.mjs`。结果、失败修正和上线剩余边界见[执行记录](../tasks/active/ainuoke-it-material-2026-11-06.md)。正式启用前需要限定合同/报表/请求预算的真实核验及发布批准，不能用本地合成通过替代。
+
+## 正式发布与历史读取（D-183）
+
+订单创建/绑定及重复导入自动检查缺失物料发布并排队；普通刷新和CLI material-recover复用requestContractSync与worker。恢复使用固定source-ids及同一request-id，仅排队，不隐式发请求或启用服务。任务结果区分published与catalog_only，发布须核对head与完整快照。
+
+新发布仍要求来源新鲜、身份及分页完整。已经通过验证的成功快照过期时保留明细和原始时间；最新超时/解析/发布失败不覆盖成功指针。读取继续验证来源账号、合同、订单版本、哈希和权限；身份/可见性冲突不能借历史回退绕过。旧事实可读不等于当前齐套或本次刷新成功。
+
+实际范围、来源时间、HTTP和浏览器证据见[本轮闭环记录](../tasks/active/ainuoke-material-closure-2026-11-06.md)，禁止引用旧合成测试宣称全量交付。

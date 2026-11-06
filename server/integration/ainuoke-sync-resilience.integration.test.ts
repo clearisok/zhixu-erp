@@ -128,7 +128,7 @@ test('transient failures preserve success and create finite durable retry jobs',
 
 
 for(const mode of ['catalog-discovery','catalog-contracts'] as const){
- test(`${mode}: approved content changes retry finitely, preserve facts, then pause`,{timeout:180000},async()=>{
+ test(`${mode}: approved content changes retry finitely and preserve facts; contract exhaustion stays recoverable`,{timeout:180000},async()=>{
   const f=await startCatalogFixture();
   try{
    const baseline=(await f.pool.query('SELECT source_id,observation_id,last_success_at FROM ainuoke_contract_sync_state ORDER BY source_id')).rows;
@@ -157,9 +157,9 @@ for(const mode of ['catalog-discovery','catalog-contracts'] as const){
    now+=299000;assert.equal((await tick()).status,mode==='catalog-discovery'?'catalog_retry_wait':'idle');assert.equal(calls,2);
    now+=1000;await tick();assert.equal(calls,3);
    const control=(await f.pool.query('SELECT paused_reason FROM ainuoke_sync_controls')).rows[0];
-   assert.equal(control.paused_reason,mode==='catalog-discovery'?'catalog_retries_exhausted':'catalog_business_content_changed');
-   now+=86400000;assert.equal((await tick()).status,'paused');assert.equal(calls,3);
-   await assert.rejects(requestContractSync(f.pool,f.actor,{...input,requestId:randomUUID()}));
+   assert.equal(control.paused_reason,mode==='catalog-discovery'?'catalog_retries_exhausted':null);
+   now+=86400000;assert.equal((await tick()).status,mode==='catalog-discovery'?'paused':'idle');assert.equal(calls,3);
+   if(mode==='catalog-discovery')await assert.rejects(requestContractSync(f.pool,f.actor,{...input,requestId:randomUUID()}));
    assert.deepEqual((await f.pool.query('SELECT source_id,observation_id,last_success_at FROM ainuoke_contract_sync_state ORDER BY source_id')).rows,baseline);
    assert.equal(Number((await f.pool.query("SELECT count(*) n FROM ainuoke_sync_capture_attempts WHERE result_code='catalog_business_content_changed' AND status='failed' AND requests IS NOT NULL")).rows[0].n),3);
    assert.equal(Number((await f.pool.query("SELECT count(*) n FROM ainuoke_sync_jobs WHERE retry_of IS NOT NULL AND status='queued'")).rows[0].n),0);

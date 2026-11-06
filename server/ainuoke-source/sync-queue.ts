@@ -103,13 +103,15 @@ export async function enqueueAutomaticSync(pool: Pool, identity: Identity, sourc
 }
 export type SyncJob = {id:string;source_key:string;source_id:string;sales_contract_no:string;kind:'manual'|'automatic';requested_by:string;started_at:Date;retry_of:string|null;root_job_id:string|null;attempt_number:number};
 /** The caller additionally holds the source's session-level worker lock through IO. */
-export async function claimSyncJobs(pool: Pool, identity: Identity, sourceKey: string, maximum = 5, now = Date.now()): Promise<SyncJob[]> {
+export async function claimSyncJobs(pool: Pool, identity: Identity, sourceKey: string, maximum = 5, now = Date.now(), sourceIds?:readonly string[]): Promise<SyncJob[]> {
   if (!Number.isSafeInteger(maximum) || maximum < 1 || maximum > 25) throw new SourceError('sync_batch_invalid');
+  if(sourceIds && (!sourceIds.length || sourceIds.length>1400 || sourceIds.some(id=>typeof id!=='string'||!id||id.length>200)))throw new SourceError('sync_scope_invalid');
   return tx(pool, async c => {
     await lockSource(c,sourceKey); const actor = await sourceActor(c,identity,true), settings = await control(c,sourceKey);
     if (String(settings.operator_id) !== actor.internalUserId) throw new SourceError('sync_operator_changed');
     const rows = (await c.query(`SELECT j.*,j.requested_by::text FROM ainuoke_sync_jobs j WHERE j.source_key=$1 AND j.status='queued' AND j.available_at<=$3
-      ORDER BY (j.kind='manual') DESC,j.requested_at,j.id LIMIT $2 FOR UPDATE SKIP LOCKED`,[sourceKey,maximum,new Date(now)])).rows;
+      AND ($4::text[] IS NULL OR j.source_id=ANY($4::text[]))
+      ORDER BY (j.kind='manual') DESC,j.requested_at,j.id LIMIT $2 FOR UPDATE SKIP LOCKED`,[sourceKey,maximum,new Date(now),sourceIds??null])).rows;
     // A manual operation captures only the selected contract, even if auto jobs await.
     const selected = rows[0]?.kind === 'manual' || rows[0]?.retry_of ? rows.slice(0,1) : rows.filter(j=>!j.retry_of);
     for (const job of selected) {
