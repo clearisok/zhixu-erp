@@ -1,15 +1,11 @@
-# 接力：真实物料闭环，禁止重新初始化环境
+# 接力：本机真实物料闭环，认证拒绝暂停
 
-先读[本轮任务](tasks/active/ainuoke-material-closure-2026-11-06.md)。真实worktree为ainuoke-it-material-details/zhixu-ainuoke-api，分支fix/ainuoke-order-material-closure。本轮用户已授权本机全量真实接入，不部署staging。
+先读[当前状态](CURRENT_STATE.md)和[本轮执行证据](tasks/active/ainuoke-material-closure-2026-11-06.md)。实际worktree为ainuoke-it-material-details/zhixu-ainuoke-api；分支fix/ainuoke-order-material-closure，运行代码98308d0fdf0f34a88f5dd6ed82d22765c75e0b58。未部署staging。继承manifest基线cb5cc29baa49ed7115fdb6c9506b6a80356936ea，不把本地origin/main 5c8cb8037376288aa71043e799a057e21f1b985d当本轮联网核实值。
 
-页面127.0.0.1:63051使用原数据库，resume-real.ts保留库启动器PID34788（恢复时复核）。禁止运行real-demo.ts：会初始化新库；旧PID34992已硬停止，未调用清理回调。现有预览账号保持只读。
+页面127.0.0.1:63051，resume-real.ts进程34788（复核存活），原库保留。禁止运行real-demo.ts重新初始化；原库容器为tmpfs，禁止停止/删除。最新配对备份verified-pair-1793978882791已恢复验证。runtime.private.json及所有来源文件私密，不输出或提交。预览账号保持只读。
 
-全量PID24300、exec会话72081；不要重复启动采集。D:/WeaveOps-Previews/real-orders-20261106/closure-all的scope.private.json、receipts.json、status.json是恢复依据。617条冻结范围，D1992单独验收，616任务持续进行。所有私密文件不得输出或提交。
+采集PID24300已退出；closure-all/status.json及stopped.json为STOPPED，代码sync_paused_invalid_credential。失败PI2610-061/source6919，HTTP200/314ms/未识别拒绝码，0报表。用户确认无人登录且密码未改，不是恢复凭证，不自动认证重试或覆盖网页登录。控制器disabled并保留pause，472任务在库。
 
-新CLI material-recover只排队，需精确target、source-ids、稳定request-id；中断沿用同一ID，worker沿用有限退避。认证/身份/证书及未知结果仍停止。全量结束须逐单实际HTTP+数据互斥核对；不能用任务complete替代。
+617单实际HTTP互斥核对：本轮有物料143、完整空1、历史可读3、失败1、待处理469。scope.private.json固定来源身份和recoveryId，receipts.json固定任务；reconciliation.private.json包含逐单状态。认证恢复后先用正式recoverSync预览和expectedHash核对，再恢复固定队列，不直接清pause或重建订单。material-recover CLI沿用同一恢复ID；旧成功不可重采。closure-all.ts继续同一范围/剩余任务，截止为scope内24小时，过期另核实。
 
-当前修改尚未提交。类型/构建通过，剩余最终复审、发布门禁、全量收口、正常刷新入口核验和版本记录。用户数据、旧原文和备份均保留。[旧接力](tasks/completed/2026-11-06-before-material-closure/AI_HANDOFF.md)。
-
-继承的本地发布manifest基线为cb5cc29baa49ed7115fdb6c9506b6a80356936ea；它不是本轮新核实的远端main。远端PR门禁尚未完成，本轮本机验收不以远端交付为前置。
-
-23:20外部认证拒绝后采集已暂停，未自动重试。全量617实际HTTP互斥对账：本轮有物料可读143、完整无物料1、仅历史可读3、认证失败1、未发布待处理469。PID24300已退出，472任务保留；恢复依据及配对备份见本轮任务记录，不能再次按“正在采集”运行重复进程。用户确认没有他人登录且密码未改，拒绝根因尚未明。
+本地收口：受影响发布基线182/182通过，继承基线源码门禁通过；代码、构建和浏览器已验证。外部登录原因未明，全部目标仍未完成。不要把147有效head或617列表数量报成全量完成。旧接力在tasks/completed/2026-11-06-before-material-closure/。
