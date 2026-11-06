@@ -125,3 +125,44 @@ class RequestDiagnosticsTests(TestCase):
         trace.events.extend([{}]*81)
         with self.assertRaises(ValueError):trace.request(**REQUEST)
         self.assertEqual(transport.calls,[])
+
+    def test_collector_preserves_closed_login_reason_and_http_status(self):
+        for hint,message,code in [('session_exists','用户已登录',None),('credentials_rejected','密码错误',None),('verification_required','验证码错误',None),('account_unavailable','账号已锁定',None),('cover_confirmation_required',SECRET,-2),('unclassified',SECRET,SECRET)]:
+            class Rejected(FakeSelectedTransport):
+                last_http_status=200
+                def request(self,**request):
+                    self.calls.append(request)
+                    return {'data':{'isOk':False,'errorMsg':message,'text1':code,'jwtToken':SECRET}}
+            events=[]; t=Rejected(); result=collect_selected(CONFIG,t,diagnostics=events)
+            self.assertEqual(result['code'],'invalid_credential')
+            self.assertEqual(result['metrics']['reportRequests'],0)
+            self.assertEqual(len(t.calls),1)
+            self.assertEqual(events[0]['httpStatus'],200)
+            self.assertEqual(events[0]['loginEvidence']['serverHint'],hint)
+            self.assertEqual(events[0]['loginEvidence']['responseShape'],'data_object')
+            self.assertNotIn(SECRET,json.dumps(events))
+
+    def test_login_http_auth_errors_keep_status_and_do_not_retry(self):
+        for status in (401,403):
+            events=[]
+            with patch('ainuoke_bridge.server_source.build_opener') as opener:
+                opener.return_value.open.side_effect=HTTPError('https://example.invalid',status,SECRET,{},None)
+                result=collect_selected(CONFIG,ProtectedTransport(),diagnostics=events)
+                self.assertEqual(opener.return_value.open.call_count,1)
+            self.assertEqual(result['code'],'invalid_credential')
+            self.assertEqual(events[0]['httpStatus'],status)
+            self.assertEqual(events[0]['outcome'],'auth_error')
+            self.assertNotIn(SECRET,json.dumps(events))
+
+    def test_malformed_login_never_looks_successful_in_collector_trace(self):
+        for payload in ({'data':{'isOk':'false'}},{'data':{'isOk':True,'jwtToken':SECRET}},{'unexpected':SECRET}):
+            class Malformed(FakeSelectedTransport):
+                def request(self,**request):
+                    self.calls.append(request)
+                    return payload
+            events=[];t=Malformed();result=collect_selected(CONFIG,t,diagnostics=events)
+            self.assertEqual(result['code'],'selected_source_invalid')
+            self.assertEqual(events[0]['outcome'],'schema_error')
+            self.assertEqual(result['metrics']['reportRequests'],0)
+            self.assertEqual(len(t.calls),1)
+            self.assertNotIn(SECRET,json.dumps(events))

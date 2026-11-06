@@ -1,17 +1,13 @@
-# 当前状态：仅余3张，用户批准单次重试仍登录拒绝
+# 当前状态：单次登录已恢复，历史拒绝根因仍未证实
 
-2026-11-05；main基线 cb5cc29baa49ed7115fdb6c9506b6a80356936ea；本轮只读核对PR140仍以此为base。分支 feat/ainuoke-full-catalog-followup。远端 b33888e4215ae70edebdf6ae079d86eb20d93b0c，三项CI通过；镜像源06d56d101b73ebb22f656a9d61d729d7adb26ced，业务代码一致。未合并或升级staging。
+2026-11-06；分支feat/ainuoke-full-catalog-followup；main只读核实cb5cc29baa49ed7115fdb6c9506b6a80356936ea。当前阶段补齐采集器登录诊断，无认证方式/调度/业务行为改变。
 
-用户批准仅补原28张第二轮，新增8登录/640报表/30分钟。实际北京时间17:27:36–17:28:42，65.682秒，25张成功；第7次登录724ms收到invalid_credential/auth_error，立即停止，未重试或强制覆盖会话。实际7登录/209报表，保守预约7/536；剩余1登录/104保守报表不用于自动恢复。原215及月频不重采，累计第二轮240/243，剩余3张清单已冻结。全组无间断两周期验收仍不通过。
+用户批准的唯一宁波登录在14:53:13完成：HTTP200、305ms、1登录/0报表、无重试、isCoverLogin=false。配置与此前冻结值一致，镜像原06d56d10，未发现运行中的采集进程；旧worker仍PAUSED。没有上游拒绝响应，因此只能称“当前恢复但根因未明”，不能宣称密码/会话问题已经修复。
 
-用户确认17:27–17:29有人用同一账号登录网页。后续用户保证无人登录并批准一次重试，17:58:45仍收到303ms认证拒绝，因此同时有人操作不足以解释全部失败，根因仍未证实；现有SDK把多类登录拒绝归为invalid_credential，不能说密码错误。后续应在明确的无同账号网页使用窗口做有限对照；持续同步宜独立采集账号，本轮不创建/修改账号或改变isCoverLogin=false。
+共用封闭登录分类器已接入实际采集trace和单次诊断；HTTP状态及畸形响应分类完整保留，TypeScript校验旧/新内部回执，业务API摘要不变，无迁移或新权限。新增说明不再暗示密码错误。
 
-目录613、608成功合同历史保留，原610身份和未选成功指针保留，新增5张仍仅目录。全部7份采集结果无ImageFile。control disabled/version18/paused invalid_credential，running/unknown0，操作者/PG已停、旧worker PAUSED。357条测试queued不代表只剩3个未完成任务，也不能导入live；剩余3由成功观察计数确定，不以队列为0冒称完成。
+608成功历史和240/243第二轮不变，剩余3张未采；staging最新5af85cd6（性能/登录分支），仍3张正式订单、同步暂停。本次不升级staging、不恢复同步、不补采、不修改账号或业务库。此前PR140 b338三CI成功仅为原版本，本轮交付另记。
 
-新增配对备份与宁波、异机network-none恢复通过：137表＋序列、1396历史观察、2附件；46,259,319字节，SHA2562060bb18cb7141fd25b817a6c34f3b91d35f49143401b8774e8b593f530198c9。原所有备份/库/卷保留。附件HTTP未验，候选副本配对不替代体验站升级前临近备份。
+[本次诊断与边界](tasks/active/ainuoke-login-diagnosis-2026-11-06.md)；[真实回执](../artifacts/ainuoke-login-diagnosis-20261106/result.json)；[原恢复点](tasks/completed/2026-11-06-before-login-evidence/AI_HANDOFF.md)。
 
-原243首轮11分00.355秒，月频单单6064ms及幂等/一单影响/通知已验，非浏览器点击。184 Python、21协议、61数据库、类型/lint/build、182发布和b338三CI复用，本轮业务代码未变，不新增CI。来源CI首次手机触控超时未复现的限制保留。6087051未接入，staging仍f21c96c1899126028ba9a272727ad8d564ccf185。
-
-[补验冻结证据](../artifacts/five-step-convergence-20261104/remaining28-supplement-validation.json)；[此前状态归档](tasks/completed/2026-11-05-before-remaining28-supplement/CURRENT_STATE.md)。
-
-本次仅3张恢复预览通过，实际1登录/0报表，无新观察；剩余登录额度已用完，认证规则停止。原窗口到期后的本次用户重试按新单次180秒窗口记录，不增加请求额度。原1396观察/附件配对备份仍保护全部成功数据，但不包含本次新增队列/审计元数据；未重新备份或部署。新证据见[单次重试](../artifacts/five-step-convergence-20261104/remaining3-retry-validation.json)。
+本地187项Python、5项诊断存储/兼容检查、类型、受影响TS lint及服务端编译通过；宁波镜像内25项离线诊断通过。首次Python假响应缺status引发1错，改为可选状态并全量187通过；首次源码门禁两项文档问题已修，发布回归和最终门禁仍待结果。复审为主执行者逐项检查，不冒称独立代理复审。未触发新CI。

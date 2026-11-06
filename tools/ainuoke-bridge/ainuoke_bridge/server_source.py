@@ -46,8 +46,10 @@ class ProtectedTransport:
         if type(max_response_bytes) is not int or not 1 <= max_response_bytes <= MAX_BYTES:
             raise ValueError("invalid_response_limit")
         self.max_response_bytes = max_response_bytes
+        self.last_http_status = None
     def request(self, *, url, method, body, headers, timeout):
         from urllib.parse import urlencode
+        self.last_http_status = None
         data = None
         if method == "GET":
             url += "?" + urlencode(body)
@@ -56,8 +58,10 @@ class ProtectedTransport:
             headers = {**headers, "Content-Type": "application/json;charset=utf-8"}
         try:
             with build_opener(NoRedirect(), ProxyHandler({})).open(Request(url, data=data, method=method, headers=headers), timeout=timeout) as response:
+                self.last_http_status = getattr(response, "status", None)
                 raw = response.read(self.max_response_bytes + 1)
         except HTTPError as error:
+            self.last_http_status = error.code
             error.close()
             if error.code in (401, 403):
                 raise AuthExpiredError("auth_expired") from None

@@ -6,6 +6,7 @@ leave the transport. Credentials, URLs, conditions, headers and errors never do.
 import json
 import sys
 from time import monotonic
+from .login_evidence import login_evidence
 from .ainuoke_client import AuthExpiredError, NetworkAinuokeError, UpstreamSchemaError
 
 CATEGORIES = frozenset({'http_error','timeout','dns_error','tls_error','connection_refused','connection_reset','network_error'})
@@ -30,7 +31,14 @@ class DiagnosticTransport:
                  'reportId':report,'page':page,'elapsedMs':0,'outcome':'complete','httpStatus':None}
         started = self.clock()
         try:
-            return self.transport.request(**request)
+            response = self.transport.request(**request)
+            if event['kind'] == 'login':
+                event['loginEvidence'] = login_evidence(response)
+                if event['loginEvidence']['result'] == 'rejected':
+                    event['outcome'] = 'auth_error'
+                elif event['loginEvidence']['result'] == 'malformed':
+                    event['outcome'] = 'schema_error'
+            return response
         except NetworkAinuokeError as error:
             category = getattr(error, 'transport_category', None)
             event['outcome'] = category if type(category) is str and category in CATEGORIES else 'network_error'
@@ -47,6 +55,9 @@ class DiagnosticTransport:
             event['outcome'] = 'unknown_error'
             raise
         finally:
+            status = getattr(self.transport, 'last_http_status', None)
+            if type(status) is int and 100 <= status <= 599:
+                event['httpStatus'] = status
             event['elapsedMs'] = max(0,min(180000,int((self.clock()-started)*1000)))
             self.events.append(event)
 

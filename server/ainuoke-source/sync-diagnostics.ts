@@ -3,8 +3,9 @@ import { collectWithPython, parseCollectorConfig, type CollectorConfig } from '.
 import { SELECTED_SOURCE_LIMITS, validateSelectedSourceOnce, type SelectedSourceRequest } from './selected-source-once.js';
 import { SourceError } from './contract.js';
 
+export type LoginEvidence = { responseShape:'data_object'|'object_without_data_object'|'non_object'; result:'accepted'|'rejected'|'malformed'; serverCode:'absent'|'cover_confirmation'|'unrecognized'; serverHint:'unclassified'|'session_exists'|'verification_required'|'credentials_rejected'|'account_unavailable'|'throttling_hint'|'cover_confirmation_required' };
 export type RequestDiagnostic = { kind:'login'|'report'; reportId:6086103|6087105|6087050|null;
- page:number|null; elapsedMs:number; outcome:string; httpStatus:number|null };
+ page:number|null; elapsedMs:number; outcome:string; httpStatus:number|null; loginEvidence?:LoginEvidence };
 const outcomes=new Set(['complete','http_error','timeout','dns_error','tls_error','connection_refused','connection_reset','network_error','auth_error','schema_error','unknown_error']);
 /** A rejected payload is never publishable. Preserve only the independently
  * checked request trace, not its raw response, credentials or unverified metrics. */
@@ -17,12 +18,22 @@ export class CatalogDiagnosticValidationError extends SourceError {
 export function validateRequestDiagnostics(input:unknown):RequestDiagnostic[] {
  if(!Array.isArray(input)||input.length>81)throw new SourceError('sync_diagnostics_invalid');
  return input.map(value=>{
-  if(!value||typeof value!=='object'||Object.keys(value).sort().join(',')!=='elapsedMs,httpStatus,kind,outcome,page,reportId')throw new SourceError('sync_diagnostics_invalid');
+  if(!value||typeof value!=='object'||!['elapsedMs,httpStatus,kind,outcome,page,reportId','elapsedMs,httpStatus,kind,loginEvidence,outcome,page,reportId'].includes(Object.keys(value).sort().join(',')))throw new SourceError('sync_diagnostics_invalid');
   const d=value as RequestDiagnostic;
   if(!['login','report'].includes(d.kind)||!outcomes.has(d.outcome)||!Number.isSafeInteger(d.elapsedMs)||d.elapsedMs<0||d.elapsedMs>180000
    ||d.httpStatus!==null&&(!Number.isSafeInteger(d.httpStatus)||d.httpStatus<100||d.httpStatus>599)
    ||d.kind==='login'&&(d.reportId!==null||d.page!==null)
    ||d.kind==='report'&&(typeof d.reportId!=='number'||![6086103,6087105,6087050].includes(d.reportId)||!Number.isSafeInteger(d.page)||Number(d.page)<1||Number(d.page)>(d.reportId===6086103?28:20)))throw new SourceError('sync_diagnostics_invalid');
+  if('loginEvidence' in d){
+   const e=d.loginEvidence;
+   if(d.kind!=='login'||!e||typeof e!=='object'||Object.keys(e).sort().join(',')!=='responseShape,result,serverCode,serverHint'
+    ||!['data_object','object_without_data_object','non_object'].includes(e.responseShape)
+    ||!['accepted','rejected','malformed'].includes(e.result)
+    ||!['absent','cover_confirmation','unrecognized'].includes(e.serverCode)
+    ||!['unclassified','session_exists','verification_required','credentials_rejected','account_unavailable','throttling_hint','cover_confirmation_required'].includes(e.serverHint)
+    ||e.result==='rejected'&&d.outcome!=='auth_error')throw new SourceError('sync_diagnostics_invalid');
+   return {...d,loginEvidence:{...e}};
+  }
   return {...d};
  });
 }
