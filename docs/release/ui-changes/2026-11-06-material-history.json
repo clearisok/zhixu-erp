@@ -9,7 +9,7 @@
     "features/order-center/components/server-contract-refresh.tsx"
   ],
   "pages": [
-    "order-center/style-progress/detail"
+    "material"
   ],
   "visibleDifference": "来源过期或最新刷新失败时，既有状态位置标注历史数据，保留已验证明细和真实时间；不新增字段或布局。 既有刷新来源按钮复用正式同步控件；只读账号按钮明确为刷新页面。",
   "evidence": [

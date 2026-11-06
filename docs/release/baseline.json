@@ -5801,6 +5801,26 @@
       "sha256": "bf645236be48992c26270bd26ef90725728020f5408fe17851d253fbf115abde",
       "supersedes": "catalog-no-image-1400-rules-20261105",
       "changeReason": "User approved D182 row-only 6087051 optional Server source, verified per-event unit joins and Order Center detail display. Old source rules and all live activation, budgets and pricing boundaries preserved; local synthetic engineering only."
+    },
+    {
+      "id": "material-closure-decision-20261106",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "fa7c088e7cdd15bb94c6cf9a10b65793034f4c7d",
+      "renderedSourceSha": "fa7c088e7cdd15bb94c6cf9a10b65793034f4c7d",
+      "sha256": "4f8195d9b796b8b709a6204d4a27fbbfcf978fba8d1ce11f5666c6a513deca12",
+      "supersedes": "it-material-rows-decision-20261106",
+      "changeReason": "User approved local real-order publication closure and truthful historical visibility; preserve publication freshness, identity and access checks. No staging deployment or all-order completion claim."
+    },
+    {
+      "id": "material-closure-rules-20261106",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "fa7c088e7cdd15bb94c6cf9a10b65793034f4c7d",
+      "renderedSourceSha": "fa7c088e7cdd15bb94c6cf9a10b65793034f4c7d",
+      "sha256": "0bc751f48ffbb7a7cc3b70e2f759547c3ae7cff2702be44e3ed5c1f694c9ea11",
+      "supersedes": "it-material-rows-rules-20261106",
+      "changeReason": "User approved local real-order publication closure and truthful historical visibility; preserve publication freshness, identity and access checks. No staging deployment or all-order completion claim."
     }
   ],
   "pages": [
