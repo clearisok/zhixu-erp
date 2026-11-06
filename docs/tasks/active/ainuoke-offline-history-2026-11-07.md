@@ -21,7 +21,7 @@
 
 ## 认证证据边界
 
-- 最后受控拒绝真实脱敏回执：auth-session-1793983887298/capture-0.private.json，2026-11-07 00:51:28.049586+08:00，HTTP200/280ms，data_object/isOk=false/businessCode200/text1=-3/errorMsg=“已达到可用的用户数，不可登录”。该句直接来自真实响应字段，不是前端对-3的翻译。完整响应/JWT/Cookie不留存。
+- 最后受控拒绝真实脱敏回执：auth-session-1793983887298/capture-0.private.json，2026-11-07 00:51:28.049586+08:00，HTTP200/280ms，data_object/isOk=false/businessCode200/text1=-3/errorMsg=“已达到可用的用户数，不可登录”。该句直接来自真实响应字段，不是前端对-3的翻译。完整响应/JWT/Cookie不留存。这证明最近保留errorMsg的拒绝，不足以把最初未保存提示的23:20拒绝追溯归为同一原因。
 - `login_evidence.py:27`提取实际字段，`ainuoke_client.py:132`附近检查data.isOk。-3自身不证明用户额度含义，历史前端同时在成功分支使用它。没有证据证明145次登录形成145占用；限制按账号/会话/账套/产品何者计算、总额、占用人、释放规则均未知。
 - 保存的common-public.js（ainuoke-full-catalog-followup/outputs/five-step-convergence-20261104，单行1）与采集器使用同一GET loginsys2，userName/password/verifyCode/cltType/rememberMe/jsCode/isCoverLogin参数；公开网页失败显示errorMsg，-2才进入覆盖确认。程序明确false，网页从隐藏字段读取；未取得一次正常网页登录的网络包，不能证明字段序列化、全局AJAX附加头、浏览器Cookie完全一致。程序系统ID6080183与已知main2地址一致，网页成功后userObj含accountId，现有证据不能核对实际账套/公司身份；用户此前确认同账号、密码未改。没有证据足以断言程序遗漏某个必要步骤。
 - 本轮仅用已授权浏览器会话打开已知main2工作台：显示“登录已过期，请重新登录.”，未点击重登/取消，未请求报表或登出。可用IAB会话无法证明报表可读；其他浏览器清单受工具限制，不宣称所有浏览器均无有效会话。官方导出本轮未实际下载。
@@ -30,7 +30,7 @@
 
 - 正式 `publishHistoricalMaterialObservation` 与CLI `--material-history-publish`：固定source/order/observation/expectedHash、目标指纹、可信操作者、事务发布、幂等保留已成功head；不创建来源请求、不恢复队列。
 - 新历史发布集成通过（身份/hash拒绝、观察先于建单、不可变回执、日期/队列/成功head/失败状态保留、实际HTTP历史读取）；旧闭环3项通过；正式来源集成15项通过、1项Linux专用测试跳过；CLI参数1项通过。初次扩展测试试图改不可变任务被数据库正确拒绝，已改为验证拒绝后重跑通过。
-- 类型、受影响eslint、server:build通过。仅修改后必要检查；无付费CI、无上传或部署。
+- 纯投影/明细/只读权限/来源适配/确认事实107项回归通过。类型、受影响eslint、server:build通过。发布基线源码守卫通过，182/182发布回归通过（约568秒；未重复执行）。仅修改后必要检查；无付费CI、无上传或部署。
 - 全量HTTP613可读、4无物料来源；浏览器D1992、PI2610-061（刷新失败仍显示34需求）、PI2610-189（15需求含5厂供）、PI2603-116（完整空）已实查。只读预览账号仍只读，按钮为刷新页面，不冒称真实采集按钮验收。
 - 发布前配对备份verified-pair-1793985508778：617订单/147head/725snapshot/472queued/2附件，异库恢复一致。发布后verified-pair-1793986123251：617/613/1191/472/2，异库恢复一致，dump SHA256 1aaea6cb6a9d664533250306e150e2a1663a805675a23025b9b101b31508bf54。
 
@@ -41,3 +41,5 @@
 固定清单：全部617订单核对.csv、本次接通466订单.csv、仍需来源4订单.csv、待本轮刷新473订单.csv。文件置上述受保护目录，未提交原始业务数据。
 
 认证恢复后先核验失败PI2610-061，再同一会话另一未完成合同，证明登录复用；通过原有recoverSync预览和任务机制继续472queued+1failed，不重采144已完成。真实刷新按钮全链路、473张本轮刷新和4张首次物料来源仍未完成；不把历史可读当最终目标完成。
+
+工程checkpoint：be604c3225167113bb22245598515c427649d04d；后续提交仅冻结D186文档证据及记录最终检查。远端交付未执行，本轮本机目标不扩大为PR/部署。

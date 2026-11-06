@@ -5841,6 +5841,16 @@
       "sha256": "52e07d577251bf596e484021689de3de196522d66954a054ea00b74692912324",
       "supersedes": "material-closure-rules-20261106",
       "changeReason": "User clarified factory-marked 6087051 demands require traceability and individually proven revision semantics. No inferred replacement, addition, current effective quantity or responsibility; preserve immutable source and all transaction identities."
+    },
+    {
+      "id": "material-history-decision-20261107",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "be604c3225167113bb22245598515c427649d04d",
+      "renderedSourceSha": "be604c3225167113bb22245598515c427649d04d",
+      "sha256": "c00194f2e80cf8cc7d7b2b0512d0a0d561fa9bba31e2544c4a4f66fac8447778",
+      "supersedes": "material-revision-decision-20261107",
+      "changeReason": "User explicitly authorized offline historical publication with original source time and queue preservation. Retain factory-marked source demands in trusted Server history without inferring revisions or procurement gaps. No staging deployment or new upstream authentication."
     }
   ],
   "pages": [
