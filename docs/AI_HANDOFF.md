@@ -1,3 +1,5 @@
+2026-11-07补充：正在执行[D1992厂供修订及认证离线核对](tasks/active/ainuoke-material-revision-review-2026-11-07.md)。原30项仅代表厂供排除后的来源行，不代表有效需求全量；D184要求厂供可追溯，修订关系未确认不自动合并。145次登录/0本轮采集区间并发已核对；本轮不新增来源请求，472queued+1failed保留。下文为11月6日已完成状态。
+
 # 接力：本机真实物料闭环，认证拒绝暂停
 
 先读[当前状态](CURRENT_STATE.md)和[本轮执行证据](tasks/active/ainuoke-material-closure-2026-11-06.md)。实际worktree为ainuoke-it-material-details/zhixu-ainuoke-api；分支fix/ainuoke-order-material-closure，运行代码98308d0fdf0f34a88f5dd6ed82d22765c75e0b58。未部署staging。继承manifest基线cb5cc29baa49ed7115fdb6c9506b6a80356936ea，不把本地origin/main 5c8cb8037376288aa71043e799a057e21f1b985d当本轮联网核实值。

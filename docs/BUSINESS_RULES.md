@@ -412,6 +412,7 @@ D-102 第二轮用户确认：制作方案复用 ManufacturingPreset，代表不
 - 普通页面按 Canonical Material Group 展示真实物料，`materialCode` 只作为来源身份进入 Trace。同一销售合同、同一 `materialType` 内，面料和辅料都只按标准化物料名称形成顶层 Canonical identity；编码、颜色、规格、门幅、克重、采购价、供应商和采购单号均保留为组内 Variant / Demand / Event 事实，不参与顶层分组。不同计量单位如有确定性来源必须分口径汇总；缺可信单位时不得猜测、平均或制造统一口径。2026-10-13 用户转述 IT 确认 6087050 `QtyUnit` 对每条需求的 `TotalNum`、`cgnum` 与四流同口径；只读映射只在该需求全部来源行单位一致非空时展示，冲突阻断该需求的投影汇总。历史 Excel 单位仍待独立证明。
 - `sourceMaterialDueDate` 是只读 Source；Effective 正式表示“预计到达已持久化 SupplyHub 的日期”，由 `MaterialExpectedArrivalBatch.expectedArrivalAtHubDate` 表达；累计入库数量与达到需求的入库日是 Actual。人工计划 Batch 不强制绑定 Purchase / Inbound / Shipment / Outbound Event，Actual 不能由人工 Effective 覆盖。
 - 一个 Canonical Material 可有多个 Expected Arrival Batch；Allocation 必须引用稳定 `materialDemandId`、数量大于 0，同一 Demand 可拆入多批，累计不得超过需求。部分安排合法并显示未安排数量，系统不得自动补齐。人工 Batch 在重导入时保留；只有“恢复使用来源计划”后才重新跟随 Source。
+- 6087051正式订单查询按D184保留厂供需求与流水：供料标记不能证明替代关系或采购责任；修订范围/生效顺序未确认时保留来源值，缺口待核对，不自动相加或取最新。以下厂供排除仅适用旧Browser/Excel范围。
 - `提供方式=厂供` 保留 Raw Snapshot 与 Source Trace，但退出采购跟进、未采购、待入库、齐套分子/分母、风险、物流推荐与 Expected Arrival Batch。厂供不能因缺 PurchaseEvent 显示“未采购”。Excel 中名为“厂供”的数值列仍只映射 `actualConsumption`；它与“提供方式”是两个不同字段。
 - Purchase / Inbound / Shipment / Outbound 数量分别累计对应 Event；“出运”只能累计 `ShipmentEvent.quantity`，不得用采购、入库或出库数量替代。采购不足显示“采购不足 X”，采购超出显示“采购余量 X”，不得输出负的“未采购数量”。
 - 单物料齐套只在累计入库量达到需求量时成立；款式齐套按物料项计数，不跨单位加权。

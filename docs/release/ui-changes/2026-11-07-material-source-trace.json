@@ -1,0 +1,15 @@
+{
+  "baselineSha": "cb5cc29baa49ed7115fdb6c9506b6a80356936ea",
+  "level": "V1",
+  "paths": [
+    "features/ainuoke-material-progress/projection.ts",
+    "features/style-progress/components/material-control-tower-read-only.tsx"
+  ],
+  "pages": [
+    "material"
+  ],
+  "visibleDifference": "按用户2026-11-07指示保留6087051厂供来源需求；不新增列或布局，需求列说明为来源值，颜色规格格保留供料标签，未知修订缺口待核对。",
+  "evidence": [
+    "docs/tasks/active/ainuoke-material-revision-review-2026-11-07.md"
+  ]
+}

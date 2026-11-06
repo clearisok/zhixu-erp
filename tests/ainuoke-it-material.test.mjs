@@ -17,6 +17,20 @@ export function page(reportId,rows,queryContext={salesContractNo:'SYN-IT-1'}){
     snapshotHash:'synthetic',rows:rows.map(values=>({sourceRowIdentity:reportId+':sha256:'+createHash('sha256').update(JSON.stringify(values)).digest('hex'),values}))};
 }
 const main=(rows=itRows())=>page('6087051',rows);
+test('factory-marked source demands remain traceable without inferring replacement or additive effective demand',()=>{
+  const original={...itRows()[0],SupplyType:'自购'};
+  const revised={...original,id:35777,SupplyType:'厂供',TotalNum:740,
+    cgmxid:31712,cgnum:50,rkmxid:35640,rknum:40,cymxid:85220,CYNum:30,ckmxid:38230,OutStoreNum:20};
+  const view=projectMaterialProgress(order,[main([original,revised])]);
+  assert.equal(view.sourceStatus,'ready');assert.equal(view.rows.length,2);assert.equal(view.factoryExcluded,0);
+  assert.deepEqual(view.rows.map(r=>r.demand.requiredQuantity).sort((a,b)=>a-b),[740,937]);
+  const factory=view.rows.find(r=>r.demand.supplyMethod==='厂供');
+  assert.equal(factory.purchases[0].quantity,50);assert.equal(factory.inbounds[0].quantity,40);
+  assert.equal(factory.shipments[0].quantity,30);assert.equal(factory.outbounds[0].quantity,20);
+  assert.ok(factory.issues.some(s=>s.includes('不自动替代或累加')));
+  assert.ok(view.rows.every(r=>r.purchaseShortfall===null&&r.purchaseExcess===null&&r.status===null));
+  assert.deepEqual(projectMaterialProgress(order,[main([original,revised])]),view);
+});
 test('IT uses row facts only: one demand, one purchase, three different inbound details',()=>{
   const p=main();p.headerTotals={TotalNum:999999,cgnum:5780,rknum:999999};p.sum={goodsamount:416534};
   const result=buildAinuokeMaterialApiPreview({snapshots:[p]});

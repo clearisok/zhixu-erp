@@ -125,7 +125,10 @@ export function projectMaterialProgress(order: PreviewOrder, snapshots: AinuokeR
     }
     const groups = new Map<string, MaterialProgressView['groups'][number]>();
     for (const demand of preview.pipeline.demands) {
-      if (isFactorySupplied(demand)) { view.factoryExcluded++; continue; }
+      // 6087051 supply method is a source fact, not proof that a demand is
+      // irrelevant or supersedes another plan. Keep its identity and events.
+      // The legacy import contract remains separate until its rules are reviewed.
+      if (source.reportId !== '6087051' && isFactorySupplied(demand)) { view.factoryExcluded++; continue; }
       if (normalizeAinuokeSalesContractNo(demand.salesContractNo) !== target) throw new Error('source_identity');
       const purchases = purchaseIndex.get(demand.id) ?? [];
       const inbounds = inboundIndex.get(demand.id) ?? [];
@@ -159,7 +162,7 @@ export function projectMaterialProgress(order: PreviewOrder, snapshots: AinuokeR
       const shipped = !unitConflict && evidenceKnown('shipmentQuantity', 'shipmentDocumentNo') ? shipments.reduce((total, event) => total + event.quantity, 0) : null;
       const outbound = !unitConflict && evidenceKnown('outboundQuantity', 'outboundDocumentNo') ? outbounds.reduce((total, event) => total + event.quantity, 0) : null;
       if ([purchased, inbound, shipped, outbound].some(value => value !== null && !Number.isFinite(value))) throw new Error('source_quantity');
-      const issues = [...(itSource ? ['按来源明细展示；单据有效状态未核实，齐套待核对', ...(sourceRows.some(raw => raw.unallocatedFlows?.length) ? ['存在跨需求共享单据，分配数量待核对；不重复计入汇总'] : [])] : []), ...(confirmation.status === 'stale' ? ['人工确认与当前来源不一致，补充事实未应用，请重新核对'] : []),
+      const issues = [...(itSource ? ['按来源明细展示；单据有效状态未核实，齐套待核对', ...(isFactorySupplied(demand) ? ['厂供为来源标记；需求修订关系未确认，不自动替代或累加原申购，不据此认定工厂负责采购'] : []), ...(sourceRows.some(raw => raw.unallocatedFlows?.length) ? ['存在跨需求共享单据，分配数量待核对；不重复计入汇总'] : [])] : []), ...(confirmation.status === 'stale' ? ['人工确认与当前来源不一致，补充事实未应用，请重新核对'] : []),
         ...(confirmation.unit ? [`单位由人工确认补充；原始来源单位：${[...new Set(units)].map(value => value ?? '空白').join(' / ')}，不代表接口已补齐`] : []),
         ...(confirmation.unit && rawUnitConflict ? ['单位等价已确认，生产可用性尚未确认，暂停齐套判定'] : []),
         ...(confirmation.factory ? ['工厂自行采购，国贸无需催采；保留需求与流水，不代表工厂已到料'] : []),
@@ -188,8 +191,8 @@ export function projectMaterialProgress(order: PreviewOrder, snapshots: AinuokeR
         inbounds: inbounds.map(event => ({ ...readMovement(event), ...eventUnits(event.sourceReferences, 'inbound'),
           excessWarehouse: readExcessWarehouse(event.sourceReferences, rawSourceIndex, unit, unitConflict ? 'conflict' : unit === null ? 'missing' : 'known') })), shipments: shipments.map(event => ({ ...readMovement(event), transportMode: event.transportModeSnapshot })),
         outbounds: outbounds.map(event => ({...readMovement(event), ...eventUnits(event.sourceReferences, 'outbound')})), purchased, inbound, shipped, outbound,
-        purchaseShortfall: purchased === null ? null : Math.max(0, demand.requiredQuantity - purchased),
-        purchaseExcess: purchased === null ? null : Math.max(0, purchased - demand.requiredQuantity),
+        purchaseShortfall: itSource || purchased === null ? null : Math.max(0, demand.requiredQuantity - purchased),
+        purchaseExcess: itSource || purchased === null ? null : Math.max(0, purchased - demand.requiredQuantity),
         pendingInbound: purchased === null || inbound === null ? null : Math.max(0, purchased - inbound),
         status: itSource || confirmation.factory || rawUnitConflict || purchased === null || inbound === null ? null : deriveMaterialStatuses(demand.requiredQuantity, purchased, inbound, 0, 0).readinessStatus, issues,
         quantityComparison: compareMaterialQuantityFacts(sourceRows.map(raw=>raw.values), purchased, unitConflict ? 'conflict' : unit===null ? 'missing' : 'known') };
