@@ -28,7 +28,7 @@ function ServerList() {
   const identityScope = JSON.stringify([userId, session.permissions]);
   const imageLoader = useMemo(() => createListImageLoader({ scope: identityScope }), [identityScope]);
   useEffect(() => () => imageLoader.dispose(), [imageLoader]);
-  const [storedPreferences, setStoredPreferences] = useState<ServerListPreferences | null>(null);
+  const [storedPreferences, setStoredPreferences] = useState<ServerListPreferences | null>(() => userId && typeof window !== "undefined" ? loadServerListPreferences(window.localStorage, userId, session.permissions) : null);
   const preferences = useMemo(() => normalizeServerListPreferences(userId, session.permissions, storedPreferences?.userId === userId ? storedPreferences : undefined), [userId, session.permissions, storedPreferences]);
   const visibleBusinessColumns = preferences.columnOrder.filter(k => preferences.visibleColumns.includes(k));
   const columnSignature = visibleBusinessColumns.join(",");

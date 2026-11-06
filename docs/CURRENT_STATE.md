@@ -1,9 +1,9 @@
-# 当前状态：PR138已合并，继续艾诺科有界刷新
+# 当前状态：五天登录本地验收
 
-2026-10-31；main e3ccec0f910d5924dca8dc513201d28b7fb2ecd8，PR138 merge commit已核实双父[e37a131a,17c20e11]及树3ca488bf3bbe378dbccea61d632f043848daffae。原分支保留，三项CI复用既有成功结果。宁波运行17c20e11相同代码树和原镜像，无新增部署。用户已确认staging.weaveops.top为最终验收入口，旧50426等资产不清理。
+2026-11-06；feat/login-remember-five-days从核实main cb5cc29baa49ed7115fdb6c9506b6a80356936ea前向纳入已部署ae5c4d0657bd5ce89ce6dc678ecd02cc56a52e98；工作树起始干净。
 
-后继分支feat/ainuoke-bounded-refresh，保留原6e/0c32文档历史。新增明确合同集合的一次材料刷新，解决三合同与旧两合同受控工具不兼容；不扩旧v1，不扩大总请求/行数/时间预算，不创建/启用来源，不启动调度。本地最终检查及独立复审已完成：13项协议、4项PG、20项Source（另1项Windows跳过）、158项Python、182项发布回归通过；类型、Server编译、相关lint和精确门禁通过，无剩余P1/P2。远端交付/CI尚待本次单次上传结果，准确收口见[任务](tasks/active/ainuoke-bounded-refresh-2026-10-31.md)。
+staging导航优化已部署且公网核验通过，PR141三项CI成功。数据和附件配对备份、独立恢复通过，来源同步保持PAUSED。新五天登录只增加可选固定期限和登录复选框，无迁移，不保存密码。42项定向会话检查通过，类型、lint、Server编译/生产构建、11项真实Chromium检查通过，发布守卫待最后绑定；尚未上传或部署此增量。
 
-真实来源仍只有原固定窗口：前两合同颜色尺码/三轮物料/18与15行申请，第三合同6色/16行出货。原时点与TTL保留，无本片新采集；三SO、报价附件、生产/商业/关账均未改。完整目标仍需真实刷新授权、人工业务验收及逐资产退役，不能把工程能力当已持续运营。
+[详细结果](tasks/active/login-five-days-2026-11-06.md)；[上一状态逐字归档](tasks/completed/2026-11-06-before-five-day-login/CURRENT_STATE.md)。不自动合并，不新增真实艾诺科请求。
 
-旧6树6代码tar/4048文件保护副本已核验，原资产不动；不可读/间接引用仍未知。#136保持独立。回执outputs/pr138-approved-merge/result.json；[合并前状态](tasks/completed/2026-10-31-before-pr138-merge/CURRENT_STATE.md)、[完整账本](tasks/active/server-convergence-closeout-2026-10-31.md)。
+本地最终验收：32项客户端/会话单元检查、11项后端一次性PostgreSQL检查（含应用重建/重复初始化恢复）、11项真实Chromium登录验收、类型、lint、Server编译和生产构建通过。全项目首轮978项中958通过，20项仅因两个新证据哈希使用工作区换行而失败；改为Git原始blob并补齐入口基线后，受影响发布套件182/182通过。不重复已成功的业务测试。最终提交后核对精确源码门禁；远端CI未运行，本次增量未部署。

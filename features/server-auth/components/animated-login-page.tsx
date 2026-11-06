@@ -25,6 +25,7 @@ export function AnimatedLoginPage() {
   const [username, setUsername] = useState(""), [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false), [passwordFocused, setPasswordFocused] = useState(false);
   const [usernameFocused, setUsernameFocused] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [submitting, setSubmitting] = useState(false), [error, setError] = useState("");
   const localMode = browserIdentityMode() === "local-single-user" || quoteAuthority() !== "server";
   useEffect(() => {
@@ -44,7 +45,7 @@ export function AnimatedLoginPage() {
     const normalized = username.normalize("NFKC").trim();
     if (!normalized) { setError("请输入用户名。"); return; }
     pending.current = true; setSubmitting(true); setError("");
-    try { await session.login(normalized, password); }
+    try { await session.login(normalized, password, rememberMe); }
     catch (failure) { setError(loginError(failure)); }
     finally { setPassword(""); setShowPassword(false); pending.current = false; setSubmitting(false); }
   }
@@ -71,7 +72,10 @@ export function AnimatedLoginPage() {
           : <form className="zx-login-form" onSubmit={submit} aria-busy={submitting}>
             <label htmlFor="login-username">用户名</label><input id="login-username" name="username" autoComplete="username" autoCapitalize="none" spellCheck={false} placeholder="输入你的用户名" value={username} onChange={event => setUsername(event.target.value)} onFocus={() => setUsernameFocused(true)} onBlur={() => setUsernameFocused(false)} required disabled={submitting} />
             <label htmlFor="login-password">密码</label><div className="zx-login-password"><input id="login-password" name="password" type={showPassword ? "text" : "password"} autoComplete="current-password" placeholder="输入你的密码" value={password} onChange={event => setPassword(event.target.value)} onFocus={() => setPasswordFocused(true)} onBlur={() => setPasswordFocused(false)} required disabled={submitting} /><button type="button" className="zx-login-reveal" aria-label={showPassword ? "隐藏密码" : "显示密码"} aria-pressed={showPassword} onClick={() => setShowPassword(value => !value)} disabled={submitting}><EyeIcon open={showPassword} /></button></div>
-            <div className="zx-login-helper">忘记密码？请联系系统管理员</div>
+            <div className="zx-login-options">
+              <label className="zx-login-remember" htmlFor="login-remember"><input id="login-remember" name="rememberMe" type="checkbox" checked={rememberMe} onChange={event => setRememberMe(event.target.checked)} disabled={submitting} />保持登录 5 天</label>
+              <span className="zx-login-helper">忘记密码？请联系系统管理员</span>
+            </div>
             {error && <p className="zx-login-error" ref={errorElement} role="alert" tabIndex={-1}>{error}</p>}
             <button className="zx-login-submit" aria-label={submitting ? "正在登录" : "登录织序"} type="submit" disabled={submitting}><span>{submitting ? "正在登录…" : "登录织序"}</span><span aria-hidden="true">{submitting ? "· · ·" : "→"}</span></button>
           </form>}

@@ -24,7 +24,7 @@ import type { Pool } from "pg";
 import { listQuoteSummaries } from "./quotes/list-summary.js";
 import { parseBusinessColumns } from "./quotes/business-source.js";
 import { createInternalSummaryService, parseInternalSummary } from "./quotes/internal-summary.js";
-import { login, revokeSession, sessionCookie, type SessionSecurityConfig, type TrustedIdentity } from "./auth/session.js";
+import { login, loginSessionSecurity, revokeSession, sessionCookie, type SessionSecurityConfig, type TrustedIdentity } from "./auth/session.js";
 import { createIdentityAuthority, type IdentityAuthority } from "./auth/identity-authority.js";
 import { requirePermission } from "./auth/permissions.js";
 import { HttpError } from "./http/errors.js";
@@ -313,8 +313,9 @@ async function route(
     if (dependencies.identityAuthority.mode === "local-single-user") throw new HttpError(404, "not_found", "Route not found");
     assertMutationBoundary(request, dependencies.allowedOrigins);
     const body = await readJsonBody(request);
-    const result = await login(dependencies.pool, body.username, body.password, dependencies.security);
-    response.setHeader("Set-Cookie", sessionCookie(result.token, dependencies.security));
+    const security = loginSessionSecurity(dependencies.security, body.rememberMe);
+    const result = await login(dependencies.pool, body.username, body.password, security);
+    response.setHeader("Set-Cookie", sessionCookie(result.token, security));
     sendJson(response, 200, {
       user: publicIdentity(result.identity),
       permissions: result.identity.permissions,

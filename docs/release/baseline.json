@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "e3ccec0f910d5924dca8dc513201d28b7fb2ecd8",
-  "verifiedAt": "2026-10-31T02:59:22.788Z",
+  "baselineSha": "cb5cc29baa49ed7115fdb6c9506b6a80356936ea",
+  "verifiedAt": "2026-11-05T13:49:50.210Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -5611,6 +5611,34 @@
       "recordedAtSha": "f8d650c798c84ac62679176949b82c8810c2a9d0",
       "renderedSourceSha": "f8d650c798c84ac62679176949b82c8810c2a9d0",
       "sha256": "336fdfed2b348e8036e6de64785d31f10033de0b7e1b730c11993651dd83c725"
+    },
+    {
+      "id": "decisions-navigation-cache-20261105",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "supersedes": "decisions-pr138-staging-entry-20261031",
+      "changeReason": "Record scoped session-memory cache and guarded navigation handoff; retain original auth and deployment boundaries.",
+      "recordedAtSha": "02432150c918d19173acbd7f9955f6dbece736aa",
+      "renderedSourceSha": "02432150c918d19173acbd7f9955f6dbece736aa",
+      "sha256": "514ff6b808f2daf6567ce28985e861150979dfb4c3d676cccf917695cc32ae14"
+    },
+    {
+      "id": "decisions-five-day-login-20261106",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "c39b7f30dc883132f92e7c6f99e98acbc3b68ed9",
+      "sha256": "4906dfc3cabfad4314f8aff927f374f82dc654172a19255f68a41afb8cbd2c60",
+      "supersedes": "decisions-navigation-cache-20261105",
+      "changeReason": "User approved optional fixed five-day login; preserve ordinary and legacy session behavior and revocation."
+    },
+    {
+      "id": "business-five-day-login-20261106",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "c39b7f30dc883132f92e7c6f99e98acbc3b68ed9",
+      "sha256": "9e9612431b40d2780b4881ef3a8313a3d13db42292c4a4b1e9621b45d36d61d0",
+      "supersedes": "closing-support-main6479-integration-3-20261028",
+      "changeReason": "User approved optional fixed five-day login; preserve ordinary and legacy session behavior and revocation."
     }
   ],
   "pages": [

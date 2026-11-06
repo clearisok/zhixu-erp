@@ -13,10 +13,15 @@ ARG NEXT_PUBLIC_ZHIXU_QUOTE_WRITER_MODE=writable
 ARG NEXT_PUBLIC_ZHIXU_QUOTE_AUTHORITY=browser
 ARG NEXT_PUBLIC_ZHIXU_ORDER_READ=disabled
 ARG ZHIXU_IDENTITY_MODE=session
+# Public, build-time metadata; no credentials or runtime network changes.
+ARG NEXT_PUBLIC_SITE_URL
+ARG NEXT_PUBLIC_SITE_ENV
 RUN case "$NEXT_PUBLIC_ZHIXU_MASTER_SETTINGS_AUTHORITY" in browser|frozen|server) ;; *) echo 'invalid_master_settings_authority_build_input' >&2; exit 1 ;; esac
 RUN case "$ZHIXU_IDENTITY_MODE" in session|local-single-user) ;; *) echo 'invalid_identity_mode_build_input' >&2; exit 1 ;; esac
 RUN case "$NEXT_PUBLIC_ZHIXU_QUOTE_WRITER_MODE" in writable|frozen) ;; *) echo 'invalid_quote_writer_mode' >&2; exit 1 ;; esac
-ENV ZHIXU_BUILD_ENV=production \
+ENV NEXT_PUBLIC_SITE_URL=${NEXT_PUBLIC_SITE_URL} \
+    NEXT_PUBLIC_SITE_ENV=${NEXT_PUBLIC_SITE_ENV} \
+    ZHIXU_BUILD_ENV=production \
     ZHIXU_BUILD_ID=${ZHIXU_BUILD_ID} \
     ZHIXU_GIT_COMMIT=${ZHIXU_GIT_COMMIT} \
     ZHIXU_BUILD_TIME=${ZHIXU_BUILD_TIME} \
