@@ -1,0 +1,9 @@
+{
+  "baselineSha": "cb5cc29baa49ed7115fdb6c9506b6a80356936ea",
+  "level": "V2",
+  "paths": ["features/ainuoke-material-progress/projection.ts", "features/ainuoke-material-progress/read-service.ts"],
+  "pages": ["material"],
+  "visibleDifference": "Existing Server table retains historical source factory-marked demands; original values and events remain traceable, unresolved gaps/status stay unknown. No new fields or layout.",
+  "evidence": ["docs/tasks/active/ainuoke-offline-history-2026-11-07.md"],
+  "approval": {"status":"user-approved","reference":"docs/tasks/active/ainuoke-offline-history-2026-11-07.md"}
+}

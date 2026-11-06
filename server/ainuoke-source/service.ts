@@ -152,7 +152,7 @@ export async function captureSource(pool: Pool, identity: Pick<TrustedIdentity, 
 
 /** Caller holds the source profile and trusted order locks; no IO or transaction ownership. */
 export async function publishMaterialSnapshotsInTransaction(client:PoolClient,actor:TrustedIdentity,sourceKey:string,
- validated:Awaited<ReturnType<typeof validateBundle>>,current:BoundSourceOrder[]) {
+ validated:Awaited<ReturnType<typeof validateBundle>>,current:BoundSourceOrder[],historical?:{historicalObservationId:string}) {
  const attributionSupported=await supportsSourceAttribution(client),contextSupported=await supportsMaterialCaptureContext(client);
  const perOrder=await supportsOrderHeads(client),scopeHash=hash(current);
         const runId = randomUUID();
@@ -165,13 +165,21 @@ export async function publishMaterialSnapshotsInTransaction(client:PoolClient,ac
         }
         if(perOrder)for(const target of current) {
             const present=validated.rows.some(r=>r.order.id===target.id);
+            if(historical){
+             if(!present)throw new SourceError('source_missing');
+             await client.query(`INSERT INTO ainuoke_material_order_heads(source_key,sales_order_id,run_id,last_error_code,last_attempt_at)
+              VALUES($1,$2,$3,NULL,$4) ON CONFLICT(source_key,sales_order_id) DO UPDATE SET
+              run_id=coalesce(ainuoke_material_order_heads.run_id,excluded.run_id)`,[sourceKey,target.id,runId,validated.capturedAt]);
+             continue;
+            }
             await client.query(`INSERT INTO ainuoke_material_order_heads(source_key,sales_order_id,run_id,last_error_code,last_attempt_at)
              VALUES($1,$2,$3,$4,now()) ON CONFLICT(source_key,sales_order_id) DO UPDATE SET
              run_id=coalesce(excluded.run_id,ainuoke_material_order_heads.run_id),last_error_code=excluded.last_error_code,last_attempt_at=now()`,
              [sourceKey,target.id,present?runId:null,present?null:'source_visibility_changed']);
         }
         await appendOperationLog(client, actor, { module: "艾诺科同步", action: "采集艾诺科来源", entityType: "AinuokeSourceRun", entityId: runId,
-            metadata: { sourceKey: sourceKey, sourceRunId: runId, orderCount: validated.rows.length, contentHash: validated.contentHash, orderScopeHash: attributionSupported?scopeHash:null, sourceOnly: true } });
+            metadata: { sourceKey: sourceKey, sourceRunId: runId, orderCount: validated.rows.length, contentHash: validated.contentHash, orderScopeHash: attributionSupported?scopeHash:null, sourceOnly: true,
+             ...(historical?{historicalObservationId:historical.historicalObservationId,historicalPublication:true,sourceRequests:0}: {}) } });
 
  return runId;
 }

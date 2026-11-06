@@ -1,5 +1,6 @@
 import { readFileSync, statSync } from 'node:fs';
 import { requestMaterialRecovery } from './material-recovery.js';
+import { publishHistoricalMaterialObservation } from './historical-material-publication.js';
 import { recoverSync } from './sync-recovery.js';
 import { setTimeout as delay } from 'node:timers/promises';
 import { captureCatalogOnce, readCatalogCaptureReceipt } from './catalog-capture.js';
@@ -30,10 +31,11 @@ export function parseSourceArguments(args: string[]) {
     if(!match || values.has(match[1])) throw new SourceError("explicit_source_action_required");
     values.set(match[1],match[2]??"");
   }
-  const actions=["check","preview-bind","bind","preview-bind-selected","bind-selected","discover-add","preview-add","add","execute","execute-bounded","catalog","catalog-receipt","plan-followup","execute-group","group-receipt","sync-configure","sync-once","sync-run","sync-status","material-recover","sync-recovery-preview","sync-recover","schedule"].filter(key=>values.has(key));
+  const actions=["check","preview-bind","bind","preview-bind-selected","bind-selected","discover-add","preview-add","add","execute","execute-bounded","catalog","catalog-receipt","plan-followup","execute-group","group-receipt","sync-configure","sync-once","sync-run","sync-status","material-recover","material-history-publish","sync-recovery-preview","sync-recover","schedule"].filter(key=>values.has(key));
   if(actions.length!==1 || !values.get("config")) throw new SourceError("explicit_source_action_required");
   const action=actions[0];
-  const allowed=["config",action,...(action==="material-recover"?["source-ids","request-id"]:[]),...(action==="check"?[]:["expected-target"]),...(["bind","bind-selected","add"].includes(action)?["expected-preview"]:[]),
+  if(action==='material-history-publish'&&(!values.get('source-id')||!['order-id','observation-id'].every(k=>/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(values.get(k)??''))||!/^[a-f0-9]{64}$/.test(values.get('evidence-hash')??'')))throw new SourceError('historical_material_scope_invalid');
+  const allowed=["config",action,...(action==="material-history-publish"?["source-id","order-id","observation-id","evidence-hash"]:[]),...(action==="material-recover"?["source-ids","request-id"]:[]),...(action==="check"?[]:["expected-target"]),...(["bind","bind-selected","add"].includes(action)?["expected-preview"]:[]),
     ...(["preview-add","add","preview-bind-selected","bind-selected","execute-bounded","execute-group"].includes(action)?["contracts"]:[]),...(action==="schedule"?["interval-ms","max-backoff-ms"]:[]),...(["catalog","catalog-receipt","execute-group","group-receipt"].includes(action)?["request-id"]:[]),...(action==="execute-group"?["expected-scope"]:[]),...(["plan-followup","sync-once","sync-run"].includes(action)?["batch-size"]:[]),...(action==="sync-configure"?["enabled","expected-version","policy-file"]:[]),...(action==="sync-recover"?["expected-preview","reason"]:[])];
   if([...values.keys()].some(k=>!allowed.includes(k)) || action==="check"&&values.get(action)!==""
     || action!=="check"&&(!/^[a-z][a-z0-9_-]{2,63}$/u.test(values.get(action)!)||!/^[a-f0-9]{64}$/u.test(values.get("expected-target")??""))
@@ -72,6 +74,10 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
       process.stdout.write(JSON.stringify({result:"CHECKED_NO_SOURCE_READ",targetFingerprint:fingerprint,sourceKey:cfg.sourceKey,boundOrders:(await boundOrders(pool)).length})+"\n");return;
     }
     if(values.get("expected-target")!==fingerprint)throw new SourceError("source_target_mismatch");
+    if(action==='material-history-publish'){
+      const result=await publishHistoricalMaterialObservation(pool,actor,{sourceKey:cfg.sourceKey,sourceId:values.get('source-id')??'',orderId:values.get('order-id')??'',observationId:values.get('observation-id')??'',expectedHash:values.get('evidence-hash')??''});
+      process.stdout.write(JSON.stringify({event:'MATERIAL_HISTORY_PUBLICATION',...result})+'\n');return;
+    }
     if(action==='material-recover'){
       const receipts=await requestMaterialRecovery(pool,actor,{sourceKey:cfg.sourceKey,sourceIds:values.get('source-ids')!.split(',').map(id=>id.trim()),recoveryId:values.get('request-id')!});
       process.stdout.write(JSON.stringify({event:'MATERIAL_RECOVERY_QUEUED',receipts,sourceRequests:0})+'\n');return;

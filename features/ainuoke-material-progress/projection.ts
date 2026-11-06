@@ -84,7 +84,7 @@ const readMovement = (event: MaterialInboundEvent): ReadMovement => ({ id: event
  * This function does not authenticate callers. Server use must enter through read-service.ts.
  * Procurement prices are shared execution facts; Quote costs/terms and raw payloads are never returned.
  */
-export function projectMaterialProgress(order: PreviewOrder, snapshots: AinuokeReportSnapshot[] | null, confirmations: readonly MaterialConfirmation[] = []): MaterialProgressView {
+export function projectMaterialProgress(order: PreviewOrder, snapshots: AinuokeReportSnapshot[] | null, confirmations: readonly MaterialConfirmation[] = [], options:{retainSourceDemands?:boolean} = {}): MaterialProgressView {
   const safeOrder: PreviewOrder = { salesContractNo: normalizeAinuokeSalesContractNo(order.salesContractNo),
     styleNo: order.styleNo, insideOrderNo: order.insideOrderNo };
   const view: MaterialProgressView = { schemaVersion: 'order-material-read.v1', sourceStatus: 'not_fetched',
@@ -127,8 +127,9 @@ export function projectMaterialProgress(order: PreviewOrder, snapshots: AinuokeR
     for (const demand of preview.pipeline.demands) {
       // 6087051 supply method is a source fact, not proof that a demand is
       // irrelevant or supersedes another plan. Keep its identity and events.
-      // The legacy import contract remains separate until its rules are reviewed.
-      if (source.reportId !== '6087051' && isFactorySupplied(demand)) { view.factoryExcluded++; continue; }
+      // Trusted Server reads retain older report facts too; legacy import callers
+      // keep their separate default until their write rules are reviewed.
+      if (source.reportId !== '6087051' && !options.retainSourceDemands && isFactorySupplied(demand)) { view.factoryExcluded++; continue; }
       if (normalizeAinuokeSalesContractNo(demand.salesContractNo) !== target) throw new Error('source_identity');
       const purchases = purchaseIndex.get(demand.id) ?? [];
       const inbounds = inboundIndex.get(demand.id) ?? [];
@@ -136,6 +137,7 @@ export function projectMaterialProgress(order: PreviewOrder, snapshots: AinuokeR
       const outbounds = outboundIndex.get(demand.id) ?? [];
       const sourceRows = rawIndex.get(demand.id) ?? [];
       const itSource = source.reportId === '6087051';
+      const unresolvedFactoryPlan = Boolean(options.retainSourceDemands && isFactorySupplied(demand));
       const eventUnits = (refs: string[] | undefined, flow: 'purchase' | 'inbound' | 'outbound') => {
         if (!itSource) return {};
         const facts = (refs ?? []).map(ref => rawSourceIndex.get(ref)?.matchedUnits?.[flow]);
@@ -191,10 +193,10 @@ export function projectMaterialProgress(order: PreviewOrder, snapshots: AinuokeR
         inbounds: inbounds.map(event => ({ ...readMovement(event), ...eventUnits(event.sourceReferences, 'inbound'),
           excessWarehouse: readExcessWarehouse(event.sourceReferences, rawSourceIndex, unit, unitConflict ? 'conflict' : unit === null ? 'missing' : 'known') })), shipments: shipments.map(event => ({ ...readMovement(event), transportMode: event.transportModeSnapshot })),
         outbounds: outbounds.map(event => ({...readMovement(event), ...eventUnits(event.sourceReferences, 'outbound')})), purchased, inbound, shipped, outbound,
-        purchaseShortfall: itSource || purchased === null ? null : Math.max(0, demand.requiredQuantity - purchased),
-        purchaseExcess: itSource || purchased === null ? null : Math.max(0, purchased - demand.requiredQuantity),
+        purchaseShortfall: itSource || unresolvedFactoryPlan || purchased === null ? null : Math.max(0, demand.requiredQuantity - purchased),
+        purchaseExcess: itSource || unresolvedFactoryPlan || purchased === null ? null : Math.max(0, purchased - demand.requiredQuantity),
         pendingInbound: purchased === null || inbound === null ? null : Math.max(0, purchased - inbound),
-        status: itSource || confirmation.factory || rawUnitConflict || purchased === null || inbound === null ? null : deriveMaterialStatuses(demand.requiredQuantity, purchased, inbound, 0, 0).readinessStatus, issues,
+        status: itSource || unresolvedFactoryPlan || confirmation.factory || rawUnitConflict || purchased === null || inbound === null ? null : deriveMaterialStatuses(demand.requiredQuantity, purchased, inbound, 0, 0).readinessStatus, issues: unresolvedFactoryPlan ? [...issues,'厂供为来源标记；需求关系未确认，不自动替代或累加原申购'] : issues,
         quantityComparison: compareMaterialQuantityFacts(sourceRows.map(raw=>raw.values), purchased, unitConflict ? 'conflict' : unit===null ? 'missing' : 'known') };
       view.rows.push(row);
       let group = groups.get(identity.key);

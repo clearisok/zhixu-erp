@@ -50,3 +50,7 @@
 ## 厂供修订核对（D184，2026-11-07）
 
 6087051不再按SupplyType=厂供排除需求。现有表格的需求数量明确为来源值，全部稳定需求身份及交易保留；未知修订关系不覆盖、不累计、不计算已确认缺口。厂供不等于已确认工厂采购责任。D1992四条主面料用户确认不替代原申购；涤纶线尚待确认。原34/38/30计数是不同历史阶段与过滤口径，不代表有效需求版本数。
+
+## 已保存来源历史发布（D186）
+
+正式历史服务 `publishHistoricalMaterialObservation` 验证完成回执、账号指纹、目录/合同/订单归属和证据哈希，在原采集窗口校验完整性。沿用发布事务，仅补空head，不改成功head和失败状态，不结束刷新队列。CLI `--material-history-publish=<source key> --source-id=<id> --order-id=<uuid> --observation-id=<uuid> --evidence-hash=<sha256> --expected-target=<fingerprint> --config=<private file>` 不调用源站；同一证据可安全重放。普通刷新仍走原任务机制，不能以历史发布冒充新采集。正式Server读取6087050和6087051均保留厂供来源，未知修订/缺口不自动决断。真实运行结果见[本轮记录](../tasks/active/ainuoke-offline-history-2026-11-07.md)。
