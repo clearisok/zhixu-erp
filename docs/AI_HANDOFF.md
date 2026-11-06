@@ -13,3 +13,7 @@
 [详细报告](tasks/active/staging-navigation-latency-2026-11-05.md)；[旧接力逐字归档](tasks/completed/2026-11-05-before-navigation-latency/AI_HANDOFF.md)。
 
 2026-11-06 用户明确授权恢复上传并部署staging。旧Git有效代理17989无监听，进程级精确URL直连只读核验通过，cadc4443已精确送达并创建唯一草稿PR141（创建EOF后查询证实已存在，未重复创建）。main仍cb5。部署准备发现Dockerfile未声明新增公开metadata构建变量；仅补builder的ARG/ENV，不改daemon/Compose/网络。staging只读确认f21c96c1、五服务healthy、备份BACKUP_VERIFIED、同步PAUSED；升级必须保留暂停。新镜像与配对恢复验收待完成，不合并main。
+
+2026-11-06 交付续记：033dcfd4已精确送达PR141；两项CI通过，来源CI两次均在garment-shipments手机触控用例等待历史记录超时。本机从同一候选镜像提取静态资源，14项出货及32项后续交期/付款/关账检查通过；未据此宣称Linux CI通过。触控测试新增两帧稳定几何和elementFromPoint命中检查，仍只发送一次真实触控，业务断言及16秒上限不变；本机14/14通过，Linux复验待交付。
+
+宁波033镜像完整传输/加载，121表4附件配对备份、独立新库恢复和候选启动/HTTPS元数据/noindex/未登录401检查通过。尚未切换，仍运行f21c96c1；同步原PAUSED不变。操作证据在outputs/navigation-latency/deployment-20261106，最新备份20261106T011957Z-e623fa1b；Git上传异常退出但远端精确一致，未重复推送033。最终上线须以必要CI通过为前提，不合并main、不新增真实艾诺科读取。
