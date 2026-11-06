@@ -1,6 +1,8 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { randomUUID } from "node:crypto";
+import { createServer } from "node:http";
+import { createApp } from "../app.js";
 import { startCommercialSecurityFixture } from "./commercial-security-fixture.js";
 import { bootstrapAdmin } from "../auth/bootstrap.js";
 import { loginSessionSecurity, sessionCookie } from "../auth/session.js";
@@ -37,6 +39,20 @@ test("remembered sessions retain expiration and administrative revocation bounda
       assert.equal((await me(r.cookie)).response.status, 200);
       assert.equal((await session("remember.root")).expires_at.toISOString(), before.expires_at.toISOString());
       assert.equal(JSON.stringify(r.body).includes("token"), false);
+    }
+  });
+  await t.test("a new application instance and repeated bootstrap preserve the remembered session", async () => {
+    const r = await login("remember.root", true);
+    await bootstrapAdmin(x.pool, { username: "remember.root", displayName: "Synthetic", password: "synthetic-only" });
+    const fresh = createServer(createApp({ pool: x.pool }));
+    await new Promise<void>(done => fresh.listen(0, "127.0.0.1", done));
+    try {
+      const address = fresh.address(); assert.ok(address && typeof address === "object");
+      const response = await fetch(`http://127.0.0.1:${address.port}/api/v1/auth/me`, { headers: { Cookie: r.cookie! } });
+      assert.equal(response.status, 200);
+      assert.equal((await response.json()).user.username, "remember.root");
+    } finally {
+      fresh.closeAllConnections(); await new Promise<void>(done => fresh.close(() => done()));
     }
   });
   await t.test("invalid option, bad password and missing origin do not issue a session", async () => {
