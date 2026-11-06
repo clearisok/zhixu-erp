@@ -50,13 +50,23 @@ class LoginDiagnosticTests(TestCase):
             self.assertEqual(result["serverHint"], hint)
             self.assertTrue(result["payloadRefused"])
             self.assertEqual(result["requests"][0]["outcome"], "auth_error")
-            self.assertNotIn(message, json.dumps(result, ensure_ascii=False))
+            if SECRET not in message:
+                self.assertEqual(result['requests'][0]['loginDetails']['message'], message)
+            else:
+                self.assertNotIn(message, json.dumps(result, ensure_ascii=False))
             self.assertNotIn(SECRET, json.dumps(result))
 
     def test_conflicting_or_oversized_hints_are_not_guessed(self):
         for response in [{"message": "验证码错误", "data": {"isOk": False, "msg": "账号已登录"}},
                          {"data": {"isOk": False, "message": "x" * 257 + "账号已登录"}}]:
             self.assertEqual(run_login_diagnostic(CONFIG, FakeTransport(response))["serverHint"], "unclassified")
+
+    def test_capacity_message_is_preserved_and_not_misclassified_as_password(self):
+        result = run_login_diagnostic(CONFIG, FakeTransport({'data':{'isOk':False,'text1':'-3','errorMsg':'已达到可用的用户数，不可登录'}}))
+        self.assertEqual(result['serverHint'],'user_capacity_exhausted')
+        self.assertEqual(result['requests'][0]['loginDetails']['errorMsg'],'已达到可用的用户数，不可登录')
+        self.assertEqual(result['metrics']['logins'],1)
+        self.assertEqual(result['metrics']['reportRequests'],0)
 
     def test_public_client_cover_confirmation_signal_is_safe_and_never_overrides_login(self):
         for code in ("-2", -2):

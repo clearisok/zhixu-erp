@@ -23,7 +23,7 @@ export type SelectedSourceRequest = {mode:'catalog-discovery';contracts:[]}
   | {mode:'catalog-contracts';contracts:string[]}
   | {mode:'selected-bindings';contracts:string[]}
   | {mode:'selected-materials'|'bound-materials';targets:VisibleMaterialOrder[]};
-export type SelectedSourceMetrics = {logins:number;reportRequests:number;httpAttempts:number;networkRetries:0;authRenewals:0};
+export type SelectedSourceMetrics = {logins:number;reportRequests:number;httpAttempts:number;networkRetries:0;authRenewals:0|1};
 const keys = (o:object) => Object.keys(o).sort().join(',');
 function object(input:unknown):Record<string,unknown> {
   if(!input || typeof input!=='object' || Array.isArray(input))throw new SourceError('selected_source_invalid');
@@ -58,7 +58,7 @@ function scope(config:CollectorConfig,request:SelectedSourceRequest) {
 /** Revalidate untrusted child output before handing it to the existing domain mappers.
  * No database access, persistence, credentials-file loader, or source enable operation.
  */
-export async function validateSelectedSourceOnce(input:unknown,config:CollectorConfig,request:SelectedSourceRequest,now=Date.now()) {
+export async function validateSelectedSourceOnce(input:unknown,config:CollectorConfig,request:SelectedSourceRequest,now=Date.now(),sessionReuse=false) {
   const checked=scope(config,request);
   try {
     const serialized=JSON.stringify(input);
@@ -73,17 +73,17 @@ export async function validateSelectedSourceOnce(input:unknown,config:CollectorC
       ||hash(value.limits)!==hash(checked.limits)||value.sourceFingerprint!==accountFingerprint(checked.config)
       ||hash(value.selectedContracts)!==hash(checked.contracts))throw new SourceError('selected_source_scope_mismatch');
     const m=object(value.metrics);
-    if(keys(m)!=='authRenewals,httpAttempts,logins,networkRetries,reportRequests'||m.networkRetries!==0||m.authRenewals!==0
+    if(keys(m)!=='authRenewals,httpAttempts,logins,networkRetries,reportRequests'||m.networkRetries!==0||!(m.authRenewals===0||sessionReuse&&m.authRenewals===1&&m.logins===1)
       ||!Number.isSafeInteger(m.logins)||!Number.isSafeInteger(m.reportRequests)||!Number.isSafeInteger(m.httpAttempts)
       ||Number(m.logins)<0||Number(m.logins)>1||Number(m.reportRequests)<0||Number(m.reportRequests)>checked.limits.reportRequests
-      ||m.httpAttempts!==Number(m.logins)+Number(m.reportRequests)||(m.logins===0&&m.reportRequests!==0))
+      ||m.httpAttempts!==Number(m.logins)+Number(m.reportRequests)||(!sessionReuse&&m.logins===0&&m.reportRequests!==0))
       throw new SourceError('selected_source_metrics_invalid');
     const metrics=m as SelectedSourceMetrics;
     if(value.result==='failed') {
       if(value.bundle!==null||typeof value.code!=='string'||!failureCodes.has(value.code))throw new SourceError('selected_source_invalid');
       return {result:'failed' as const,code:value.code,metrics};
     }
-    if(value.result!=='complete'||value.code!==null||metrics.logins!==1)throw new SourceError('selected_source_invalid');
+    if(value.result!=='complete'||value.code!==null||(!sessionReuse&&metrics.logins!==1))throw new SourceError('selected_source_invalid');
     const b=object(value.bundle),detail=checked.request.mode==='catalog-discovery'?{}:object(checked.request.mode==='selected-bindings'?b.colors:b.materials);
     if(hash(Object.keys(detail).sort())!==hash([...checked.contracts].sort()))throw new SourceError('selected_source_scope_mismatch');
     // 6087105's existing catalog uses contains. Do not mistake a successful
@@ -130,7 +130,7 @@ export async function validateSelectedSourceOnce(input:unknown,config:CollectorC
         pageCount++;rowCount+=p.rows.length;
       }
     }
-    if(pageCount!==metrics.reportRequests||rowCount>4000)throw new SourceError('selected_source_metrics_invalid');
+    if(pageCount!==metrics.reportRequests-metrics.authRenewals||rowCount>4000)throw new SourceError('selected_source_metrics_invalid');
     if(checked.request.mode==='catalog-discovery'){
       const preview=await previewCatalog(value.bundle,now);
       return {result:'complete' as const,mode:'catalog-discovery' as const,metrics,bundle:preview.bundle,preview};

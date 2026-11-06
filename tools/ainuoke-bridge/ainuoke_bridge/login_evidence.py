@@ -1,8 +1,39 @@
 """Closed login evidence shared by diagnostics and the real collector. No raw values."""
 from collections.abc import Mapping
+import re
+from urllib.parse import quote, quote_plus
+from datetime import datetime, timezone
+
+
+def login_details(response, request_body):
+    """Bounded safe diagnostic text. Never retain arbitrary payload/URL/headers."""
+    data = response.get('data') if isinstance(response, Mapping) else None
+    data = data if isinstance(data, Mapping) else {}
+    secrets = [str(request_body[k]) for k in ('password','userName') if request_body.get(k)]
+    for obj in (response, data):
+        if isinstance(obj, Mapping):
+            secrets.extend(str(v) for k,v in obj.items() if any(s in k.lower() for s in ('token','cookie','session','password')) and isinstance(v,(str,int)))
+    def clean(value):
+        if type(value) not in (str,int,float,bool):
+            return None
+        text = str(value)
+        for secret in sorted(set(secrets),key=len,reverse=True):
+            for variant in (secret,quote(secret,safe=''),quote_plus(secret)):
+                if variant:text=text.replace(variant,'[redacted]')
+        text=re.sub(r'https?://\S+','[url]',text)
+        text=re.sub(r'(?i)(password|token|cookie|authorization|sessionid)\s*[:=]\s*\S+',r'\1=[redacted]',text)
+        text=re.sub(r'[A-Za-z0-9_+/.=%-]{16,}','[opaque]',text)
+        return ''.join(c for c in text if c.isprintable())[:256]
+    return {'at':datetime.now(timezone.utc).isoformat(),'interface':'loginsys2',
+            'isOk':data.get('isOk') if type(data.get('isOk')) is bool else None,
+            'businessCode':clean(data.get('code',response.get('code') if isinstance(response,Mapping) else None)),
+            'text1':clean(data.get('text1')),
+            'message':clean(data.get('message',data.get('msg',response.get('message',response.get('msg')) if isinstance(response,Mapping) else None))),
+            'errorMsg':clean(data.get('errorMsg',data.get('errMsg',response.get('errorMsg',response.get('errMsg')) if isinstance(response,Mapping) else None)))}
 
 # Exact, closed message matches only. Unknown/dynamic text is never returned.
 HINTS = {
+    "user_capacity_exhausted": ("已达到可用的用户数，不可登录",),
     "session_exists": ("用户已登录", "该用户已登录", "用户已经登录", "该用户已经登录",
                        "此用户已登录", "账号已登录", "帐号已登录", "账户已登录",
                        "该账号已登录", "该帐号已登录", "该账户已登录", "already logged in"),

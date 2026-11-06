@@ -1,13 +1,14 @@
 """Opt-in fixed-scope operator diagnostics; the normal capture envelope is unchanged.
 
-Only report ID, page, elapsed milliseconds, HTTP status and a closed error category
-leave the transport. Credentials, URLs, conditions, headers and errors never do.
+Report ID, page, elapsed milliseconds, HTTP status, closed error categories and
+bounded redacted login fields leave the transport. Credentials, URLs, conditions,
+headers and complete responses never do.
 """
 import json
 import sys
 from time import monotonic
-from .login_evidence import login_evidence
-from .ainuoke_client import AuthExpiredError, NetworkAinuokeError, UpstreamSchemaError
+from .login_evidence import login_evidence, login_details
+from .ainuoke_client import AuthExpiredError, NetworkAinuokeError, UpstreamSchemaError, _looks_like_auth_expired
 
 CATEGORIES = frozenset({'http_error','timeout','dns_error','tls_error','connection_refused','connection_reset','network_error'})
 
@@ -26,14 +27,17 @@ class DiagnosticTransport:
         report = report if type(report) is int and report in (6086103,6087105,6087050,6087051,6086405,6086408,6086875,6086354) else None
         query = body.get('sqlCdtn')
         page = query.get('pageIndex') if isinstance(query, dict) else None
-        page = page if report is not None and type(page) is int and 1 <= page <= 20 else None
+        page = page if report is not None and type(page) is int and 1 <= page <= (28 if report == 6086103 else 20) else None
         event = {'kind':'login' if request.get('method') == 'GET' else 'report',
                  'reportId':report,'page':page,'elapsedMs':0,'outcome':'complete','httpStatus':None}
         started = self.clock()
         try:
             response = self.transport.request(**request)
+            if event['kind'] == 'report' and _looks_like_auth_expired(response):
+                event['outcome'] = 'auth_error'
             if event['kind'] == 'login':
                 event['loginEvidence'] = login_evidence(response)
+                event['loginDetails'] = login_details(response, body)
                 if event['loginEvidence']['result'] == 'rejected':
                     event['outcome'] = 'auth_error'
                 elif event['loginEvidence']['result'] == 'malformed':

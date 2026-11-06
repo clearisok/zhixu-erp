@@ -168,7 +168,7 @@ export async function runSyncTick(pool:Pool,identity:Identity,raw:CollectorConfi
       let response;
       if(options.collect){
         const raw=await options.collect(config,request);
-        if(raw&&typeof raw==='object'&&'schemaVersion' in raw&&raw.schemaVersion==='ainuoke-request-diagnostics.v1'){
+        if(raw&&typeof raw==='object'&&'schemaVersion' in raw&&['ainuoke-request-diagnostics.v1','ainuoke-session-diagnostics.v1'].includes(String(raw.schemaVersion))){
           const checked=await validateCatalogDiagnostic(raw,config,request,now());response=checked.capture;diagnostics=checked.diagnostics;
         }else response=await validateSelectedSourceOnce(raw,config,request,now());
       }else {const checked=await collectCatalogDiagnostic(config,request,now());response=checked.capture;diagnostics=checked.diagnostics;}

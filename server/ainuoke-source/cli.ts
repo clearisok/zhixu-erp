@@ -6,6 +6,7 @@ import { captureCatalogOnce, readCatalogCaptureReceipt } from './catalog-capture
 import { configureSync } from './sync-queue.js';
 import { DEFAULT_SYNC_POLICY } from './sync-schedule.js';
 import { runSyncTick } from './sync-worker.js';
+import { createSessionCollector } from './session-collector.js';
 import { planFollowupGroups } from './followup.js';
 import { refreshFollowupGroup } from './group-refresh.js';
 import { pathToFileURL } from "node:url";
@@ -106,18 +107,19 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
       listener.on('notification',message=>{if(message.channel==='ainuoke_sync_requested'&&message.payload===cfg.sourceKey)wake?.();});
       await listener.query('LISTEN ainuoke_sync_requested');
       let automaticAt=0;
+      const sessionCollector=createSessionCollector();
       try{do{
         const current=readPrivateCollectorConfig(path);
         if(accountFingerprint(current)!==accountFingerprint(cfg)||current.sourceKey!==cfg.sourceKey||current.operatorUsername!==cfg.operatorUsername)throw new SourceError('source_account_mismatch');
         await verifyMigrationsCurrent(pool,server.migrationsDirectory);
         const automatic=Date.now()>=automaticAt;
-        const result=await runSyncTick(pool,actor,current,{batchSize,automatic});
+        const result=await runSyncTick(pool,actor,current,{batchSize,automatic,collect:sessionCollector.collect});
         if(automatic)automaticAt=Date.now()+60000;
         if(result.status!=='idle')process.stdout.write(JSON.stringify({event:'SYNC_TICK',...result})+'\n');
         if(action==='sync-once'||result.status==='paused'||result.status==='failed'&&!result.retryScheduled)break;
         if(result.status==='processed')continue;
         await Promise.race([delay(1000,undefined,{signal:controller.signal}).catch(()=>undefined),new Promise<void>(resolve=>{wake=resolve;})]);wake=null;
-      }while(!controller.signal.aborted);}finally{await listener.query('UNLISTEN ainuoke_sync_requested').catch(()=>undefined);listener.release();process.removeListener('SIGINT',stop);process.removeListener('SIGTERM',stop);}
+      }while(!controller.signal.aborted);}finally{sessionCollector.close();await listener.query('UNLISTEN ainuoke_sync_requested').catch(()=>undefined);listener.release();process.removeListener('SIGINT',stop);process.removeListener('SIGTERM',stop);}
       return;
     }
     if(action==='plan-followup'){

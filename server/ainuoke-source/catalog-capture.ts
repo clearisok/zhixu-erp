@@ -51,7 +51,7 @@ async function captureUnderLease(pool:Pool,identity:Identity,raw:CollectorConfig
   let captured;
   if(collect){
    const raw=await collect(config,request);
-   if(raw&&typeof raw==='object'&&'schemaVersion' in raw&&raw.schemaVersion==='ainuoke-request-diagnostics.v1'){
+   if(raw&&typeof raw==='object'&&'schemaVersion' in raw&&['ainuoke-request-diagnostics.v1','ainuoke-session-diagnostics.v1'].includes(String(raw.schemaVersion))){
     const checked=await validateCatalogDiagnostic(raw,config,request,Date.now());captured=checked.capture;diagnostics=checked.diagnostics;
    }else captured=await validateSelectedSourceOnce(raw,config,request);
   }else{const checked=await collectCatalogDiagnostic(config,request);captured=checked.capture;diagnostics=checked.diagnostics;}

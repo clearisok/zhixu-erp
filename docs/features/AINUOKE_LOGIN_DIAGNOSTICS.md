@@ -1,5 +1,15 @@
 # 艾诺科登录诊断协议
 
+## 2026-11-07 进程内会话复用（D185）
+
+正式sync-run通过session-collector.ts启动一个私密NDJSON Python进程；不同订单仍独立capture/事务/回执，复用内存中的原JWT和会话信息。凭据只经stdin传入，JWT不跨stdout或持久化。配置/身份变化、认证拒绝或未知进程结果不自动重启。复用报表明确token_expired/auth_expired/401或isLogined=false时才允许一次重新认证及同页重读；403权限拒绝不重认证。每单最多1登录、80报表、180秒不变。
+
+内部事件新增loginDetails：UTC时间、固定接口名loginsys2、isOk、businessCode、text1、message及errorMsg。只保留有界脱敏标量，清除请求凭据、响应认证字段、URL及疑似不透明凭证；不保存完整响应。兼容旧无details及首次不含errorMsg回执。业务API摘要不变。下文“任意返回文本不保留”由此限定字段替代。
+
+真实验证2026-11-07北京时间00:36:09：PI2610-061登录HTTP200/344ms，isOk=false、businessCode=200、text1=-3；1登录0报表，第二张未执行。当次未保存errorMsg，不能反推具体提示。随后已补字段，未重复登录。已保存网页脚本仅对-2特殊覆盖确认；-3在成功分支还可出现，失败提示取errorMsg，故不能单凭-3断言密码/会话/限流。参见[执行记录](../tasks/active/ainuoke-session-lifecycle-2026-11-07.md)。
+
+用户完成网页登录后00:40:53受控对照：errorMsg明确“已达到可用的用户数，不可登录”，HTTP200/292ms，仍isOk=false、text1=-3。新增精确提示分类user_capacity_exhausted；只凭-3仍不分类。未证明占用者或并发上限，不能自动踢出或绕过限制。
+
 2026-11-06；前向补充AINUOKE_SERVER_SOURCE，不修改该文档已冻结的历史证据。
 
 ## 内部数据流
