@@ -25,3 +25,10 @@
 - 既有Chromium隔离回归验证授权角色点击后产生任务、worker采集器调用数+1、发布并读回；使用合成采集注入。真实采集服务已执行成功，但“真实账号在页面点击→真实上游采集”本轮尚未验收，不用合成回归替代。
 - 本轮READ ONLY事务复核：472queued逐单对应469pending+3history_pending，另1failed源6919。控制器disabled、paused_reason=invalid_credential，0running。检查证据offline-review-20261107.private.json；未重置。
 - 144为本轮采集发布成功数，不表示全部订单需求修订口径已经核实。完整目标仍未完成。
+
+## 本机验收
+
+- 22b0fa57代码已在原63051环境运行；初次构建未带Server能力参数，浏览器显示正式页面未开放，已以原server/session/snapshot参数重新构建纠正，不修改数据。运行PID12856。
+- 实际auth/me及material-progress均HTTP200，UUID/合同匹配，38条来源需求、8厂供、6组，factoryExcluded=0。独立采购20、入库6、出运5、出库5，与原流水一致；原始时间2026-11-06T14:47:46.956257Z，status=stale，未重新采集。
+- 浏览器已见38条来源需求、厂供740/797/580/973及涤纶线11/14/18/15，原自购及追加保留。38是当前完整来源记录数，不是有效需求版本数；未知缺口仍未知。
+- 新IT回归12/12、相关投影/adapter63/63、登录分类离线11/11通过；类型、受影响lint、前后端构建通过。未新增源站请求、未重跑CI、未部署staging。

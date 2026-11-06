@@ -5821,6 +5821,26 @@
       "sha256": "0bc751f48ffbb7a7cc3b70e2f759547c3ae7cff2702be44e3ed5c1f694c9ea11",
       "supersedes": "it-material-rows-rules-20261106",
       "changeReason": "User approved local real-order publication closure and truthful historical visibility; preserve publication freshness, identity and access checks. No staging deployment or all-order completion claim."
+    },
+    {
+      "id": "material-revision-decision-20261107",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "22b0fa5783de41d05d67a4c722a5338bf52bbe65",
+      "renderedSourceSha": "22b0fa5783de41d05d67a4c722a5338bf52bbe65",
+      "sha256": "d17ca74637ef37dbcbd87c5bf6f0b57b2f56a0f07153b672978f5aa2e931be97",
+      "supersedes": "material-closure-decision-20261106",
+      "changeReason": "User clarified factory-marked 6087051 demands require traceability and individually proven revision semantics. No inferred replacement, addition, current effective quantity or responsibility; preserve immutable source and all transaction identities."
+    },
+    {
+      "id": "material-revision-rules-20261107",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "22b0fa5783de41d05d67a4c722a5338bf52bbe65",
+      "renderedSourceSha": "22b0fa5783de41d05d67a4c722a5338bf52bbe65",
+      "sha256": "52e07d577251bf596e484021689de3de196522d66954a054ea00b74692912324",
+      "supersedes": "material-closure-rules-20261106",
+      "changeReason": "User clarified factory-marked 6087051 demands require traceability and individually proven revision semantics. No inferred replacement, addition, current effective quantity or responsibility; preserve immutable source and all transaction identities."
     }
   ],
   "pages": [

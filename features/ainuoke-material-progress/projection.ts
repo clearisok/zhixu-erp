@@ -224,6 +224,6 @@ export function filterProgressRows(view: MaterialProgressView, search: string, t
   const needle = search.normalize('NFKC').trim().toLocaleLowerCase();
   return view.rows.filter(row => (type === 'all' || row.demand.materialType === type)
     && (status === 'all' || row.procurementResponsibility !== 'factory_confirmed' && (status === 'unknown' ? row.status === null : row.status === status))
-    && (!needle || [row.demand.materialName, row.demand.materialCode, row.demand.materialColor, row.demand.specification,
+    && (!needle || [row.demand.materialName, row.demand.materialCode, row.demand.materialColor, row.demand.specification, row.demand.supplyMethod,
       ...row.purchases.flatMap(event => [event.purchaseOrderNo, event.supplier])].join(' ').normalize('NFKC').toLocaleLowerCase().includes(needle)));
 }

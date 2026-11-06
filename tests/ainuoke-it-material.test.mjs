@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {createHash} from 'node:crypto';
-import {projectMaterialProgress} from '../features/ainuoke-material-progress/projection.ts';
+import {projectMaterialProgress,filterProgressRows} from '../features/ainuoke-material-progress/projection.ts';
 import {adaptAinuokeMaterialApiSnapshots} from '../features/style-progress/source/ainuoke-material-api-adapter.ts';
 import {buildAinuokeMaterialApiPreview} from '../features/style-progress/service/ainuoke-material-api-preview.ts';
 import {toAinuokeMaterialImportPreview} from '../features/style-progress/service/ainuoke-material-api-commit.ts';
@@ -25,6 +25,7 @@ test('factory-marked source demands remain traceable without inferring replaceme
   assert.equal(view.sourceStatus,'ready');assert.equal(view.rows.length,2);assert.equal(view.factoryExcluded,0);
   assert.deepEqual(view.rows.map(r=>r.demand.requiredQuantity).sort((a,b)=>a-b),[740,937]);
   const factory=view.rows.find(r=>r.demand.supplyMethod==='厂供');
+  assert.deepEqual(filterProgressRows(view,'厂供','all','all'),[factory]);
   assert.equal(factory.purchases[0].quantity,50);assert.equal(factory.inbounds[0].quantity,40);
   assert.equal(factory.shipments[0].quantity,30);assert.equal(factory.outbounds[0].quantity,20);
   assert.ok(factory.issues.some(s=>s.includes('不自动替代或累加')));
