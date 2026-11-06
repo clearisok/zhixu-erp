@@ -28,6 +28,8 @@ test('IT detail survives atomic publication, catalog and formal-order HTTP reads
     const result=await runSyncTick(f.pool,f.actor,{...selectedConfig,materialReport:'6087051'},
       {automatic:false,collect:async(_config,r)=>{assert.deepEqual(r,{mode:'catalog-contracts',contracts:['SYN-SALES-1']});captures++;return capture();}});
     assert.equal(result.status,'processed');assert.equal(captures,1);
+    const saved=(await f.pool.query("SELECT result FROM ainuoke_sync_jobs WHERE source_id='1' AND status='complete' ORDER BY finished_at DESC LIMIT 1")).rows[0];
+    assert.equal(saved.result.materialRows,3); // Unit lookup rows are not material demand rows.
     assert.equal((await readSyncRequest(f.pool,f.actor,request.requestId)).status,'complete');
     const detail=await readCatalogDetail(f.pool,f.actor,{sourceKey:f.sourceKey,sourceId:'1'});
     assert.equal(detail.materialStatus,'ready');assert.equal(detail.materials.length,1);

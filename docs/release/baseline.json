@@ -5781,6 +5781,26 @@
       "sha256": "81a3c415411c73f412885975594e4e7f3e64274699c9849271de34592ccca59d",
       "supersedes": "catalog-business-retry-rules-20261105",
       "changeReason": "User excludes source images and approves bounded directory growth to 1400 with original 610 identities retained; detail scope and expiry remain fixed. Local engineering only, no continuous acceptance or deployment claim."
+    },
+    {
+      "id": "it-material-rows-decision-20261106",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "c05aac356c997b1cdb38d7dbbf7373ffe196c93e",
+      "renderedSourceSha": "c05aac356c997b1cdb38d7dbbf7373ffe196c93e",
+      "sha256": "8550c0b0d7675a6c3605594023c1def6583ea296efa89d2a47acdb4f4199090a",
+      "supersedes": "catalog-no-image-1400-decision-20261105",
+      "changeReason": "User approved D182 row-only 6087051 optional Server source, verified per-event unit joins and Order Center detail display. Old source rules and all live activation, budgets and pricing boundaries preserved; local synthetic engineering only."
+    },
+    {
+      "id": "it-material-rows-rules-20261106",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "c05aac356c997b1cdb38d7dbbf7373ffe196c93e",
+      "renderedSourceSha": "c05aac356c997b1cdb38d7dbbf7373ffe196c93e",
+      "sha256": "bf645236be48992c26270bd26ef90725728020f5408fe17851d253fbf115abde",
+      "supersedes": "catalog-no-image-1400-rules-20261105",
+      "changeReason": "User approved D182 row-only 6087051 optional Server source, verified per-event unit joins and Order Center detail display. Old source rules and all live activation, budgets and pricing boundaries preserved; local synthetic engineering only."
     }
   ],
   "pages": [

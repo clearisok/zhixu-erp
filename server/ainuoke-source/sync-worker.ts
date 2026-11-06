@@ -65,7 +65,8 @@ async function publishContract(pool:Pool,identity:Identity,config:CollectorConfi
       ON CONFLICT(source_key,source_id) DO UPDATE SET observation_id=excluded.observation_id,last_success_at=excluded.last_success_at,last_attempt_at=excluded.last_attempt_at,last_error_code=NULL,last_diagnostic=NULL`,[config.sourceKey,job.source_id,observationId,new Date(now)]);
     const result={code:'complete',orderId,observedAt:new Date(now).toISOString(),contract:job.sales_contract_no,
       colorLines:captured.candidates.candidates.find(c=>c.source.salesContractNo===job.sales_contract_no)?.colors.length??0,
-      materialRows:captured.materials.bundle.materials[job.sales_contract_no].reduce((n,p)=>n+p.rows.length,0)};
+      materialRows:captured.materials.bundle.materials[job.sales_contract_no]
+        .filter(p=>p.reportId==='6087050'||p.reportId==='6087051').reduce((n,p)=>n+p.rows.length,0)};
     await c.query("UPDATE ainuoke_sync_jobs SET status='complete',finished_at=$2,result=$3::jsonb WHERE id=$1",[job.id,new Date(now),JSON.stringify(result)]);
     await appendOperationLog(c,actor,{module:'艾诺科同步',action:'采集艾诺科来源',entityType:'AinuokeCatalogRun',entityId:directoryId,
       metadata:{sourceOnly:true,jobId:job.id,requestedBy:current.requested_by},afterData:{objectName:job.sales_contract_no,values:{result:'同步成功'}}});

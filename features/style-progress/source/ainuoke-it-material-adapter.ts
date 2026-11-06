@@ -1,6 +1,7 @@
 import type { AinuokeReportSnapshot } from '../../ainuoke-api/model/ainuoke-api.ts';
 import type { RawCellValue } from '../model/style-progress.ts';
 import type { MaterialSourceRow } from './material-source-row.ts';
+import { normalizeSourceUnit } from '../../ainuoke-material-progress/confirmed-facts.ts';
 import { AINUOKE_6087050_FIELD_MAP, type AinuokeMaterialApiSource } from './ainuoke-material-api-adapter.ts';
 
 const text = (value: unknown) => String(value ?? '').normalize('NFKC').trim();
@@ -65,7 +66,7 @@ function matchedUnits(row: Record<string, unknown>, supplemental: AinuokeReportS
           || !sameQuantity || value.ExpContractNo != null && contract(value.ExpContractNo) !== contract(row.ExpContractNo)) {
           conflict = true; continue;
         }
-        matches.push(text(value.QtyUnit) || null);
+        matches.push(normalizeSourceUnit(value.QtyUnit));
       }
     }
     const units = new Set(matches.filter((unit): unit is string => unit !== null));

@@ -62,7 +62,7 @@ test('unit matches require independent entity, main ID, document and quantity',(
 });
 test('unit conflicts and missing unit stay unknown; no material-name guessing',()=>{
   const unit={id:31711,PurContractID:6031,PurContractNo:'SYN-PO',OrderNum:952,QtyUnit:'千克'};
-  for(const rows of [[unit,{...unit,QtyUnit:'米'}],[{...unit,QtyUnit:null}],[{...unit,id:88888}]]) {
+  for(const rows of [[unit,{...unit,QtyUnit:'米'}],[{...unit,QtyUnit:null}],[{...unit,QtyUnit:123}],[{...unit,QtyUnit:'x'.repeat(17)}],[{...unit,id:88888}]]) {
     const view=projectMaterialProgress(order,[main(),page('6086405',rows,{insideOrderNo:'OLD-1'})]);
     assert.equal(view.rows[0].purchases[0].unit,null);
   }
