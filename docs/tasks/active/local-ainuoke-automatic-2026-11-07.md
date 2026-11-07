@@ -12,6 +12,18 @@
 
 本次仅入口代码切换需要一次受控应用重启，沿用原完成事务后退出/隐藏watchdog恢复机制；后续打开/刷新/关闭演示页面均不引发艾诺科登录或采集。源码和HTTP验收结果在本节后续补记，不能以工程测试替代真实浏览器结果。
 
+### 17:13本机入口验收结果（北京时间）
+
+运行及静态版本bf81f8ea4b7adcdf26e3319dbca37206c992e6d3已生效；原进程完成采集组后正常退出，新app34284，原独立watchdog28348继续持有锁。既有start-hidden.vbs仅更新目标release，未另启watchdog或同步owner。enabledAt、源配置、数据库及全部调度规则不变。
+
+17:11:24真实HTTP使用从未传入Cookie的独立请求：订单中心200、617张；D1992详情深链接200且URL不变，刷新及重新打开200；me为固定preview.real-orders公有ID，7项权限与原角色一致。D1992物料接口200/server_snapshot，来源16:47:29，38需求＝30自购＋8厂供。修改与真实sync-order分别403；本次拒绝请求没有任务回执。关闭模式后旧自动cookie及空cookie均401，再开启200；全程不重启worker。错误Host和转发头均不能建立会话。初次Host验收使用Node fetch设置Host未得到预期401，改用node:http真实Host请求后401；没有修改产品判断条件以消除失败。
+
+该HTTP验收前后来源计数均为1496次采集、500次历史累计登录、59361次报表，差值0；这些含历史首次接入，不能当作本阶段新增量或当前日常周期统计。46张受保护业务表与原库逐表哈希一致，617订单/617head/617可读快照均保留。浏览器已看到bf81f8ea的D1992页面、30自购＋8厂供；原preview.material-sync有效正常会话保持原身份，未强制换成只读。
+
+工程：1边界单测、8个新数据库/HTTP子场景及父测试共9通过，原browser-session集成通过；TypeScript、受影响ESLint、固定Server snapshot构建、PowerShell解析和实际-Enable开关通过。新权限用例第一次对不存在的fixture订单发sync-order得到503；改用正式sync入口校验403，真实环境另用D1992的sync-order验证403。源码守卫基于已知main cb5cc29...对bf81f8ea通过，12页面/68能力/24继承UI路径；本阶段无UI文件修改，不重复无关全量测试或CI。
+
+浏览器工具不提供创建无痕上下文的能力，已请用户在新无痕窗口对照订单中心、D1992及刷新/关闭重开。此项用户确认到达前保留待验收，不把空Cookie HTTP或保留原正常会话的浏览器结果冒称无痕验收。私密证据位于root/local-demo-entry-http.private.json、local-demo-entry-data-proof.private.json、local-demo-entry-activation.private.json；不含密码、Cookie或令牌。旧源码、配置备份及全部旧数据保持。
+
 用户本轮明确授权在617首次接入基础上启用本机长期自动同步、真实源站只读、持续发现新合同并经现有服务建单；不部署staging。起点分支fix/ainuoke-order-material-closure、9d40113aa4b12e2b3699bfe0e303a5d055d04903，clean；新分支feat/local-ainuoke-automatic-sync。继承main基线cb5cc29baa49ed7115fdb6c9506b6a80356936ea，未重新联网获取。
 
 ## 已确认配置

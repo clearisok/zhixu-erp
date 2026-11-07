@@ -1,11 +1,15 @@
-# 当前状态：本机只读演示直接进入
+# 当前状态：本机只读演示自动进入已启用
 
-2026-11-07。分支feat/local-demo-auto-session，从干净afffff25841cb47cc67c2b9368f3d3c1e42b59c7继续；继承main基线cb5cc29baa49ed7115fdb6c9506b6a80356936ea，未刷新远端/推送/CI/staging。当前固定运行仍为40930078ba8931dc717541712d83aef2b8ed0c04；入口代码已完成，待本机切换与真实HTTP/浏览器验收，不能提前宣称生效。
+2026-11-07 17:13，北京时间。分支feat/local-demo-auto-session；固定运行/静态版本bf81f8ea4b7adcdf26e3319dbca37206c992e6d3，从干净afffff25841cb47cc67c2b9368f3d3c1e42b59c7继续。main基线cb5cc29baa49ed7115fdb6c9506b6a80356936ea未刷新；无推送、CI或staging动作。后续文档提交不冒充另一个已运行业务版本。
 
-仅显式本机runtime安装自动入口：匿名文档/会话恢复通过原v1服务生成已有preview.real-orders会话，固定public ID与只读权限上限；原深链接及正常有效登录身份保留。普通服务默认关闭；回环连接/Host、无转发头/跨Origin才自动进入。热关闭可撤销自动演示会话，不重启同步、不影响普通会话。不改前端、账号、角色、密码或schema。
+真实环境http://127.0.0.1:63051。直接提供/order-center及/order-center/style-progress/detail?orderId=d2e302cf-f0d5-404e-9474-e8ecf11ec81e；不再提供登录页作为演示前置。私密localDemo显式固定preview.real-orders的public ID及7项既有只读权限，匿名通过原v1/HttpOnly/SameSite=Strict会话进入，目标地址保持，正常有效会话不替换。普通服务未安装此入口；回环Host/连接且无转发头/跨Origin才启用，账号失效或增权失败关闭。
 
-边界单测和新的8项数据库/HTTP场景及父测试通过；旧browser-session集成通过，类型及受影响lint通过。新用例第一次将不存在订单送入sync-order得到503，系fixture未建来源；改用正式sync命令验证403，未改变业务实现或断言门槛。新脚本PowerShell解析通过。待固定版本构建、受控本机切换、空cookie直达与实机确认。
+17:11真实空Cookie HTTP：订单中心617、详情/刷新/重开均200；D1992物料200，来源16:47:29，30自购＋8厂供；写入与sync-order均403，无新增任务。关闭模式旧自动cookie和匿名均401，再启用200，不重启worker。HTTP窗口来源登录/报表/采集计数差值0。46保护业务表哈希及617订单/head/可读快照保留。
 
-本机仍http://127.0.0.1:63051，root D:/WeaveOps-Local；617订单和独立分档同步保留。258高频/119每日/202每周/38每月为前阶段快照，后台继续更新，不能拿重复周期结果当不同订单。原持久容器/卷、旧tmpfs和所有备份均保留，不为入口测试重启数据库或取源。
+浏览器已核实bf81f8ea的D1992页面及原preview.material-sync正常身份保留；工具不支持新无痕上下文。已请用户在无痕窗口确认订单中心、D1992、刷新/关闭重开，本项确认尚待回复，未冒称全部浏览器验收完成。其他工程/HTTP工作已完成。
 
-[演示链接、启动及验收](tasks/active/local-ainuoke-automatic-2026-11-07.md)；[前阶段完整状态](tasks/completed/2026-11-07-before-local-demo-entry/CURRENT_STATE.md)。
+边界单测1、新数据库HTTP8子场景及父测试9、旧browser-session、类型/受影响lint/固定构建、PowerShell解析和实际Enable开关通过；源码守卫在bf81f8ea通过，最终文档提交另核对。新用例fixture缺来源时503、Node fetch未按预期送出Host的失败均记录，修正验证方法而未放宽产品规则。不重复无关全量测试/付费CI。
+
+原同步配置、617订单和持久库不变。app34284、原watchdog28348；后台AUTOMATIC_RUNNING，start-hidden.vbs指向新release，电脑用户登录且Docker就绪后恢复。开关脚本set-local-demo.ps1 -RuntimeRoot D:/WeaveOps-Local -Enable/-Disable即时生效，无需重启采集。原tmpfs、持久卷、附件和配对备份全部保留。
+
+[演示约定、启动及实际证据](tasks/active/local-ainuoke-automatic-2026-11-07.md)；[前阶段完整状态](tasks/completed/2026-11-07-before-local-demo-entry/CURRENT_STATE.md)。

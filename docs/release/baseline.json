@@ -5901,6 +5901,16 @@
       "sha256": "6f0ed97a22befd51a9f3357e19aa460ae0afc1e1eda2f8ac210b651c99325452",
       "supersedes": "material-final-supply-rules-20261107",
       "changeReason": "User-approved local automatic cadence uses reference R, normal contract admission, persistent authentication and bounded restart recovery; no staging deployment claim."
+    },
+    {
+      "id": "local-demo-entry-decision-20261107",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "bf81f8ea4b7adcdf26e3319dbca37206c992e6d3",
+      "renderedSourceSha": "bf81f8ea4b7adcdf26e3319dbca37206c992e6d3",
+      "sha256": "23930dd3bc5dd816c01e1f679745c27169b3a906e7602d5b7021b1dd780488cb",
+      "supersedes": "local-automatic-decision-20261107",
+      "changeReason": "User approved explicit loopback-only local demo entry using an existing read-only v1 session; preserve normal login, RBAC, source scheduling and nonlocal defaults. No staging deployment."
     }
   ],
   "pages": [

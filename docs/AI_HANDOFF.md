@@ -1,11 +1,13 @@
-# 接力：本机演示自动进入验收
+# 接力：本机自动进入已启用，仅无痕用户对照待确认
 
-2026-11-07，feat/local-demo-auto-session，从干净afffff25841cb47cc67c2b9368f3d3c1e42b59c7继续。main基线cb5cc29baa49ed7115fdb6c9506b6a80356936ea未刷新，无远端/CI/staging。本任务仅现有63051真实本机入口，不能使用57404模拟环境。
+2026-11-07 17:13北京时间。feat/local-demo-auto-session；运行/静态固定SHA bf81f8ea4b7adcdf26e3319dbca37206c992e6d3。main基线cb5cc29baa49ed7115fdb6c9506b6a80356936ea未刷新；无远端/CI/staging。后续纯文档HEAD与运行版本分别记录。原afffff目标及617自动同步的接力已归档tasks/completed/2026-11-07-before-local-demo-entry。
 
-实现server/auth/local-demo-entry.ts并仅安装到server/local-ainuoke-runtime.ts；service.private.json.localDemo显式enabled、username及userId，既有preview.real-orders公有ID50f290ff-552c-428e-bb57-95649b9c9602。原7项只读权限为order.view、ainuoke.view、style_progress.read/view_history、commercial.sale.view/labor.view、quote.cost.view；不修改角色。原v1会话服务共享issueSession，自动令牌用途标记用于关闭模式时撤销；普通cookie保留。所有业务仍走原app/RBAC。开关scripts/set-local-demo.ps1 -RuntimeRoot D:/WeaveOps-Local -Enable或-Disable，热读取不重启worker。
+本机http://127.0.0.1:63051；订单中心/order-center，D1992 /order-center/style-progress/detail?orderId=d2e302cf-f0d5-404e-9474-e8ecf11ec81e。root D:/WeaveOps-Local私密配置不可输出。localDemo.enabled=true，固定preview.real-orders ID50f290ff-552c-428e-bb57-95649b9c9602；7项原读取权限不变，无修改/刷新来源权限。server/auth/local-demo-entry.ts只由local runtime安装；原v1会话与RBAC保留，普通有效cookie不替换。普通环境默认不安装此入口。
 
-工程单测/新数据库HTTP集成/旧browser-session、类型/受影响lint/PowerShell解析通过。待核心提交、固定构建和按原restart.request.json机制切换一次（原在途完成后退出75），再做实际HTTP与浏览器验收；目前运行仍40930078ba8931dc717541712d83aef2b8ed0c04，不提前记启用。新配置需先在私密root增加锁定身份，勿输出整份runtime/service。0业务表/schema/凭据更改。打开页面不产生源任务，但受控进程切换会按原生命周期在下次到期采集认证一次，不能混称页面触发。
+空Cookie真实HTTP直达/刷新/重开200，617；D1992物料200/server_snapshot、30自购＋8厂供、来源16:47:29；真实sync-order及写入403，无新增任务。热关401、重开200、错误Host/转发拒绝；HTTP窗口0新来源请求/登录。46保护业务表哈希和617head一致。工程/类型/lint/build/PowerShell及源码守卫已过，未重跑无关182项或CI。证据root/local-demo-entry-http.private.json、local-demo-entry-data-proof.private.json、local-demo-entry-activation.private.json，均无密码/令牌/Cookie。
 
-root D:/WeaveOps-Local，app原46316、watchdog28348；持久容器weaveops-local-postgres/命名卷weaveops-local-postgres-data。原tmpfs zhixu-pg-it-d8777f722881绝不可停/删。service-status含617行，只解析安全摘要不可整份输出。不要复跑617、恢复已完成队列、备份/数据库重启或修改源认证暂停。
+浏览器工具当前已可读现有页面（没有绕过旧拒绝），新标签显示bf81f8ea的D1992，并保留原preview.material-sync普通有效会话身份。工具无新无痕上下文能力；已发async问题让用户开无痕窗口核对订单中心、D1992、刷新/关闭重开。等待这一确认，不能以HTTP空cookie或普通已登录UI冒称无痕浏览器通过。若用户确认，仅更新验收文档/接力并本地提交，不再取源、重建、升级或重跑未变测试。
 
-剩余：本机切换、无密码HTTP/浏览器直达与off模式实测、更新结果/精确源码守卫/文档冻结前向记录/最终干净提交。浏览器能力无无痕上下文开关，必要时请用户只做一次无痕实机对照，不能冒称空cookie HTTP等于浏览器确认。详细说明见现有local-ainuoke-automatic任务；旧接力已完整归档tasks/completed/2026-11-07-before-local-demo-entry。
+受控切换只用原restart.request.json流程，旧组完成后app46316→34284；原watchdog28348保持。现有VBS仅更新固定release路径，未另启动后台。普通开关可用固定release/scripts/set-local-demo.ps1 -RuntimeRoot D:/WeaveOps-Local -Enable或-Disable，即时读取，不重启同步。只读预览账号及正常会话不删改，617/人工记录/调度不动；旧57404模拟不作验收。
+
+持久容器weaveops-local-postgres/卷weaveops-local-postgres-data不变；原tmpfs zhixu-pg-it-d8777f722881绝不可停/删。service-status含617行，只解析摘要。不要为入口任务重试源站、重跑617、修改同步队列、重启数据库或重复备份。具体启动恢复见现有local-ainuoke-automatic任务。
