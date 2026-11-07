@@ -31,8 +31,9 @@ async function control(c: PoolClient, sourceKey: string) {
 /** Explicit operator configuration, never called by API startup or migration. */
 export async function configureSync(pool: Pool, identity: Identity, input: {
   sourceKey: string; enabled: boolean; expectedVersion: number; policy: SyncPolicy;
-}) {
+}, operational?: {pauseReason:'staging_handoff'}) {
   if (!sourceKeyValid(input.sourceKey) || typeof input.enabled !== 'boolean' || !Number.isSafeInteger(input.expectedVersion) || input.expectedVersion < 0) throw new SourceError('sync_configuration_invalid');
+  if(operational&&(operational.pauseReason!=='staging_handoff'||input.enabled))throw new SourceError('sync_configuration_invalid');
   const policy = validateSyncPolicy(input.policy);
   return tx(pool, async c => {
     await lockSource(c, input.sourceKey);
@@ -44,13 +45,26 @@ export async function configureSync(pool: Pool, identity: Identity, input: {
     // An operational pause cannot be cleared by changing policy or enabling again.
     if (previous?.paused_reason && input.enabled) throw new SourceError('sync_worker_paused');
     const version = input.expectedVersion + 1;
-    await c.query(`INSERT INTO ainuoke_sync_controls(source_key,enabled,version,policy,operator_id) VALUES($1,$2,$3,$4::jsonb,$5)
-      ON CONFLICT(source_key) DO UPDATE SET enabled=excluded.enabled,version=excluded.version,policy=excluded.policy,operator_id=excluded.operator_id,updated_at=now()`,
-      [input.sourceKey,input.enabled,version,JSON.stringify(policy),actor.internalUserId]);
+    await c.query(`INSERT INTO ainuoke_sync_controls(source_key,enabled,version,policy,operator_id,paused_reason) VALUES($1,$2,$3,$4::jsonb,$5,$6)
+      ON CONFLICT(source_key) DO UPDATE SET enabled=excluded.enabled,version=excluded.version,policy=excluded.policy,operator_id=excluded.operator_id,
+      paused_reason=coalesce(ainuoke_sync_controls.paused_reason,excluded.paused_reason),updated_at=now()`,
+      [input.sourceKey,input.enabled,version,JSON.stringify(policy),actor.internalUserId,operational?.pauseReason??null]);
     await appendOperationLog(c,actor,{module:'艾诺科同步',action:'设置自动同步',entityType:'AinuokeSyncPolicy',entityId:input.sourceKey,
-      metadata:{version},afterData:{objectName:'合同来源同步',values:{enabled:input.enabled?'启用':'停用',...policy}}});
+      metadata:{version,...(operational?{pauseReason:operational.pauseReason}:{})},afterData:{objectName:'合同来源同步',values:{enabled:input.enabled?'启用':'停用',...policy}}});
     return { sourceKey: input.sourceKey, enabled: input.enabled, version, policy };
   });
+}
+
+/** Controlled cross-host handoff. The same worker lease proves no capture or
+ * publication is in flight. The sticky reason keeps older local launchers from
+ * automatically enabling this source again; the profile/reader stays enabled. */
+export async function pauseSyncForHandoff(pool:Pool,identity:Identity,input:{sourceKey:string;expectedVersion:number;policy:SyncPolicy}){
+  const lease=await pool.connect();let locked=false;
+  try{
+    locked=(await lease.query('SELECT pg_try_advisory_lock(hashtextextended($1,0)) AS locked',['ainuoke-sync-worker:'+input.sourceKey])).rows[0].locked;
+    if(!locked)throw new SourceError('sync_worker_busy');
+    return await configureSync(pool,identity,{...input,enabled:false},{pauseReason:'staging_handoff'});
+  }finally{if(locked)await lease.query('SELECT pg_advisory_unlock(hashtextextended($1,0))',['ainuoke-sync-worker:'+input.sourceKey]);lease.release();}
 }
 /** Receipt is saved before notifying the worker; duplicate clicks coalesce per contract.
  * This command never reads credentials or performs upstream network requests. */
