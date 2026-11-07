@@ -43,6 +43,12 @@ test('IT detail survives atomic publication, catalog and formal-order HTTP reads
     assert.equal(response.status,200);const model=await response.json();
     assert.equal(model.progress.sourceStatus,'ready');assert.equal(model.progress.rows[0].purchases[0].unit,'千克');
     assert.equal(model.progress.rows[0].status,null);
+    assert.equal(model.progress.rows[0].business.flows.purchase.quantity,952);
+    assert.equal(model.progress.rows[0].business.flows.inbound.quantity,981);
+    // This protocol fixture has no explicit self-purchase flag; it must not be promoted to self demand.
+    assert.equal(model.progress.rows[0].business.purchaseGap.reason,'not_applicable');
+    assert.equal(model.progress.rows[0].purchases[0].relation.sourceDetailId,'31711');
+    assert.equal(model.progress.rows[0].demand.sourceDetailId,'35776');
     assert.deepEqual((await f.pool.query('SELECT id::text,order_no FROM sales_orders ORDER BY id')).rows,before);
     await requestContractSync(f.pool,f.actor,request);assert.equal(captures,1);
   }finally{await f.close();}

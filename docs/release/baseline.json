@@ -5911,6 +5911,35 @@
       "sha256": "23930dd3bc5dd816c01e1f679745c27169b3a906e7602d5b7021b1dd780488cb",
       "supersedes": "local-automatic-decision-20261107",
       "changeReason": "User approved explicit loopback-only local demo entry using an existing read-only v1 session; preserve normal login, RBAC, source scheduling and nonlocal defaults. No staging deployment."
+    },
+    {
+      "id": "material-business-view-source-20261107",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_IT_MATERIAL_SOURCE.md",
+      "recordedAtSha": "62957c27cf479223f736d9c78890a29f4b85ecaf",
+      "renderedSourceSha": "62957c27cf479223f736d9c78890a29f4b85ecaf",
+      "sha256": "df9665cefb30c98c17469eaee68ed7f1869d9f4e3eb24dfa796f5c6d10f295ba",
+      "changeReason": "D190 user-approved local material business view distinguishes actual source transactions from comparable demand gaps, retains independent factory records and strict detail identity. No source, scheduler or staging change."
+    },
+    {
+      "id": "material-business-view-decision-20261107",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "62957c27cf479223f736d9c78890a29f4b85ecaf",
+      "renderedSourceSha": "62957c27cf479223f736d9c78890a29f4b85ecaf",
+      "sha256": "aa4aa0664c418c33831189c9528e989112a49c7a3aa06556429d5104ba4d8bc3",
+      "supersedes": "local-demo-entry-decision-20261107",
+      "changeReason": "D190 user-approved local material business view distinguishes actual source transactions from comparable demand gaps, retains independent factory records and strict detail identity. No source, scheduler or staging change."
+    },
+    {
+      "id": "material-business-view-rules-20261107",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "62957c27cf479223f736d9c78890a29f4b85ecaf",
+      "renderedSourceSha": "62957c27cf479223f736d9c78890a29f4b85ecaf",
+      "sha256": "48d4c927fa286191f487f4bcd1f4c55d2be7371089bd5472c566a3990fb13609",
+      "supersedes": "local-automatic-rules-20261107",
+      "changeReason": "D190 user-approved local material business view distinguishes actual source transactions from comparable demand gaps, retains independent factory records and strict detail identity. No source, scheduler or staging change."
     }
   ],
   "pages": [
