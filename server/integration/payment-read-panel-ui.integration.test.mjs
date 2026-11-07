@@ -51,9 +51,15 @@ test('contract payment observations use the existing drawer without false materi
       for(const width of [1920,1536,1440,1280,900,390]){
         await command('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:width===1536?1.25:1,mobile:width===390});
         await openPayments();await evaluate('document.fonts.ready');
-        const m=await evaluate("(()=>{const d=document.querySelector('.sp-business-events').getBoundingClientRect(),root=document.documentElement,t=document.querySelector('.sp-payment-requests .sp-v4-inner-scroll');return {viewport:innerWidth,globalOverflow:root.scrollWidth>innerWidth+1,drawer:{left:d.left,right:d.right,width:d.width},localScroll:t.scrollWidth>t.clientWidth,notice:document.querySelector('.sp-event-comparison').textContent};})()");
+        await evaluate('new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(done)))');
+        const m=await evaluate("(()=>{const d=document.querySelector('.sp-business-events').getBoundingClientRect(),root=document.documentElement,t=document.querySelector('.sp-payment-requests .sp-v4-inner-scroll');return {viewport:innerWidth,globalOverflow:root.scrollWidth>innerWidth+1,drawer:{left:d.left,right:d.right,width:d.width},localScroll:t.scrollWidth>t.clientWidth,localOverflow:getComputedStyle(t).overflowX,clientWidth:t.clientWidth,scrollWidth:t.scrollWidth,notice:document.querySelector('.sp-event-comparison').textContent};})()");
         assert.equal(m.globalOverflow,false);assert.ok(m.drawer.left>=-1&&m.drawer.right<=m.viewport+1);assert.ok(m.notice.includes('尚未逐行关联当前物料'));
-        assert.equal(m.localScroll,true);if(width===390)assert.ok(Math.abs(m.drawer.width-390)<2);
+        assert.equal(m.localOverflow,'auto');
+        // Wide drawers may fit the complete table under the platform's fonts.
+        // Narrow layouts must still scroll locally without moving the page.
+        if(width<=900){assert.equal(m.localScroll,true,JSON.stringify({width,...m}));
+          assert.ok(await evaluate("(()=>{const t=document.querySelector('.sp-payment-requests .sp-v4-inner-scroll');t.scrollLeft=t.scrollWidth-t.clientWidth;return t.scrollLeft>0;})()"));}
+        if(width===390)assert.ok(Math.abs(m.drawer.width-390)<2);
         metrics.push({width,...m});await screenshot('payment-'+width);
         if(width===390){
           await evaluate("document.querySelector('.sp-payment-requests details').open=true");
