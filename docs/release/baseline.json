@@ -6027,6 +6027,26 @@
         "decisions-five-day-login-20261106"
       ],
       "changeReason": "Preserve both immutable source histories at the actual two-parent integration, keeping five-day sessions and accepted material/local demo boundaries."
+    },
+    {
+      "id": "staging-handoff-source-0-20261107",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SERVER_SOURCE.md",
+      "recordedAtSha": "2edac7541da7956d9e0eed258674154d39f69ef8",
+      "renderedSourceSha": "2edac7541da7956d9e0eed258674154d39f69ef8",
+      "sha256": "423c17466f4464fb3a43e922fea8d141c758edb0aeaee32abb0cf3069b8a31eb",
+      "supersedes": "staging-material-runtime-source-20261107",
+      "changeReason": "User authorized staging delivery of the accepted materials and controlled collector handoff; preserve local read-only data, source evidence, normal RBAC and previous immutable checkpoints."
+    },
+    {
+      "id": "staging-handoff-source-1-20261107",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_IT_MATERIAL_SOURCE.md",
+      "recordedAtSha": "2edac7541da7956d9e0eed258674154d39f69ef8",
+      "renderedSourceSha": "2edac7541da7956d9e0eed258674154d39f69ef8",
+      "sha256": "12b9881e085b765850b68416ae979e471efcbc23608db2e986b3dee5566f268b",
+      "supersedes": "material-business-unit-source-20261107",
+      "changeReason": "User authorized staging delivery of the accepted materials and controlled collector handoff; preserve local read-only data, source evidence, normal RBAC and previous immutable checkpoints."
     }
   ],
   "pages": [
