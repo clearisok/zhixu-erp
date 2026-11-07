@@ -1,4 +1,6 @@
-# 当前入口：617真实订单的款式物料业务展示
+# 当前入口：已验收物料版本向 staging 交付
+
+先读[当前交付任务](tasks/active/material-staging-delivery-2026-11-07.md)。2026-11-07用户已批准完整PR合并及staging升级/数据接入/后台切换，生产不在范围。以下保留本机阶段原验收，不作为本轮staging禁令。
 
 先读[当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[物料业务展示任务、UI批准与真实验收](tasks/active/material-business-view-2026-11-07.md)。本机已交付，D190区分真实流水与可比较需求差额，D1992的20条同单位确认仅适用于严格绑定的原记录；D187/D188自购/厂供规则保持。会话及持续同步见[演示入口及自动执行验收](tasks/active/local-ainuoke-automatic-2026-11-07.md)、[Server登录](features/SERVER_LOGIN.md)及D189；源字段见[物料模块](features/AINUOKE_IT_MATERIAL_SOURCE.md)及[Server来源](features/AINUOKE_SERVER_SOURCE.md)。
 

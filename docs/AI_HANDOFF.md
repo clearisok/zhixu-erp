@@ -1,4 +1,14 @@
-# 接力：款式物料业务展示本机交付完成
+# 接力：已验收物料版本的 staging 交付
+
+最新范围：用户已授权推送、PR检查后merge commit及staging升级/兼容迁移/真实数据接入/后台切换，无需逐步确认；不含生产、新功能或页面重做。main实核cb5cc29baa49ed7115fdb6c9506b6a80356936ea。交付task material-staging-delivery-2026-11-07.md为当前恢复入口。stage根/home/jackson/weaveops-staging-preview、project zhixu-quote-trial-staging-562fbf07、SSH weaveops，实际5af85cd6、3订单9附件，旧worker PAUSED。
+
+候选a169d600b78f46e5e9cb72a62d204caa90935de5已正常一次push精确核实，后续0d9252bedc639055ecbce017d15baa6fb5bee1ca及本次交接待集中推送。原141 ae5c4d0657bd5ce89ce6dc678ecd02cc56a52e98和142 5af85cd69d997ec190646732debbedd971fa89d7已真实merge入当前候选，保留双侧冻结历史，a169源码守卫PASS。尚未移动PR140（仍b338）、无新CI；后续只在最终本地门禁通过后force=false安全快进140，不创建重复PR，不重跑旧141/142检查。Git进程级GIT_CONFIG_COUNT覆盖http.https://github.com.proxy为空，原共享配置和认证不改。
+
+备份20261107T122651Z-69f4d4ce已配对/40文件异机/121表序列独立恢复/9对象/正常登录及报价HTTP全部通过；恢复root recovery-material-20261107已停并保留。默认Docker地址池耗尽，用既有planner的新独立10.253.240.0/28和.16/28，未删网络或改daemon。私密617来源包D:/WeaveOps-Local/staging-delivery-20261107/source-archive.ndjson.gz及宁波releases/material-delivery-20261107同哈希a2321d9e9a47ccb2e13745f9d085215f1cf6b109970c01faa884e47f729b0ca5，80,664,275字节，原时点北京时间10:22:45–20:37:42，0新源请求。
+
+新importVerifiedMaterialArchive调用原建单/来源更新/validateBundle/事务publisher；原时点验证完整性，不完成原刷新任务、不重写采集时间，较新head保留，建单同事务发布不另排缺失发布任务。普通Server显式私密单位文件复用原RR证据机制，无demo auth。sync-run无source-ids复用runAutomaticSync；local service.syncEnabled=false供停采后保留web/重启不开采。监管器显式egressNetwork只允许同project default+ingress且检查标签/internal/实际网络。后续单位20receipt必须按合同解析staging UUID，不复制本机UUID。
+
+最终检查查看outputs/material-staging-delivery-20261107/release-required-result.json；未出现不能PASS。compatibility-required-result.json为12/12退出0，Python监管6/6；新增档案/文件/跨单worker和类型/Server编译/受影响lint已过。此前终端长检查未给完成回执，原日志保留，现用独立隐藏进程输出最终退出状态。先完成构建/最终源码门禁和三CI/复审merge；部署前再核对当前数据与备份，迁移52至当前canonical保持旧文件字节；正式服务接纳来源。保存本机任务并停对应collector/确认owner退出后才开staging单实例后台，保留63051和数据。新表集配对备份策略/cron须配套，再做真实管理员刷新、自然调度、匿名保护/只读403及浏览器。以下是本机已验收阶段原记录，仅作为保留证据。
 
 2026-11-07。feat/material-followup-business-view；业务/静态运行固定4bd2300ce72374289bdf299d6a828d61196d3288，后续只有证据/交付文档提交。起点b60d09125f165f2972da52d81cbf32eb94893b10干净；main基线cb5cc29baa49ed7115fdb6c9506b6a80356936ea未刷新，无远端/CI/PR/staging。任务具体用户V2批准、D190及阶段历史见tasks/active/material-business-view-2026-11-07.md。不要把本机成果描述成staging升级。
 
