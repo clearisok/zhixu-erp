@@ -13,7 +13,9 @@ const page = (rows: Record<string,unknown>[]): AinuokeReportSnapshot => ({
   schemaVersion:'ainuoke-direct-read.v2', reportId:'6087051', fetchedAt:'2026-11-07T08:00:00Z',
   page:1,pageSize:50,total:rows.length,queryContext:{salesContractNo:order.salesContractNo},snapshotHash:'synthetic',
   rows:rows.map(values=>({sourceRowIdentity:'6087051:sha256:'+createHash('sha256').update(JSON.stringify(values)).digest('hex'),values})),
-} as AinuokeReportSnapshot);
+// The legacy default Snapshot generic describes inside-order reports. 7051
+// really uses contract-only input; the projector validates this raw transport.
+} as unknown as AinuokeReportSnapshot);
 const demand = {id:1,lx:'面料',ExpContractNo:order.salesContractNo,insideorderno:'SYN',GoodsNo:'SYN-FABRIC',
   CnName:'合成同名物料',CnColor:'蓝',CnComposition:'测试规格',SupplyType:'自购',TotalNum:937,
   cgid:100,cgmxid:200,cgdh:'SYN-PO',cgnum:952,cgcnname:'合成同名物料',cgCnComposition:'测试规格',cgcncolor:'蓝'};
