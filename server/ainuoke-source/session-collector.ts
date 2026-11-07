@@ -5,7 +5,8 @@ import {SourceError} from './contract.js';
 import type {SelectedSourceRequest} from './selected-source-once.js';
 
 /** One owner per running worker, one in-flight capture. No token crosses stdout.
- * Transport uncertainty destroys the owner; never silently respawn/re-authenticate.
+ * Transport uncertainty destroys the owner. A caller may replace it only inside
+ * an explicitly bounded read-retry policy; creating an owner performs no login.
  */
 export function createSessionCollector(){
  let child:ChildProcessWithoutNullStreams|null=null,closed=false,identity:string|null=null;
@@ -47,5 +48,5 @@ export function createSessionCollector(){
     ...(cfg.transportPolicy?{transportPolicy:cfg.transportPolicy}:{})})+'\n');
   });
  };
- return {collect,close:()=>stop()};
+ return {collect,close:()=>stop(),available:()=>!closed};
 }
