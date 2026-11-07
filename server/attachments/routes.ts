@@ -85,11 +85,18 @@ export async function routeQuoteAttachments(request: IncomingMessage, response: 
     try {
       const thumbnail = await service.thumbnail(actor, quoteId, revisionId, attachmentId, controller.signal);
       if (!response.destroyed) {
+        // Authorization and revision/lifecycle checks above run even for 304.
+        const etag = `"${thumbnail.sha256}"`;
+        response.setHeader("Cache-Control", "private, no-cache");
+        response.setHeader("Vary", "Cookie, Authorization");
+        response.setHeader("ETag", etag);
+        if (request.headers["if-none-match"] === etag) {
+          response.statusCode = 304; response.end(); return true;
+        }
         response.statusCode = 200;
         response.setHeader("Content-Type", thumbnail.mimeType);
         response.setHeader("Content-Length", thumbnail.bytes.length);
         response.setHeader("X-Thumbnail-SHA256", thumbnail.sha256);
-        response.setHeader("Cache-Control", "no-store");
         response.setHeader("X-Content-Type-Options", "nosniff");
         response.end(thumbnail.bytes);
       }

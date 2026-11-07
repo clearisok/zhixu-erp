@@ -1,3 +1,4 @@
+import { siteMetadata } from "../features/runtime/site-metadata";
 import type { Metadata } from "next";
 import Script from "next/script";
 import { serverNavigationHistoryScript } from "../components/foundation/server-navigation-history";
@@ -15,21 +16,24 @@ import "./ainuoke-sync/ainuoke-sync.css";
 import "./order-center/style-progress/style-progress.css";
 import "./foundation.css";
 
+const site = siteMetadata(process.env.NEXT_PUBLIC_SITE_URL, process.env.NEXT_PUBLIC_SITE_ENV);
+
 export const metadata: Metadata = {
-  metadataBase: new URL("http://localhost:3000"),
+  metadataBase: site.base,
+  robots: site.robots,
   title: "织序 ZHIXU｜成衣报价、订单协同与生产排单",
   description: "面向服装工厂的成衣报价、订单跟踪和产线排单协同系统。",
   openGraph: {
     title: "织序 ZHIXU｜工厂协同工作台",
     description: "成衣报价 · 订单协同 · 智能排单",
     type: "website",
-    images: [{ url: "/og.png", width: 1200, height: 630, alt: "织序工厂协同工作台" }],
+    images: site.image ? [{ url: site.image, width: 1200, height: 630, alt: "织序工厂协同工作台" }] : [],
   },
   twitter: {
     card: "summary_large_image",
     title: "织序 ZHIXU｜工厂协同工作台",
     description: "成衣报价 · 订单协同 · 智能排单",
-    images: ["/og.png"],
+    images: site.image ? [site.image] : [],
   },
 };
 

@@ -116,7 +116,15 @@ test('garment observations and history use the exact Server order detail without
       const before = await counts(); await command('Emulation.setDeviceMetricsOverride', { width: 390, height: 1000, deviceScaleFactor: 1, mobile: true }); await command('Emulation.setTouchEmulationEnabled', { enabled: true, maxTouchPoints: 1 });
       const touch = async (name, selector) => {
         const find = `(()=>[...document.querySelectorAll(${JSON.stringify(selector)})].find(n=>n.textContent.trim()===${JSON.stringify(name)}))()`;
-        const target = await evaluate(`(()=>{const b=${find};if(!b||b.disabled)return null;b.scrollIntoView({block:'center'});const r=b.getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2,width:r.width,height:r.height,inside:r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight}})()`);
+        // A resize/scroll command can finish before Chromium's compositor has
+        // updated its touch hit-test regions. Wait for stable rendered geometry,
+        // and verify the actual hit target rather than retrying the touch itself.
+        await evaluate(`(()=>{const b=${find};if(!b||b.disabled)throw Error('touch button unavailable');b.scrollIntoView({block:'center',behavior:'instant'})})()`);
+        let target;
+        await until(async () => {
+          target = await evaluate(`(async()=>{const b=${find};if(!b||b.disabled||!b.isConnected)return null;const before=b.getBoundingClientRect();await new Promise(done=>requestAnimationFrame(()=>requestAnimationFrame(done)));const r=b.getBoundingClientRect(),x=r.x+r.width/2,y=r.y+r.height/2,hit=document.elementFromPoint(x,y);return {x,y,width:r.width,height:r.height,inside:r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight,stable:Math.abs(before.x-r.x)<0.5&&Math.abs(before.y-r.y)<0.5&&Math.abs(before.width-r.width)<0.5&&Math.abs(before.height-r.height)<0.5,reachable:!!hit&&(hit===b||b.contains(hit))}})()`);
+          return target?.inside && target.stable && target.reachable && target.width > 0 && target.height > 0;
+        }, 'stable reachable touch target ' + name);
         assert.ok(target?.inside); assert.ok(target.width > 0 && target.height > 0);
         await command('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [{ x: target.x, y: target.y }] }); await command('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }); return target;
       };
