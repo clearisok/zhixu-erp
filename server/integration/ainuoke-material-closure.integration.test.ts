@@ -7,7 +7,7 @@ import {createAinuokeSalesOrderInTransaction} from '../sales-orders/service.js';
 import {requestContractSync} from '../ainuoke-source/sync-queue.js';
 import {randomUUID} from 'node:crypto';
 import {requestMaterialRecovery} from '../ainuoke-source/material-recovery.js';
-import {parseSourceArguments} from '../ainuoke-source/cli.js';
+import {parseSourceArguments,parseSyncSourceIds} from '../ainuoke-source/cli.js';
 
 test('recovery CLI requires an explicit target, immutable request and selected IDs',()=>{
  const args=['--material-recover=first-team','--config=private.json','--expected-target='+'a'.repeat(64),'--request-id='+randomUUID(),'--source-ids=1,2'];
@@ -56,4 +56,12 @@ test('observed-before-binding is queued once, publishes through worker, and surv
   assert.equal((await f.pool.query('SELECT run_id FROM ainuoke_material_order_heads WHERE sales_order_id=$1',[id])).rows[0].run_id,head);
   const failed=await read();assert.equal(failed.sourceStatus,'source_failed');assert.equal(failed.rows.length,fresh.rows.length);assert.equal(failed.fetchedAt,fresh.fetchedAt);
  }finally{await f.close();}
+});
+
+test('persistent sync can consume only the existing fixed scope without widening it',()=>{
+ const args=['--sync-run=first-team','--config=private.json','--expected-target='+'a'.repeat(64),'--source-ids=6651,6919','--batch-size=1'];
+ assert.equal(parseSourceArguments(args).values.get('source-ids'),'6651,6919');
+ assert.deepEqual(parseSyncSourceIds('6651,6919'),['6651','6919']);
+ for(const value of ['',',1','1,','1,1','1, 2',Array.from({length:1401},(_,i)=>String(i)).join(',')])assert.throws(()=>parseSyncSourceIds(value),/sync_scope_invalid/);
+ assert.throws(()=>parseSourceArguments(args.map(a=>a.startsWith('--source-ids=')?'--source-ids=':a)));
 });

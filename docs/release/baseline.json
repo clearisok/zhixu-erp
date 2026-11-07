@@ -5851,6 +5851,26 @@
       "sha256": "c00194f2e80cf8cc7d7b2b0512d0a0d561fa9bba31e2544c4a4f66fac8447778",
       "supersedes": "material-revision-decision-20261107",
       "changeReason": "User explicitly authorized offline historical publication with original source time and queue preservation. Retain factory-marked source demands in trusted Server history without inferring revisions or procurement gaps. No staging deployment or new upstream authentication."
+    },
+    {
+      "id": "material-final-supply-decision-20261107",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "edcb87af4014743c3ce7bdf75dde1b01adfae374",
+      "renderedSourceSha": "edcb87af4014743c3ce7bdf75dde1b01adfae374",
+      "sha256": "a6fc2383530907a6e5af302a2ed22a709ff5133f1e2977e418cbf817b94c4d34",
+      "supersedes": "material-history-decision-20261107",
+      "changeReason": "User final rule: only explicit self-purchase demand counts; factory records remain separate, never replace or offset self-purchase. Complete empty source is successful; retain contract identity, history and per-event dedup."
+    },
+    {
+      "id": "material-final-supply-rules-20261107",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "edcb87af4014743c3ce7bdf75dde1b01adfae374",
+      "renderedSourceSha": "edcb87af4014743c3ce7bdf75dde1b01adfae374",
+      "sha256": "659f222b9c204e41040979af463d9075a92b42855af7a2883ae1494e8acba5fc",
+      "supersedes": "material-revision-rules-20261107",
+      "changeReason": "Final explicit user rule separates self-purchase and factory supply without inferred revision; empty complete source counts as successful collection."
     }
   ],
   "pages": [

@@ -24,6 +24,11 @@ import { runSchedule, schedulePolicy } from "./scheduler.js";
 import { requirePermission } from "../auth/permissions.js";
 import { refreshBoundMaterialsOnce } from './bounded-material-refresh.js';
 
+export function parseSyncSourceIds(value: string): string[] {
+  const ids=value.split(',');
+  if(!ids.length||ids.length>1400||ids.some(id=>!id||id.length>200||id!==id.trim()||/[\u0000-\u001f\u007f]/u.test(id))||new Set(ids).size!==ids.length)throw new SourceError('sync_scope_invalid');
+  return ids;
+}
 export function parseSourceArguments(args: string[]) {
   const values = new Map<string,string>();
   for(const argument of args) {
@@ -35,7 +40,7 @@ export function parseSourceArguments(args: string[]) {
   if(actions.length!==1 || !values.get("config")) throw new SourceError("explicit_source_action_required");
   const action=actions[0];
   if(action==='material-history-publish'&&(!values.get('source-id')||!['order-id','observation-id'].every(k=>/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(values.get(k)??''))||!/^[a-f0-9]{64}$/.test(values.get('evidence-hash')??'')))throw new SourceError('historical_material_scope_invalid');
-  const allowed=["config",action,...(action==="material-history-publish"?["source-id","order-id","observation-id","evidence-hash"]:[]),...(action==="material-recover"?["source-ids","request-id"]:[]),...(action==="check"?[]:["expected-target"]),...(["bind","bind-selected","add"].includes(action)?["expected-preview"]:[]),
+  const allowed=["config",action,...(action==="material-history-publish"?["source-id","order-id","observation-id","evidence-hash"]:[]),...(action==="material-recover"?["source-ids","request-id"]:[]),...(["sync-once","sync-run"].includes(action)?["source-ids"]:[]),...(action==="check"?[]:["expected-target"]),...(["bind","bind-selected","add"].includes(action)?["expected-preview"]:[]),
     ...(["preview-add","add","preview-bind-selected","bind-selected","execute-bounded","execute-group"].includes(action)?["contracts"]:[]),...(action==="schedule"?["interval-ms","max-backoff-ms"]:[]),...(["catalog","catalog-receipt","execute-group","group-receipt"].includes(action)?["request-id"]:[]),...(action==="execute-group"?["expected-scope"]:[]),...(["plan-followup","sync-once","sync-run"].includes(action)?["batch-size"]:[]),...(action==="sync-configure"?["enabled","expected-version","policy-file"]:[]),...(action==="sync-recover"?["expected-preview","reason"]:[])];
   if([...values.keys()].some(k=>!allowed.includes(k)) || action==="check"&&values.get(action)!==""
     || action!=="check"&&(!/^[a-z][a-z0-9_-]{2,63}$/u.test(values.get(action)!)||!/^[a-f0-9]{64}$/u.test(values.get("expected-target")??""))
@@ -47,12 +52,13 @@ export function parseSourceArguments(args: string[]) {
   if(values.has('batch-size')&&(!/^\d+$/.test(values.get('batch-size')!)||Number(values.get('batch-size'))<1||Number(values.get('batch-size'))>25))throw new SourceError('sync_batch_invalid');
   if(action==='sync-recover'&&(!/^[a-f0-9]{64}$/.test(values.get('expected-preview')??'')||(values.get('reason')??'').trim().length<3||(values.get('reason')??'').length>300))throw new SourceError('sync_recovery_invalid');
   if(action==='material-recover'&&(!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(values.get('request-id')??'')||!values.get('source-ids')))throw new SourceError('material_recovery_scope_invalid');
+  if(['sync-once','sync-run'].includes(action)&&values.has('source-ids'))parseSyncSourceIds(values.get('source-ids')!);
   return {action,values};
 }
 export async function main(args: string[] = process.argv.slice(2)): Promise<void> {
   if(args.length===0 || args.length===1&&args[0]==="--help") {
     process.stdout.write("material-recover: --material-recover=<source key> --source-ids=<exact IDs separated by commas> --request-id=<stable recovery UUID> --expected-target=<fingerprint> --config=<private file>. Enqueues ordinary jobs only; replay the same UUID after interruption.\n");
-    process.stdout.write("sync-configure: --sync-configure=<source key> --enabled=true|false --expected-version=<version> [--policy-file=<bounded JSON>] --expected-target=<fingerprint> --config=<private file>\nsync-run / sync-once: --sync-run=<source key> [--batch-size=5] --expected-target=<fingerprint> --config=<private file>. No automatic retry after unknown outcomes.\nsync-status / sync-recovery-preview: database only. Recovery uses --sync-recover=<source key> --expected-preview=<reviewHash> --reason=<reviewed reason> with the same config/target. Never makes upstream requests.\n");
+    process.stdout.write("sync-configure: --sync-configure=<source key> --enabled=true|false --expected-version=<version> [--policy-file=<bounded JSON>] --expected-target=<fingerprint> --config=<private file>\nsync-run / sync-once: --sync-run=<source key> [--batch-size=5] --expected-target=<fingerprint> --config=<private file>. Optional --source-ids=<exact IDs> drains existing/manual selected tasks without automatic enqueue or directory scheduling; session remains reusable while waiting. No automatic retry after unknown outcomes.\nsync-status / sync-recovery-preview: database only. Recovery uses --sync-recover=<source key> --expected-preview=<reviewHash> --reason=<reviewed reason> with the same config/target. Never makes upstream requests.\n");
     process.stdout.write("catalog: --catalog=<source key> --request-id=<UUID> --expected-target=<fingerprint> --config=<private file>; bounded 1 login/40 reports/180s, no retry. Replay first checks receipt.\nplan-followup: --plan-followup=<source key> [--batch-size=5] --expected-target=<fingerprint> --config=<file>; DB only.\nexecute-group: --execute-group=<source key> --contracts=<selected BillNos> --expected-scope=<plan hash> --request-id=<UUID> --expected-target=<fingerprint> --config=<file>; at most one group, never repeats request.\nReceipts: --catalog-receipt or --group-receipt=<source key> --request-id=<UUID> --expected-target=<fingerprint> --config=<file>.\ncheck: --check --config=<absolute private file>\nread-only source preview: --preview-bind=<source key> --expected-target=<check fingerprint> --config=<file>\nbind: --bind=<source key> --expected-target=<fingerprint> --expected-preview=<reviewHash> --config=<file>\nselected first binding: --preview-bind-selected=<source key> --contracts=<BillNo,...> --expected-target=<fingerprint> --config=<file>\nconfirm first selection: --bind-selected=<source key> --contracts=<BillNo,...> --expected-preview=<reviewHash> --expected-target=<fingerprint> --config=<file>\nnew contracts: --discover-add=<source key> --expected-target=<fingerprint> --config=<file>\npreview selected: --preview-add=<source key> --contracts=<BillNo,...> --expected-target=<fingerprint> --config=<file>\nconfirm selected: --add=<source key> --contracts=<BillNo,...> --expected-preview=<reviewHash> --expected-target=<fingerprint> --config=<file>\ncapture: --execute=<source key> --expected-target=<fingerprint> --config=<file>\nbounded material capture: --execute-bounded=<source key> --contracts=<exact bound BillNos> --expected-target=<fingerprint> --config=<file>\nscheduler: --schedule=<source key> --expected-target=<fingerprint> --config=<file> [--interval-ms=300000] [--max-backoff-ms=1800000]\nNo migration, account bootstrap or deployment is performed. Scheduling does not bind orders.\n"); return;
   }
   const {action,values}=parseSourceArguments(args);
@@ -105,6 +111,11 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
     }
     if(action==='sync-once'||action==='sync-run'){
       const batchSize=Number(values.get('batch-size')??5);
+      const sourceIds=values.has('source-ids')?parseSyncSourceIds(values.get('source-ids')!):undefined;
+      if(sourceIds){
+        const bound=(await pool.query(`SELECT e.source_id FROM ainuoke_catalog_entries e JOIN sales_order_source_links l ON l.external_id=e.source_id AND l.sales_contract_no=e.sales_contract_no AND l.source_system='ainuoke' AND l.source_entity_type='sales_contract' WHERE e.source_key=$1 AND e.source_id=ANY($2::text[])`,[cfg.sourceKey,sourceIds])).rows;
+        if(bound.length!==sourceIds.length)throw new SourceError('material_recovery_binding_missing');
+      }
       const controller=new AbortController(),stop=()=>controller.abort();
       process.once('SIGINT',stop);process.once('SIGTERM',stop);
       // PostgreSQL notification wakes manual requests immediately. The one-second
@@ -118,8 +129,8 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
         const current=readPrivateCollectorConfig(path);
         if(accountFingerprint(current)!==accountFingerprint(cfg)||current.sourceKey!==cfg.sourceKey||current.operatorUsername!==cfg.operatorUsername)throw new SourceError('source_account_mismatch');
         await verifyMigrationsCurrent(pool,server.migrationsDirectory);
-        const automatic=Date.now()>=automaticAt;
-        const result=await runSyncTick(pool,actor,current,{batchSize,automatic,collect:sessionCollector.collect});
+        const automatic=!sourceIds&&Date.now()>=automaticAt;
+        const result=await runSyncTick(pool,actor,current,{batchSize,automatic,sourceIds,collect:sessionCollector.collect});
         if(automatic)automaticAt=Date.now()+60000;
         if(result.status!=='idle')process.stdout.write(JSON.stringify({event:'SYNC_TICK',...result})+'\n');
         if(action==='sync-once'||result.status==='paused'||result.status==='failed'&&!result.retryScheduled)break;
