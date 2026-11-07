@@ -28,6 +28,10 @@ test("analysis reuses actual color and material adapters and public receipt omit
  const {request,bundle}=fixture();const result=await analyzeQuality(bundle,request,stamp);
  assert.equal(result.summary.contracts,1);assert.equal(result.summary.databaseAccess,"none");
  inspect(result.privateReport); assert.ok(!JSON.stringify(result.privateReport).includes("sizeRuleTokens"));
+ const material=result.privateReport.orders[0].material;
+ assert.ok(material?.rows.some(row=>row.business?.flows.purchase.parts.length));
+ assert.ok(material?.groups.every(group=>group.rows.every(row=>!('business' in row))));
+ assert.equal(material?.groups.reduce((n,group)=>n+group.rows.length,0),material?.rows.length);
  const text=JSON.stringify(result.summary);for(const value of [request.targets[0].salesContractNo,"SYNTHETIC-IN-OLD","protected-commercial-sentinel"])assert.ok(!text.includes(value));
  assert.ok(result.privateReport.orders[0].materialRawPages?.length);assert.equal(result.privateReport.orders[0].insideIdentityChanged,false);
 });
