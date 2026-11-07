@@ -17,7 +17,7 @@ export function page(reportId,rows,queryContext={salesContractNo:'SYN-IT-1'}){
     snapshotHash:'synthetic',rows:rows.map(values=>({sourceRowIdentity:reportId+':sha256:'+createHash('sha256').update(JSON.stringify(values)).digest('hex'),values}))};
 }
 const main=(rows=itRows())=>page('6087051',rows);
-test('factory-marked source demands remain traceable without inferring replacement or additive effective demand',()=>{
+test('self-purchase demand and factory records retain separate identities and transaction history',()=>{
   const original={...itRows()[0],SupplyType:'自购'};
   const revised={...original,id:35777,SupplyType:'厂供',TotalNum:740,
     cgmxid:31712,cgnum:50,rkmxid:35640,rknum:40,cymxid:85220,CYNum:30,ckmxid:38230,OutStoreNum:20};
@@ -26,9 +26,11 @@ test('factory-marked source demands remain traceable without inferring replaceme
   assert.deepEqual(view.rows.map(r=>r.demand.requiredQuantity).sort((a,b)=>a-b),[740,937]);
   const factory=view.rows.find(r=>r.demand.supplyMethod==='厂供');
   assert.deepEqual(filterProgressRows(view,'厂供','all','all'),[factory]);
+  assert.equal(view.summary.fabric.demands+view.summary.trim.demands,1);
+  assert.equal(view.groups.length,1); // canonical material key and existing plans remain stable
   assert.equal(factory.purchases[0].quantity,50);assert.equal(factory.inbounds[0].quantity,40);
   assert.equal(factory.shipments[0].quantity,30);assert.equal(factory.outbounds[0].quantity,20);
-  assert.ok(factory.issues.some(s=>s.includes('不自动替代或累加')));
+  assert.ok(factory.issues.some(s=>s.includes('不参与自购')));
   assert.ok(view.rows.every(r=>r.purchaseShortfall===null&&r.purchaseExcess===null&&r.status===null));
   assert.deepEqual(projectMaterialProgress(order,[main([original,revised])]),view);
 });
@@ -99,4 +101,13 @@ test('missing transaction identity retains readable observation but no reliable 
 });
 test('new Server source cannot be committed through old Browser import',()=>{
   assert.throws(()=>toAinuokeMaterialImportPreview(buildAinuokeMaterialApiPreview({snapshots:[main()]}),'synthetic'),/不受支持/);
+});
+
+test('self-purchase demand without a purchase remains; unknown supply is not self-purchase',()=>{
+ const base=itRows()[0];
+ const demand={...base,SupplyType:'自购',cgid:null,cgmxid:null,cgdh:null,cgnum:null,rkid:null,rkmxid:null,rkdh:null,rknum:null,cyid:null,cymxid:null,cydh:null,CYNum:null,ckid:null,ckmxid:null,ckdh:null,OutStoreNum:null};
+ const view=projectMaterialProgress(order,[main([demand,{...demand,id:35778,SupplyType:'待核对'}])]);
+ assert.equal(view.sourceStatus,'ready');assert.equal(view.rows.length,2);
+ assert.equal(view.summary.fabric.demands+view.summary.trim.demands,1);
+ assert.ok(view.rows.every(row=>row.purchases.length===0&&row.purchaseShortfall===null));
 });
