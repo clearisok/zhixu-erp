@@ -1,0 +1,76 @@
+{
+  "date": "2026-11-04",
+  "candidate": "cba3aef48df322a3fc7f2ff1d5979876a33b67b3",
+  "remoteHead": "51960627012b3cd2800550c74efd69b9d0b94eae",
+  "main": "cb5cc29baa49ed7115fdb6c9506b6a80356936ea",
+  "pullRequest": 140,
+  "ci": {
+    "releaseBaseline": {
+      "id": 41855896194,
+      "result": "success"
+    },
+    "teamAccess": {
+      "id": 41855895735,
+      "result": "success"
+    },
+    "source": {
+      "id": 41855895961,
+      "result": "failure",
+      "localFix": "effective attribution scope guard assertion; 9 tests pass"
+    }
+  },
+  "login": {
+    "requests": 1,
+    "reports": 0,
+    "result": "rejected",
+    "hint": "unclassified",
+    "elapsedMs": 415,
+    "coverLogin": false,
+    "allowanceClosed": true
+  },
+  "remaining58Attempted": false,
+  "continuous247Verified": false,
+  "ningboRestore": {
+    "state": "CANDIDATE_DATABASE_OBJECT_PAIR_RESTORE_VERIFIED",
+    "source": "cba3aef48df322a3fc7f2ff1d5979876a33b67b3",
+    "operatorImage": "sha256:3883247d78de7623c044b8dd34a7a6f5aff072bcd5029405d0fca21e6d3f67d3",
+    "inputBackup": "20261104T075135Z-7898850c",
+    "originalTables": 121,
+    "candidateTables": 137,
+    "objects": 2,
+    "migrations": {
+      "appliedInPriorAttempt": [
+        "0053_ainuoke_catalog_followup.sql",
+        "0054_ainuoke_catalog_receipts.sql",
+        "0055_ainuoke_shared_catalog_evidence.sql",
+        "0056_ainuoke_sync_attempt_recovery.sql"
+      ]
+    },
+    "sourceRequests": 0,
+    "productionBusinessWrites": 0,
+    "publicPorts": 0,
+    "attachmentHttpVerified": false,
+    "liveBackupPolicyRebound": false,
+    "offHostCandidatePairVerified": false,
+    "oldCoverageUntouched": true
+  },
+  "offhostRestore": {
+    "state": "OFFHOST_DATABASE_ATTACHMENT_PAIR_RESTORE_VERIFIED",
+    "source": "cba3aef48df322a3fc7f2ff1d5979876a33b67b3",
+    "tables": 137,
+    "objects": 2,
+    "postgresImage": "sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229",
+    "sourceRequests": 0,
+    "network": "none",
+    "liveBusinessWrites": 0,
+    "attachmentHttpVerified": false,
+    "assetsRetained": true
+  },
+  "runtimeSource": "f21c96c1899126028ba9a272727ad8d564ccf185",
+  "productionDeploymentChanged": false,
+  "tools": {
+    "restore-drill.py": "0a5e119b9eefd284a7135bb33b6f95b12f76736f0758e2d2d43cd207022b73d9",
+    "restore-resume.py": "19363c1d1044615e4e38fd9b5721e029a35e80e1d772618eb789bd9279748c6b",
+    "offhost-restore.py": "f2b5302d582b25f0a7ecb2d0d69afe58bff4c1f8074accbc11b2addb9dae1cf1"
+  }
+}

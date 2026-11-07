@@ -1,0 +1,78 @@
+{
+  "date": "2026-11-01",
+  "state": "STAGING_UPDATED_VERIFIED",
+  "approval": "同步到体验站",
+  "source": "f21c96c1899126028ba9a272727ad8d564ccf185",
+  "image": "sha256:0bc513c4c45a718faf718bbe529a1e3c3c820506c4ecdb933a058e953d0bcd17",
+  "buildId": "server-preview-f21c96c1-e4874825be",
+  "publicOrigin": "https://staging.weaveops.top",
+  "sourceKind": "local_unmerged_task_commit",
+  "publicApi": {
+    "state": "PUBLIC_AUTHENTICATED_READBACK_PASS",
+    "source": "f21c96c1899126028ba9a272727ad8d564ccf185",
+    "orders": 3,
+    "quotes": 2,
+    "tlsVerified": true,
+    "logoutVerified": true,
+    "businessWrites": 0,
+    "sourceRequests": 0
+  },
+  "publicStylesheet": "/assets/index-DWX5uEhc.css",
+  "publicCssSha256": "83b1f5ab2b1fcf8cf2e6935cea3d94b2e4315412b19ac49aeceebd9db4d23b4a",
+  "browserCssRulesVerified": [
+    "organization min-height 75px",
+    "collapsed nav padding-inline 17px and flex-start"
+  ],
+  "validation": {
+    "relatedTests": 28,
+    "releaseBaselineTests": 182,
+    "productionBuild": "PASS",
+    "exactImageIndependentRestore": {
+      "tables": 121,
+      "objects": 2,
+      "startup": "PASS"
+    }
+  },
+  "preservation": {
+    "orders": 3,
+    "quotes": 2,
+    "objects": 2,
+    "databaseAndObjectContainerIdsPreserved": true,
+    "businessRowsUnchangedDuringSwitch": true,
+    "expectedStartupChanges": [
+      "server-admin role updated_at",
+      "app_users_id_seq +1"
+    ],
+    "oldImagesConfigsVolumesAndBackupsRetained": true
+  },
+  "backupBefore": "20261101T120114Z-a1d88e95",
+  "backupAfter": "20261101T120345Z-91506e7c",
+  "offhost": {
+    "state": "OFFHOST_VERIFIED",
+    "checkedAt": "2026-11-01T12:05:12.666Z",
+    "copied": 2,
+    "verified": 3,
+    "assetCount": 5,
+    "runtimeMatches": true,
+    "latest": "20261101T120345Z-91506e7c",
+    "serverState": "BACKUP_VERIFIED",
+    "serverFinishedAt": "2026-11-01T12:04:04.526966+00:00",
+    "serverCode": null,
+    "businessWrites": 0,
+    "sourceRequests": 0,
+    "deletedAssets": 0
+  },
+  "sync": {
+    "state": "HEALTHY",
+    "successfulRuns": 30,
+    "completedAt": "2026-11-01T12:05:11.725219+00:00",
+    "disabled": false,
+    "sameThreeContractScope": true,
+    "operatorImageUnchanged": true
+  },
+  "limitations": [
+    "Live authenticated browser collapse interaction not repeated; actual AppShell geometry tested locally and public CSS verified.",
+    "Ningbo Python public probe received HTTP403; local Node public authenticated readback passed.",
+    "No GitHub push, CI, merge, source scope change or forced collection in this phase."
+  ]
+}

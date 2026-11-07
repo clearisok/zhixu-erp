@@ -49,6 +49,7 @@ export type ServerSalesOrderDetailDto = ServerSalesOrderReadDto & {
 
 export type ServerSalesOrderListQuery = {
   includeHistorical?: boolean;
+  followupMode?: 'active'|'history'|'all';
   limit?: number;
   offset?: number;
   search?: string;

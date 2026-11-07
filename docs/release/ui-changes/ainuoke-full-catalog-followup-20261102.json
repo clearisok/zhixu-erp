@@ -1,0 +1,19 @@
+{
+  "baselineSha": "cb5cc29baa49ed7115fdb6c9506b6a80356936ea",
+  "level": "V2",
+  "paths": [
+    "app/order-center/order-center.css",
+    "features/ainuoke-material-progress/order-material-summary.tsx",
+    "features/operation-logs/model/operation-log.ts",
+    "features/order-center/components/server-catalog-detail.tsx",
+    "features/order-center/components/server-contract-refresh.tsx",
+    "features/order-center/components/server-order-center-page.tsx",
+    "features/order-center/components/server-source-catalog.tsx",
+    "features/order-center/server/sales-order-server-model.ts",
+    "features/order-center/server/server-order-center-query.ts"
+  ],
+  "pages": ["order-list", "order-detail", "material"],
+  "visibleDifference": "Add the approved all-visible contract catalogue, existing-component source detail drawer, explicit follow-up/intake and immediate per-contract refresh with durable receipts. Render mobile records, dynamic Beijing cadence and last success; stale purchases never appear as zero. Existing SO and source/financial authority retained.",
+  "evidence": ["docs/tasks/active/ainuoke-full-catalog-followup-2026-11-02.md", "server/integration/ainuoke-catalog-ui.integration.test.mjs"],
+  "approval": {"status": "user-approved", "reference": "docs/tasks/active/ainuoke-full-catalog-followup-2026-11-02.md"}
+}

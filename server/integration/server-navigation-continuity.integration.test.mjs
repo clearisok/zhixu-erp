@@ -138,6 +138,7 @@ test('built Server navigation keeps the workspace continuous without changing au
     const screenshot = async name => { const shot = await command('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false }); await writeFile(join(evidence, name + '.png'), Buffer.from(shot.data, 'base64')); };
     const mark = () => evaluate("window.continuityProbe={samples:0,missing:0};window.continuityShell=document.querySelector('.qc-app-shell');window.continuitySidebar=document.querySelector('.ops-sidebar');window.continuityHeader=document.querySelector('.ops-topbar');window.markedDocument=continuityDocument;");
     const measure = async name => {
+      await until(() => evaluate('(window.continuityProbe?.samples??0)>0'), 'continuity animation frame');
       const value = await evaluate("({sameDocument:window.markedDocument===continuityDocument,sameShell:window.continuityShell===document.querySelector('.qc-app-shell'),sameSidebar:window.continuitySidebar===document.querySelector('.ops-sidebar'),sameHeader:window.continuityHeader===document.querySelector('.ops-topbar'),samples:window.continuityProbe?.samples??0,missingFrames:window.continuityProbe?.missing??null,shellCount:document.querySelectorAll('.qc-app-shell').length,background:getComputedStyle(document.body).backgroundColor})");
       records.transitions.push({ name, value }); return value;
     };

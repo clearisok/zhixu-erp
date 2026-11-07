@@ -64,7 +64,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate",
-    "test:team-access": "tsx --test --test-concurrency=1 features/permissions/server/__tests__/team-access-client.test.ts server/integration/team-access.integration.test.ts server/integration/managed-roles.integration.test.ts server/integration/user-lifecycle.integration.test.ts",
+    "test:team-access": "tsx --test --test-concurrency=1 features/permissions/server/__tests__/team-access-client.test.ts server/integration/team-access.integration.test.ts server/integration/managed-roles.integration.test.ts server/integration/user-lifecycle.integration.test.ts server/integration/remembered-login.integration.test.ts",
     "test:team-access-ui": "tsx --test --test-concurrency=1 server/integration/team-access-ui.integration.test.mjs",
     "source:ainuoke": "tsx server/ainuoke-source/cli.ts",
     "test:ainuoke-server-source": "tsx --test --test-concurrency=1 server/integration/ainuoke-server-source.test.ts server/integration/ainuoke-server-source.integration.test.ts",
@@ -131,7 +131,9 @@
     "test:closing-month-financial": "tsx --test --test-concurrency=1 server/integration/closing-month-financial.integration.test.ts",
     "test:closing-year": "tsx --test --test-concurrency=1 server/closing/annual-model.test.ts server/integration/closing-annual-read.integration.test.ts",
     "test:closing-month-interface": "tsx --test --test-concurrency=1 features/closing-center/server/__tests__/closing-month-client.test.ts features/closing-center/server/__tests__/closing-month-controller.test.ts server/integration/closing-month-interface.integration.test.ts",
-    "test:closing-source-reconciliation": "tsx --test --test-concurrency=1 server/closing/source-reconciliation-model.test.ts server/integration/closing-source-reconciliation.integration.test.ts"
+    "test:closing-source-reconciliation": "tsx --test --test-concurrency=1 server/closing/source-reconciliation-model.test.ts server/integration/closing-source-reconciliation.integration.test.ts",
+    "test:ainuoke-catalog": "tsx --test --test-concurrency=1 server/ainuoke-source/sync-schedule.test.ts server/ainuoke-source/sync-diagnostics.test.ts server/ainuoke-source/catalog-business-change.test.ts server/integration/ainuoke-catalog-followup.integration.test.ts server/integration/ainuoke-catalog-api.integration.test.ts server/integration/ainuoke-catalog-upgrade.integration.test.ts server/integration/ainuoke-sync-resilience.integration.test.ts server/integration/ainuoke-sync-stop.integration.test.ts server/integration/ainuoke-it-material.integration.test.ts",
+    "test:ainuoke-catalog-ui": "tsx --test server/integration/ainuoke-catalog-ui.integration.test.mjs"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "3.1146.0",

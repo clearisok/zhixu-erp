@@ -61,7 +61,7 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
    await command("Network.setBlockedURLs",{urls:[]});
    await click("退出登录");await has("忘记密码？请联系系统管理员");
    assert.equal(await evaluate("new URLSearchParams(location.search).get('returnTo')"),material);
-   assert.equal(await evaluate("document.querySelectorAll('[data-canonical-material-key]').length"),0);
+   assert.equal(await evaluate("new Set([...document.querySelectorAll('[data-canonical-material-key]')].map(n=>n.getAttribute('data-canonical-material-key'))).size"),0);
    assert.equal(await evaluate("(async()=> (await fetch('/api/v1/sales-orders')).status)()"),401);
    await input("input[name=username]",x.users[3]);await input("input[name=password]",x.password);await click("登录织序");await has("合成棉布");
    assert.equal(await evaluate("location.pathname+location.search"),material);
@@ -141,24 +141,26 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
    const result=await evaluate("(()=>{const dl=document.querySelector('.oc-server-detail-overview .qc-description-list');return{columns:getComputedStyle(dl).gridTemplateColumns.split(' ').length,overflow:document.documentElement.scrollWidth>innerWidth+1,technicalOpen:document.querySelector('.oc-server-technical-details').open};})()");
    assert.equal(result.columns,width>=1280?3:1);assert.equal(result.overflow,false);assert.equal(result.technicalOpen,false);metrics.push({width,...result});await screenshot("order-"+width);
    await evaluate("[...document.querySelectorAll('a')].find(n=>n.textContent.includes('查看物料跟进')).click()");await has("合成棉布");
-   assert.equal(await evaluate("document.querySelectorAll('[data-canonical-material-key]').length"),4);
+   assert.equal(await evaluate("new Set([...document.querySelectorAll('[data-canonical-material-key]')].map(n=>n.getAttribute('data-canonical-material-key'))).size"),5);
    for(const label of ["采购","入库","物料出运","物料出库"])await has(label);
+   assert.equal(await evaluate("document.querySelectorAll('[data-supply-scope=factory] [data-canonical-material-key]').length"),1,'factory demand remains independently visible');
+   assert.equal(await evaluate("document.querySelectorAll('[data-supply-scope=self] [data-canonical-material-key]').length"),4,'the four original self-purchase groups remain visible');
    assert.equal(await evaluate("document.documentElement.scrollWidth>innerWidth+1"),false);
-   await evaluate("[...document.querySelectorAll('button')].find(node=>node.getAttribute('aria-label')==='查看 合成棉布 事件').click()");await has("12.75");await screenshot("material-"+width);
+   await evaluate("[...document.querySelectorAll('button')].find(node=>node.getAttribute('aria-label')==='查看 合成棉布 明细').click()");await has("12.75");await screenshot("material-"+width);
    assert.deepEqual(await evaluate("window.businessWrites"),[]);
    assert.deepEqual(await evaluate("Object.keys(localStorage).filter(k=>k.startsWith('zhixu.erp.local.'))"),[]);
   });
   await t.test("all seven trusted roles see four-stream procurement; no amount sentinel or Browser fallback",async()=>{
-   for(const user of x.users){await login(user);await navigate("/order-center/style-progress/detail?orderId="+x.orderId);await has("合成棉布");await evaluate("[...document.querySelectorAll('button')].find(node=>node.getAttribute('aria-label')==='查看 合成棉布 事件').click()");await has("12.75");assert.equal(await evaluate("document.body.innerText.includes('protected-commercial-sentinel')"),false);}
+   for(const user of x.users){await login(user);await navigate("/order-center/style-progress/detail?orderId="+x.orderId);await has("合成棉布");await evaluate("[...document.querySelectorAll('button')].find(node=>node.getAttribute('aria-label')==='查看 合成棉布 明细').click()");await has("12.75");assert.equal(await evaluate("document.body.innerText.includes('protected-commercial-sentinel')"),false);}
   });
   await t.test("automatic polling observes next persisted generation without navigation or reload",async()=>{
    const before=x.materialReads();await x.capture();await until(()=>evaluate("document.body.innerText.includes('PO-SYNTHETIC-partial-a-G1')"),"automatic next generation",40000);assert.ok(x.materialReads()>before);
   });
-  await t.test("failure clears displayed facts and focus-driven recovery reuses the existing layout",async()=>{
-   x.setMode("failed");await assert.rejects(x.capture());await evaluate("window.dispatchEvent(new Event('focus'))");await has("物料来源读取失败");
-   assert.equal(await evaluate("document.querySelectorAll('[data-canonical-material-key]').length"),0);
+  await t.test("failure preserves last complete facts and focus-driven recovery reuses the existing layout",async()=>{
+   x.setMode("failed");await assert.rejects(x.capture());await evaluate("window.dispatchEvent(new Event('focus'))");await has("最近刷新未成功");
+   assert.equal(await evaluate("new Set([...document.querySelectorAll('[data-canonical-material-key]')].map(n=>n.getAttribute('data-canonical-material-key'))).size"),5);
    x.setMode("ready");await x.capture();await evaluate("window.dispatchEvent(new Event('focus'))");await has("合成棉布");
-   x.setMode("stale");await evaluate("window.dispatchEvent(new Event('focus'))");await has("来源已超出可信读取时效");assert.equal(await evaluate("document.querySelectorAll('[data-canonical-material-key]').length"),0);x.setMode("ready");
+   x.setMode("stale");await evaluate("window.dispatchEvent(new Event('focus'))");await has("当前显示历史数据");assert.equal(await evaluate("new Set([...document.querySelectorAll('[data-canonical-material-key]')].map(n=>n.getAttribute('data-canonical-material-key'))).size"),5);x.setMode("ready");
   });
   await t.test("missing UUID and unsupported routes cannot enter old Browser pages",async()=>{
    await navigate("/order-center/style-progress/detail");await has("仅接受正式订单 UUID");

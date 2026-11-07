@@ -1,0 +1,15 @@
+{
+  "baselineSha": "cb5cc29baa49ed7115fdb6c9506b6a80356936ea",
+  "level": "V1",
+  "paths": [
+    "app/foundation.css"
+  ],
+  "pages": [
+    "navigation"
+  ],
+  "visibleDifference": "Restore the same desktop menu row and icon coordinates when toggling collapse. Keep expanded geometry and workspace width expansion; compact and touch navigation remain unchanged.",
+  "evidence": [
+    "docs/tasks/active/sidebar-collapse-alignment-2026-11-01.md",
+    "artifacts/sidebar-collapse-alignment-20261101/geometry.json"
+  ]
+}

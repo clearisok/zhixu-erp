@@ -56,10 +56,15 @@ test("protected thumbnails: disposable PostgreSQL, trusted sessions, original pr
       const before = JSON.stringify((await createQuoteRepository(pool).getById(quote.id)));
       const logs = (await pool.query("SELECT count(*)::int AS n FROM operation_logs")).rows[0].n;
       const r = await read(uploaded.attachment.id); assert.equal(r.status, 200);
-      assert.equal(r.headers.get("cache-control"), "no-store"); assert.equal(r.headers.get("content-type"), "image/jpeg");
+      assert.equal(r.headers.get("cache-control"), "private, no-cache");
+      assert.equal(r.headers.get("vary"), "Cookie, Authorization"); assert.equal(r.headers.get("content-type"), "image/jpeg");
       const thumb = Buffer.from(await r.arrayBuffer()), meta = await sharp(thumb).metadata();
       assert.ok(Math.max(meta.width!, meta.height!) <= 256 && thumb.length <= 96 * 1024);
       assert.equal(createHash("sha256").update(thumb).digest("hex"), r.headers.get("x-thumbnail-sha256"));
+      const conditional = await fetch(base + path(uploaded.attachment.id), {headers:{Cookie:cookie,"If-None-Match":r.headers.get("etag")!}});
+      assert.equal(conditional.status,304);assert.equal((await conditional.arrayBuffer()).byteLength,0);
+      const deniedConditional = await fetch(base + path(uploaded.attachment.id), {headers:{Cookie:denied,"If-None-Match":r.headers.get("etag")!}});
+      assert.equal(deniedConditional.status,403);
       const original = await read(uploaded.attachment.id, cookie, "download");
       assert.deepEqual(Buffer.from(await original.arrayBuffer()), bytes);
       assert.equal(createHash("sha256").update(bytes).digest("hex"), uploaded.attachment.sha256);

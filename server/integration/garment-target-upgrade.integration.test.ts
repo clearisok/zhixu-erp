@@ -1,4 +1,5 @@
 import test from "node:test";
+import { freezeExistingPublicRows } from "./legacy-row-snapshot-fixture.js";
 import assert from "node:assert/strict";
 import { mkdtemp, readdir, copyFile, rm } from "node:fs/promises";
 import { realpathSync } from "node:fs";
@@ -49,7 +50,7 @@ test("0043 nonempty upgrade preserves all old bytes and creates only an empty ta
     clock += 100; return workerFrame(scope, clock);
   } });
   const tables = (await pool.query<{ tablename: string }>("SELECT tablename FROM pg_tables WHERE schemaname='public' AND tablename<>'schema_migrations' ORDER BY tablename")).rows.map(row => row.tablename);
-  const snapshot = () => Promise.all(tables.map(async table => ({ table, rows: (await pool.query(`SELECT to_jsonb(r)::text AS payload FROM "${table}" r ORDER BY payload`)).rows })));
+  const snapshot = await freezeExistingPublicRows(pool, tables);
   const before = await snapshot(), reader = createGarmentShipmentReader(pool, { sourceKey: request.config.sourceKey }, () => clock), oldView = await reader.read(actor, order.id);
   await t.test("verify-only and plan reject old schema without mutations or a Source call", async () => {
     await assert.rejects(() => verifyMigrationsCurrent(pool, resolve("database/migrations")), PendingMigrationsError);

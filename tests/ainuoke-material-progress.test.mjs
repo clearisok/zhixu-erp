@@ -209,3 +209,12 @@ test('two paid repeat purchases with equal quantities remain distinct events; un
   assert.equal(sameUnit.purchases.length,2); assert.equal(sameUnit.purchased,200);
   assert.equal(sameUnit.demand.requiredQuantity,100);
 });
+
+test('Server summary counts only self-purchase and retains factory independently with canonical plans unchanged',()=>{
+ const pages=complete(),legacy=project(pages),view=projectMaterialProgress(syntheticOrder,pages,[],{retainSourceDemands:true});
+ assert.equal(view.sourceStatus,'ready');assert.equal(view.rows.length,7);assert.equal(view.factoryExcluded,0);
+ assert.equal(view.summary.fabric.demands+view.summary.trim.demands,6);
+ for(const old of legacy.rows){const row=view.rows.find(r=>r.demand.id===old.demand.id);assert.equal(row.canonicalKey,old.canonicalKey);assert.equal(row.purchaseShortfall,old.purchaseShortfall);}
+ const factory=view.rows.find(r=>r.demand.supplyMethod==='厂供');assert.ok(factory);assert.equal(factory.purchaseShortfall,null);assert.equal(factory.purchaseExcess,null);assert.equal(factory.status,null);
+ assert.equal(byCode(view,'unbought').status,'not_purchased');assert.equal(byCode(view,'unknown').purchased,null);
+});

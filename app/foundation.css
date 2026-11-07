@@ -21,12 +21,14 @@
 
 .ops-shell:is([data-responsive-mode="wide"], [data-responsive-mode="primary"]) .ops-sidebar { width: 186px; }
 .ops-shell:is([data-responsive-mode="wide"], [data-responsive-mode="primary"]) .ops-workspace { margin-left: 186px; }
+.ops-shell:is([data-responsive-mode="wide"], [data-responsive-mode="primary"]) .organization { min-height: 75px; }
 .ops-shell:is([data-responsive-mode="wide"], [data-responsive-mode="primary"])[data-sidebar-state="collapsed"] .ops-sidebar { width: 78px; padding-inline: 9px; }
 .ops-shell:is([data-responsive-mode="wide"], [data-responsive-mode="primary"])[data-sidebar-state="collapsed"] .ops-workspace { margin-left: 78px; }
 .ops-shell:is([data-responsive-mode="wide"], [data-responsive-mode="primary"])[data-sidebar-state="collapsed"] :is(.ops-brand div, .organization div, .organization i, .ops-user div, .ops-subnav) { display: none; }
 .ops-shell:is([data-responsive-mode="wide"], [data-responsive-mode="primary"])[data-sidebar-state="collapsed"] :is(.ops-brand, .organization, .ops-user) { display: flex; justify-content: center; }
 .ops-shell:is([data-responsive-mode="wide"], [data-responsive-mode="primary"])[data-sidebar-state="collapsed"] .organization { padding: 8px; }
-.ops-shell:is([data-responsive-mode="wide"], [data-responsive-mode="primary"])[data-sidebar-state="collapsed"] .ops-sidebar nav button { justify-content: center; padding-inline: 0; }
+/* Keep the expanded icon rail (14px sidebar + 12px button) when text is hidden. */
+.ops-shell:is([data-responsive-mode="wide"], [data-responsive-mode="primary"])[data-sidebar-state="collapsed"] .ops-sidebar nav button { justify-content: flex-start; padding-inline: 17px; }
 .ops-shell:is([data-responsive-mode="wide"], [data-responsive-mode="primary"])[data-sidebar-state="collapsed"] .ops-sidebar nav button > :is(b, i) { display: none; }
 .ops-sidebar-toggle { width: 100%; height: 28px; display: flex; align-items: center; justify-content: center; gap: 6px; margin: -5px 0 7px; color: #91a59c; border: 1px solid rgba(255,255,255,.08); border-radius: 7px; background: rgba(255,255,255,.035); cursor: pointer; font-size: 10px; }
 .ops-sidebar-toggle:hover,.ops-sidebar-toggle:focus-visible { color: #fff; background: rgba(255,255,255,.08); outline: none; }
@@ -357,7 +359,9 @@
 .ops-sidebar .ops-weaveops-brand { justify-content: center; min-height: 104px; padding: 7px; }
 .ops-brand-full { display: block; width: 102.2px; height: 86.8px; padding: 5.6px; background: transparent; }
 .ops-brand-mark { display: none; width: 28px; height: 28px; padding: 2.8px; background: transparent; }
-.ops-shell:is([data-responsive-mode="compact"], [data-sidebar-state="collapsed"]) .ops-weaveops-brand { min-height: 52px; padding: 6px 0; }
+.ops-shell[data-responsive-mode="compact"] .ops-weaveops-brand { min-height: 52px; padding: 6px 0; }
+/* Desktop collapse preserves header height so the same menu rows do not jump. */
+.ops-shell:is([data-responsive-mode="wide"], [data-responsive-mode="primary"])[data-sidebar-state="collapsed"] .ops-weaveops-brand { min-height: 104px; padding: 6px 0; }
 .ops-shell:is([data-responsive-mode="compact"], [data-sidebar-state="collapsed"]) .ops-brand-full { display: none; }
 .ops-shell:is([data-responsive-mode="compact"], [data-sidebar-state="collapsed"]) .ops-brand-mark { display: block; }
 .ops-route-progress { position: fixed; z-index: 80; top: 12px; right: 24px; padding: 8px 14px; border: 1px solid #d1e2d9; border-radius: 999px; background: #f3f8f5; color: var(--forest); font-size: 12px; box-shadow: 0 3px 12px #183c2510; pointer-events: none; }

@@ -9,6 +9,8 @@ import unicodedata
 from urllib.parse import urlsplit
 from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
 from urllib.error import HTTPError, URLError
+import socket
+import ssl
 from .ainuoke_client import AinuokeClient, AuthExpiredError, InvalidCredentialError, NetworkAinuokeError, UpstreamSchemaError
 from .contracts import REPORT_CATALOG, build_report_snapshot
 
@@ -23,6 +25,20 @@ class NoRedirect(HTTPRedirectHandler):
     def redirect_request(self, req, fp, code, msg, headers, newurl):
         return None
 
+def transport_failure(error, status=None):
+    """Closed diagnostic categories only; never retain error text or URLs."""
+    reason = error.reason if isinstance(error, URLError) else error
+    category = ('http_error' if status is not None else
+                'timeout' if isinstance(reason, TimeoutError) else
+                'dns_error' if isinstance(reason, socket.gaierror) else
+                'tls_error' if isinstance(reason, ssl.SSLError) else
+                'connection_refused' if isinstance(reason, ConnectionRefusedError) else
+                'connection_reset' if isinstance(reason, ConnectionResetError) else 'network_error')
+    failure = NetworkAinuokeError('upstream_http_error' if status is not None else 'network_unavailable')
+    failure.transport_category = category
+    failure.http_status = status if type(status) is int and 100 <= status <= 599 else None
+    return failure
+
 class ProtectedTransport:
     """No redirects (including credential-bearing login GET); no ambient proxy."""
     def __init__(self, max_response_bytes=None):
@@ -30,8 +46,10 @@ class ProtectedTransport:
         if type(max_response_bytes) is not int or not 1 <= max_response_bytes <= MAX_BYTES:
             raise ValueError("invalid_response_limit")
         self.max_response_bytes = max_response_bytes
+        self.last_http_status = None
     def request(self, *, url, method, body, headers, timeout):
         from urllib.parse import urlencode
+        self.last_http_status = None
         data = None
         if method == "GET":
             url += "?" + urlencode(body)
@@ -40,16 +58,18 @@ class ProtectedTransport:
             headers = {**headers, "Content-Type": "application/json;charset=utf-8"}
         try:
             with build_opener(NoRedirect(), ProxyHandler({})).open(Request(url, data=data, method=method, headers=headers), timeout=timeout) as response:
+                self.last_http_status = getattr(response, "status", None)
                 raw = response.read(self.max_response_bytes + 1)
         except HTTPError as error:
+            self.last_http_status = error.code
             error.close()
             if error.code in (401, 403):
                 raise AuthExpiredError("auth_expired") from None
             if 300 <= error.code < 400:
                 raise UpstreamSchemaError("redirect_refused") from None
-            raise NetworkAinuokeError("upstream_http_error") from None
-        except (URLError, TimeoutError, OSError):
-            raise NetworkAinuokeError("network_unavailable") from None
+            raise transport_failure(error, error.code) from None
+        except (URLError, TimeoutError, OSError) as error:
+            raise transport_failure(error) from None
         if len(raw) > self.max_response_bytes:
             raise UpstreamSchemaError("response_limit")
         try:
@@ -63,7 +83,7 @@ class ProtectedTransport:
 def validate_input(data):
     required = {"baseUrl", "username", "password", "contracts"}
     target_keys = {"targetSalesContractNo", "targetPurchaseOrderNo", "expectedQuantities", "additionalSalesContracts"}
-    if not isinstance(data, dict) or not required <= set(data) <= required | {"mode", "transportPolicy", "qualityTargets"} | target_keys:
+    if not isinstance(data, dict) or not required <= set(data) <= required | {"mode", "transportPolicy", "qualityTargets", "materialReport"} | target_keys:
         raise ValueError("invalid_collector_input")
     url = urlsplit(data["baseUrl"])
     if url.username or url.password or url.query or url.fragment or url.path not in ("", "/"):
@@ -76,13 +96,15 @@ def validate_input(data):
     for key in ("username", "password"):
         if not isinstance(data[key], str) or not data[key].strip() or len(data[key]) > 1024 or any(ord(c) < 32 for c in data[key]):
             raise ValueError("invalid_credentials")
-    if "mode" in data and data["mode"] not in ("bindings", "probe", "audit", "targeted", "discovery", "additions", "quality", "selected-bindings", "selected-materials", "bound-materials"):
+    if "materialReport" in data and (data["materialReport"] != "6087051" or data.get("mode") not in ("catalog-contracts", "bound-materials")):
+        raise ValueError("invalid_material_report_scope")
+    if "mode" in data and data["mode"] not in ("bindings", "probe", "audit", "targeted", "discovery", "additions", "quality", "selected-bindings", "selected-materials", "bound-materials", "catalog-discovery", "catalog-contracts"):
         raise ValueError("invalid_mode")
-    if data.get("mode") in ("selected-bindings", "selected-materials", "bound-materials"):
+    if data.get("mode") in ("selected-bindings", "selected-materials", "bound-materials", "catalog-discovery", "catalog-contracts"):
         import re
-        bounded = data.get("mode") == "bound-materials"
-        if (set(data) - (required | {"mode", "transportPolicy"}) or not isinstance(data["contracts"], list)
-                or not (1 <= len(data["contracts"]) <= 25 if bounded else len(data["contracts"]) == 2)):
+        bounded = data.get("mode") in ("bound-materials", "catalog-contracts")
+        if (set(data) - (required | {"mode", "transportPolicy", "materialReport"}) or not isinstance(data["contracts"], list)
+                or not (1 <= len(data["contracts"]) <= 25 if bounded else len(data["contracts"]) == (0 if data.get("mode") == "catalog-discovery" else 2))):
             raise ValueError("invalid_selected_scope")
         if any(not isinstance(c, str) or not re.fullmatch(r"[A-Z0-9][A-Z0-9/._-]{0,79}", c) for c in data["contracts"]) or len(set(data["contracts"])) != len(data["contracts"]):
             raise ValueError("invalid_selected_scope")
@@ -136,9 +158,9 @@ def validate_input(data):
         raise ValueError("addition_scope_limit")
     return data
 
-def collect(data, client=None):
+def collect(data, client=None, include_colors=False, material_report=None):
     data = validate_input(data)
-    if data.get("mode") in ("selected-bindings", "selected-materials", "bound-materials"):
+    if data.get("mode") in ("selected-bindings", "selected-materials", "bound-materials", "catalog-discovery", "catalog-contracts"):
         if client is not None:
             raise ValueError("selected_transport_owned_by_budget")
         from .selected_source_once import collect_selected
@@ -203,7 +225,7 @@ def collect(data, client=None):
             if not key or key in lookup or not isinstance(inside, str) or not inside.strip():
                 raise UpstreamSchemaError("invalid_discovery_identity")
             lookup[key] = inside.strip()
-    if len(lookup) > 1000:
+    if len(lookup) > getattr(client, "directory_row_limit", 1000):
         raise UpstreamSchemaError("source_limit")
     if data.get("mode") == "targeted":
         selected = [identity(data["targetSalesContractNo"]), *map(identity, data["additionalSalesContracts"])]
@@ -250,12 +272,35 @@ def collect(data, client=None):
         after = pages("order_discovery", {})
         return {"schemaVersion": "ainuoke-order-addition.v1", "discoveryBefore": before,
                 "discoveryAfter": after, "colors": colors}
+    colors = {}
     materials = {}
     for contract in data["contracts"]:
         key = identity(contract)
         if key in lookup:
-            materials[key] = pages("material_purchase_statistics", {"insideOrderNo": lookup[key]})
+            if include_colors:
+                colors[key] = pages("garment_color_size_details", {"salesContractNo": key})
+            if material_report == "6087051":
+                material_pages = pages("material_contract_statistics", {"salesContractNo": key})
+                # Validate exact contract BEFORE issuing any dependent lookup.
+                if any(identity(row["values"].get("ExpContractNo")) != key for page in material_pages for row in page["rows"]):
+                    raise UpstreamSchemaError("material_contract_mismatch")
+                lookups = set()
+                for page in material_pages:
+                    for row in page["rows"]:
+                        values = row["values"]
+                        inside = values.get("insideorderno")
+                        if not isinstance(inside, str) or not inside.strip():
+                            continue
+                        prefix = {"面料": "fabric", "辅料": "trim"}.get(values.get("lx"))
+                        if prefix:
+                            for reference, suffix in (("cgmxid", "purchase_units"), ("rkmxid", "inbound_units")):
+                                if values.get(reference): lookups.add((prefix + "_" + suffix, inside.strip()))
+                materials[key] = material_pages + [page for report, inside in sorted(lookups) for page in pages(report, {"insideOrderNo": inside})]
+            else:
+                materials[key] = pages("material_purchase_statistics", {"insideOrderNo": lookup[key]})
     after = pages("order_discovery", {})
+    if include_colors:
+        return {"schemaVersion": "ainuoke-contract-details.v1", "discoveryBefore": before, "discoveryAfter": after, "materials": materials, "colors": colors}
     return {"schemaVersion": "ainuoke-server-source.v1", "discoveryBefore": before, "discoveryAfter": after, "materials": materials}
 
 
@@ -363,7 +408,7 @@ def main():
         if len(output) > MAX_BYTES:
             raise ValueError("output_limit")
         sys.stdout.buffer.write(output)
-        if not args and data.get("mode") in ("selected-bindings", "selected-materials", "bound-materials") and result.get("result") != "complete":
+        if not args and data.get("mode") in ("selected-bindings", "selected-materials", "bound-materials", "catalog-discovery", "catalog-contracts") and result.get("result") != "complete":
             return 1
     except InvalidCredentialError:
         sys.stdout.write('{"error":"invalid_credential"}')

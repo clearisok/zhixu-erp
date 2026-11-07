@@ -1,4 +1,8 @@
-## 2026-10-15 本地Server保存与退出保护修复
+## 当前阅读入口（2026-11-04复核）
+
+当前源码已有Server报价读写、版本/确认、报价来源选择、按订单议价、加工批次和角色/用户管理。报价确认权威见`server/confirmed-commercial-terms/confirmation-source.ts`；订单实际采用价见`server/sales-orders/commercial-version-service.ts`，不能将订单议价写回报价CCT。角色管理接口见`server/auth/managed-role-routes.ts`。下文按日期保留工程过程，其中“Server角色管理尚未实现”“本地候选/未交付”等是当时状态，不作为当前功能缺口。当前远端、CI与体验站版本以[CURRENT_STATE](../CURRENT_STATE.md)为准；本段不追加部署或验收声明。
+
+## 历史：2026-10-15 本地Server保存与退出保护修复
 
 产品源码65566527b15c1ffd78715389d7c34db0e867b300，fix/quote-logout-save-retry，尚未远端交付或部署。Quote保存已确认后logout失败，再次“保存并退出”仅重试退出；如用户继续编辑，新dirty仍必须保存。Server保存待核对或成本同步未决时，“放弃并退出/返回”不能绕过核对；沿用既有显式Server重读，不自动重试写入、保存Browser或改变金额/CCT。现有布局/DOM/CSS保持，V1影响记录及13浏览器/112前端证据见[独立任务](../tasks/active/quote-logout-save-retry.md)和[冻结结果](../tasks/active/evidence/quote-logout-save-retry-2026-10-15.md)。本段更新行为，不把既有构建/人工/部署状态提前。
 

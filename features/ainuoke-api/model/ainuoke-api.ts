@@ -44,7 +44,7 @@ export type AinuokeSourceRow = {
 
 export type AinuokeReportSnapshot<TQuery extends Record<string, unknown> = AinuokeReportQuery> = {
   schemaVersion: "ainuoke-direct-read.v2";
-  reportId: "6086103" | "6086997" | "6087050" | "6087105";
+  reportId: "6086103" | "6086997" | "6087050" | "6087105" | "6087051" | "6086405" | "6086408" | "6086875" | "6086354";
   fetchedAt: string;
   page: number;
   pageSize: number;

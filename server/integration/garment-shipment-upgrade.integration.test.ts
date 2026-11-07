@@ -1,4 +1,5 @@
 import test from "node:test";
+import { freezeExistingPublicRows } from "./legacy-row-snapshot-fixture.js";
 import assert from "node:assert/strict";
 import { mkdtemp, readdir, copyFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -32,7 +33,7 @@ test("0039 to 0040 is empty, additive, idempotent and preserves all old public r
   const bundle = bindingBundle(), preview = await previewBindings(bundle), bound = await bindOrders(pool, actor, { ...source, expectedPreview: preview.reviewHash, collect: async () => bundle });
   const orderId = bound.orderIds[0]; await captureSource(pool, actor, { ...source, maxAgeMs: 600000, collect: async () => freshMaterialBundle() });
   const oldTables = (await pool.query<{ tablename: string }>("SELECT tablename FROM pg_tables WHERE schemaname='public' AND tablename<>'schema_migrations' ORDER BY tablename")).rows.map(row => row.tablename);
-  const snapshot = () => Promise.all(oldTables.map(async table => ({ table, rows: (await pool.query(`SELECT to_jsonb(row)::text payload FROM "${table}" row ORDER BY payload`)).rows })));
+  const snapshot = await freezeExistingPublicRows(pool, oldTables);
   const before = await snapshot(), reader = createGarmentShipmentReader(pool, { sourceKey: source.sourceKey });
   await t.test("old and partial schema fail closed without mutation or fallback", async () => {
     await assert.rejects(() => verifyMigrationsCurrent(pool, resolve("database/migrations")), PendingMigrationsError);

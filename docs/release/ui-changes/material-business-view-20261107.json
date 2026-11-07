@@ -1,0 +1,25 @@
+{
+  "baselineSha": "cb5cc29baa49ed7115fdb6c9506b6a80356936ea",
+  "level": "V2",
+  "paths": [
+    "features/ainuoke-material-progress/business-facts.ts",
+    "features/ainuoke-material-progress/projection.ts",
+    "features/ainuoke-material-progress/confirmed-facts.ts",
+    "features/style-progress/source/ainuoke-it-material-adapter.ts",
+    "features/style-progress/components/material-control-tower-read-only.tsx",
+    "features/style-progress/components/style-progress-server-page.tsx",
+    "app/order-center/style-progress/style-progress.css",
+    "features/style-progress/source/material-source-row.ts"
+  ],
+  "pages": [
+    "order-detail"
+  ],
+  "visibleDifference": "User-specified material business view: separate self-purchase/factory sections, six item/event counts, variant columns, clickable quantities and trace drawers, compact warm-white/green ERP styling. Transaction facts remain visible independently of unverified demand units; no source/write authority change.",
+  "evidence": [
+    "docs/tasks/active/material-business-view-2026-11-07.md"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/material-business-view-2026-11-07.md"
+  }
+}

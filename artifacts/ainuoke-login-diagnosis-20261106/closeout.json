@@ -1,0 +1,15 @@
+{
+  "containerRunning": false,
+  "containerExit": 0,
+  "allowanceClosed": true,
+  "sourceRequests": {
+    "logins": 1,
+    "reportRequests": 0,
+    "httpAttempts": 1,
+    "networkRetries": 0,
+    "authRenewals": 0
+  },
+  "syncState": "PAUSED",
+  "materialSyncProcesses": 0,
+  "databaseAccess": "none"
+}

@@ -1,0 +1,22 @@
+{
+  "baselineSha": "cb5cc29baa49ed7115fdb6c9506b6a80356936ea",
+  "level": "V2",
+  "paths": [
+    "app/login/login.css",
+    "features/server-auth/components/animated-login-page.tsx",
+    "features/server-auth/components/server-session-provider.tsx",
+    "features/server-auth/server-auth-client.ts",
+    "features/server-auth/server-session-service.ts"
+  ],
+  "pages": [
+    "login"
+  ],
+  "visibleDifference": "登录表单增加默认不勾选的保持登录5天复选框，沿用原布局和安全会话。",
+  "evidence": [
+    "docs/tasks/active/login-five-days-2026-11-06.md"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/login-five-days-2026-11-06.md"
+  }
+}

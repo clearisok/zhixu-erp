@@ -1,3 +1,4 @@
+import { masterReadCache } from "../../server-auth/session-read-cache";
 import type {
   BrandDto,
   FabricDto,
@@ -80,10 +81,10 @@ export type QuoteMasterServerClient = {
   saveSettingsBundle(input: { expectedVersion: number; settings: SettingsWrite; manufacturingPresets: SettingsBundlePreset[] }): Promise<{ settings: GlobalQuoteSettingsDto; manufacturingPresets: ManufacturingPresetDto[]; createdPresetIds: Record<string,string> }>;
 };
 
-export function createQuoteMasterServerClient(options: { baseUrl?: string; fetchImpl?: typeof fetch } = {}): QuoteMasterServerClient {
+export function createQuoteMasterServerClient(options: { baseUrl?: string; fetchImpl?: typeof fetch; applicationCache?: boolean } = {}): QuoteMasterServerClient {
   const baseUrl = (options.baseUrl ?? "").replace(/\/$/u, "");
   const fetchImpl = options.fetchImpl ?? fetch;
-  const request = async <T>(path: string, init?: RequestInit): Promise<T> => {
+  const transport = async <T>(path: string, init?: RequestInit): Promise<T> => {
     let response: Response;
     try {
       response = await fetchImpl(`${baseUrl}${path}`, { credentials: "include", cache: "no-store", ...init });
@@ -92,11 +93,18 @@ export function createQuoteMasterServerClient(options: { baseUrl?: string; fetch
     }
     return parseResponse<T>(response);
   };
-  const mutation = <T>(method: "POST" | "PATCH", path: string, body: object) => request<T>(path, {
+  const request = <T>(path: string, init?: RequestInit): Promise<T> => {
+    if (!options.applicationCache || init || path.includes("resolved-defaults")) return transport<T>(path, init);
+    return masterReadCache.read(path, () => transport<T>(path), 120_000);
+  };
+  const mutation = <T>(method: "POST" | "PATCH", path: string, body: object) => {
+    if (options.applicationCache) masterReadCache.clear();
+    return request<T>(path, {
     method,
     headers: { "Content-Type": "application/json", "X-Zhixu-Request": "1" },
     body: JSON.stringify(body),
-  });
+    }).finally(() => { if (options.applicationCache) masterReadCache.clear(); });
+  };
   return {
     listBrands: () => request<{ brands: BrandDto[] }>("/api/v1/quote-masters/brands").then((value) => requiredArray(value,"brands")),
     createBrand: (input) => mutation<{ brand: BrandDto }>("POST","/api/v1/quote-masters/brands",input).then((value) => requiredObject(value,"brand")),
@@ -132,4 +140,4 @@ export function createQuoteMasterServerClient(options: { baseUrl?: string; fetch
   };
 }
 
-export const quoteMasterServerClient = createQuoteMasterServerClient();
+export const quoteMasterServerClient = createQuoteMasterServerClient({ applicationCache: true });

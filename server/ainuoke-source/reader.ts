@@ -1,3 +1,4 @@
+import { supportsOrderHeads } from './followup.js';
 import type { Pool, PoolClient } from "pg";
 import type { MaterialConfirmation } from '../../features/ainuoke-material-progress/confirmed-facts.js';
 import type { MaterialReadPorts } from "../../features/ainuoke-material-progress/read-service.js";
@@ -52,34 +53,42 @@ export async function prepareMaterialPortsInTransaction(client: PoolClient, conf
     const privateFacts = new Map([...(confirmations?.byOrder ?? [])].map(([id, facts]) => [id, structuredClone(facts)]));
     const actor = await sourceActor(client, identity, false, false);
     const wanted = new Set(ids);
-    const orders = new Map((await boundOrders(client)).filter(order => wanted.has(order.id)).map(order => [order.id, order]));
+    const orders = new Map((await boundOrders(client,false,ids)).filter(order => wanted.has(order.id)).map(order => [order.id, order]));
     const attributed = await supportsSourceAttribution(client), context = await supportsMaterialCaptureContext(client);
     const profile = (await client.query<{enabled:boolean;latest_run_id:string|null}>(
         'SELECT enabled,latest_run_id::text FROM ainuoke_source_profiles WHERE source_key=$1', [localConfig.sourceKey])).rows[0];
-    const header = (await client.query<Header>(`SELECT r.id::text AS run_id,p.account_fingerprint,r.discovery,r.discovery_hash,p.last_error_code,
+    const perOrder=await supportsOrderHeads(client);
+    const legacyHeader = (await client.query<Header>(`SELECT r.id::text AS run_id,p.account_fingerprint,r.discovery,r.discovery_hash,p.last_error_code,
         ${context ? 'r.order_scope' : 'NULL::jsonb'} AS order_scope,${attributed ? 'r.order_scope_hash' : 'NULL::text'} AS order_scope_hash
         FROM ainuoke_source_profiles p JOIN ainuoke_source_runs r ON r.id=p.latest_run_id AND r.source_key=p.source_key
         WHERE p.source_key=$1 AND p.enabled=true`, [localConfig.sourceKey])).rows[0];
-    if (profile?.enabled && profile.latest_run_id !== null && !header) throw new SourceError('source_snapshot_changed');
-    if (header && hash(header.discovery) !== header.discovery_hash) throw new SourceError('source_snapshot_changed');
-    const records = header ? (await client.query<Stored>(`SELECT s.sales_order_id::text,s.snapshots,s.sales_contract_no,s.content_hash,
+    if (!perOrder && profile?.enabled && profile.latest_run_id !== null && !legacyHeader) throw new SourceError('source_snapshot_changed');
+    const heads=perOrder?(await client.query<Header & {sales_order_id:string}>(`SELECT h.sales_order_id::text,h.run_id::text,p.account_fingerprint,r.discovery,r.discovery_hash,h.last_error_code,r.order_scope,r.order_scope_hash
+      FROM ainuoke_material_order_heads h JOIN ainuoke_source_profiles p ON p.source_key=h.source_key AND p.enabled=true
+      LEFT JOIN ainuoke_source_runs r ON r.id=h.run_id AND r.source_key=h.source_key WHERE h.source_key=$1 AND h.sales_order_id=ANY($2::uuid[])`,[localConfig.sourceKey,ids])).rows:[];
+    const headers=new Map(ids.map(id=>[id,perOrder?heads.find(h=>h.sales_order_id===id):legacyHeader]));
+    for(const h of headers.values())if(h?.run_id && hash(h.discovery)!==h.discovery_hash)throw new SourceError('source_snapshot_changed');
+    const runIds=[...new Set([...headers.values()].filter(h=>h?.run_id).map(h=>h!.run_id))];
+    const records = runIds.length ? (await client.query<Stored>(`SELECT s.run_id::text,s.sales_order_id::text,s.snapshots,s.sales_contract_no,s.content_hash,
         ${attributed ? 's.attribution_change_id::text' : 'NULL::text'} AS attribution_change_id,
         ${context ? 's.source_link_id::text' : 'NULL::text'} AS source_link_id,
         ${context ? 's.captured_order_version' : 'NULL::integer'} AS captured_order_version
-        FROM ainuoke_material_source_snapshots s WHERE s.run_id=$1::uuid AND s.sales_order_id=ANY($2::uuid[])`, [header.run_id, ids])).rows : [];
+        FROM ainuoke_material_source_snapshots s WHERE s.run_id=ANY($1::uuid[]) AND s.sales_order_id=ANY($2::uuid[])`, [runIds, ids])).rows.filter(record=>(record as Stored & {run_id:string}).run_id===headers.get(record.sales_order_id)?.run_id) : [];
     const indexed = new Map(records.map(record => [record.sales_order_id, record]));
     const beforeFirstCapture = profile?.enabled === true && profile.latest_run_id === null;
     // A trusted intake can precede its first material capture. Reuse complete
     // Discovery identity validation; an absent material record is never a zero.
-    const uncapturedContracts = header && [...orders.values()].some(order => !order.attributionChangeId && !indexed.has(order.id))
-        ? new Set((await adaptAinuokeOrderDiscoverySnapshots(header.discovery)).rows.map(row => row.salesContractNo)) : null;
+    const needsIntakeEvidence = legacyHeader && [...orders.values()].some(order => !order.attributionChangeId && !indexed.has(order.id) && (!perOrder || !headers.get(order.id)));
+    if(needsIntakeEvidence&&hash(legacyHeader.discovery)!==legacyHeader.discovery_hash)throw new SourceError('source_snapshot_changed');
+    const uncapturedContracts = needsIntakeEvidence
+        ? new Set((await adaptAinuokeOrderDiscoverySnapshots(legacyHeader.discovery)).rows.map(row => row.salesContractNo)) : null;
     const verifyIdentity = (other: Identity) => {
         if (other.userId !== actor.userId || other.internalUserId !== actor.internalUserId) throw new SourceError('source_actor_unavailable');
     };
     const resolveVisibleOrder: MaterialReadPorts['resolveVisibleOrder'] = async (other, id) => {
         verifyIdentity(other); const order = orders.get(id), record = indexed.get(id);
-        if (!order) return null;
-        if (!record) return order.attributionChangeId || beforeFirstCapture
+        if (!order || profile?.enabled!==true || headers.get(id)?.last_error_code==='source_visibility_changed') return null;
+        if (!record) return perOrder && (!legacyHeader || !!headers.get(id)) || order.attributionChangeId || beforeFirstCapture
             || uncapturedContracts?.has(normalizeAinuokeSalesContractNo(order.salesContractNo)) ? order : null;
         return record.sales_contract_no === order.salesContractNo ? order : null;
     };
@@ -89,12 +98,16 @@ export async function prepareMaterialPortsInTransaction(client: PoolClient, conf
             verifyIdentity(other);
             const order = orders.get(candidate.id);
             if (!order || order.version !== candidate.version || order.salesContractNo !== candidate.salesContractNo) throw new SourceError('confirmation_source_mismatch');
-            if (confirmationFingerprint !== undefined && header?.account_fingerprint !== confirmationFingerprint) throw new SourceError('confirmation_source_mismatch');
+            if (confirmationFingerprint !== undefined && headers.get(candidate.id)?.account_fingerprint !== confirmationFingerprint) throw new SourceError('confirmation_source_mismatch');
             return structuredClone(privateFacts.get(candidate.id) ?? []);
         },
         loadSource: async (candidate, other) => {
-            verifyIdentity(other); const order = orders.get(candidate.id), record = indexed.get(candidate.id);
+            verifyIdentity(other); const order = orders.get(candidate.id), record = indexed.get(candidate.id), header=headers.get(candidate.id);
             if (!order || order.version !== candidate.version || order.salesContractNo !== candidate.salesContractNo) return null;
+            // A failed new payload never invalidates a previously published
+            // snapshot. Access/identity changes still fail closed below/above.
+            const historicalFailure = header?.last_error_code && !/identity|account|visibility|permission|actor|scope|binding/.test(header.last_error_code);
+            if (header?.last_error_code && (!historicalFailure || !record)) return {salesOrderId:order.id,salesContractNo:order.salesContractNo!,provenance:'server_snapshot',snapshots:[],issue:'source_failed'};
             if (!header || !record || record.sales_contract_no !== order.salesContractNo) return null;
             const invalidIdentity = () => ({salesOrderId: order.id, salesContractNo: record.sales_contract_no, provenance: 'server_snapshot' as const, snapshots: [], issue: 'identity_mismatch' as const});
             if (record.attribution_change_id !== order.attributionChangeId) return invalidIdentity();
@@ -105,14 +118,15 @@ export async function prepareMaterialPortsInTransaction(client: PoolClient, conf
                 if (record.source_link_id !== order.sourceLinkId || scope.sourceOwnerOrderId !== order.sourceOwnerOrderId || scope.attributionChangeId !== order.attributionChangeId)
                     return invalidIdentity();
             } else if (header.order_scope !== null || record.captured_order_version !== null) throw new SourceError('source_snapshot_changed');
-            if (header.last_error_code) return {salesOrderId: order.id, salesContractNo: record.sales_contract_no, provenance: 'server_snapshot', snapshots: [], issue: 'source_failed'};
             if (hash(record.snapshots) !== record.content_hash) throw new SourceError('source_snapshot_changed');
-            return createMaterialSourceLoader({resolveVisibleOrder, provenance: 'server_snapshot', maxAgeMs: localConfig.maxAgeMs, now,
+            const result = await createMaterialSourceLoader({resolveVisibleOrder, provenance: 'server_snapshot', maxAgeMs: localConfig.maxAgeMs, now, retainPublishedHistory: true,
                 readDiscovery: async () => structuredClone(header.discovery), readMaterial: async () => structuredClone(record.snapshots)})(candidate, actor);
+            if (historicalFailure && result?.snapshots.length && (!result.issue || result.issue === 'stale')) result.issue = 'source_failed';
+            return result;
         },
     };
     return { ports, generation: (orderId: string) => {
-        const record = indexed.get(orderId);
+        const record = indexed.get(orderId), header=headers.get(orderId);
         return header && record ? { sourceKey: localConfig.sourceKey, runId: header.run_id, contentHash: record.content_hash,
             sourceLinkId: record.source_link_id, capturedOrderVersion: record.captured_order_version } : null;
     } };

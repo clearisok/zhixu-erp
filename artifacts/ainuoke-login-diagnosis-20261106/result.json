@@ -1,0 +1,63 @@
+{
+  "state": "LOGIN_DIAGNOSIS_COMPLETE",
+  "finishedAt": "2026-11-06T06:53:13.780018+00:00",
+  "result": {
+    "schemaVersion": "ainuoke-login-diagnostic.v1",
+    "result": "accepted",
+    "code": "login_accepted",
+    "limits": {
+      "logins": 1,
+      "reportRequests": 0,
+      "httpAttempts": 1,
+      "responseBytes": 4194304,
+      "timeoutMs": 30000,
+      "requestTimeoutMs": 15000,
+      "networkRetries": 0,
+      "authRenewals": 0
+    },
+    "metrics": {
+      "logins": 1,
+      "reportRequests": 0,
+      "httpAttempts": 1,
+      "networkRetries": 0,
+      "authRenewals": 0
+    },
+    "requests": [
+      {
+        "kind": "login",
+        "reportId": null,
+        "page": null,
+        "elapsedMs": 305,
+        "outcome": "complete",
+        "httpStatus": 200,
+        "loginEvidence": {
+          "responseShape": "data_object",
+          "result": "accepted",
+          "serverCode": "absent",
+          "serverHint": "unclassified"
+        }
+      }
+    ],
+    "payloadRefused": false,
+    "serverHint": "unclassified",
+    "databaseAccess": "none",
+    "sourceActivation": "not-activated",
+    "coverLogin": false,
+    "sessionRetained": false
+  },
+  "allowanceClosed": true,
+  "image": "sha256:41b929487e33389a4c0bbec74b043c50b89fc2ff7903fc2f5ea212d36101cc1f",
+  "configMatchesPrior": true,
+  "concurrentCollectorProcesses": 0,
+  "worker": "PAUSED",
+  "moduleHashes": {
+    "login_evidence.py": "a868c57cf20b6c080d60957307cc8c808cc07e0f7f000a0558422a7ca2ff52cb",
+    "login_diagnostic.py": "1ee2ed8fb427140e5858436c8ac3a50eeec5366bd0732d43af0f3eabc0daef17",
+    "request_diagnostics.py": "365d60774ceb068e50fd54ec6f7afa5236b90dd96564477b14dfa01f52e53c43",
+    "server_source.py": "8c269525ed62af8adc068727d79879c5fdae953676d1004e5bb3e06a2cecff71",
+    "test_login_diagnostic.py": "b8d8ac98346cc5d6156f181b73aabe6ce17c10e87888d2186793c21f5de5b754",
+    "test_request_diagnostics.py": "84e1c99b74e028e3b01e1d17281657ae64b298a5c9f19ffb8e0c164d72051990",
+    "selected_source_fixture.py": "81dca74e7d8086c3b7f761c58d62d7a9a6b36456aa332b18ab9619d5636990e6"
+  },
+  "interpretation": "Login accepted with unchanged credentials and request parameters; previous refusal root cause remains unverified. No report reads or automatic resumption."
+}

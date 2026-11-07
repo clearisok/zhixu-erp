@@ -1,0 +1,12 @@
+{
+  "baselineSha": "cb5cc29baa49ed7115fdb6c9506b6a80356936ea",
+  "level": "V1",
+  "paths": [
+    "features/order-center/source-sync-status.ts",
+    "features/order-center/components/server-source-catalog.tsx",
+    "features/order-center/components/server-contract-refresh.tsx"
+  ],
+  "pages": ["order-list", "order-detail"],
+  "visibleDifference": "Restore the approved per-contract refresh behavior during bounded retry waiting; show readable failures, last success and whole-catalogue backlog counts in the existing table/card layout. Unknown submissions still require receipt reconciliation.",
+  "evidence": ["docs/tasks/active/ainuoke-sync-resilience-2026-11-04.md"]
+}

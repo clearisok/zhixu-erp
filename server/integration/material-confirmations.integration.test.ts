@@ -7,6 +7,7 @@ import {createPersistedMaterialPorts} from '../ainuoke-source/reader.js';
 import {createOrderMaterialReader} from '../../features/ainuoke-material-progress/read-service.js';
 import {buildAinuokeMaterialApiPreview} from '../../features/style-progress/service/ainuoke-material-api-preview.js';
 import {materialConfirmationEvidence,type MaterialConfirmation} from '../../features/ainuoke-material-progress/confirmed-facts.js';
+import {createLocalConfirmedMaterialPorts} from '../ainuoke-source/local-unit-confirmations.js';
 
 test('explicit reviewed confirmations use persisted identity, survive batch reads, and never write source or business facts',{timeout:120000},async()=>{
  const x=await startContinuousFixture(resolve('dist/client'),{orderAlerts:true});
@@ -35,6 +36,16 @@ test('explicit reviewed confirmations use persisted identity, survive batch read
   assert.deepEqual(await records(),before);
   const defaultResult=await createOrderMaterialReader(createPersistedMaterialPorts(x.pool,{sourceKey:'synthetic-demo',maxAgeMs:1800000}))(actor,{salesOrderId:x.orderId});
   assert.equal(defaultResult.status,200);if(defaultResult.status===200)assert.equal(defaultResult.body.progress.rows.find(r=>r.demand.id===demand.id)!.unit,null);
+  let file:unknown=null,invalid=0;
+  const local=createOrderMaterialReader(createLocalConfirmedMaterialPorts(x.pool,{sourceKey:'synthetic-demo',maxAgeMs:1800000},{
+   accountFingerprint:'a'.repeat(64),read:async()=>file,onInvalid:()=>{invalid++;}}));
+  const localUnit=async()=>{const result=await local(actor,{salesOrderId:x.orderId});assert.equal(result.status,200);if(result.status!==200)throw Error('local reader failed');return result.body.progress.rows.find(r=>r.demand.id===demand.id)!.unit;};
+  assert.equal(await localUnit(),null);
+  file={schemaVersion:'local-material-unit-confirmations.v1',sourceKey:'synthetic-demo',accountFingerprint:'a'.repeat(64),orders:[{salesOrderId:x.orderId,receipts:[{...receipt,unit:{value:'个',acceptedSourceUnits:[null],ratio:1}}]}]};
+  assert.equal(await localUnit(),'个');
+  file={...(file as Record<string,unknown>),accountFingerprint:'b'.repeat(64)};
+  assert.equal(await localUnit(),null);assert.equal(invalid,1); // optional invalid receipt never hides actual source facts
+  file=null;assert.equal(await localUnit(),null);assert.deepEqual(await records(),before);
   await x.capture();
   const changed=await createOrderMaterialReader(ports)(actor,{salesOrderId:x.orderId});assert.equal(changed.status,200);
   if(changed.status===200){const row=changed.body.progress.rows.find(r=>r.demand.id===demand.id)!;assert.equal(row.unit,null);assert.equal(row.confirmationStatus,'stale');}

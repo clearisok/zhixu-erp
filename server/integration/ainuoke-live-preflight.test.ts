@@ -162,7 +162,9 @@ test("complete and incomplete production reports persist in private targets with
     for (const result of [complete, incomplete]) {
       const productionReceipt = writePrivateReport(directory, result.privateReport);
       const persisted = JSON.parse(readFileSync(productionReceipt.privateReportPath, "utf8"));
-      assert.deepEqual(persisted, result.privateReport);
+      // JSON preserves explicit null/zero and every defined value; optional
+      // undefined properties in the in-memory DTO have no JSON representation.
+      assert.deepEqual(persisted, JSON.parse(JSON.stringify(result.privateReport)));
       assert.equal(persisted.operatorAuthorization, "not-checked");
       assert.equal(persisted.databaseAccess, "none");
       assert.equal(productionReceipt.privateReportSha256, createHash("sha256").update(readFileSync(productionReceipt.privateReportPath)).digest("hex"));

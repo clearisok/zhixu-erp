@@ -11,12 +11,14 @@ export type CollectorConfig = {
     password: string;
     operatorUsername: string;
     transportPolicy?: typeof APPROVED_HTTP_POLICY;
+    materialReport?: "6087051";
 };
 export function parseCollectorConfig(input: unknown): CollectorConfig {
     if (!input || typeof input !== "object" || Array.isArray(input))
         throw new SourceError("invalid_collector_configuration");
     const o = input as Record<string, unknown>;
-    if (!["baseUrl,operatorUsername,password,sourceKey,username", "baseUrl,operatorUsername,password,sourceKey,transportPolicy,username"].includes(Object.keys(o).sort().join(","))
+    if (!["baseUrl,operatorUsername,password,sourceKey,username", "baseUrl,operatorUsername,password,sourceKey,transportPolicy,username"].includes(Object.keys(o).filter(k => k !== "materialReport").sort().join(","))
+        || o.materialReport !== undefined && o.materialReport !== "6087051"
         || Object.values(o).some(v => typeof v !== "string" || !v.trim() || v.length > 1024 || /[\u0000-\u001f\u007f]/u.test(v))
         || !sourceKeyValid(o.sourceKey as string))
         throw new SourceError("invalid_collector_configuration");
@@ -68,10 +70,12 @@ export const accountFingerprint = (config: CollectorConfig) => hash({ origin: co
 export function collectWithPython(config: CollectorConfig, contracts: string[], options: {
     python?: string;
     timeoutMs?: number;
-    mode?: "bindings" | "probe" | "discovery" | "additions" | "selected-bindings" | "selected-materials" | "bound-materials";
+    diagnostics?: boolean;
+    mode?: "bindings" | "probe" | "discovery" | "additions" | "selected-bindings" | "selected-materials" | "bound-materials" | "catalog-discovery" | "catalog-contracts";
 } = {}): Promise<unknown> {
     return new Promise((resolveResult, reject) => {
-        const child = spawn(options.python ?? (process.platform === "win32" ? "python" : "python3"), ["-m", "ainuoke_bridge.server_source"], {
+        if(options.diagnostics && !['catalog-discovery','catalog-contracts'].includes(options.mode??'')) { reject(new SourceError('sync_diagnostics_invalid')); return; }
+        const child = spawn(options.python ?? (process.platform === "win32" ? "python" : "python3"), ["-m", options.diagnostics ? "ainuoke_bridge.request_diagnostics" : "ainuoke_bridge.server_source"], {
             cwd: resolve("tools/ainuoke-bridge"), windowsHide: true, stdio: ["pipe", "pipe", "pipe"],
             env: { ...process.env, PYTHONUTF8: "1", PYTHONDONTWRITEBYTECODE: "1" },
         });
@@ -94,8 +98,9 @@ export function collectWithPython(config: CollectorConfig, contracts: string[], 
             try {
                 const value = JSON.parse(Buffer.concat(chunks).toString("utf8"));
                 if (code !== 0) {
-                    if (code === 1 && ['selected-bindings', 'selected-materials', 'bound-materials'].includes(options.mode ?? '')
-                        && value.schemaVersion === (options.mode === 'bound-materials' ? 'ainuoke-bound-materials-once.v1' : 'ainuoke-selected-source-once.v1') && value.result === 'failed') {
+                    if(code===1&&options.diagnostics&&value.schemaVersion==='ainuoke-request-diagnostics.v1'&&value.capture?.result==='failed') { settled=true; resolveResult(value); return; }
+                    if (code === 1 && ['selected-bindings', 'selected-materials', 'bound-materials', 'catalog-discovery','catalog-contracts'].includes(options.mode ?? '')
+                        && value.schemaVersion === (options.mode === 'catalog-contracts' ? 'ainuoke-catalog-contracts.v1' : options.mode === 'catalog-discovery' ? 'ainuoke-catalog-discovery.v1' : options.mode === 'bound-materials' ? 'ainuoke-bound-materials-once.v1' : 'ainuoke-selected-source-once.v1') && value.result === 'failed') {
                         settled = true; resolveResult(value); return;
                     }
                     fail(["invalid_credential", "auth_expired", "source_unavailable"].includes(value.error) ? value.error : "source_invalid");
@@ -109,6 +114,6 @@ export function collectWithPython(config: CollectorConfig, contracts: string[], 
             }
         });
         child.stdin.end(JSON.stringify({ baseUrl: config.baseUrl, username: config.username, password: config.password, contracts,
-            ...(options.mode ? {mode: options.mode} : {}), ...(config.transportPolicy ? {transportPolicy: config.transportPolicy} : {}) }));
+            ...(options.mode ? {mode: options.mode} : {}), ...(config.materialReport && ["catalog-contracts", "bound-materials"].includes(options.mode ?? "") ? {materialReport: config.materialReport} : {}), ...(config.transportPolicy ? {transportPolicy: config.transportPolicy} : {}) }));
     });
 }

@@ -1,0 +1,41 @@
+{
+  "date": "2026-11-04",
+  "branch": "feat/ainuoke-full-catalog-followup",
+  "inputHead": "32100b27d3b14dcbfef5ce6a83ace6c3d4ce5836",
+  "remoteHead": "32100b27d3b14dcbfef5ce6a83ace6c3d4ce5836",
+  "main": "cb5cc29baa49ed7115fdb6c9506b6a80356936ea",
+  "pullRequest": {"number": 140, "url": "https://github.com/clearisok/zhixu-erp/pull/140", "draft": true, "mergeable": true},
+  "ci": [
+    {"name": "Release baseline", "runId": 41843109476, "conclusion": "success"},
+    {"name": "First team access", "runId": 41843109177, "conclusion": "success"},
+    {"name": "Ainuoke server source", "runId": 41843109164, "jobId": 126619587024, "conclusion": "failure", "stage": "material arrival compatibility assertions"}
+  ],
+  "reruns": 0,
+  "additionalPushes": 0,
+  "localCompatibility": {
+    "initialMaterialRun": {"tests": 23, "passed": 23, "failed": 0, "skipped": 0},
+    "finalUpgradeRun": {"files": 7, "tests": 18, "passed": 18, "failed": 0, "skipped": 0},
+    "overlapBetweenRuns": 3,
+    "typecheck": "PASS",
+    "targetedLintFiles": 9,
+    "targetedLint": "PASS",
+    "productionCodeChanged": false,
+    "migrationsChanged": false,
+    "uploaded": false
+  },
+  "staging": {
+    "buildInfoHttpStatus": 200,
+    "source": "f21c96c1899126028ba9a272727ad8d564ccf185",
+    "buildId": "server-preview-f21c96c1-e4874825be",
+    "project": "zhixu-quote-trial-staging-562fbf07",
+    "readOnlyCounts": {"salesOrders": 3, "quotes": 2, "publicTables": 121},
+    "upgraded": false
+  },
+  "sourceCoverage": {"accountVisibleCatalog": 608, "isolatedSuccesses": 550, "failed": 5, "queued": 53, "formalSalesOrdersCreatedFromCoverage": 0},
+  "newCollectorLogins": 0,
+  "newSourceReports": 0,
+  "businessWrites": 0,
+  "servicesStartedOrStoppedInStaging": 0,
+  "merged": false,
+  "deployed": false
+}

@@ -27,19 +27,19 @@ test('built source UI shows traced excess warehouse independently in a disposabl
   const cookie=await x.login('demo.material'),split=cookie.indexOf('=');await command('Network.setCookie',{name:cookie.slice(0,split),value:cookie.slice(split+1),domain:'127.0.0.1',path:'/',httpOnly:true});
   await command('Page.navigate',{url:x.base+'/order-center/style-progress/detail?orderId='+x.orderId});
   await until(()=>evaluate("Boolean(document.body?.innerText.includes('合成拉链'))"),'source material');
-  await evaluate("[...document.querySelectorAll('button')].find(n=>n.getAttribute('aria-label')==='查看 合成拉链 事件').click()");
-  await until(()=>evaluate("Boolean(document.querySelector('.sp-material-events'))"),'drawer ready');await evaluate("document.querySelectorAll('.sp-material-event-tabs [role=tab]')[1].click()");
-  const cells=()=>evaluate("(()=>{const table=[...document.querySelectorAll('.sp-material-events table')].find(n=>[...n.querySelectorAll('th')].some(h=>h.textContent==='多余仓'));return table?[...table.querySelectorAll('tbody tr:first-child td')].map(n=>n.textContent):[];})()");
+  await evaluate("[...document.querySelectorAll('button')].find(n=>n.getAttribute('aria-label')==='查看 合成拉链 明细').click()");
+  await until(()=>evaluate("Boolean(document.querySelector('.sp-business-events'))"),'drawer ready');await evaluate("document.querySelectorAll('.sp-business-event-tabs [role=tab]')[1].click()");
+  const cells=()=>evaluate("(()=>{const table=[...document.querySelectorAll('.sp-business-events table')].find(n=>[...n.querySelectorAll('th')].some(h=>h.textContent==='多余仓'));return table?[...table.querySelectorAll('tbody tr:first-child td')].map(n=>n.textContent):[];})()");
   // Manual refresh remounts the Source card; reopen the current drawer generation.
-  const expectExtra=(value,label)=>until(async()=>{await evaluate("(()=>{if(!document.querySelector('.sp-material-events')){const button=[...document.querySelectorAll('button')].find(node=>node.getAttribute('aria-label')==='查看 合成拉链 事件');if(button)button.click();}const tab=document.querySelectorAll('.sp-material-event-tabs [role=tab]')[1];if(tab&&tab.getAttribute('aria-selected')!=='true')tab.click();})()");return (await cells())[3]===value;},label);
-  const refresh=async()=>{const before=x.materialReads();await evaluate("[...document.querySelectorAll('button')].find(n=>n.textContent.trim()==='刷新来源').click()");await until(()=>x.materialReads()>before,'material request');};
+  const expectExtra=(value,label)=>until(async()=>{await evaluate("(()=>{if(!document.querySelector('.sp-business-events')){const button=[...document.querySelectorAll('button')].find(node=>node.getAttribute('aria-label')==='查看 合成拉链 明细');if(button)button.click();}const tab=document.querySelectorAll('.sp-business-event-tabs [role=tab]')[1];if(tab&&tab.getAttribute('aria-selected')!=='true')tab.click();})()");return (await cells())[5]===value;},label);
+  const refresh=async()=>{const before=x.materialReads();await evaluate("[...document.querySelectorAll('button')].find(n=>n.textContent.trim()==='刷新页面').click()");await until(()=>x.materialReads()>before,'material request');};
   const capture=async name=>{if(process.env.EXCESS_WAREHOUSE_UI_EVIDENCE!=='1')return;const dir=resolve('outputs/num-dyc-ui',info.gitCommit+'-'+info.buildId);await mkdir(dir,{recursive:true});const shot=await command('Page.captureScreenshot',{format:'png'});await writeFile(join(dir,name+'.png'),Buffer.from(shot.data,'base64'));};
   await t.test('31 inbound and 1 extra stay separate and fit desktop and mobile',async()=>{
-   for(const width of [1440,1280,390]){await command('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:1,mobile:width===390});await until(async()=>JSON.stringify(await cells()).includes('1 条'),'extra value');const values=await cells();assert.equal(values[2],'31 条');assert.equal(values[3],'1 条');assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth+1'),true);await evaluate("(()=>{const table=[...document.querySelectorAll('.sp-material-events table')].find(n=>[...n.querySelectorAll('th')].some(h=>h.textContent==='多余仓'));table.scrollIntoView({block:'center'});table.parentElement.scrollLeft=table.parentElement.scrollWidth;})()");await capture('num-dyc-'+width);}
+   for(const width of [1440,1280,390]){await command('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:1,mobile:width===390});await until(async()=>JSON.stringify(await cells()).includes('1 条'),'extra value');const values=await cells();assert.equal(values[4],'31 条');assert.equal(values[5],'1 条');assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth+1'),true);await evaluate("(()=>{const table=[...document.querySelectorAll('.sp-business-events table')].find(n=>[...n.querySelectorAll('th')].some(h=>h.textContent==='多余仓'));table.scrollIntoView({block:'center'});table.parentElement.scrollLeft=table.parentElement.scrollWidth;})()");await capture('num-dyc-'+width);}
   });
   await t.test('refresh replaces changed and absent source values without carrying a previous extra quantity',async()=>{
-   await x.capture();await refresh();await expectExtra('2 条','changed extra');assert.equal((await cells())[2],'31 条');
-   await x.capture();await refresh();await expectExtra('未知','missing extra');assert.equal((await cells())[2],'31 条');
+   await x.capture();await refresh();await expectExtra('2 条','changed extra');assert.equal((await cells())[4],'31 条');
+   await x.capture();await refresh();await expectExtra('未提供','missing extra');assert.equal((await cells())[4],'31 条');
    await x.capture();await refresh();await expectExtra('0 条','explicit zero extra');
   });
   await t.test('material DTO adds no raw rows or order commercial fields and quantity remains 31',async()=>{
@@ -50,7 +50,7 @@ test('built source UI shows traced excess warehouse independently in a disposabl
   });
   await t.test('an older v1 response without the new optional fact stays usable and unknown',async()=>{
    await evaluate("window.previousFetch=window.fetch;window.fetch=async(...args)=>{const response=await window.previousFetch(...args);if(new URL(String(args[0]),location.href).pathname.endsWith('/material-progress')&&response.ok){const model=await response.json();for(const row of [...model.progress.rows,...model.progress.groups.flatMap(group=>group.rows)])for(const event of row.inbounds)delete event.excessWarehouse;return new Response(JSON.stringify(model),{status:response.status,headers:{'Content-Type':'application/json'}});}return response;};");
-   try{await refresh();await expectExtra('未知','older DTO');assert.equal((await cells())[2],'31 条');}finally{await evaluate('window.fetch=window.previousFetch;delete window.previousFetch;');}
+   try{await refresh();await expectExtra('未取得','older DTO');assert.equal((await cells())[4],'31 条');}finally{await evaluate('window.fetch=window.previousFetch;delete window.previousFetch;');}
   });
   assert.deepEqual(errors,[]);assert.deepEqual(x.errors,[]);
  }finally{if(ws)ws.close();if(browser)browser.kill();await x.close();const owned=relative(resolve(tmpdir()),resolve(temp));if(!owned||owned.startsWith('..')||isAbsolute(owned)||!owned.startsWith('zhixu-num-dyc-ui-'))throw Error('unsafe temporary cleanup target');await rm(temp,{recursive:true,force:true,maxRetries:10,retryDelay:100});}

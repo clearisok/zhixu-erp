@@ -38,6 +38,11 @@ export async function collectFullNormalizationEvidence(client:PoolClient,caseId:
  };
  const availableReferences=await normalizationReferences(client);
  for(const [table,column] of availableReferences)await add(table,column,`SELECT ref.${column}::text AS order_id,to_jsonb(ref)::text AS payload FROM ${table} ref WHERE ref.${column}=ANY($1::uuid[]) ORDER BY payload LIMIT $2 ${freezeRows?'FOR SHARE OF ref':''}`);
+ if(availableReferences.some(([table])=>table==='ainuoke_order_followups')){
+  await add('ainuoke_followup_receipts','declared_order',`SELECT r.result->>'orderId' AS order_id,to_jsonb(r)::text AS payload FROM ainuoke_followup_receipts r WHERE r.result->>'orderId'=ANY($1::text[]) ORDER BY payload LIMIT $2 ${freezeRows?'FOR SHARE OF r':''}`);
+  for(const table of ['ainuoke_catalog_entries','ainuoke_contract_sync_state','ainuoke_sync_jobs','ainuoke_contract_observations'])await add(table,'contract_identity',`SELECT l.sales_order_id::text AS order_id,to_jsonb(r)::text AS payload FROM ${table} r JOIN sales_order_source_links l ON l.external_id=r.source_id AND l.source_system='ainuoke' AND l.source_entity_type='sales_contract' WHERE l.sales_order_id=ANY($1::uuid[]) ORDER BY payload LIMIT $2 ${freezeRows?'FOR SHARE OF r,l':''}`);
+  if((await client.query("SELECT to_regclass('public.ainuoke_catalog_intake_receipts') IS NOT NULL AS ready")).rows[0].ready)await add('ainuoke_catalog_intake_receipts','adopted_order',`SELECT item AS order_id,to_jsonb(r)::text AS payload FROM ainuoke_catalog_intake_receipts r CROSS JOIN LATERAL jsonb_array_elements_text(r.result->'orderIds') item WHERE item=ANY($1::text[]) ORDER BY payload LIMIT $2 ${freezeRows?'FOR SHARE OF r':''}`);
+ }
  // A registered command may still be pending with no receipt. Its fixed plan
  // reference must invalidate old evidence too; only digests leave this reader.
  if(availableReferences.some(([table])=>table==='order_sale_adjustment_receipts'))await add('order_sale_adjustment_operations','planned_order',`SELECT item->>'salesOrderId' AS order_id,to_jsonb(op)::text AS payload FROM order_sale_adjustment_operations op CROSS JOIN LATERAL jsonb_array_elements(op.command_plan) item WHERE item->>'salesOrderId'=ANY($1::text[]) ORDER BY payload LIMIT $2 ${freezeRows?'FOR SHARE OF op':''}`);

@@ -1,5 +1,6 @@
 import {createPersistedMaterialHistoryReader} from './ainuoke-source/history.js';
-import { createPersistedMaterialPorts, sourceReadConfig } from "./ainuoke-source/reader.js";
+import { sourceReadConfig } from "./ainuoke-source/reader.js";
+import { createConfiguredMaterialPorts } from './ainuoke-source/configured-material-reader.js';
 import { createPaymentSnapshotReader, paymentReadConfig } from './ainuoke-source/payment-request-store.js';
 import { createGarmentShipmentReader, garmentShipmentReadConfig } from './ainuoke-source/garment-shipment-store.js';
 import { createServer } from "node:http";
@@ -58,6 +59,8 @@ try {
     synchronizePermissions: () => config.identityMode === "session" ? synchronizePermissionCatalog(pool) : Promise.resolve(),
     bootstrapAdmin: () => config.identityMode === "session" ? bootstrapAdmin(pool, config.bootstrapAdmin) : identityAuthority.verify(),
     listen: async () => {
+      const orderMaterialRead = materialSourceConfig ? await createConfiguredMaterialPorts(pool, materialSourceConfig, process.env,
+        () => process.stderr.write(`${JSON.stringify({event:'material_confirmation_unavailable'})}\n`)) : undefined;
       server = createServer(createApp({
         pool,
         allowedOrigins: config.allowedOrigins,
@@ -69,7 +72,7 @@ try {
         identityAuthority,
         orderCommandMode: config.orderCommandMode,
         attachmentStorage,
-        orderMaterialRead: materialSourceConfig ? createPersistedMaterialPorts(pool, materialSourceConfig) : undefined,
+        orderMaterialRead,
         materialArrivalSource: materialSourceConfig,
         orderPaymentRead: paymentSourceConfig ? createPaymentSnapshotReader(pool, paymentSourceConfig) : undefined,
         orderGarmentShipmentRead: garmentSourceConfig ? createGarmentShipmentReader(pool, garmentSourceConfig) : undefined,

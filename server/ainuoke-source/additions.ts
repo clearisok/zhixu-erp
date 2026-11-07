@@ -209,10 +209,16 @@ export async function assertStoredAdditionMatches(client: PoolClient, candidates
 export async function addOrders(pool: Pool, identity: Pick<TrustedIdentity,'internalUserId'|'userId'>, options: {
   sourceKey: string; accountFingerprint: string; selected: string[]; expectedPreview: string;
   collect: () => Promise<unknown>; now?: () => number;
+  receipt?: {requestId:string;observationId:string};
 }) {
   if (!sourceKeyValid(options.sourceKey) || !hex(options.accountFingerprint) || !hex(options.expectedPreview))
     throw new SourceError('addition_confirmation_required');
   const actor = await sourceActor(pool, identity, true); requirePermission(actor.permissions, 'ainuoke.bind');
+  const receiptHash=options.receipt?hash({sourceKey:options.sourceKey,accountFingerprint:options.accountFingerprint,selected:options.selected,expectedPreview:options.expectedPreview,receipt:options.receipt}):null;
+  if(options.receipt){
+    const prior=(await pool.query('SELECT payload_hash,result FROM ainuoke_catalog_intake_receipts WHERE actor_id=$1 AND request_id=$2',[actor.internalUserId,options.receipt.requestId])).rows[0];
+    if(prior){if(prior.payload_hash!==receiptHash)throw new SourceError('catalog_intake_request_conflict');return {...prior.result,replayed:true};}
+  }
   await requireAdditionProfile(pool, options.sourceKey, options.accountFingerprint);
   const before = await readBoundIdentities(pool);
   const data = await options.collect();
@@ -222,6 +228,11 @@ export async function addOrders(pool: Pool, identity: Pick<TrustedIdentity,'inte
   try {
     await client.query('BEGIN');
     await client.query("SET LOCAL lock_timeout = '5s'");
+    if(options.receipt){
+      await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',['catalog-intake:'+actor.internalUserId+':'+options.receipt.requestId]);
+      const prior=(await client.query('SELECT payload_hash,result FROM ainuoke_catalog_intake_receipts WHERE actor_id=$1 AND request_id=$2',[actor.internalUserId,options.receipt.requestId])).rows[0];
+      if(prior){if(prior.payload_hash!==receiptHash)throw new SourceError('catalog_intake_request_conflict');await client.query('COMMIT');return {...prior.result,replayed:true};}
+    }
     await lockEffectiveAttribution(client);
     await client.query("SET LOCAL statement_timeout = '30s'");
     await client.query("SELECT pg_advisory_xact_lock(hashtextextended('ainuoke-first-binding',0))");
@@ -250,6 +261,8 @@ export async function addOrders(pool: Pool, identity: Pick<TrustedIdentity,'inte
     await appendOperationLog(client,currentActor,{module:'艾诺科同步',action:'受控接纳新增合同',entityType:'AinuokeSourceAddition',
       entityId:options.sourceKey,metadata:{sourceKey:options.sourceKey,reviewHash:current.reviewHash,
         orderCount:ids.length,scope:'current_account_visible',salesContractNos:current.candidates.map(c=>c.source.salesContractNo)}});
+    if(options.receipt)await client.query('INSERT INTO ainuoke_catalog_intake_receipts(actor_id,request_id,payload_hash,result) VALUES($1,$2,$3,$4::jsonb)',
+      [actor.internalUserId,options.receipt.requestId,receiptHash,JSON.stringify({created:ids.length,replayed:false,orderIds:ids,reviewHash:current.reviewHash})]);
     await client.query('COMMIT');
     return {created: ids.length, replayed: false, orderIds: ids, reviewHash: current.reviewHash};
   } catch(error) {

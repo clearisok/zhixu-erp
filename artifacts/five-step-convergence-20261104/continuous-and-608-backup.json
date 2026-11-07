@@ -1,0 +1,156 @@
+{
+  "continuous": {
+    "state": "STOPPED",
+    "code": "worker_or_source_failure",
+    "scopeHash": "9d3cc0b8f12a94d8595f739e0b7841a217e3344c690a972216c2d2041fb67d21",
+    "startedAt": "2026-11-05T01:28:36.516Z",
+    "resumedAt": "2026-11-05T01:40:07.796Z",
+    "finishedAt": "2026-11-05T01:43:25.122Z",
+    "elapsedMs": 888606,
+    "frequent": 243,
+    "completedFirst": 155,
+    "completedSecond": 0,
+    "knownLogins": 34,
+    "knownReports": 1198,
+    "reservedLogins": 35,
+    "reservedReports": 2760,
+    "captures": 35,
+    "metricsUnknown": 1,
+    "maxBacklog": 217,
+    "maxOldestBacklogMs": 870569.571,
+    "manual": {
+      "tier": "monthly",
+      "elapsedMs": 5834,
+      "backlogAtRequest": 217,
+      "singleContract": true,
+      "idempotent": true,
+      "receipt": "complete",
+      "lastSuccessAdvanced": true,
+      "notificationObserved": true
+    },
+    "onlyRestoredCopy": true,
+    "stagingChanged": false
+  },
+  "postStop": {
+    "state": "POST_STOP_READ_ONLY_VERIFIED",
+    "original608ObservationsPreserved": true,
+    "unselectedContracts": 364,
+    "unselectedSuccessPointersAndTimesPreserved": true,
+    "currentSuccessCount": 608,
+    "frequentQueued": 57,
+    "otherDeferredQueued": 112,
+    "runningOrUnknown": 0,
+    "control": {
+      "enabled": false,
+      "paused_reason": "catalog_changed_or_over_limit",
+      "version": 6
+    },
+    "latestAttempt": {
+      "status": "failed",
+      "result_code": "catalog_changed_or_over_limit",
+      "started_at": "2026-11-05T01:43:17.096+00:00",
+      "finished_at": "2026-11-05T01:43:25.078+00:00"
+    },
+    "latestAttemptDiagnosticsRetained": false,
+    "latestAttemptMetricsRetained": false,
+    "sourceRequests": 0,
+    "businessWrites": 0
+  },
+  "scope": {
+    "state": "CONTINUOUS_SCOPE_READY",
+    "contracts": 608,
+    "frequent": 243,
+    "tiers": {
+      "monthly": 50,
+      "weekly": 192,
+      "daily": 123,
+      "frequent": 243
+    },
+    "manualTier": "monthly",
+    "maximumLogins": 140,
+    "maximumReports": 11200,
+    "maximumMinutes": 70,
+    "realClock": true,
+    "sourceRequests": 0,
+    "scopeHash": "9d3cc0b8f12a94d8595f739e0b7841a217e3344c690a972216c2d2041fb67d21"
+  },
+  "pairedBackup": {
+    "state": "POPULATED_CATALOG_PAIR_RESTORE_VERIFIED",
+    "candidateSchema": "738b5471fbc6d3048e66120bb0c1732728cbc027",
+    "tables": 137,
+    "objects": 2,
+    "coverage": {
+      "visibleContracts": 608,
+      "successfulContracts": 608,
+      "failedJobRecords": 10,
+      "distinctFailedContracts": 10,
+      "queuedContracts": 0
+    },
+    "sourceRequests": 0,
+    "originalCoverageBusinessWrites": 0,
+    "originalCoverageHashUnchanged": true,
+    "publicPorts": 0,
+    "offhostVerified": false
+  },
+  "offhostRestore": {
+    "state": "OFFHOST_DATABASE_ATTACHMENT_PAIR_RESTORE_VERIFIED",
+    "source": "738b5471fbc6d3048e66120bb0c1732728cbc027",
+    "tables": 137,
+    "successfulObservations": 608,
+    "catalogEntries": 608,
+    "objects": 2,
+    "postgresImage": "sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229",
+    "sourceRequests": 0,
+    "network": "none",
+    "liveBusinessWrites": 0,
+    "attachmentHttpVerified": false,
+    "assetsRetained": true
+  },
+  "archive": {
+    "sha256": "9d236293334b624f6e19c41769ab573fc3da6ad0a93d35dd2614ae0e0db74e53",
+    "bytes": 41631723,
+    "offhostPath": "D:/WeaveOps-Backups/ningbo-trial/coverage608-738b5471-20261105/candidate-pair.tar.gz"
+  },
+  "runtimeCandidate": "738b5471fbc6d3048e66120bb0c1732728cbc027",
+  "limitations": [
+    "Two real frequent cycles did not complete; 155 first-cycle successes, zero second-cycle completions.",
+    "Manual service/queue receipt verified; actual browser click not verified in this run.",
+    "One rejected capture lost raw diagnostics and metrics before persistence; counts are known lower bound, reserved budgets remain upper bound.",
+    "Nonselected benchmark jobs were excluded/deferred only in restored test DB; never import its queue to staging.",
+    "Original 608 coverage archive predates continuous benchmark and excludes its queue artifacts.",
+    "Staging unchanged; no main merge; attachment HTTP and live-policy rebind still pending."
+  ],
+  "localDiagnosticFix": {
+    "sourceCommit": "fed83ce98b212abf4d0637ba36426806e78297af",
+    "unitTests": {
+      "pass": 3,
+      "fail": 0
+    },
+    "relatedPostgresTests": {
+      "uniqueCases": 21,
+      "allPassedAfterTestClockCorrection": true,
+      "initialRun": {
+        "pass": 20,
+        "fail": 1
+      },
+      "finalFocusedRun": {
+        "pass": 2,
+        "fail": 0
+      }
+    },
+    "typecheck": "passed",
+    "changedFileLint": "passed",
+    "build": "passed",
+    "releaseRegression": "not passed: stopped because started before required evidence re-freeze; 20 responsive checks completed",
+    "remoteDelivery": false,
+    "ciForFix": "not run",
+    "productionApplied": false,
+    "review": "local diff review; no change to publication, retry classification or pause rules",
+    "sourceGuard": {
+      "status": "PASS",
+      "checkedHead": "fed83ce98b212abf4d0637ba36426806e78297af",
+      "baseline": "cb5cc29baa49ed7115fdb6c9506b6a80356936ea",
+      "workingTreeEvidence": true
+    }
+  }
+}

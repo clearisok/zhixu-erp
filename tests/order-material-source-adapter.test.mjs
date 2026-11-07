@@ -24,6 +24,37 @@ function harness(overrides = {}) {
   return { calls, load, read: (actor = identity, request = { salesOrderId: id }) => createOrderMaterialReader({ resolveVisibleOrder: ports.resolveVisibleOrder, loadSource: load })(actor, request) };
 }
 const progress = async h => (await h.read()).body.progress;
+
+test('verified published history retains facts and timestamp after expiry without claiming current readiness', async () => {
+  const result = await progress(harness({provenance: 'server_snapshot', retainPublishedHistory: true, now: () => now + 1001}));
+  assert.equal(result.sourceStatus, 'stale');
+  assert.ok(result.rows.length > 0);
+  assert.equal(result.fetchedAt, syntheticFetchedAt);
+  assert.ok(result.rows.every(row => row.status === null));
+  assert.equal(result.summary.fabric.states.ready, 0);
+});
+
+test('published history still rejects wrong contract, incomplete pages and future timestamps', async () => {
+  for (const kind of ['contract', 'pages', 'future']) {
+    const pages = createSyntheticMaterialSource();
+    if (kind === 'contract') pages[0].rows[0].values.ExpContractNo = 'OTHER';
+    if (kind === 'pages') pages[0].total = 1000;
+    if (kind === 'future') pages[0].fetchedAt = new Date(now + 10000).toISOString();
+    const result = await progress(harness({provenance:'server_snapshot',retainPublishedHistory:true,now:()=>now+1001,readMaterial:async()=>pages}));
+    assert.equal(result.rows.length, 0);
+    assert.notEqual(result.sourceStatus, 'ready');
+  }
+});
+
+test('failed refresh keeps validated historical events but never adopts incomplete history', async () => {
+  for (const incomplete of [false,true]) {
+    const snapshots = createSyntheticMaterialSource(incomplete ? 'incomplete' : undefined);
+    const read = createOrderMaterialReader({resolveVisibleOrder:async()=>order,loadSource:async()=>({salesOrderId:id,salesContractNo:order.salesContractNo,provenance:'server_snapshot',issue:'source_failed',snapshots})});
+    const result = (await read(identity,{salesOrderId:id})).body.progress;
+    assert.equal(result.sourceStatus,incomplete ? 'incomplete' : 'source_failed');
+    assert.equal(result.rows.length > 0,!incomplete);
+  }
+});
 test('Discovery BillNo resolves current InsideOrderNo with fixed catalog key and reuses exact projection', async () => {
   const h = harness(); const result = await h.read();
   assert.equal(result.status, 200); assert.equal(result.body.progress.sourceStatus, 'ready');

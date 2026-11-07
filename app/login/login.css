@@ -53,7 +53,10 @@
 .zx-login-reveal { position: absolute; top: 3px; right: 3px; width: 44px; height: 44px; border: 0; border-radius: 6px; display: grid; place-items: center; color: #717b8a; background: transparent; cursor: pointer; }
 .zx-login-reveal svg { width: 20px; height: 20px; }
 .zx-login-reveal:hover { background: #edf1fa; }
-.zx-login-helper { font-size: 11px; color: #667085; margin: 15px 0 26px; text-align: right; }
+.zx-login-options { display: flex; align-items: center; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap; margin: 9px 0 20px; }
+.zx-login-form .zx-login-remember { display: inline-flex; align-items: center; gap: 8px; min-height: 44px; margin: 0; cursor: pointer; }
+.zx-login-form .zx-login-remember input { appearance: auto; width: 18px; height: 18px; padding: 0; margin: 0; accent-color: #2545ad; }
+.zx-login-helper { font-size: 11px; color: #667085; }
 .zx-login-submit { width: 100%; min-height: 50px; padding: 13px 19px; display: flex; align-items: center; justify-content: space-between; border: 1px solid #2545ad; border-radius: 10px; background: #2545ad; color: #fff; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 180ms, transform 180ms; }
 .zx-login-submit:hover:not(:disabled) { background: #1b358f; transform: translateY(-1px); }
 .zx-login button:disabled { cursor: wait; opacity: .65; }

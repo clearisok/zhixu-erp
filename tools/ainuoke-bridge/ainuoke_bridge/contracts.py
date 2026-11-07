@@ -16,7 +16,7 @@ ReportKey = Literal[
     "sales_contracts",
     "sales_contract_color_sizes",
     "garment_color_size_details",
-    "material_purchase_statistics",
+    "material_purchase_statistics", "material_contract_statistics", "fabric_purchase_units", "trim_purchase_units", "fabric_inbound_units", "trim_inbound_units",
 ]
 ReportQueryKind = Literal["empty", "sales_contract", "inside_order"]
 SOURCE_SCHEMA_VERSION = "ainuoke-direct-read.v2"
@@ -82,6 +82,14 @@ REPORT_CATALOG: dict[ReportKey, ReportDefinition] = {
         query_flow_name="[内层]",
     ),
 }
+# Fixed, observed queries from the 2026-11-05 knowledge-base evidence. Only an
+# explicitly configured Server capture uses these; no arbitrary report IDs.
+REPORT_CATALOG.update({
+    "material_contract_statistics": ReportDefinition("material_contract_statistics", "6087051", "面辅料申购统计-IT", "Material Normalize -> Dedup -> Validate -> Preview", "sales_contract", "ExpContractNo", "contains", "[内层]"),
+    **{key: ReportDefinition(key, report, "物料单位核对", "Material unit evidence", "inside_order", "InsideOrderNo", compare, "[内层]")
+       for key, report, compare in (("fabric_purchase_units", "6086405", "contains"), ("trim_purchase_units", "6086408", "contains"),
+          ("fabric_inbound_units", "6086875", "contains"), ("trim_inbound_units", "6086354", "is"))},
+})
 
 
 class SourceContractError(ValueError):
@@ -283,7 +291,8 @@ def sanitized_source_error(code: str) -> dict[str, str]:
     allowed = {
         "network_timeout": "艾诺科连接超时",
         "network_unavailable": "艾诺科暂时不可访问",
-        "invalid_credential": "艾诺科账号或密码无效",
+        # loginsys2 uses isOk=false for every refusal, not only a bad password.
+        "invalid_credential": "艾诺科登录被拒绝；原因未识别，请查看登录诊断",
         "auth_expired": "艾诺科登录已失效",
         "upstream_schema_error": "艾诺科报表响应格式无法识别",
         "unknown_report": "不支持该报表",

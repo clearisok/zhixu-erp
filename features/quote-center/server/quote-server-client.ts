@@ -1,3 +1,4 @@
+import { navigationReadCache } from "../../server-auth/session-read-cache";
 import type { QuoteResponseRecord as QuoteRecord, QuoteSaveContent as ServerQuote } from "../../../server/quotes/quote-response";
 import type { QuoteVersionCommand } from "../../../server/quotes/version-workflows";
 import type { EstimateCommand } from "../../../server/quotes/estimate-workflows";
@@ -43,7 +44,7 @@ async function parseResponse<T>(response: Response): Promise<T> {
 }
 
 export type QuoteServerClient = {
-  list(query?: { limit?: number; offset?: number; search?: string; type?: string; status?: string; columns?: BusinessColumn[] }): Promise<{ quotes: QuoteServerListItem[]; page: QuoteServerPage }>;
+  list(query?: { limit?: number; offset?: number; search?: string; type?: string; status?: string; columns?: BusinessColumn[] }, options?: { preload?: boolean }): Promise<{ quotes: QuoteServerListItem[]; page: QuoteServerPage }>;
   getById(quoteId: string): Promise<QuoteRecord>;
   create(): Promise<QuoteRecord>;
   save(quote: ServerQuote, expectedVersion: number): Promise<QuoteRecord>;
@@ -52,7 +53,7 @@ export type QuoteServerClient = {
   confirmationWorkflow(quoteId: string, command: QuoteConfirmationCommand): Promise<QuoteRecord>;
 };
 
-export function createQuoteServerClient(options: { baseUrl?: string; fetchImpl?: typeof fetch } = {}): QuoteServerClient {
+export function createQuoteServerClient(options: { baseUrl?: string; fetchImpl?: typeof fetch; applicationCache?: boolean } = {}): QuoteServerClient {
   const baseUrl = (options.baseUrl ?? "").replace(/\/$/u, "");
   const fetchImpl = options.fetchImpl ?? fetch;
   const request = async <T>(path: string, init?: RequestInit) => parseResponse<T>(await fetchImpl(`${baseUrl}${path}`, {
@@ -66,13 +67,15 @@ export function createQuoteServerClient(options: { baseUrl?: string; fetchImpl?:
     body: JSON.stringify(body),
   }).then((payload) => payload.quote);
   return {
-    list(query = {}) {
+    list(query = {}, readOptions = {}) {
       const params = new URLSearchParams();
       if (query.limit !== undefined) params.set("limit", String(query.limit));
       if (query.offset !== undefined) params.set("offset", String(query.offset));
       for (const key of ["search", "type", "status"] as const) if (query[key]) params.set(key, query[key]);
       if (query.columns) params.set("columns", query.columns.join(","));
-      return request(`/api/v1/quotes${params.size ? `?${params}` : ""}`);
+      const path = `/api/v1/quotes${params.size ? `?${params}` : ""}`;
+      const load = () => request<{ quotes: QuoteServerListItem[]; page: QuoteServerPage }>(path);
+      return options.applicationCache ? readOptions.preload ? navigationReadCache.preload(path, load) : navigationReadCache.read(path, load) : load();
     },
     getById(quoteId) {
       return request<{ quote: QuoteRecord }>(`/api/v1/quotes/${encodeURIComponent(quoteId)}`).then((payload) => payload.quote);
@@ -98,4 +101,4 @@ export function createQuoteServerClient(options: { baseUrl?: string; fetchImpl?:
   };
 }
 
-export const quoteServerClient = createQuoteServerClient();
+export const quoteServerClient = createQuoteServerClient({ applicationCache: true });

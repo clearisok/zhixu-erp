@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { freezeExistingPublicRows } from "./legacy-row-snapshot-fixture.js";
 import { copyFile, mkdtemp, readdir, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { isAbsolute, join, relative, resolve } from "node:path";
@@ -54,7 +55,7 @@ test("0037 to 0038 adds empty tracking only, preserves existing Source/plans/exe
     expectedExecutionVersion: 0, expectedPlanVersion: current.order.planVersion, data: { status: "in_progress", completedQuantity: "10.125", actualStartDate: "2027-01-04", actualCompletedDate: null }, reason: "", replan: null });
   const execution = await executeProductionExecution(pool, actor, { requestId: randomUUID(), intent: executionPreview.intent, previewHash: executionPreview.previewHash }); assert.equal(execution.status, "applied");
   const tables = (await pool.query<{ tablename: string }>("SELECT tablename FROM pg_tables WHERE schemaname='public' AND tablename<>'schema_migrations' ORDER BY tablename")).rows.map(row => row.tablename);
-  const snapshot = () => Promise.all(tables.map(async table => ({ table, rows: (await pool.query(`SELECT to_jsonb(row)::text payload FROM "${table}" row ORDER BY payload`)).rows })));
+  const snapshot = await freezeExistingPublicRows(pool, tables);
   const before = await snapshot();
   await t.test("new capability fails closed on prefix37 while existing production and reference reads work", async () => {
     await assert.rejects(() => verifyMigrationsCurrent(pool, resolve("database/migrations")), PendingMigrationsError);

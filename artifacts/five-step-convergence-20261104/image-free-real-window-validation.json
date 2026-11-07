@@ -1,0 +1,209 @@
+{
+  "schemaVersion": "weaveops.ainuoke-fixed-recovery.v1",
+  "state": "PARTIAL_CONTINUOUS_ACCEPTANCE_LOGIN_BUDGET_EXHAUSTED",
+  "source": "06d56d101b73ebb22f656a9d61d729d7adb26ced",
+  "deliveredHead": "b33888e4215ae70edebdf6ae079d86eb20d93b0c",
+  "baseline": "cb5cc29baa49ed7115fdb6c9506b6a80356936ea",
+  "pr": 140,
+  "authorization": {
+    "maximumMinutes": 70,
+    "maximumLogins": 101,
+    "maximumReports": 8200,
+    "originalIdentities": 610,
+    "directoryMaximum": 1400,
+    "frequentDetails": 243,
+    "monthlyDetails": 1,
+    "scopeHash": "6595779932d0a0cddadece4f7bf4baa820b52be70ff7817db1705f5953ac8a58",
+    "startedAt": "2026-11-05T08:09:35.935Z",
+    "deadline": "2026-11-05T09:19:35.935Z"
+  },
+  "finishedAt": "2026-11-05T08:49:11.567Z",
+  "result": {
+    "first": 243,
+    "firstMs": 660355,
+    "second": 215,
+    "remainingSecond": 28,
+    "minimumCycleIntervalMs": 1809799,
+    "manual": {
+      "tier": "monthly",
+      "elapsedMs": 6064,
+      "backlogAtRequest": 243,
+      "singleContract": true,
+      "idempotent": true,
+      "receipt": "complete",
+      "lastSuccessAdvanced": true,
+      "notificationObserved": true
+    },
+    "manualBrowserClickVerified": false,
+    "directory": 613,
+    "successfulContracts": 608,
+    "newDirectoryDetailsCollected": false,
+    "imageFileKeys": 0,
+    "original608ObservationsPreserved": true,
+    "unselectedSuccessPointersPreserved": true,
+    "upstreamFailures": [
+      {
+        "kind": "report",
+        "reportId": 6086103,
+        "page": 12,
+        "elapsedMs": 45051,
+        "outcome": "timeout",
+        "httpStatus": null
+      }
+    ],
+    "transientFailureBatchContracts": 5,
+    "allTransientFailuresRecovered": true,
+    "backlogClearedAfterFirst": true,
+    "finalRunningUnknown": 0
+  },
+  "budget": {
+    "actualLogins": 101,
+    "actualReports": 3597,
+    "reservedLogins": 101,
+    "reservedReports": 8032,
+    "cumulativeReservedLogins": 140,
+    "cumulativeReservedReports": 11032,
+    "remainingLogins": 0,
+    "remainingReservedReports": 168,
+    "reclaimedReservations": false
+  },
+  "stopAudit": {
+    "state": "STOPPED_AT_LOGIN_BUDGET",
+    "first": 243,
+    "second": 215,
+    "pendingSecond": 28,
+    "windowMinutesUsed": 39.59386666666666,
+    "budget": {
+      "logins": 101,
+      "reports": 3597
+    },
+    "remainingLogins": 0,
+    "remainingReservedReports": 168,
+    "control": {
+      "enabled": false,
+      "version": 14,
+      "pausedReason": "source_capture_failed",
+      "runningOrUnknown": 0
+    },
+    "lastAttempt": [
+      {
+        "status": "failed",
+        "code": "source_capture_failed",
+        "requests": null
+      }
+    ],
+    "stopCause": "collector guard rejected attempt before HTTP at 101 reserved logins; worker maps harness Error to source_capture_failed",
+    "imageFileKeys": 0,
+    "operatorStopped": true,
+    "original608HistoryPreserved": true,
+    "unselectedPointersPreserved": true,
+    "oldWorkerState": "PAUSED",
+    "stagingChanged": false
+  },
+  "boundaries": {
+    "remainingSecondCycleSha256": "2536da7bf424bc0903c6ecae748b18d527211bd0e307aa80b40ed98dccd3eb03",
+    "remainingSecondCycleCount": 28,
+    "databaseStopped": true,
+    "operatorStopped": true,
+    "oldWorkerPaused": true,
+    "sourceRequests": 0,
+    "stagingChanged": false
+  },
+  "backup": {
+    "state": "POPULATED_CATALOG_PAIR_RESTORE_VERIFIED",
+    "candidateSchema": "06d56d101b73ebb22f656a9d61d729d7adb26ced",
+    "deliveredHead": "b33888e4215ae70edebdf6ae079d86eb20d93b0c",
+    "continuousState": "STOPPED",
+    "successfulObservations": 1371,
+    "original610IdentitiesPreserved": true,
+    "tables": 137,
+    "objects": 2,
+    "coverage": {
+      "visibleContracts": 613,
+      "successfulContracts": 608,
+      "failedJobRecords": 1827,
+      "distinctFailedContracts": 145,
+      "queuedContracts": 117
+    },
+    "sourceRequests": 0,
+    "originalCoverageBusinessWrites": 0,
+    "originalCoverageHashUnchanged": true,
+    "publicPorts": 0,
+    "offhostVerified": false,
+    "archiveBytes": 46136442,
+    "archiveSha256": "12b1ab26d0baf82b27aff3a9d40f8d21382b33de0ac34a42d9e7d142eeee94ef"
+  },
+  "offhostRestore": {
+    "state": "OFFHOST_DATABASE_ATTACHMENT_PAIR_RESTORE_VERIFIED",
+    "source": "06d56d101b73ebb22f656a9d61d729d7adb26ced",
+    "tables": 137,
+    "successfulObservations": 1371,
+    "catalogEntries": 613,
+    "objects": 2,
+    "postgresImage": "sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229",
+    "sourceRequests": 0,
+    "network": "none",
+    "liveBusinessWrites": 0,
+    "attachmentHttpVerified": false,
+    "assetsRetained": true
+  },
+  "remainingScope": {
+    "count": 28,
+    "sha256": "2536da7bf424bc0903c6ecae748b18d527211bd0e307aa80b40ed98dccd3eb03",
+    "proposedExtraLogins": 8,
+    "proposedExtraReports": 640,
+    "proposedMinutes": 30,
+    "authorization": "pending",
+    "preparedRunnerSha256": "8fb0f6edec0479a76d1fc9c39a386cacc3728f6bbde53ec9449a3d318d74a4f7",
+    "executed": false
+  },
+  "validation": {
+    "businessCodeChanged": false,
+    "priorLocalChecksReused": {
+      "python": 184,
+      "protocol": 21,
+      "database": 61,
+      "releaseBaseline": 182,
+      "types": "pass",
+      "lint": "pass",
+      "build": "pass"
+    },
+    "priorCIReused": {
+      "head": "b33888e4215ae70edebdf6ae079d86eb20d93b0c",
+      "source": "success on attempt 2; original mobile touch timeout unreproduced",
+      "teamAccess": "success",
+      "baseline": "success"
+    },
+    "newCITriggered": false
+  },
+  "limitations": [
+    "Full 243-contract uninterrupted two-cycle acceptance is incomplete.",
+    "No merge or staging upgrade; old worker remains paused.",
+    "Attachment bytes verified; attachment HTTP remains unverified.",
+    "New directory contracts have no detail observations in this scope.",
+    "6087051 not integrated; not full materials financial closure.",
+    "Do not import benchmark queue, pause state, or budget-only operational errors into live state.",
+    "Candidate pair does not replace the fresh live paired backup required before upgrade."
+  ],
+  "firstCycleEvidenceTableGrowth": [
+    {
+      "table": "ainuoke_catalog_evidence_chunks",
+      "bytes": 475136,
+      "beforeBytes": 368640,
+      "growthBytes": 106496
+    },
+    {
+      "table": "ainuoke_catalog_capture_evidence",
+      "bytes": 1531904,
+      "beforeBytes": 1187840,
+      "growthBytes": 344064
+    },
+    {
+      "table": "ainuoke_contract_observations",
+      "bytes": 36601856,
+      "beforeBytes": 34291712,
+      "growthBytes": 2310144
+    }
+  ],
+  "prMetadataUpdated": true
+}

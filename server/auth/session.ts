@@ -7,6 +7,14 @@ import { permissionsForUser } from "./permissions.js";
 
 export const SESSION_COOKIE_NAME = "zhixu_v1_session";
 const MAX_FAILED_ATTEMPTS = 10;
+const REMEMBERED_SESSION_TTL_SECONDS = 5 * 24 * 60 * 60;
+
+export function loginSessionSecurity(config: SessionSecurityConfig, rememberMe: unknown): SessionSecurityConfig {
+  if (rememberMe !== undefined && typeof rememberMe !== "boolean") {
+    throw new HttpError(400, "invalid_login_option", "Remember login must be a boolean");
+  }
+  return rememberMe === true ? { ...config, sessionTtlSeconds: REMEMBERED_SESSION_TTL_SECONDS } : config;
+}
 
 export type TrustedIdentity = {
   internalUserId: string;
@@ -45,6 +53,21 @@ export function sessionCookie(token: string | null, config: SessionSecurityConfi
     token ? `Max-Age=${config.sessionTtlSeconds}` : "Max-Age=0",
   ].filter(Boolean);
   return attributes.join("; ");
+}
+
+/** Server-only issuance. The caller must verify and lock the user in its transaction. */
+export async function issueSession(
+  client: PoolClient,
+  userId: string,
+  config: SessionSecurityConfig,
+  token = randomBytes(32).toString("base64url"),
+): Promise<string> {
+  await client.query(
+    `INSERT INTO app_sessions(token, user_id, expires_at, session_kind, last_seen_at)
+     VALUES ($1, $2::bigint, now() + ($3 * interval '1 second'), 'v1', now())`,
+    [tokenDigest(token), userId, config.sessionTtlSeconds],
+  );
+  return token;
 }
 
 async function identityForInternalUser(client: Pool | PoolClient, row: {
@@ -115,12 +138,7 @@ export async function login(
     }
 
     await client.query("DELETE FROM login_attempts WHERE username = $1 AND succeeded = false", [username]);
-    const token = randomBytes(32).toString("base64url");
-    await client.query(
-      `INSERT INTO app_sessions(token, user_id, expires_at, session_kind, last_seen_at)
-       VALUES ($1, $2::bigint, now() + ($3 * interval '1 second'), 'v1', now())`,
-      [tokenDigest(token), user.rows[0].id, config.sessionTtlSeconds],
-    );
+    const token = await issueSession(client, user.rows[0].id, config);
     await client.query("UPDATE app_users SET last_login_at=clock_timestamp() WHERE id=$1::bigint",[user.rows[0].id]);
     const identity = await identityForInternalUser(client, user.rows[0]);
     await client.query("COMMIT");

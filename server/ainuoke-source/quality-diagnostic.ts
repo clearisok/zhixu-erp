@@ -133,8 +133,13 @@ export async function analyzeQuality(input: unknown, request: QualityRequest, no
       const {sizeRuleTokens, ...facts} = row; return {...facts, sizeRuleLabels:sizeRuleTokens};
     };
     const colorEvidence = color ? {...color, rows:color.rows.map(colorRowEvidence), usableRows:color.usableRows.map(colorRowEvidence)} : null;
+    // Full business evidence already lives on the canonical material rows.
+    // Groups repeat those rows for presentation; do not nest the same derived
+    // flow parts again beyond the bounded private-report inspector's depth.
+    const materialEvidence = material ? {...material, groups:material.groups.map(group=>({...group,
+      rows:group.rows.map(row=>{const facts={...row};delete facts.business;return facts;})}))} : null;
     privateOrders.push({label:target.label,reason:target.reason,requested:target,current,insideIdentityChanged:identity(target.insideOrderNo)!==identity(discovered.insideOrderNo),color:colorEvidence,colorParserError,
-      colorRawPages:colorPages ?? null,materialRawPages:materialPages ?? null,material,conflictDemands,observations});
+      colorRawPages:colorPages ?? null,materialRawPages:materialPages ?? null,material:materialEvidence,conflictDemands,observations});
   }
   const summary={schemaVersion:"ainuoke-quality-diagnostic.v1",result:"READ_ONLY_QUALITY_DIAGNOSTIC_RECORDED",databaseAccess:"none",sourceActivation:"not-activated",preflightSha256:request.preflightSha256,
     scope:"bounded-problem-contracts-not-full-recollection",reportRequests:b.reportRequests,contracts:privateOrders.length,

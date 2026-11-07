@@ -145,8 +145,18 @@ export function normalizeMaterialSourceRows(input: {
     if (!normalizeText(get("materialCode"))) issues.push("面辅料编码为空");
     if (!normalizeText(get("materialName"))) issues.push("面辅料名称为空");
     if (requiredQuantity === null || requiredQuantity < 0) issues.push("需求数量无效");
-    const demandParts = demandIdentity(get);
+    const demandFacts = demandIdentity(get);
+    const detail = source.detailIdentities;
+    const demandParts = detail ? ['6087051', salesContractNo, type, detail.demand] : demandFacts;
     const demandId = issues.length ? null : checkIdentity(signatures, "demand", `material-demand-${stableMaterialHash(demandParts)}`, demandParts);
+    if (demandId && detail) checkIdentity(signatures, 'demand', demandId + ':facts', demandFacts);
+    const sourceEventId = (kind: 'purchase' | 'inbound' | 'shipment' | 'outbound', parts: unknown[]) => {
+      if (!detail) return checkedEventId(kind, demandId!, parts);
+      const entity = detail[kind] ?? ('unverified:' + traceReference(source.trace));
+      const id = checkedEventId(kind, demandId!, ['6087051', entity]);
+      checkIdentity(signatures, kind, id + ':facts', parts);
+      return id;
+    };
     const rawParts = source.trace.sourceKind === "excel"
       ? [source.trace.sourceKind, source.trace.fileHash, source.trace.sheetName, source.trace.sourceRow]
       : [source.trace.sourceKind, input.sourceArtifactHash, source.trace.sourceRowIdentity];
@@ -218,17 +228,17 @@ export function normalizeMaterialSourceRows(input: {
     const purchaseQuantity = numberValue(get("purchaseQuantity"));
     if (purchaseOrderNo && purchaseQuantity !== null) {
       const parts = [purchaseOrderNo, dateValue(get("purchaseDate")), normalizeText(get("purchaseColor")), purchaseQuantity, numberValue(get("purchaseSampleQuantity")), numberValue(get("purchaseUnitPrice")), numberValue(get("purchaseAmount")), numberValue(get("purchaseExtraCost"))];
-      addEvent(purchaseEvents, { id: checkedEventId("purchase", demandId, parts), materialDemandId: demandId, purchaseOrderNo, purchaseDate: dateValue(get("purchaseDate")), supplier: normalizeText(get("supplier")), purchaseEntity: normalizeText(get("purchaseEntity")), sourceMaterialDueDate: sourceDue, currency: normalizeText(get("currency")), purchaser: normalizeText(get("purchaser")), purchasedMaterialName: normalizeText(get("purchasedMaterialName")), invoiceName: normalizeText(get("invoiceName")), actualName: normalizeText(get("purchaseActualName")), specification: normalizeText(get("purchaseSpecification")), color: normalizeText(get("purchaseColor")), quantity: purchaseQuantity, sampleQuantity: numberValue(get("purchaseSampleQuantity")), unitPrice: numberValue(get("purchaseUnitPrice")), amount: numberValue(get("purchaseAmount")), extraCost: numberValue(get("purchaseExtraCost")), importBatchId: input.batchId, ...traceFields });
+      addEvent(purchaseEvents, { id: sourceEventId("purchase", parts), materialDemandId: demandId, purchaseOrderNo, purchaseDate: dateValue(get("purchaseDate")), supplier: normalizeText(get("supplier")), purchaseEntity: normalizeText(get("purchaseEntity")), sourceMaterialDueDate: sourceDue, currency: normalizeText(get("currency")), purchaser: normalizeText(get("purchaser")), purchasedMaterialName: normalizeText(get("purchasedMaterialName")), invoiceName: normalizeText(get("invoiceName")), actualName: normalizeText(get("purchaseActualName")), specification: normalizeText(get("purchaseSpecification")), color: normalizeText(get("purchaseColor")), quantity: purchaseQuantity, sampleQuantity: numberValue(get("purchaseSampleQuantity")), unitPrice: numberValue(get("purchaseUnitPrice")), amount: numberValue(get("purchaseAmount")), extraCost: numberValue(get("purchaseExtraCost")), importBatchId: input.batchId, ...traceFields });
     }
     const inboundNo = normalizeText(get("inboundDocumentNo"));
     const inboundQuantity = numberValue(get("inboundQuantity"));
-    if (inboundNo && inboundQuantity !== null) addEvent(inboundEvents, { id: checkedEventId("inbound", demandId, [inboundNo, dateValue(get("inboundDate")), inboundQuantity]), materialDemandId: demandId, documentNo: inboundNo, eventDate: dateValue(get("inboundDate")), quantity: inboundQuantity, importBatchId: input.batchId, ...traceFields });
+    if (inboundNo && inboundQuantity !== null) addEvent(inboundEvents, { id: sourceEventId("inbound", [inboundNo, dateValue(get("inboundDate")), inboundQuantity]), materialDemandId: demandId, documentNo: inboundNo, eventDate: dateValue(get("inboundDate")), quantity: inboundQuantity, importBatchId: input.batchId, ...traceFields });
     const shipmentNo = normalizeText(get("shipmentDocumentNo"));
     const shipmentQuantity = numberValue(get("shipmentQuantity"));
-    if (shipmentNo && shipmentQuantity !== null) addEvent(shipmentEvents, { id: checkedEventId("shipment", demandId, [shipmentNo, dateValue(get("shipmentDate")), normalizeText(get("transportMode")), shipmentQuantity]), materialDemandId: demandId, documentNo: shipmentNo, eventDate: dateValue(get("shipmentDate")), quantity: shipmentQuantity, transportModeSnapshot: normalizeText(get("transportMode")), importBatchId: input.batchId, ...traceFields });
+    if (shipmentNo && shipmentQuantity !== null) addEvent(shipmentEvents, { id: sourceEventId("shipment", [shipmentNo, dateValue(get("shipmentDate")), normalizeText(get("transportMode")), shipmentQuantity]), materialDemandId: demandId, documentNo: shipmentNo, eventDate: dateValue(get("shipmentDate")), quantity: shipmentQuantity, transportModeSnapshot: normalizeText(get("transportMode")), importBatchId: input.batchId, ...traceFields });
     const outboundNo = normalizeText(get("outboundDocumentNo"));
     const outboundQuantity = numberValue(get("outboundQuantity"));
-    if (outboundNo && outboundQuantity !== null) addEvent(outboundEvents, { id: checkedEventId("outbound", demandId, [outboundNo, dateValue(get("outboundDate")), outboundQuantity]), materialDemandId: demandId, documentNo: outboundNo, eventDate: dateValue(get("outboundDate")), quantity: outboundQuantity, importBatchId: input.batchId, ...traceFields });
+    if (outboundNo && outboundQuantity !== null) addEvent(outboundEvents, { id: sourceEventId("outbound", [outboundNo, dateValue(get("outboundDate")), outboundQuantity]), materialDemandId: demandId, documentNo: outboundNo, eventDate: dateValue(get("outboundDate")), quantity: outboundQuantity, importBatchId: input.batchId, ...traceFields });
   }
 
   return {

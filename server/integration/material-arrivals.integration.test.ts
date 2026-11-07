@@ -267,7 +267,12 @@ test("Server manual material arrivals: source evidence, stable demand, atomic co
     assert.equal((await request("/commands/" + id)).body.state, "unknown");
   });
   await t.test("failed source retains plans and known receipts, explicit clear never invents source-following batches", async () => {
-    await x.pool.query("UPDATE ainuoke_source_profiles SET last_error_code='synthetic_source_error' WHERE source_key='synthetic-demo'");
+    const accepted = (await x.pool.query("SELECT run_id::text FROM ainuoke_material_order_heads WHERE source_key='synthetic-demo' AND sales_order_id=$1", [x.orderId])).rows[0];
+    assert.ok(accepted?.run_id);
+    await assert.rejects(() => captureSource(x.pool, admin, { sourceKey: "synthetic-demo", accountFingerprint: "a".repeat(64), maxAgeMs: 600000,
+      collect: async () => { throw new Error("synthetic_source_error"); } }), { code: "source_capture_failed" });
+    const failed = (await x.pool.query("SELECT run_id::text,last_error_code FROM ainuoke_material_order_heads WHERE source_key='synthetic-demo' AND sales_order_id=$1", [x.orderId])).rows[0];
+    assert.deepEqual(failed, { run_id: accepted.run_id, last_error_code: "source_capture_failed" });
     const s = await state(); assert.equal(s.source.status, "source_failed"); assert.ok(s.plans.some((r: { issues: string[] }) => r.issues.includes("source_unavailable")));
     assert.equal((await request("/commands/" + originalCommand.requestId)).body.state, "known");
     const none = await readMaterialArrivals(x.pool, editor.actor, x.orderId, null); assert.equal(none.source.status, "not_connected"); assert.ok(none.plans.length);

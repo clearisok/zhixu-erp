@@ -1,0 +1,47 @@
+{
+  "candidate": "d8774ba50446d4c894f2c756a363280382afe8b8",
+  "state": "FIXED_SCOPE_STOPPED_612",
+  "startedAt": "2026-11-05T05:03:59.017Z",
+  "deadline": "2026-11-05T06:13:59.017Z",
+  "finishedAt": "2026-11-05T05:04:03.353Z",
+  "scopeApproved": 610,
+  "scopeObserved": 612,
+  "existingIdentitiesPreserved": 610,
+  "addedContracts": [
+    "PI2611-045",
+    "PI2611-046"
+  ],
+  "detailScope": {
+    "frequent": 243,
+    "monthly": 1,
+    "newDetailsCollected": 0
+  },
+  "knownLogins": 1,
+  "knownReports": 26,
+  "reservedLogins": 1,
+  "reservedReports": 40,
+  "remainingLogins": 138,
+  "remainingReports": 11120,
+  "metricsUnknown": 0,
+  "publishedRuns": 0,
+  "databaseVisibleContracts": 608,
+  "original608ObservationsPreserved": true,
+  "unselectedSuccessPointersPreserved": true,
+  "control": {
+    "enabled": false,
+    "version": 10,
+    "pausedReason": "frozen_directory_scope_changed"
+  },
+  "requestStatus": "failed",
+  "oldUnknownReconciled": true,
+  "runningUnknownJobs": 0,
+  "queued": 169,
+  "frequentQueued": 57,
+  "rawSha256": "2dda1017026746d2bea1d92afe1b47a2fca17bdcd7fabafdd08945517f12a36b",
+  "runnerSha256": "3f31e30f99b94982d7ec89c658f6f4c4ca11be3ddda2ece7b610840a40d85867",
+  "scopeHash": "cb9da6c72ca4fbbb8519d935eaa0f10fdf88f9d7ac0f2acda8e8e26762b1ccaa",
+  "sourceRequestsRetried": 0,
+  "operatorStopped": true,
+  "databaseStopped": true,
+  "stagingChanged": false
+}

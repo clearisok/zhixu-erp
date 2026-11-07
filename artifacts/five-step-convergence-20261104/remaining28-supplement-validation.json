@@ -1,0 +1,208 @@
+{
+  "schemaVersion": "weaveops.ainuoke-fixed-recovery.v1",
+  "state": "SUPPLEMENT_PARTIAL_AUTHENTICATION_STOP",
+  "source": "06d56d101b73ebb22f656a9d61d729d7adb26ced",
+  "deliveredHead": "b33888e4215ae70edebdf6ae079d86eb20d93b0c",
+  "baseline": "cb5cc29baa49ed7115fdb6c9506b6a80356936ea",
+  "pr": 140,
+  "authorization": {
+    "approved": true,
+    "maximumLogins": 8,
+    "maximumReports": 640,
+    "maximumMinutes": 30,
+    "detailContracts": 28,
+    "excludeCompleted215AndMonthly": true,
+    "directoryMaximum": 1400,
+    "originalIdentities": 610,
+    "pendingScopeSha256": "2536da7bf424bc0903c6ecae748b18d527211bd0e307aa80b40ed98dccd3eb03",
+    "scopeHash": "686461ba9c2c0627457a28b82e845cdb6008a80f106a526da4ef9c3846b1fc71"
+  },
+  "execution": {
+    "state": "STOPPED",
+    "startedAt": "2026-11-05T09:27:36.710Z",
+    "candidate": "06d56d101b73ebb22f656a9d61d729d7adb26ced",
+    "scopeHash": "686461ba9c2c0627457a28b82e845cdb6008a80f106a526da4ef9c3846b1fc71",
+    "frequent": 28,
+    "priorKnownLogins": 139,
+    "priorKnownReports": 4901,
+    "priorMetricsUnknown": 1,
+    "priorReservedLogins": 140,
+    "priorReservedReports": 11032,
+    "knownLogins": 7,
+    "knownReports": 209,
+    "reservedLogins": 7,
+    "reservedReports": 536,
+    "captures": 7,
+    "metricsUnknown": 0,
+    "notifications": 0,
+    "excludedBenchmarkJobs": 332,
+    "maxBacklog": 28,
+    "maxOldestBacklogMs": 56961.033,
+    "deadline": "2026-11-05T09:57:36.710Z",
+    "storageBefore": {
+      "ainuoke_catalog_evidence_chunks": {
+        "rows": 41,
+        "bytes": "475136"
+      },
+      "ainuoke_catalog_capture_evidence": {
+        "rows": 281,
+        "bytes": "1810432"
+      },
+      "ainuoke_contract_observations": {
+        "rows": 1371,
+        "bytes": "38617088"
+      }
+    },
+    "lastCapture": {
+      "result": "failed",
+      "code": "invalid_credential",
+      "failures": [
+        {
+          "kind": "login",
+          "reportId": null,
+          "page": null,
+          "elapsedMs": 724,
+          "outcome": "auth_error",
+          "httpStatus": null
+        }
+      ]
+    },
+    "privateRawBytes": 6086481,
+    "latestDirectoryCount": 613,
+    "manual": {
+      "skipped": true,
+      "reason": "already_verified_in_parent_window"
+    },
+    "completedFirst": 28,
+    "completedSecond": 25,
+    "minimumVerifiedCycleIntervalMs": 4034716,
+    "backlog": 3,
+    "elapsedMs": 65682,
+    "lastTick": {
+      "status": "processed",
+      "jobs": 5
+    },
+    "code": "worker_or_source_failure",
+    "storageAfter": {
+      "ainuoke_catalog_evidence_chunks": {
+        "rows": 42,
+        "bytes": "483328"
+      },
+      "ainuoke_catalog_capture_evidence": {
+        "rows": 287,
+        "bytes": "1843200"
+      },
+      "ainuoke_contract_observations": {
+        "rows": 1396,
+        "bytes": "38854656"
+      }
+    },
+    "unselectedSuccessPointersPreserved": true,
+    "original608ObservationsPreserved": true,
+    "finalJobs": [
+      {
+        "status": "queued",
+        "n": 332
+      }
+    ],
+    "finalFrequentBacklog": 0,
+    "remainingLogins": 1,
+    "remainingReports": 104,
+    "cumulativeReservedLogins": 147,
+    "cumulativeReservedReports": 11568,
+    "finishedAt": "2026-11-05T09:28:42.392Z",
+    "onlyRestoredCopy": true,
+    "stagingChanged": false
+  },
+  "stopAudit": {
+    "state": "AUTHENTICATION_STOP_VERIFIED",
+    "supplementSucceeded": 25,
+    "totalSecond": 240,
+    "remainingSecond": 3,
+    "remainingSha256": "6bcf5dfc124dfbdae93efb5387e45495a7bff6f4cf79c83a678cee1cf22496d6",
+    "control": {
+      "enabled": false,
+      "version": 16,
+      "pausedReason": "invalid_credential",
+      "runningUnknown": 0
+    },
+    "sourceRequests": 0,
+    "imageFileKeys": 0,
+    "oldWorkerPaused": true,
+    "operatorStopped": true,
+    "stagingChanged": false,
+    "databaseStopped": true
+  },
+  "totalSecond": 240,
+  "remainingSecond": 3,
+  "userEvidence": {
+    "sameAccountWebLoginDuringWindow": true,
+    "timeBeijing": "2026-11-05 17:27–17:29",
+    "source": "user confirmation in this chat",
+    "inference": "Concurrent web session is a leading hypothesis; server rejection reason is not proven.",
+    "forcedSessionOverwrite": false
+  },
+  "backup": {
+    "state": "POPULATED_CATALOG_PAIR_RESTORE_VERIFIED",
+    "candidateSchema": "06d56d101b73ebb22f656a9d61d729d7adb26ced",
+    "deliveredHead": "b33888e4215ae70edebdf6ae079d86eb20d93b0c",
+    "continuousState": "STOPPED",
+    "successfulObservations": 1396,
+    "original610IdentitiesPreserved": true,
+    "tables": 137,
+    "objects": 2,
+    "coverage": {
+      "visibleContracts": 613,
+      "successfulContracts": 608,
+      "failedJobRecords": 1830,
+      "distinctFailedContracts": 146,
+      "queuedContracts": 332
+    },
+    "sourceRequests": 0,
+    "originalCoverageBusinessWrites": 0,
+    "originalCoverageHashUnchanged": true,
+    "publicPorts": 0,
+    "offhostVerified": false,
+    "archiveBytes": 46259319,
+    "archiveSha256": "2060bb18cb7141fd25b817a6c34f3b91d35f49143401b8774e8b593f530198c9"
+  },
+  "offhostRestore": {
+    "state": "OFFHOST_DATABASE_ATTACHMENT_PAIR_RESTORE_VERIFIED",
+    "source": "06d56d101b73ebb22f656a9d61d729d7adb26ced",
+    "tables": 137,
+    "successfulObservations": 1396,
+    "catalogEntries": 613,
+    "objects": 2,
+    "postgresImage": "sha256:16bc17c64a573ef34162af9298258d1aec548232985b33ed7b1eac33ba35c229",
+    "sourceRequests": 0,
+    "network": "none",
+    "liveBusinessWrites": 0,
+    "attachmentHttpVerified": false,
+    "assetsRetained": true
+  },
+  "authorizationClosed": true,
+  "newCITriggered": false,
+  "businessCodeChanged": false,
+  "priorValidationReused": {
+    "python": 184,
+    "protocol": 21,
+    "database": 61,
+    "releaseBaseline": 182,
+    "typecheck": "pass",
+    "lint": "pass",
+    "build": "pass",
+    "ciHead": "b33888e4215ae70edebdf6ae079d86eb20d93b0c",
+    "ci": "three required jobs successful; prior source touch timeout retained"
+  },
+  "limitations": [
+    "Full uninterrupted 243-contract two-cycle acceptance remains incomplete.",
+    "Authentication refusal stops this authorization despite 1 login/104 reserved report allowance remaining.",
+    "No merge or staging upgrade.",
+    "No source pictures collected.",
+    "608 successful source contracts are not 608 formal SOs.",
+    "613 directory entries include 5 without detail observations.",
+    "Candidate pair is not a fresh live pre-upgrade backup; attachment HTTP unverified.",
+    "Exclude benchmark queues, pauses and artificial budget errors from any future source-only transfer.",
+    "6087051 is not integrated; no full financial material closure."
+  ]
+}

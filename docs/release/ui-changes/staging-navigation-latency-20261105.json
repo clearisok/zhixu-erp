@@ -1,0 +1,30 @@
+{
+  "baselineSha": "cb5cc29baa49ed7115fdb6c9506b6a80356936ea",
+  "level": "V0",
+  "paths": [
+    "app/layout.tsx",
+    "components/foundation/server-navigation-data.ts",
+    "components/foundation/server-navigation-modules.ts",
+    "components/foundation/server-navigation-protection.tsx",
+    "features/basic-settings/server/quote-master-server-client.ts",
+    "features/order-center/server/sales-order-server-client.ts",
+    "features/quote-center/components/production-quote-list-page.tsx",
+    "features/quote-center/server/list-image-loader.ts",
+    "features/quote-center/server/quote-attachment-client.ts",
+    "features/quote-center/server/quote-server-client.ts",
+    "features/quote-center/server/thumbnail-retry.ts",
+    "features/runtime/site-metadata.ts",
+    "features/server-auth/components/server-session-provider.tsx",
+    "features/server-auth/session-read-cache.ts"
+  ],
+  "pages": [
+    "navigation",
+    "quote-list",
+    "order-list",
+    "quote-settings"
+  ],
+  "visibleDifference": "none",
+  "evidence": [
+    "docs/tasks/active/staging-navigation-latency-2026-11-05.md"
+  ]
+}

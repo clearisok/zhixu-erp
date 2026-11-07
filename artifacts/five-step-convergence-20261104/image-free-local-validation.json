@@ -1,0 +1,86 @@
+{
+  "state": "LOCAL_PASS_REMOTE_PENDING",
+  "branch": "feat/ainuoke-full-catalog-followup",
+  "source": "06d56d101b73ebb22f656a9d61d729d7adb26ced",
+  "codeCheckpoint": "5b06ddc3b89f441dc68350720ea3104b7ef69eed",
+  "baseline": "cb5cc29baa49ed7115fdb6c9506b6a80356936ea",
+  "checks": {
+    "python": 184,
+    "protocol": 21,
+    "database": 61,
+    "typecheck": "pass",
+    "lint": "pass",
+    "build": "pass",
+    "sourceGuard": "pass",
+    "releaseBaseline": {
+      "passed": 182,
+      "failed": 0
+    }
+  },
+  "image": {
+    "operator": "sha256:41b929487e33389a4c0bbec74b043c50b89fc2ff7903fc2f5ea212d36101cc1f",
+    "app": "sha256:5b3533f2226281cc50a7c3ea56547507e8c8d1bab5a356a4f19aca68fd05c260",
+    "sourceFilesVerified": 3522,
+    "network": "none",
+    "runtimeHealth": 200,
+    "buildInfo": 200,
+    "attachmentHttp": "not_checked",
+    "publicPorts": 0,
+    "sourceRequests": 0,
+    "stagingChanged": false
+  },
+  "review": {
+    "excludedField": "ImageFile",
+    "projectionBeforeEvidence": true,
+    "otherFieldsPreserved": true,
+    "oldEvidenceRewritten": false,
+    "oldQuoteImagesChanged": false,
+    "directoryLimit": 1400,
+    "directoryPagesPerPass": 28,
+    "detailReportRowsLimit": 1000,
+    "combinedReportLimit": 80,
+    "combinedSourceRows": 4000,
+    "combinedTimeoutMs": 180000,
+    "original610IdentitiesRequired": true,
+    "detailsScope": "original243+1"
+  },
+  "realRecovery": {
+    "state": "WINDOW_EXPIRED_STOPPED",
+    "firstCycle": 147,
+    "target": 243,
+    "secondCycle": 0,
+    "manualMs": 6847,
+    "remainingReservedLogins": 101,
+    "remainingReservedReports": 8200,
+    "deadlineBeijing": "2026-11-05T14:13:59.017+08:00"
+  },
+  "limitations": [
+    "No new real source requests",
+    "No main merge",
+    "No live deployment",
+    "6087051 not integrated",
+    "Prior interrupted release tests are not pass"
+  ],
+  "images": {
+    "state": "EXACT_IMAGES_BUILT_NOT_DEPLOYED",
+    "source": "06d56d101b73ebb22f656a9d61d729d7adb26ced",
+    "buildId": "server-preview-06d56d10-image-free",
+    "buildTime": "2026-11-05T06:59:35.646499+00:00",
+    "network": "none",
+    "sourceRequests": 0,
+    "dependenciesInstalled": false,
+    "operatorImage": "sha256:41b929487e33389a4c0bbec74b043c50b89fc2ff7903fc2f5ea212d36101cc1f",
+    "appImage": "sha256:5b3533f2226281cc50a7c3ea56547507e8c8d1bab5a356a4f19aca68fd05c260"
+  },
+  "runtime": {
+    "health": 200,
+    "buildInfo": 200,
+    "source": "06d56d101b73ebb22f656a9d61d729d7adb26ced",
+    "state": "EXACT_IMAGE_ISOLATED_RUNTIME_VERIFIED",
+    "image": "sha256:5b3533f2226281cc50a7c3ea56547507e8c8d1bab5a356a4f19aca68fd05c260",
+    "publicPorts": 0,
+    "sourceRequests": 0,
+    "attachmentStorage": "disabled",
+    "stagingChanged": false
+  }
+}

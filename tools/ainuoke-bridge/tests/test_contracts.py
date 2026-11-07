@@ -26,8 +26,8 @@ from ainuoke_bridge.security import (  # noqa: E402
 
 class ReportContractTests(unittest.TestCase):
     def test_catalog_is_exact_and_does_not_accept_unknown_report(self) -> None:
-        self.assertEqual(set(REPORT_CATALOG), {"order_discovery", "sales_contracts", "sales_contract_color_sizes", "garment_color_size_details", "material_purchase_statistics"})
-        self.assertEqual({item.report_id for item in REPORT_CATALOG.values()}, {"6086103", "6086997", "6087050", "6087105"})
+        self.assertEqual(set(REPORT_CATALOG), {"order_discovery", "sales_contracts", "sales_contract_color_sizes", "garment_color_size_details", "material_purchase_statistics", "material_contract_statistics", "fabric_purchase_units", "trim_purchase_units", "fabric_inbound_units", "trim_inbound_units"})
+        self.assertEqual({item.report_id for item in REPORT_CATALOG.values()}, {"6086103", "6086997", "6087050", "6087105", "6087051", "6086405", "6086408", "6086875", "6086354"})
         with self.assertRaisesRegex(SourceContractError, "unknown_report"):
             resolve_report("6086103")
         with self.assertRaisesRegex(SourceContractError, "unknown_report"):

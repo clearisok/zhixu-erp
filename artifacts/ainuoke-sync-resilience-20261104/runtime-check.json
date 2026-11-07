@@ -1,0 +1,35 @@
+{
+  "state": "PRIVATE_RUNTIME_VERIFIED",
+  "source": "fadf834b233736857f9e1e4babb524ebab677dde",
+  "image": "sha256:ec79a51842fd31e6c62c6000138c8315f926117d7f20af95f20d41d9255540c7",
+  "checks": [
+    {
+      "path": "/api/v1/health",
+      "status": 200,
+      "data": {
+        "status": "ok",
+        "database": "ready"
+      }
+    },
+    {
+      "path": "/build-info.json",
+      "status": 200,
+      "data": {
+        "environment": "production",
+        "buildId": "server-preview-fadf834b-sync-resilience",
+        "gitCommit": "fadf834b233736857f9e1e4babb524ebab677dde",
+        "buildTime": "2026-11-04T11:20:12.720714Z",
+        "masterSettingsAuthority": "server",
+        "identityMode": "session",
+        "quoteWriterMode": "writable",
+        "quoteAuthority": "server",
+        "orderRead": "snapshot"
+      }
+    }
+  ],
+  "migrations": 55,
+  "businessRowsPreserved": true,
+  "publicPorts": 0,
+  "sourceRequests": 0,
+  "attachmentIo": "disabled in this check; separate paired object restore proof retained"
+}

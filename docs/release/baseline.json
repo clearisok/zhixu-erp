@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "e3ccec0f910d5924dca8dc513201d28b7fb2ecd8",
-  "verifiedAt": "2026-10-31T02:59:22.788Z",
+  "baselineSha": "cb5cc29baa49ed7115fdb6c9506b6a80356936ea",
+  "verifiedAt": "2026-11-05T13:49:50.210Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -5611,6 +5611,442 @@
       "recordedAtSha": "f8d650c798c84ac62679176949b82c8810c2a9d0",
       "renderedSourceSha": "f8d650c798c84ac62679176949b82c8810c2a9d0",
       "sha256": "336fdfed2b348e8036e6de64785d31f10033de0b7e1b730c11993651dd83c725"
+    },
+    {
+      "id": "catalog-followup-business-rules-20261102",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "e21f64ee03c6b177e4cabe91473d760ab96920f2",
+      "renderedSourceSha": "e21f64ee03c6b177e4cabe91473d760ab96920f2",
+      "sha256": "b8f44aa448a051d5e27bb5862f1b1169f7bdbda148ec0df30e6a0d334e65db43",
+      "supersedes": "closing-support-main6479-integration-3-20261028",
+      "changeReason": "Freeze the approved catalogue and calendar-based synchronization contract, preserving prior source evidence, immutable SO/commercial facts and separate Ningbo activation boundaries."
+    },
+    {
+      "id": "catalog-followup-source-contract-20261102",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SERVER_SOURCE.md",
+      "recordedAtSha": "e21f64ee03c6b177e4cabe91473d760ab96920f2",
+      "renderedSourceSha": "e21f64ee03c6b177e4cabe91473d760ab96920f2",
+      "sha256": "489cec163a7844c07e2e49193a11f4c6fe48053f3b34f1f5da117cebff61ca45",
+      "supersedes": "ainuoke-bound-material-refresh-20261031",
+      "changeReason": "Freeze the approved catalogue and calendar-based synchronization contract, preserving prior source evidence, immutable SO/commercial facts and separate Ningbo activation boundaries."
+    },
+    {
+      "id": "catalog-followup-decisions-20261102",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "e21f64ee03c6b177e4cabe91473d760ab96920f2",
+      "renderedSourceSha": "e21f64ee03c6b177e4cabe91473d760ab96920f2",
+      "sha256": "9c5e88771cf873a3f515ba2e9ae42706b6bc8d745e4d544277340923847e5401",
+      "supersedes": "decisions-pr138-staging-entry-20261031",
+      "changeReason": "Freeze the approved catalogue and calendar-based synchronization contract, preserving prior source evidence, immutable SO/commercial facts and separate Ningbo activation boundaries."
+    },
+    {
+      "id": "catalog-request-diagnostics-capacity-20261104",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SERVER_SOURCE.md",
+      "recordedAtSha": "e39cada451968436115f5a0291e7125f4dc86500",
+      "renderedSourceSha": "e39cada451968436115f5a0291e7125f4dc86500",
+      "sha256": "f892ddc6d949975d3a7930db69fa282eb3332f0640e0686a214562dcf4084b3a",
+      "supersedes": "catalog-followup-source-contract-20261102",
+      "changeReason": "Document bounded catalogue request diagnostics and 45-second per-request waiting under the unchanged 180-second total deadline; preserve measured frequent-pass and full-source-timeout results without claiming deployment or full coverage."
+    },
+    {
+      "id": "catalog-sync-resilience-source-20261104",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SERVER_SOURCE.md",
+      "recordedAtSha": "1c93fe4e0e74d3948a6cfb6d4267c70e70938504",
+      "renderedSourceSha": "1c93fe4e0e74d3948a6cfb6d4267c70e70938504",
+      "sha256": "3cfa25a48458f81ef92b4ec0f8963fcbaadfe12930ff35f1621b826b9602e571",
+      "supersedes": "catalog-request-diagnostics-capacity-20261104",
+      "changeReason": "Record approved bounded queue recovery and shared immutable catalogue evidence; preserve old capture identity, zero per-capture internal retries, unknown-result protection and separate staging activation gates."
+    },
+    {
+      "id": "catalog-sync-resilience-decisions-20261104",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "1c93fe4e0e74d3948a6cfb6d4267c70e70938504",
+      "renderedSourceSha": "1c93fe4e0e74d3948a6cfb6d4267c70e70938504",
+      "sha256": "f211fb1e8fb8aa539d9c1ab5aa7abf20609b2257f55a14deef86e58337afd400",
+      "supersedes": "catalog-followup-decisions-20261102",
+      "changeReason": "Record approved bounded queue recovery and shared immutable catalogue evidence; preserve old capture identity, zero per-capture internal retries, unknown-result protection and separate staging activation gates."
+    },
+    {
+      "id": "project-audit-production-current-20261104",
+      "kind": "document",
+      "path": "docs/features/PRODUCTION_SCHEDULING.md",
+      "recordedAtSha": "078d0cf5b7f273d4b8fcdeb38b606cc7451fa603",
+      "renderedSourceSha": "078d0cf5b7f273d4b8fcdeb38b606cc7451fa603",
+      "sha256": "f4acead08bb022c326dafe44cac24726845e0af2fbb5af6aeab5a9480e9f947c",
+      "supersedes": "production-garment-controlled-main-869e-20261026-merge",
+      "changeReason": "Clarify current Server execution ownership and preserve dated Browser history; no UI, business-rule, acceptance or deployment change."
+    },
+    {
+      "id": "project-audit-closing-current-20261104",
+      "kind": "document",
+      "path": "docs/features/SERVER_CLOSING_ADJUSTMENT_UI.md",
+      "recordedAtSha": "078d0cf5b7f273d4b8fcdeb38b606cc7451fa603",
+      "renderedSourceSha": "078d0cf5b7f273d4b8fcdeb38b606cc7451fa603",
+      "sha256": "73801250d2ad769d0e1b1f96f980657ded285c9f1cabefe9b8db02f9ed544ac5",
+      "supersedes": "closing-adjustment-ui-contract-20261027",
+      "changeReason": "Clarify already implemented source review and executor matching while preserving the original UI milestone and evidence; no new UI acceptance claim."
+    },
+    {
+      "id": "project-audit-source-stop-20261104",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SERVER_SOURCE.md",
+      "recordedAtSha": "078d0cf5b7f273d4b8fcdeb38b606cc7451fa603",
+      "renderedSourceSha": "078d0cf5b7f273d4b8fcdeb38b606cc7451fa603",
+      "sha256": "fe3717e76464d082810a1a4de173c90c38c50ad021f775160d4ebec239496bea",
+      "supersedes": "catalog-sync-resilience-source-20261104",
+      "changeReason": "Record persistent pause for non-transient capture failures, strict UUID validation and neutral login-refusal wording; synthetic regression only, no real source recovery or deployment."
+    },
+    {
+      "id": "project-audit-decisions-stop-20261104",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "078d0cf5b7f273d4b8fcdeb38b606cc7451fa603",
+      "renderedSourceSha": "078d0cf5b7f273d4b8fcdeb38b606cc7451fa603",
+      "sha256": "ba8d1acd606ef30498c77f9740e62d316921bf7e088745c3ad339450e49e6d75",
+      "supersedes": "catalog-sync-resilience-decisions-20261104",
+      "changeReason": "Record the audit correction enforcing already approved D180 stop semantics without changing business policy or real source authorization."
+    },
+    {
+      "id": "catalog-rejected-capture-diagnostics-20261105",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SERVER_SOURCE.md",
+      "recordedAtSha": "fed83ce98b212abf4d0637ba36426806e78297af",
+      "renderedSourceSha": "fed83ce98b212abf4d0637ba36426806e78297af",
+      "sha256": "c325f68faf7598b257737585fe5812dfb266964dae9703b3c46fdaa65f23bebe",
+      "supersedes": "project-audit-source-stop-20261104",
+      "changeReason": "Preserve whitelisted request diagnostics after domain rejection without trusting payload metrics or changing pause/retry/publication boundaries; local tests only, no live deployment claim."
+    },
+    {
+      "id": "catalog-business-retry-source-20261105",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SERVER_SOURCE.md",
+      "recordedAtSha": "4626de87ef9552f259066900bf9c56330f5b8651",
+      "renderedSourceSha": "4626de87ef9552f259066900bf9c56330f5b8651",
+      "sha256": "f3dcb615ea8b1eb68bab661b18329c933717c420385c8a0a432826d991a3cac6",
+      "supersedes": "catalog-rejected-capture-diagnostics-20261105",
+      "changeReason": "User approved D181 narrow content-only retry; preserve identity, visibility, pagination and pause boundaries. Local engineering only; no continuous verification or deployment claim."
+    },
+    {
+      "id": "catalog-business-retry-decision-20261105",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "4626de87ef9552f259066900bf9c56330f5b8651",
+      "renderedSourceSha": "4626de87ef9552f259066900bf9c56330f5b8651",
+      "sha256": "9dee6cc5d2546e42f3c73a2cd428ba4a1896d1f5eda76a41b8ffd0a685dc5dfc",
+      "supersedes": "project-audit-decisions-stop-20261104",
+      "changeReason": "User approved D181 narrow content-only retry; preserve identity, visibility, pagination and pause boundaries. Local engineering only; no continuous verification or deployment claim."
+    },
+    {
+      "id": "catalog-business-retry-rules-20261105",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "4626de87ef9552f259066900bf9c56330f5b8651",
+      "renderedSourceSha": "4626de87ef9552f259066900bf9c56330f5b8651",
+      "sha256": "0befdde2acd5045545e3269e8304759b393ecfb33bdb54a60da64c14b48d6d1a",
+      "supersedes": "catalog-followup-business-rules-20261102",
+      "changeReason": "User approved D181 narrow content-only retry; preserve identity, visibility, pagination and pause boundaries. Local engineering only; no continuous verification or deployment claim."
+    },
+    {
+      "id": "catalog-no-image-1400-source-20261105",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SERVER_SOURCE.md",
+      "recordedAtSha": "a8de1db608a2cbf7e6ce63cc2c656980f0b2756f",
+      "renderedSourceSha": "a8de1db608a2cbf7e6ce63cc2c656980f0b2756f",
+      "sha256": "d165ffde2096ed9b68794a35ab979a3c6fc83ab3007904fa892912658f30c32d",
+      "supersedes": "catalog-business-retry-source-20261105",
+      "changeReason": "User excludes source images and approves bounded directory growth to 1400 with original 610 identities retained; detail scope and expiry remain fixed. Local engineering only, no continuous acceptance or deployment claim."
+    },
+    {
+      "id": "catalog-no-image-1400-decision-20261105",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "a8de1db608a2cbf7e6ce63cc2c656980f0b2756f",
+      "renderedSourceSha": "a8de1db608a2cbf7e6ce63cc2c656980f0b2756f",
+      "sha256": "5cfa528d46f509ff8fa3cffa3844925325d93bba621a452f5de91781fdd02d16",
+      "supersedes": "catalog-business-retry-decision-20261105",
+      "changeReason": "User excludes source images and approves bounded directory growth to 1400 with original 610 identities retained; detail scope and expiry remain fixed. Local engineering only, no continuous acceptance or deployment claim."
+    },
+    {
+      "id": "catalog-no-image-1400-rules-20261105",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "a8de1db608a2cbf7e6ce63cc2c656980f0b2756f",
+      "renderedSourceSha": "a8de1db608a2cbf7e6ce63cc2c656980f0b2756f",
+      "sha256": "81a3c415411c73f412885975594e4e7f3e64274699c9849271de34592ccca59d",
+      "supersedes": "catalog-business-retry-rules-20261105",
+      "changeReason": "User excludes source images and approves bounded directory growth to 1400 with original 610 identities retained; detail scope and expiry remain fixed. Local engineering only, no continuous acceptance or deployment claim."
+    },
+    {
+      "id": "it-material-rows-decision-20261106",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "c05aac356c997b1cdb38d7dbbf7373ffe196c93e",
+      "renderedSourceSha": "c05aac356c997b1cdb38d7dbbf7373ffe196c93e",
+      "sha256": "8550c0b0d7675a6c3605594023c1def6583ea296efa89d2a47acdb4f4199090a",
+      "supersedes": "catalog-no-image-1400-decision-20261105",
+      "changeReason": "User approved D182 row-only 6087051 optional Server source, verified per-event unit joins and Order Center detail display. Old source rules and all live activation, budgets and pricing boundaries preserved; local synthetic engineering only."
+    },
+    {
+      "id": "it-material-rows-rules-20261106",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "c05aac356c997b1cdb38d7dbbf7373ffe196c93e",
+      "renderedSourceSha": "c05aac356c997b1cdb38d7dbbf7373ffe196c93e",
+      "sha256": "bf645236be48992c26270bd26ef90725728020f5408fe17851d253fbf115abde",
+      "supersedes": "catalog-no-image-1400-rules-20261105",
+      "changeReason": "User approved D182 row-only 6087051 optional Server source, verified per-event unit joins and Order Center detail display. Old source rules and all live activation, budgets and pricing boundaries preserved; local synthetic engineering only."
+    },
+    {
+      "id": "material-closure-decision-20261106",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "fa7c088e7cdd15bb94c6cf9a10b65793034f4c7d",
+      "renderedSourceSha": "fa7c088e7cdd15bb94c6cf9a10b65793034f4c7d",
+      "sha256": "4f8195d9b796b8b709a6204d4a27fbbfcf978fba8d1ce11f5666c6a513deca12",
+      "supersedes": "it-material-rows-decision-20261106",
+      "changeReason": "User approved local real-order publication closure and truthful historical visibility; preserve publication freshness, identity and access checks. No staging deployment or all-order completion claim."
+    },
+    {
+      "id": "material-closure-rules-20261106",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "fa7c088e7cdd15bb94c6cf9a10b65793034f4c7d",
+      "renderedSourceSha": "fa7c088e7cdd15bb94c6cf9a10b65793034f4c7d",
+      "sha256": "0bc751f48ffbb7a7cc3b70e2f759547c3ae7cff2702be44e3ed5c1f694c9ea11",
+      "supersedes": "it-material-rows-rules-20261106",
+      "changeReason": "User approved local real-order publication closure and truthful historical visibility; preserve publication freshness, identity and access checks. No staging deployment or all-order completion claim."
+    },
+    {
+      "id": "material-revision-decision-20261107",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "22b0fa5783de41d05d67a4c722a5338bf52bbe65",
+      "renderedSourceSha": "22b0fa5783de41d05d67a4c722a5338bf52bbe65",
+      "sha256": "d17ca74637ef37dbcbd87c5bf6f0b57b2f56a0f07153b672978f5aa2e931be97",
+      "supersedes": "material-closure-decision-20261106",
+      "changeReason": "User clarified factory-marked 6087051 demands require traceability and individually proven revision semantics. No inferred replacement, addition, current effective quantity or responsibility; preserve immutable source and all transaction identities."
+    },
+    {
+      "id": "material-revision-rules-20261107",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "22b0fa5783de41d05d67a4c722a5338bf52bbe65",
+      "renderedSourceSha": "22b0fa5783de41d05d67a4c722a5338bf52bbe65",
+      "sha256": "52e07d577251bf596e484021689de3de196522d66954a054ea00b74692912324",
+      "supersedes": "material-closure-rules-20261106",
+      "changeReason": "User clarified factory-marked 6087051 demands require traceability and individually proven revision semantics. No inferred replacement, addition, current effective quantity or responsibility; preserve immutable source and all transaction identities."
+    },
+    {
+      "id": "material-history-decision-20261107",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "be604c3225167113bb22245598515c427649d04d",
+      "renderedSourceSha": "be604c3225167113bb22245598515c427649d04d",
+      "sha256": "c00194f2e80cf8cc7d7b2b0512d0a0d561fa9bba31e2544c4a4f66fac8447778",
+      "supersedes": "material-revision-decision-20261107",
+      "changeReason": "User explicitly authorized offline historical publication with original source time and queue preservation. Retain factory-marked source demands in trusted Server history without inferring revisions or procurement gaps. No staging deployment or new upstream authentication."
+    },
+    {
+      "id": "material-final-supply-decision-20261107",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "edcb87af4014743c3ce7bdf75dde1b01adfae374",
+      "renderedSourceSha": "edcb87af4014743c3ce7bdf75dde1b01adfae374",
+      "sha256": "a6fc2383530907a6e5af302a2ed22a709ff5133f1e2977e418cbf817b94c4d34",
+      "supersedes": "material-history-decision-20261107",
+      "changeReason": "User final rule: only explicit self-purchase demand counts; factory records remain separate, never replace or offset self-purchase. Complete empty source is successful; retain contract identity, history and per-event dedup."
+    },
+    {
+      "id": "material-final-supply-rules-20261107",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "edcb87af4014743c3ce7bdf75dde1b01adfae374",
+      "renderedSourceSha": "edcb87af4014743c3ce7bdf75dde1b01adfae374",
+      "sha256": "659f222b9c204e41040979af463d9075a92b42855af7a2883ae1494e8acba5fc",
+      "supersedes": "material-revision-rules-20261107",
+      "changeReason": "Final explicit user rule separates self-purchase and factory supply without inferred revision; empty complete source counts as successful collection."
+    },
+    {
+      "id": "local-automatic-source-20261107",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SERVER_SOURCE.md",
+      "recordedAtSha": "f6085fa38f91beae0e11d090d01cf3b000edefcc",
+      "renderedSourceSha": "f6085fa38f91beae0e11d090d01cf3b000edefcc",
+      "sha256": "eec7b2648a6bb5c6435f7f1ac895ef2fa0315bc601a53a7fbdda2bf82cb43937",
+      "supersedes": "catalog-no-image-1400-source-20261105",
+      "changeReason": "User-approved local automatic cadence uses reference R, normal contract admission, persistent authentication and bounded restart recovery; no staging deployment claim."
+    },
+    {
+      "id": "local-automatic-decision-20261107",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "f6085fa38f91beae0e11d090d01cf3b000edefcc",
+      "renderedSourceSha": "f6085fa38f91beae0e11d090d01cf3b000edefcc",
+      "sha256": "3506316549816beeed928bcd8fa218ea48cc01490210cd0c17da92262d5ee6c0",
+      "supersedes": "material-final-supply-decision-20261107",
+      "changeReason": "User-approved local automatic cadence uses reference R, normal contract admission, persistent authentication and bounded restart recovery; no staging deployment claim."
+    },
+    {
+      "id": "local-automatic-rules-20261107",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "f6085fa38f91beae0e11d090d01cf3b000edefcc",
+      "renderedSourceSha": "f6085fa38f91beae0e11d090d01cf3b000edefcc",
+      "sha256": "6f0ed97a22befd51a9f3357e19aa460ae0afc1e1eda2f8ac210b651c99325452",
+      "supersedes": "material-final-supply-rules-20261107",
+      "changeReason": "User-approved local automatic cadence uses reference R, normal contract admission, persistent authentication and bounded restart recovery; no staging deployment claim."
+    },
+    {
+      "id": "local-demo-entry-decision-20261107",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "bf81f8ea4b7adcdf26e3319dbca37206c992e6d3",
+      "renderedSourceSha": "bf81f8ea4b7adcdf26e3319dbca37206c992e6d3",
+      "sha256": "23930dd3bc5dd816c01e1f679745c27169b3a906e7602d5b7021b1dd780488cb",
+      "supersedes": "local-automatic-decision-20261107",
+      "changeReason": "User approved explicit loopback-only local demo entry using an existing read-only v1 session; preserve normal login, RBAC, source scheduling and nonlocal defaults. No staging deployment."
+    },
+    {
+      "id": "material-business-view-source-20261107",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_IT_MATERIAL_SOURCE.md",
+      "recordedAtSha": "62957c27cf479223f736d9c78890a29f4b85ecaf",
+      "renderedSourceSha": "62957c27cf479223f736d9c78890a29f4b85ecaf",
+      "sha256": "df9665cefb30c98c17469eaee68ed7f1869d9f4e3eb24dfa796f5c6d10f295ba",
+      "changeReason": "D190 user-approved local material business view distinguishes actual source transactions from comparable demand gaps, retains independent factory records and strict detail identity. No source, scheduler or staging change."
+    },
+    {
+      "id": "material-business-view-decision-20261107",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "62957c27cf479223f736d9c78890a29f4b85ecaf",
+      "renderedSourceSha": "62957c27cf479223f736d9c78890a29f4b85ecaf",
+      "sha256": "aa4aa0664c418c33831189c9528e989112a49c7a3aa06556429d5104ba4d8bc3",
+      "supersedes": "local-demo-entry-decision-20261107",
+      "changeReason": "D190 user-approved local material business view distinguishes actual source transactions from comparable demand gaps, retains independent factory records and strict detail identity. No source, scheduler or staging change."
+    },
+    {
+      "id": "material-business-view-rules-20261107",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "62957c27cf479223f736d9c78890a29f4b85ecaf",
+      "renderedSourceSha": "62957c27cf479223f736d9c78890a29f4b85ecaf",
+      "sha256": "48d4c927fa286191f487f4bcd1f4c55d2be7371089bd5472c566a3990fb13609",
+      "supersedes": "local-automatic-rules-20261107",
+      "changeReason": "D190 user-approved local material business view distinguishes actual source transactions from comparable demand gaps, retains independent factory records and strict detail identity. No source, scheduler or staging change."
+    },
+    {
+      "id": "material-business-unit-source-20261107",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_IT_MATERIAL_SOURCE.md",
+      "recordedAtSha": "4bd2300ce72374289bdf299d6a828d61196d3288",
+      "renderedSourceSha": "4bd2300ce72374289bdf299d6a828d61196d3288",
+      "sha256": "854a7b6f40e50e0392b33d78b6c3b900343de9425b1e5f0e71bba9bb1b73e30a",
+      "supersedes": "material-business-view-source-20261107",
+      "changeReason": "User explicitly confirmed D1992 associated demands and four flows use the independently matched purchase unit. Reuse exact private unit evidence in local runtime only, no inference for other orders and no auth/scheduler change."
+    },
+    {
+      "id": "staging-material-runtime-source-20261107",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SERVER_SOURCE.md",
+      "recordedAtSha": "e354222102d35130208588df8466ae347574c1b3",
+      "renderedSourceSha": "e354222102d35130208588df8466ae347574c1b3",
+      "sha256": "3bdba8e88b3b72fad8bf13abe7d31fe4decf1d7367446cf6d977692771e6700a",
+      "supersedes": "local-automatic-source-20261107",
+      "changeReason": "User authorized staging delivery of accepted materials, private exact unit evidence, continuous authentication and validated historical archive admission through existing business services."
+    },
+    {
+      "id": "decisions-navigation-cache-20261105",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "supersedes": "decisions-pr138-staging-entry-20261031",
+      "changeReason": "Record scoped session-memory cache and guarded navigation handoff; retain original auth and deployment boundaries.",
+      "recordedAtSha": "02432150c918d19173acbd7f9955f6dbece736aa",
+      "renderedSourceSha": "02432150c918d19173acbd7f9955f6dbece736aa",
+      "sha256": "514ff6b808f2daf6567ce28985e861150979dfb4c3d676cccf917695cc32ae14"
+    },
+    {
+      "id": "staging-performance-decisions-20261107",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "46f3c9b93db8f936b642ff078b23faca78444a22",
+      "renderedSourceSha": "46f3c9b93db8f936b642ff078b23faca78444a22",
+      "sha256": "32f28e839f470d1bd498fc6b5c475bf43e019c2e79491bf6c44e92c590db4f4f",
+      "mergeOf": [
+        "material-business-view-decision-20261107",
+        "decisions-navigation-cache-20261105"
+      ],
+      "changeReason": "Real two-parent integration preserves both accepted material decisions and deployed navigation-cache decisions without rewriting either frozen history."
+    },
+    {
+      "id": "decisions-five-day-login-20261106",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "c39b7f30dc883132f92e7c6f99e98acbc3b68ed9",
+      "sha256": "4906dfc3cabfad4314f8aff927f374f82dc654172a19255f68a41afb8cbd2c60",
+      "supersedes": "decisions-navigation-cache-20261105",
+      "changeReason": "User approved optional fixed five-day login; preserve ordinary and legacy session behavior and revocation."
+    },
+    {
+      "id": "business-five-day-login-20261106",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "c39b7f30dc883132f92e7c6f99e98acbc3b68ed9",
+      "sha256": "9e9612431b40d2780b4881ef3a8313a3d13db42292c4a4b1e9621b45d36d61d0",
+      "supersedes": "closing-support-main6479-integration-3-20261028",
+      "changeReason": "User approved optional fixed five-day login; preserve ordinary and legacy session behavior and revocation."
+    },
+    {
+      "id": "staging-login-integration-1-20261107",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "52e3c05530571d9691be599389bda1e8f970ee60",
+      "renderedSourceSha": "52e3c05530571d9691be599389bda1e8f970ee60",
+      "sha256": "8edcebae19c34dd7f0cb0e77ac081ec3dc769c1a003b4b69f6d4777ae4af0138",
+      "mergeOf": [
+        "material-business-view-rules-20261107",
+        "business-five-day-login-20261106"
+      ],
+      "changeReason": "Preserve both immutable source histories at the actual two-parent integration, keeping five-day sessions and accepted material/local demo boundaries."
+    },
+    {
+      "id": "staging-login-integration-2-20261107",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "52e3c05530571d9691be599389bda1e8f970ee60",
+      "renderedSourceSha": "52e3c05530571d9691be599389bda1e8f970ee60",
+      "sha256": "c339b970254e5aa15a0c06f5a60d4c7ea01c6bb3175ab4275cecac0b71f8a21b",
+      "mergeOf": [
+        "staging-performance-decisions-20261107",
+        "decisions-five-day-login-20261106"
+      ],
+      "changeReason": "Preserve both immutable source histories at the actual two-parent integration, keeping five-day sessions and accepted material/local demo boundaries."
+    },
+    {
+      "id": "staging-handoff-source-0-20261107",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SERVER_SOURCE.md",
+      "recordedAtSha": "2edac7541da7956d9e0eed258674154d39f69ef8",
+      "renderedSourceSha": "2edac7541da7956d9e0eed258674154d39f69ef8",
+      "sha256": "423c17466f4464fb3a43e922fea8d141c758edb0aeaee32abb0cf3069b8a31eb",
+      "supersedes": "staging-material-runtime-source-20261107",
+      "changeReason": "User authorized staging delivery of the accepted materials and controlled collector handoff; preserve local read-only data, source evidence, normal RBAC and previous immutable checkpoints."
+    },
+    {
+      "id": "staging-handoff-source-1-20261107",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_IT_MATERIAL_SOURCE.md",
+      "recordedAtSha": "2edac7541da7956d9e0eed258674154d39f69ef8",
+      "renderedSourceSha": "2edac7541da7956d9e0eed258674154d39f69ef8",
+      "sha256": "12b9881e085b765850b68416ae979e471efcbc23608db2e986b3dee5566f268b",
+      "supersedes": "material-business-unit-source-20261107",
+      "changeReason": "User authorized staging delivery of the accepted materials and controlled collector handoff; preserve local read-only data, source evidence, normal RBAC and previous immutable checkpoints."
     }
   ],
   "pages": [

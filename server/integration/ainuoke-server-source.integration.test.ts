@@ -80,7 +80,10 @@ test("server source: isolated PostgreSQL, real session HTTP and Python fixed-cat
                 const body = await r.json();
                 assert.equal(body.provenance, "server_snapshot");
                 assert.equal(body.progress.sourceStatus, "ready");
-                assert.ok(body.progress.factoryExcluded > 0);
+                assert.equal(body.progress.factoryExcluded,0);
+                const factory=body.progress.rows.filter((row:{demand:{supplyMethod:string}})=>row.demand.supplyMethod==='厂供');
+                assert.ok(factory.length>0);
+                assert.ok(factory.every((row:{purchaseShortfall:unknown;status:unknown})=>row.purchaseShortfall===null&&row.status===null));
                 const rows = body.progress.rows;
                 for (const key of ["purchases", "inbounds", "shipments", "outbounds"])
                     assert.ok(rows.some((row: Record<string, unknown[]>) => row[key].length));
@@ -116,7 +119,8 @@ test("server source: isolated PostgreSQL, real session HTTP and Python fixed-cat
                 assert.equal(await latest(), previous);
                 const body = await (await read(cookies[0])).json();
                 assert.equal(body.progress.sourceStatus, "source_failed");
-                assert.equal(body.progress.rows.length, 0);
+                assert.ok(body.progress.rows.length > 0, 'failed new payload keeps the prior validated publication');
+                assert.ok(body.progress.rows.every((row: {status: unknown}) => row.status === null));
                 await capture();
             }
             const logs = JSON.stringify((await pool.query("SELECT metadata,context,before_data,after_data FROM operation_logs")).rows);

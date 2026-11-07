@@ -73,7 +73,14 @@ test("first binding from empty disposable ledger then multiple persisted collect
    const capture=(fail=false)=>captureSource(pool,actor,{...opts,maxAgeMs:600000,collect:async()=>{if(fail)throw Error("synthetic outage");return freshMaterialBundle();}});
    await capture();const first=await read();assert.equal(first.status,200);
    if(first.status===200)for(const key of ["purchases","inbounds","shipments","outbounds"] as const)assert.ok(first.body.progress.rows.some(r=>r[key].length));
-   await assert.rejects(capture(true));const failed=await read();assert.equal(failed.status,200);if(failed.status===200){assert.equal(failed.body.progress.sourceStatus,"source_failed");assert.equal(failed.body.progress.rows.length,0);}
+   await assert.rejects(capture(true));const failed=await read();assert.equal(failed.status,200);
+   if(first.status===200&&failed.status===200){
+    assert.equal(failed.body.progress.sourceStatus,"source_failed");
+    assert.equal(failed.body.progress.fetchedAt,first.body.progress.fetchedAt);
+    assert.deepEqual(failed.body.progress.rows.map(r=>r.demand),first.body.progress.rows.map(r=>r.demand));
+    for(const key of ["purchases","inbounds","shipments","outbounds"] as const)
+     assert.deepEqual(failed.body.progress.rows.map(r=>r[key]),first.body.progress.rows.map(r=>r[key]));
+   }
    await capture();const recovered=await read();assert.equal(recovered.status,200);if(recovered.status===200)assert.equal(recovered.body.progress.sourceStatus,"ready");
    assert.equal(await count("sales_orders"),1);assert.equal(await count("quote_center_quotes"),0);assert.equal(await count("app_users"),1);
   });

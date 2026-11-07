@@ -41,7 +41,7 @@ function canonicalJson(value: unknown): string {
 }
 
 export function createAinuokeMaterialSourceArtifactHash(input: {
-  reportId: "6087050";
+  reportId: "6087050" | "6087051";
   sourceSchemaVersion: "ainuoke-direct-read.v2";
   insideOrderNo: string;
   rows: Array<{ trace: { sourceRowIdentity: string }; rawFields: Record<string, unknown> }>;
@@ -49,7 +49,7 @@ export function createAinuokeMaterialSourceArtifactHash(input: {
   const content = input.rows
     .map((row) => `${row.trace.sourceRowIdentity}\u001e${canonicalJson(row.rawFields)}`)
     .sort();
-  return `6087050:${stableMaterialHash([input.reportId, input.sourceSchemaVersion, input.insideOrderNo.normalize("NFKC").trim().toLocaleUpperCase(), ...content])}`;
+  return `${input.reportId}:${stableMaterialHash([input.reportId, input.sourceSchemaVersion, input.insideOrderNo.normalize("NFKC").trim().toLocaleUpperCase(), ...content])}`;
 }
 
 function issueSummary(pipeline: MaterialNormalizationPreview): MaterialPreviewIssue[] {
@@ -70,10 +70,10 @@ export function buildAinuokeMaterialApiPreview(input: {
   const sourceArtifactHash = createAinuokeMaterialSourceArtifactHash({
     reportId: source.metadata.reportId,
     sourceSchemaVersion: source.metadata.sourceSchemaVersion,
-    insideOrderNo: source.metadata.query.insideOrderNo,
+    insideOrderNo: source.metadata.query.salesContractNo ?? source.metadata.query.insideOrderNo,
     rows: apiRows,
   });
-  const importBatchId = `material-import-api-${stableMaterialHash([source.metadata.reportId, source.metadata.query.insideOrderNo, sourceArtifactHash])}`;
+  const importBatchId = `material-import-api-${stableMaterialHash([source.metadata.reportId, source.metadata.query.salesContractNo ?? source.metadata.query.insideOrderNo, sourceArtifactHash])}`;
   const pipeline = normalizeMaterialSourceRows({
     rows: apiRows,
     batchId: importBatchId,

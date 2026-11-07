@@ -26,7 +26,7 @@ function assertCommitReady(preview: AinuokeMaterialApiPreview): void {
   if (preview.summary.rejectedRows !== 0 || preview.summary.errors.length !== 0) throw new Error("6087050 API Preview 存在阻断校验错误，禁止导入");
   if (preview.pipeline.rawRows.length !== preview.source.uniqueSourceIdentityCount) throw new Error("6087050 API Preview Source Trace 不完整，禁止导入");
   const apiRows = preview.pipeline.rawRows.map((row) => {
-    if (row.trace.sourceKind !== "api") throw new Error("6087050 API Preview 含非 API Source Trace");
+    if (row.trace.sourceKind !== "api" || row.trace.reportId !== "6087050") throw new Error("6087050 API Preview 含非 API Source Trace");
     return row as typeof row & { trace: Extract<typeof row.trace, { sourceKind: "api" }> };
   });
   const computedArtifactHash = createAinuokeMaterialSourceArtifactHash({
@@ -66,7 +66,7 @@ export function toAinuokeMaterialImportPreview(preview: AinuokeMaterialApiPrevie
     committedAt: null,
   };
   const rawSnapshots: MaterialRawSnapshot[] = preview.pipeline.rawRows.map((row) => {
-    if (row.trace.sourceKind !== "api") throw new Error("6087050 API Preview 含非 API Source Trace");
+    if (row.trace.sourceKind !== "api" || row.trace.reportId !== "6087050") throw new Error("6087050 API Preview 含非 API Source Trace");
     return {
       id: row.id,
       importBatchId: preview.importBatchId,

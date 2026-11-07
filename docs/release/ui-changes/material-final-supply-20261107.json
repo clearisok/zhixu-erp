@@ -1,0 +1,19 @@
+{
+  "baselineSha": "cb5cc29baa49ed7115fdb6c9506b6a80356936ea",
+  "level": "V2",
+  "paths": [
+    "features/ainuoke-material-progress/projection.ts",
+    "features/style-progress/components/material-control-tower-read-only.tsx"
+  ],
+  "pages": [
+    "material"
+  ],
+  "visibleDifference": "Existing material cards separate self-purchase and factory source rows; only self-purchase enters demand summary/gap. Complete empty source shows material not started at source time. Canonical keys and business fields preserved.",
+  "evidence": [
+    "docs/tasks/active/ainuoke-final-supply-rules-2026-11-07.md"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/ainuoke-final-supply-rules-2026-11-07.md"
+  }
+}

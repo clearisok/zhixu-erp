@@ -1,5 +1,19 @@
 # 正式登录页与会话入口
 
+## 2026-11-07：显式本机只读演示入口（D189）
+
+本机真实订单演示的默认交付为直接提供现有业务页面链接和只读权限说明，不再让用户寻找账号或密码。仅`server/local-ainuoke-runtime.ts`安装`createLocalDemoEntry`；普通`createApp`、`server:start`、staging和生产默认不安装、不自动登录。不得切成拥有全权限的local-single-user模式。
+
+私密服务配置显式启用`localDemo.enabled`并锁定已有`preview.real-orders`的public ID。仅精确回环Host、回环连接且没有转发/代理头的请求生效。匿名文档/会话恢复通过现有`issueSession`生成原v1会话；Cookie为HttpOnly、SameSite=Strict、8小时，只在本机HTTP省略Secure。原目标路径、查询参数和浏览器hash保持；已有有效普通会话不替换。账号及实时权限不符或含写入能力时拒绝自动进入，不给账号增权。
+
+热关闭演示模式不重启同步owner；后续请求撤销自动演示会话，匿名恢复401。普通有效登录继续有效。此入口不读取来源凭据、不发报表、不改变业务权限或正常登录错误/限流逻辑。未来演示启动和真实结果见[本机演示说明](../tasks/active/local-ainuoke-automatic-2026-11-07.md#本机演示直接进入约定d189)。以下保留2026-10-12历史登录视觉记录，不能将其旧合成演示限制套用于用户已批准的真实本机入口。
+
+## 2026-11-06 五天登录增量
+
+用户明确选择“保持登录5天”。正式表单新增默认不勾选的选项，沿用现有会话接口，以可选boolean `rememberMe`传递；true时数据库与Cookie同为432000秒，否则保留原配置（默认12小时）。期限自登录起固定计算，访问不续期。已有会话、legacy入口和密码规则不变，无schema迁移。不保存密码到浏览器业务存储；Cookie保持HttpOnly、SameSite Strict及原Secure规则，管理撤销立即有效。
+
+工程/CI/部署状态见[本次任务](../tasks/active/login-five-days-2026-11-06.md)。下方2026-10-12记录为历史范围，不代表本次增量未修改后端会话策略。
+
 核实日期：2026-10-12；main 基线：db30c10bd4787d83cbd5dee51d9c9ae4b9b1b66e。代码在 feat/animated-login；是否合并/部署以 GitHub 和环境证据为准。关联 D-107。
 
 ## 用户决定与视觉范围
