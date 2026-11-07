@@ -5940,6 +5940,16 @@
       "sha256": "48d4c927fa286191f487f4bcd1f4c55d2be7371089bd5472c566a3990fb13609",
       "supersedes": "local-automatic-rules-20261107",
       "changeReason": "D190 user-approved local material business view distinguishes actual source transactions from comparable demand gaps, retains independent factory records and strict detail identity. No source, scheduler or staging change."
+    },
+    {
+      "id": "material-business-unit-source-20261107",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_IT_MATERIAL_SOURCE.md",
+      "recordedAtSha": "4bd2300ce72374289bdf299d6a828d61196d3288",
+      "renderedSourceSha": "4bd2300ce72374289bdf299d6a828d61196d3288",
+      "sha256": "854a7b6f40e50e0392b33d78b6c3b900343de9425b1e5f0e71bba9bb1b73e30a",
+      "supersedes": "material-business-view-source-20261107",
+      "changeReason": "User explicitly confirmed D1992 associated demands and four flows use the independently matched purchase unit. Reuse exact private unit evidence in local runtime only, no inference for other orders and no auth/scheduler change."
     }
   ],
   "pages": [
