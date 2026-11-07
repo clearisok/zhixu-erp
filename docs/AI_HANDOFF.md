@@ -1,3 +1,11 @@
+# 最新交付检查点（2026-11-08）
+
+当前业务候选f40bcc4c9260b2dcccce00f7d0db41d1c5d17b45：私密质量报告重复派生事实深度兼容已修，33项质量/数量/隔离、21项隔离边界、类型/受影响lint/Server与固定snapshot构建通过；CI尚未运行的12组导航/生产/加工/业务来源/调价/历史/出货/交期/关账本机Chromium补查全部通过（302484ms）。此前完整发布182项和不受影响结果复用。精确源码门禁f40为12页/68能力/45UI路径、0错误。89fc来源CI编译/数据库/业务步骤已过，但质量报告步骤失败，旧结果不能称最终CI通过。
+
+本次仅文档检查点，代码与f40一致；随后集中推送并更新唯一PR140，必要三CI通过后按用户授权merge commit，仅部署staging。main最近核实cb5cc29baa49ed7115fdb6c9506b6a80356936ea；尚未合并/升级/交接。staging仍5af85cd6、3订单/9附件/2原账号，正常Jackson会话已登录；本机63051的617订单及采集仍运行。部署前配对备份20261107T152138Z-cd0b3cd5已121表/9对象验证及40文件离机核对，独立恢复与旧应用新schema兼容演练完成。实际运行凭据由原credentialFile覆盖静态配置，部署已准备同一有效来源的私密配置；0新增登录。只在新站就绪后取得本机worker租约暂停、确认认证owner退出，再导出最新完整证据并正式按合同发布，不复制UUID或重采全量，不同时开启两个collector。
+
+实时部署、数据映射、同步交接及最终验收以本PR140说明和D:/WeaveOps-Local/staging-delivery-20261107、宁波releases/material-delivery-20261107受保护回执为准。当前任务见[交付任务](tasks/active/material-staging-delivery-2026-11-07.md)。以下旧日期/版本仅保留历史，不当作当前发布结果。
+
 # staging交付恢复点（2026-11-07最终候选）
 
 工作树feat/material-followup-business-view；PR140远端head b912f176a938a71c79e8c8338610d239f9e6bf01，main cb5cc29baa49ed7115fdb6c9506b6a80356936ea。首轮baseline成功，team DTO及source UI旧选择器已修复，本地相关复验通过；最终集中推送及三项CI待执行。实际备份、恢复、617原证据、运行和交接保护详见[当前交付任务](tasks/active/material-staging-delivery-2026-11-07.md)。staging仍旧版本，本机采集尚未停止；禁止两端同时开采。用户已授权本次检查通过后merge commit及仅staging部署，不再逐步请求确认。
