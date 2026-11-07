@@ -141,9 +141,10 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
    const result=await evaluate("(()=>{const dl=document.querySelector('.oc-server-detail-overview .qc-description-list');return{columns:getComputedStyle(dl).gridTemplateColumns.split(' ').length,overflow:document.documentElement.scrollWidth>innerWidth+1,technicalOpen:document.querySelector('.oc-server-technical-details').open};})()");
    assert.equal(result.columns,width>=1280?3:1);assert.equal(result.overflow,false);assert.equal(result.technicalOpen,false);metrics.push({width,...result});await screenshot("order-"+width);
    await evaluate("[...document.querySelectorAll('a')].find(n=>n.textContent.includes('查看物料跟进')).click()");await has("合成棉布");
-   assert.equal(await evaluate("new Set([...document.querySelectorAll('[data-canonical-material-key]')].map(n=>n.getAttribute('data-canonical-material-key'))).size"),4);
+   assert.equal(await evaluate("new Set([...document.querySelectorAll('[data-canonical-material-key]')].map(n=>n.getAttribute('data-canonical-material-key'))).size"),5);
    for(const label of ["采购","入库","物料出运","物料出库"])await has(label);
    assert.equal(await evaluate("document.querySelectorAll('[data-supply-scope=factory] [data-canonical-material-key]').length"),1,'factory demand remains independently visible');
+   assert.equal(await evaluate("document.querySelectorAll('[data-supply-scope=self] [data-canonical-material-key]').length"),4,'the four original self-purchase groups remain visible');
    assert.equal(await evaluate("document.documentElement.scrollWidth>innerWidth+1"),false);
    await evaluate("[...document.querySelectorAll('button')].find(node=>node.getAttribute('aria-label')==='查看 合成棉布 明细').click()");await has("12.75");await screenshot("material-"+width);
    assert.deepEqual(await evaluate("window.businessWrites"),[]);
@@ -157,9 +158,9 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
   });
   await t.test("failure preserves last complete facts and focus-driven recovery reuses the existing layout",async()=>{
    x.setMode("failed");await assert.rejects(x.capture());await evaluate("window.dispatchEvent(new Event('focus'))");await has("最近刷新未成功");
-   assert.equal(await evaluate("new Set([...document.querySelectorAll('[data-canonical-material-key]')].map(n=>n.getAttribute('data-canonical-material-key'))).size"),4);
+   assert.equal(await evaluate("new Set([...document.querySelectorAll('[data-canonical-material-key]')].map(n=>n.getAttribute('data-canonical-material-key'))).size"),5);
    x.setMode("ready");await x.capture();await evaluate("window.dispatchEvent(new Event('focus'))");await has("合成棉布");
-   x.setMode("stale");await evaluate("window.dispatchEvent(new Event('focus'))");await has("当前显示历史数据");assert.equal(await evaluate("new Set([...document.querySelectorAll('[data-canonical-material-key]')].map(n=>n.getAttribute('data-canonical-material-key'))).size"),4);x.setMode("ready");
+   x.setMode("stale");await evaluate("window.dispatchEvent(new Event('focus'))");await has("当前显示历史数据");assert.equal(await evaluate("new Set([...document.querySelectorAll('[data-canonical-material-key]')].map(n=>n.getAttribute('data-canonical-material-key'))).size"),5);x.setMode("ready");
   });
   await t.test("missing UUID and unsupported routes cannot enter old Browser pages",async()=>{
    await navigate("/order-center/style-progress/detail");await has("仅接受正式订单 UUID");
