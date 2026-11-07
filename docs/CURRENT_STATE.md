@@ -1,31 +1,13 @@
-最新Linux收口：02979143仅修正宽屏对账表可完整放下时不强求横向滚动；窄屏真滚动与金额/权限等断言保留。Linux对账9、关账18、Python198＋6全部通过，产品与f40相同。最终仅文档收口后更新PR140一次，尚未合并/升级；旧8474 CI后段失败保留。实际状态继续见交付任务及受保护回执。
+# 当前状态：PR140已合并，staging交付验收进行中
 
-最新补充：09e00来源CI已通过数据/质量/构建，Linux导航首帧采样时序断言失败；已仅修复测试的首帧等待，原25项断言保留并通过。该测试修正集中交付，旧失败不当成PASS。实际产品仍f40代码，本机/旧staging及备份未改。详见交付任务末条。
+2026-11-08。用户已批准完整交付及仅staging升级/数据接入/后台切换；生产不在范围。PR140已merge commit到main **390569c4cfa56cd56261674c3f2110bd306d3ff7**，候选f2b7e8cda69845f9701b5a036cec6381df7e7d79的source、baseline、team-access三CI全部通过。实际staging按同main构建运行，build staging-material-390569c4；137表，旧数据/卷/附件/账号保留，无本机DEMO模式。没有触发生产workflow。
 
-# 最新交付检查点（2026-11-08）
+最新617完整真实来源已按合同通过正式服务接纳发布617/617，失败0，285247ms，0新源请求。实际617 HTTP核对全部通过、4完整空结果，614历史可读/3原失败标记保留；不是本轮全部刷新完成。来源时间UTC2026-11-07T02:22:40.094176Z–17:30:41.098947Z。D1992的staging UUID **25285166-1585-449f-a8fd-81cbd7c98084**，30自购8厂供、20采购8入库5出运5出库逐笔来源→HTTP对齐；20单位事实按合同重新校验、18缺口已知，真实未知不填0。
 
-当前业务候选f40bcc4c9260b2dcccce00f7d0db41d1c5d17b45：私密质量报告重复派生事实深度兼容已修，33项质量/数量/隔离、21项隔离边界、类型/受影响lint/Server与固定snapshot构建通过；CI尚未运行的12组导航/生产/加工/业务来源/调价/历史/出货/交期/关账本机Chromium补查全部通过（302484ms）。此前完整发布182项和不受影响结果复用。精确源码门禁f40为12页/68能力/45UI路径、0错误。89fc来源CI编译/数据库/业务步骤已过，但质量报告步骤失败，旧结果不能称最终CI通过。
+原23报价/设置等业务表、原2账号权限、原3订单身份hash一致。匿名API401、无业务数据的身份恢复shell不创建会话；专用只读QA GET200/刷新403并已归档。正常Jackson公网会话看到617订单；详情动态资源曾Cloudflare520，公网完整浏览器验收尚未完成，不能仅凭gateway通过宣称交付。新配对备份首轮发现遗漏原对象备份工具挂载，已补回原运维挂载并恢复应用，业务代码/数据未改；137表新备份及独立恢复仍待最终回执。
 
-本次仅文档检查点，代码与f40一致；随后集中推送并更新唯一PR140，必要三CI通过后按用户授权merge commit，仅部署staging。main最近核实cb5cc29baa49ed7115fdb6c9506b6a80356936ea；尚未合并/升级/交接。staging仍5af85cd6、3订单/9附件/2原账号，正常Jackson会话已登录；本机63051的617订单及采集仍运行。部署前配对备份20261107T152138Z-cd0b3cd5已121表/9对象验证及40文件离机核对，独立恢复与旧应用新schema兼容演练完成。实际运行凭据由原credentialFile覆盖静态配置，部署已准备同一有效来源的私密配置；0新增登录。只在新站就绪后取得本机worker租约暂停、确认认证owner退出，再导出最新完整证据并正式按合同发布，不复制UUID或重采全量，不同时开启两个collector。
+本机63051网页/数据/原watchdog保留；2026-11-07T17:30:52.671Z正式staging_handoff暂停采集，service.syncEnabled=false，6 queued保留、0 running、认证owner0。最新证据80,664,465字节，SHA256 80db9ecabe6025bcac1f3c99db160d8fceefc487af605d3639e7bd55b3b9084c。旧宁波3合同collector PAUSED。新cron已安装但监管器DISABLED；未开启新的staging源请求，禁止同时恢复本机采集。
 
-实时部署、数据映射、同步交接及最终验收以本PR140说明和D:/WeaveOps-Local/staging-delivery-20261107、宁波releases/material-delivery-20261107受保护回执为准。当前任务见[交付任务](tasks/active/material-staging-delivery-2026-11-07.md)。以下旧日期/版本仅保留历史，不当作当前发布结果。
+下一步：新配对备份/离机校验和独立恢复、公网D1992及代表场景、确认本机0owner后激活staging自然cron，验证真实手动/自动采集发布及认证复用、积压和维护窗口。档位257高频/120日/196周/44月，R分档和03:30配对备份沿原批准，维护窗口03:12–03:50北京。尚未以实际源请求证明staging持续执行。
 
-# 当前状态：已验收物料版本正在向 staging 交付
-
-2026-11-07用户已授权完整PR检查合并、staging配置/兼容迁移/真实数据接入及后台受控切换；不涉及生产或页面重做。当前main经API/Git核实cb5cc29baa49ed7115fdb6c9506b6a80356936ea。既有PR140待更新，原导航141和五天登录142源码已经真实merge进入候选，以保留staging现有能力。
-
-PR140已安全快进到b912f176a938a71c79e8c8338610d239f9e6bf01，首轮baseline CI成功；team-access旧DTO白名单失败及source旧浏览器选择器已前向修正。最终候选同时保留原入库抽屉多余仓事实和租约保护的staging_handoff；类型与受影响lint、DTO24项、仓库5项、物料10项、对账9项、SSR2项、交接13项通过。完整本机发布回归182/182已取得退出0，不重复运行。最终源码门禁和一次必要CI更新待执行，尚未合并或升级staging。
-
-staging仍5af85cd6；部署前20261107T122651Z-69f4d4ce已121表/9对象配对、40文件异机校验、独立恢复表/序列全等与正常登录/报价HTTP通过，恢复副本停止保留。617份完整真实来源包保留原时点并已传输核验，0新增源请求，不整库覆盖或复制本机UUID。本机63051页面、数据和原自动采集仍运行，尚未执行交接。下一步通过PR140必要三CI及复审后merge commit，再按实际main构建升级、按合同接纳历史证据并受控交接。完整进度见[交付任务](tasks/active/material-staging-delivery-2026-11-07.md)。以下为已验收本机阶段的原时点回执，不能当成当前staging已交付。
-
-2026-11-07。分支feat/material-followup-business-view；起点干净b60d09125f165f2972da52d81cbf32eb94893b10，main基线cb5cc29baa49ed7115fdb6c9506b6a80356936ea未刷新。业务/静态固定版本4bd2300ce72374289bdf299d6a828d61196d3288；后续文档HEAD分别记录。仅本机63051，无GitHub推送/CI/PR或staging动作。
-
-直接打开[订单中心](http://127.0.0.1:63051/order-center)或[D1992](http://127.0.0.1:63051/order-center/style-progress/detail?orderId=d2e302cf-f0d5-404e-9474-e8ecf11ec81e)，匿名使用原7项只读身份，普通有效登录保留。D1992／PI2609-086：30自购、8厂供，20采购、8入库、5出运、5出库；38笔交易按源明细ID、需求、合同、数量逐项核对。来源18:19:21，run0be7e724-6e68-47f6-a131-7403b86c2f02；不是用历史6笔入库硬凑。新页面独立板块、可点击真源单、13px表格、折叠搜索及核实详情已生效。
-
-根因已修：需求单位未知不再隐藏真实流水；6086354缺MainID按严格明细/单号/数量/采购单/工厂款号/规格/颜色核对。用户明确确认D1992这20关联采购需求和四流同单位，私密receipt经原证据机制应用；18条采购缺口可算。2条规格描述不同仍待核实；10未采购自购需求和8厂供单位仍未知，不猜单位或填0。厂供不计自购缺口。确认热读仅本机挂载，坏补充不隐藏来源，不修改源站/采集时间/快照/head。
-
-617逐源核对及真实HTTP完成：613有物料、4完整空结果，HTTP失败0。全量HTTP在8b版本完成，249当前/368历史来源分别标注，时点范围北京时间10:22:40–18:19:51；最后4bd补同单位确认，D1992及4代表订单复验。没有把历史可读说成本轮重采。27相关用例、类型、受影响lint、固定构建通过；浏览器覆盖四流、厂供、新单、空结果、多批次、键盘搜索折叠及390/900/1280/1920。最终D1992浏览器0错误，readonly刷新来源403、0新增手工任务。最终SOURCE守卫在246e603c28da09ff102b664f163383c13d3c2f30通过，12页面/68能力/27 UI文件、0错误；此后仅当前验收回执三份文档更新，复用结果，不重复检查或CI。
-
-D:/WeaveOps-Local实际app12248、原watchdog28348、1个Python认证owner，AUTOMATIC_RUNNING；原启动VBS指向4bd，持续同步/认证机制没改。617head当前错误0；既有15:39失败回执早于本任务，保留未删除。46保护业务表哈希与最后切换前5151完成任务保留；持久库/卷、旧tmpfs、附件和备份均保留。后续只用原启动/恢复方式，不为界面任务重采或清队列。
-
-[任务、批准与完整验收](tasks/active/material-business-view-2026-11-07.md)。私密reconciliation.md及unit-final交付证据、同1280前后图/1920断点图位于D:/WeaveOps-Local/material-business-view-20261107，不提交真实原文。旧入口阶段归档[tasks/completed/2026-11-07-before-material-business-view](tasks/completed/2026-11-07-before-material-business-view/CURRENT_STATE.md)。
+[当前任务与完整时间线](tasks/active/material-staging-delivery-2026-11-07.md)；[本机已验收业务/UI](tasks/active/material-business-view-2026-11-07.md)；[本次前旧状态归档](tasks/completed/2026-11-08-before-staging-actual/CURRENT_STATE.md)。实际受保护回执：D:/WeaveOps-Local/staging-delivery-20261107及宁波/home/jackson/weaveops-staging-preview/releases/material-delivery-20261107。不得把旧历史PR号、旧本机UUID或旧“尚未合并”段落当当前结果。
