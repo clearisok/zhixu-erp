@@ -49,12 +49,21 @@ export function addCalendarMonths(date: string, months: number): string {
   target.setUTCDate(Math.min(day, end.getUTCDate()));
   return target.toISOString().slice(0, 10);
 }
-export function syncTier(deliveryDate: string | null, now: number): SyncTier {
+export function syncReferenceDate(deliveryDate: string | null, contractDate: string | null, now: number) {
+  const today=beijingDate(now);
+  if(!validDateOnly(deliveryDate)||!validDateOnly(contractDate)||contractDate>today
+    ||deliveryDate<contractDate||deliveryDate>addCalendarMonths(today,60)
+    ||contractDate<'1900-01-01')return null;
+  const contractFloor=addCalendarMonths(contractDate,3);
+  return deliveryDate>contractFloor?deliveryDate:contractFloor;
+}
+export function syncTier(deliveryDate: string | null, now: number, contractDate: string | null): SyncTier {
   const today = beijingDate(now);
-  if (!validDateOnly(deliveryDate)) return 'date-review';
-  if (today <= addCalendarMonths(deliveryDate, 3)) return 'frequent';
-  if (today <= addCalendarMonths(deliveryDate, 6)) return 'daily';
-  if (today <= addCalendarMonths(deliveryDate, 12)) return 'weekly';
+  const reference=syncReferenceDate(deliveryDate,contractDate,now);
+  if (!reference) return 'date-review';
+  if (today <= addCalendarMonths(reference, 3)) return 'frequent';
+  if (today <= addCalendarMonths(reference, 6)) return 'daily';
+  if (today <= addCalendarMonths(reference, 12)) return 'weekly';
   return 'monthly';
 }
 function wall(date: string, time: string): number { return Date.parse(`${date}T${time}:00+08:00`); }
@@ -83,9 +92,9 @@ export type SyncSchedule = { tier: SyncTier; due: boolean; slot: string | null; 
 /** Missed slots catch up once. A failed/unknown attempt consumes its slot, not success time.
  * Manual requests deliberately do not consult this automatic scheduling function. */
 export function syncSchedule(input: {
-  deliveryDate: string | null; now: number; lastSuccessAt: string | null; lastAutomaticAttemptAt: string | null;
+  deliveryDate: string | null; contractDate: string | null; now: number; lastSuccessAt: string | null; lastAutomaticAttemptAt: string | null;
 }, policy: SyncPolicy = DEFAULT_SYNC_POLICY): SyncSchedule {
-  const p = validateSyncPolicy(policy), tier = syncTier(input.deliveryDate, input.now);
+  const p = validateSyncPolicy(policy), tier = syncTier(input.deliveryDate, input.now,input.contractDate);
   const parsed = (s: string | null) => {
     if (s === null) return null;
     const n = Date.parse(s);

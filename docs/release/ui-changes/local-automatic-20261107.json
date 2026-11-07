@@ -1,0 +1,9 @@
+{
+ "baselineSha":"cb5cc29baa49ed7115fdb6c9506b6a80356936ea",
+ "level":"V2",
+ "paths":["features/ainuoke-sync/service/sales-order-final-bootstrap-preview.ts","server/ainuoke-source/sync-schedule.ts"],
+ "pages":["material","order"],
+ "visibleDifference":"Existing schedule labels use approved reference R; directory-only new orders retain explicit unrequested colour state. No page fields or material layout changes.",
+ "evidence":["docs/tasks/active/local-ainuoke-automatic-2026-11-07.md"],
+ "approval":{"status":"user-approved","reference":"docs/tasks/active/local-ainuoke-automatic-2026-11-07.md"}
+}

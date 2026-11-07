@@ -202,10 +202,10 @@ async function mapCandidate(
   sequence: number,
   discovery: AinuokeOrderDiscoveryRow,
   raw: RawDiscoveryRow,
-  colorSource: AinuokeGarmentColorSizeSource,
+  colorSource: AinuokeGarmentColorSizeSource | null,
 ): Promise<FinalSalesOrderBootstrapCandidate> {
   if (raw.row.sourceRowIdentity !== discovery.sourceRowIdentity) throw new Error(`${discovery.salesContractNo} raw Discovery identity mismatch`);
-  if (normalizeAinuokeSalesContractNo(colorSource.requestedSalesContractNo) !== normalizeAinuokeSalesContractNo(discovery.salesContractNo)) {
+  if (colorSource && normalizeAinuokeSalesContractNo(colorSource.requestedSalesContractNo) !== normalizeAinuokeSalesContractNo(discovery.salesContractNo)) {
     throw new Error(`${discovery.salesContractNo} 6087105 requested BillNo mismatch`);
   }
   const source: AinuokeContractMirrorInput = {
@@ -232,20 +232,29 @@ async function mapCandidate(
       styleNo: normalizeIdentity(discovery.styleNo),
       quantity: requiredQuantity(raw.row.values.Num, discovery.salesContractNo),
     })),
-    fetchedAt: [raw.snapshot.fetchedAt, colorSource.fetchedAt].sort().at(-1)!,
+    fetchedAt: colorSource ? [raw.snapshot.fetchedAt, colorSource.fetchedAt].sort().at(-1)! : raw.snapshot.fetchedAt,
     sourceMetadata: {
       reportId: "6086103",
       snapshotHash: raw.snapshot.snapshotHash,
       visibilityScope: "current_account_visible",
-      colorDetail: sanitizedColorReconciliation(colorSource),
+      colorDetail: colorSource ? sanitizedColorReconciliation(colorSource) : {status:'missing',queried:false,reason:'not_fetched'},
     },
   };
   return {
     sequence,
     source,
-    colors: await mapColors(colorSource),
-    colorDetailStatus: colorSource.colorDetailStatus,
+    colors: colorSource ? await mapColors(colorSource) : [],
+    colorDetailStatus: colorSource?.colorDetailStatus ?? 'missing',
   };
+}
+
+/** A complete, validated contract directory is enough to establish an order.
+ * Absent colour evidence is explicitly unrequested, never a fabricated empty report. */
+export async function mapDirectorySalesOrderCandidate(row:AinuokeOrderDiscoveryRow,
+ snapshots:ReadonlyArray<AinuokeReportSnapshot<AinuokeOrderDiscoveryQuery>>) {
+ const raw=rawDiscoveryIndex(snapshots).get(row.sourceId);
+ if(!raw)throw Error('Directory source evidence missing');
+ return mapCandidate(1,row,raw,null);
 }
 
 function canonicalPreviewPayload(preview: Omit<FinalSalesOrderBootstrapPreview, "previewHash">) {

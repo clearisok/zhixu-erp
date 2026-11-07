@@ -41,3 +41,36 @@ export async function recoverSync(pool:Pool,identity:Identity,sourceKey:string,a
   if(locked)await c.query('SELECT pg_advisory_unlock(hashtextextended($1,0))',['ainuoke-sync-worker:'+sourceKey]).catch(()=>undefined);c.release();
  }
 }
+
+/** An explicitly enabled local service may resume reads interrupted by its own
+ * process/host restart. The worker lease proves no old IO owner is alive. Job
+ * completion and publication are atomic; only still-running reads get a bounded
+ * retry. Authentication, identity, certificate and other pauses are untouched. */
+export async function resumeInterruptedReads(pool:Pool,identity:Identity,sourceKey:string){
+ const c=await pool.connect();let locked=false;
+ try{
+  locked=(await c.query('SELECT pg_try_advisory_lock(hashtextextended($1,0)) AS locked',['ainuoke-sync-worker:'+sourceKey])).rows[0].locked;
+  if(!locked)throw new SourceError('sync_worker_busy');
+  await c.query('BEGIN');await c.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',['ainuoke-sync-queue:'+sourceKey]);
+  const actor=await sourceActor(c,identity,true);requirePermission(actor.permissions,'ainuoke.bind');
+  const ctl=(await c.query('SELECT paused_reason FROM ainuoke_sync_controls WHERE source_key=$1 FOR UPDATE',[sourceKey])).rows[0];
+  if(ctl?.paused_reason){await c.query('COMMIT');return {resumed:0,paused:ctl.paused_reason};}
+  const jobs=(await c.query("SELECT * FROM ainuoke_sync_jobs WHERE source_key=$1 AND status='running' FOR UPDATE",[sourceKey])).rows;
+  let resumed=0;
+  for(const job of jobs){
+   await c.query("UPDATE ainuoke_sync_jobs SET status='failed',finished_at=now(),result=$2::jsonb WHERE id=$1",[job.id,JSON.stringify({code:'restart_read_interrupted'})]);
+   if(job.attempt_number<3){
+    await c.query(`INSERT INTO ainuoke_sync_jobs(id,source_key,source_id,sales_contract_no,kind,status,requested_by,retry_of,root_job_id,attempt_number,available_at)
+     VALUES(gen_random_uuid(),$1,$2,$3,$4,'queued',$5,$6,$7,$8,now())`,[sourceKey,job.source_id,job.sales_contract_no,job.kind,job.requested_by,job.id,job.root_job_id??job.id,job.attempt_number+1]);resumed++;
+   }
+  }
+  const catalogs=(await c.query(`SELECT r.request_id,run.id AS run_id FROM ainuoke_catalog_requests r
+   LEFT JOIN ainuoke_catalog_runs run ON run.source_key=r.source_key AND run.request_id=r.request_id
+   WHERE r.source_key=$1 AND r.status='running' FOR UPDATE OF r`,[sourceKey])).rows;
+  for(const item of catalogs)await c.query('UPDATE ainuoke_catalog_requests SET status=$3,finished_at=now(),result=$4::jsonb WHERE source_key=$1 AND request_id=$2',
+   [sourceKey,item.request_id,item.run_id?'complete':'failed',JSON.stringify(item.run_id?{runId:item.run_id}:{code:'restart_read_interrupted'})]);
+  await c.query("UPDATE ainuoke_sync_capture_attempts SET status='failed',finished_at=now(),result_code='restart_read_interrupted' WHERE source_key=$1 AND status='running'",[sourceKey]);
+  if(jobs.length||catalogs.length)await appendOperationLog(c,actor,{module:'艾诺科同步',action:'设置自动同步',entityType:'AinuokeSyncPolicy',entityId:sourceKey,metadata:{reason:'本机后台重启；核对原事务后有限补采只读来源',jobIds:jobs.map(j=>j.id),catalogRequests:catalogs.map(x=>x.request_id),sourceRequests:0},afterData:{values:{result:'保留旧成功快照，合并恢复中断读取'}}});
+  await c.query('COMMIT');return {resumed,catalogs:catalogs.length,paused:null};
+ }catch(e){await c.query('ROLLBACK').catch(()=>undefined);throw e;}finally{if(locked)await c.query('SELECT pg_advisory_unlock(hashtextextended($1,0))',['ainuoke-sync-worker:'+sourceKey]);c.release();}
+}

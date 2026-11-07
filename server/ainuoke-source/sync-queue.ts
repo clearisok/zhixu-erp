@@ -5,6 +5,8 @@ import { requirePermission } from '../auth/permissions.js';
 import { appendOperationLog } from '../operation-logs/repository.js';
 import { sourceActor, boundOrders } from './service.js';
 import { SourceError, hash, sourceKeyValid } from './contract.js';
+import {effectiveSyncDeliverySql} from './sync-dates.js';
+import {boundedSyncBatch} from './sync-batch.js';
 import { syncSchedule, validateSyncPolicy, type SyncPolicy } from './sync-schedule.js';
 
 type Identity = Pick<TrustedIdentity, 'internalUserId' | 'userId'>;
@@ -83,7 +85,7 @@ export async function enqueueAutomaticSync(pool: Pool, identity: Identity, sourc
   return tx(pool, async c => {
     await lockSource(c,sourceKey); const actor = await sourceActor(c,identity,true), settings = await control(c,sourceKey);
     if (String(settings.operator_id) !== actor.internalUserId) throw new SourceError('sync_operator_changed');
-    const rows = (await c.query(`SELECT e.source_id,e.sales_contract_no,e.delivery_date,s.last_success_at,s.last_automatic_attempt_at,
+    const rows = (await c.query(`SELECT e.source_id,e.sales_contract_no,e.contract_date,${effectiveSyncDeliverySql()} AS delivery_date,s.last_success_at,s.last_automatic_attempt_at,
       EXISTS(SELECT 1 FROM ainuoke_sync_jobs j WHERE j.source_key=e.source_key AND j.source_id=e.source_id AND j.status IN ('queued','running','unknown')) AS pending
       FROM ainuoke_catalog_entries e LEFT JOIN ainuoke_contract_sync_state s USING(source_key,source_id)
       WHERE e.source_key=$1 AND e.visible=true ORDER BY e.sales_contract_no LIMIT 1401`, [sourceKey])).rows;
@@ -91,7 +93,7 @@ export async function enqueueAutomaticSync(pool: Pool, identity: Identity, sourc
     let queued = 0;
     for (const row of rows) {
       if(row.pending)continue;
-      const schedule = syncSchedule({deliveryDate:row.delivery_date,now,lastSuccessAt:iso(row.last_success_at),lastAutomaticAttemptAt:iso(row.last_automatic_attempt_at)},settings.policy);
+      const schedule = syncSchedule({deliveryDate:row.delivery_date,contractDate:row.contract_date,now,lastSuccessAt:iso(row.last_success_at),lastAutomaticAttemptAt:iso(row.last_automatic_attempt_at)},settings.policy);
       if (!schedule.due) continue;
       const result = await c.query(`INSERT INTO ainuoke_sync_jobs(id,source_key,source_id,sales_contract_no,kind,status,requested_by,scheduled_slot,requested_at)
         VALUES($1,$2,$3,$4,'automatic','queued',$5,$6,$7) ON CONFLICT DO NOTHING`,
@@ -109,16 +111,24 @@ export async function claimSyncJobs(pool: Pool, identity: Identity, sourceKey: s
   return tx(pool, async c => {
     await lockSource(c,sourceKey); const actor = await sourceActor(c,identity,true), settings = await control(c,sourceKey);
     if (String(settings.operator_id) !== actor.internalUserId) throw new SourceError('sync_operator_changed');
-    const rows = (await c.query(`SELECT j.*,j.requested_by::text FROM ainuoke_sync_jobs j WHERE j.source_key=$1 AND j.status='queued' AND j.available_at<=$3
+    const rows = (await c.query(`SELECT j.*,j.requested_by::text,e.contract_date,${effectiveSyncDeliverySql()} AS delivery_date,
+      coalesce(jsonb_array_length(o.evidence->'materials'),12)+coalesce(jsonb_array_length(coalesce(o.evidence->'colors',o.evidence#>'{addition,colors}')->j.sales_contract_no),1) AS detail_pages
+      FROM ainuoke_sync_jobs j JOIN ainuoke_catalog_entries e USING(source_key,source_id)
+      LEFT JOIN ainuoke_contract_sync_state s USING(source_key,source_id)
+      LEFT JOIN ainuoke_contract_observations o ON o.id=s.observation_id
+      WHERE j.source_key=$1 AND j.status='queued' AND j.available_at<=$3
       AND ($4::text[] IS NULL OR j.source_id=ANY($4::text[]))
-      ORDER BY (j.kind='manual') DESC,j.requested_at,j.id LIMIT $2 FOR UPDATE SKIP LOCKED`,[sourceKey,maximum,new Date(now),sourceIds??null])).rows;
+      ORDER BY (j.kind='manual') DESC,j.requested_at,j.id LIMIT $2 FOR UPDATE OF j SKIP LOCKED`,[sourceKey,1400,new Date(now),sourceIds??null])).rows;
     // A manual operation captures only the selected contract, even if auto jobs await.
-    const selected = rows[0]?.kind === 'manual' || rows[0]?.retry_of ? rows.slice(0,1) : rows.filter(j=>!j.retry_of);
+    const rank=(row:typeof rows[number])=>row.kind==='manual'?0:['frequent','date-review'].includes(syncSchedule({deliveryDate:row.delivery_date,contractDate:row.contract_date,now,lastSuccessAt:null,lastAutomaticAttemptAt:null},settings.policy).tier)?1:2;
+    rows.sort((a,b)=>rank(a)-rank(b)||new Date(a.requested_at).getTime()-new Date(b.requested_at).getTime()||a.id.localeCompare(b.id));
+    const directoryRows=Number((await c.query('SELECT count(*)::int AS n FROM ainuoke_catalog_entries WHERE source_key=$1 AND visible=true',[sourceKey])).rows[0].n);
+    const selected=boundedSyncBatch(rows,maximum,directoryRows);
     for (const job of selected) {
       if(job.kind==='automatic'){
-        const current=(await c.query(`SELECT e.visible,e.delivery_date,s.last_success_at,s.last_automatic_attempt_at FROM ainuoke_catalog_entries e
+        const current=(await c.query(`SELECT e.visible,e.contract_date,${effectiveSyncDeliverySql()} AS delivery_date,s.last_success_at,s.last_automatic_attempt_at FROM ainuoke_catalog_entries e
           LEFT JOIN ainuoke_contract_sync_state s USING(source_key,source_id) WHERE e.source_key=$1 AND e.source_id=$2`,[sourceKey,job.source_id])).rows[0];
-        if(!current?.visible||!job.retry_of&&!syncSchedule({deliveryDate:current.delivery_date,now,lastSuccessAt:iso(current.last_success_at),lastAutomaticAttemptAt:iso(current.last_automatic_attempt_at)},settings.policy).due){
+        if(!current?.visible||!job.retry_of&&!syncSchedule({deliveryDate:current.delivery_date,contractDate:current.contract_date,now,lastSuccessAt:iso(current.last_success_at),lastAutomaticAttemptAt:iso(current.last_automatic_attempt_at)},settings.policy).due){
           await c.query("UPDATE ainuoke_sync_jobs SET status='failed',finished_at=$2,result=$3::jsonb WHERE id=$1",[job.id,new Date(now),JSON.stringify({code:'sync_schedule_changed'})]);continue;
         }
       }
@@ -151,7 +161,7 @@ export async function resolveOrderSync(pool:Pool,identity:Identity,orderId:strin
   await sourceActor(pool,identity,false,false);
   const targets=await boundOrders(pool,false,[orderId]);
   if(targets.length!==1)throw new SourceError('sync_contract_not_available');
-  const rows=(await pool.query(`SELECT e.source_key AS "sourceKey",e.source_id AS "sourceId",e.sales_contract_no AS "salesContractNo",e.delivery_date AS "deliveryDate",
+  const rows=(await pool.query(`SELECT e.source_key AS "sourceKey",e.source_id AS "sourceId",e.sales_contract_no AS "salesContractNo",e.contract_date AS "contractDate",${effectiveSyncDeliverySql()} AS "deliveryDate",
     s.last_success_at AS "lastSuccessAt",s.last_automatic_attempt_at AS "lastAutomaticAttemptAt",s.last_error_code AS "lastErrorCode",s.last_diagnostic AS "lastDiagnostic",s.last_attempt_at AS "lastAttemptAt",
     coalesce(c.enabled,false) AND c.paused_reason IS NULL AS enabled,c.policy,c.heartbeat_at AS "workerHeartbeatAt",
     (SELECT j.status FROM ainuoke_sync_jobs j WHERE j.source_key=e.source_key AND j.source_id=e.source_id ORDER BY j.requested_at DESC,j.attempt_number DESC LIMIT 1) AS status,
@@ -163,6 +173,6 @@ export async function resolveOrderSync(pool:Pool,identity:Identity,orderId:strin
     LEFT JOIN ainuoke_sync_controls c ON c.source_key=e.source_key`,[targets[0].sourceOwnerOrderId])).rows;
   if(rows.length!==1)throw new SourceError('sync_catalog_not_ready');
   const {policy,lastAutomaticAttemptAt,...row}=rows[0];
-  const schedule=policy?syncSchedule({deliveryDate:row.deliveryDate,now:Date.now(),lastSuccessAt:iso(row.lastSuccessAt),lastAutomaticAttemptAt:iso(lastAutomaticAttemptAt)},policy):null;
+  const schedule=policy?syncSchedule({deliveryDate:row.deliveryDate,contractDate:row.contractDate,now:Date.now(),lastSuccessAt:iso(row.lastSuccessAt),lastAutomaticAttemptAt:iso(lastAutomaticAttemptAt)},policy):null;
   return {...row,schedule};
 }

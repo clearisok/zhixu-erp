@@ -112,7 +112,7 @@ async function failJob(pool:Pool,job:SyncJob,code:string,unknown=false,options:{
 /** One wake handles a bounded group. Caller decides when to wake, backs up or
  * stops. No implicit activation, retries, credential changes or infinite loops. */
 export async function runSyncTick(pool:Pool,identity:Identity,raw:CollectorConfig,options:{
-  automatic?:boolean;batchSize?:number;now?:()=>number;sourceIds?:readonly string[];
+  automatic?:boolean;batchSize?:number;now?:()=>number;sourceIds?:readonly string[];adoptNewOrders?:boolean;
   collect?:(config:CollectorConfig,request:SelectedSourceRequest)=>Promise<unknown>;
 }={}) {
   const batchSize=options.batchSize??5;
@@ -142,7 +142,7 @@ export async function runSyncTick(pool:Pool,identity:Identity,raw:CollectorConfi
       }
       if(!manual&&latest?.status!=='running'&&(settings.catalog_retry_at||!latest||now()-new Date(latest.created_at).getTime()>=settings.policy.catalogMinutes*60000)){
         try{
-          await captureCatalogOnce(pool,identity,config,randomUUID(),options.collect,lease);
+          await captureCatalogOnce(pool,identity,config,randomUUID(),options.collect,lease,options.adoptNewOrders);
           await pool.query('UPDATE ainuoke_sync_controls SET catalog_failure_count=0,catalog_retry_at=NULL WHERE source_key=$1',[config.sourceKey]);
         }catch(error){
           const code=error instanceof SourceError?error.code:'catalog_result_unknown';

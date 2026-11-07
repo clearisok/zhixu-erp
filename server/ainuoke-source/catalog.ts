@@ -1,3 +1,4 @@
+import {effectiveSyncDeliverySql} from './sync-dates.js';
 import { DEFAULT_SYNC_POLICY, syncSchedule, syncScheduleLabel } from './sync-schedule.js';
 import { randomUUID } from 'node:crypto';
 import type { Pool } from 'pg';
@@ -9,6 +10,9 @@ import { sourceActor } from './service.js';
 import { requireAdditionProfile, type AdditionDiscoveryBundle } from './additions.js';
 import { SourceError, inspect, pagesValid, discoveryContentHash, hash } from './contract.js';
 import { saveCatalogEvidence } from './catalog-evidence.js';
+import {mapDirectorySalesOrderCandidate} from '../../features/ainuoke-sync/service/sales-order-final-bootstrap-preview.js';
+import {createAinuokeSalesOrderInTransaction} from '../sales-orders/service.js';
+import {lockEffectiveAttribution} from '../sales-orders/effective-attribution.js';
 
 const text = (v:unknown) => typeof v==='string' && v.trim() ? v.normalize('NFKC').trim() : null;
 const date = (v:unknown) => {
@@ -61,7 +65,7 @@ export async function previewCatalog(input:unknown,now=Date.now()) {
 
 /** A complete two-pass directory updates only its Source mirror, never business facts. */
 export async function publishCatalog(pool:Pool,identity:Pick<TrustedIdentity,'internalUserId'|'userId'>,options:{
- sourceKey:string;accountFingerprint:string;requestId:string;input:unknown;expectedHash:string;
+ sourceKey:string;accountFingerprint:string;requestId:string;input:unknown;expectedHash:string;adoptNewOrders?:boolean;
 }) {
  if(!/^[0-9a-f-]{36}$/i.test(options.requestId))throw new SourceError('catalog_request_invalid');
  const checked=await previewCatalog(options.input);
@@ -69,6 +73,7 @@ export async function publishCatalog(pool:Pool,identity:Pick<TrustedIdentity,'in
  const c=await pool.connect();
  try {
   await c.query('BEGIN');
+  if(options.adoptNewOrders)await lockEffectiveAttribution(c);
   await c.query("SELECT pg_advisory_xact_lock(hashtextextended($1,0))",['ainuoke-source:'+options.sourceKey]);
   const actor=await sourceActor(c,identity,true);requirePermission(actor.permissions,'ainuoke.bind');
   await requireAdditionProfile(c,options.sourceKey,options.accountFingerprint,true);
@@ -89,8 +94,22 @@ export async function publishCatalog(pool:Pool,identity:Pick<TrustedIdentity,'in
    quantity=excluded.quantity,contract_date=excluded.contract_date,delivery_date=excluded.delivery_date,lifecycle_status_raw=excluded.lifecycle_status_raw,observed_run_id=excluded.observed_run_id,visible=true`,
    [options.sourceKey,r.sourceId,r.salesContractNo,r.insideOrderNo,r.styleNo,r.customerName,r.brandName,r.quantity,r.contractDate,r.deliveryDate,r.lifecycleStatusRaw,id]);
   await c.query('UPDATE ainuoke_source_profiles SET catalog_run_id=$2 WHERE source_key=$1',[options.sourceKey,id]);
+  let createdOrders=0;
+  if(options.adoptNewOrders){
+   for(const row of checked.rows){
+    if(links.some(link=>link.external_id===row.sourceId&&link.sales_contract_no===row.salesContractNo))continue;
+    const candidate=await mapDirectorySalesOrderCandidate(row,checked.bundle.discoveryAfter);
+    const result=await createAinuokeSalesOrderInTransaction(c,actor,candidate);
+    if(result.created){
+     createdOrders++;
+     // The ordinary creation service queued missing material publication. Its
+     // origin here is automatic; no human request can see this uncommitted SO.
+     await c.query("UPDATE ainuoke_sync_jobs SET kind='automatic' WHERE source_key=$1 AND source_id=$2 AND status='queued' AND requested_by=$3",[options.sourceKey,row.sourceId,actor.internalUserId]);
+    }
+   }
+  }
   await appendOperationLog(c,actor,{module:'艾诺科同步',action:'更新合同目录',entityType:'AinuokeCatalogRun',entityId:id,metadata:{sourceOnly:true,contractCount:checked.rows.length,requestId:options.requestId}});
-  await c.query('COMMIT');return {runId:id,replayed:false,contracts:checked.rows.length};
+  await c.query('COMMIT');return {runId:id,replayed:false,contracts:checked.rows.length,createdOrders};
  }catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}
 }
 
@@ -115,14 +134,14 @@ export async function readCatalog(pool:Pool,identity:Pick<TrustedIdentity,'inter
    LEFT JOIN LATERAL(SELECT status,available_at,retry_of,attempt_number FROM ainuoke_sync_jobs j WHERE j.source_key=e.source_key AND j.source_id=e.source_id ORDER BY j.requested_at DESC,j.attempt_number DESC LIMIT 1) job ON true WHERE ${where.join(' AND ')}`;
   const total=Number((await c.query('SELECT count(*) '+from,args)).rows[0].count);
   const rows=(await c.query(`SELECT e.source_key AS "sourceKey",e.source_id AS "sourceId",e.sales_contract_no AS "salesContractNo",e.inside_order_no AS "insideOrderNo",
-   e.style_no AS "styleNo",e.customer_name AS "customerName",e.brand_name AS "brandName",e.quantity::text,e.delivery_date AS "deliveryDate",e.contract_date AS "contractDate",
+   e.style_no AS "styleNo",e.customer_name AS "customerName",e.brand_name AS "brandName",e.quantity::text,e.delivery_date AS "deliveryDate",e.contract_date AS "contractDate",${effectiveSyncDeliverySql()} AS "scheduleDeliveryDate",
    e.lifecycle_status_raw AS "sourceStatus",e.visible,r.captured_at AS "observedAt",mapping.effective_order_id::text AS "orderId",state.last_success_at AS "lastSuccessAt",state.last_automatic_attempt_at AS "lastAutomaticAttemptAt",
    state.last_error_code AS "lastErrorCode",state.last_diagnostic AS "lastDiagnostic",state.last_attempt_at AS "lastAttemptAt",control.policy,coalesce(control.enabled,false) AND control.paused_reason IS NULL AS "syncEnabled",job.status AS "syncStatus",
    CASE WHEN job.status='queued' AND job.retry_of IS NOT NULL THEN job.available_at ELSE NULL END AS "retryAt",job.attempt_number AS "attemptNumber",
    ${active} AS active,coalesce(f.version,0) AS "followupVersion" ${from} ORDER BY e.sales_contract_no,e.source_key LIMIT ${val(query.limit)} OFFSET ${val(query.offset)}`,args)).rows;
   const state=(await c.query('SELECT source_key AS "sourceKey",catalog_run_id::text AS "runId" FROM ainuoke_source_profiles WHERE enabled=true')).rows;
-  const projected=rows.map(({policy,lastAutomaticAttemptAt,...row})=>{
-    const schedule=syncSchedule({deliveryDate:row.deliveryDate,now:Date.now(),lastSuccessAt:row.lastSuccessAt?new Date(row.lastSuccessAt).toISOString():null,
+  const projected=rows.map(({policy,lastAutomaticAttemptAt,scheduleDeliveryDate,...row})=>{
+    const schedule=syncSchedule({deliveryDate:scheduleDeliveryDate,contractDate:row.contractDate,now:Date.now(),lastSuccessAt:row.lastSuccessAt?new Date(row.lastSuccessAt).toISOString():null,
       lastAutomaticAttemptAt:lastAutomaticAttemptAt?new Date(lastAutomaticAttemptAt).toISOString():null},policy??DEFAULT_SYNC_POLICY);
     return {...row,...schedule,scheduleLabel:syncScheduleLabel(schedule.tier,policy??DEFAULT_SYNC_POLICY)};
   });

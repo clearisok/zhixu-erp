@@ -186,3 +186,8 @@ npm run source:ainuoke -- --bind-selected=<source-key> --contracts=<same-BillNo,
 金额币种边界复核：仅cgGoodsAmount/PayAmount/GoodsAmount采用本轮确认的采购合同币种，其余金额币种保持unknown；不提供通用行currency。详见../tasks/active/evidence/ainuoke-payment-request-probe/observations-amount-currency-2026-10-15.md。
 
 当前source `df5bedaddd2f9e54f8c66f578e32f06859878104`实际19相关API文件184/185（1既有Windows平台跳过，未称PASS）、97根811、类型Node实际load/lint通过。前端/Python未变范围复用，不称新Vite/browser/Python执行；发布与最终精确main守卫由后置实际回执单列。
+
+
+## D188本机自动执行
+
+本机使用sync-runner.ts、持久createSessionCollector和原runSyncTick，每分钟重新评估到期，目录每30分钟。syncReferenceDate取有效交期和合同+3月较晚值；sync-dates.ts读取人工有效交期，sync-batch.ts在原硬限制内共享组目录。显式adoptNewOrders只在已授权本机runtime启用，publishCatalog复用正式订单服务；未取颜色明确not_fetched。resumeInterruptedReads仅恢复确认无旧IO进程的running只读任务，不清认证暂停。Windows后台及持久卷、真实验收见[任务](../tasks/active/local-ainuoke-automatic-2026-11-07.md)。工程实现不等于已启用，最终运行结果以任务记录为准。

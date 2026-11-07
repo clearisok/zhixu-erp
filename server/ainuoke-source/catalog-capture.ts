@@ -20,21 +20,21 @@ export async function readCatalogCaptureReceipt(pool:Pool,identity:Identity,sour
 }
 /** Persist the attempt before any HTTP, so a lost receipt cannot spend it twice. */
 export async function captureCatalogOnce(pool:Pool,identity:Identity,raw:CollectorConfig,requestId:string,
- collect?:(config:CollectorConfig,request:SelectedSourceRequest)=>Promise<unknown>,workerLease?:PoolClient) {
+ collect?:(config:CollectorConfig,request:SelectedSourceRequest)=>Promise<unknown>,workerLease?:PoolClient,adoptNewOrders=false) {
  const config=parseCollectorConfig(raw),lease=workerLease??await pool.connect();let locked=false;
  try {
   // Reentrant on the worker's session; standalone captures and recovery must
   // share this lease so recovery cannot race an upstream call still in flight.
   locked=(await lease.query('SELECT pg_try_advisory_lock(hashtextextended($1,0)) AS locked',['ainuoke-sync-worker:'+config.sourceKey])).rows[0].locked;
   if(!locked)throw new SourceError('sync_worker_busy');
-  return await captureUnderLease(pool,identity,config,requestId,collect);
+  return await captureUnderLease(pool,identity,config,requestId,collect,adoptNewOrders);
  }finally{
   if(locked)await lease.query('SELECT pg_advisory_unlock(hashtextextended($1,0))',['ainuoke-sync-worker:'+config.sourceKey]).catch(()=>undefined);
   if(!workerLease)lease.release();
  }
 }
 async function captureUnderLease(pool:Pool,identity:Identity,raw:CollectorConfig,requestId:string,
- collect?:(config:CollectorConfig,request:SelectedSourceRequest)=>Promise<unknown>) {
+ collect?:(config:CollectorConfig,request:SelectedSourceRequest)=>Promise<unknown>,adoptNewOrders=false) {
  if(!/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(requestId))throw new SourceError('catalog_request_invalid');
  const config=parseCollectorConfig(raw),actor=await sourceActor(pool,identity,true);requirePermission(actor.permissions,'ainuoke.bind');
  const fingerprint=accountFingerprint(config);await requireAdditionProfile(pool,config.sourceKey,fingerprint);
@@ -59,7 +59,7 @@ async function captureUnderLease(pool:Pool,identity:Identity,raw:CollectorConfig
   if(captured.result!=='complete')throw new SourceError(captured.code);
   if(captured.mode!=='catalog-discovery')throw new SourceError('catalog_invalid');
   await finishCaptureAttempt(pool,diagnosticId,null,diagnostics,metrics,Date.now());
-  const result=await publishCatalog(pool,identity,{sourceKey:config.sourceKey,accountFingerprint:fingerprint,requestId,input:captured.bundle,expectedHash:captured.preview.contentHash});
+  const result=await publishCatalog(pool,identity,{sourceKey:config.sourceKey,accountFingerprint:fingerprint,requestId,input:captured.bundle,expectedHash:captured.preview.contentHash,adoptNewOrders});
   await pool.query("UPDATE ainuoke_catalog_requests SET status='complete',result=$3::jsonb,finished_at=now() WHERE source_key=$1 AND request_id=$2",[config.sourceKey,requestId,JSON.stringify({...result,metrics:captured.metrics})]);
   return {status:'complete',result,replayed:false};
  }catch(e){
