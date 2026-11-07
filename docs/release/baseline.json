@@ -6001,6 +6001,32 @@
       "sha256": "9e9612431b40d2780b4881ef3a8313a3d13db42292c4a4b1e9621b45d36d61d0",
       "supersedes": "closing-support-main6479-integration-3-20261028",
       "changeReason": "User approved optional fixed five-day login; preserve ordinary and legacy session behavior and revocation."
+    },
+    {
+      "id": "staging-login-integration-1-20261107",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "52e3c05530571d9691be599389bda1e8f970ee60",
+      "renderedSourceSha": "52e3c05530571d9691be599389bda1e8f970ee60",
+      "sha256": "8edcebae19c34dd7f0cb0e77ac081ec3dc769c1a003b4b69f6d4777ae4af0138",
+      "mergeOf": [
+        "material-business-view-rules-20261107",
+        "business-five-day-login-20261106"
+      ],
+      "changeReason": "Preserve both immutable source histories at the actual two-parent integration, keeping five-day sessions and accepted material/local demo boundaries."
+    },
+    {
+      "id": "staging-login-integration-2-20261107",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "52e3c05530571d9691be599389bda1e8f970ee60",
+      "renderedSourceSha": "52e3c05530571d9691be599389bda1e8f970ee60",
+      "sha256": "c339b970254e5aa15a0c06f5a60d4c7ea01c6bb3175ab4275cecac0b71f8a21b",
+      "mergeOf": [
+        "staging-performance-decisions-20261107",
+        "decisions-five-day-login-20261106"
+      ],
+      "changeReason": "Preserve both immutable source histories at the actual two-parent integration, keeping five-day sessions and accepted material/local demo boundaries."
     }
   ],
   "pages": [
