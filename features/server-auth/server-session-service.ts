@@ -27,8 +27,9 @@ export async function loginServerSession(
   client: ServerAuthClient,
   username: string,
   password: string,
+  rememberMe = false,
 ): Promise<ServerSessionState> {
-  await client.login(username, password);
+  await client.login(username, password, rememberMe);
   return loadAuthenticatedSession(client);
 }
 

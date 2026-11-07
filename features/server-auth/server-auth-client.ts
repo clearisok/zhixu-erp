@@ -12,7 +12,7 @@ export type ServerAuthentication = {
 };
 
 export type ServerAuthClient = {
-  login(username: string, password: string): Promise<ServerAuthentication>;
+  login(username: string, password: string, rememberMe?: boolean): Promise<ServerAuthentication>;
   logout(): Promise<void>;
   getMe(): Promise<ServerSessionUser>;
   getPermissions(): Promise<PermissionKey[]>;
@@ -122,14 +122,14 @@ export function createServerAuthClient(options: {
   }
 
   return {
-    async login(username, password) {
+    async login(username, password, rememberMe = false) {
       const payload = await request("/api/v1/auth/login", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           "X-Zhixu-Request": "1",
         },
-        body: JSON.stringify({ username, password }),
+        body: JSON.stringify({ username, password, rememberMe }),
       });
       return {
         user: readUser(payload.user),

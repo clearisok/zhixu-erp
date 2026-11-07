@@ -64,7 +64,7 @@ test("Animated login: real session, redirects, keyboard, errors and responsive U
     assert.equal(await evalJs("document.documentElement.scrollWidth>innerWidth+1"),false);
     assert.equal(await evalJs("getComputedStyle(document.querySelector('.zx-login')).display"),"grid");
     assert.equal(await evalJs("getComputedStyle(document.querySelector('.zx-login-submit')).backgroundColor"),"rgb(37, 69, 173)");
-    assert.ok(await evalJs("[...document.querySelectorAll('.zx-login-form input,.zx-login-form button')].every(n=>n.getBoundingClientRect().height>=44)"));
+    assert.ok(await evalJs("[...document.querySelectorAll('.zx-login-form input:not([type=checkbox]),.zx-login-form button,.zx-login-remember')].every(n=>n.getBoundingClientRect().height>=44)"));
     await shot("login-"+width);
    }
   });
@@ -113,12 +113,18 @@ test("Animated login: real session, redirects, keyboard, errors and responsive U
    await evalJs("window.authMode='normal'");
   });
   await t.test("real login preserves internal query/hash, secrets never enter web storage",async()=>{
+   assert.equal(await evalJs("document.querySelector('input[name=rememberMe]').checked"),false);
+   await evalJs("document.querySelector('label[for=login-remember]').click()");
+   assert.equal(await evalJs("document.querySelector('input[name=rememberMe]').checked"),true);
    await login();await has("新建报价");
    assert.equal(await evalJs("location.pathname+location.search+location.hash"),"/quote-center?source=synthetic#resume");
    assert.equal(await evalJs("JSON.stringify([localStorage,sessionStorage]).includes("+JSON.stringify(password)+")"),false);
    assert.equal(await evalJs("document.cookie.includes('session')"),false);
    const cookies=(await command("Network.getCookies")).cookies;
-   assert.ok(cookies.some(c=>c.httpOnly),"session is HttpOnly");
+   const remembered=cookies.find(c=>c.name==='zhixu_v1_session');
+   assert.ok(remembered?.httpOnly,"session is HttpOnly");
+   assert.ok(remembered.expires-Date.now()/1000>431900 && remembered.expires-Date.now()/1000<=432000,"five-day persistent cookie");
+   await navigate("/quote-center");await has("新建报价");
    assert.equal(await evalJs("Object.keys(localStorage).some(k=>k.includes('zhixu.erp.local.'))"),false);
   });
   await t.test("authenticated login avoids a loop and rejects external return URL",async()=>{

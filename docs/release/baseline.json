@@ -5983,6 +5983,24 @@
         "decisions-navigation-cache-20261105"
       ],
       "changeReason": "Real two-parent integration preserves both accepted material decisions and deployed navigation-cache decisions without rewriting either frozen history."
+    },
+    {
+      "id": "decisions-five-day-login-20261106",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "c39b7f30dc883132f92e7c6f99e98acbc3b68ed9",
+      "sha256": "4906dfc3cabfad4314f8aff927f374f82dc654172a19255f68a41afb8cbd2c60",
+      "supersedes": "decisions-navigation-cache-20261105",
+      "changeReason": "User approved optional fixed five-day login; preserve ordinary and legacy session behavior and revocation."
+    },
+    {
+      "id": "business-five-day-login-20261106",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "c39b7f30dc883132f92e7c6f99e98acbc3b68ed9",
+      "sha256": "9e9612431b40d2780b4881ef3a8313a3d13db42292c4a4b1e9621b45d36d61d0",
+      "supersedes": "closing-support-main6479-integration-3-20261028",
+      "changeReason": "User approved optional fixed five-day login; preserve ordinary and legacy session behavior and revocation."
     }
   ],
   "pages": [
