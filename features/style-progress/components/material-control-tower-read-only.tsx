@@ -4,7 +4,7 @@ import { useId, useRef, useState, type ReactNode } from 'react';
 import { Card } from '@/components/foundation/card';
 import { Button } from '@/components/foundation/button';
 import { Drawer } from '@/components/foundation/drawer';
-import { filterProgressRows, materialSupplyScope, type MaterialProgressView, type ProgressRow, type ReadPurchase, type ReadMovement } from '@/features/ainuoke-material-progress/projection';
+import { filterProgressRows, materialSupplyScope, type MaterialProgressView, type ProgressRow, type ReadPurchase, type ReadMovement, type ReadInbound } from '@/features/ainuoke-material-progress/projection';
 import { businessTransactionCounts, materialBusinessFacts, materialEventKey, type FlowQuantity, type MaterialFlow, type QuantityGap } from '@/features/ainuoke-material-progress/business-facts';
 import { orderMaterialGroups } from '../model/material-display-order';
 import { PaymentRequestsReadPanel } from './payment-requests-read-panel';
@@ -98,6 +98,7 @@ function EventTable({ rows, flow }: { rows: ProgressRow[]; flow: MaterialFlow })
       <thead><tr><th>{flow === 'purchase' ? '物料 / 采购颜色' : '需求物料 / 颜色'}</th><th>{flow === 'purchase' ? '采购规格' : '需求规格'}</th><th>{flowLabels[flow]}单号</th>
         {flow === 'purchase' && <th>供应商</th>}<th>{flow === 'purchase' ? '采购日期' : '日期'}</th>
         {flow === 'purchase' && <th>交期</th>}<th className="numeric">数量</th>
+        {flow === 'inbound' && <th className="numeric">多余仓</th>}
         {flow === 'purchase' && <><th className="numeric">单价</th><th>币种</th></>}
         {flow === 'shipment' && <th>运输方式</th>}{flow === 'outbound' && <th>业务类型</th>}<th>关联</th>
       </tr></thead><tbody>{entries.map(({ row, event, demands }) => {
@@ -108,6 +109,12 @@ function EventTable({ rows, flow }: { rows: ProgressRow[]; flow: MaterialFlow })
           <td><strong>{flow === 'purchase' ? purchase.purchaseOrderNo : (event as ReadMovement).documentNo}</strong><small>明细 {event.relation?.sourceDetailId || '未提供'}</small></td>
           {flow === 'purchase' && <td>{text(purchase.supplier)}</td>}<td>{date(flow === 'purchase' ? purchase.purchaseDate : (event as ReadMovement).eventDate)}</td>
           {flow === 'purchase' && <td>{date(purchase.deliveryDate)}</td>}<td className="numeric">{eventQuantity(event, row)}</td>
+          {flow === 'inbound' && <td className="numeric">{(() => {
+            const fact = (event as ReadInbound).excessWarehouse;
+            if (!fact) return '未取得';
+            if (fact.quantity !== null) return <span>{number(fact.quantity)} {fact.unit || '单位待核实'}</span>;
+            return fact.status === 'missing' ? '未提供' : '待核实';
+          })()}</td>}
           {flow === 'purchase' && <><td className="numeric">{purchase.sourcePricing.unitPrice === null ? '未提供' : number(purchase.sourcePricing.unitPrice)}</td><td>{text(purchase.sourcePricing.currency)}</td></>}
           {flow === 'shipment' && <td>{({ Sea: '海运', Air: '空运' } as Record<string, string>)[(event as { transportMode: string }).transportMode] || text((event as { transportMode: string }).transportMode)}</td>}
           {flow === 'outbound' && <td>{text((event as ReadMovement).businessType)}</td>}
@@ -116,6 +123,7 @@ function EventTable({ rows, flow }: { rows: ProgressRow[]; flow: MaterialFlow })
           </td>
         </tr>;
       })}</tbody></table></div>}
+    {flow === 'inbound' && entries.length > 0 && <p className="sp-business-no-events">多余仓独立记录，不计入已入库。</p>}
     {unverified.length > 0 && <section className="sp-business-unverified"><h3>未能汇总的记录</h3>{unverified.map(({ row, event }, index) => <p key={index}>{row.demand.materialName} · {event.documentNo || '单号未提供'} · 明细 {event.sourceDetailId || '未提供'} · {event.quantity === null ? '数量未取得' : number(event.quantity)}：{event.reason}</p>)}</section>}
     {entries.length > 0 && <details className="sp-business-evidence"><summary>来源与关联依据</summary>
       <p>合同 {rows[0]?.demand.salesContractNo}；按各节点稳定明细编号保留流水，同一明细只展示一次。</p>

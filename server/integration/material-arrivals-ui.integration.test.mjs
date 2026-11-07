@@ -64,7 +64,7 @@ test('manual material arrivals and original logistics run on the exact built Ser
     await command('Page.enable'); await command('Runtime.enable'); await command('Network.enable');
     await command('Page.addScriptToEvaluateOnNewDocument', { source: `
       window.arrivalWire={posts:[],requests:[],postMode:'ready',receiptMode:'ready',historyMode:'ready',readMode:'ready',sourceMode:'ready',postWaiters:[],receiptWaiters:[],historyWaiters:[],readWaiters:[],activationAttempts:0,plannerClicks:[]};
-      document.addEventListener('click',event=>{const b=event.target.closest('button');if(b&&b.closest('.sp-v4-material-card')&&['分批到料','到料计划'].includes(b.textContent))arrivalWire.plannerClicks.push({disabled:b.disabled,connected:b.isConnected});},true);
+      document.addEventListener('click',event=>{const b=event.target.closest('button');if(b&&b.closest('.sp-business-material')&&['分批到料','到料计划'].includes(b.textContent))arrivalWire.plannerClicks.push({disabled:b.disabled,connected:b.isConnected});},true);
       window.arrivalFetch=window.fetch;window.fetch=async(input,init)=>{const u=new URL(String(input),location.href),m=init?.method??'GET',w=arrivalWire;w.requests.push({path:u.pathname,method:m});
         if(u.pathname==='/api/v1/material-arrivals/commands'&&m==='POST'){w.posts.push(JSON.parse(init.body));const mode=w.postMode;w.postMode='ready';if(mode==='before')throw Error('synthetic before send');const r=await arrivalFetch(input,init);if(mode==='lost')throw Error('synthetic lost reply');if(mode==='hold200'||mode==='hold401')return new Promise(done=>w.postWaiters.push(()=>done(mode==='hold401'?Response.json({error:{code:'authentication_required'}},{status:401}):r)));return r;}
         if(u.pathname.startsWith('/api/v1/material-arrivals/commands/')&&m==='GET'){const mode=w.receiptMode;w.receiptMode='ready';const r=await arrivalFetch(input,init);if(mode==='mismatch'){const d=await r.json();return Response.json({...d,payloadHash:'f'.repeat(64)});}if(mode==='hold200'||mode==='hold401')return new Promise(done=>w.receiptWaiters.push(()=>done(mode==='hold401'?Response.json({error:{code:'authentication_required'}},{status:401}):r)));return r;}
@@ -86,7 +86,7 @@ test('manual material arrivals and original logistics run on the exact built Ser
     const logout = async () => { await evaluate("document.querySelector('[aria-label=用户菜单]').click()"); await click('退出登录'); await until(() => evaluate("!!document.querySelector('input[name=username]')"), 'logged out'); };
     // Source completion can start another arrival GET between separate CDP calls.
     // Only poll before activation; check and click atomically once, then await the dialog.
-    const activatePlanner = (name, saved) => evaluate(`(()=>{arrivalWire.activationAttempts++;const c=[...document.querySelectorAll('.sp-v4-material-card')].find(n=>n.querySelector(${JSON.stringify(saved ? '.sp-v4-material-head>strong' : '.sp-v4-material-identity strong')})?.textContent===${JSON.stringify(name)});const b=c&&[...c.querySelectorAll('button')].find(n=>['分批到料','到料计划'].includes(n.textContent));if(!b||!b.isConnected||b.disabled)return false;b.click();return true})()`);
+    const activatePlanner = (name, saved) => evaluate(`(()=>{arrivalWire.activationAttempts++;const c=[...document.querySelectorAll('.sp-business-material')].find(n=>n.querySelector(${JSON.stringify(saved ? '.sp-v4-material-head>strong' : '.sp-business-material-toggle h3')})?.textContent===${JSON.stringify(name)});const b=c&&[...c.querySelectorAll('button')].find(n=>['分批到料','到料计划'].includes(n.textContent));if(!b||!b.isConnected||b.disabled)return false;b.click();return true})()`);
     const open = async (name = '合成缝纫线') => { await until(() => activatePlanner(name, false), 'planner action'); await has('分批预计到料'); };
     const openSaved = async () => { await until(() => activatePlanner('合成缝纫线 · 已保存计划', true), 'saved planner action'); await has('分批预计到料'); };
     const preview = async () => { await click('预览变更', '.sp-v4-planner button'); await has('确认本次计划'); };
@@ -101,7 +101,7 @@ test('manual material arrivals and original logistics run on the exact built Ser
       await phase('exact previous build keeps original material facts and event cards at six widths without arrival writes', async () => {
         for (const [width, scale] of [[1920, 1], [1536, 1.25], [1440, 1], [1280, 1], [900, 1], [390, 1]]) {
           await command('Emulation.setDeviceMetricsOverride', { width, height: 1000, deviceScaleFactor: scale, mobile: width === 390 });
-          const observed = await evaluate("({width:innerWidth,overflow:document.documentElement.scrollWidth>innerWidth+1,cards:document.querySelectorAll('.sp-v4-material-card').length,arrivalActions:[...document.querySelectorAll('button')].filter(n=>['分批到料','到料计划'].includes(n.textContent)).length})");
+          const observed = await evaluate("({width:innerWidth,overflow:document.documentElement.scrollWidth>innerWidth+1,cards:document.querySelectorAll('.sp-business-material').length,arrivalActions:[...document.querySelectorAll('button')].filter(n=>['分批到料','到料计划'].includes(n.textContent)).length})");
           assert.equal(observed.overflow, false); assert.ok(observed.cards > 0); assert.equal(observed.arrivalActions, 0); metrics.push(observed);
           await has('物料出运'); await has('物料出库'); if (width === 1440 || width === 390) await shot('before-material-' + width);
         }
@@ -131,7 +131,7 @@ test('manual material arrivals and original logistics run on the exact built Ser
       const count = () => evaluate("arrivalWire.requests.filter(r=>r.path.startsWith('/api/v1/material-arrivals/orders/')&&!r.path.endsWith('/history')).length");
       const posts = await evaluate('arrivalWire.posts.length');
       for (let attempt = 0; attempt < 2; attempt++) { const before = await count(); await evaluate("arrivalWire.sourceMode='503';window.dispatchEvent(new Event('focus'))"); await has('正式物料来源未接通或不可读取'); await until(async () => await count() > before, 'same HTTP error completion ' + attempt); }
-      assert.equal(await evaluate('arrivalWire.posts.length'), posts); await evaluate("window.dispatchEvent(new Event('focus'))"); await until(() => evaluate("[...document.querySelectorAll('.sp-v4-material-identity strong')].some(n=>n.textContent==='合成缝纫线')"), 'real Source read restored');
+      assert.equal(await evaluate('arrivalWire.posts.length'), posts); await evaluate("window.dispatchEvent(new Event('focus'))"); await until(() => evaluate("[...document.querySelectorAll('.sp-business-material-toggle h3')].some(n=>n.textContent==='合成缝纫线')"), 'real Source read restored');
     });
     await phase('six widths preserve local tables, Modal and history geometry without document overflow', async () => {
       for (const [width, scale] of [[1920, 1], [1536, 1.25], [1440, 1], [1280, 1], [900, 1], [390, 1]]) {
@@ -190,14 +190,14 @@ test('manual material arrivals and original logistics run on the exact built Ser
       }
     });
     await phase('Source failure preserves saved plans, history and dates while blocking new allocations', async () => {
-      x.setMode('failed'); await assert.rejects(x.capture()); await click('刷新来源'); await has('合成缝纫线 · 已保存计划'); await until(() => evaluate("[...document.querySelectorAll('.sp-v4-material-card')].some(n=>n.textContent.includes('合成缝纫线')&&n.textContent.includes('当前来源不可用'))"), 'source failure issue');
+      x.setMode('failed'); await assert.rejects(x.capture()); await click('刷新来源'); await has('合成缝纫线 · 已保存计划'); await until(() => evaluate("[...document.querySelectorAll('.sp-business-material')].some(n=>n.textContent.includes('合成缝纫线')&&n.textContent.includes('当前来源不可用'))"), 'source failure issue');
       const before = await evaluate("arrivalWire.requests.filter(r=>r.path.startsWith('/api/v1/material-arrivals/orders/')&&!r.path.endsWith('/history')).length"); await evaluate("window.dispatchEvent(new Event('focus'))");
       await until(async () => await evaluate("arrivalWire.requests.filter(r=>r.path.startsWith('/api/v1/material-arrivals/orders/')&&!r.path.endsWith('/history')).length") > before, 'same Source error has a new completed read');
       await openSaved(); await has('2027-01-07'); assert.equal(await evaluate("[...document.querySelectorAll('.sp-v4-planner button')].find(n=>n.textContent==='＋ 增加批次').disabled"), true); await click('到料历史', '.sp-v4-planner button'); await until(() => evaluate("document.querySelectorAll('[data-arrival-history-version]').length===7"), 'source-free history'); await shot('source-unavailable-history'); await evaluate("document.querySelector('.qc-drawer>header>button').click()"); await click('取消', '.sp-v4-planner button'); x.setMode('ready'); await x.capture(); await click('刷新来源'); await has('合成缝纫线');
     });
     await phase('Source-triggered arrival reload cannot consume a disabled read-only activation', async () => {
       await loginCookie('demo.finance'); await navigate();
-      const find="(()=>{const c=[...document.querySelectorAll('.sp-v4-material-card')].find(n=>n.querySelector('.sp-v4-material-identity strong')?.textContent==='合成缝纫线');return c&&[...c.querySelectorAll('button')].find(n=>n.textContent==='到料计划')})()";
+      const find="(()=>{const c=[...document.querySelectorAll('.sp-business-material')].find(n=>n.querySelector('.sp-business-material-toggle h3')?.textContent==='合成缝纫线');return c&&[...c.querySelectorAll('button')].find(n=>n.textContent==='到料计划')})()";
       await until(()=>evaluate('!!'+find+'&&!'+find+'.disabled'),'initial read-only action enabled');
       const before=await evaluate("({clicks:arrivalWire.plannerClicks.length,reads:arrivalWire.requests.filter(r=>r.path.startsWith('/api/v1/material-arrivals/orders/')&&!r.path.endsWith('/history')).length})");
       await evaluate("arrivalWire.readMode='hold200';window.dispatchEvent(new Event('focus'))");

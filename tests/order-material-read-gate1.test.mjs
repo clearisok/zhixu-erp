@@ -162,7 +162,9 @@ test('response and serialized export/cache consumers see only the allowlisted DT
   const cacheConsumer = new Map([[idA, JSON.parse(responseBytes)]]);
   for (const value of [result, responseBytes, exportBytes, cacheConsumer.get(idA)]) assertNoProtectedValues(value);
   const purchase = result.body.progress.rows.flatMap(row => row.purchases)[0];
-  assert.deepEqual(Object.keys(purchase).sort(), ['id','purchaseOrderNo','purchaseDate','supplier','quantity','color','specification','sourcePricing'].sort());
+  assert.deepEqual(Object.keys(purchase).sort(), ['id','purchaseOrderNo','purchaseDate','deliveryDate','supplier','quantity','color','specification','sourcePricing','relation'].sort());
+  if (purchase.relation) assert.deepEqual(Object.keys(purchase.relation).sort(),
+    ['status','sourceDetailId','sourceDemandId','purchaseDetailId','relatedDemandIds','problems'].sort());
   assert.ok(!responseBytes.includes('rawFields')); assert.ok(!responseBytes.includes('sourceReferences'));
   assert.ok(!responseBytes.includes('sourceMetadata')); assert.ok(!responseBytes.includes('sourceArtifactHash'));
 });
