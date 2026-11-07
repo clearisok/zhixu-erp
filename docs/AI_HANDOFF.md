@@ -1,3 +1,9 @@
+# staging交付恢复点（2026-11-07最终候选）
+
+工作树feat/material-followup-business-view；PR140远端head b912f176a938a71c79e8c8338610d239f9e6bf01，main cb5cc29baa49ed7115fdb6c9506b6a80356936ea。首轮baseline成功，team DTO及source UI旧选择器已修复，本地相关复验通过；最终集中推送及三项CI待执行。实际备份、恢复、617原证据、运行和交接保护详见[当前交付任务](tasks/active/material-staging-delivery-2026-11-07.md)。staging仍旧版本，本机采集尚未停止；禁止两端同时开采。用户已授权本次检查通过后merge commit及仅staging部署，不再逐步请求确认。
+
+以下保留此前恢复点（以当前交付任务最新结果为准）：
+
 # 接力：已验收物料版本的 staging 交付
 
 最新范围：用户已授权推送、PR检查后merge commit及staging升级/兼容迁移/真实数据接入/后台切换，无需逐步确认；不含生产、新功能或页面重做。main实核cb5cc29baa49ed7115fdb6c9506b6a80356936ea。交付task material-staging-delivery-2026-11-07.md为当前恢复入口。stage根/home/jackson/weaveops-staging-preview、project zhixu-quote-trial-staging-562fbf07、SSH weaveops，实际5af85cd6、3订单9附件，旧worker PAUSED。

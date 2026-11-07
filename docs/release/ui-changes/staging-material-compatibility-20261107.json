@@ -1,8 +1,14 @@
 {
   "baselineSha": "cb5cc29baa49ed7115fdb6c9506b6a80356936ea",
-  "level": "V0",
-  "paths": ["features/style-progress/components/material-control-tower-read-only.tsx"],
-  "pages": ["order-detail"],
+  "level": "V1",
+  "paths": [
+    "features/style-progress/components/material-control-tower-read-only.tsx"
+  ],
+  "pages": [
+    "order-detail"
+  ],
   "visibleDifference": "Restore the already-supported independent num_dyc warehouse fact inside the existing inbound detail drawer. Preserve explicit zero, missing and unreceived facts; do not add it to inbound totals or change the approved main tables, layout or permissions.",
-  "evidence": ["docs/tasks/active/material-staging-delivery-2026-11-07.md"]
+  "evidence": [
+    "docs/tasks/active/material-staging-delivery-2026-11-07.md"
+  ]
 }
