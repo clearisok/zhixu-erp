@@ -18,7 +18,11 @@ const evidenceFields: MaterialSemanticField[] = ['salesContractNo','materialType
 export function materialConfirmationEvidence(demand: MaterialDemand, rows: MaterialNormalizedSourceRow[]): string {
   return JSON.stringify({ version: 1, demand: [demand.salesContractNo,demand.id,demand.materialType,demand.materialCode,
     demand.materialName,demand.materialColor,demand.specification,demand.requiredQuantity,demand.supplyMethod],
-    rows: [...new Set(rows.map(row => JSON.stringify(evidenceFields.map(field => row.values[field] ?? null))))].sort() });
+    rows: [...new Set(rows.map(row => JSON.stringify(evidenceFields.map(field => row.values[field] ?? null))))].sort(),
+    ...(rows.some(row=>row.trace.sourceKind==='api'&&row.trace.reportId==='6087051') ? {
+      purchaseUnits:[...new Set(rows.map(row=>JSON.stringify([row.detailIdentities?.demand,row.detailIdentities?.purchase??null,
+        row.matchedUnits?.purchase?.status??null,row.matchedUnits?.purchase?.unit??null])))].sort(),
+    } : {}) });
 }
 export const normalizeSourceUnit = (value: unknown): string | null => {
   if (typeof value !== 'string') return null;

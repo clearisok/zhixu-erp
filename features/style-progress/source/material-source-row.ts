@@ -38,7 +38,11 @@ export type MaterialSourceRow = {
   /** 6087051 verified entity references; absent for legacy inputs. */
   detailIdentities?: { demand: string; purchase?: string; inbound?: string; shipment?: string; outbound?: string };
   unallocatedFlows?: string[];
-  matchedUnits?: Partial<Record<'purchase' | 'inbound' | 'outbound', { unit: string | null; status: 'matched' | 'missing' | 'conflict' }>>;
+  matchedUnits?: Partial<Record<'purchase' | 'inbound' | 'outbound', {
+    unit: string | null; status: 'matched' | 'missing' | 'conflict';
+    basis?: 'detail_main_document_quantity' | 'detail_document_purchase_material';
+    reason?: 'identity_fields_missing' | 'identity_conflict' | 'unit_missing';
+  }>>;
 };
 
 export type MaterialNormalizedSourceRow = MaterialSourceRow & {

@@ -51,6 +51,8 @@ function matchedUnits(row: Record<string, unknown>, supplemental: AinuokeReportS
   for (const flow of ['purchase', 'inbound', 'outbound'] as const) {
     const matches: Array<string | null> = [];
     let conflict = false;
+    let missingIdentity = false;
+    let basis: 'detail_main_document_quantity' | 'detail_document_purchase_material' = 'detail_main_document_quantity';
     for (const page of supplemental) {
       const mapping = unitReports[page.reportId as keyof typeof unitReports];
       if (mapping.flow !== flow || mapping.type !== text(row.lx) || !id(row[references[flow]])) continue;
@@ -61,17 +63,32 @@ function matchedUnits(row: Record<string, unknown>, supplemental: AinuokeReportS
         // references plus document, quantity and source query establish the join.
         const sameQuantity = text(value[mapping.quantity]) !== '' && text(row[mapping.refQuantity]) !== ''
           && Number(value[mapping.quantity]) === Number(row[mapping.refQuantity]);
-        if (!id(row[mapping.refParent]) || id(value[mapping.parent]) !== id(row[mapping.refParent])
-          || !text(row[mapping.refDocument]) || text(value[mapping.document]) !== text(row[mapping.refDocument])
-          || !sameQuantity || value.ExpContractNo != null && contract(value.ExpContractNo) !== contract(row.ExpContractNo)) {
+        if (!id(row[mapping.refParent]) || !text(row[mapping.refDocument])
+          || text(value[mapping.document]) !== text(row[mapping.refDocument]) || !sameQuantity
+          || value.ExpContractNo != null && contract(value.ExpContractNo) !== contract(row.ExpContractNo)) {
           conflict = true; continue;
+        }
+        if (id(value[mapping.parent]) !== id(row[mapping.refParent])) {
+          // 6086354 actually omits MainID. Its detail ID, inbound document/quantity,
+          // exact purchase document, factory order and purchased variant must ALL
+          // match instead. Never infer a unit from a name or GoodsID alone.
+          if (value[mapping.parent] != null) { conflict = true; continue; }
+          const alternate = page.reportId === '6086354'
+            && text(row.insideorderno) !== '' && text(value.InsideOrderNo) === text(row.insideorderno)
+            && text(row.cgdh) !== '' && text(value.PurContractNo) === text(row.cgdh)
+            && text(row.cgcnname) !== '' && text(value.CnName) === text(row.cgcnname)
+            && text(row.cgCnComposition) !== '' && text(value.ProductSpec) === text(row.cgCnComposition)
+            && text(value.CnColor) === text(row.cgcncolor);
+          if (!alternate) { missingIdentity = true; continue; }
+          basis = 'detail_document_purchase_material';
         }
         matches.push(normalizeSourceUnit(value.QtyUnit));
       }
     }
     const units = new Set(matches.filter((unit): unit is string => unit !== null));
-    result[flow] = conflict || units.size > 1 ? { unit: null, status: 'conflict' }
-      : matches.length && matches.every(Boolean) ? { unit: matches[0], status: 'matched' } : { unit: null, status: 'missing' };
+    result[flow] = conflict || units.size > 1 ? { unit: null, status: 'conflict', reason: 'identity_conflict' }
+      : !missingIdentity && matches.length && matches.every(Boolean) ? { unit: matches[0], status: 'matched', basis }
+        : { unit: null, status: 'missing', reason: missingIdentity ? 'identity_fields_missing' : 'unit_missing' };
   }
   return result;
 }

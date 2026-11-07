@@ -1,6 +1,7 @@
 import { readExcessWarehouse, type ExcessWarehouseFact } from './excess-warehouse.ts';
 import { normalizeSourceUnit, resolveMaterialConfirmation, type MaterialConfirmation } from './confirmed-facts.ts';
 import { compareMaterialQuantityFacts, type QuantityComparison } from "./quantity-facts.ts";
+import { materialBusinessFacts, type EventRelation, type MaterialBusinessFacts, type MaterialFlow } from './business-facts.ts';
 import type { AinuokeReportSnapshot } from '../ainuoke-api/model/ainuoke-api.ts';
 import { normalizeAinuokeInsideOrderNo, normalizeAinuokeSalesContractNo } from '../ainuoke-sync/source/ainuoke-garment-color-size-adapter.ts';
 import { isFactorySupplied, resolveCanonicalMaterialIdentity, type MaterialDemand, type MaterialInboundEvent, type MaterialReadinessStatus } from '../style-progress/model/style-progress.ts';
@@ -12,14 +13,17 @@ export type PreviewOrder = { salesContractNo: string; styleNo: string; insideOrd
 /** Explicit field allowlist: never expose a domain aggregate, raw row or commercial terms. */
 export type ReadDemand = Pick<MaterialDemand,
   'id' | 'salesContractNo' | 'materialType' | 'materialCode' | 'materialName' | 'materialColor'
-  | 'garmentColors' | 'specification' | 'supplyMethod' | 'requiredQuantity' | 'width' | 'gsm' | 'sourceMaterialDueDate'>;
+  | 'garmentColors' | 'specification' | 'supplyMethod' | 'requiredQuantity' | 'width' | 'gsm' | 'sourceMaterialDueDate'> & { sourceDetailId?: string | null };
 export type ReadPurchase = {
   unit?: string | null; unitMatchStatus?: string;
   id: string; purchaseOrderNo: string; purchaseDate: string | null; supplier: string;
+  deliveryDate?: string | null; relation?: EventRelation;
   quantity: number; color: string; specification: string;
   sourcePricing: { ownership: 'ainuoke_source'; currency: string | null; unitPrice: number | null; amount: number | null };
 };
-export type ReadMovement = Pick<MaterialInboundEvent, 'id' | 'documentNo' | 'eventDate' | 'quantity'> & { unit?: string | null; unitMatchStatus?: string };
+export type ReadMovement = Pick<MaterialInboundEvent, 'id' | 'documentNo' | 'eventDate' | 'quantity'> & {
+  unit?: string | null; unitMatchStatus?: string; relation?: EventRelation; businessType?: string | null;
+};
 export type ReadInbound = ReadMovement & { excessWarehouse: ExcessWarehouseFact };
 export type ProgressRow = {
   demand: ReadDemand; canonicalKey: string; unit: string | null; unitStatus: 'known' | 'missing' | 'conflict';
@@ -30,6 +34,8 @@ export type ProgressRow = {
   purchased: number | null; purchaseShortfall: number | null; purchaseExcess: number | null;
   inbound: number | null; pendingInbound: number | null; shipped: number | null; outbound: number | null;
   status: MaterialReadinessStatus | null; issues: string[]; quantityComparison?: QuantityComparison;
+  business?: MaterialBusinessFacts;
+  unverifiedEvents?: Array<{flow:MaterialFlow;sourceDetailId:string|null;documentNo:string|null;quantity:number|null;reason:string}>;
 };
 export type MaterialItemCounts = {
   groups: number; demands: number; unknown: number;
@@ -123,9 +129,17 @@ export function projectMaterialProgress(order: PreviewOrder, snapshots: AinuokeR
     const outboundIndex = byDemand(preview.pipeline.outboundEvents);
     const rawSourceIndex = new Map(preview.pipeline.rawRows.flatMap(raw => raw.trace.sourceKind === 'api' ? [[raw.trace.sourceRowIdentity, raw] as const] : []));
     const rawIndex = new Map<string, typeof preview.pipeline.rawRows>();
+    const owners = new Map<string, Set<string>>();
     for (const raw of preview.pipeline.rawRows) {
       if (!raw.normalizedDemandId) continue;
       const rows = rawIndex.get(raw.normalizedDemandId) ?? []; rows.push(raw); rawIndex.set(raw.normalizedDemandId, rows);
+      for (const flow of ['purchase','inbound','shipment','outbound'] as const) {
+        const sourceId = raw.detailIdentities?.[flow];
+        if (sourceId) {
+          const key = String(raw.values.materialType) + ':' + flow + ':' + sourceId;
+          const ids = owners.get(key) ?? new Set<string>(); ids.add(raw.detailIdentities!.demand); owners.set(key, ids);
+        }
+      }
     }
     const groups = new Map<string, MaterialProgressView['groups'][number]>();
     for (const demand of preview.pipeline.demands) {
@@ -144,11 +158,30 @@ export function projectMaterialProgress(order: PreviewOrder, snapshots: AinuokeR
       const separateSupply = itSource || Boolean(options.retainSourceDemands);
       const supplyScope = materialSupplyScope(demand);
       const comparableDemand = !separateSupply || supplyScope === 'self';
+      const relation = (refs: string[] | undefined, flow: MaterialFlow): EventRelation | undefined => {
+        if (!itSource) return undefined;
+        const raws = (refs ?? []).flatMap(ref => { const raw = rawSourceIndex.get(ref); return raw ? [raw] : []; });
+        const sourceIds = [...new Set(raws.map(raw => raw.detailIdentities?.[flow]).filter((value): value is string => Boolean(value)))];
+        const detailId = sourceIds.length === 1 ? sourceIds[0] : null;
+        const relatedDemandIds = detailId ? [...(owners.get(String(sourceRows[0]?.values.materialType) + ':' + flow + ':' + detailId) ?? [])] : [];
+        const problems: string[] = [];
+        if (flow === 'purchase') {
+          const same = (a: unknown, b: unknown) => String(a ?? '').normalize('NFKC').trim() === String(b ?? '').normalize('NFKC').trim();
+          if (raws.some(raw => String(raw.values.purchaseSpecification ?? '').trim() && demand.specification && !same(raw.values.purchaseSpecification, demand.specification))) problems.push('采购规格与需求规格不同，保留原始关联并待核实适用性');
+          if (raws.some(raw => String(raw.values.purchaseColor ?? '').trim() && demand.materialColor && !same(raw.values.purchaseColor, demand.materialColor))) problems.push('采购颜色与需求颜色不同，待核实适用性');
+        }
+        const parentField = {purchase:'cgid',inbound:'rkid',shipment:'cyid',outbound:'ckid'}[flow];
+        return {sourceDetailId:detailId,sourceDocumentId:raws[0]?.rawFields[parentField] == null ? null : String(raws[0].rawFields[parentField]),
+          sourceDemandId:sourceRows[0]?.detailIdentities?.demand ?? null,
+          purchaseDetailId:raws[0]?.detailIdentities?.purchase ?? null,relatedDemandIds,
+          status:!detailId?'unidentified':relatedDemandIds.length>1?'shared':'linked',problems};
+      };
       const eventUnits = (refs: string[] | undefined, flow: 'purchase' | 'inbound' | 'outbound') => {
         if (!itSource) return {};
         const facts = (refs ?? []).map(ref => rawSourceIndex.get(ref)?.matchedUnits?.[flow]);
         const known = new Set(facts.map(fact => fact?.unit).filter(Boolean));
         const conflict = facts.some(fact => fact?.status === 'conflict') || known.size > 1;
+        if (!conflict && !known.size && confirmation.unit) return {unit:confirmation.unit,unitMatchStatus:'confirmed'};
         return {unit: !conflict && facts.length && facts.every(fact => fact?.status === 'matched') ? facts[0]!.unit : null,
           unitMatchStatus: conflict ? 'conflict' : facts.length && facts.every(fact => fact?.status === 'matched') ? 'matched' : 'missing'};
       };
@@ -186,24 +219,40 @@ export function projectMaterialProgress(order: PreviewOrder, snapshots: AinuokeR
             && Number.isFinite(Number(typeof value === 'string' ? value.replaceAll(',', '') : value));
         });
       const identity = resolveCanonicalMaterialIdentity({ ...demand, salesContractNo: target }, purchases);
-      const row: ProgressRow = { demand: readDemand(demand, target), canonicalKey: identity.key, unit,
+      const row: ProgressRow = { demand: {...readDemand(demand, target),...(itSource?{sourceDetailId:sourceRows[0]?.detailIdentities?.demand??null}:{})}, canonicalKey: identity.key, unit,
         unitStatus: unitConflict ? 'conflict' : unit === null ? 'missing' : 'known',
         unitOrigin: confirmation.unit ? 'confirmed' : unit ? 'source' : 'unknown', sourceUnits: [...new Set(units)],
         procurementResponsibility: confirmation.factory ? 'factory_confirmed' : 'guomao', confirmationStatus: confirmation.status,
         purchases: purchases.map(event => ({ ...eventUnits(event.sourceReferences, 'purchase'), id: event.id, purchaseOrderNo: event.purchaseOrderNo,
-          purchaseDate: event.purchaseDate, supplier: event.supplier, quantity: event.quantity,
+          purchaseDate: event.purchaseDate, deliveryDate: event.sourceMaterialDueDate, relation: relation(event.sourceReferences,'purchase'), supplier: event.supplier, quantity: event.quantity,
           color: event.color, specification: event.specification,
           sourcePricing: { ownership: 'ainuoke_source', currency: event.currency || null,
             unitPrice: pricingKnown(event.sourceReferences, 'purchaseUnitPrice') ? event.unitPrice : null,
             amount: pricingKnown(event.sourceReferences, 'purchaseAmount') ? event.amount : null } })),
-        inbounds: inbounds.map(event => ({ ...readMovement(event), ...eventUnits(event.sourceReferences, 'inbound'),
-          excessWarehouse: readExcessWarehouse(event.sourceReferences, rawSourceIndex, unit, unitConflict ? 'conflict' : unit === null ? 'missing' : 'known') })), shipments: shipments.map(event => ({ ...readMovement(event), transportMode: event.transportModeSnapshot })),
-        outbounds: outbounds.map(event => ({...readMovement(event), ...eventUnits(event.sourceReferences, 'outbound')})), purchased, inbound, shipped, outbound,
+        inbounds: inbounds.map(event => ({ ...readMovement(event), ...eventUnits(event.sourceReferences, 'inbound'), relation:relation(event.sourceReferences,'inbound'),
+          excessWarehouse: readExcessWarehouse(event.sourceReferences, rawSourceIndex, unit, unitConflict ? 'conflict' : unit === null ? 'missing' : 'known') })), shipments: shipments.map(event => ({ ...readMovement(event), relation:relation(event.sourceReferences,'shipment'), transportMode: event.transportModeSnapshot })),
+        outbounds: outbounds.map(event => ({...readMovement(event), ...eventUnits(event.sourceReferences, 'outbound'), relation:relation(event.sourceReferences,'outbound'), businessType:null})), purchased, inbound, shipped, outbound,
         purchaseShortfall: !comparableDemand || unit === null || purchased === null ? null : Math.max(0, demand.requiredQuantity - purchased),
         purchaseExcess: !comparableDemand || unit === null || purchased === null ? null : Math.max(0, purchased - demand.requiredQuantity),
         pendingInbound: purchased === null || inbound === null ? null : Math.max(0, purchased - inbound),
         status: itSource || !comparableDemand || confirmation.factory || rawUnitConflict || purchased === null || inbound === null ? null : deriveMaterialStatuses(demand.requiredQuantity, purchased, inbound, 0, 0).readinessStatus, issues: separateSupply && supplyScope !== 'self' ? [...issues, supplyScope === 'factory' ? '厂供独立展示，不参与自购需求及缺口计算' : '来源未明确标记自购，不计入自购需求及缺口'] : issues,
         quantityComparison: !comparableDemand ? undefined : compareMaterialQuantityFacts(sourceRows.map(raw=>raw.values), purchased, unitConflict ? 'conflict' : unit===null ? 'missing' : 'known') };
+      const incomplete: Partial<Record<MaterialFlow, boolean>> = {};
+      if (itSource) row.unverifiedEvents = [];
+      for (const [flow,field,documentField,array] of [['purchase','purchaseQuantity','purchaseOrderNo',purchases],['inbound','inboundQuantity','inboundDocumentNo',inbounds],['shipment','shipmentQuantity','shipmentDocumentNo',shipments],['outbound','outboundQuantity','outboundDocumentNo',outbounds]] as const) {
+        for (const raw of itSource ? sourceRows : []) {
+          const document = String(raw.values[documentField] ?? '').trim();
+          const rawQuantity = raw.values[field];
+          const numeric = Number(typeof rawQuantity==='string'?rawQuantity.replaceAll(',',''):rawQuantity);
+          const expected = raw.detailIdentities?.[flow] || document || knownQuantity(rawQuantity) && numeric !== 0;
+          if (expected && !array.some(event=>event.sourceReferences?.includes(raw.trace.sourceKind==='api'?raw.trace.sourceRowIdentity:''))) {
+            row.unverifiedEvents!.push({flow,sourceDetailId:raw.detailIdentities?.[flow]??null,documentNo:document||null,
+              quantity:knownQuantity(rawQuantity)?numeric:null,reason:!knownQuantity(rawQuantity)?'来源数量缺失或无效':!document?'来源单据号缺失':'来源关联待核实'});
+            incomplete[flow] = true;
+          }
+        }
+      }
+      row.business = materialBusinessFacts(row,incomplete);
       view.rows.push(row);
       const groupKey = identity.key; // Existing arrival/production associations retain their canonical key.
       let group = groups.get(groupKey);

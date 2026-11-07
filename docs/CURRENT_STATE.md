@@ -1,15 +1,11 @@
-# 当前状态：本机只读演示自动进入已启用
+# 当前状态：款式物料业务展示升级进行中
 
-2026-11-07 17:21，北京时间。分支feat/local-demo-auto-session；固定运行/静态版本bf81f8ea4b7adcdf26e3319dbca37206c992e6d3，从干净afffff25841cb47cc67c2b9368f3d3c1e42b59c7继续。main基线cb5cc29baa49ed7115fdb6c9506b6a80356936ea未刷新；无推送、CI或staging动作。后续文档提交不冒充另一个已运行业务版本。
+2026-11-07。feat/material-followup-business-view从干净b60d09125f165f2972da52d81cbf32eb94893b10继续；已核实main基线cb5cc29baa49ed7115fdb6c9506b6a80356936ea，本轮不刷新远端、不推送、CI或staging部署。旧入口任务结果完整保留在[tasks/completed/2026-11-07-before-material-business-view](tasks/completed/2026-11-07-before-material-business-view/CURRENT_STATE.md)。
 
-真实环境http://127.0.0.1:63051。直接提供/order-center及/order-center/style-progress/detail?orderId=d2e302cf-f0d5-404e-9474-e8ecf11ec81e；不再提供登录页作为演示前置。私密localDemo显式固定preview.real-orders的public ID及7项既有只读权限，匿名通过原v1/HttpOnly/SameSite=Strict会话进入，目标地址保持，正常有效会话不替换。普通服务未安装此入口；回环Host/连接且无转发头/跨Origin才启用，账号失效或增权失败关闭。
+实际本机http://127.0.0.1:63051仍运行bf81f8ea4b7adcdf26e3319dbca37206c992e6d3；617订单、只读自动会话和持续同步未动。D1992订单d2e302cf-f0d5-404e-9474-e8ecf11ec81e、PI2609-086。17:33冻结快照来源17:17:59：30自购、8厂供、20采购、8入库、5出运、5出库；较旧6入库新增109247/109248，不能以历史数量回退。
 
-17:11真实空Cookie HTTP：订单中心617、详情/刷新/重开均200；D1992物料200，来源16:47:29，30自购＋8厂供；写入与sync-order均403，无新增任务。关闭模式旧自动cookie和匿名均401，再启用200，不重启worker。HTTP窗口来源登录/报表/采集计数差值0。46保护业务表哈希及617订单/head/可读快照保留。
+数据阶段已逐笔核对38笔流水的稳定明细ID、需求关联、单号、数量、合同及规格。主要断点是读取汇总把未知需求单位作为所有流水数量前置；新增business-facts区分真实流水与可计算需求差额。辅料入库6086354没有MainID，旧映射误判5笔单位冲突；严格交叉核对采购单、工厂款号、名称、规格、颜色、入库明细/单号/数量后匹配，实际矛盾仍拒绝。既有可比较字段不改含义；厂供始终独立。
 
-浏览器已核实bf81f8ea的D1992页面及原preview.material-sync正常身份保留；工具不支持新无痕上下文，用户自行无痕验证订单中心、D1992、刷新/关闭重开，明确回复“全部正常，无需登录”。17:21记录人工验收，入口目标已完成；不将用户确认冒称自动浏览器测试。
+6项新增业务回归、13项原IT回归通过；冻结数据的候选临时HTTP200逐笔对应，非63051升级验收。当前需完成批准的自购/厂供独立板块、可点击流水及专业UI，进行代表订单/类型/lint/构建/真实HTTP/浏览器验收后再固定版本切入本机。D1992需求与采购单位是否同口径的问题已向用户询问，未确认的差额保持待核实，不阻塞真实数量展示。
 
-边界单测1、新数据库HTTP8子场景及父测试9、旧browser-session、类型/受影响lint/固定构建、PowerShell解析和实际Enable开关通过；源码守卫在b4f4547ce8d7d257c771c7403d1cf0fea7422bc6通过，后续仅三说明文件记录用户确认，逐差异核对并复用结果。新用例fixture缺来源时503、Node fetch未按预期送出Host的失败均记录，修正验证方法而未放宽产品规则。不重复无关全量测试/付费CI。
-
-原同步配置、617订单和持久库不变。app34284、原watchdog28348；后台AUTOMATIC_RUNNING，start-hidden.vbs指向新release，电脑用户登录且Docker就绪后恢复。开关脚本set-local-demo.ps1 -RuntimeRoot D:/WeaveOps-Local -Enable/-Disable即时生效，无需重启采集。原tmpfs、持久卷、附件和配对备份全部保留。
-
-[演示约定、启动及实际证据](tasks/active/local-ainuoke-automatic-2026-11-07.md)；[前阶段完整状态](tasks/completed/2026-11-07-before-local-demo-entry/CURRENT_STATE.md)。
+[当前任务与具体批准](tasks/active/material-business-view-2026-11-07.md)；私密冻结证据D:/WeaveOps-Local/material-business-view-20261107，原始数据不提交。当前仅数据阶段，不能宣称新UI已交付。后续须更新运行SHA、前后截图和逐笔对账；不改认证、调度、源站、数据库结构或人工数据。
