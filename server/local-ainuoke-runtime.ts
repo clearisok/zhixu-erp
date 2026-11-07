@@ -1,5 +1,5 @@
 import {readFile,writeFile,rename,appendFile} from 'node:fs/promises';
-import {resolve} from 'node:path';
+import {resolve,dirname,delimiter} from 'node:path';
 import {createServer} from 'node:http';
 import {Readable} from 'node:stream';
 import {createHash} from 'node:crypto';
@@ -21,6 +21,7 @@ async function main(){
  const root=resolve(rootArg[0].slice(7));
  const read=async(path:string)=>JSON.parse(await readFile(root+'/'+path,'utf8'));
  const service=await read('service.private.json'),runtime=await read('runtime.private.json');
+ if(service.pythonExecutable)process.env.PATH=dirname(service.pythonExecutable)+delimiter+(process.env.PATH??'');
  const uri=new URL(runtime.databaseUrl);
  if(service.schemaVersion!==1||service.base!=='http://127.0.0.1:63051'||runtime.base!==service.base
   ||!['127.0.0.1','localhost'].includes(uri.hostname)||!uri.pathname.startsWith('/zhixu_it_real_orders_preview_')
@@ -84,4 +85,6 @@ async function main(){
   if(!closing)await new Promise<void>(r=>abort.signal.addEventListener('abort',()=>r(),{once:true}));
  }finally{clearInterval(timer);server.closeAllConnections();server.close();await pool.end();}
 }
-main().catch(error=>{const code=error instanceof SourceError?error.code:'local_runtime_stopped';console.error(JSON.stringify({at:new Date().toISOString(),code}));process.exitCode=1;});
+main().catch(error=>{const message=error instanceof Error?error.message:'';
+ const code=error instanceof SourceError?error.code:/^[a-z_]{3,80}$/.test(message)?message:'local_runtime_stopped';
+ console.error(JSON.stringify({at:new Date().toISOString(),code}));process.exitCode=1;});
