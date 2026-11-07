@@ -12,6 +12,6 @@ server/ainuoke-source/local-unit-confirmations.ts只由显式local runtime挂载
 
 617逐源身份/数量核对0遗漏；8b真实617HTTP审计139.321秒（2并行GET）：613有物料、4完整空结果、失败0，249ready/368stale，来源北京时间10:22:40–18:19:51；最后4bd仅D1992补确认和准确核实说明，已复验D1992+4代表订单，不重复617。浏览器验收四流、厂供、PI2611-057新单（2自购1厂供无采购）、PI2507-132空单、PI2505-075多批次、搜索/折叠/键盘及390/900/1280/1920无页面溢出。原全局td9px在本页显式13px。最终浏览器0error/warn，before/after-desktop同1280、after-wide实际1920、after-purchase/factory截图均受保护，不改旧基线图。
 
-27相关用例＝7business+13原IT+2单位文件边界+2展示语义+2SDK/发布HTTP+1私密确认数据库集成；类型/lint/固定构建过。首次fixture未标自购的断言、query缺类型字段、HTTP JSON省略undefined的核对方法失败已修，未放宽产品规则。没有重跑无关182项或付费CI。冻结feature新版本绑定4bd、D190/rules绑定629，旧证据ID/hash不改；最终SOURCE守卫须在完成提交运行并记录，不能替代真实HTTP/浏览器/用户认可。
+27相关用例＝7business+13原IT+2单位文件边界+2展示语义+2SDK/发布HTTP+1私密确认数据库集成；类型/lint/固定构建过。首次fixture未标自购的断言、query缺类型字段、HTTP JSON省略undefined的核对方法失败已修，未放宽产品规则。没有重跑无关182项或付费CI。冻结feature新版本绑定4bd、D190/rules绑定629，旧证据ID/hash不改。最终SOURCE守卫在246e603c28da09ff102b664f163383c13d3c2f30通过，12页面/68能力/27 UI文件、0错误；后续只有三份验收回执文档更新，已逐差异核对并复用结果，不重跑。SOURCE守卫不替代真实HTTP/浏览器/用户认可。
 
 46保护业务表哈希、617订单身份及切换前5151完成任务保留。617head当前错误0；全局历史1笔采集失败在15:39，早于本任务，不为漂亮统计删除。自动同步机制及源站只读不变。保留weaveops-local-postgres/卷、原tmpfs zhixu-pg-it-d8777f722881、对象包和配对备份；不可停删旧资产/清库/清队列。原启动恢复说明见local-ainuoke-automatic任务，恢复后台双击root/start-hidden.vbs，单实例锁保留。剩余仅真实业务事实：2规格适用性和未采购/厂供单位可后续明确；不阻止已有真实流水正常使用，不继续无界开发或新增采集。

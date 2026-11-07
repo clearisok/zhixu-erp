@@ -72,3 +72,5 @@ B 厂供记录 → 按物料名称可折叠分组
 27相关用例（7业务、13原IT、2单位文件边界、2展示、2SDK/发布HTTP、1私密确认集成）、类型、受影响lint、固定构建通过；构建仅既有大chunk提示。浏览器真实四流点击、20确认后差额、独立8厂供、来源未提供项、搜索/折叠/键盘及代表订单通过；390/900/1280/1920无页面溢出，正文实际13px。没有执行无关182项、远端CI或staging部署。最终源码守卫在完成文档绑定提交后单独记录，不替代真实业务验收。
 
 逐笔报告及来源/HTTP证据在受保护D:/WeaveOps-Local/material-business-view-20261107/reconciliation.md、unit-final/delivery-proof.private.json、unit-final/reconciliation.private.json；旧报告before-reconciliation.md和原时间/原文保持。before-desktop.jpg与after-desktop.jpg同1280×720，after-wide.jpg是实际1920断点，另有真实采购和厂供图。原始业务数据、确认原文与密码均不提交。未来正常页面每30秒只读已发布数据，后台同步按既有分档继续；用户确认热读不再要求重启认证owner。
+
+最终SOURCE守卫：npm run check:release-baseline -- --base-sha cb5cc29baa49ed7115fdb6c9506b6a80356936ea，在246e603c28da09ff102b664f163383c13d3c2f30通过；12页面、68能力、27变更UI文件，0错误。随后仅CURRENT_STATE、AI_HANDOFF及本任务三份验收回执文档记录该真实结果，逐差异核对无业务/证据冻结文件变化，复用已有检查，不再触发重复测试或CI。业务/静态运行仍固定4bd2300c，不将文档HEAD冒充另一个已运行业务版本。
