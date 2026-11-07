@@ -4,6 +4,8 @@ import test from 'node:test';
 import {projectMaterialProgress} from '../projection.ts';
 import {businessTransactionCounts} from '../business-facts.ts';
 import {adaptItMaterialSnapshots} from '../../style-progress/source/ainuoke-it-material-adapter.ts';
+import {materialConfirmationEvidence} from '../confirmed-facts.ts';
+import {buildAinuokeMaterialApiPreview} from '../../style-progress/service/ainuoke-material-api-preview.ts';
 import type {AinuokeReportSnapshot} from '../../ainuoke-api/model/ainuoke-api.ts';
 
 const at='2026-11-07T08:00:00Z',order={salesContractNo:'SYN-BUSINESS',styleNo:'SYN',insideOrderNo:'SYN'};
@@ -67,4 +69,22 @@ test('a complete demand without transactions and a complete empty source are nor
   const raw={id:1,lx:'面料',ExpContractNo:order.salesContractNo,insideorderno:'SYN',GoodsNo:'SYN',CnName:'未采购物料',SupplyType:'自购',TotalNum:10};
   const demand=projectMaterialProgress(order,[page('6087051',[raw])]);assert.equal(demand.sourceStatus,'ready');assert.equal(demand.rows.length,1);assert.equal(demand.rows[0].business?.flows.purchase.state,'empty');
   const empty=projectMaterialProgress(order,[page('6087051',[])]);assert.equal(empty.sourceStatus,'ready');assert.equal(empty.rows.length,0);
+});
+
+test('explicit same-unit receipt enables only its exact demand and movements; changed evidence retires it',()=>{
+  const snapshots=[page('6087051',[base()]),purchases(),inbound()];
+  const pipeline=buildAinuokeMaterialApiPreview({snapshots}).pipeline,demand=pipeline.demands[0];
+  const receipt={id:'synthetic-confirmed-unit',salesContractNo:order.salesContractNo,demandId:demand.id,
+    evidenceKey:materialConfirmationEvidence(demand,pipeline.rawRows.filter(r=>r.normalizedDemandId===demand.id)),
+    confirmedBy:'synthetic-human',confirmedAt:at,evidenceReference:'synthetic-answer',unit:{value:'千克',acceptedSourceUnits:[null],ratio:1 as const}};
+  const confirmed=projectMaterialProgress(order,snapshots,[receipt]).rows[0];
+  assert.equal(confirmed.unit,'千克');assert.equal(confirmed.unitOrigin,'confirmed');
+  assert.equal(confirmed.business?.purchaseGap.quantity,0);assert.equal(confirmed.business?.flows.shipment.unit,'千克');assert.equal(confirmed.business?.flows.outbound.unit,'千克');
+  assert.equal(confirmed.issues.includes('物料出运来源数量未知'),false);
+  const changed=projectMaterialProgress(order,[page('6087051',[{...base(),TotalNum:938}]),purchases(),inbound()],[receipt]).rows[0];
+  assert.equal(changed.unit,null);assert.equal(changed.confirmationStatus,'stale');
+  const differentPurchaseUnit=projectMaterialProgress(order,[page('6087051',[base()]),purchases('米'),inbound()],[receipt]).rows[0];
+  assert.equal(differentPurchaseUnit.unit,null);assert.equal(differentPurchaseUnit.confirmationStatus,'stale');
+  const newMovement=projectMaterialProgress(order,[page('6087051',[{...base(),CYNum:901}]),purchases(),inbound()],[receipt]).rows[0];
+  assert.equal(newMovement.unit,'千克');assert.equal(newMovement.business?.flows.shipment.quantity,901);
 });

@@ -253,6 +253,17 @@ export function projectMaterialProgress(order: PreviewOrder, snapshots: AinuokeR
         }
       }
       row.business = materialBusinessFacts(row,incomplete);
+      if (itSource) {
+        // Legacy demand-comparable totals stay nullable; their old warnings must
+        // not contradict the separately validated transaction facts.
+        const legacyWarnings = new Set(['采购明细按原始数量保留，汇总口径待核对','入库明细按原始数量保留，汇总口径待核对',
+          '物料出运来源数量未知','物料出库来源数量未知']);
+        row.issues = row.issues.filter(issue => !legacyWarnings.has(issue));
+        for (const [flow,fact] of Object.entries(row.business.flows)) if (!['known','empty'].includes(fact.state)) {
+          const label = ({purchase:'采购',inbound:'入库',shipment:'出运',outbound:'出库'} as const)[flow as MaterialFlow];
+          row.issues.push(...fact.reasons.map(reason=>label+'：'+reason));
+        }
+      }
       view.rows.push(row);
       const groupKey = identity.key; // Existing arrival/production associations retain their canonical key.
       let group = groups.get(groupKey);

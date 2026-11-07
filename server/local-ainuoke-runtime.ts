@@ -6,7 +6,7 @@ import {createHash} from 'node:crypto';
 import pg from 'pg';
 import {createApp} from './app.js';
 import {verifyMigrationsCurrent} from './db/migration-runner.js';
-import {createPersistedMaterialPorts} from './ainuoke-source/reader.js';
+import {createLocalConfirmedMaterialPorts} from './ainuoke-source/local-unit-confirmations.js';
 import {parseCollectorConfig,accountFingerprint} from './ainuoke-source/collector.js';
 import {loadExistingBootstrapActor} from './sales-orders/bootstrap-runner.js';
 import {configureSync} from './ainuoke-source/sync-queue.js';
@@ -49,7 +49,9 @@ async function main(){
  const demoEntry=createLocalDemoEntry({pool,baseUrl:service.base,security,readConfig:async()=>(await read('service.private.json')).localDemo});
  const app=createApp({pool,staticDirectory,attachmentStorage:storage,allowedOrigins:[service.base],security,
   logger:{error:()=>{void appendFile(root+'/runtime-events.jsonl',JSON.stringify({at:new Date().toISOString(),event:'local_api_error'})+'\n');}},
-  orderMaterialRead:createPersistedMaterialPorts(pool,{sourceKey:config.sourceKey,maxAgeMs:1800000})});
+  orderMaterialRead:createLocalConfirmedMaterialPorts(pool,{sourceKey:config.sourceKey,maxAgeMs:1800000},{accountFingerprint:service.accountFingerprint,
+   read:async()=>{try{return await read('material-unit-confirmations.private.json');}catch(error){if((error as NodeJS.ErrnoException).code==='ENOENT')return null;throw error;}},
+   onInvalid:()=>{void appendFile(root+'/runtime-events.jsonl',JSON.stringify({at:new Date().toISOString(),event:'local_material_unit_confirmation_unavailable'})+'\n');}})});
  const server=createServer((req,res)=>{const path=(req.url??'').split('?')[0];
   if(!['GET','HEAD','OPTIONS'].includes(req.method??'GET')&&!['/api/v1/auth/login','/api/v1/auth/logout','/api/v1/ainuoke/catalog/sync-order'].includes(path)){
    res.writeHead(403,{'Content-Type':'application/json'});res.end(JSON.stringify({error:{code:'preview_read_only',message:'本机业务资料保持只读'}}));return;

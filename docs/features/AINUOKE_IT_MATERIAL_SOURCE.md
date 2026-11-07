@@ -6,6 +6,8 @@
 
 6086354实际无MainID，旧假设导致D1992的5笔辅料入库误判冲突。仅在缺MainID而明细ID、BillNo/Num、PurContractNo、InsideOrderNo、采购CnName/ProductSpec/CnColor全部与7051同一引用吻合时取单位；有MainID却矛盾仍拒绝，不按GoodsID/名称单独匹配，不自动推断需求或其他节点单位。共享源明细计数一次、逐需求待分配，缺量/单号留核实记录，不静默变0。批准与实际对账见[本机升级](../tasks/active/material-business-view-2026-11-07.md)。以下旧限制只继续保护需求比较/齐套，不禁止独立流水事实读取。
 
+显式本机runtime可读取受保护根的material-unit-confirmations.private.json，复用既有MaterialConfirmation和请求级RR读取；普通Server未安装该入口。文件只补经用户明确确认的单位，不支持换算、身份替代或采购责任变更。来源账号、订单和完整需求/采购证据均须吻合；事实变化后确认自动失效。缺文件或无效补充只撤下补充单位，真实来源仍可读取，并记录封闭诊断，不以其阻断其他订单。每次读取重新检查文件，可正常更新私密确认而不重启采集认证owner；真实确认不进入Git、HTTP或前端存储。
+
 2026-11-06，已在本机真实订单环境验证D1992，全部目标正在接入；未部署staging。复用既有 Python SDK、Server capture、不可变 observation、物料归一化管线和订单只读投影，不新建物料/价格数据库。
 
 ## 入口和所有权
