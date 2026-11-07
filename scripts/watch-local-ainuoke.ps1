@@ -8,8 +8,8 @@ try{
  while($true){
   $cfg=Get-Content -LiteralPath (Join-Path $RuntimeRoot 'service.private.json') -Raw|ConvertFrom-Json
   if(-not $cfg.enabled){exit 0}
-  & (Join-Path $cfg.releaseDirectory 'scripts/start-local-ainuoke.ps1') -RuntimeRoot $RuntimeRoot
-  $code=$LASTEXITCODE
+  try{& (Join-Path $cfg.releaseDirectory 'scripts/start-local-ainuoke.ps1') -RuntimeRoot $RuntimeRoot;$code=$LASTEXITCODE}
+  catch{$code=1;@{at=(Get-Date).ToUniversalTime().ToString('o');event='local_start_failed';errorId=$_.FullyQualifiedErrorId}|ConvertTo-Json -Compress|Add-Content -LiteralPath (Join-Path $RuntimeRoot 'watchdog-events.jsonl') -Encoding utf8}
   if($code -eq 0){exit 0}
   # Database/Desktop not ready is a local startup wait, never a login retry.
   if($code -eq 3){Start-Sleep -Seconds 60;continue}

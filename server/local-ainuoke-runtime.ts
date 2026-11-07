@@ -19,7 +19,7 @@ import {SourceError} from './ainuoke-source/contract.js';
 async function main(){
  const rootArg=process.argv.slice(2);if(rootArg.length!==1||!rootArg[0].startsWith('--root='))throw Error('explicit_local_root_required');
  const root=resolve(rootArg[0].slice(7));
- const read=async(path:string)=>JSON.parse(await readFile(root+'/'+path,'utf8'));
+ const read=async(path:string)=>JSON.parse((await readFile(root+'/'+path,'utf8')).replace(/^\uFEFF/,''));
  const service=await read('service.private.json'),runtime=await read('runtime.private.json');
  if(service.pythonExecutable)process.env.PATH=dirname(service.pythonExecutable)+delimiter+(process.env.PATH??'');
  const uri=new URL(runtime.databaseUrl);
@@ -34,7 +34,7 @@ async function main(){
  const config=parseCollectorConfig({...source,username:match[1].trim(),password:match[2],materialReport:'6087051'});
  if(config.sourceKey!==runtime.sourceKey||accountFingerprint(config)!==service.accountFingerprint)throw Error('source_identity_mismatch');
  const pool=new pg.Pool({connectionString:runtime.databaseUrl,max:8});pool.on('error',()=>undefined);
- await verifyMigrationsCurrent(pool,resolve('database/migrations'));
+ await verifyMigrationsCurrent(pool,resolve(service.migrationsDirectory??'database/migrations'));
  const actor=await loadExistingBootstrapActor(pool,config.operatorUsername);
  const stored=(await pool.query('SELECT account_fingerprint FROM ainuoke_source_profiles WHERE source_key=$1',[config.sourceKey])).rows[0];
  if(stored?.account_fingerprint!==service.accountFingerprint)throw Error('source_identity_mismatch');
@@ -93,5 +93,6 @@ async function main(){
  }finally{clearInterval(timer);server.closeAllConnections();server.close();await pool.end();}
 }
 main().catch(error=>{const message=error instanceof Error?error.message:'';
- const code=error instanceof SourceError?error.code:/^[a-z_]{3,80}$/.test(message)?message:'local_runtime_stopped';
- console.error(JSON.stringify({at:new Date().toISOString(),code}));process.exitCode=1;});
+ const code=error instanceof SourceError?error.code:error instanceof SyntaxError?'private_json_invalid':/^[a-z_]{3,80}$/.test(message)?message:'local_runtime_stopped';
+ const site=error instanceof Error?error.stack?.split('\n').filter(line=>line.includes('local-ainuoke-runtime.ts')&&line.trimStart().startsWith('at ')):undefined;
+ console.error(JSON.stringify({at:new Date().toISOString(),code,type:error instanceof Error?error.name:'unknown',site}));process.exit(1);});

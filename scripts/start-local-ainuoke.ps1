@@ -17,5 +17,5 @@ $db=(& docker inspect weaveops-local-postgres | ConvertFrom-Json)[0]
 if($LASTEXITCODE -ne 0 -or $db.Config.Labels.'io.weaveops.local' -ne 'automatic-20261107' -or -not($db.Mounts|Where-Object {$_.Name -eq 'weaveops-local-postgres-data' -and $_.Destination -eq '/var/lib/postgresql/data'})){throw 'persistent_database_identity_mismatch'}
 if(-not $db.State.Running){& docker start weaveops-local-postgres *> $null;if($LASTEXITCODE -ne 0){exit 3}}
 Set-Location -LiteralPath $cfg.releaseDirectory
-& $cfg.nodeExecutable --import tsx server/local-ainuoke-runtime.ts "--root=$RuntimeRoot" 1>> (Join-Path $RuntimeRoot 'process.log') 2>> (Join-Path $RuntimeRoot 'process.log')
+& $cfg.nodeExecutable --import tsx server/local-ainuoke-runtime.ts "--root=$RuntimeRoot" *>> (Join-Path $RuntimeRoot 'process.log')
 exit $LASTEXITCODE
