@@ -8,6 +8,7 @@ import { configureSync } from './sync-queue.js';
 import { DEFAULT_SYNC_POLICY } from './sync-schedule.js';
 import { runSyncTick } from './sync-worker.js';
 import { createSessionCollector } from './session-collector.js';
+import {runAutomaticSync} from './sync-runner.js';
 import { planFollowupGroups } from './followup.js';
 import { refreshFollowupGroup } from './group-refresh.js';
 import { pathToFileURL } from "node:url";
@@ -118,6 +119,13 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
       }
       const controller=new AbortController(),stop=()=>controller.abort();
       process.once('SIGINT',stop);process.once('SIGTERM',stop);
+      if(action==='sync-run'&&!sourceIds){
+        try{await runAutomaticSync(pool,actor,cfg,{signal:controller.signal,adoptNewOrders:true,batchSize,
+          readConfig:()=>readPrivateCollectorConfig(path),onTick:async(result,elapsedMs)=>{
+            if(result.status!=='idle')process.stdout.write(JSON.stringify({event:'SYNC_TICK',...result,elapsedMs})+'\n');
+          }});}finally{process.removeListener('SIGINT',stop);process.removeListener('SIGTERM',stop);}
+        return;
+      }
       // PostgreSQL notification wakes manual requests immediately. The one-second
       // fallback also catches notifications missed while processing another job.
       const listener=await pool.connect();let wake:(()=>void)|null=null;

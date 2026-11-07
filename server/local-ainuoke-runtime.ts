@@ -81,7 +81,7 @@ async function main(){
   await status();
  })().catch(()=>undefined);},15000);
  try{
-  if(service.enabled){
+  if(service.enabled&&service.syncEnabled!==false){
    const recovery=await resumeInterruptedReads(pool,actor,config.sourceKey);
    const control=(await pool.query('SELECT * FROM ainuoke_sync_controls WHERE source_key=$1',[config.sourceKey])).rows[0];
    if(!control?.paused_reason){

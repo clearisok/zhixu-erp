@@ -66,9 +66,13 @@ export async function previewCatalog(input:unknown,now=Date.now()) {
 /** A complete two-pass directory updates only its Source mirror, never business facts. */
 export async function publishCatalog(pool:Pool,identity:Pick<TrustedIdentity,'internalUserId'|'userId'>,options:{
  sourceKey:string;accountFingerprint:string;requestId:string;input:unknown;expectedHash:string;adoptNewOrders?:boolean;
+ historicalEvidence?:{capturedAt:string;bundleHash:string};
 }) {
  if(!/^[0-9a-f-]{36}$/i.test(options.requestId))throw new SourceError('catalog_request_invalid');
- const checked=await previewCatalog(options.input);
+ const historical=options.historicalEvidence;
+ const validationAt=historical?Date.parse(historical.capturedAt):Date.now();
+ if(historical&&(!Number.isFinite(validationAt)||validationAt>Date.now()||hash(options.input)!==historical.bundleHash))throw new SourceError('historical_material_evidence_invalid');
+ const checked=await previewCatalog(options.input,validationAt);
  if(checked.contentHash!==options.expectedHash)throw new SourceError('catalog_preview_changed');
  const c=await pool.connect();
  try {
@@ -108,7 +112,8 @@ export async function publishCatalog(pool:Pool,identity:Pick<TrustedIdentity,'in
     }
    }
   }
-  await appendOperationLog(c,actor,{module:'艾诺科同步',action:'更新合同目录',entityType:'AinuokeCatalogRun',entityId:id,metadata:{sourceOnly:true,contractCount:checked.rows.length,requestId:options.requestId}});
+  await appendOperationLog(c,actor,{module:'艾诺科同步',action:'更新合同目录',entityType:'AinuokeCatalogRun',entityId:id,metadata:{sourceOnly:true,contractCount:checked.rows.length,requestId:options.requestId,
+   ...(historical?{historicalPublication:true,sourceRequests:0,originalCapturedAt:historical.capturedAt}:{})}});
   await c.query('COMMIT');return {runId:id,replayed:false,contracts:checked.rows.length,createdOrders};
  }catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}
 }

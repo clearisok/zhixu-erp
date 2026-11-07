@@ -191,3 +191,11 @@ npm run source:ainuoke -- --bind-selected=<source-key> --contracts=<same-BillNo,
 ## D188本机自动执行
 
 本机使用sync-runner.ts、持久createSessionCollector和原runSyncTick，每分钟重新评估到期，目录每30分钟。syncReferenceDate取有效交期和合同+3月较晚值；sync-dates.ts读取人工有效交期，sync-batch.ts在原硬限制内共享组目录。显式adoptNewOrders只在已授权本机runtime启用，publishCatalog复用正式订单服务；未取颜色明确not_fetched。resumeInterruptedReads仅恢复确认无旧IO进程的running只读任务，不清认证暂停。Windows后台及持久卷、真实验收见[任务](../tasks/active/local-ainuoke-automatic-2026-11-07.md)。工程实现不等于已启用，最终运行结果以任务记录为准。
+# staging 运行兼容（2026-11-07）
+
+正式 `--sync-run`（未限定source-ids）复用已验收的runAutomaticSync：动态R分档、30分钟完整目录接纳、有限传输恢复和单个长期认证owner；限定source-ids的恢复入口仍只处理原队列。CLI每tick核对私密配置的来源/账号/操作者身份，不因订单或周期重新登录。
+
+普通Server可显式配置绝对路径ZHIXU_AINUOKE_UNIT_CONFIRMATIONS_FILE，热读owner-only私密证据文件并复用原MaterialConfirmation精确证据机制。它不提供认证，不安装local-demo-entry，不改变角色或单位换算规则；文件无效仅撤下补充事实并记录封闭告警，原始成功来源继续可读。部署时按销售合同解析本环境UUID，不复制本机订单ID。
+
+跨环境接纳已完成来源使用material-archive的显式私密操作者路径：核验账号、目录/合同唯一身份、证据哈希、原始时点内分页完整性；复用原建单/来源更新/物料校验及事务发布服务，全部准备成功才切head。较新已发布来源不被旧档案覆盖，刷新任务不被档案处理标为成功；last_success_at仅保留原真实成功时点，审计明确historicalPublication及0源请求。原始档案保存在受保护运行目录，不接收公开HTTP输入，不复制源库UUID或整个数据库。原10分钟新发布资格保持，仅显式历史接纳按其原始完成时点验证。对应交付见tasks/active/material-staging-delivery-2026-11-07.md。
+

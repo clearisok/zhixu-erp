@@ -152,7 +152,7 @@ export async function captureSource(pool: Pool, identity: Pick<TrustedIdentity, 
 
 /** Caller holds the source profile and trusted order locks; no IO or transaction ownership. */
 export async function publishMaterialSnapshotsInTransaction(client:PoolClient,actor:TrustedIdentity,sourceKey:string,
- validated:Awaited<ReturnType<typeof validateBundle>>,current:BoundSourceOrder[],historical?:{historicalObservationId:string}) {
+ validated:Awaited<ReturnType<typeof validateBundle>>,current:BoundSourceOrder[],historical?:{historicalObservationId:string;replaceOlder?:boolean}) {
  const attributionSupported=await supportsSourceAttribution(client),contextSupported=await supportsMaterialCaptureContext(client);
  const perOrder=await supportsOrderHeads(client),scopeHash=hash(current);
         const runId = randomUUID();
@@ -169,7 +169,8 @@ export async function publishMaterialSnapshotsInTransaction(client:PoolClient,ac
              if(!present)throw new SourceError('source_missing');
              await client.query(`INSERT INTO ainuoke_material_order_heads(source_key,sales_order_id,run_id,last_error_code,last_attempt_at)
               VALUES($1,$2,$3,NULL,$4) ON CONFLICT(source_key,sales_order_id) DO UPDATE SET
-              run_id=coalesce(ainuoke_material_order_heads.run_id,excluded.run_id)`,[sourceKey,target.id,runId,validated.capturedAt]);
+              run_id=CASE WHEN $5::boolean AND coalesce((SELECT r.captured_at FROM ainuoke_source_runs r WHERE r.id=ainuoke_material_order_heads.run_id),'-infinity'::timestamptz)<$4::timestamptz
+               THEN excluded.run_id ELSE coalesce(ainuoke_material_order_heads.run_id,excluded.run_id) END`,[sourceKey,target.id,runId,validated.capturedAt,historical.replaceOlder===true]);
              continue;
             }
             await client.query(`INSERT INTO ainuoke_material_order_heads(source_key,sales_order_id,run_id,last_error_code,last_attempt_at)
