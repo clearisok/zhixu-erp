@@ -15,6 +15,7 @@ import {runAutomaticSync} from './ainuoke-source/sync-runner.js';
 import {resumeInterruptedReads} from './ainuoke-source/sync-recovery.js';
 import {readAutomaticSyncStatus} from './ainuoke-source/sync-status.js';
 import {SourceError} from './ainuoke-source/contract.js';
+import {createLocalDemoEntry} from './auth/local-demo-entry.js';
 
 async function main(){
  const rootArg=process.argv.slice(2);if(rootArg.length!==1||!rootArg[0].startsWith('--root='))throw Error('explicit_local_root_required');
@@ -44,13 +45,18 @@ async function main(){
  const storage={provider:objects[0].provider,container:objects[0].container,
   async head(k:string){const b=data.get(k);return b?{byteSize:b.length,sha256:createHash('sha256').update(b).digest('hex')}:null;},
   async get(k:string){const b=data.get(k);return b?Readable.from([b]):null;},async put(){throw Error('preview_read_only');},async remove(){throw Error('preview_read_only');}};
- const app=createApp({pool,staticDirectory,attachmentStorage:storage,allowedOrigins:[service.base],security:{secureCookies:false,sessionTtlSeconds:28800},
+ const security={secureCookies:false,sessionTtlSeconds:28800};
+ const demoEntry=createLocalDemoEntry({pool,baseUrl:service.base,security,readConfig:async()=>(await read('service.private.json')).localDemo});
+ const app=createApp({pool,staticDirectory,attachmentStorage:storage,allowedOrigins:[service.base],security,
   logger:{error:()=>{void appendFile(root+'/runtime-events.jsonl',JSON.stringify({at:new Date().toISOString(),event:'local_api_error'})+'\n');}},
   orderMaterialRead:createPersistedMaterialPorts(pool,{sourceKey:config.sourceKey,maxAgeMs:1800000})});
  const server=createServer((req,res)=>{const path=(req.url??'').split('?')[0];
   if(!['GET','HEAD','OPTIONS'].includes(req.method??'GET')&&!['/api/v1/auth/login','/api/v1/auth/logout','/api/v1/ainuoke/catalog/sync-order'].includes(path)){
    res.writeHead(403,{'Content-Type':'application/json'});res.end(JSON.stringify({error:{code:'preview_read_only',message:'本机业务资料保持只读'}}));return;
-  }app(req,res);});
+  }void demoEntry(req,res).then(()=>app(req,res)).catch(()=>{
+   res.writeHead(503,{'Content-Type':'application/json','Cache-Control':'no-store'});
+   res.end(JSON.stringify({error:{code:'local_demo_unavailable',message:'本机只读演示身份暂不可用'}}));
+  });});
  await new Promise<void>(r=>server.listen(63051,'127.0.0.1',r));
  await writeFile(root+'/runtime.private.json',JSON.stringify({...runtime,pid:process.pid,codeVersion:service.codeVersion}));
  const abort=new AbortController();let closing=false;

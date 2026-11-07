@@ -1,5 +1,17 @@
 # 本机自动定时同步：执行与验收（2026-11-07）
 
+## 本机演示直接进入约定（D189）
+
+2026-11-07新阶段：从干净afffff25841cb47cc67c2b9368f3d3c1e42b59c7建立feat/local-demo-auto-session。继承已核实main基线cb5cc29baa49ed7115fdb6c9506b6a80356936ea，本轮不刷新远端、不推送、不触发CI、不部署staging。
+
+今后本机实机演示默认交付可直接打开的现有业务页链接，并注明实际权限；不再把登录页、账号密码寻找或手动输入作为用户进入前置。当前真实环境为http://127.0.0.1:63051（57404为历史模拟环境，不能作为交付）。订单中心`/order-center`；D1992详情`/order-center/style-progress/detail?orderId=d2e302cf-f0d5-404e-9474-e8ecf11ec81e`。
+
+后台仍由D:/WeaveOps-Local/start-hidden.vbs启动，电脑用户登录且Docker就绪后恢复。私密service.private.json的localDemo显式固定既有preview.real-orders公有身份及enabled=true；不含前端密码，不修改账号、角色或业务数据。自动身份只读订单、物料及历史，保留该账号原已授权销售/工价/成本读取；不能修改、导入、刷新来源或管理用户。其他已有有效登录继续使用本人的原权限。
+
+开关使用固定release中的PowerShell脚本，不必打开含私密配置的文件：`pwsh -NoProfile -File <release>/scripts/set-local-demo.ps1 -RuntimeRoot D:/WeaveOps-Local -Enable`，关闭改为`-Disable`。已有服务即时读取，无需重启后台采集；关闭后自动演示cookie下次请求撤销，正常登录cookie保留。普通启动默认关闭；不得把此本机配置复制到staging或生产。
+
+本次仅入口代码切换需要一次受控应用重启，沿用原完成事务后退出/隐藏watchdog恢复机制；后续打开/刷新/关闭演示页面均不引发艾诺科登录或采集。源码和HTTP验收结果在本节后续补记，不能以工程测试替代真实浏览器结果。
+
 用户本轮明确授权在617首次接入基础上启用本机长期自动同步、真实源站只读、持续发现新合同并经现有服务建单；不部署staging。起点分支fix/ainuoke-order-material-closure、9d40113aa4b12e2b3699bfe0e303a5d055d04903，clean；新分支feat/local-ainuoke-automatic-sync。继承main基线cb5cc29baa49ed7115fdb6c9506b6a80356936ea，未重新联网获取。
 
 ## 已确认配置
