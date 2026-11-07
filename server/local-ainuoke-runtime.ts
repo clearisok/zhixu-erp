@@ -1,4 +1,4 @@
-import {readFile,writeFile,rename,appendFile} from 'node:fs/promises';
+import {readFile,writeFile,rename,appendFile,unlink} from 'node:fs/promises';
 import {resolve,dirname,delimiter} from 'node:path';
 import {createServer} from 'node:http';
 import {Readable} from 'node:stream';
@@ -64,7 +64,14 @@ async function main(){
    FROM ainuoke_sync_capture_attempts WHERE source_key=$1 AND started_at>=$2`,[config.sourceKey,service.enabledAt])).rows[0];
   await writeFile(root+'/service-status.new.json',JSON.stringify({pid:process.pid,phase,codeVersion:service.codeVersion,base:service.base,enabledAt:service.enabledAt,lastTick,metrics,...state}));
   await rename(root+'/service-status.new.json',root+'/service-status.json');};
- const timer=setInterval(()=>{void status().catch(()=>undefined);},15000);
+ const timer=setInterval(()=>{void(async()=>{
+  const current=await read('service.private.json');
+  if(!current.enabled)stop();
+  try{const request=await read('restart.request.json');if(typeof request.requestId==='string'&&/^[a-f0-9-]{36}$/i.test(request.requestId)){
+   await unlink(root+'/restart.request.json');process.exitCode=75;stop();
+  }}catch{}
+  await status();
+ })().catch(()=>undefined);},15000);
  try{
   if(service.enabled){
    const recovery=await resumeInterruptedReads(pool,actor,config.sourceKey);
