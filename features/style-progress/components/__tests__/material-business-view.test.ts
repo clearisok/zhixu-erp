@@ -11,7 +11,7 @@ import type { AinuokeReportSnapshot } from '@/features/ainuoke-api/model/ainuoke
 const order = { salesContractNo:'SYN-VIEW', styleNo:'SYN', insideOrderNo:'SYN' };
 const page = (rows: Record<string,unknown>[]): AinuokeReportSnapshot => ({
   schemaVersion:'ainuoke-direct-read.v2', reportId:'6087051', fetchedAt:'2026-11-07T08:00:00Z',
-  page:1,pageSize:50,total:rows.length,queryContext:{insideOrderNo:'SYN',salesContractNo:order.salesContractNo},snapshotHash:'synthetic',
+  page:1,pageSize:50,total:rows.length,queryContext:{salesContractNo:order.salesContractNo},snapshotHash:'synthetic',
   rows:rows.map(values=>({sourceRowIdentity:'6087051:sha256:'+createHash('sha256').update(JSON.stringify(values)).digest('hex'),values})),
 } as AinuokeReportSnapshot);
 const demand = {id:1,lx:'面料',ExpContractNo:order.salesContractNo,insideorderno:'SYN',GoodsNo:'SYN-FABRIC',
