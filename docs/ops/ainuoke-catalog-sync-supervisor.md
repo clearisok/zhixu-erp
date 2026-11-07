@@ -10,6 +10,8 @@
 
 ## 生命周期与备份
 
+2026-11-07 staging交付：显式egressNetwork仅允许同一project的`_ingress`，主network必须是该project的`_default`。新建worker前验证两网络的项目标签及internal属性；创建后连接ingress，再核对实际网络集合。数据库仍无公网端口，内部网络不改为外部网络，不改Docker守护进程或代理。未配置egressNetwork的旧禁用配置保持原行为。用于将本机已验收持续worker迁到长期staging，不授权其他环境。
+
 每分钟调用tick即可。`activate`只是显式启动请求，数据库的CAS启用与未知回执恢复仍使用现有CLI；故障状态重新启动需审查原因，不能靠Restart=always或反复启动清掉数据库暂停。
 
 - RUNNING：现有CLI持单worker租约；手动通知唤醒，四档自动调度不变。

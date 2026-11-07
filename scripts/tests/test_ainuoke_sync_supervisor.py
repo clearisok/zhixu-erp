@@ -8,6 +8,14 @@ module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 
 class SupervisorSafety(unittest.TestCase):
+    def test_egress_is_limited_to_the_same_owned_staging_project(self):
+        cfg={'project':'trial','network':'trial_default','egressNetwork':'trial_ingress'}
+        self.assertEqual(module.worker_networks(cfg),['trial_default','trial_ingress'])
+        self.assertEqual(module.worker_networks({'network':'existing_internal'}),['existing_internal'])
+        for bad in [{**cfg,'network':'bridge'},{**cfg,'egressNetwork':'host'},{**cfg,'egressNetwork':'other_ingress'}]:
+            with self.assertRaisesRegex(RuntimeError,'owned_worker_networks_required'):
+                module.worker_networks(bad)
+
     def time(self, local):
         return datetime.fromisoformat('2026-11-05T' + local + ':00+08:00')
 

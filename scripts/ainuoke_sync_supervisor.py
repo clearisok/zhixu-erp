@@ -75,6 +75,15 @@ def worker_arguments(cfg):
     return ['--import', 'tsx', 'server/ainuoke-source/cli.ts', '--sync-run=' + cfg['sourceKey'],
             '--batch-size=5', '--config=/run/source.json', '--expected-target=' + cfg['expectedTarget']]
 
+def worker_networks(cfg):
+    networks = [cfg['network']]
+    if cfg.get('egressNetwork'):
+        if (cfg['network'] != cfg['project'] + '_default'
+                or cfg['egressNetwork'] != cfg['project'] + '_ingress'):
+            raise RuntimeError('owned_worker_networks_required')
+        networks.append(cfg['egressNetwork'])
+    return networks
+
 def inspect_owned(cfg):
     result = subprocess.run([DOCKER, 'inspect', cfg['containerName']], capture_output=True, text=True, timeout=20)
     if result.returncode:
@@ -85,6 +94,8 @@ def inspect_owned(cfg):
             raise RuntimeError('container_result_unknown')
         return None
     info = json.loads(result.stdout)[0]
+    if cfg.get('egressNetwork') and set(info.get('NetworkSettings', {}).get('Networks', {})) != set(worker_networks(cfg)):
+        raise RuntimeError('worker_network_identity_changed')
     labels = info['Config'].get('Labels') or {}
     mounts = info.get('Mounts', [])
     if (info['Image'] != cfg['image'] or labels.get('io.weaveops.catalog-sync') != 'v1'
@@ -118,6 +129,13 @@ def tick(cfg, root, state):
             if any(identity.get(key) != cfg[key] for key in ['sourceSha', 'image', 'sourceKey', 'expectedTarget']):
                 raise RuntimeError('release_identity_changed')
             private_path(cfg['environmentFile'])
+            networks = worker_networks(cfg)
+            if cfg.get('egressNetwork'):
+                for network in json.loads(command([DOCKER, 'network', 'inspect', *networks])):
+                    if (network.get('Labels', {}).get('com.docker.compose.project') != cfg['project']
+                            or network.get('Name') not in networks
+                            or bool(network.get('Internal')) != (network.get('Name') == cfg['network'])):
+                        raise RuntimeError('worker_network_identity_changed')
             args = [DOCKER, 'create', '--name', cfg['containerName'], '--network', cfg['network'],
                     '--user', str(os.getuid()) + ':' + str(os.getgid()), '--read-only', '--cap-drop=ALL',
                     '--security-opt=no-new-privileges', '--pids-limit=128', '--cpus=1', '--memory=1g',
@@ -126,6 +144,9 @@ def tick(cfg, root, state):
                     '--label', 'io.weaveops.catalog-sync=v1', '--label', 'io.weaveops.source-key=' + cfg['sourceKey'],
                     '--entrypoint=node', cfg['image'], *worker_arguments(cfg)]
             command(args)
+            if cfg.get('egressNetwork'):
+                command([DOCKER, 'network', 'connect', cfg['egressNetwork'], cfg['containerName']])
+                inspect_owned(cfg)
         command([DOCKER, 'start', cfg['containerName']])
         return {'state': 'RUNNING', 'sourceSha': cfg['sourceSha'], 'startedAt': now.isoformat(), 'sourceRequests': 'worker-owned'}
     if action == 'stop':
