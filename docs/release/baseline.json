@@ -5950,6 +5950,16 @@
       "sha256": "854a7b6f40e50e0392b33d78b6c3b900343de9425b1e5f0e71bba9bb1b73e30a",
       "supersedes": "material-business-view-source-20261107",
       "changeReason": "User explicitly confirmed D1992 associated demands and four flows use the independently matched purchase unit. Reuse exact private unit evidence in local runtime only, no inference for other orders and no auth/scheduler change."
+    },
+    {
+      "id": "staging-material-runtime-source-20261107",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SERVER_SOURCE.md",
+      "recordedAtSha": "e354222102d35130208588df8466ae347574c1b3",
+      "renderedSourceSha": "e354222102d35130208588df8466ae347574c1b3",
+      "sha256": "3bdba8e88b3b72fad8bf13abe7d31fe4decf1d7367446cf6d977692771e6700a",
+      "supersedes": "local-automatic-source-20261107",
+      "changeReason": "User authorized staging delivery of accepted materials, private exact unit evidence, continuous authentication and validated historical archive admission through existing business services."
     }
   ],
   "pages": [
