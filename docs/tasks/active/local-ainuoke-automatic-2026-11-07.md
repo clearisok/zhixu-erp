@@ -22,7 +22,9 @@
 
 工程：1边界单测、8个新数据库/HTTP子场景及父测试共9通过，原browser-session集成通过；TypeScript、受影响ESLint、固定Server snapshot构建、PowerShell解析和实际-Enable开关通过。新权限用例第一次对不存在的fixture订单发sync-order得到503；改用正式sync入口校验403，真实环境另用D1992的sync-order验证403。源码守卫基于已知main cb5cc29...对bf81f8ea通过，12页面/68能力/24继承UI路径；本阶段无UI文件修改，不重复无关全量测试或CI。
 
-浏览器工具不提供创建无痕上下文的能力，已请用户在新无痕窗口对照订单中心、D1992及刷新/关闭重开。此项用户确认到达前保留待验收，不把空Cookie HTTP或保留原正常会话的浏览器结果冒称无痕验收。私密证据位于root/local-demo-entry-http.private.json、local-demo-entry-data-proof.private.json、local-demo-entry-activation.private.json；不含密码、Cookie或令牌。旧源码、配置备份及全部旧数据保持。
+浏览器工具不提供创建无痕上下文的能力，用户按提示在新无痕窗口对照订单中心、D1992及刷新/关闭重开，明确回复“全部正常，无需登录”；17:21已记录人工验收。此项为用户实机确认，不冒称自动浏览器测试。入口目标已完成，后台继续原自动同步。私密证据位于root/local-demo-entry-http.private.json、local-demo-entry-data-proof.private.json、local-demo-entry-activation.private.json及local-demo-entry-delivery.json；不含密码、Cookie或令牌。旧源码、配置备份及全部旧数据保持。
+
+源码守卫在完整文档提交b4f4547ce8d7d257c771c7403d1cf0fea7422bc6通过。其后仅将用户无痕验收结论写入本任务、CURRENT_STATE、AI_HANDOFF，逐项核对三文件差异；业务/构建/冻结决策及清单未再变化，复用此前通过结果，不重复全仓测试或CI。固定运行版本仍bf81f8ea，文档HEAD另列。
 
 用户本轮明确授权在617首次接入基础上启用本机长期自动同步、真实源站只读、持续发现新合同并经现有服务建单；不部署staging。起点分支fix/ainuoke-order-material-closure、9d40113aa4b12e2b3699bfe0e303a5d055d04903，clean；新分支feat/local-ainuoke-automatic-sync。继承main基线cb5cc29baa49ed7115fdb6c9506b6a80356936ea，未重新联网获取。
 
