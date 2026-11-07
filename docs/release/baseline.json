@@ -5871,6 +5871,36 @@
       "sha256": "659f222b9c204e41040979af463d9075a92b42855af7a2883ae1494e8acba5fc",
       "supersedes": "material-revision-rules-20261107",
       "changeReason": "Final explicit user rule separates self-purchase and factory supply without inferred revision; empty complete source counts as successful collection."
+    },
+    {
+      "id": "local-automatic-source-20261107",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SERVER_SOURCE.md",
+      "recordedAtSha": "f6085fa38f91beae0e11d090d01cf3b000edefcc",
+      "renderedSourceSha": "f6085fa38f91beae0e11d090d01cf3b000edefcc",
+      "sha256": "eec7b2648a6bb5c6435f7f1ac895ef2fa0315bc601a53a7fbdda2bf82cb43937",
+      "supersedes": "catalog-no-image-1400-source-20261105",
+      "changeReason": "User-approved local automatic cadence uses reference R, normal contract admission, persistent authentication and bounded restart recovery; no staging deployment claim."
+    },
+    {
+      "id": "local-automatic-decision-20261107",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "f6085fa38f91beae0e11d090d01cf3b000edefcc",
+      "renderedSourceSha": "f6085fa38f91beae0e11d090d01cf3b000edefcc",
+      "sha256": "3506316549816beeed928bcd8fa218ea48cc01490210cd0c17da92262d5ee6c0",
+      "supersedes": "material-final-supply-decision-20261107",
+      "changeReason": "User-approved local automatic cadence uses reference R, normal contract admission, persistent authentication and bounded restart recovery; no staging deployment claim."
+    },
+    {
+      "id": "local-automatic-rules-20261107",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "f6085fa38f91beae0e11d090d01cf3b000edefcc",
+      "renderedSourceSha": "f6085fa38f91beae0e11d090d01cf3b000edefcc",
+      "sha256": "6f0ed97a22befd51a9f3357e19aa460ae0afc1e1eda2f8ac210b651c99325452",
+      "supersedes": "material-final-supply-rules-20261107",
+      "changeReason": "User-approved local automatic cadence uses reference R, normal contract admission, persistent authentication and bounded restart recovery; no staging deployment claim."
     }
   ],
   "pages": [
