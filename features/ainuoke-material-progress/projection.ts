@@ -66,9 +66,9 @@ export function materialSupplyScope(demand: Pick<ReadDemand, 'supplyMethod'>): '
 function summarize(view: Pick<MaterialProgressView, 'groups' | 'rows' | 'factoryExcluded'>, selfPurchaseOnly = false): MaterialSummary {
   const summary: MaterialSummary = { basis: 'demand_items', quantitiesAggregatedAcrossDemands: false,
     fabric: emptyCounts(), trim: emptyCounts(), factoryExcluded: view.factoryExcluded };
-  for (const group of view.groups) if (group.rows.some(row => (!selfPurchaseOnly || materialSupplyScope(row.demand) === 'self') && row.procurementResponsibility !== 'factory_confirmed')) summary[group.type].groups++;
+  for (const group of view.groups) if (group.rows.some(row => (selfPurchaseOnly ? materialSupplyScope(row.demand) === 'self' : row.procurementResponsibility !== 'factory_confirmed'))) summary[group.type].groups++;
   for (const row of view.rows) {
-    if (row.procurementResponsibility === 'factory_confirmed' || selfPurchaseOnly && materialSupplyScope(row.demand) !== 'self') continue;
+    if (selfPurchaseOnly ? materialSupplyScope(row.demand) !== 'self' : row.procurementResponsibility === 'factory_confirmed') continue;
     const counts = summary[row.demand.materialType]; counts.demands++;
     if (row.status === null) counts.unknown++; else counts.states[row.status]++;
   }

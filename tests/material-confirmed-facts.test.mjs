@@ -66,3 +66,12 @@ test('trusted reader alone loads confirmation after scope/source checks; request
  const result=await reader(identity,{salesOrderId:id});assert.equal(result.status,200);assert.equal(row(result.body.progress).unitOrigin,'confirmed');
  assert.doesNotMatch(JSON.stringify(result.body),/synthetic-operator|synthetic-human-receipt|evidenceKey|confirmedBy/);
 });
+
+test('final Server self-purchase demand count does not erase source demand when procurement responsibility is confirmed',()=>{
+ const p=pages(),f=receipt(p,'ready',{procurementResponsibility:'factory'});
+ const view=projectMaterialProgress(syntheticOrder,p,[f],{retainSourceDemands:true});
+ assert.equal(row(view).procurementResponsibility,'factory_confirmed');
+ assert.equal(view.summary.fabric.demands+view.summary.trim.demands,6);
+ assert.equal(view.rows.filter(r=>r.demand.supplyMethod==='自购').length,6);
+ assert.equal(view.rows.filter(r=>r.demand.supplyMethod==='厂供').length,1);
+});
