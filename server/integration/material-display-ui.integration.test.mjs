@@ -39,9 +39,9 @@ test('approved material ordering and event drawer run on the exact built Server 
     assert.deepEqual((await names()).slice(0,3),['合成排序面料大','合成棉布','合成排序面料小']);
     assert.equal(await evaluate("(()=>{const buttons=[...document.querySelectorAll('.qc-page-actions button')],settings=buttons.find(node=>node.textContent==='辅料排列设置').getBoundingClientRect(),refresh=buttons.find(node=>node.textContent==='刷新页面').getBoundingClientRect();return settings.width>0&&settings.height>=32&&refresh.width>0&&settings.right<=refresh.left+1;})()"),true,'both approved actions stay visible in order at '+width);
     assert.equal(await evaluate("document.querySelector('.sp-business-material-toggle').getAttribute('aria-expanded')"),'true');
-    await evaluate("document.querySelector('.sp-business-material-toggle').click()");assert.equal(await evaluate("Boolean(document.querySelector('.sp-business-material .sp-business-table-scroll'))"),false);
+    await evaluate("document.querySelector('.sp-business-material-toggle').click()");assert.equal(await evaluate("Boolean(document.querySelector('.sp-business-material')?.querySelector('.sp-business-table-scroll'))"),false);
     assert.equal(await evaluate("document.body.innerText.includes('12.75')"),false);await evaluate("document.querySelector('.sp-business-material-toggle').click()");
-    assert.equal(await evaluate("Boolean(document.querySelector('.sp-business-material .sp-business-table-scroll'))"),true);
+    assert.equal(await evaluate("Boolean(document.querySelector('.sp-business-material')?.querySelector('.sp-business-table-scroll'))"),true);
     await capture('materials-'+width);await openEvents('合成排序面料大');await has('12.75');
     const geometry=await evaluate("(()=>{const panel=document.querySelector('.sp-business-events').getBoundingClientRect();return {width:innerWidth,overflow:document.documentElement.scrollWidth>innerWidth+1,panelInside:panel.left>=-1&&panel.right<=innerWidth+1,inlineEvents:document.querySelectorAll('.sp-business-material .sp-event-variant').length,backWidth:document.querySelector('.ops-topbar-back').getBoundingClientRect().width};})()");
     assert.equal(geometry.overflow,false);assert.equal(geometry.panelInside,true);assert.equal(geometry.inlineEvents,0);assert.ok(geometry.backWidth<=32);metrics.push(geometry);

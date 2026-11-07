@@ -89,7 +89,7 @@ test('contract payment observations use the existing drawer without false materi
       await x.payments.publish();await click('刷新记录');await has('127 条合同来源明细');await close();
     });
     await phase('closing or switching tabs ignores delayed responses and restores keyboard focus',async()=>{
-      await openPayments();x.payments.setDelay(650);await click('刷新记录');await click('采购');await pause(800);
+      await openPayments();x.payments.setDelay(650);await click('刷新记录');await click('采购明细');await pause(800);
       assert.equal(await evaluate("document.querySelector('.sp-payment-requests')===null"),true);
       x.payments.setDelay(0);await click('对账');await has('127 条合同来源明细');await close();
       // The shared overlay restores focus in requestAnimationFrame after unmount.
