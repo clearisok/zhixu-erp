@@ -2,11 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "cb5cc29baa49ed7115fdb6c9506b6a80356936ea",
-<<<<<<< HEAD
-  "verifiedAt": "2026-11-01T11:22:58.705293+00:00",
-=======
   "verifiedAt": "2026-11-05T13:49:50.210Z",
->>>>>>> ae5c4d0657bd5ce89ce6dc678ecd02cc56a52e98
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -5617,7 +5613,6 @@
       "sha256": "336fdfed2b348e8036e6de64785d31f10033de0b7e1b730c11993651dd83c725"
     },
     {
-<<<<<<< HEAD
       "id": "catalog-followup-business-rules-20261102",
       "kind": "document",
       "path": "docs/BUSINESS_RULES.md",
@@ -5965,7 +5960,8 @@
       "sha256": "3bdba8e88b3b72fad8bf13abe7d31fe4decf1d7367446cf6d977692771e6700a",
       "supersedes": "local-automatic-source-20261107",
       "changeReason": "User authorized staging delivery of accepted materials, private exact unit evidence, continuous authentication and validated historical archive admission through existing business services."
-=======
+    },
+    {
       "id": "decisions-navigation-cache-20261105",
       "kind": "document",
       "path": "docs/DECISION_LOG.md",
@@ -5974,7 +5970,19 @@
       "recordedAtSha": "02432150c918d19173acbd7f9955f6dbece736aa",
       "renderedSourceSha": "02432150c918d19173acbd7f9955f6dbece736aa",
       "sha256": "514ff6b808f2daf6567ce28985e861150979dfb4c3d676cccf917695cc32ae14"
->>>>>>> ae5c4d0657bd5ce89ce6dc678ecd02cc56a52e98
+    },
+    {
+      "id": "staging-performance-decisions-20261107",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "46f3c9b93db8f936b642ff078b23faca78444a22",
+      "renderedSourceSha": "46f3c9b93db8f936b642ff078b23faca78444a22",
+      "sha256": "32f28e839f470d1bd498fc6b5c475bf43e019c2e79491bf6c44e92c590db4f4f",
+      "mergeOf": [
+        "material-business-view-decision-20261107",
+        "decisions-navigation-cache-20261105"
+      ],
+      "changeReason": "Real two-parent integration preserves both accepted material decisions and deployed navigation-cache decisions without rewriting either frozen history."
     }
   ],
   "pages": [
