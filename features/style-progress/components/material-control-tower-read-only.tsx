@@ -55,7 +55,7 @@ function FlowValue({ fact, label, onClick }: { fact: FlowQuantity; label: string
   const value = fact.quantity === null
     ? ({ mixed_units: '分单位', allocation_pending: '待分配', unlinked: '待关联', incomplete: '待核实', unit_unknown: '分笔查看', known: '待核实' } as const)[fact.state]
     : number(fact.quantity);
-  return <button type="button" className="sp-business-quantity" aria-label={'查看' + label + '明细'} onClick={onClick} title={fact.reasons.join('；') || '查看真实单据明细'}>
+  return <button type="button" className="sp-business-quantity" aria-label={'查看' + label + '明细：' + value + (fact.unit || '')} onClick={onClick} title={fact.reasons.join('；') || '查看真实单据明细'}>
     <span>{value}{fact.unit && <small>{fact.unit}</small>}</span>
     {fact.state === 'unit_unknown' && <small className="sp-business-caution">单位待核实</small>}
   </button>;
@@ -95,7 +95,7 @@ function EventTable({ rows, flow }: { rows: ProgressRow[]; flow: MaterialFlow })
   return <div className="sp-business-event-list" data-flow={flow}>
     {!entries.length && !unverified.length && <p className="sp-business-no-events">这批需求没有{flowLabels[flow]}记录。</p>}
     {entries.length > 0 && <div className="sp-business-table-scroll" tabIndex={0} aria-label={flowLabels[flow] + '明细表，可横向滚动'}><table className="sp-business-event-table">
-      <thead><tr><th>物料 / 颜色</th><th>规格</th><th>{flowLabels[flow]}单号</th>
+      <thead><tr><th>{flow === 'purchase' ? '物料 / 采购颜色' : '需求物料 / 颜色'}</th><th>{flow === 'purchase' ? '采购规格' : '需求规格'}</th><th>{flowLabels[flow]}单号</th>
         {flow === 'purchase' && <th>供应商</th>}<th>{flow === 'purchase' ? '采购日期' : '日期'}</th>
         {flow === 'purchase' && <th>交期</th>}<th className="numeric">数量</th>
         {flow === 'purchase' && <><th className="numeric">单价</th><th>币种</th></>}
@@ -103,7 +103,7 @@ function EventTable({ rows, flow }: { rows: ProgressRow[]; flow: MaterialFlow })
       </tr></thead><tbody>{entries.map(({ row, event, demands }) => {
         const purchase = event as ReadPurchase;
         return <tr key={row.demand.materialType + ':' + materialEventKey(event)}>
-          <td><strong>{row.demand.materialName}</strong><small>{row.demand.materialColor || '颜色未提供'}</small></td>
+          <td><strong>{row.demand.materialName}</strong><small>{(flow === 'purchase' ? purchase.color : row.demand.materialColor) || '颜色未提供'}</small></td>
           <td>{flow === 'purchase' ? text(purchase.specification) : text(row.demand.specification)}</td>
           <td><strong>{flow === 'purchase' ? purchase.purchaseOrderNo : (event as ReadMovement).documentNo}</strong><small>明细 {event.relation?.sourceDetailId || '未提供'}</small></td>
           {flow === 'purchase' && <td>{text(purchase.supplier)}</td>}<td>{date(flow === 'purchase' ? purchase.purchaseDate : (event as ReadMovement).eventDate)}</td>

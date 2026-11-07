@@ -230,7 +230,7 @@
 /* D190: scoped business workspace. Browser editing screens and sidebar remain unchanged. */
 .sp-server-material { --sp-ink:#233b32; --sp-muted:#718078; --sp-line:#e2e8e4; }
 .sp-server-material .qc-page-header { margin-bottom:20px; align-items:center; }
-.sp-server-material .qc-page-header h1 { color:var(--sp-ink); font-size:32px; line-height:1.25; font-weight:650; letter-spacing:-.6px; }
+.sp-server-material .qc-page-header h1 { color:var(--sp-ink); font-family:"Segoe UI","Microsoft YaHei",sans-serif; font-size:32px; line-height:1.25; font-weight:650; letter-spacing:-.6px; }
 .sp-server-material .qc-page-header .qc-page-identity p { margin-top:7px; color:#6e7c75; font-size:14px; }
 .sp-server-material .qc-page-actions .qc-button { min-height:38px; padding:8px 14px; border-radius:8px; font-size:13px; }
 .sp-business-workspace { display:grid; gap:18px; min-width:0; color:var(--sp-ink); font-family:var(--font-body,Arial,"Microsoft YaHei",sans-serif); }
@@ -272,7 +272,7 @@
 .sp-business-self-table { min-width:1450px; }
 .sp-business-factory-table { min-width:850px; }
 .sp-business-table th { padding:10px 12px; border-top:1px solid #e9eeea; border-bottom:1px solid #e2e9e4; background:#f5f8f5; color:#6b7d70; font-size:12px; font-weight:550; text-align:left; white-space:nowrap; }
-.sp-business-table td { padding:12px; border-bottom:1px solid #edf1ee; color:#374e41; vertical-align:middle; }
+.sp-business-table td { padding:12px; border-bottom:1px solid #edf1ee; color:#374e41; font-size:13px; line-height:1.6; white-space:normal; vertical-align:middle; }
 .sp-business-table tbody tr:last-child td { border-bottom:0; }
 .sp-business-table tbody tr:hover td { background:#fbfcfa; }
 .sp-business-table .numeric,.sp-business-event-table .numeric { text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
@@ -318,7 +318,7 @@
 .sp-business-event-tabs button[aria-selected="true"] { color:#165b43; background:#eaf3ed; font-weight:600; }
 .sp-business-event-table { width:100%; min-width:850px; border-collapse:collapse; font-size:13px; line-height:1.6; }
 .sp-business-event-table th { padding:10px; color:#748778; background:#f4f7f3; text-align:left; font-size:12px; font-weight:500; white-space:nowrap; }
-.sp-business-event-table td { padding:13px 10px; border-bottom:1px solid #e9eee9; vertical-align:top; }
+.sp-business-event-table td { padding:13px 10px; border-bottom:1px solid #e9eee9; font-size:13px; white-space:normal; vertical-align:top; }
 .sp-business-event-table strong { display:block; font-weight:550; }
 .sp-business-event-table td > small { display:block; margin-top:3px; color:#849288; font-size:11px; overflow-wrap:anywhere; }
 .sp-business-event-table td:nth-child(2) { max-width:190px; overflow-wrap:anywhere; }

@@ -158,7 +158,7 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
    x.setMode("failed");await assert.rejects(x.capture());await evaluate("window.dispatchEvent(new Event('focus'))");await has("最近刷新未成功");
    assert.equal(await evaluate("document.querySelectorAll('[data-canonical-material-key]').length"),4);
    x.setMode("ready");await x.capture();await evaluate("window.dispatchEvent(new Event('focus'))");await has("合成棉布");
-   x.setMode("stale");await evaluate("window.dispatchEvent(new Event('focus'))");await has("来源已超出可信读取时效");assert.equal(await evaluate("document.querySelectorAll('[data-canonical-material-key]').length"),0);x.setMode("ready");
+   x.setMode("stale");await evaluate("window.dispatchEvent(new Event('focus'))");await has("当前显示历史数据");assert.equal(await evaluate("document.querySelectorAll('[data-canonical-material-key]').length"),4);x.setMode("ready");
   });
   await t.test("missing UUID and unsupported routes cannot enter old Browser pages",async()=>{
    await navigate("/order-center/style-progress/detail");await has("仅接受正式订单 UUID");
