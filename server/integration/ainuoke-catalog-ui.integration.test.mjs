@@ -15,7 +15,7 @@ import {runSyncTick} from '../ainuoke-source/sync-worker.ts';
 test('built catalogue pages, actor-scoped recovery and single-order refresh in Chromium',{timeout:180000},async t=>{
  const x=await startCatalogFixture(),temp=await mkdtemp(join(tmpdir(),'zhixu-catalog-ui-'));let browser,ws,session,id=0;const pending=new Map(),errors=[];
  try{
-  await x.pool.query("UPDATE ainuoke_catalog_entries SET delivery_date=CASE WHEN source_id='3' THEN '2024-01-01' WHEN source_id='2' THEN NULL ELSE delivery_date END");
+  await x.pool.query("UPDATE ainuoke_catalog_entries SET contract_date=CASE WHEN source_id='3' THEN '2023-10-01' ELSE contract_date END,delivery_date=CASE WHEN source_id='3' THEN '2024-01-01' WHEN source_id='2' THEN NULL ELSE delivery_date END");
   const profile=join(temp,'profile');browser=spawn(process.env.CHROME_PATH??(process.platform==='win32'?'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe':'google-chrome'),['--headless=new','--no-first-run','--no-default-browser-check','--remote-debugging-port=0','--user-data-dir='+profile,'about:blank'],{stdio:'ignore',windowsHide:true});
   const [port,path]=await waitForChromiumEndpoint(profile);ws=new WebSocket('ws://127.0.0.1:'+port+path);await new Promise((r,j)=>{ws.addEventListener('open',r,{once:true});ws.addEventListener('error',j,{once:true});});
   const command=(method,params={},sid=session)=>new Promise((r,j)=>{pending.set(++id,{r,j});ws.send(JSON.stringify({id,method,params,sessionId:sid}));});

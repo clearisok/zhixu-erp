@@ -147,6 +147,15 @@ test('catalogue is not a business ledger; active groups publish and fail indepen
    assert.equal((await adoptCatalogContract(pool,actor,command)).replayed,true);
    assert.equal(await count('sales_orders'),baseCounts[0]+1);assert.equal(await count('ainuoke_catalog_intake_receipts'),1);
    assert.equal(await count('quote_center_quotes'),baseCounts[1]);assert.equal(await count('production_schedule_assignments'),baseCounts[3]);
+   // Adoption now queues the ordinary missing-material publication. Complete
+   // that manual-priority job before the next independent automatic-group case.
+   const publication=await runSyncTick(pool,actor,selectedConfig,{automatic:false,collect:async(_c,r)=>{
+    if(r.mode!=='catalog-contracts')throw new Error('scope');return selectedWorkerFixture('catalog-contracts','',r.contracts);
+   }});
+   assert.equal(publication.jobs.length,1);assert.equal(publication.jobs[0].status,'complete');
+   const adopted=(await boundOrders(pool)).find(o=>o.salesContractNo==='SYN-SALES-3')!;
+   const material=await createOrderMaterialReader(createPersistedMaterialPorts(pool,{sourceKey,maxAgeMs:600000}))(actor,{salesOrderId:adopted.id});
+   assert.equal(material.status,200);if(material.status===200){assert.equal(material.body.progress.sourceStatus,'ready');assert.ok(material.body.progress.rows.length);}
   });
   await t.test('invalid batch cannot spend a source request; active worker excludes recovery and another worker',async()=>{
    let requests=0;
