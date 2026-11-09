@@ -4,8 +4,9 @@ import { accountFingerprint, APPROVED_HTTP_ORIGIN, APPROVED_HTTP_POLICY, collect
   parseCollectorConfig, type CollectorConfig } from './collector.js';
 import { SourceError, hash, inspect, validateBundle } from './contract.js';
 import { previewSelectedBindings } from './binding.js';
-import { previewAdditions, type AdditionBundle } from './additions.js';
+import { previewAdditions, hasCompleteEmptyColorEvidence, type AdditionBundle } from './additions.js';
 import {normalizeAinuokeSalesContractNo} from '../../features/ainuoke-sync/source/ainuoke-garment-color-size-adapter.js';
+import type {CatalogPage} from './catalog-checkpoints.js';
 
 /** Fixed engineering budget, not human authorization or a scheduler lease. */
 export const SELECTED_SOURCE_LIMITS = Object.freeze({contracts:2,logins:1,reportRequests:80,httpAttempts:81,
@@ -58,7 +59,7 @@ function scope(config:CollectorConfig,request:SelectedSourceRequest) {
 /** Revalidate untrusted child output before handing it to the existing domain mappers.
  * No database access, persistence, credentials-file loader, or source enable operation.
  */
-export async function validateSelectedSourceOnce(input:unknown,config:CollectorConfig,request:SelectedSourceRequest,now=Date.now(),sessionReuse=false) {
+export async function validateSelectedSourceOnce(input:unknown,config:CollectorConfig,request:SelectedSourceRequest,now=Date.now(),sessionReuse=false,resumePages:readonly CatalogPage[]=[]) {
   const checked=scope(config,request);
   try {
     const serialized=JSON.stringify(input);
@@ -130,7 +131,15 @@ export async function validateSelectedSourceOnce(input:unknown,config:CollectorC
         pageCount++;rowCount+=p.rows.length;
       }
     }
-    if(pageCount!==metrics.reportRequests-metrics.authRenewals||rowCount>4000)throw new SourceError('selected_source_metrics_invalid');
+    const reusedPages=pageCount-(metrics.reportRequests-metrics.authRenewals);
+    if(reusedPages){
+      if(checked.request.mode!=='catalog-discovery'||!sessionReuse||reusedPages<1||reusedPages!==resumePages.length-1)
+        throw new SourceError('selected_source_metrics_invalid');
+      const beforePages=b.discoveryBefore as CatalogPage[],first=beforePages[0],saved=resumePages[0];
+      if(!first||!saved||first.total!==saved.total||hash(first.rows)!==hash(saved.rows)
+        ||resumePages.slice(1).some((p,i)=>hash(p)!==hash(beforePages[i+1])))throw new SourceError('catalog_checkpoint_changed');
+    }
+    if(rowCount>4000)throw new SourceError('selected_source_metrics_invalid');
     if(checked.request.mode==='catalog-discovery'){
       const preview=await previewCatalog(value.bundle,now);
       return {result:'complete' as const,mode:'catalog-discovery' as const,metrics,bundle:preview.bundle,preview};
@@ -149,8 +158,10 @@ export async function validateSelectedSourceOnce(input:unknown,config:CollectorC
         const contract=row.salesContractNo;
         try {
           const oneAddition={...addition,colors:{[contract]:addition.colors[contract]}};
-          const candidates=await previewAdditions(oneAddition,[contract],[],now,600000);
-          if(candidates.candidates.some(c=>c.colorDetailStatus!=='usable'))throw new SourceError('source_color_incomplete');
+          const candidates=await previewAdditions(oneAddition,[contract],[],now,600000,{allowIncompleteHeader:true});
+          const colors=oneAddition.colors[contract];
+          const completeEmptyColors=hasCompleteEmptyColorEvidence(colors,contract);
+          if(candidates.candidates.some(c=>c.colorDetailStatus!=='usable')&&!completeEmptyColors)throw new SourceError('source_color_incomplete');
           const materials=await validateBundle({schemaVersion:'ainuoke-server-source.v1',discoveryBefore:b.discoveryBefore,discoveryAfter:b.discoveryAfter,materials:{[contract]:detail[contract]}},
             [{id:row.sourceId,version:1,salesContractNo:contract,styleNo:row.styleNo,insideOrderNo:row.insideOrderNo}],now,600000);
           contracts[contract]={addition:oneAddition,candidates,materials};

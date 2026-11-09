@@ -119,3 +119,5 @@ permission or business backfill. Startup stays verify-only. Only owned synthetic
 0044_garment_target_commands.sql仅空、不可变completed-only目标配置回执。配置无Source IO，target/原审计/回执同事务；
 无target种子、默认时效或回填，不自动启用来源或升级现有库。0043非空副本升级仅使用本阶段自有一次性合成PG，
 核对42份旧SQL全hash，原观察、目标、命令与全部旧public表原值保留；正常启动仍verify-only。
+
+0057_ainuoke_catalog_scan_checkpoints.sql：新增空目录扫描时钟、水位与不可变分页引用，复用0055行块；不启动来源、不建单、不改旧时间或任务。来源合同缺少数量保留null、缺少非身份工厂款号可空，销售合同号/sourceId约束保留。实际staging升级仍经本轮明确授权、配对备份及兼容验收。

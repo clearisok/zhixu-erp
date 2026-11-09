@@ -40,7 +40,7 @@ test('0053/0054 forward upgrade preserves nonempty legacy data and initializes p
   const snapshot=await freezeExistingPublicRows(pool,tables);
   const before=await snapshot(),reader=createOrderMaterialReader(createPersistedMaterialPorts(pool,{sourceKey:scope.sourceKey,maxAgeMs:600000})),oldView=await reader(actor,{salesOrderId:bound.orderIds[0]});
   assert.equal(oldView.status,200);if(oldView.status===200)assert.equal(oldView.body.progress.sourceStatus,'ready');
-  assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,['0053_ainuoke_catalog_followup.sql','0054_ainuoke_catalog_receipts.sql','0055_ainuoke_shared_catalog_evidence.sql','0056_ainuoke_sync_attempt_recovery.sql']);
+  assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,['0053_ainuoke_catalog_followup.sql','0054_ainuoke_catalog_receipts.sql','0055_ainuoke_shared_catalog_evidence.sql','0056_ainuoke_sync_attempt_recovery.sql','0057_ainuoke_catalog_scan_checkpoints.sql']);
   assert.deepEqual(await snapshot(),before);assert.deepEqual(await reader(actor,{salesOrderId:bound.orderIds[0]}),oldView);
   assert.equal((await pool.query('SELECT count(*)::int n FROM ainuoke_material_order_heads')).rows[0].n,2);
   for(const table of ['ainuoke_sync_controls','ainuoke_sync_jobs','ainuoke_catalog_entries'])assert.equal((await pool.query('SELECT count(*)::int n FROM '+table)).rows[0].n,0);

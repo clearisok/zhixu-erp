@@ -209,7 +209,7 @@ export async function adaptAinuokeGarmentColorSizeSnapshots(input: {
   const requestedSalesContractNo = normalizeAinuokeSalesContractNo(input.requestedSalesContractNo);
   const discoveryInsideOrderNo = normalizeAinuokeInsideOrderNo(input.discoveryInsideOrderNo);
   const expectedStyleNo = normalizeIdentity(input.expectedStyleNo);
-  if (!requestedSalesContractNo || !discoveryInsideOrderNo) throw new Error("6087105 exact filter 缺少订单身份");
+  if (!requestedSalesContractNo) throw new Error("6087105 exact filter 缺少销售合同身份");
   assertSnapshotSet(input.snapshots, requestedSalesContractNo);
 
   const sourceRows = [...input.snapshots]

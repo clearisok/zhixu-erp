@@ -22,12 +22,12 @@ function mapRow(row: AinuokeSourceRow): AinuokeOrderDiscoveryRow {
   return {
     sourceId: requiredText(row, "id"),
     sourceRowIdentity,
-    insideOrderNo: normalizeIdentity(requiredText(row, "InsideOrderNo")),
+    insideOrderNo: normalizeIdentity(row.values.InsideOrderNo),
     salesContractNo: normalizeIdentity(requiredText(row, "BillNo")).replace(/\s+/gu, ""),
-    lifecycleStatusRaw: requiredText(row, "Status"),
+    lifecycleStatusRaw: normalizeText(row.values.Status),
     contractDate: nullableText(row.values.ContractDate),
     deliveryDate: nullableText(row.values.DeliveryDate),
-    styleNo: requiredText(row, "GoodsDesc"),
+    styleNo: normalizeText(row.values.GoodsDesc),
   };
 }
 

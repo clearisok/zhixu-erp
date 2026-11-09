@@ -6,7 +6,7 @@ import { requirePermission } from '../auth/permissions.js';
 import { appendOperationLog } from '../operation-logs/repository.js';
 import { createAinuokeSalesOrderInTransaction } from '../sales-orders/service.js';
 import { adaptAinuokeOrderDiscoverySnapshots } from '../../features/ainuoke-api/source/ainuoke-order-discovery-adapter.js';
-import { adaptAinuokeGarmentColorSizeSnapshots, normalizeAinuokeSalesContractNo } from '../../features/ainuoke-sync/source/ainuoke-garment-color-size-adapter.js';
+import { adaptAinuokeGarmentColorSizeSnapshots, isAinuokeBlankColorPlaceholder, normalizeAinuokeSalesContractNo } from '../../features/ainuoke-sync/source/ainuoke-garment-color-size-adapter.js';
 import { mapSelectedFinalSalesOrderCandidates } from '../../features/ainuoke-sync/service/sales-order-final-bootstrap-preview.js';
 import type { AinuokeOrderDiscoveryQuery, AinuokeSalesContractQuery, AinuokeReportSnapshot } from '../../features/ainuoke-api/model/ainuoke-api.js';
 import { SourceError, hash, sourceKeyValid, inspect, pagesValid, discoveryContentHash } from './contract.js';
@@ -27,6 +27,19 @@ export type AdditionBundle = {
 
 const normalized = (value: string) => normalizeAinuokeSalesContractNo(value);
 const hex = (value: string) => /^[a-f0-9]{64}$/u.test(value);
+
+/** A complete empty response, including the already approved blank placeholder,
+ * is valid initial enrichment. Explicit zero or malformed colour facts are not
+ * blank; callers must also prevent an empty result clearing accepted colours. */
+export function hasCompleteEmptyColorEvidence(pages:readonly AinuokeReportSnapshot<AinuokeSalesContractQuery>[],contract:string):boolean {
+  const first=pages[0];
+  if(!first||!Number.isSafeInteger(first.total)||first.total<0||!Number.isSafeInteger(first.pageSize)||first.pageSize<1
+    ||pages.length!==Math.max(1,Math.ceil(first.total/first.pageSize)))return false;
+  return pages.every((page,index)=>page.reportId==='6087105'&&page.page===index+1&&page.pageSize===first.pageSize&&page.total===first.total
+    &&normalized(page.queryContext.salesContractNo)===contract
+    &&page.rows.length===Math.min(first.pageSize,Math.max(0,first.total-index*first.pageSize))
+    &&page.rows.every(row=>normalized(String(row.values.BillNo??''))===contract&&isAinuokeBlankColorPlaceholder(row.values)));
+}
 
 export function selectContracts(value: string): string[] {
   const selected = value.split(',').map(normalized);
@@ -114,7 +127,7 @@ export async function discoverAdditions(input: unknown, bound: BoundIdentity[], 
     unboundContracts: additions.length, additions};
 }
 
-export async function previewAdditions(input: unknown, selected: readonly string[], bound: BoundIdentity[], now = Date.now(), maxAgeMs = 600000) {
+export async function previewAdditions(input: unknown, selected: readonly string[], bound: BoundIdentity[], now = Date.now(), maxAgeMs = 600000,options:{allowIncompleteHeader?:boolean}={}) {
   if (!selected.length || selected.length > 25 || new Set(selected.map(normalized)).size !== selected.length)
     throw new SourceError('addition_selection_invalid');
   const {bundle, discovery} = await stableDiscovery(input, 'ainuoke-order-addition.v1', now, maxAgeMs);
@@ -140,8 +153,8 @@ export async function previewAdditions(input: unknown, selected: readonly string
   const sourceRows = bundle.discoveryBefore.flatMap(page => page.rows);
   for (const key of selection) {
     const row = sourceRows.find(item => normalized(String(item.values.BillNo ?? '')) === key);
-    if (!row || row.values.Num === null || row.values.Num === undefined || typeof row.values.Num === 'boolean'
-      || String(row.values.Num).trim() === '') throw new SourceError('binding_quantity_missing');
+    if (!row || !options.allowIncompleteHeader && (row.values.Num === null || row.values.Num === undefined || typeof row.values.Num === 'boolean'
+      || String(row.values.Num).trim() === '')) throw new SourceError('binding_quantity_missing');
     for (const field of ['ContractDate','DeliveryDate'] as const) {
       const value = row.values[field]; if (value === null || value === undefined || value === '') continue;
       const date = String(value).slice(0,10);
@@ -192,7 +205,7 @@ export async function assertStoredAdditionMatches(client: PoolClient, candidates
       || mirror.contract_date !== source.contractDate || mirror.contract_delivery_date !== source.contractDeliveryDate
       || mirror.style_no !== source.styleNo || mirror.company_name_snapshot !== source.companyNameSnapshot
       || mirror.customer_name_snapshot !== source.customerNameSnapshot || mirror.brand_name_snapshot !== source.brandNameSnapshot
-      || Number(mirror.quantity) !== source.quantity || mirror.source_hash !== source.sourceHash
+      || (mirror.quantity===null?null:Number(mirror.quantity)) !== source.quantity || mirror.source_hash !== source.sourceHash
       || mirror.color_status !== candidate.colorDetailStatus
       || hash(mirror.color_detail) !== hash(source.sourceMetadata?.colorDetail)) throw new SourceError('addition_not_exact_retry');
     const colors = (await client.query(`SELECT source_line_identity,color_name,quantity::text,delivery_date::text,source_hash,source_metadata

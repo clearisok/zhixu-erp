@@ -14,7 +14,7 @@ export type AinuokeSourceRefreshInput = CreateAinuokeSalesOrderInput & { expecte
 function validate(input:AinuokeSourceRefreshInput) {
   if (!Number.isSafeInteger(input.expectedPlanVersion) || input.expectedPlanVersion < 0
       || typeof input.expectedSourceHash !== 'string' || !input.expectedSourceHash
-      || !Number.isFinite(input.source.quantity) || input.source.quantity < 0
+      || input.source.quantity !== null && (!Number.isFinite(input.source.quantity) || input.source.quantity < 0)
       || (input.source.contractDeliveryDate !== null && !validDeliveryDate(input.source.contractDeliveryDate))
       || (input.source.contractDate !== null && !validDeliveryDate(input.source.contractDate))
       || !Number.isFinite(Date.parse(input.source.fetchedAt))
@@ -68,7 +68,7 @@ export async function refreshAinuokeSalesOrderSourceInTransaction(
       WHERE sales_order_id=$1 AND source_system='ainuoke' AND source_entity_type='sales_contract'
       AND external_id=$2 AND sales_contract_no=$3 FOR UPDATE`,[salesOrderId,mirror.source_id,mirror.sales_contract_no]);
     if(link.rowCount!==1)throw new HttpError(409,'source_binding_conflict','Source refresh requires the existing binding');
-    const insideOrderNo=input.source.insideOrderNo.normalize('NFKC').trim();
+    const insideOrderNo=input.source.insideOrderNo.normalize('NFKC').trim()||null;
     if(link.rows[0].inside_order_no!==insideOrderNo)await client.query('UPDATE sales_order_source_links SET inside_order_no=$2 WHERE id=$1',[link.rows[0].id,insideOrderNo]);
     await upsertCurrentAinuokeContractMirror(client, salesOrderId, input.source);
     await replaceCurrentAinuokeColorSlice(client, salesOrderId, input.colors);

@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "cb5cc29baa49ed7115fdb6c9506b6a80356936ea",
-  "verifiedAt": "2026-11-05T13:49:50.210Z",
+  "baselineSha": "390569c4cfa56cd56261674c3f2110bd306d3ff7",
+  "verifiedAt": "2026-11-09T13:26:34.242Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -6047,6 +6047,36 @@
       "sha256": "12b9881e085b765850b68416ae979e471efcbc23608db2e986b3dee5566f268b",
       "supersedes": "material-business-unit-source-20261107",
       "changeReason": "User authorized staging delivery of the accepted materials and controlled collector handoff; preserve local read-only data, source evidence, normal RBAC and previous immutable checkpoints."
+    },
+    {
+      "id": "ainuoke-order-discovery-business-20261109",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "d39d37fb7119b8f11c0209e1ad6de6d025695682",
+      "renderedSourceSha": "d39d37fb7119b8f11c0209e1ad6de6d025695682",
+      "sha256": "41dce1ae26014cd83f02f700851eb54c9af158e5c66d8b7587c6a8f9edb62ef6",
+      "supersedes": "staging-login-integration-1-20261107",
+      "changeReason": "User authorized automatic new-contract discovery on staging; retain all prior frozen evidence and add independent scan checkpoints, contract-only intake, safe empty enrichment and paired-backup catch-up without changing the accepted material UI."
+    },
+    {
+      "id": "ainuoke-order-discovery-decisions-20261109",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "d39d37fb7119b8f11c0209e1ad6de6d025695682",
+      "renderedSourceSha": "d39d37fb7119b8f11c0209e1ad6de6d025695682",
+      "sha256": "6798a5d573eab01aed4c866068732e06d5dc061eb87f546ab5d58f3dd6e13657",
+      "supersedes": "staging-login-integration-2-20261107",
+      "changeReason": "User authorized automatic new-contract discovery on staging; retain all prior frozen evidence and add independent scan checkpoints, contract-only intake, safe empty enrichment and paired-backup catch-up without changing the accepted material UI."
+    },
+    {
+      "id": "ainuoke-order-discovery-source-20261109",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SERVER_SOURCE.md",
+      "recordedAtSha": "d39d37fb7119b8f11c0209e1ad6de6d025695682",
+      "renderedSourceSha": "d39d37fb7119b8f11c0209e1ad6de6d025695682",
+      "sha256": "66b2465c62a2705acb8504f0c6fc9f79430ccaea36235bbaa7cfa8f46c118dd6",
+      "supersedes": "staging-handoff-source-0-20261107",
+      "changeReason": "User authorized automatic new-contract discovery on staging; retain all prior frozen evidence and add independent scan checkpoints, contract-only intake, safe empty enrichment and paired-backup catch-up without changing the accepted material UI."
     }
   ],
   "pages": [

@@ -108,7 +108,8 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
     if(action==='sync-status'){
       const control=(await pool.query('SELECT enabled,version,policy,paused_reason,heartbeat_at,catalog_failure_count,catalog_retry_at FROM ainuoke_sync_controls WHERE source_key=$1',[cfg.sourceKey])).rows[0]??null;
       const queue=(await pool.query('SELECT status,kind,count(*)::int AS count,min(requested_at) AS oldest FROM ainuoke_sync_jobs WHERE source_key=$1 GROUP BY status,kind',[cfg.sourceKey])).rows;
-      process.stdout.write(JSON.stringify({event:'SYNC_STATUS',control,queue,sourceRequests:0})+'\n');return;
+      const catalogScan=(await pool.query('SELECT status,last_request_id,last_success_at,next_scan_at,cursor,watermark,last_error_code FROM ainuoke_catalog_scan_state WHERE source_key=$1',[cfg.sourceKey])).rows[0]??null;
+      process.stdout.write(JSON.stringify({event:'SYNC_STATUS',control,queue,catalogScan,sourceRequests:0})+'\n');return;
     }
     if(action==='sync-once'||action==='sync-run'){
       const batchSize=Number(values.get('batch-size')??5);

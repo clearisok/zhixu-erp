@@ -10,7 +10,7 @@ import {refreshAinuokeSalesOrderSourceInTransaction} from '../sales-orders/deliv
 import {orderCommandControlError} from '../sales-orders/command-control.js';
 import {appendOperationLog} from '../operation-logs/repository.js';
 import {boundOrders} from './service.js';
-import {previewAdditions} from './additions.js';
+import {previewAdditions,hasCompleteEmptyColorEvidence} from './additions.js';
 import {hash,inspect,sourceKeyValid} from './contract.js';
 import {paymentDatabaseFingerprint} from './payment-request-collection.js';
 
@@ -63,12 +63,16 @@ async function prepare(client:PoolClient,scope:BoundOrderRefreshScope,evidence:u
  const plans=await readDeliveryPlanSet(client,owner.id);
  const currentColors=(await client.query('SELECT source_line_identity,color_name,quantity::text,delivery_date::text,source_hash,source_metadata FROM ainuoke_sales_order_color_mirrors WHERE sales_order_id=$1 ORDER BY source_line_identity',[owner.id])).rows;
  const selected=[mirror.sales_contract_no];
- const mapped=await previewAdditions(evidence,selected,[{id:owner.id,sourceId:mirror.source_id,salesContractNo:mirror.sales_contract_no}],now,600000);
+ // A contract created without a quantity can remain incomplete. A later blank
+ // header must not erase an already accepted quantity during normal refresh.
+ const mapped=await previewAdditions(evidence,selected,[{id:owner.id,sourceId:mirror.source_id,salesContractNo:mirror.sales_contract_no}],now,600000,{allowIncompleteHeader:mirror.evidence.quantity===null});
  const candidate=mapped.candidates[0];
  if(mapped.candidates.length!==1||candidate.source.sourceId!==mirror.source_id)fail(409,'bound_refresh_binding_changed');
  // Initial binding may accept incomplete enrichment. Refresh must never turn
  // invalid/missing enrichment into DELETE of an accepted current color slice.
- if(candidate.colorDetailStatus!=='usable'||!candidate.colors.length)fail(409,'bound_refresh_color_evidence_incomplete');
+ const colorPages=(evidence as import('./additions.js').AdditionBundle).colors[mirror.sales_contract_no];
+ const initialEmpty=currentColors.length===0&&hasCompleteEmptyColorEvidence(colorPages,mirror.sales_contract_no);
+ if((candidate.colorDetailStatus!=='usable'||!candidate.colors.length)&&!initialEmpty)fail(409,'bound_refresh_color_evidence_incomplete');
  if(candidate.colors.length>1000)fail(422,'bound_refresh_color_limit');
  if(Date.parse(candidate.source.fetchedAt)<new Date(mirror.fetched_at).getTime())fail(409,'bound_refresh_evidence_regressed');
  const context={scope,databaseFingerprint,target,owner,mirror:mirror.evidence,colors:currentColors,plans,evidenceHash:hash(evidence),candidate};

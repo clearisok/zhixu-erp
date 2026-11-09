@@ -2,6 +2,7 @@ import importlib.util
 from datetime import datetime, timezone
 from pathlib import Path
 import unittest
+from unittest.mock import patch
 
 spec = importlib.util.spec_from_file_location('source_supervisor', Path(__file__).parents[1] / 'ainuoke_sync_supervisor.py')
 module = importlib.util.module_from_spec(spec)
@@ -53,6 +54,40 @@ class SupervisorSafety(unittest.TestCase):
         self.assertEqual(module.decision('BACKUP_QUIET',False,self.time('03:49'),True),'quiet')
         self.assertEqual(module.decision('BACKUP_QUIET',False,self.time('03:50'),False),'wait')
         self.assertEqual(module.decision('BACKUP_QUIET',False,self.time('03:50'),True),'start')
+
+    def test_tick_runs_the_same_verified_backup_before_restarting(self):
+        class Clock(datetime):
+            @classmethod
+            def now(cls, tz=None):
+                return cls.fromisoformat('2026-11-05T20:00:00+08:00').astimezone(tz)
+        cfg={'enabled':True,'sourceSha':'candidate','project':'trial','oldStatusFile':'old',
+             'backupStatusFile':'backup','containerName':'worker'}
+        receipt={'state':'BACKUP_VERIFIED','source':'candidate','project':'trial','originalServicesResumed':True,
+                 'id':'today','finishedAt':'2026-11-05T19:59:00+08:00'}
+        state={'state':'BACKUP_QUIET','quietDate':'2026-11-05'}
+        with patch.object(module,'datetime',Clock), patch.object(module,'inspect_owned',return_value={'State':{'Running':False}}), \
+                patch.object(module,'private_json',side_effect=[{'state':'PAUSED'},{}]), \
+                patch.object(module,'perform_backup',return_value=receipt) as backup, patch.object(module,'command') as command:
+            result=module.tick(cfg,Path('private'),state)
+        self.assertEqual(result['state'],'RUNNING')
+        backup.assert_called_once_with(cfg,Path('private'),Path('private/status.json'),state)
+        command.assert_called_once_with([module.DOCKER,'start','worker'])
+
+    def test_minute_tick_catches_up_backup_skipped_by_cron_lock_collision(self):
+        state={'state':'BACKUP_QUIET','quietDate':'2026-11-05'}
+        stale={'state':'BACKUP_VERIFIED','source':'candidate','project':'trial','originalServicesResumed':True,
+               'id':'yesterday','finishedAt':'2026-11-04T03:35:00+08:00'}
+        due=lambda at: module.backup_due(state,False,stale,'candidate','trial',self.time(at))
+        self.assertFalse(due('03:29'))
+        self.assertTrue(due('03:30'))
+        self.assertTrue(due('03:31'))
+        self.assertTrue(due('20:00'))
+        valid={**stale,'id':'today','finishedAt':'2026-11-05T03:35:00+08:00'}
+        self.assertFalse(module.backup_due(state,False,valid,'candidate','trial',self.time('03:50')))
+        self.assertFalse(module.backup_due(state,True,stale,'candidate','trial',self.time('20:00')))
+        for name in ['DISABLED','STOPPED_FAULT','BACKUP_IN_PROGRESS','RUNNING','QUIESCING']:
+            self.assertFalse(module.backup_due({**state,'state':name},False,stale,'candidate','trial',self.time('20:00')))
+        self.assertFalse(module.backup_due({'state':'BACKUP_QUIET'},False,stale,'candidate','trial',self.time('20:00')))
 
 if __name__ == '__main__':
     unittest.main()
