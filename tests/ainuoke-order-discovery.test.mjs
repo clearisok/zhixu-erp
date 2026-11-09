@@ -52,8 +52,8 @@ test("Discovery adapter fails closed on incomplete paging and duplicate stable i
     /sourceId 存在重复值/,
   );
   await assert.rejects(
-    () => adaptAinuokeOrderDiscoverySnapshots([snapshot({ page: 1, pageSize: 1, total: 1, rows: [row(1, "", "PI-1")] })]),
-    /InsideOrderNo/,
+    () => adaptAinuokeOrderDiscoverySnapshots([snapshot({ page: 1, pageSize: 1, total: 1, rows: [row("", "D1", "PI-1")] })]),
+    /缺少 id/,
   );
   await assert.rejects(
     () => adaptAinuokeOrderDiscoverySnapshots([snapshot({ page: 1, pageSize: 1, total: 1, rows: [row(1, "D1", "")] })]),
@@ -70,6 +70,18 @@ test("Discovery adapter fails closed on incomplete paging and duplicate stable i
     ]),
     /Source row identity.*重复值/,
   );
+});
+
+test("Discovery retains a contract before optional style, factory reference or status is provided", async () => {
+  const missing = row(1, "", "PI-1", "");
+  missing.values.GoodsDesc = null;
+  const result = await adaptAinuokeOrderDiscoverySnapshots([snapshot({ page: 1, pageSize: 50, total: 1, rows: [missing] })]);
+  assert.equal(result.rows.length, 1);
+  assert.equal(result.rows[0].salesContractNo, "PI-1");
+  assert.equal(result.rows[0].sourceId, "1");
+  assert.equal(result.rows[0].insideOrderNo, "");
+  assert.equal(result.rows[0].styleNo, "");
+  assert.equal(result.rows[0].lifecycleStatusRaw, "");
 });
 
 test("Discovery adapter accepts the single complete empty snapshot", async () => {

@@ -185,7 +185,7 @@ class BudgetClient:
         return result
 
 
-def collect_selected(data, transport=None, clock=monotonic, diagnostics=None, session_owner=None):
+def collect_selected(data, transport=None, clock=monotonic, diagnostics=None, session_owner=None, catalog_progress=None, catalog_resume=None):
     """Injection is an internal testing seam, never an argv/stdin flag."""
     data = validate_input(data)
     if session_owner:
@@ -193,6 +193,10 @@ def collect_selected(data, transport=None, clock=monotonic, diagnostics=None, se
     if data.get("mode") not in MODES:
         raise ValueError("invalid_selected_scope")
     catalog = data["mode"] == "catalog-discovery"
+    if (catalog_progress or catalog_resume) and not catalog:
+        raise ValueError('invalid_catalog_checkpoint')
+    from .catalog_checkpoint import validated_prefix
+    prefix = validated_prefix(catalog_resume or [])
     underlying = transport or ProtectedTransport(LIMITS["responseBytes"])
     if diagnostics is not None:
         from .request_diagnostics import DiagnosticTransport
@@ -214,7 +218,8 @@ def collect_selected(data, transport=None, clock=monotonic, diagnostics=None, se
             engine["mode"] = "additions"
         else:
             engine.pop("mode")
-        bundle = collect(engine, client, include_colors=data["mode"] == "catalog-contracts", material_report=engine.pop("materialReport", None))
+        bundle = collect(engine, client, include_colors=data["mode"] == "catalog-contracts", material_report=engine.pop("materialReport", None),
+                         catalog_progress=catalog_progress, catalog_resume=prefix)
         reject_secret_values(bundle, client.secrets)
         if sum(len(p["rows"]) for p in [*bundle["discoveryBefore"], *bundle["discoveryAfter"],
               *(p for key in ("colors", "materials") for pages in bundle.get(key, {}).values() for p in pages)]) > LIMITS["sourceRows"]:

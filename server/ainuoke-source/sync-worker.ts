@@ -10,7 +10,11 @@ import { refreshCollectedBoundOrderInTransaction } from './bound-order-refresh.j
 import { claimSyncJobs, enqueueAutomaticSync, type SyncJob } from './sync-queue.js';
 import { validateSelectedSourceOnce, type SelectedSourceRequest } from './selected-source-once.js';
 import { captureCatalogOnce } from './catalog-capture.js';
+import {catalogScanDue,type CatalogCollectionOptions} from './catalog-checkpoints.js';
 import { HttpError } from '../http/errors.js';
+import {requirePermission} from '../auth/permissions.js';
+import {createAinuokeSalesOrderInTransaction} from '../sales-orders/service.js';
+import {lockEffectiveAttribution} from '../sales-orders/effective-attribution.js';
 import { saveCatalogEvidence } from './catalog-evidence.js';
 import { CatalogDiagnosticValidationError, collectCatalogDiagnostic, validateCatalogDiagnostic, diagnosticSummary, finishCaptureAttempt, retryDelayMs, retryableCapture, type RequestDiagnostic } from './sync-diagnostics.js';
 
@@ -18,10 +22,11 @@ type Identity = Pick<TrustedIdentity,'internalUserId'|'userId'>;
 type Captured = Extract<Awaited<ReturnType<typeof validateSelectedSourceOnce>>, {mode:'catalog-contracts'}>;
 type ContractCapture=Exclude<Captured['contracts'][string],{code:string}>;
 
-async function publishContract(pool:Pool,identity:Identity,config:CollectorConfig,job:SyncJob,captured:ContractCapture&{directory:Captured['directory']},now:number) {
+async function publishContract(pool:Pool,identity:Identity,config:CollectorConfig,job:SyncJob,captured:ContractCapture&{directory:Captured['directory']},now:number,adoptNewOrders=false) {
   const c=await pool.connect();
   try {
     await c.query('BEGIN');await c.query("SET LOCAL lock_timeout='5s'");await c.query("SET LOCAL statement_timeout='30s'");
+    if(adoptNewOrders)await lockEffectiveAttribution(c);
     await c.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',['ainuoke-source:'+config.sourceKey]);
     const actor=await sourceActor(c,identity,true);
     await requireAdditionProfile(c,config.sourceKey,accountFingerprint(config),true);
@@ -35,7 +40,15 @@ async function publishContract(pool:Pool,identity:Identity,config:CollectorConfi
     if(!observed)throw new SourceError('source_visibility_changed');
     const saved=(await c.query('SELECT sales_contract_no FROM ainuoke_catalog_entries WHERE source_key=$1 AND source_id=$2 FOR UPDATE',[config.sourceKey,job.source_id])).rows[0];
     if(saved?.sales_contract_no!==job.sales_contract_no)throw new SourceError('catalog_identity_changed');
-    const target=(await boundOrders(c)).find(o=>o.salesContractNo===job.sales_contract_no);
+    let target=(await boundOrders(c)).find(o=>o.salesContractNo===job.sales_contract_no);
+    if(!target&&adoptNewOrders){
+      requirePermission(actor.permissions,'ainuoke.bind');
+      const candidate=captured.candidates.candidates.find(item=>item.source.salesContractNo===job.sales_contract_no);
+      if(!candidate||candidate.source.sourceId!==job.source_id)throw new SourceError('catalog_identity_changed');
+      await createAinuokeSalesOrderInTransaction(c,actor,candidate,{materialPublication:'same_transaction'});
+      target=(await boundOrders(c)).find(o=>o.salesContractNo===job.sales_contract_no);
+      if(!target)throw new SourceError('material_recovery_binding_missing');
+    }
     const singleAddition={...captured.addition,colors:{[job.sales_contract_no]:captured.addition.colors[job.sales_contract_no]}};
     let orderId:string|null=null;
     let publicationRunId:string|null=null;
@@ -113,7 +126,7 @@ async function failJob(pool:Pool,job:SyncJob,code:string,unknown=false,options:{
  * stops. No implicit activation, retries, credential changes or infinite loops. */
 export async function runSyncTick(pool:Pool,identity:Identity,raw:CollectorConfig,options:{
   automatic?:boolean;batchSize?:number;now?:()=>number;sourceIds?:readonly string[];adoptNewOrders?:boolean;
-  collect?:(config:CollectorConfig,request:SelectedSourceRequest)=>Promise<unknown>;
+  collect?:(config:CollectorConfig,request:SelectedSourceRequest,options?:CatalogCollectionOptions)=>Promise<unknown>;
 }={}) {
   const batchSize=options.batchSize??5;
   if(!Number.isSafeInteger(batchSize)||batchSize<1||batchSize>25)throw new SourceError('sync_batch_invalid');
@@ -135,12 +148,12 @@ export async function runSyncTick(pool:Pool,identity:Identity,raw:CollectorConfi
     if(options.automatic!==false){
       const settings=(await pool.query('SELECT enabled,paused_reason,policy,catalog_failure_count,catalog_retry_at FROM ainuoke_sync_controls WHERE source_key=$1',[config.sourceKey])).rows[0];
       if(!settings?.enabled||settings.paused_reason)throw new SourceError('sync_worker_paused');
-      const manual=(await pool.query("SELECT 1 FROM ainuoke_sync_jobs WHERE source_key=$1 AND kind='manual' AND status='queued' LIMIT 1",[config.sourceKey])).rowCount;
       const latest=(await pool.query('SELECT status,created_at FROM ainuoke_catalog_requests WHERE source_key=$1 ORDER BY created_at DESC LIMIT 1',[config.sourceKey])).rows[0];
       if(latest?.status==='unknown'||latest?.status==='running'&&now()-new Date(latest.created_at).getTime()>300000){
         await pool.query("UPDATE ainuoke_sync_controls SET paused_reason='catalog_result_unknown' WHERE source_key=$1",[config.sourceKey]);throw new SourceError('catalog_result_unknown');
       }
-      if(!manual&&latest?.status!=='running'&&(settings.catalog_retry_at||!latest||now()-new Date(latest.created_at).getTime()>=settings.policy.catalogMinutes*60000)){
+      const catalogRetryDue=settings.catalog_retry_at&&new Date(settings.catalog_retry_at).getTime()<=now();
+      if(latest?.status!=='running'&&(catalogRetryDue||!settings.catalog_retry_at&&await catalogScanDue(pool,config.sourceKey,settings.policy.catalogMinutes,now()))){
         try{
           await captureCatalogOnce(pool,identity,config,randomUUID(),options.collect,lease,options.adoptNewOrders);
           await pool.query('UPDATE ainuoke_sync_controls SET catalog_failure_count=0,catalog_retry_at=NULL WHERE source_key=$1',[config.sourceKey]);
@@ -192,7 +205,7 @@ export async function runSyncTick(pool:Pool,identity:Identity,raw:CollectorConfi
     for(const job of jobs) {
       const single=captured.contracts[job.sales_contract_no];
       if(!single||'code' in single){results.push({id:job.id,...await failJob(pool,job,single?.code??'source_contract_missing')});continue;}
-      try{results.push({id:job.id,status:'complete',result:await publishContract(pool,identity,config,job,{...single,directory:captured.directory},now())});}
+      try{results.push({id:job.id,status:'complete',result:await publishContract(pool,identity,config,job,{...single,directory:captured.directory},now(),options.adoptNewOrders)});}
       catch(e){const code=e instanceof SourceError||e instanceof HttpError?e.code:'sync_publish_failed';const result=await failJob(pool,job,code,!(e instanceof SourceError)&&!(e instanceof HttpError));results.push({id:job.id,...result});}
     }
     return {status:'processed' as const,jobs:results};

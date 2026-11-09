@@ -158,7 +158,7 @@ def validate_input(data):
         raise ValueError("addition_scope_limit")
     return data
 
-def collect(data, client=None, include_colors=False, material_report=None):
+def collect(data, client=None, include_colors=False, material_report=None, catalog_progress=None, catalog_resume=None):
     data = validate_input(data)
     if data.get("mode") in ("selected-bindings", "selected-materials", "bound-materials", "catalog-discovery", "catalog-contracts"):
         if client is not None:
@@ -173,12 +173,36 @@ def collect(data, client=None, include_colors=False, material_report=None):
     total_rows = 0
     total_bytes = 0
     requests = 0
+    discovery_pass = 0
 
     def pages(key, query):
-        nonlocal session, renewals, total_rows, total_bytes, requests
+        nonlocal session, renewals, total_rows, total_bytes, requests, discovery_pass
         result = []
         expected = None
+        phase = None
+        prefix = []
+        if key == 'order_discovery' and data.get('mode') == 'discovery':
+            phase = 'before' if discovery_pass == 0 else 'after'
+            discovery_pass += 1
+            if phase == 'before':
+                prefix = catalog_resume or []
+
+        def append(snapshot):
+            nonlocal total_rows, total_bytes
+            total_rows += len(snapshot['rows'])
+            total_bytes += len(json.dumps(snapshot, ensure_ascii=False, allow_nan=False).encode('utf8'))
+            if total_rows > 100000 or total_bytes > MAX_BYTES:
+                raise UpstreamSchemaError('source_limit')
+            result.append(snapshot)
+            if catalog_progress and phase:
+                catalog_progress(phase, snapshot)
+
         for index in range(1, 201):
+            if index > 1 and index <= len(prefix):
+                append(prefix[index-1])
+                if index * 50 >= expected:
+                    return result
+                continue
             requests += 1
             if data.get("mode") in ("audit", "targeted", "quality"):
                 if requests > (80 if data.get("mode") == "targeted" else 160 if data.get("mode") == "quality" else 2000):
@@ -204,14 +228,12 @@ def collect(data, client=None, include_colors=False, material_report=None):
             remaining = max(0, expected - 50 * (index - 1))
             if len(page.rows) != min(50, remaining):
                 raise UpstreamSchemaError("incomplete_paging")
-            total_rows += len(page.rows)
-            if total_rows > 100000:
-                raise UpstreamSchemaError("source_limit")
             snapshot = build_report_snapshot(report_key=key, rows=page.rows, page=index, page_size=50, total=expected, query_context=query).to_dict()
-            total_bytes += len(json.dumps(snapshot, ensure_ascii=False, allow_nan=False).encode("utf-8"))
-            if total_bytes > MAX_BYTES:
-                raise UpstreamSchemaError("source_limit")
-            result.append(snapshot)
+            if index == 1 and prefix:
+                from .catalog_checkpoint import matches_first_page
+                if not matches_first_page(prefix, snapshot):
+                    prefix = []
+            append(snapshot)
             if index * 50 >= expected:
                 return result
         raise UpstreamSchemaError("page_limit")
@@ -222,9 +244,11 @@ def collect(data, client=None, include_colors=False, material_report=None):
         for row in page["rows"]:
             key = identity(row["values"].get("BillNo"))
             inside = row["values"].get("InsideOrderNo")
-            if not key or key in lookup or not isinstance(inside, str) or not inside.strip():
+            if not key or key in lookup:
                 raise UpstreamSchemaError("invalid_discovery_identity")
-            lookup[key] = inside.strip()
+            # BillNo owns order identity. A new contract can precede its style
+            # reference; modern material and colour reads use BillNo directly.
+            lookup[key] = inside.strip() if isinstance(inside, str) else ""
     if len(lookup) > getattr(client, "directory_row_limit", 1000):
         raise UpstreamSchemaError("source_limit")
     if data.get("mode") == "targeted":

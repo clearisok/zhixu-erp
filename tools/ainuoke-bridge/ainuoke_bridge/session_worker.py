@@ -8,17 +8,32 @@ from .selected_source_once import collect_selected
 def main():
     owner = CaptureSession()
     while True:
-        line = sys.stdin.buffer.readline(65538)
+        line = sys.stdin.buffer.readline(32*1024*1024+2)
         if not line:
             return 0
         try:
-            if len(line) > 65536 or not line.endswith(b'\n'):
+            if len(line) > 32*1024*1024 or not line.endswith(b'\n'):
                 raise ValueError('invalid_input')
             data = json.loads(line)
+            progress = data.pop('catalogProgress', False)
+            resume = data.pop('catalogResume', [])
+            if (type(progress) is not bool or not isinstance(resume,list)
+                    or (progress or resume) and data.get('mode') != 'catalog-discovery'
+                    or not progress and (resume or len(line) > 65536)):
+                raise ValueError('invalid_catalog_checkpoint')
             if data.get('mode') not in ('catalog-contracts', 'catalog-discovery'):
                 raise ValueError('invalid_mode')
             events = []
-            capture = collect_selected(data, diagnostics=events, session_owner=owner)
+            def page_saved(phase, page):
+                from .selected_source_once import reject_secret_values
+                secrets = [data['password']]
+                if owner.session:
+                    secrets.append(owner.session.jwt_token)
+                reject_secret_values(page, secrets)
+                sys.stdout.write(json.dumps({'schemaVersion':'ainuoke-catalog-page.v1','phase':phase,'page':page},ensure_ascii=False)+'\n')
+                sys.stdout.flush()
+            capture = collect_selected(data, diagnostics=events, session_owner=owner,
+                                       catalog_progress=page_saved if progress else None, catalog_resume=resume)
             result = {'schemaVersion':'ainuoke-session-diagnostics.v1','capture':capture,'requests':events}
             sys.stdout.write(json.dumps(result, ensure_ascii=False) + '\n')
             sys.stdout.flush()

@@ -1,6 +1,10 @@
 # 接力：新合同自动发现修复进行中
 
-2026-11-09 active goal见 [任务记录](tasks/active/ainuoke-order-discovery-2026-11-09.md)。工作树ainuoke-order-discovery/zhixu-ainuoke-api，分支fix/ainuoke-order-discovery，基线main390569c4。GitHub API同SHA；Git fetch因127.0.0.1失效代理失败，NETWORK_DEGRADED，不重复撞原通道。当前产品仍390，尚未交付本次修复。
+2026-11-09 active goal见 [任务记录](tasks/active/ainuoke-order-discovery-2026-11-09.md)。工作树ainuoke-order-discovery/zhixu-ainuoke-api，分支fix/ainuoke-order-discovery，基线main390569c4。GitHub API同SHA；默认Git为失效URL级代理127.0.0.1:17989，进程级http.https://github.com.proxy空值对照与fetch已成功，未改共享代理/TLS/认证配置。当前产品仍390，尚未交付本次修复；Gate1检查点a6ece7a06fa095951f41eb4493c7ef60eeadeb27。
+
+Gate2代码已实现0057目录独立时钟/持久分页/成功水位和同账号近期失败前缀恢复；首尾完整重叠目录校验、不按合同日期过滤，仍同一长驻认证owner。缺款号/数量/状态等非身份字段允许正式建档，数量null不造零；完整空或已批准空颜色占位可发布首次空结果，但不能清除已有颜色。逐单SAVEPOINT和原任务重试保持失败隔离、销售合同号+sourceID身份及原读写权限。204 Python/8监管器、类型/受影响lint/固定构建已过；新增目录PG回归4项通过，空占位补充测试执行中。根npm与发布回归启动于文档冻结前，最终以正确前向冻结证据后的结果为准；源码守卫已指出3份活跃文档需新冻结记录，不能改旧hash消错。PR/CI/merge/仅staging新版本发布仍未完成。
+
+原390正常后台第二目录21:20:03–21:20:06北京，619合同、新建0、26报表/0登录；两张新单第二次自动任务21:20:18及21:20:30完成，订单/活跃任务重复0。今天用户指定的0813-176采购只读核对也已完成：M2611107首次来源11/08 07:57:18，自动发布07:57:21（run9114c31c-53d9-4d66-880d-5ee46423d3a9），两采购38347/38348共1970千克/358540元，40历史快照不重复；本轮未手工刷新或新增登录。该旁路核对不代替本目标新版本发布验收。
 
 明确根因：03:30备份cron和每分钟tick的非阻塞锁碰撞，operations.log为SUPERVISOR_BUSY；监管器BACKUP_QUIET一直等当天备份，目录最后02:54停止。原代码本身有30分钟目录任务且sync-run传adoptNewOrders:true。已用原流程补做备份20261109T124359Z-9530194e（137表/9对象、原服务恢复、0源请求），20:49原cron自然恢复：619目录中发现PI2611-081/source7186及PI2611-084/source7189，自动建单20:49:07.085、首次发布20:49:36.761及20:49:22.844北京。无手动导入或刷新。staging UUID分别faf4038f-467d-4bff-aaa7-b4c17145f047、b23cca8e-a489-4206-b47c-7e4947474bf4。原617身份清单SHA13f756710ccc5ea392eaddbd63e1c434fe2a93c40d776eda71fb5cea2d39f30d保存在宁波新TASK/releases/order-discovery-20261109。
 

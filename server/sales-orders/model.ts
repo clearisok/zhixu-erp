@@ -43,7 +43,7 @@ export type AinuokeContractMirrorInput = {
   companyNameSnapshot: string;
   customerNameSnapshot: string;
   brandNameSnapshot: string;
-  quantity: number;
+  quantity: number | null;
   sourceHash: string;
   fetchedAt: string;
   sourceMetadata?: Record<string, unknown>;

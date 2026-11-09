@@ -57,6 +57,7 @@ export const CURRENT_MIGRATION_FILES = Object.freeze([
   '0054_ainuoke_catalog_receipts.sql',
   '0055_ainuoke_shared_catalog_evidence.sql',
   '0056_ainuoke_sync_attempt_recovery.sql',
+  '0057_ainuoke_catalog_scan_checkpoints.sql',
 ]);
 
 export const migrationFilesAfter = (version: number) =>

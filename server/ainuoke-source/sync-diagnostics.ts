@@ -2,6 +2,7 @@ import type { Pool, PoolClient } from 'pg';
 import { collectWithPython, parseCollectorConfig, type CollectorConfig } from './collector.js';
 import { SELECTED_SOURCE_LIMITS, validateSelectedSourceOnce, type SelectedSourceRequest } from './selected-source-once.js';
 import { SourceError } from './contract.js';
+import type {CatalogPage} from './catalog-checkpoints.js';
 
 export type LoginEvidence = { responseShape:'data_object'|'object_without_data_object'|'non_object'; result:'accepted'|'rejected'|'malformed'; serverCode:'absent'|'cover_confirmation'|'unrecognized'; serverHint:'unclassified'|'session_exists'|'verification_required'|'credentials_rejected'|'account_unavailable'|'throttling_hint'|'cover_confirmation_required'|'user_capacity_exhausted' };
 export type LoginDetails = {at:string;interface:'loginsys2';isOk:boolean|null;businessCode:string|null;text1:string|null;message:string|null;errorMsg?:string|null};
@@ -54,14 +55,14 @@ export async function collectCatalogDiagnostic(config:CollectorConfig,request:Se
  const value=await collectWithPython(cfg,request.contracts,{mode:request.mode,timeoutMs:SELECTED_SOURCE_LIMITS.timeoutMs,diagnostics:true});
  return validateCatalogDiagnostic(value,cfg,request,Math.max(now,Date.now()));
 }
-export async function validateCatalogDiagnostic(value:unknown,cfg:CollectorConfig,request:SelectedSourceRequest,now:number) {
+export async function validateCatalogDiagnostic(value:unknown,cfg:CollectorConfig,request:SelectedSourceRequest,now:number,resumePages:readonly CatalogPage[]=[]) {
  if(!value||typeof value!=='object'||Object.keys(value).sort().join(',')!=='capture,requests,schemaVersion')throw new SourceError('sync_diagnostics_invalid');
  const wrapped=value as {schemaVersion:string;capture:unknown;requests:unknown};
  const sessionReuse=wrapped.schemaVersion==='ainuoke-session-diagnostics.v1';
  if(!sessionReuse&&wrapped.schemaVersion!=='ainuoke-request-diagnostics.v1')throw new SourceError('sync_diagnostics_invalid');
  const diagnostics=validateRequestDiagnostics(wrapped.requests);
  let capture;
- try {capture=await validateSelectedSourceOnce(wrapped.capture,cfg,request,now,sessionReuse);}
+ try {capture=await validateSelectedSourceOnce(wrapped.capture,cfg,request,now,sessionReuse,resumePages);}
  catch(error){
   // A retryable domain rejection occurs only after envelope/metrics validation.
   // Do not let a contradictory transport trace turn auth/schema failures into retries.

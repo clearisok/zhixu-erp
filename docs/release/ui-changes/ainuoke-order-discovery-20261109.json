@@ -1,0 +1,12 @@
+{
+  "baselineSha": "390569c4cfa56cd56261674c3f2110bd306d3ff7",
+  "level": "V1",
+  "paths": [
+    "features/ainuoke-api/source/ainuoke-order-discovery-adapter.ts",
+    "features/ainuoke-sync/service/sales-order-final-bootstrap-preview.ts",
+    "features/ainuoke-sync/source/ainuoke-garment-color-size-adapter.ts"
+  ],
+  "pages": ["order-list", "order-detail", "material"],
+  "visibleDifference": "Restore the approved contract-as-order behavior when a new sales contract has incomplete non-identity fields. Retain null quantity and absent style references instead of rejecting the order. Preserve the existing list, detail and material layouts, columns, permissions and real business quantities.",
+  "evidence": ["docs/tasks/active/ainuoke-order-discovery-2026-11-09.md"]
+}

@@ -386,7 +386,7 @@ export async function upsertCurrentAinuokeContractMirror(
       requiredText(input.sourceId, "sourceId"),
       requiredText(input.sourceRowIdentity, "sourceRowIdentity"),
       requiredText(input.salesContractNo, "salesContractNo").toLocaleUpperCase("en-US"),
-      requiredText(input.insideOrderNo, "insideOrderNo"),
+      input.insideOrderNo.normalize('NFKC').trim(),
       input.lifecycleStatusRaw.normalize("NFKC").trim(),
       input.contractDate,
       input.contractDeliveryDate,

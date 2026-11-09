@@ -13,6 +13,7 @@ import { saveCatalogEvidence } from './catalog-evidence.js';
 import {mapDirectorySalesOrderCandidate} from '../../features/ainuoke-sync/service/sales-order-final-bootstrap-preview.js';
 import {createAinuokeSalesOrderInTransaction} from '../sales-orders/service.js';
 import {lockEffectiveAttribution} from '../sales-orders/effective-attribution.js';
+import {HttpError} from '../http/errors.js';
 
 const text = (v:unknown) => typeof v==='string' && v.trim() ? v.normalize('NFKC').trim() : null;
 const date = (v:unknown) => {
@@ -98,23 +99,35 @@ export async function publishCatalog(pool:Pool,identity:Pick<TrustedIdentity,'in
    quantity=excluded.quantity,contract_date=excluded.contract_date,delivery_date=excluded.delivery_date,lifecycle_status_raw=excluded.lifecycle_status_raw,observed_run_id=excluded.observed_run_id,visible=true`,
    [options.sourceKey,r.sourceId,r.salesContractNo,r.insideOrderNo,r.styleNo,r.customerName,r.brandName,r.quantity,r.contractDate,r.deliveryDate,r.lifecycleStatusRaw,id]);
   await c.query('UPDATE ainuoke_source_profiles SET catalog_run_id=$2 WHERE source_key=$1',[options.sourceKey,id]);
-  let createdOrders=0;
+  let createdOrders=0,pendingOrders=0;
   if(options.adoptNewOrders){
    for(const row of checked.rows){
     if(links.some(link=>link.external_id===row.sourceId&&link.sales_contract_no===row.salesContractNo))continue;
-    const candidate=await mapDirectorySalesOrderCandidate(row,checked.bundle.discoveryAfter);
-    const result=await createAinuokeSalesOrderInTransaction(c,actor,candidate);
-    if(result.created){
-     createdOrders++;
-     // The ordinary creation service queued missing material publication. Its
-     // origin here is automatic; no human request can see this uncommitted SO.
-     await c.query("UPDATE ainuoke_sync_jobs SET kind='automatic' WHERE source_key=$1 AND source_id=$2 AND status='queued' AND requested_by=$3",[options.sourceKey,row.sourceId,actor.internalUserId]);
+    await c.query('SAVEPOINT catalog_order_intake');
+    try{
+     const candidate=await mapDirectorySalesOrderCandidate(row,checked.bundle.discoveryAfter);
+     const result=await createAinuokeSalesOrderInTransaction(c,actor,candidate);
+     await c.query('RELEASE SAVEPOINT catalog_order_intake');
+     if(result.created)createdOrders++;
+    }catch(error){
+     // Identity conflicts are unsafe for the whole source, never soft failures.
+     if(error instanceof HttpError&&['source_contract_identity_conflict','source_binding_conflict'].includes(error.code))throw error;
+     await c.query('ROLLBACK TO SAVEPOINT catalog_order_intake');
+     await c.query('RELEASE SAVEPOINT catalog_order_intake');
+     pendingOrders++;
+     await appendOperationLog(c,actor,{module:'艾诺科同步',action:'更新合同目录',entityType:'AinuokeCatalogRun',entityId:id,
+      afterData:{objectName:row.salesContractNo,values:{result:'待建档'}},metadata:{code:'catalog_order_intake_failed',requestId:options.requestId}});
     }
+    // Both initial creation and a failed intake use the same durable per-order
+    // worker. A single business failure cannot discard other new contracts.
+    await c.query(`INSERT INTO ainuoke_sync_jobs(id,source_key,source_id,sales_contract_no,kind,status,requested_by)
+     VALUES($1,$2,$3,$4,'automatic','queued',$5) ON CONFLICT DO NOTHING`,[randomUUID(),options.sourceKey,row.sourceId,row.salesContractNo,actor.internalUserId]);
+    await c.query("UPDATE ainuoke_sync_jobs SET kind='automatic' WHERE source_key=$1 AND source_id=$2 AND status='queued' AND requested_by=$3",[options.sourceKey,row.sourceId,actor.internalUserId]);
    }
   }
   await appendOperationLog(c,actor,{module:'艾诺科同步',action:'更新合同目录',entityType:'AinuokeCatalogRun',entityId:id,metadata:{sourceOnly:true,contractCount:checked.rows.length,requestId:options.requestId,
    ...(historical?{historicalPublication:true,sourceRequests:0,originalCapturedAt:historical.capturedAt}:{})}});
-  await c.query('COMMIT');return {runId:id,replayed:false,contracts:checked.rows.length,createdOrders};
+  await c.query('COMMIT');return {runId:id,replayed:false,contracts:checked.rows.length,createdOrders,pendingOrders};
  }catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}
 }
 

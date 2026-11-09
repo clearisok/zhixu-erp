@@ -69,14 +69,17 @@ function optionalDate(value: unknown): string | null {
   const raw = normalizeText(value);
   if (!raw) return null;
   const dateOnly = raw.match(/^\d{4}-\d{2}-\d{2}/u)?.[0];
-  if (dateOnly) return dateOnly;
+  if (dateOnly) return Number.isFinite(Date.parse(dateOnly)) && new Date(dateOnly).toISOString().slice(0,10) === dateOnly ? dateOnly : null;
   const parsed = new Date(raw);
   return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString().slice(0, 10);
 }
 
-function requiredQuantity(value: unknown, salesContractNo: string): number {
+function sourceQuantity(value: unknown): number | null {
+  if (value === null || value === undefined || normalizeText(value) === '') return null;
   const parsed = typeof value === "number" ? value : Number(normalizeText(value).replaceAll(",", ""));
-  if (!Number.isFinite(parsed) || parsed < 0) throw new Error(`Discovery ${salesContractNo} Num invalid`);
+  // Keep the real contract even when its not-yet-final quantity is unusable.
+  // Raw evidence is retained; null never becomes an invented business zero.
+  if (typeof value==='boolean'||!Number.isFinite(parsed)||parsed<0||parsed>Number.MAX_SAFE_INTEGER)return null;
   return parsed;
 }
 
@@ -220,7 +223,7 @@ async function mapCandidate(
     companyNameSnapshot: normalizeText(raw.row.values.CompanyName),
     customerNameSnapshot: normalizeText(raw.row.values.CustomerName),
     brandNameSnapshot: normalizeText(raw.row.values.Brand),
-    quantity: requiredQuantity(raw.row.values.Num, discovery.salesContractNo),
+    quantity: sourceQuantity(raw.row.values.Num),
     sourceHash: await sha256Hex(JSON.stringify({
       sourceRowIdentity: discovery.sourceRowIdentity,
       sourceId: discovery.sourceId,
@@ -230,11 +233,15 @@ async function mapCandidate(
       contractDate: optionalDate(raw.row.values.ContractDate),
       contractDeliveryDate: optionalDate(raw.row.values.DeliveryDate),
       styleNo: normalizeIdentity(discovery.styleNo),
-      quantity: requiredQuantity(raw.row.values.Num, discovery.salesContractNo),
+      quantity: sourceQuantity(raw.row.values.Num),
     })),
     fetchedAt: colorSource ? [raw.snapshot.fetchedAt, colorSource.fetchedAt].sort().at(-1)! : raw.snapshot.fetchedAt,
     sourceMetadata: {
       reportId: "6086103",
+      missingFields: Object.entries({insideOrderNo:discovery.insideOrderNo,styleNo:discovery.styleNo,
+        customerName:normalizeText(raw.row.values.CustomerName),quantity:sourceQuantity(raw.row.values.Num),
+        contractDate:optionalDate(raw.row.values.ContractDate),contractDeliveryDate:optionalDate(raw.row.values.DeliveryDate)})
+        .filter(([,value])=>value===null||value==='').map(([field])=>field),
       snapshotHash: raw.snapshot.snapshotHash,
       visibilityScope: "current_account_visible",
       colorDetail: colorSource ? sanitizedColorReconciliation(colorSource) : {status:'missing',queried:false,reason:'not_fetched'},
@@ -348,6 +355,7 @@ export async function buildFinalSalesOrderBootstrapPreview(input: {
     if (detail.exactRows > 0) coverage.exactOrders += 1;
     if (detail.insideOrderNoDrift) drift += 1;
     if (candidate.colorDetailStatus === "usable") {
+      if(candidate.source.quantity===null)continue;
       const difference = candidate.colors.reduce((sum, color) => sum + color.quantity, 0) - candidate.source.quantity;
       if (difference === 0) parity.equal += 1;
       else if (difference < 0) parity.lower += 1;

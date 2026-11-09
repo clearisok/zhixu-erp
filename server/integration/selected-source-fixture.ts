@@ -10,7 +10,7 @@ export const selectedContracts=['SYN-SALES-1','SYN-SALES-2'];
 /** Exercises the real SDK, common collector and worker stdout with a synthetic
  * in-memory HTTP transport. No host connections, credential files or DB access.
  */
-export function selectedWorkerFixture(mode:'selected-bindings'|'selected-materials'|'bound-materials'|'catalog-discovery'|'catalog-contracts',mutation='',contracts=selectedContracts,total=Math.max(3,contracts.length)) : unknown {
+export function selectedWorkerFixture(mode:'selected-bindings'|'selected-materials'|'bound-materials'|'catalog-discovery'|'catalog-contracts',mutation='',contracts=selectedContracts,total=Math.max(3,contracts.length),materialReport?:'6087051') : unknown {
   const script=`
 import sys
 from unittest.mock import patch
@@ -26,7 +26,7 @@ with patch('ainuoke_bridge.selected_source_once.ProtectedTransport', return_valu
   void ignoredSource;void ignoredActor;
   const child=spawnSync(process.platform==='win32'?'python':'python3',['-c',script],{
     cwd:resolve('tools/ainuoke-bridge'),windowsHide:true,encoding:'utf8',timeout:10000,maxBuffer:32*1024*1024,
-    input:JSON.stringify({...input,mode,contracts}),
+    input:JSON.stringify({...input,mode,contracts,...(materialReport&&mode==='catalog-contracts'?{materialReport}:{})}),
     env:{...process.env,PYTHONUTF8:'1',PYTHONDONTWRITEBYTECODE:'1'}});
   assert.ok(child.status===0||child.status===1,child.error?.message??child.stderr);
   return JSON.parse(child.stdout);
