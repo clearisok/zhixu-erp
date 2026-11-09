@@ -1,9 +1,13 @@
-# 当前入口：已验收物料版本向 staging 交付
+# 织序当前恢复入口
 
-先读[当前交付任务](tasks/active/material-staging-delivery-2026-11-07.md)。2026-11-07用户已批准完整PR合并及staging升级/数据接入/后台切换，生产不在范围。以下保留本机阶段原验收，不作为本轮staging禁令。
+当前新增目标：[新合同自动发现与建档](tasks/active/ainuoke-order-discovery-2026-11-09.md)。基线main390569c4；已查明计划备份碰锁导致后台停留安静期，原cron补备份后自然发现并建档两张新合同；修复、PR及staging升级尚在进行。下方是此前完成交付的证据，不代表本次目标已完成。
 
-先读[当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[物料业务展示任务、UI批准与真实验收](tasks/active/material-business-view-2026-11-07.md)。本机已交付，D190区分真实流水与可比较需求差额，D1992的20条同单位确认仅适用于严格绑定的原记录；D187/D188自购/厂供规则保持。会话及持续同步见[演示入口及自动执行验收](tasks/active/local-ainuoke-automatic-2026-11-07.md)、[Server登录](features/SERVER_LOGIN.md)及D189；源字段见[物料模块](features/AINUOKE_IT_MATERIAL_SOURCE.md)及[Server来源](features/AINUOKE_SERVER_SOURCE.md)。
+1. [CURRENT_STATE](CURRENT_STATE.md)：PR140已合并main390569c4，staging实际升级、617真实来源、页面、权限、手动/自然周期、备份恢复验收完成。
+2. [AI_HANDOFF](AI_HANDOFF.md)：精确代码/运行路径、D1992实际staging UUID、宁波单实例后台、本机停采及恢复限制。
+3. [staging交付和运维回滚记录](tasks/active/material-staging-delivery-2026-11-07.md)：完整授权、CI、部署、真实验收及旧失败历史。
+4. [已验收物料业务/UI](tasks/active/material-business-view-2026-11-07.md)、[物料模块](features/AINUOKE_IT_MATERIAL_SOURCE.md)、[Server来源](features/AINUOKE_SERVER_SOURCE.md)、[业务规则](BUSINESS_RULES.md)、[决定D187–190](DECISION_LOG.md)。
+5. [原本机自动执行验收](tasks/active/local-ainuoke-automatic-2026-11-07.md)、[Server登录及本机入口边界](features/SERVER_LOGIN.md)。
 
-已知核实main基线cb5cc29baa49ed7115fdb6c9506b6a80356936ea，本轮未刷新远端。当前分支feat/material-followup-business-view；固定运行版本以CURRENT_STATE及私密runtime为准。工程、真实自动采集、远端CI和staging部署分别记录。
+本轮已完成，日常同步由宁波后台继续。Windows任务分支feat/material-followup-business-view；部署source390569c4cfa56cd56261674c3f2110bd306d3ff7，原PRhead f2b7e8cda69845f9701b5a036cec6381df7e7d79。后续交接文档提交与应用部署版本分开。生产不在范围，本机数据/页面保留但对应采集暂停，不同时开启两个认证owner。
 
-[617首次接入及业务验收](tasks/active/ainuoke-final-supply-rules-2026-11-07.md)；[上阶段状态](tasks/completed/2026-11-07-before-local-automatic/CURRENT_STATE.md)；[登录诊断](features/AINUOKE_LOGIN_DIAGNOSTICS.md)。仅本机，原数据库和所有旧资产保留，不部署staging。
+[本次更新前原索引](tasks/completed/2026-11-08-before-staging-actual/PROJECT_INDEX.md)、[旧状态](tasks/completed/2026-11-08-before-staging-actual/CURRENT_STATE.md)、[旧接力](tasks/completed/2026-11-08-before-staging-actual/AI_HANDOFF.md)保留原日期/hash/测试及限制。历史“未合并/未部署”不能覆盖当前已核实事实；不重复已成功且未受影响的检查、CI或全量采集。

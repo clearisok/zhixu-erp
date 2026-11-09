@@ -31,6 +31,40 @@ def backup_verified(receipt, source, project, quiet_date, now):
     except (KeyError, TypeError, ValueError):
         return False
 
+def backup_due(state, running, receipt, source, project, now):
+    """Catch up a planned paired backup skipped by the cron/tick lock race.
+
+    Faults remain sticky; this never bypasses verification or starts a worker.
+    """
+    if running or state.get('state') != 'BACKUP_QUIET':
+        return False
+    try:
+        due = datetime.fromisoformat(state['quietDate'] + 'T03:30:00+08:00')
+    except (KeyError, TypeError, ValueError):
+        return False
+    return now >= due and not backup_verified(receipt, source, project, state['quietDate'], now)
+
+
+def perform_backup(cfg, root, path, previous):
+    began = datetime.now(timezone.utc)
+    save(path, {'state': 'BACKUP_IN_PROGRESS', 'startedAt': began.isoformat(), 'sourceRequests': 0})
+    try:
+        result = subprocess.run(cfg['backupCommand'], capture_output=True, text=True, timeout=1800)
+        output = root / ('backup-' + uuid.uuid4().hex + '.log')
+        output.write_text(result.stdout + result.stderr)
+        os.chmod(output, 0o600)
+        receipt = private_json(cfg['backupStatusFile'])
+        finished = datetime.fromisoformat(receipt['finishedAt'].replace('Z', '+00:00'))
+        if (result.returncode or receipt.get('state') != 'BACKUP_VERIFIED' or receipt.get('source') != cfg['sourceSha']
+                or receipt.get('project') != cfg['project'] or not receipt.get('originalServicesResumed') or finished < began):
+            raise RuntimeError('paired_backup_not_verified')
+        save(path, previous)
+        return receipt
+    except Exception:
+        save(path, {'state': 'STOPPED_FAULT', 'code': 'backup_failed_requires_review', 'sourceRequests': 0})
+        raise
+
+
 def decision(state, running, now, backup_ok=False):
     if state in ('DISABLED', 'STOPPED_FAULT', 'BACKUP_IN_PROGRESS'):
         return 'wait'
@@ -119,6 +153,9 @@ def tick(cfg, root, state):
             command([DOCKER, 'kill', '--signal=TERM', cfg['containerName']])
         return {'state': 'DISABLED', 'sourceRequests': 0}
     receipt = private_json(cfg['backupStatusFile'])
+    if backup_due(state, running, receipt, cfg['sourceSha'], cfg['project'], now):
+        receipt = perform_backup(cfg, root, root / 'status.json', state)
+        now = datetime.now(timezone.utc)
     okay = backup_verified(receipt, cfg['sourceSha'], cfg['project'], state.get('quietDate', ''), now)
     action = decision(state.get('state'), running, now, okay)
     if action == 'start':
@@ -153,7 +190,8 @@ def tick(cfg, root, state):
         command([DOCKER, 'kill', '--signal=TERM', cfg['containerName']])
         return {'state': 'QUIESCING', 'quietDate': now.astimezone(BEIJING).date().isoformat(), 'sourceRequests': 0}
     if action == 'quiet':
-        return {'state': 'BACKUP_QUIET', 'quietDate': state.get('quietDate', now.astimezone(BEIJING).date().isoformat()), 'sourceRequests': 0}
+        quiet_date = now.astimezone(BEIJING).date().isoformat() if quiet_window(now) else state.get('quietDate')
+        return {'state': 'BACKUP_QUIET', 'quietDate': quiet_date, 'sourceRequests': 0}
     if action == 'fault':
         return {'state': 'STOPPED_FAULT', 'code': 'worker_stopped_requires_review', 'sourceRequests': 0}
     if state.get('state') == 'QUIESCING' and now.astimezone(BEIJING).strftime('%H:%M') >= '03:20':
@@ -192,25 +230,9 @@ def main():
             if worker and worker['State']['Running'] or state.get('state') not in ('DISABLED', 'BACKUP_QUIET'):
                 raise RuntimeError('backup_worker_not_quiet')
             if args.action == 'backup':
-                previous = state
-                began = datetime.now(timezone.utc)
-                save(path, {'state': 'BACKUP_IN_PROGRESS', 'startedAt': began.isoformat(), 'sourceRequests': 0})
-                try:
-                    # Keep the same supervisor lock through the entire existing
-                    # paired backup: the clock cannot restart a worker mid-backup.
-                    result = subprocess.run(cfg['backupCommand'], capture_output=True, text=True, timeout=1800)
-                    output = root / ('backup-' + uuid.uuid4().hex + '.log')
-                    output.write_text(result.stdout + result.stderr)
-                    os.chmod(output, 0o600)
-                    receipt = private_json(cfg['backupStatusFile'])
-                    finished = datetime.fromisoformat(receipt['finishedAt'].replace('Z', '+00:00'))
-                    if (result.returncode or receipt.get('state') != 'BACKUP_VERIFIED' or receipt.get('source') != cfg['sourceSha']
-                            or receipt.get('project') != cfg['project'] or not receipt.get('originalServicesResumed') or finished < began):
-                        raise RuntimeError('paired_backup_not_verified')
-                    save(path, previous)
-                except Exception:
-                    save(path, {'state': 'STOPPED_FAULT', 'code': 'backup_failed_requires_review', 'sourceRequests': 0})
-                    raise
+                # The minute tick and explicit operation use the same guarded
+                # backup path while holding this exact supervisor lock.
+                perform_backup(cfg, root, path, state)
             print('{"state":"BACKUP_WORKER_QUIET","sourceRequests":0}')
             return
         if args.action == 'activate':
