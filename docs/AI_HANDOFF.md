@@ -1,5 +1,9 @@
 # 接力：新合同自动发现修复进行中
 
+最新Gate3（2026-11-09 23:52北京）：PR143已授权merge commit合入main dbc61af9be80d0a72e8226afa2cefad6e240ef09，双父390569c4/1e2af646与候选tree472100d2d0dbe2a18801d56eadf24cbb1f3655ab完全核实；三CI首轮全成功（baseline42631733481、team42631733387、source42631733312），无审查阻塞/生产触发。任务分支已本地ff至main。宁波新TASK releases/order-discovery-20261109/source HEAD同M；operator41a162ab、app6f35170f已network=none构建，配置模型仅允许版本/已验证同字节资产路径变化、无DEMO。
+
+旧390worker已受控TERM并exit0，enabled=false，原队列保存stopped-worker-checkpoint.private.json；本机采集仍暂停。保护基线23业务表、3原用户、619原订单已保存。新runtime/catalog-sync-dbc61af9仍DISABLED、未启用；staging应用仍390，升级前原137表配对备份由rollout.py backup-old执行中（本地工具session36177，先核实其终态，不能重复启动）。完成后按已准备的同TASK rollout.py依次upgrade/install/backup-new/activate；所有动作精确sha M，无手动导入/源刷新。实际操作脚本为私密交付材料，未纳Git。升级、备份恢复、全619 HTTP、原617身份、新目录检查点自然周期与公网浏览器验收仍待完成，不能结束目标。
+
 2026-11-09 active goal见 [任务记录](tasks/active/ainuoke-order-discovery-2026-11-09.md)。工作树ainuoke-order-discovery/zhixu-ainuoke-api，分支fix/ainuoke-order-discovery，基线main390569c4。GitHub API同SHA；默认Git为失效URL级代理127.0.0.1:17989，进程级http.https://github.com.proxy空值对照与fetch已成功，未改共享代理/TLS/认证配置。当前产品仍390，尚未交付本次修复；Gate1检查点a6ece7a06fa095951f41eb4493c7ef60eeadeb27。
 
 Gate2代码检查点d39d37fb7119b8f11c0209e1ad6de6d025695682，三份活跃文档前向冻结c91c98e4e0f26c6eddc094d71a7f17dbe8d25109，旧hash和历史保留。0057实现目录独立时钟/持久分页/成功水位和同账号近期失败前缀恢复；首尾完整重叠目录校验、不按合同日期过滤，仍同一长驻认证owner。缺款号/数量/状态等非身份字段允许正式建档，数量null不造零；完整空或已批准空颜色占位可发布首次空结果，但不能清除已有颜色，已有数量不能被后续空值擦除。逐单SAVEPOINT和原任务重试保持失败隔离、销售合同号+sourceID身份及原读写权限。204 Python/8监管器、类型/受影响lint/固定构建已过；新增目录PG5项、原刷新18项、目录适配9项、原非法日期隔离16项通过。182发布回归及c91源码门禁在宁波network=none、独立只读源码挂载/临时容器通过（92.604秒，0源请求；非产品部署）。旧Windows根npm其余862项通过，一条旧InsideOrderNo要求已按明确新规则修正且9项重验通过；冻结前守卫进程已终止、不计PASS。最终必要三CI仍待一次集中交付，PR/merge/仅staging新版本发布未完成。
