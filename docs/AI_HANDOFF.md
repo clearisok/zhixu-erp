@@ -1,33 +1,41 @@
-# 接力：新合同自动发现修复进行中
+# 接力：新增销售合同自动发现已完整交付
 
-最新Gate3（2026-11-09 23:52北京）：PR143已授权merge commit合入main dbc61af9be80d0a72e8226afa2cefad6e240ef09，双父390569c4/1e2af646与候选tree472100d2d0dbe2a18801d56eadf24cbb1f3655ab完全核实；三CI首轮全成功（baseline42631733481、team42631733387、source42631733312），无审查阻塞/生产触发。任务分支已本地ff至main。宁波新TASK releases/order-discovery-20261109/source HEAD同M；operator41a162ab、app6f35170f已network=none构建，配置模型仅允许版本/已验证同字节资产路径变化、无DEMO。
+2026-11-10北京00:42。目标已完成：PR143已真实合并、仅staging部署及两轮自然目录/新单/原617验收通过，后台继续运行。观察session12756已正常exit0并保存证据，不重复启动观察、推送、合并、导入样本、源刷新或完整CI。下面保留本次实际恢复位置，后续仅按新故障或明确用户需求开展工作。
 
-旧390worker已受控TERM并exit0，enabled=false，原队列保存stopped-worker-checkpoint.private.json；本机采集仍暂停。保护基线23业务表、3原用户、619原订单已保存。新runtime/catalog-sync-dbc61af9仍DISABLED、未启用；staging应用仍390，升级前原137表配对备份由rollout.py backup-old执行中（本地工具session36177，先核实其终态，不能重复启动）。完成后按已准备的同TASK rollout.py依次upgrade/install/backup-new/activate；所有动作精确sha M，无手动导入/源刷新。实际操作脚本为私密交付材料，未纳Git。升级、备份恢复、全619 HTTP、原617身份、新目录检查点自然周期与公网浏览器验收仍待完成，不能结束目标。
+## 精确版本
 
-2026-11-09 active goal见 [任务记录](tasks/active/ainuoke-order-discovery-2026-11-09.md)。工作树ainuoke-order-discovery/zhixu-ainuoke-api，分支fix/ainuoke-order-discovery，基线main390569c4。GitHub API同SHA；默认Git为失效URL级代理127.0.0.1:17989，进程级http.https://github.com.proxy空值对照与fetch已成功，未改共享代理/TLS/认证配置。当前产品仍390，尚未交付本次修复；Gate1检查点a6ece7a06fa095951f41eb4493c7ef60eeadeb27。
+工作树 C:/Users/Administrator/.codex/worktrees/ainuoke-order-discovery/zhixu-ainuoke-api，分支fix/ainuoke-order-discovery；应用和operator源码main **dbc61af9be80d0a72e8226afa2cefad6e240ef09**。PR143最终head1e2af646e2f4d34b42a0db13f41a942379886189，11/09 23:48:18 merge commit，双父390569c4/1e2af646、tree472100d2d0dbe2a18801d56eadf24cbb1f3655ab与候选一致。三必要CI首轮成功source42631733312、team42631733387、baseline42631733481。当前后续改动仅交接文档，不是另一个产品部署版本。生产workflow_dispatch未触发。默认Git代理17989失效，已验证进程级URL代理空值可以传输，未改持久配置/认证/TLS；只有一次实际安全push，后续无需重复。
 
-Gate2代码检查点d39d37fb7119b8f11c0209e1ad6de6d025695682，三份活跃文档前向冻结c91c98e4e0f26c6eddc094d71a7f17dbe8d25109，旧hash和历史保留。0057实现目录独立时钟/持久分页/成功水位和同账号近期失败前缀恢复；首尾完整重叠目录校验、不按合同日期过滤，仍同一长驻认证owner。缺款号/数量/状态等非身份字段允许正式建档，数量null不造零；完整空或已批准空颜色占位可发布首次空结果，但不能清除已有颜色，已有数量不能被后续空值擦除。逐单SAVEPOINT和原任务重试保持失败隔离、销售合同号+sourceID身份及原读写权限。204 Python/8监管器、类型/受影响lint/固定构建已过；新增目录PG5项、原刷新18项、目录适配9项、原非法日期隔离16项通过。182发布回归及c91源码门禁在宁波network=none、独立只读源码挂载/临时容器通过（92.604秒，0源请求；非产品部署）。旧Windows根npm其余862项通过，一条旧InsideOrderNo要求已按明确新规则修正且9项重验通过；冻结前守卫进程已终止、不计PASS。最终必要三CI仍待一次集中交付，PR/merge/仅staging新版本发布未完成。
+## 宁波实际运行
 
-原390正常后台第二目录21:20:03–21:20:06北京，619合同、新建0、26报表/0登录；两张新单第二次自动任务21:20:18及21:20:30完成，订单/活跃任务重复0。今天用户指定的0813-176采购只读核对也已完成：M2611107首次来源11/08 07:57:18，自动发布07:57:21（run9114c31c-53d9-4d66-880d-5ee46423d3a9），两采购38347/38348共1970千克/358540元，40历史快照不重复；本轮未手工刷新或新增登录。该旁路核对不代替本目标新版本发布验收。
+SSH weaveops；ROOT=/home/jackson/weaveops-staging-preview；PROJECT=zhixu-quote-trial-staging-562fbf07；gateway127.0.0.1:3003，公网https://staging.weaveops.top。TASK=ROOT/releases/order-discovery-20261109，SOURCE=TASK/source同M。RUNTIME=ROOT/runtime/catalog-sync-dbc61af9。应用sha256:6f35170fea69b3247acd48394f1cd42166ed9848c332a52179b4f2648f144ea5；operator sha256:41a162ab6cfa5ff3e4aa6d97045b57cf1a61a8ae9feea8ed076d9d58d237c6d5；build staging-material-dbc61af9，0057迁移后139表。原project/卷/端口/附件/正常RBAC保留，无DEMO。
 
-明确根因：03:30备份cron和每分钟tick的非阻塞锁碰撞，operations.log为SUPERVISOR_BUSY；监管器BACKUP_QUIET一直等当天备份，目录最后02:54停止。原代码本身有30分钟目录任务且sync-run传adoptNewOrders:true。已用原流程补做备份20261109T124359Z-9530194e（137表/9对象、原服务恢复、0源请求），20:49原cron自然恢复：619目录中发现PI2611-081/source7186及PI2611-084/source7189，自动建单20:49:07.085、首次发布20:49:36.761及20:49:22.844北京。无手动导入或刷新。staging UUID分别faf4038f-467d-4bff-aaa7-b4c17145f047、b23cca8e-a489-4206-b47c-7e4947474bf4。原617身份清单SHA13f756710ccc5ea392eaddbd63e1c434fe2a93c40d776eda71fb5cea2d39f30d保存在宁波新TASK/releases/order-discovery-20261109。
+唯一后台weaveops-catalog-sync-dbc61af9由正常minute cron于00:10:01.930启动，一Node/一Python；旧390正常TERM exit0，cfg.enabled=false/stateDISABLED。旧3合同collector仍PAUSED。本机D:/WeaveOps-Local serviceEnabled=true但syncEnabled=false，源Python0；保留网页/617数据/原6queued，禁止同时启用第二owner。凭据只在原受保护配置，不打印env、Cookie、JWT或原始配置。
 
-Gate1本地8项监管器测试通过，补跑备份仍沿用受保护原命令和验证，不解除故障/认证/身份门禁。后续完成目录检查点/缺字段建档回归、集中PR/CI/merge及仅staging升级、真实HTTP/页面与下一次自然目录幂等验收。已有本机采集保持暂停；不启动第二认证owner。下面为保留的上次完成交付事实。
+00:10:04.899–00:10:08.257首轮新版本目录request64568458-30d0-4e46-8b11-2700ed7df9b9，619合同，前后各13页26不可变页；scan_state成功00:10:08.623，next00:40:08.623；run9fe81ca8-351e-4009-bd5d-b6b8d026bd77。1登录26报表，水位complete-directory-overlap，不以合同日期或源ID裁剪。没有经过验证的源站新增时间增量API。第二轮request56abc9e1-23f7-467a-96ea-a4898e6a8f39，00:41:05.372–00:41:08.611自然完成，619合同/26页/created0/pending0/0登录/26报表；下一计划01:11:08.611。两轮间隔30分59.988秒，包含分钟级调度检查的实际延迟。
 
-2026-11-08；本轮交付目标已完成，正常后台继续，不另起开发或重采全量。先读CURRENT_STATE和tasks/active/material-staging-delivery-2026-11-07.md最新完成节。PR140实际merge main390569c4cfa56cd56261674c3f2110bd306d3ff7；最终PRhead f2b7e8cda69845f9701b5a036cec6381df7e7d79三CI全绿。Windows分支feat/material-followup-business-view的后续提交仅交接文档，不是另一个部署代码版本。
+00:25当前后台前53批共1登录/2857报表/失败0。两个新单新版本自动任务也已发布：081在00:20:40.173 run e4fb2cd3-39a0-4f7e-a818-17d886cac65f，084在00:19:08.452 run2837aebc-d593-4d97-932e-697a42f8ceb0。两者均automatic非手动。00:22队列queued/running/unknown0，历史30失败回执保留，当前订单错误0。动态R当前258高频/121每日/190每周/50每月，共619，不沿用旧617分布。
 
-实际staging：SSH weaveops，root /home/jackson/weaveops-staging-preview；project zhixu-quote-trial-staging-562fbf07，loopback gateway3003。TASK=root/releases/material-delivery-20261107；SOURCE=TASK/source HEAD390；runtime=root/runtime/catalog-sync-390569c4。app sha256:6a7445737a00968037f72cc1e7d244b8309509e144fd1b4d2f8abd51dde940cd，operator sha256:941e9cbbaa60e02c6fa0865f7630989f6aadaac9ab370aa9f18bc6df70d743e7，数据库137表。只读配置及凭据文件在受保护runtime，禁止打印配置、密码、Cookie、JWT。
+## 根因及真实样本
 
-617正式接纳/发布和真实HTTP全部通过、4完整空。原23业务表/2账号权限/3订单身份保留。D1992实际stage UUID25285166-1585-449f-a8fd-81cbd7c98084（不可用本机d2e...）；30自购8厂供20采购8入库5出运5出库，20单位事实/18已知采购差额，2规格和未采购/厂供单位仍真实待核实。最新自动来源02:39:59/run b712ef72-6bce-477a-bae3-5ed012325d77，源快照、head、真实公网HTTP及已开页面自动读回一致。正常Jackson身份真实手动POST202→0新源登录/32报表→发布→页面也已通过；只读403、0任务，匿名401/no demo/noindex保持。
+03:30备份cron碰每分钟tick的非阻塞锁，operations.log SUPERVISOR_BUSY，监管器自03:12一直BACKUP_QUIET等当日已验证备份；最后目录02:54。原390已存在30分目录及adoptNewOrders=true，不能说完全没有发现代码。按原保护流程补备份20261109T124359Z-9530194e后，原cron20:49自然发现619中的两张11月9日新合同、自动建档与首次采集；这是修复前恢复路径的真实结果，不能冒称当时已部署M。修复使普通tick补跑原备份并验证，失败仍STOPPED_FAULT。
 
-当前采集仅在宁波容器weaveops-catalog-sync-390569c4。18:07:01.612638Z自然每分钟cron启动，一node一Python认证owner、root只读/1CPU/1GiB/私密配置只读，精确固定镜像/来源/目标指纹和原内部+egress网络。源站只读、不强制覆盖登录。R分档257高频30分/120每日02:00/196周一03:00/44月初04:00，目录30分，动态重新评估。首批377在23分32.891秒完成，1登录4737报表；240未到期不重采。02:53:33两轮高频257池全部完成，分别14分28.868秒/14分56.462秒（首轮D1992自动入队后手动优先）；加120每日共634成功任务，覆盖377个不同订单。仍1登录/7688报表，queued/running/失败/unknown/重复均0；第二轮排队中位27.965秒/最大73.883秒。不能把634任务当634个订单，也不把读时stale当失败。
+PI2611-081/source7186/311OW/9752件/交期2027-01-25，stagingUUID faf4038f-467d-4bff-aaa7-b4c17145f047，SO-00000618；20:49:07.085建档，20:49:36.761首次published，2颜色/4物料原行。PI2611-084/source7189/款MS7700C、工厂款7700C/8491件/交期2027-04-07，UUID b23cca8e-a489-4206-b47c-7e4947474bf4，SO-00000619；同一事务时间20:49:07.085建档，20:49:22.844首次published，2颜色/2物料行。无手动导入/刷新。旧390第二自然周期21:20成功619/新建0/26报表0登录，不与新M周期混淆。
 
-本机D:/WeaveOps-Local web63051/原watchdog/数据库及617来源保留；17:30:52.671Z正式staging_handoff暂停，service.syncEnabled=false、原6queued保留，后续再核实owner0/web200。禁止为看本机页面开启第二采集器。旧宁波3合同status仍PAUSED、cron已退役且保留原回执。页面每30秒只读取织序已发布快照；聚焦也会读取，开页面不请求艾诺科。
+两张新单已在公网正常Jackson身份下通过订单中心搜索→正式详情→颜色尺码→现有物料页。081为2自购2厂供2采购，084为2自购0厂供2采购；无收发源明细不造流水。084实际HTTP200、provenance=server_snapshot、合同/UUID正确且frequent；未知尺码、需求单位仍真实未知。原617完整身份文件TASK/original-orders.private.json SHA13f756710ccc5ea392eaddbd63e1c434fe2a93c40d776eda71fb5cea2d39f30d；00:11全619物料HTTP通过、原617五元身份保留、4完整空、匿名401。正式来源旧时点仍可读，不把stale当刷新失败。
 
-新配对备份20261107T180148Z-82d84c57在/home/jackson/weaveops-trial-backups/bundles，137表/9对象，49文件73,512,634字节离机全等（D:/WeaveOps-Local/staging-delivery-20261107/post-upgrade-backup）；manifest SHA6be9573916bfaefe34ad734c1ac2ce898b07413699a68ef67a9fa1539e2525d4。独立recovery-final-390569c4/project zhixu-quote-trial-recovery-390569c4cf（43004）恢复表+序列全等/9对象/登录报价及D HTTP200，服务全部停止保留。首个失败包175754缺对象工具挂载，已补回原工具和/bundle挂载后重验，不当成功包；旧完整121表备份170409及旧工具不改。
+D1992实际stageUUID25285166-1585-449f-a8fd-81cbd7c98084，保留20项原精确同单位事实及原业务UI。PI2611-057采购M2611107旁路只读核对已完成，首来源11/08 07:57:18/发布07:57:21，两唯一采购1970千克358540元；不替代新单目标验收。
 
-正式cron及私密supervisor.json已固定，每日03:12–03:50北京备份安静窗口，03:30持监管锁运行runtime/paired-backup.py；当天配对验证且服务恢复后才自动恢复源worker。新逐行row-sha256-multiset-v2摘要涵盖137表+序列，恢复材料含工具和配置pin。配置/镜像变化需审核后更新备份pin，不放宽校验。意外退出/认证/证书/身份/未知结果sticky STOPPED_FAULT；核实原因→原CLI sync-recovery-preview→同hash/原因sync-recover→必要CAS configure→监管器带reason activate。不能改SQL任务或head、重置队列、盲重登。启动/停止及旧镜像新schema回退的已演练迁移目录只读挂载见任务“后台运行、维护与回滚”，不直接旧库覆盖新业务。
+## 备份、恢复与保护
 
-关键TASK回执：delivery-acceptance-summary.json、http-audit.private.json（实时后617）、http-audit-before-live.private.json（旧时点保留）、D1992-automatic-public-reconciliation.private.json、manual-source-publication-proof.json、manual-dedup-proof.json、two-full-high-cycles-proof.json、second-natural-cycle-proof.json、initial-due-pool-proof.json、runtime-isolation-proof.json、readonly-result.json、protected-business-result.json、metadata-proof.json、staging-status.json。D:/受保护交付目录有离机回执、实际before/after与最终公网截图。原始导出/备份/凭据不纳Git。
+受保护23业务表、3原用户/角色、619既存订单哈希前后无变化，protected-business-result.json已保存。升级前137表/9对象备份20261109T155208Z-6e554d68，23:52:08–23:57:46完成；新M备份20261109T160127Z-718188f7，00:01:27–00:07:09完成，139表/9对象、服务恢复verified。两包均49文件离机逐个hash全等，D:/WeaveOps-Local/order-discovery-staging-20261109/backups，当前用户/SYSTEM/Administrators私有ACL。新manifest SHA85abf22a7f4305ec226df4646d7bd016cb94c072623f3f043e0e70d05fc0f070。
 
-公网CF520和一次settings连接关闭有真实记录；源站正常、恢复后公网页面与多场景已通过，未擅改Cloudflare/TLS或宣称网络根因永久修复。全量来源不是同一分钟新鲜，30分钟不是硬SLA；当前数据可持续查看，失败保留成功数据。用户已批准仅staging，本轮生产和旧3000/3002均未操作。后续无待用户许可的实施步骤；按真实新故障/业务反馈再开展工作，不为刷漂亮状态重跑测试或采集。前一恢复点在tasks/completed/2026-11-08-before-staging-actual，旧未合并/未部署结论仅属历史。
+独立恢复ROOT/recovery-final-dbc61af9/project zhixu-quote-trial-recovery-dbc61af9be（43004）139表/序列哈希全等、9对象恢复校验、正常登录/报价/D1992 HTTP200/38来源行；0源请求，恢复服务全部停止保留。实际result.json已复制D:/受保护根restore-proof.json；原实际staging未被恢复覆盖。正常每日03:12–03:50安静窗口、03:30备份，minute tick补跑同一受保护命令；认证/未知/身份故障不会自动解除。回退保留M之后新业务，不能恢复旧库覆盖；沿用已演练旧镜像挂载完整新迁移目录的只读兼容核验。
+
+## 检查与恢复位置
+
+204 Python/8监管器、新目录PG5项、刷新18项、适配9项、原非法日期隔离16项、类型/受影响lint/固定46路由构建，182发布回归及最终精确guard均通过；最终完整CI也全部成功。Windows冻结前失败/取消仅是历史，不能冒称通过；后续合并版CI证明最终版本。未改产品代码，不重复已通过检查。
+
+私密TASK：full-order-http-acceptance.private.json、first-new-runtime-scan.private.json、new-runtime-progress.private.json、protected-business-result.json、staging-status.json、worker-stop-proof.json、upgrade-result.json、activation-result.json、fresh-pre-upgrade-backup.json、post-upgrade-backup.json、natural-discovery-first-proof.private.json、natural-second-cycle.private.json。第二轮新M证据second-new-runtime-scan.private.json及final-natural-runtime-proof.json已保存；00:42首轮258不同订单在11分22.868秒完成，累计278成功任务、58完成批/1登录/3102报表，失败及当前排队0，原Node/Python owner未重启。原始业务、配置和备份不提交Git。rollout.py/acceptance.py/preserve-business.py/restore-final.py及本地outputs观察脚本仅审阅过的交付工具，不维护另一个采集发布逻辑。
+
+未完成实施项：无。本轮只部署staging；目录上限仍为经验证的1400合同，超过上限/认证/身份/分页/未知结果按原门禁明确停止，保留已有成功数据。源站没有证明创建时间增量或永不掉线，30分钟不是硬SLA。最终逐项审计见任务Gate5及final-completion-audit.json。交接文档checkpoint与实际部署M分开，不因更新文档重启服务。此前原日期/hash/限制在[tasks/completed/2026-11-10-before-discovery-actual](tasks/completed/2026-11-10-before-discovery-actual/AI_HANDOFF.md)。
