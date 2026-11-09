@@ -63,7 +63,9 @@ async function prepare(client:PoolClient,scope:BoundOrderRefreshScope,evidence:u
  const plans=await readDeliveryPlanSet(client,owner.id);
  const currentColors=(await client.query('SELECT source_line_identity,color_name,quantity::text,delivery_date::text,source_hash,source_metadata FROM ainuoke_sales_order_color_mirrors WHERE sales_order_id=$1 ORDER BY source_line_identity',[owner.id])).rows;
  const selected=[mirror.sales_contract_no];
- const mapped=await previewAdditions(evidence,selected,[{id:owner.id,sourceId:mirror.source_id,salesContractNo:mirror.sales_contract_no}],now,600000,{allowIncompleteHeader:true});
+ // A contract created without a quantity can remain incomplete. A later blank
+ // header must not erase an already accepted quantity during normal refresh.
+ const mapped=await previewAdditions(evidence,selected,[{id:owner.id,sourceId:mirror.source_id,salesContractNo:mirror.sales_contract_no}],now,600000,{allowIncompleteHeader:mirror.evidence.quantity===null});
  const candidate=mapped.candidates[0];
  if(mapped.candidates.length!==1||candidate.source.sourceId!==mirror.source_id)fail(409,'bound_refresh_binding_changed');
  // Initial binding may accept incomplete enrichment. Refresh must never turn
