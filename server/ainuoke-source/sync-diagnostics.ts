@@ -3,6 +3,7 @@ import { collectWithPython, parseCollectorConfig, type CollectorConfig } from '.
 import { SELECTED_SOURCE_LIMITS, validateSelectedSourceOnce, type SelectedSourceRequest } from './selected-source-once.js';
 import { SourceError } from './contract.js';
 import type {CatalogPage} from './catalog-checkpoints.js';
+import {CatalogConsistencyError,type CatalogChangeDiagnostic} from './catalog-consistency.js';
 
 export type LoginEvidence = { responseShape:'data_object'|'object_without_data_object'|'non_object'; result:'accepted'|'rejected'|'malformed'; serverCode:'absent'|'cover_confirmation'|'unrecognized'; serverHint:'unclassified'|'session_exists'|'verification_required'|'credentials_rejected'|'account_unavailable'|'throttling_hint'|'cover_confirmation_required'|'user_capacity_exhausted' };
 export type LoginDetails = {at:string;interface:'loginsys2';isOk:boolean|null;businessCode:string|null;text1:string|null;message:string|null;errorMsg?:string|null};
@@ -13,7 +14,7 @@ const outcomes=new Set(['complete','http_error','timeout','dns_error','tls_error
  * checked request trace, not its raw response, credentials or unverified metrics. */
 export class CatalogDiagnosticValidationError extends SourceError {
  readonly diagnostics:RequestDiagnostic[];
- constructor(code:string,diagnostics:RequestDiagnostic[]) {
+ constructor(code:string,diagnostics:RequestDiagnostic[],readonly catalogChange?:CatalogChangeDiagnostic) {
   super(code);this.diagnostics=validateRequestDiagnostics(diagnostics);
  }
 }
@@ -66,12 +67,12 @@ export async function validateCatalogDiagnostic(value:unknown,cfg:CollectorConfi
  catch(error){
   // A retryable domain rejection occurs only after envelope/metrics validation.
   // Do not let a contradictory transport trace turn auth/schema failures into retries.
-  if(error instanceof SourceError&&error.code==='catalog_business_content_changed'){
+  if(error instanceof SourceError&&['catalog_business_content_changed','catalog_additions_observed'].includes(error.code)){
    const metrics=(wrapped.capture as {metrics:{httpAttempts:number}}).metrics;
    if(diagnostics.length!==metrics.httpAttempts||diagnostics.some(d=>d.outcome!=='complete'))
     throw new CatalogDiagnosticValidationError('sync_diagnostics_invalid',diagnostics);
   }
-  if(error instanceof SourceError)throw new CatalogDiagnosticValidationError(error.code,diagnostics);
+  if(error instanceof SourceError)throw new CatalogDiagnosticValidationError(error.code,diagnostics,error instanceof CatalogConsistencyError?error.catalogChange:undefined);
   throw error;
  }
  const errors=diagnostics.filter(d=>d.outcome!=='complete');
@@ -87,7 +88,7 @@ export async function validateCatalogDiagnostic(value:unknown,cfg:CollectorConfi
 }
 export const retryDelayMs=(attempt:number)=>attempt===1?60000:attempt===2?300000:null;
 export function retryableCapture(code:string,diagnostics:RequestDiagnostic[]|null) {
- if(code==='catalog_business_content_changed')return true;
+ if(code==='catalog_business_content_changed'||code==='catalog_additions_observed')return true;
  if(code==='selected_source_timeout'||code==='source_timeout')return true;
  if(code!=='source_unavailable'||!diagnostics?.length)return false;
  const last=diagnostics.at(-1)!;

@@ -14,6 +14,7 @@ import {mapDirectorySalesOrderCandidate} from '../../features/ainuoke-sync/servi
 import {createAinuokeSalesOrderInTransaction} from '../sales-orders/service.js';
 import {lockEffectiveAttribution} from '../sales-orders/effective-attribution.js';
 import {HttpError} from '../http/errors.js';
+import {CatalogConsistencyError,catalogChangeEvidence,mutableCatalogFields} from './catalog-consistency.js';
 
 const text = (v:unknown) => typeof v==='string' && v.trim() ? v.normalize('NFKC').trim() : null;
 const date = (v:unknown) => {
@@ -26,7 +27,6 @@ const quantity = (v:unknown) => {
 };
 // D180's approved narrow exception: a changed directory is still rejected, never
 // published. Only these business fields may qualify for a new bounded capture.
-const mutableCatalogFields=new Set(['DeliveryDate','ContractDate','Num','Status','GoodsDesc','Brand','CustomerName']);
 function onlyCatalogBusinessChanged(b:AdditionDiscoveryBundle):boolean {
  if(b.discoveryBefore.length!==b.discoveryAfter.length)return false;
  for(const [i,page] of b.discoveryBefore.entries()){
@@ -56,8 +56,10 @@ export async function previewCatalog(input:unknown,now=Date.now()) {
  pagesValid(b.discoveryBefore,now,600000);pagesValid(b.discoveryAfter,now,600000);
  const before=await adaptAinuokeOrderDiscoverySnapshots(b.discoveryBefore),after=await adaptAinuokeOrderDiscoverySnapshots(b.discoveryAfter);
  if(before.total>1400||after.total>1400)throw new SourceError('catalog_changed_or_over_limit');
- if(before.snapshotHash!==after.snapshotHash||discoveryContentHash(b.discoveryBefore)!==discoveryContentHash(b.discoveryAfter))
-  throw new SourceError(onlyCatalogBusinessChanged(b)?'catalog_business_content_changed':'catalog_changed_or_over_limit');
+ if(before.snapshotHash!==after.snapshotHash||discoveryContentHash(b.discoveryBefore)!==discoveryContentHash(b.discoveryAfter)){
+  const change=catalogChangeEvidence(b);
+  throw new CatalogConsistencyError(change.additionsOnly?'catalog_additions_observed':onlyCatalogBusinessChanged(b)?'catalog_business_content_changed':'catalog_changed_or_over_limit',change.diagnostic);
+ }
  const raw=new Map(b.discoveryAfter.flatMap(p=>p.rows).map(r=>[String(r.values.id).trim(),r.values]));
  const rows=after.rows.map(r=>{const v=raw.get(r.sourceId)!;return {...r,contractDate:date(r.contractDate),deliveryDate:date(r.deliveryDate),
   customerName:text(v.CustomerName),brandName:text(v.Brand),quantity:quantity(v.Num)};});

@@ -7,6 +7,28 @@ import type { AdditionDiscoveryBundle } from './additions.js';
 
 const request={mode:'catalog-discovery' as const,contracts:[] as []};
 const original=selectedWorkerFixture('catalog-discovery','',[]) as {bundle:AdditionDiscoveryBundle;metrics:{httpAttempts:number};sourceFingerprint:string};
+
+test('complete directory growth is rejected for bounded recapture with a safe difference receipt',async()=>{
+ const extra=selectedWorkerFixture('catalog-discovery','',[],4) as typeof original;
+ const growth=structuredClone(original);growth.bundle.discoveryAfter=extra.bundle.discoveryAfter;
+ await assert.rejects(validateSelectedSourceOnce(growth,selectedConfig,request),{message:'catalog_additions_observed'});
+ assert.equal(retryableCapture('catalog_additions_observed',null),true);
+ const requests=Array.from({length:growth.metrics.httpAttempts},(_,i)=>i===0
+  ?{kind:'login',reportId:null,page:null,elapsedMs:1,outcome:'complete',httpStatus:200}
+  :{kind:'report',reportId:6086103,page:1,elapsedMs:1,outcome:'complete',httpStatus:200});
+ await assert.rejects(validateCatalogDiagnostic({schemaVersion:'ainuoke-request-diagnostics.v1',capture:growth,requests},selectedConfig,request,Date.now()),error=>{
+  assert.equal((error as Error).message,'catalog_additions_observed');
+  assert.deepEqual((error as {catalogChange:unknown}).catalogChange,{beforeRows:3,afterRows:4,added:1,removed:0,identityChanges:0,changedFields:[],scopeChanged:false});return true;
+ });
+ for(const [field,value] of Object.entries({BillNo:'REUSED-IDENTITY',InsideOrderNo:'CHANGED',UnknownField:'changed'})){
+  const unsafe=structuredClone(growth);unsafe.bundle.discoveryAfter[0].rows[0].values[field]=value;
+  await assert.rejects(validateSelectedSourceOnce(unsafe,selectedConfig,request),error=>{assert.ok(error instanceof Error);assert.notEqual(error.message,'catalog_additions_observed');assert.equal(retryableCapture(error.message,null),false);return true;});
+ }
+ const missing=structuredClone(extra);missing.bundle.discoveryAfter=original.bundle.discoveryAfter;
+ await assert.rejects(validateSelectedSourceOnce(missing,selectedConfig,request),error=>{assert.ok(error instanceof Error);assert.equal(retryableCapture(error.message,null),false);return true;});
+ const contradiction=requests.map((r,i)=>i===1?{...r,outcome:'auth_error'}:r);
+ await assert.rejects(validateCatalogDiagnostic({schemaVersion:'ainuoke-request-diagnostics.v1',capture:growth,requests:contradiction},selectedConfig,request,Date.now()),{message:'sync_diagnostics_invalid'});
+});
 test('only explicit business fields qualify; stable captures remain publishable',async()=>{
  const result=await validateSelectedSourceOnce(original,selectedConfig,request);
  assert.equal(result.result,'complete');
