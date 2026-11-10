@@ -76,7 +76,7 @@ export type SalesOrderListOptions = {
   followupMode?: 'active'|'history'|'all';
   lifecycleState?: SalesOrderLifecycleState;
   creationSource?: SalesOrderCreationSource;
-  sortBy?: "orderNo" | "updatedAt" | "contractDeliveryDate" | "salesContractNo";
+  sortBy?: "orderNo" | "updatedAt" | "contractDate" | "contractDeliveryDate" | "salesContractNo";
   sortDirection?: "asc" | "desc";
 };
 
@@ -470,17 +470,21 @@ export async function listSalesOrders(
   const sortColumns = {
     orderNo: "so.order_no",
     updatedAt: "so.updated_at",
+    contractDate: "COALESCE(processing_batch.order_date,mirror.contract_date)",
     contractDeliveryDate: "COALESCE(processing_batch.delivery_date,mirror.contract_delivery_date)",
     salesContractNo: "sl.sales_contract_no",
   } as const;
   const sortColumn = sortColumns[options.sortBy ?? "orderNo"];
   const sortDirection = options.sortDirection === "desc" ? "DESC" : "ASC";
+  // Source dates have day precision. Keep same-day results deterministic across
+  // server pages; a newly adopted order appears before older same-day orders.
+  const tieDirection = options.sortBy === "contractDate" ? "DESC" : "ASC";
   const limit = addValue(options.limit);
   const offset = addValue(options.offset);
   const result = await client.query<ReadModelRow>(
     `${readModelSelect(true,attributed,false,(await client.query("SELECT to_regclass('sales_order_business_source_snapshots') IS NOT NULL ready")).rows[0].ready)}
      ${whereSql}
-     ORDER BY ${sortColumn} ${sortDirection} NULLS LAST, so.order_no ASC, so.id ASC
+     ORDER BY ${sortColumn} ${sortDirection} NULLS LAST, so.order_no ${tieDirection}, so.id ${tieDirection}
      LIMIT ${limit} OFFSET ${offset}`,
     values,
   );

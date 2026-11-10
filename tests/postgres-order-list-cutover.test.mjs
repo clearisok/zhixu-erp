@@ -48,6 +48,8 @@ test("production /order-center selects the dedicated PostgreSQL component", () =
 });
 
 test("production query normalizes search and always requests a 50-row server page", () => {
+  assert.equal(initialServerOrderCenterQuery.sortBy, "contractDate");
+  assert.equal(initialServerOrderCenterQuery.sortDirection, "desc");
   assert.equal(SERVER_ORDER_CENTER_PAGE_SIZE, 50);
   assert.equal(normalizeServerOrderSearch("  ＳＯ－０００００００１  "), "SO-00000001");
   assert.deepEqual(toServerSalesOrderListQuery({
@@ -124,6 +126,7 @@ test("server search, filters, allowlisted sorting, and pagination stay server-si
     "lifecycleState",
     "creationSource",
     'value="orderNo"',
+    'value="contractDate"',
     'value="updatedAt"',
     'value="contractDeliveryDate"',
     'value="salesContractNo"',

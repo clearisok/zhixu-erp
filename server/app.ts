@@ -108,7 +108,7 @@ const QUOTE_LIST_MAX_LIMIT = 100;
 const QUOTE_AGGREGATE_MAX_BODY_BYTES = 2 * 1024 * 1024;
 const salesOrderLifecycleStates = new Set<SalesOrderLifecycleState>(["draft", "confirmed", "active", "completed", "cancelled"]);
 const salesOrderCreationSources = new Set<SalesOrderCreationSource>(["quote", "reorder", "manual", "ainuoke"]);
-const salesOrderSortFields = new Set<string>(["orderNo", "updatedAt", "contractDeliveryDate", "salesContractNo"]);
+const salesOrderSortFields = new Set<string>(["orderNo", "updatedAt", "contractDate", "contractDeliveryDate", "salesContractNo"]);
 const commercialTermsInputKeys = new Set([
   "expectedVersion",
   "customerConfirmedPrice",
@@ -211,7 +211,7 @@ function salesOrderListQuery(requestUrl: string | undefined) {
     followupMode:followupMode as 'active'|'history'|'all',
     lifecycleState: lifecycleState as SalesOrderLifecycleState | undefined,
     creationSource: creationSource as SalesOrderCreationSource | undefined,
-    sortBy: sortBy as "orderNo" | "updatedAt" | "contractDeliveryDate" | "salesContractNo",
+    sortBy: sortBy as "orderNo" | "updatedAt" | "contractDate" | "contractDeliveryDate" | "salesContractNo",
     sortDirection: sortDirection as "asc" | "desc",
   };
 }

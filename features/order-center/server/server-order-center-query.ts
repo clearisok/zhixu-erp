@@ -28,8 +28,8 @@ export const initialServerOrderCenterQuery: ServerOrderCenterQueryState = {
   search: "",
   lifecycleState: "",
   creationSource: "",
-  sortBy: "orderNo",
-  sortDirection: "asc",
+  sortBy: "contractDate",
+  sortDirection: "desc",
 };
 
 export function normalizeServerOrderSearch(value: string): string {

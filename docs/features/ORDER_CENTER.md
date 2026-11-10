@@ -1,3 +1,5 @@
+2026-11-10本地候选：现有Server订单中心默认按合同日期降序，缺失最后；同日按正式订单号和UUID降序，服务端排序后分页。API新增明确contractDate排序项，未指定时仍保留原orderNo升序默认。来源合同日期取原mirror.contract_date，加工单取原processing_batch.order_date，不以交期、updated_at或建单顺序冒充合同日期；既有列/筛选/权限/人工数据不变。[任务与用户要求](../tasks/active/ainuoke-directory-recovery-sort-2026-11-10.md)。尚未合并或部署。
+
 2026-10-15 Gate5 B1本地候选：正式详情返回复用顶部小箭头；合同标题展示可信工厂款号，概况业务款号取来源styleNo并移除重复SO/BillNo。加工标题用其业务款号，不虚构销售合同；原准备未知请求保护仍适用于顶部返回与退出。未部署或人工验收。
 
 2026-10-14 / D-117 Server列表新增用户批准的“异常”列，桌面/移动记录展示数量0、单位为空/冲突和来源时效提醒；不改Browser账本或生产路由。[范围与证据](../tasks/active/order-list-alerts-2026-10-14.md)。工程候选未合并/部署。

@@ -385,6 +385,7 @@ export function ServerOrderCenterPage() {
               </FormItem>
               <FormItem label="排序字段">
                 <select className="qc-control" value={query.sortBy} onChange={(event) => updateQuery("sortBy", event.target.value as ServerOrderCenterQueryState["sortBy"])}>
+                  <option value="contractDate">合同日期</option>
                   <option value="orderNo">正式订单号</option>
                   <option value="updatedAt">更新时间</option>
                   <option value="contractDeliveryDate">合同交期</option>

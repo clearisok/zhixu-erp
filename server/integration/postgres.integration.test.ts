@@ -623,6 +623,7 @@ test("PostgreSQL server foundation uses only a disposable PG16 container", async
           insideOrderNo: "D1936",
           styleNo: "STYLE-PG-002",
           customerNameSnapshot: "CUSTOMER-B",
+          contractDate: "2026-07-01",
           sourceHash: "contract-source-hash-002",
         },
         colors: [],
@@ -707,6 +708,24 @@ test("PostgreSQL server foundation uses only a disposable PG16 container", async
         assert.equal((await fetch(`${api.baseUrl}/api/v1/sales-orders/00000000-0000-0000-0000-000000000000`, {
           headers: { Cookie: `zhixu_v1_session=${tokenA}` },
         })).status, 404);
+
+        const noDate = await createSalesOrder(pool, { creationSource: "manual" });
+        const sameDay = await createAinuokeSalesOrder(pool, firstReader, {
+          ...secondFixture,
+          source: { ...secondFixture.source, sourceId: "6086103-source-sort-003", sourceRowIdentity: "6086103:sort-003",
+            salesContractNo: "SC-PG-003", insideOrderNo: "D1937", contractDate: "2026-08-01", sourceHash: "contract-sort-003" },
+          colors: [],
+        });
+        const readSorted = async (direction: string, limit = 50, offset = 0) => {
+          const response = await fetch(`${api.baseUrl}/api/v1/sales-orders?sortBy=contractDate&sortDirection=${direction}&limit=${limit}&offset=${offset}`, {
+            headers: { Cookie: `zhixu_v1_session=${tokenA}` },
+          });
+          assert.equal(response.status, 200);
+          return (await response.json() as { salesOrders: Array<{id:string}> }).salesOrders.map(row => row.id);
+        };
+        assert.deepEqual(await readSorted("desc"), [sameDay.salesOrder.id, created.salesOrder.id, second.salesOrder.id, noDate.id]);
+        assert.deepEqual(await readSorted("desc", 2, 1), [created.salesOrder.id, second.salesOrder.id]);
+        assert.deepEqual(await readSorted("asc"), [second.salesOrder.id, sameDay.salesOrder.id, created.salesOrder.id, noDate.id]);
       } finally {
         await api.close();
       }

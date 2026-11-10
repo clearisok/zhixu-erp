@@ -1,0 +1,12 @@
+{
+  "baselineSha": "dbc61af9be80d0a72e8226afa2cefad6e240ef09",
+  "level": "V1",
+  "paths": [
+    "features/order-center/server/sales-order-server-model.ts",
+    "features/order-center/server/server-order-center-query.ts",
+    "features/order-center/components/server-order-center-page.tsx"
+  ],
+  "pages": ["order-list"],
+  "visibleDifference": "Use contract date descending as the default order list sorting, with missing dates last and stable same-day order number/UUID ties. Add contract date to the existing sorting selector; retain all current columns, layout, filters, server pagination, RBAC and business data.",
+  "evidence": ["docs/tasks/active/ainuoke-directory-recovery-sort-2026-11-10.md"]
+}
