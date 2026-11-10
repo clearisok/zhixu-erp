@@ -26,6 +26,9 @@ test('complete directory growth is rejected for bounded recapture with a safe di
  }
  const missing=structuredClone(extra);missing.bundle.discoveryAfter=original.bundle.discoveryAfter;
  await assert.rejects(validateSelectedSourceOnce(missing,selectedConfig,request),error=>{assert.ok(error instanceof Error);assert.equal(retryableCapture(error.message,null),false);return true;});
+ const metadata=structuredClone(growth);
+ Object.assign(metadata.bundle.discoveryAfter[0].rows.at(-1)!,{unrecognizedMetadata:'changed'});
+ await assert.rejects(validateSelectedSourceOnce(metadata,selectedConfig,request),{message:'catalog_changed_or_over_limit'});
  const contradiction=requests.map((r,i)=>i===1?{...r,outcome:'auth_error'}:r);
  await assert.rejects(validateCatalogDiagnostic({schemaVersion:'ainuoke-request-diagnostics.v1',capture:growth,requests:contradiction},selectedConfig,request,Date.now()),{message:'sync_diagnostics_invalid'});
 });

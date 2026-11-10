@@ -19,7 +19,10 @@ export function catalogChangeEvidence(bundle:AdditionDiscoveryBundle){
   void rows;void fetchedAt;void snapshotHash;void number;void total;return hash(rest);
  };
  const scopeChanged=[...bundle.discoveryBefore,...bundle.discoveryAfter].some(p=>scope(p)!==scope(bundle.discoveryBefore[0]));
- let removed=0,identityChanges=0,fixedChanged=false;
+ let removed=0,identityChanges=0;
+ // Unknown envelope metadata must not gain retry permission merely because a
+ // normal new contract was added in the same capture.
+ let fixedChanged=[...before,...after].some(r=>Object.keys(r).sort().join(',')!=='sourceRowIdentity,values');
  const changedFields=new Set<string>();
  for(const row of before){
   const next=byId.get(String(row.values.id).trim());

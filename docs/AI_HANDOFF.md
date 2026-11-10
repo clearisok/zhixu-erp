@@ -21,3 +21,5 @@ PI2611-091 UUID03d73e50-9c44-4805-9ae2-9bc8c620310d，SO-00000620；21:58:06.759
 候选补充catalog-consistency.ts，完整双遍安全新增只允许原有限重采；旧快照不切换，失败任务和目录回执保留封闭统计，不含原始值。认证、删除、身份/未知字段、范围及不完整传输仍STOP，目录第三次失败仍暂停，合同第三次失败终态可恢复且不继续自动重试。详见当前任务与D192。当前未推送/PR/CI/合并/部署，先完成本地必要验证与最终guard，再集中交付一次；不重跑旧PR143 CI。AGENTS不自动merge main，本次用户未明确批准此新候选合并部署。
 
 浏览器工具能列Chrome标签/claim staging993649966，但DOM/evaluate/CDP均Cannot read properties of undefined (reading timeoutMs)，不可据此冒称浏览器验收。源站Chrome993649962正常用户页不动，不取Cookie/JWT。公网本机curl进程级no-proxy buildinfo200（2.45秒），不改全局代理；服务器入口图片200不等于客户端问题已定位。
+
+22:13:59最终只读补充：620订单/620正式物料head，queued/running/unknown及重复在途均0，源无暂停、心跳正常。恢复后新请求232 complete；原27 queued保留原任务身份正常补处理，不把任务次数当不同订单数。下一目录计划22:28:07.126183。实际运行仍M，未部署本地候选。
