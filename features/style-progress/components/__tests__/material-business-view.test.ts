@@ -40,7 +40,7 @@ test('no transaction and complete empty source use distinct normal business stat
   const markup=html([{...demand,cgmxid:null,cgdh:null,cgnum:null}]);
   assert.ok(markup.includes('待采购'));assert.ok(markup.includes('无记录'));
   assert.ok(!markup.includes('采购不足</th><td>0'));
-  const empty=html([]);assert.ok(empty.includes('暂无物料需求'));assert.ok(empty.includes('业务尚未开始'));
+  const empty=html([]);assert.ok(empty.includes('暂无物料需求'));assert.ok(empty.includes('业务尚未开始'));assert.equal((empty.match(/sp-business-empty-card/g)||[]).length,1);
 });
 
 
