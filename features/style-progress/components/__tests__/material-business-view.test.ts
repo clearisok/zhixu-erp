@@ -58,5 +58,5 @@ test('unconnected source is not represented by zero-count source views',()=>{
  assert.ok(markup.includes('物料尚未接入'));
  assert.ok(!markup.includes('>0<small>'));
  assert.ok(!markup.includes('>0</span>'));
- assert.ok(markup.includes('不能据此认定需求'));
+ assert.ok(markup.includes('尚未取得完整来源，不能认定需求为零。'));
 });
