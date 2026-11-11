@@ -49,3 +49,7 @@ Route app/order-center/style-progress/detail/page.tsx，ServerStyleProgressDetai
 隔离UI回归保留首轮失败：旧到料测试把“刷新来源”当本地GET重读，实际fixture没有目录，真实回执sync_catalog_not_ready；新增独立断言真实队列命令，context重读改为原focus入口。旧错误文案未渲染，改按当前原Alert标题断言。来源失败保留历史时旧孤立摘要可能在focus后回到正常分组，测试通过同canonical入口打开保存计划；日期直接检查input.value，不依赖移到抽屉的旧内嵌文字。首轮UI静态测试缺PermissionProvider也如实保留，修复后4显示用例与7业务事实用例通过。
 
 catalog-ui正向刷新还发现实际UI回执退化：新标题在Tower内随model reload卸载，成功回执被销毁。已将原PageHeader/ServerContractRefresh保持在MaterialBody稳定位置，Tower仅通过UI ref打开原来源核实抽屉；不改刷新服务/队列/回执逻辑。此修复待最终静态构建和两套隔离UI重验，不把此前失败称通过。
+
+## 最终本机验收收口
+
+2026-11-11：产品6dc9601549b65a15e60da0ae2c472c89d5e902ff。前述“待重验”均已完成：18到料UI、9合同刷新UI、10排序/流水UI、11排序/客户端、4显示与7业务事实报告项通过；类型、局部lint、构建及baseline守卫PASS。真实HTTP和独立浏览器、原库/角色保持、0真实业务写验证完成。完整结果、最终同尺寸比较4→10/3→9/2→7及限制见[最终交付](material-dense-local-acceptance-2026-11-11.md)。本机63054 hidden PID42352持续运行；待用户人工视觉验收，不部署。

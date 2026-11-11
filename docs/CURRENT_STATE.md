@@ -1,9 +1,11 @@
-# 当前状态：物料页紧凑改版本机验收中
+# 当前状态：高密度物料页本机演示就绪
 
-2026-11-11。代码基线main/staging为6dc17c645215b3eb08e03624effdee2d182b3e1d，PR144已合并并部署。新任务仅批准本机第一阶段，分支feat/material-followup-dense，不push、不触发远端CI或部署，不改源协议/认证/调度/业务计算/schema。
+2026-11-11。第一阶段完成，等待用户视觉验收。分支feat/material-followup-dense，产品构建6dc9601549b65a15e60da0ae2c472c89d5e902ff。main/staging仍为6dc17c645215b3eb08e03624effdee2d182b3e1d；本轮未推送、PR、远端CI或部署，不改协议/认证/调度/计算/schema。
 
-6230-938／PI2610-181已在隔离本机副本通过现有历史接纳服务载入11月11日14:44真实资料（10自购/3厂供、4采购/2入库/2出运/2出库），保留原本机UUID，无新建订单、0源请求。原617本机库不写业务，staging只读，宁波采集照常。本机候选63054 loopback，原只读预览身份自动进入，不改权限；原63051保留。
+[直接打开6230-938／PI2610-181](http://127.0.0.1:63054/order-center/style-progress/detail?orderId=aa46192f-23b0-4fd9-9a37-55acc7703783)。原preview.real-orders只读身份自动进入，业务写入和源刷新403。hidden PID42352监听loopback，原63051及原617库不变。
 
-统一紧凑分组表、六视图、原明细/核实/对账/到料入口、密度和列显示已接入。1920首屏同数据自购可见5→10条，1600为9条，1366为7条；表体13px，不同单位和历史状态仍如实保留。真实只读交互检查通过，旧分批到料隔离UI测试中的页面重读假设、旧错误文案和旧摘要入口需适配现有队列及历史保留语义，继续验收中，不能将失败描述成通过。
+副本保留617订单。样本经原历史接纳服务载入11月11日14:44:46真实资料，10自购/3厂供/4采购/2入库/2出运/2出库，原UUID不变；0艾诺科登录/报表，时间不改。1920首屏自购4→10条，1600为9，1366为7；13px正文，分组、字段和历史/未知语义保持。
 
-[基线及任务](tasks/active/material-dense-local-2026-11-11.md)、[具体设计授权](tasks/active/material-dense-approval-2026-11-11.md)、[模块](features/MATERIAL_FOLLOWUP_DENSE_VIEW.md)、[接力](AI_HANDOFF.md)。[任务前staging交付事实](tasks/completed/2026-11-11-before-dense-view/CURRENT_STATE.md)原日期/版本/数量/限制保留。当前尚未人工接受新布局，不能部署staging。
+59个受影响测试报告项通过；类型、局部lint、构建、基线守卫及真实HTTP/独立浏览器检查完成。真实只读UI与隔离写流程分别记录，不冒称真实源刷新通过。原失败日志保留。[最终报告、截图及功能矩阵](tasks/active/material-dense-local-acceptance-2026-11-11.md)、[接力](AI_HANDOFF.md)。
+
+下一步只接收本机演示反馈；没有明确部署批准，不进入staging阶段。[此前线上交付及回滚事实](tasks/completed/2026-11-11-before-dense-view/CURRENT_STATE.md)保留。
