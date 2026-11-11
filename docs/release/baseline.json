@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "390569c4cfa56cd56261674c3f2110bd306d3ff7",
-  "verifiedAt": "2026-11-09T13:26:34.242Z",
+  "baselineSha": "dbc61af9be80d0a72e8226afa2cefad6e240ef09",
+  "verifiedAt": "2026-11-10T14:12:08.280Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -6077,6 +6077,26 @@
       "sha256": "66b2465c62a2705acb8504f0c6fc9f79430ccaea36235bbaa7cfa8f46c118dd6",
       "supersedes": "staging-handoff-source-0-20261107",
       "changeReason": "User authorized automatic new-contract discovery on staging; retain all prior frozen evidence and add independent scan checkpoints, contract-only intake, safe empty enrichment and paired-backup catch-up without changing the accepted material UI."
+    },
+    {
+      "id": "directory-recovery-decisions-20261110",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "03139e4c30de49987361fbf8daf3eef3a5d82f39",
+      "renderedSourceSha": "03139e4c30de49987361fbf8daf3eef3a5d82f39",
+      "sha256": "5c710432e0c36721cacda28d91a6ca144e83c81aea47e691a278305da405e655",
+      "supersedes": "ainuoke-order-discovery-decisions-20261109",
+      "changeReason": "Preserve the previous discovery decision and add a bounded, identity-safe recapture for complete directory additions, closed failure diagnostics, and the explicit contract-date list sorting requested after the November 10 pause. Local candidate only; actual staging recovery uses the existing reviewed recovery service."
+    },
+    {
+      "id": "directory-recovery-source-20261110",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SERVER_SOURCE.md",
+      "recordedAtSha": "03139e4c30de49987361fbf8daf3eef3a5d82f39",
+      "renderedSourceSha": "03139e4c30de49987361fbf8daf3eef3a5d82f39",
+      "sha256": "13e20c967f797b6ff8debcca1eb1985b68d9f4b0074c57f652b11ca14523da9c",
+      "supersedes": "ainuoke-order-discovery-source-20261109",
+      "changeReason": "Preserve the previous discovery decision and add a bounded, identity-safe recapture for complete directory additions, closed failure diagnostics, and the explicit contract-date list sorting requested after the November 10 pause. Local candidate only; actual staging recovery uses the existing reviewed recovery service."
     }
   ],
   "pages": [

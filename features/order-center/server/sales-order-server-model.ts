@@ -55,7 +55,7 @@ export type ServerSalesOrderListQuery = {
   search?: string;
   lifecycleState?: ServerSalesOrderLifecycleState;
   creationSource?: ServerSalesOrderCreationSource;
-  sortBy?: "orderNo" | "updatedAt" | "contractDeliveryDate" | "salesContractNo";
+  sortBy?: "orderNo" | "updatedAt" | "contractDate" | "contractDeliveryDate" | "salesContractNo";
   sortDirection?: "asc" | "desc";
 };
 

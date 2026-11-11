@@ -73,7 +73,7 @@ async function captureUnderLease(pool:Pool,identity:Identity,raw:CollectorConfig
   if(committed){await finishCatalogScan(pool,config.sourceKey,requestId,{runId:committed.id},completedBundle);return {status:'complete',result:{runId:committed.id},replayed:true};}
   const code=e instanceof SourceError?e.code:'catalog_result_unknown';
   if(diagnosticId)await finishCaptureAttempt(pool,diagnosticId,code,diagnostics,metrics,Date.now());
-  await pool.query('UPDATE ainuoke_catalog_requests SET status=$3,result=$4::jsonb,finished_at=now() WHERE source_key=$1 AND request_id=$2',[config.sourceKey,requestId,e instanceof SourceError?'failed':'unknown',JSON.stringify({code})]).catch(()=>undefined);
+  await pool.query('UPDATE ainuoke_catalog_requests SET status=$3,result=$4::jsonb,finished_at=now() WHERE source_key=$1 AND request_id=$2',[config.sourceKey,requestId,e instanceof SourceError?'failed':'unknown',JSON.stringify({code,...(e instanceof CatalogDiagnosticValidationError&&e.catalogChange?{catalogChange:e.catalogChange}:{})})]).catch(()=>undefined);
   await failCatalogScan(pool,config.sourceKey,requestId,code,!(e instanceof SourceError));
   // Only proven transient failures can be scheduled again. Certificate, scope,
   // permission, pagination and unknown failures must also stop future ticks.

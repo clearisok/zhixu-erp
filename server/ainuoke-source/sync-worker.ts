@@ -16,6 +16,7 @@ import {requirePermission} from '../auth/permissions.js';
 import {createAinuokeSalesOrderInTransaction} from '../sales-orders/service.js';
 import {lockEffectiveAttribution} from '../sales-orders/effective-attribution.js';
 import { saveCatalogEvidence } from './catalog-evidence.js';
+import type {CatalogChangeDiagnostic} from './catalog-consistency.js';
 import { CatalogDiagnosticValidationError, collectCatalogDiagnostic, validateCatalogDiagnostic, diagnosticSummary, finishCaptureAttempt, retryDelayMs, retryableCapture, type RequestDiagnostic } from './sync-diagnostics.js';
 
 type Identity = Pick<TrustedIdentity,'internalUserId'|'userId'>;
@@ -93,7 +94,7 @@ async function publishContract(pool:Pool,identity:Identity,config:CollectorConfi
     await c.query('COMMIT');return result;
   }catch(e){await c.query('ROLLBACK').catch(()=>undefined);throw e;}finally{c.release();}
 }
-async function failJob(pool:Pool,job:SyncJob,code:string,unknown=false,options:{diagnostics?:RequestDiagnostic[]|null;retry?:boolean;pauseCapture?:boolean;now?:number}={}) {
+async function failJob(pool:Pool,job:SyncJob,code:string,unknown=false,options:{diagnostics?:RequestDiagnostic[]|null;catalogChange?:CatalogChangeDiagnostic;retry?:boolean;pauseCapture?:boolean;now?:number}={}) {
   const c=await pool.connect();try {
     await c.query('BEGIN');
     await c.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',['ainuoke-sync-queue:'+job.source_key]);
@@ -102,8 +103,10 @@ async function failJob(pool:Pool,job:SyncJob,code:string,unknown=false,options:{
     // job and its business publications share one transaction.
     const state=(await c.query('SELECT status,result FROM ainuoke_sync_jobs WHERE id=$1 FOR UPDATE',[job.id])).rows[0];
     if(state?.status==='complete'){await c.query('COMMIT');return state;}
-    await c.query("UPDATE ainuoke_sync_jobs SET status=$2,finished_at=now(),result=$3::jsonb WHERE id=$1 AND status='running'",[job.id,unknown?'unknown':'failed',JSON.stringify({code})]);
-    const now=options.now??Date.now(),summary=diagnosticSummary(options.diagnostics??null);
+    const failure={code,...(options.catalogChange?{catalogChange:options.catalogChange}:{})};
+    await c.query("UPDATE ainuoke_sync_jobs SET status=$2,finished_at=now(),result=$3::jsonb WHERE id=$1 AND status='running'",[job.id,unknown?'unknown':'failed',JSON.stringify(failure)]);
+    const now=options.now??Date.now(),transport=diagnosticSummary(options.diagnostics??null);
+    const summary=options.catalogChange?{...(transport??{}),catalogChange:options.catalogChange}:transport;
     await c.query(`INSERT INTO ainuoke_contract_sync_state(source_key,source_id,last_error_code,last_attempt_at,last_diagnostic) VALUES($1,$2,$3,$4,$5::jsonb)
       ON CONFLICT(source_key,source_id) DO UPDATE SET last_error_code=excluded.last_error_code,last_attempt_at=excluded.last_attempt_at,last_diagnostic=excluded.last_diagnostic`,[job.source_key,job.source_id,code,new Date(now),summary?JSON.stringify(summary):null]);
     const targets=(await boundOrders(c)).filter(o=>o.salesContractNo===job.sales_contract_no);
@@ -119,7 +122,7 @@ async function failJob(pool:Pool,job:SyncJob,code:string,unknown=false,options:{
         [child,job.source_key,job.source_id,job.sales_contract_no,job.kind,job.requested_by,job.id,job.root_job_id??job.id,job.attempt_number+1,at,new Date(now)]);
       if(inserted.rowCount)retry={jobId:child,at:at.toISOString(),attempt:job.attempt_number+1};
     }
-    await c.query('COMMIT');return {status:unknown?'unknown':'failed',result:{code},retry};
+    await c.query('COMMIT');return {status:unknown?'unknown':'failed',result:failure,retry};
   }catch(e){await c.query('ROLLBACK').catch(()=>undefined);throw e;}finally{c.release();}
 }
 /** One wake handles a bounded group. Caller decides when to wake, backs up or
@@ -197,7 +200,7 @@ export async function runSyncTick(pool:Pool,identity:Identity,raw:CollectorConfi
       // Refusing a retry child is insufficient: the next tick could claim a new
       // contract or a new scheduled slot. Unsafe captures require explicit recovery.
       for(const job of jobs)results.push({id:job.id,...await failJob(pool,job,code,false,{diagnostics,retry,
-        pauseCapture:!retry,now:now()})});
+        catalogChange:e instanceof CatalogDiagnosticValidationError?e.catalogChange:undefined,pauseCapture:!retry,now:now()})});
       return {status:'failed' as const,retryScheduled:results.some(r=>r.retry),jobs:results};
     }
     await finishCaptureAttempt(pool,attemptId,null,diagnostics,metrics,now());

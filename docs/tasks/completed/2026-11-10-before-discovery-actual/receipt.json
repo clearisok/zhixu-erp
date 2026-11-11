@@ -1,0 +1,21 @@
+{
+  "sourceSha": "e7b4d5493597938a75aaf1929b9e78242d8cfc4a",
+  "purpose": "Preserve pre-upgrade progress before recording actual staging discovery delivery",
+  "files": [
+    {
+      "path": "docs/PROJECT_INDEX.md",
+      "preserved": "docs/tasks/completed/2026-11-10-before-discovery-actual/PROJECT_INDEX.md",
+      "sha256": "1d581712b554ec268b5dcf9fe199eba39cc68057eef84aee93942a5f3c6c4cc3"
+    },
+    {
+      "path": "docs/CURRENT_STATE.md",
+      "preserved": "docs/tasks/completed/2026-11-10-before-discovery-actual/CURRENT_STATE.md",
+      "sha256": "cc0c7f88607099b61ee796ef846df0673b9f0480589e841864f1e11f335b18ef"
+    },
+    {
+      "path": "docs/AI_HANDOFF.md",
+      "preserved": "docs/tasks/completed/2026-11-10-before-discovery-actual/AI_HANDOFF.md",
+      "sha256": "408a3b57138a9b9bafd902b9531813140d2d33d6090aa88514de06984e6ada1d"
+    }
+  ]
+}

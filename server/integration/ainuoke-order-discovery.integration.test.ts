@@ -13,7 +13,7 @@ import {captureCatalogOnce} from '../ainuoke-source/catalog-capture.js';
 import {accountFingerprint} from '../ainuoke-source/collector.js';
 import {validateSelectedSourceOnce} from '../ainuoke-source/selected-source-once.js';
 import {selectedConfig,selectedContracts,selectedWorkerFixture} from './selected-source-fixture.js';
-import {configureSync} from '../ainuoke-source/sync-queue.js';
+import {configureSync,requestContractSync} from '../ainuoke-source/sync-queue.js';
 import {DEFAULT_SYNC_POLICY} from '../ainuoke-source/sync-schedule.js';
 import {runSyncTick} from '../ainuoke-source/sync-worker.js';
 import {catalogScanDue,loadCatalogScanResume,finishCatalogScan} from '../ainuoke-source/catalog-checkpoints.js';
@@ -34,6 +34,37 @@ async function setup(label:string){
   return {pool,actor,fp,close:async()=>{await pool.end();await db.stop();}};
  }catch(e){await pool.end();await db.stop();throw e;}
 }
+
+test('a new contract appearing during detail capture retains the old head and retries without pausing other orders',{timeout:180000},async()=>{
+ const f=await setup('directory_growth'),{pool,actor}=f,sourceKey=selectedConfig.sourceKey;
+ const cfg=selectedConfig;
+ try{
+  await captureCatalogOnce(pool,actor,cfg,randomUUID(),async()=>selectedWorkerFixture('catalog-discovery','',[],3),undefined,true);
+  const collect=(total=3)=>selectedWorkerFixture('catalog-contracts','',['SYN-SALES-1'],total);
+  await requestContractSync(pool,actor,{sourceKey,sourceId:'1',requestId:randomUUID()});
+  const first=await runSyncTick(pool,actor,cfg,{automatic:false,sourceIds:['1'],batchSize:1,collect:async()=>collect()});
+  assert.equal(first.status,'processed');assert.equal(first.jobs[0].status,'complete',JSON.stringify(first));
+  const head=async()=>(await pool.query("SELECT run_id FROM ainuoke_material_order_heads h JOIN sales_order_source_links l ON l.sales_order_id=h.sales_order_id WHERE l.external_id='1'")).rows[0].run_id;
+  const old=await head();
+  await requestContractSync(pool,actor,{sourceKey,sourceId:'1',requestId:randomUUID()});
+  const mixed=collect() as {bundle:{discoveryAfter:unknown};metrics:{httpAttempts:number}};
+  mixed.bundle.discoveryAfter=(collect(4) as typeof mixed).bundle.discoveryAfter;
+  const trace=Array.from({length:mixed.metrics.httpAttempts},(_,i)=>i===0
+   ?{kind:'login',reportId:null,page:null,elapsedMs:1,outcome:'complete',httpStatus:200}
+   :{kind:'report',reportId:6086103,page:1,elapsedMs:1,outcome:'complete',httpStatus:200});
+  const failed=await runSyncTick(pool,actor,cfg,{automatic:false,sourceIds:['1'],batchSize:1,collect:async()=>({schemaVersion:'ainuoke-request-diagnostics.v1',capture:mixed,requests:trace})});
+  assert.equal(failed.status,'failed');assert.equal(failed.retryScheduled,true);
+  assert.equal(await head(),old);
+  assert.equal((await pool.query('SELECT paused_reason FROM ainuoke_sync_controls')).rows[0].paused_reason,null);
+  const failure=(await pool.query("SELECT result FROM ainuoke_sync_jobs WHERE source_id='1' AND status='failed'")).rows[0].result;
+  assert.equal(failure.code,'catalog_additions_observed');assert.equal(failure.catalogChange.added,1);
+  assert.equal((await pool.query("SELECT last_diagnostic FROM ainuoke_contract_sync_state WHERE source_id='1'")).rows[0].last_diagnostic.catalogChange.afterRows,4);
+  const recovered=await runSyncTick(pool,actor,cfg,{automatic:false,sourceIds:['1'],batchSize:1,now:()=>Date.now()+61000,collect:async()=>collect(4)});
+  assert.equal(recovered.status,'processed');assert.equal(recovered.jobs[0].status,'complete');
+  assert.notEqual(await head(),old);
+  assert.equal((await pool.query("SELECT count(*)::int n FROM ainuoke_sync_jobs WHERE source_id='1' AND status IN('queued','running','unknown')")).rows[0].n,0);
+ }finally{await f.close();}
+});
 
 test('automatic directory adoption retains incomplete headers, same-style contracts and successful empty material',{timeout:180000},async t=>{
  const f=await setup('new_contracts'),{pool,actor}=f,sourceKey=selectedConfig.sourceKey;
