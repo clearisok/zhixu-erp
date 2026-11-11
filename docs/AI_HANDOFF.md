@@ -1,25 +1,15 @@
-# 接力：11月10日晚间目录恢复与合同日期排序
+# 本机高密度物料页恢复点
 
-本轮main/部署基线 **dbc61af9be80d0a72e8226afa2cefad6e240ef09**，GitHub API核实。新工作树C:/Users/Administrator/.codex/worktrees/ainuoke-directory-recovery/zhixu-ainuoke-api，branch fix/ainuoke-directory-recovery-sort。从M独立建立，0193358c/98ec1a64仅携入前次文档，产品baseline仍M。旧树及本机数据不改。
+2026-11-11第一阶段仅本机。main/staging基线6dc17c645215b3eb08e03624effdee2d182b3e1d已只读核实；独立material-dense-local/zhixu-ainuoke-api，branch feat/material-followup-dense。5d7b2dbd先冻完整功能清单，bf9de97f首轮UI+具体批准文档+baselineM2。当前未push/PR/远端CI/部署；不得沿用上一轮部署授权。
 
-## 已执行真实恢复（新代码未部署）
+真实数据：原D:/WeaveOps-Local持久617库在63051只读old4bd（本轮仅启动网页，syncEnabled=false），源worker在宁波，不能启动本机。原目标11/8快照仅4自购/3厂供；staging真实HTTP确认10自购/3厂供。通过原hydrateContractEvidence只读导出最新完整证据，0源请求，保存D:/WeaveOps-Local/material-dense-20261111/verified-181-archive.private.json。原本机库pg_dump后恢复新本机隔离库zhixu_ui_dense_20261111（同现有local容器端口64268），原库未写业务。原importVerifiedMaterialArchive仅在clone接纳7039/PI2610-181：historical_published、created=false、原UUID aa46192f-23b0-4fd9-9a37-55acc7703783，run78c2c95b-852e-43a1-808c-2ba8cd1dd42d，原来源14:44:46.899902，capture14:44:50.325，不改原时间。
 
-宁波SSH weaveops；ROOT=/home/jackson/weaveops-staging-preview；PROJECT=zhixu-quote-trial-staging-562fbf07；gateway127.0.0.1:3003。M应用/operator/备份/旧owner状态详见[原交接](tasks/completed/2026-11-10-before-evening-recovery/AI_HANDOFF.md)。唯一源owner weaveops-catalog-sync-dbc61af9，RUNTIME=ROOT/runtime/catalog-sync-dbc61af9，SOURCE=ROOT/releases/order-discovery-20261109/source；不得同时启用本机或旧3合同owner。
+目前candidate只读app63054 PID24068（terminal14650），before-current app63053 PID6052（terminal8364），均outputs/material-dense-local/server.ts，pool只连clone、createApp/既有reader/既有loopback-demo，0worker；原63051不动。新的可追溯启动器scripts/material-dense-demo.ts已写，待最终构建后换成该脚本Hidden后台进程。只允许GET/HEAD/OPTIONS及正常auth登录退出，业务写403，默认沿用原7权限preview.real-orders。不要改auth/权限或把stagingUUID c067...复制到local默认映射。
 
-10:16故障capture b6b6221d-833b-460b-ac48-2a2257bbbaac（catalog-contracts）code catalog_changed_or_over_limit，HTTP200不能证明目录一致；旧差异未保留。最后目录request a435a48a-682e-4537-92da-74b51be44097，09:57:59.775619合同。
+截图/真实HTTP/交互回执均在D:/WeaveOps-Local/material-dense-20261111（private），before-current-1920/1600/1366.png与after同尺寸可比较。1920同10自购+3厂供资料：首屏自购可见5→10，1600 4→9，1366 2→7，13px；六视图10/3/4/2/2/2。after-interactive实际DOM/API无业务POST，搜索/分类/全收放/列恢复/密度记忆/全部抽屉页签/只读到料弹窗/核实/刷新页面均PASS，实际原需求与流水字段相等。源过30分钟需如实stale，不放宽时限；再次比较需同一时刻before/after，派生row.status自然随时间变化不当作源数据变化。
 
-新固定只读目录额度已消耗：21:48成功1登录/26报表，620合同；新增7196/PI2611-091，原619身份固定字段不变，另PI2610-170 Brand变化。原证据与新读离线hash/固定字段对照通过。21:57:56.686786正式sync-recovery-preview及expected-preview/hash/reason恢复，resolvedUnknownJobs0/resolvedCatalogRequests0，再原supervisor activate，由正常cron自然执行；不重复清暂停或采目录。
+首轮类型/lint/build、10业务显示回归过；后来加未接通不显示0的UI保护，新增单测首轮缺PermissionProvider已修，4显示测试通过。新增helper及ignored临时server TS参数需最终typecheck（临时参数已注解）。当前dist/client烟测build标记5d7b2dbd，实际UI字节属于bf9产品改动（当时dirty构建）；最终须freeze新源码commit后按Server/snapshot/session flags再构建并换新helper，不能把5d元数据当最终精确代码。
 
-PI2611-091 UUID03d73e50-9c44-4805-9ae2-9bc8c620310d，SO-00000620；21:58:06.759976建档、21:59:46.173成功发布run df660062-b924-4dd1-acb8-5c716516f129，来源21:59:42.901090。22:08:20实际staging HTTP200/合同身份正确/2自购0厂供/匿名401，图片与buildinfo200。该HTTP工具仅正常织序登录和读回，0源请求/0业务写。22:06还有114queued/5running，正常恢复积压；尚未记录清空，不冒称全量完成。
+分批到料隔离UI测试：第一次把刷新来源当DB页面重读，fixture无目录返回sync_catalog_not_ready，按钮是正确队列行为。新增明确断言该真实命令，另用focus触发原GET重读；新增readCompletions及DOMcanonical稳定选择。第二次预期worker_not_enabled写错，已改按实际catalog_not_ready；第三次旧未渲染错误文案改成现有alert title“物料暂时无法读取”；第四次13子项过，Source失败旧摘要入口在后续focus恢复历史资料后消失，openSaved已改为先找孤立已保存计划、再原同组入口（两者读同一持久计划），测试同时显式HTTP503覆盖孤立计划。最后clear及只读activation仍需整轮验证，不冒称PASS。原失败log保留outputs/.../arrivals-ui[-v2/-v3/-v4].log。因为曾失败必须继续解决，不能停止在报告。
 
-私密证据ROOT/releases/directory-recovery-20261110：attempt.json、directory.private.json、result.private.json、current-directory-review.private.json、recovery-preview.private.json、recovery-result.private.json、activation-result.log、new-order-http.private.json；owner-only，不提交原始业务。固定audit1login/26reports不能再次消耗；后续正常定时源请求使用既有持续服务授权。
-
-## 本地候选与验证
-
-合同日期排序复用镜像contract_date或加工order_date，UI默认desc、null-last、同日单号/UUIDdesc，API未指定排序默认保持旧orderNoasc。数据API集成14/14已过，含日期与建单顺序相反、同日/空日期/分页。新目录增长测试通过，先前fixture6087051缺完整映射造成source_incomplete，改用现有完整6087050合成fixture后单测1/1通过；原同文件其他5项已过，不隐藏失败历史。
-
-候选补充catalog-consistency.ts，完整双遍安全新增只允许原有限重采；旧快照不切换，失败任务和目录回执保留封闭统计，不含原始值。认证、删除、身份/未知字段、范围及不完整传输仍STOP，目录第三次失败仍暂停，合同第三次失败终态可恢复且不继续自动重试。详见当前任务与D192。当前未推送/PR/CI/合并/部署，先完成本地必要验证与最终guard，再集中交付一次；不重跑旧PR143 CI。AGENTS不自动merge main，本次用户未明确批准此新候选合并部署。
-
-浏览器工具能列Chrome标签/claim staging993649966，但DOM/evaluate/CDP均Cannot read properties of undefined (reading timeoutMs)，不可据此冒称浏览器验收。源站Chrome993649962正常用户页不动，不取Cookie/JWT。公网本机curl进程级no-proxy buildinfo200（2.45秒），不改全局代理；服务器入口图片200不等于客户端问题已定位。
-
-22:13:59最终只读补充：620订单/620正式物料head，queued/running/unknown及重复在途均0，源无暂停、心跳正常。恢复后新请求232 complete；原27 queued保留原任务身份正常补处理，不把任务次数当不同订单数。下一目录计划22:28:07.126183。实际运行仍M，未部署本地候选。
+下一步：冻结manifest新批准/feature证据（bf9已有两文件与baselineM2），UI impact三产品文件已有；最终源码commit/build；仅换own24068/6052候选，不停原63051/其他服务；运行最终到料UI、catalog-ui真正刷新采集发布测试（合成fixture，仅本机）、真实other orders/空/未知/尺寸/数据hash；更新功能矩阵/比较报告/guard/交接、启动Hidden稳定63054给用户验收，不部署。新task docs每项实际回执不要写成用户接受。旧staging完整交接在tasks/completed/2026-11-11-before-dense-view，宁波后台继续原M2，不再读源或动配置。

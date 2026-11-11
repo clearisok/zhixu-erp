@@ -51,3 +51,12 @@ test('dense view preserves all six source views and original business detail ent
  assert.equal((markup.match(/data-demand-id=/g)||[]).length,1);
  assert.equal((markup.match(/sp-dense-group/g)||[]).length,1);
 });
+
+
+test('unconnected source is not represented by zero-count source views',()=>{
+ const markup=renderToStaticMarkup(createElement(PermissionProvider,null,createElement(ReadOnlyMaterialControlTower,{view:projectMaterialProgress(order,null)})));
+ assert.ok(markup.includes('物料尚未接入'));
+ assert.ok(!markup.includes('>0<small>'));
+ assert.ok(!markup.includes('>0</span>'));
+ assert.ok(markup.includes('不能据此认定需求'));
+});

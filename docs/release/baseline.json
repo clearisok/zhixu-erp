@@ -6097,6 +6097,22 @@
       "sha256": "13e20c967f797b6ff8debcca1eb1985b68d9f4b0074c57f652b11ca14523da9c",
       "supersedes": "ainuoke-order-discovery-source-20261109",
       "changeReason": "Preserve the previous discovery decision and add a bounded, identity-safe recapture for complete directory additions, closed failure diagnostics, and the explicit contract-date list sorting requested after the November 10 pause. Local candidate only; actual staging recovery uses the existing reviewed recovery service."
+    },
+    {
+      "id": "material-dense-approved-20261111",
+      "kind": "document",
+      "path": "docs/tasks/active/material-dense-approval-2026-11-11.md",
+      "recordedAtSha": "bf9de97f049464a460cd4d7ea0dc1f533e08fbc5",
+      "renderedSourceSha": "bf9de97f049464a460cd4d7ea0dc1f533e08fbc5",
+      "sha256": "356d23391f4a7ddcd7f3d288dddda418cb1b43d7ea139b173df3d6652290dc12"
+    },
+    {
+      "id": "material-dense-module-20261111",
+      "kind": "document",
+      "path": "docs/features/MATERIAL_FOLLOWUP_DENSE_VIEW.md",
+      "recordedAtSha": "bf9de97f049464a460cd4d7ea0dc1f533e08fbc5",
+      "renderedSourceSha": "bf9de97f049464a460cd4d7ea0dc1f533e08fbc5",
+      "sha256": "4d7d6c008429a4e6b413ec2511f78eed5953815d4e166a1fc851b3e118622554"
     }
   ],
   "pages": [
@@ -6273,7 +6289,9 @@
         "read-panel-payment-390",
         "read-panel-payment-fields-390",
         "read-panel-payment-fields-1440",
-        "read-panel-payment-expired-1440"
+        "read-panel-payment-expired-1440",
+        "material-dense-approved-20261111",
+        "material-dense-module-20261111"
       ]
     },
     {
