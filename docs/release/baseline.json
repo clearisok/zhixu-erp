@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "dbc61af9be80d0a72e8226afa2cefad6e240ef09",
-  "verifiedAt": "2026-11-10T14:12:08.280Z",
+  "baselineSha": "6dc17c645215b3eb08e03624effdee2d182b3e1d",
+  "verifiedAt": "2026-11-11T06:33:00Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
