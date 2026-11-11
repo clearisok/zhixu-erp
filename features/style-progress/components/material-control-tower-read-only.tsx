@@ -1,6 +1,6 @@
 "use client";
 
-import { Fragment, useEffect, useId, useRef, useState, type ReactNode } from 'react';
+import { Fragment, useEffect, useImperativeHandle, useId, useRef, useState, type ReactNode, type Ref } from 'react';
 import { Card } from '@/components/foundation/card';
 import { Button } from '@/components/foundation/button';
 import { Drawer } from '@/components/foundation/drawer';
@@ -159,6 +159,7 @@ function Verification({ rows, view }: { rows: ProgressRow[]; view: MaterialProgr
 const views = [{key:'self',label:'物料总览 / 自购需求'},{key:'factory',label:'厂供记录'},
   {key:'purchase',label:'采购明细'},{key:'inbound',label:'入库明细'},{key:'shipment',label:'出运明细'},{key:'outbound',label:'出库明细'}] as const;
 type MainView = typeof views[number]['key'];
+export type MaterialSourceHandle={open:()=>void};
 const selfColumns = [
   ['name','物料名称'],['color','颜色'],['spec','规格'],['width','门幅'],['gsm','克重'],['demand','需求数量'],['unit','单位'],
   ['purchase','已采购'],['gap','采购不足'],['inbound','已入库'],['pending','待入库'],['shipment','物料出运'],['outbound','物料出库'],['state','状态'],['action','操作'],
@@ -177,14 +178,15 @@ function useDisplayPreferences(){
   return {density,hidden,setDensity:(next:typeof density)=>save(next,hidden),toggle:(key:string)=>save(density,hidden.includes(key)?hidden.filter(k=>k!==key):[...hidden,key]),reset:()=>save(density,[])};
 }
 /** Existing projection, per-node quantities, permission gates and arrival owner remain authoritative. */
-export function ReadOnlyMaterialControlTower({ view, trimPriorityKeywords = [], settingsNotice, paymentScope, materialActions, materialPlan, headerActions }: {
-  view: MaterialProgressView; trimPriorityKeywords?: readonly string[]; settingsNotice?: string; headerActions?:ReactNode;
+export function ReadOnlyMaterialControlTower({ view, trimPriorityKeywords = [], settingsNotice, paymentScope, materialActions, materialPlan, sourcePanelRef }: {
+  view: MaterialProgressView; trimPriorityKeywords?: readonly string[]; settingsNotice?: string; sourcePanelRef?:Ref<MaterialSourceHandle>;
   paymentScope?: { salesOrderId: string; identityKey: string };
   materialActions?: (key: string, name: string) => ReactNode; materialPlan?: (key: string) => ReactNode;
 }) {
   const [search,setSearch]=useState(''),[status,setStatus]=useState<Parameters<typeof filterProgressRows>[3]>('all'),[type,setType]=useState<Parameters<typeof filterProgressRows>[2]>('all');
   const [mainView,setMainView]=useState<MainView>('self'),[collapsed,setCollapsed]=useState<Set<string>>(new Set());
   const [selection,setSelection]=useState<Selection|null>(null),[tab,setTab]=useState<EventTab>('material');
+  useImperativeHandle(sourcePanelRef,()=>({open:()=>{setSelection({kind:'all'});setTab('verification');}}),[]);
   const display=useDisplayPreferences(),id=useId(),tabList=useRef<HTMLDivElement>(null),mainTabs=useRef<HTMLDivElement>(null);
   const filtered=filterProgressRows(view,search,type,status),visible=new Set(filtered.map(row=>row.demand.id));
   const ordered=orderMaterialGroups(view.groups,trimPriorityKeywords),counts=businessTransactionCounts(view.rows);
@@ -238,12 +240,12 @@ export function ReadOnlyMaterialControlTower({ view, trimPriorityKeywords = [], 
     </section>;
   };
   return <div className="sp-business-workspace sp-dense-workspace" data-density={display.density}>
-    <header className="sp-dense-order"><div><h1>{view.order.insideOrderNo||view.order.styleNo||'款式物料跟进'}</h1><p>销售合同 {view.order.salesContractNo}</p></div><div className="sp-dense-order-actions">{headerActions}<Button variant="secondary" size="compact" onClick={()=>open({kind:'all'},'verification')}>来源与核实项</Button></div></header>
+
     <section className="sp-business-overview" aria-label="订单物料概况"><div className="sp-business-metrics">
       <button type="button" onClick={()=>setMainView('self')}><span>自购需求</span><strong>{hasCompleteFacts?selfRows.length:'—'}<small>项</small></strong></button>
       <button type="button" onClick={()=>setMainView('factory')}><span>厂供记录</span><strong>{hasCompleteFacts?factoryRows.length:'—'}<small>项</small></strong></button>
       {(['purchase','inbound','shipment','outbound'] as const).map(flow=><button key={flow} type="button" aria-label={'查看全部'+flowLabels[flow]+'明细'} onClick={()=>setMainView(flow)}><span>{flowLabels[flow]}明细</span><strong>{hasCompleteFacts?counts[flow]:'—'}<small>笔</small></strong></button>)}
-    </div><div className="sp-business-source"><span>来源更新 <time dateTime={view.fetchedAt||undefined}>{view.fetchedAt?date(view.fetchedAt,true):'尚未同步'}</time></span>{notice&&<span className="sp-dense-source-notice" role="status">{notice}</span>}</div></section>
+    </div><div className="sp-business-source"><span>来源更新 <time dateTime={view.fetchedAt||undefined}>{view.fetchedAt?date(view.fetchedAt,true):'尚未同步'}</time></span>{notice&&<span className="sp-dense-source-notice" role="status">{notice}</span>}{!sourcePanelRef&&<button type="button" onClick={()=>open({kind:'all'},'verification')}>来源与核实项</button>}</div></section>
     <div className="sp-business-toolbar sp-dense-toolbar"><label className="sp-dense-search"><span className="sp-business-search-icon" aria-hidden="true">⌕</span><input type="search" aria-label="搜索物料" placeholder="物料、颜色、规格、供应商或单号" value={search} onChange={event=>setSearch(event.target.value)}/></label>
       <select aria-label="物料类型" value={type} onChange={event=>setType(event.target.value as typeof type)}><option value="all">全部物料</option><option value="fabric">面料</option><option value="trim">辅料</option></select>
       <select aria-label="物料状态" value={status} onChange={event=>setStatus(event.target.value as typeof status)}><option value="all">全部状态</option><option value="not_purchased">未采购</option><option value="purchasing">采购中</option><option value="pending_inbound">已采购待入库</option><option value="ready">已齐套</option><option value="unknown">状态待核实</option></select>

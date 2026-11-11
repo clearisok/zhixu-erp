@@ -441,3 +441,9 @@
 .sp-dense-arrival-link > .sp-v4-saved-plan { flex-basis:100%; }
 @media(max-width:1400px){.sp-dense-toolbar label.sp-dense-search{width:280px;}.sp-dense-view-tabs>button{padding:7px 11px;}}
 @media(max-width:760px){.sp-dense-order{align-items:flex-start;flex-wrap:wrap;}.sp-dense-order-actions{width:100%;}.sp-dense-workspace .sp-business-metrics{grid-template-columns:repeat(3,minmax(0,1fr));}.sp-dense-toolbar label.sp-dense-search{flex-basis:100%;width:100%;}.sp-dense-view-tabs>button{padding:7px 9px;}.sp-dense-columns>div{right:auto;left:0;}.sp-dense-workspace .sp-business-metrics>button{padding:8px 10px;}.sp-dense-table .sp-business-material-head{min-width:700px;}.qc-drawer.sp-dense-events{width:100vw;}}
+
+/* Keep the original header/refresh owner mounted while its read model reloads. */
+.sp-dense-page-header .qc-page-header { margin-bottom:8px; align-items:center; }
+.sp-dense-page-header .qc-page-header h1 { font-size:22px; line-height:1.25; letter-spacing:0; }
+.sp-dense-page-header .qc-page-header .qc-page-identity p { margin-top:3px; font-size:12px; }
+.sp-dense-page-header .qc-page-actions .qc-button { min-height:30px; padding:4px 10px; border-radius:5px; font-size:12px; }

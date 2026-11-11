@@ -202,7 +202,7 @@ test('manual material arrivals and original logistics run on the exact built Ser
       x.setMode('failed'); await assert.rejects(x.capture()); await evaluate("arrivalWire.sourceMode='503'"); await refreshPageRead(); await has('合成缝纫线 · 已保存计划'); await until(() => evaluate("[...document.querySelectorAll('[data-canonical-material-key]')].some(n=>n.textContent.includes('合成缝纫线')&&n.textContent.includes('当前来源不可用'))"), 'source failure issue');
       const before = await evaluate("arrivalWire.requests.filter(r=>r.path.startsWith('/api/v1/material-arrivals/orders/')&&!r.path.endsWith('/history')).length"); await evaluate("window.dispatchEvent(new Event('focus'))");
       await until(async () => await evaluate("arrivalWire.requests.filter(r=>r.path.startsWith('/api/v1/material-arrivals/orders/')&&!r.path.endsWith('/history')).length") > before, 'same Source error has a new completed read');
-      await openSaved(); await has('2027-01-07'); assert.equal(await evaluate("[...document.querySelectorAll('.sp-v4-planner button')].find(n=>n.textContent==='＋ 增加批次').disabled"), true); await click('到料历史', '.sp-v4-planner button'); await until(() => evaluate("document.querySelectorAll('[data-arrival-history-version]').length===7"), 'source-free history'); await shot('source-unavailable-history'); await evaluate("document.querySelector('.qc-drawer>header>button').click()"); await click('取消', '.sp-v4-planner button'); x.setMode('ready'); await x.capture(); await refreshPageRead(); await has('合成缝纫线');
+      await openSaved(); assert.equal(await evaluate("document.querySelector('.sp-v4-batch input[type=date]').value"),'2027-01-07'); assert.equal(await evaluate("[...document.querySelectorAll('.sp-v4-planner button')].find(n=>n.textContent==='＋ 增加批次').disabled"), true); await click('到料历史', '.sp-v4-planner button'); await until(() => evaluate("document.querySelectorAll('[data-arrival-history-version]').length===7"), 'source-free history'); await shot('source-unavailable-history'); await evaluate("document.querySelector('.qc-drawer>header>button').click()"); await click('取消', '.sp-v4-planner button'); x.setMode('ready'); await x.capture(); await refreshPageRead(); await has('合成缝纫线');
     });
     await phase('Source-triggered arrival reload cannot consume a disabled read-only activation', async () => {
       await loginCookie('demo.finance'); await navigate();
@@ -249,4 +249,3 @@ test('manual material arrivals and original logistics run on the exact built Ser
     t.diagnostic('Owned arrival Chromium/HTTP/PG cleanup PASS; no real environment access');
   }
 });
-
