@@ -1,3 +1,4 @@
+import {withSyncAudit,auditAcquired,auditPublished,commitWithSyncAudit} from './sync-audit.js';
 import { supportsOrderHeads, followupModes } from './followup.js';
 import { supportsEffectiveAttribution } from '../sales-orders/effective-attribution.js';
 import { HttpError } from "../http/errors.js";
@@ -52,7 +53,7 @@ export async function boundOrders(client: Pool | PoolClient, lock = false, selec
  if(new Set(rows.map(r=>r.id)).size!==rows.length)throw new SourceError('source_binding_conflict');
  return rows.map(r=>({id:r.id,version:r.version,salesContractNo:r.sales_contract_no,styleNo:r.style_no,insideOrderNo:r.inside_order_no,sourceOwnerOrderId:r.source_owner_order_id,sourceLinkId:r.source_link_id,attributionChangeId:r.attribution_change_id,attributionVersion:r.attribution_version}));
 }
-export async function captureSource(pool: Pool, identity: Pick<TrustedIdentity, "internalUserId" | "userId">, options: {
+async function captureSourceImplementation(pool: Pool, identity: Pick<TrustedIdentity, "internalUserId" | "userId">, options: {
     sourceKey: string;
     accountFingerprint: string;
     collect: Collector;
@@ -95,6 +96,8 @@ export async function captureSource(pool: Pool, identity: Pick<TrustedIdentity, 
         registered = true;
         const data = await options.collect(targets.map(order => order.salesContractNo!));
         const validated = await validateBundle(data, targets, now(), options.maxAgeMs);
+        await auditAcquired(client,{discoveryBefore:validated.bundle.discoveryBefore,discoveryAfter:validated.bundle.discoveryAfter});
+        for(const row of validated.rows)await auditAcquired(client,row.pages,null,row.contract);
         await client.query("BEGIN");
         transaction = true;
         await client.query("SET LOCAL lock_timeout = '5s'");
@@ -122,13 +125,15 @@ export async function captureSource(pool: Pool, identity: Pick<TrustedIdentity, 
             await client.query("UPDATE ainuoke_source_profiles SET last_error_code=NULL,last_attempt_at=now() WHERE source_key=$1", [options.sourceKey]);
             if(perOrder)for(const row of validated.rows)await client.query(`INSERT INTO ainuoke_material_order_heads(source_key,sales_order_id,run_id,last_error_code) VALUES($1,$2,$3,NULL)
               ON CONFLICT(source_key,sales_order_id) DO UPDATE SET run_id=excluded.run_id,last_error_code=NULL,last_attempt_at=now()`,[options.sourceKey,row.order.id,currentProfile.latest_run_id]);
-            await client.query("COMMIT");
+            await auditPublished(client,options.sourceKey,currentProfile.latest_run_id!,validated.bundle.discoveryAfter,'',['ainuoke_source_runs'],true);
+            for(const row of validated.rows)await auditPublished(client,options.sourceKey,currentProfile.latest_run_id!,row.pages,row.contract,undefined,true);
+            await commitWithSyncAudit(client);
             transaction = false;
             return { runId: currentProfile.latest_run_id!, replayed: true, orders: validated.rows.length };
         }
         const runId=await publishMaterialSnapshotsInTransaction(client,actor,options.sourceKey,validated,current);
         if(!options.selectedOrderIds)await client.query("UPDATE ainuoke_source_profiles SET latest_run_id=$2,last_error_code=NULL,last_attempt_at=now() WHERE source_key=$1", [options.sourceKey, runId]);
-        await client.query("COMMIT");
+        await commitWithSyncAudit(client);
         transaction = false;
         return { runId, replayed: false, orders: validated.rows.length };
     }
@@ -182,5 +187,11 @@ export async function publishMaterialSnapshotsInTransaction(client:PoolClient,ac
             metadata: { sourceKey: sourceKey, sourceRunId: runId, orderCount: validated.rows.length, contentHash: validated.contentHash, orderScopeHash: attributionSupported?scopeHash:null, sourceOnly: true,
              ...(historical?{historicalObservationId:historical.historicalObservationId,historicalPublication:true,sourceRequests:0}: {}) } });
 
+ await auditPublished(client,sourceKey,runId,{discoveryBefore:validated.bundle.discoveryBefore,discoveryAfter:validated.bundle.discoveryAfter},'',['ainuoke_source_runs']);
+ for(const row of validated.rows)await auditPublished(client,sourceKey,runId,row.pages,row.contract);
  return runId;
+}
+
+export async function captureSource(...args:Parameters<typeof captureSourceImplementation>){
+ return withSyncAudit(args[0],{sourceKey:args[2].sourceKey,type:'manual'},()=>captureSourceImplementation(...args));
 }

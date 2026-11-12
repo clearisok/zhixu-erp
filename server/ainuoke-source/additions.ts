@@ -1,3 +1,5 @@
+import {randomUUID} from 'node:crypto';
+import {withSyncAudit,auditPublished,commitWithSyncAudit} from './sync-audit.js';
 import {orderCommandControlError} from '../sales-orders/command-control.js';
 import {lockEffectiveAttribution,resolveEffectiveOrder,supportsEffectiveAttribution} from '../sales-orders/effective-attribution.js';
 import type { Pool, PoolClient } from 'pg';
@@ -219,7 +221,7 @@ export async function assertStoredAdditionMatches(client: PoolClient, candidates
   }
 }
 
-export async function addOrders(pool: Pool, identity: Pick<TrustedIdentity,'internalUserId'|'userId'>, options: {
+async function addOrdersImplementation(pool: Pool, identity: Pick<TrustedIdentity,'internalUserId'|'userId'>, options: {
   sourceKey: string; accountFingerprint: string; selected: string[]; expectedPreview: string;
   collect: () => Promise<unknown>; now?: () => number;
   receipt?: {requestId:string;observationId:string};
@@ -244,7 +246,7 @@ export async function addOrders(pool: Pool, identity: Pick<TrustedIdentity,'inte
     if(options.receipt){
       await client.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',['catalog-intake:'+actor.internalUserId+':'+options.receipt.requestId]);
       const prior=(await client.query('SELECT payload_hash,result FROM ainuoke_catalog_intake_receipts WHERE actor_id=$1 AND request_id=$2',[actor.internalUserId,options.receipt.requestId])).rows[0];
-      if(prior){if(prior.payload_hash!==receiptHash)throw new SourceError('catalog_intake_request_conflict');await client.query('COMMIT');return {...prior.result,replayed:true};}
+      if(prior){if(prior.payload_hash!==receiptHash)throw new SourceError('catalog_intake_request_conflict');await commitWithSyncAudit(client);return {...prior.result,replayed:true};}
     }
     await lockEffectiveAttribution(client);
     await client.query("SET LOCAL statement_timeout = '30s'");
@@ -262,7 +264,7 @@ export async function addOrders(pool: Pool, identity: Pick<TrustedIdentity,'inte
         AND entity_id=$1 AND metadata->>'reviewHash'=$2 LIMIT 1`,[options.sourceKey,current.reviewHash])).rows[0];
       if (!receipt) throw new SourceError('addition_not_exact_retry');
       await assertStoredAdditionMatches(client,current.candidates,currentBound);
-      await client.query('COMMIT');
+      await commitWithSyncAudit(client);
       return {created: 0, replayed: true, orderIds: await Promise.all(current.candidates.map(async c => {const original=currentBound.find(b => b.sourceId===c.source.sourceId&&b.salesContractNo===normalized(c.source.salesContractNo))!.id;return await supportsEffectiveAttribution(client)?(await resolveEffectiveOrder(client,original)).effectiveOrderId:original;})), reviewHash: current.reviewHash};
     }
     const ids: string[] = [];
@@ -276,7 +278,8 @@ export async function addOrders(pool: Pool, identity: Pick<TrustedIdentity,'inte
         orderCount:ids.length,scope:'current_account_visible',salesContractNos:current.candidates.map(c=>c.source.salesContractNo)}});
     if(options.receipt)await client.query('INSERT INTO ainuoke_catalog_intake_receipts(actor_id,request_id,payload_hash,result) VALUES($1,$2,$3,$4::jsonb)',
       [actor.internalUserId,options.receipt.requestId,receiptHash,JSON.stringify({created:ids.length,replayed:false,orderIds:ids,reviewHash:current.reviewHash})]);
-    await client.query('COMMIT');
+    await auditPublished(client,options.sourceKey,randomUUID(),data,'',['sales_orders','sales_order_source_links','ainuoke_sales_order_contract_mirrors','ainuoke_sales_order_color_mirrors']);
+    await commitWithSyncAudit(client);
     return {created: ids.length, replayed: false, orderIds: ids, reviewHash: current.reviewHash};
   } catch(error) {
     await client.query('ROLLBACK').catch(()=>undefined);
@@ -284,3 +287,5 @@ export async function addOrders(pool: Pool, identity: Pick<TrustedIdentity,'inte
     throw error instanceof SourceError ? error : new SourceError(['order_commands_frozen','order_command_control_unavailable'].includes(control?.code??'')?control.code!:'addition_failed');
   } finally { client.release(); }
 }
+
+export async function addOrders(...args:Parameters<typeof addOrdersImplementation>){return withSyncAudit(args[0],{sourceKey:args[2].sourceKey,type:'manual'},()=>addOrdersImplementation(...args));}

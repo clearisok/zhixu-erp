@@ -1,3 +1,4 @@
+import {withSyncAudit,auditPublished,commitWithSyncAudit} from './sync-audit.js';
 import {effectiveSyncDeliverySql} from './sync-dates.js';
 import { DEFAULT_SYNC_POLICY, syncSchedule, syncScheduleLabel } from './sync-schedule.js';
 import { randomUUID } from 'node:crypto';
@@ -55,10 +56,10 @@ export async function previewCatalog(input:unknown,now=Date.now()) {
  if(b.schemaVersion!=='ainuoke-order-addition-discovery.v1'||Object.keys(b).sort().join(',')!=='discoveryAfter,discoveryBefore,schemaVersion')throw new SourceError('catalog_invalid');
  pagesValid(b.discoveryBefore,now,600000);pagesValid(b.discoveryAfter,now,600000);
  const before=await adaptAinuokeOrderDiscoverySnapshots(b.discoveryBefore),after=await adaptAinuokeOrderDiscoverySnapshots(b.discoveryAfter);
- if(before.total>1400||after.total>1400)throw new SourceError('catalog_changed_or_over_limit');
+ if(before.total>1400||after.total>1400)throw new SourceError('catalog_row_limit_exceeded');
  if(before.snapshotHash!==after.snapshotHash||discoveryContentHash(b.discoveryBefore)!==discoveryContentHash(b.discoveryAfter)){
   const change=catalogChangeEvidence(b);
-  throw new CatalogConsistencyError(change.additionsOnly?'catalog_additions_observed':onlyCatalogBusinessChanged(b)?'catalog_business_content_changed':'catalog_changed_or_over_limit',change.diagnostic);
+  throw new CatalogConsistencyError(change.additionsOnly?'catalog_additions_observed':onlyCatalogBusinessChanged(b)?'catalog_business_content_changed':change.nonIdentityOnly?'catalog_non_identity_content_changed':'catalog_identity_or_scope_changed',change.diagnostic);
  }
  const raw=new Map(b.discoveryAfter.flatMap(p=>p.rows).map(r=>[String(r.values.id).trim(),r.values]));
  const rows=after.rows.map(r=>{const v=raw.get(r.sourceId)!;return {...r,contractDate:date(r.contractDate),deliveryDate:date(r.deliveryDate),
@@ -67,7 +68,7 @@ export async function previewCatalog(input:unknown,now=Date.now()) {
 }
 
 /** A complete two-pass directory updates only its Source mirror, never business facts. */
-export async function publishCatalog(pool:Pool,identity:Pick<TrustedIdentity,'internalUserId'|'userId'>,options:{
+async function publishCatalogImplementation(pool:Pool,identity:Pick<TrustedIdentity,'internalUserId'|'userId'>,options:{
  sourceKey:string;accountFingerprint:string;requestId:string;input:unknown;expectedHash:string;adoptNewOrders?:boolean;
  historicalEvidence?:{capturedAt:string;bundleHash:string};
 }) {
@@ -129,7 +130,8 @@ export async function publishCatalog(pool:Pool,identity:Pick<TrustedIdentity,'in
   }
   await appendOperationLog(c,actor,{module:'艾诺科同步',action:'更新合同目录',entityType:'AinuokeCatalogRun',entityId:id,metadata:{sourceOnly:true,contractCount:checked.rows.length,requestId:options.requestId,
    ...(historical?{historicalPublication:true,sourceRequests:0,originalCapturedAt:historical.capturedAt}:{})}});
-  await c.query('COMMIT');return {runId:id,replayed:false,contracts:checked.rows.length,createdOrders,pendingOrders};
+  await auditPublished(c,options.sourceKey,id,checked.bundle);
+  await commitWithSyncAudit(c);return {runId:id,replayed:false,contracts:checked.rows.length,createdOrders,pendingOrders};
  }catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}
 }
 
@@ -178,3 +180,5 @@ export async function readCatalog(pool:Pool,identity:Pick<TrustedIdentity,'inter
   await c.query('COMMIT');return {rows:projected,total,offset:query.offset,limit:query.limit,sources:state,syncSummary};
  }catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}
 }
+
+export async function publishCatalog(...args:Parameters<typeof publishCatalogImplementation>){return withSyncAudit(args[0],{sourceKey:args[2].sourceKey,type:'historical',historical:true,reports:['6086103']},()=>publishCatalogImplementation(...args));}

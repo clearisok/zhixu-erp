@@ -185,7 +185,7 @@ class BudgetClient:
         return result
 
 
-def collect_selected(data, transport=None, clock=monotonic, diagnostics=None, session_owner=None, catalog_progress=None, catalog_resume=None):
+def collect_selected(data, transport=None, clock=monotonic, diagnostics=None, session_owner=None, catalog_progress=None, catalog_resume=None, request_progress=None):
     """Injection is an internal testing seam, never an argv/stdin flag."""
     data = validate_input(data)
     if session_owner:
@@ -200,7 +200,7 @@ def collect_selected(data, transport=None, clock=monotonic, diagnostics=None, se
     underlying = transport or ProtectedTransport(LIMITS["responseBytes"])
     if diagnostics is not None:
         from .request_diagnostics import DiagnosticTransport
-        underlying = DiagnosticTransport(underlying, diagnostics, clock)
+        underlying = DiagnosticTransport(underlying, diagnostics, clock, request_progress)
     budget = BudgetTransport(data["baseUrl"], underlying, clock, CATALOG_LIMITS["reportRequests"] if catalog else 80)
     bounded = data["mode"] in ("bound-materials", "catalog-contracts")
     common = {"schemaVersion": "ainuoke-catalog-contracts.v1" if data["mode"] == "catalog-contracts" else "ainuoke-catalog-discovery.v1" if catalog else "ainuoke-bound-materials-once.v1" if bounded else "ainuoke-selected-source-once.v1",

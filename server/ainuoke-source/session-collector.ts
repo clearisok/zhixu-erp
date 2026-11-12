@@ -4,6 +4,7 @@ import {parseCollectorConfig,type CollectorConfig} from './collector.js';
 import {SourceError} from './contract.js';
 import type {SelectedSourceRequest} from './selected-source-once.js';
 import {validateCatalogCheckpointPage,type CatalogCollectionOptions} from './catalog-checkpoints.js';
+import {validateRequestDiagnostics} from './sync-diagnostics.js';
 
 /** One owner per running worker, one in-flight capture. No token crosses stdout.
  * Transport uncertainty destroys the owner. A caller may replace it only inside
@@ -12,7 +13,7 @@ import {validateCatalogCheckpointPage,type CatalogCollectionOptions} from './cat
 export function createSessionCollector(start:typeof spawn=spawn){
  let child:ChildProcessWithoutNullStreams|null=null,closed=false,identity:string|null=null;
  let pending:{resolve:(v:unknown)=>void;reject:(e:Error)=>void;timer:ReturnType<typeof setTimeout>;
-  progress:Promise<void>;onPage?:CatalogCollectionOptions['onPage'];progressCount:number;progressBytes:number;finalReceived:boolean}|null=null;
+  progress:Promise<void>;onPage?:CatalogCollectionOptions['onPage'];onRequest?:CatalogCollectionOptions['onRequest'];requestEvents:number;progressCount:number;progressBytes:number;finalReceived:boolean}|null=null;
  let buffered=Buffer.alloc(0),secret:string|null=null;
  const stop=(code='capture_session_stopped')=>{
   closed=true;const active=pending;pending=null;buffered=Buffer.alloc(0);
@@ -28,7 +29,7 @@ export function createSessionCollector(start:typeof spawn=spawn){
     ||request.contracts.some(c=>typeof c!=='string'||!/^[A-Z0-9][A-Z0-9/._-]{0,79}$/u.test(c))))throw new SourceError('selected_source_scope_invalid');
   const binding=JSON.stringify([cfg.sourceKey,cfg.baseUrl,cfg.username,cfg.password,cfg.operatorUsername,cfg.materialReport,cfg.transportPolicy]);
   if(identity!==null&&identity!==binding){stop();throw new SourceError('source_account_mismatch');}identity=binding;
-  if(options&&request.mode!=='catalog-discovery')throw new SourceError('selected_source_scope_invalid');
+  if((options?.onPage||options?.resumePages)&&request.mode!=='catalog-discovery')throw new SourceError('selected_source_scope_invalid');
   secret=cfg.password;
   if(!child){
    child=start(process.platform==='win32'?'python':'python3',['-m','ainuoke_bridge.session_worker'],{
@@ -46,7 +47,13 @@ export function createSessionCollector(start:typeof spawn=spawn){
      try{
       const value=JSON.parse(frame.toString('utf8')),active=pending;
       if(!active||active.finalReceived)throw Error();
-      if(value.schemaVersion==='ainuoke-catalog-page.v1'){
+      if(value.schemaVersion==='ainuoke-request-event.v1'){
+       if(!active.onRequest||Object.keys(value).sort().join(',')!=='diagnostic,phase,schemaVersion'||!['started','finished'].includes(value.phase)
+        ||++active.requestEvents>162||frame.length>4096||secret&&frame.toString('utf8').includes(secret))throw Error();
+       const d=validateRequestDiagnostics([value.diagnostic])[0];
+       active.progress=active.progress.then(()=>active.onRequest!(value.phase,d));
+       void active.progress.catch(()=>stop('sync_audit_progress_failed'));
+      }else if(value.schemaVersion==='ainuoke-catalog-page.v1'){
        if(!active.onPage||Object.keys(value).sort().join(',')!=='page,phase,schemaVersion'||!['before','after'].includes(value.phase)
         ||++active.progressCount>56||(active.progressBytes+=frame.length)>32*1024*1024||secret&&frame.toString('utf8').includes(secret))throw Error();
        const page=validateCatalogCheckpointPage(value.page);
@@ -63,10 +70,11 @@ export function createSessionCollector(start:typeof spawn=spawn){
   }
   return new Promise((resolveResult,reject)=>{
    pending={resolve:resolveResult,reject,timer:setTimeout(()=>stop('source_timeout'),180000),progress:Promise.resolve(),
-    onPage:options?.onPage,progressCount:0,progressBytes:0,finalReceived:false};
+    onPage:options?.onPage,onRequest:options?.onRequest,requestEvents:0,progressCount:0,progressBytes:0,finalReceived:false};
    child!.stdin.write(JSON.stringify({baseUrl:cfg.baseUrl,username:cfg.username,password:cfg.password,contracts:request.contracts,
     mode:request.mode,...(cfg.materialReport&&request.mode==='catalog-contracts'?{materialReport:cfg.materialReport}:{}),
     ...(options?.onPage?{catalogProgress:true,catalogResume:options.resumePages??[]}:{}),
+    ...(options?.onRequest?{auditProgress:true}:{}),
     ...(cfg.transportPolicy?{transportPolicy:cfg.transportPolicy}:{})})+'\n');
   });
  };

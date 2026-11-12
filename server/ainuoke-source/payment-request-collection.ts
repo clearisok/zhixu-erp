@@ -1,3 +1,4 @@
+import {withSyncAudit} from './sync-audit.js';
 import type { Pool, PoolClient } from 'pg';
 import type { TrustedIdentity } from '../auth/session.js';
 import { UUID_PATTERN } from '../sales-orders/delivery-plan-model.js';
@@ -108,7 +109,7 @@ async function scopeUnchanged(pool: Pool, identity: Identity, request: PaymentCo
  * All targets are prepared before the sole worker call; all pages validate
  * before the first publication. Per-SO transactions keep accepted history when
  * a later publication fails. Receipts contain no rows, credentials or amounts. */
-export async function collectAndPublishPaymentContracts(pool: Pool, caller: Identity, input: PaymentCollectionRequest,
+async function collectAndPublishPaymentContractsImplementation(pool: Pool, caller: Identity, input: PaymentCollectionRequest,
   expectedScopeHash: string, options: { now?: () => number;
     collect?: (config: CollectorConfig, selection: ContractSelection) => Promise<unknown> } = {}) {
   if (!sha(expectedScopeHash)) fail('payment_collection_explicit_scope_required');
@@ -146,3 +147,5 @@ export async function collectAndPublishPaymentContracts(pool: Pool, caller: Iden
   }
   return receipt(outcomes, { attempted: true, validated: true });
 }
+
+export async function collectAndPublishPaymentContracts(...args:Parameters<typeof collectAndPublishPaymentContractsImplementation>){return withSyncAudit(args[0],{sourceKey:args[2].config.sourceKey,type:'manual',reports:['6086941']},()=>collectAndPublishPaymentContractsImplementation(...args));}

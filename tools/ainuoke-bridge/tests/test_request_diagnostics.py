@@ -58,7 +58,7 @@ class RequestDiagnosticsTests(TestCase):
         self.assertEqual(events[0]['outcome'],'http_error')
         self.assertEqual(events[0]['httpStatus'],503)
         self.assertNotIn(SECRET,json.dumps(events)+str(raised.exception))
-        self.assertEqual(set(events[0]),{'kind','reportId','page','elapsedMs','outcome','httpStatus'})
+        self.assertEqual(set(events[0]),{'kind','reportId','page','elapsedMs','outcome','httpStatus','startedAt','finishedAt'})
 
     def test_timeout_dns_reset_and_refused_are_distinct_and_never_retried(self):
         cases=[(TimeoutError(SECRET),'timeout'),(URLError(TimeoutError(SECRET)),'timeout'),

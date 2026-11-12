@@ -1,3 +1,4 @@
+import {routeSyncAudit} from './ainuoke-source/audit-routes.js';
 import { routeSourceCatalog } from './ainuoke-source/catalog-routes.js';
 import {previewProcessingQuotePush,pushProcessingQuotes,readProcessingPushReceipt} from './sales-orders/processing-quote-push.js';
 import {previewColorSource,adoptColorSource} from './sales-orders/color-commercial.js';
@@ -353,6 +354,8 @@ async function route(
     );
     return;
   }
+
+  if (await routeSyncAudit(request,response,dependencies)) return;
 
   if (request.method === "GET" && path === "/api/v1/operation-logs") {
     const identity = await dependencies.identityAuthority.resolve(request);

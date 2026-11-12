@@ -117,7 +117,7 @@ export async function enqueueAutomaticSync(pool: Pool, identity: Identity, sourc
     return { queued, catalogCount: rows.length };
   });
 }
-export type SyncJob = {id:string;source_key:string;source_id:string;sales_contract_no:string;kind:'manual'|'automatic';requested_by:string;started_at:Date;retry_of:string|null;root_job_id:string|null;attempt_number:number};
+export type SyncJob = {id:string;source_key:string;source_id:string;sales_contract_no:string;kind:'manual'|'automatic';contract_date:string|null;delivery_date:string|null;requested_by:string;started_at:Date;retry_of:string|null;root_job_id:string|null;attempt_number:number};
 /** The caller additionally holds the source's session-level worker lock through IO. */
 export async function claimSyncJobs(pool: Pool, identity: Identity, sourceKey: string, maximum = 5, now = Date.now(), sourceIds?:readonly string[]): Promise<SyncJob[]> {
   if (!Number.isSafeInteger(maximum) || maximum < 1 || maximum > 25) throw new SourceError('sync_batch_invalid');

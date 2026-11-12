@@ -1,3 +1,5 @@
+import {syncTier} from './sync-schedule.js';
+import {withSyncAudit,auditAcquired,auditCaptureFailure,auditPublished,auditPublicationFailure,commitWithSyncAudit,auditRequestHandler,auditMetrics} from './sync-audit.js';
 import { randomUUID } from 'node:crypto';
 import type { Pool } from 'pg';
 import type { TrustedIdentity } from '../auth/session.js';
@@ -91,7 +93,10 @@ async function publishContract(pool:Pool,identity:Identity,config:CollectorConfi
     await c.query("UPDATE ainuoke_sync_jobs SET status='complete',finished_at=$2,result=$3::jsonb WHERE id=$1",[job.id,new Date(now),JSON.stringify(result)]);
     await appendOperationLog(c,actor,{module:'艾诺科同步',action:'采集艾诺科来源',entityType:'AinuokeCatalogRun',entityId:directoryId,
       metadata:{sourceOnly:true,jobId:job.id,requestedBy:current.requested_by},afterData:{objectName:job.sales_contract_no,values:{result:'同步成功'}}});
-    await c.query('COMMIT');return result;
+    await auditPublished(c,config.sourceKey,observationId,singleAddition.colors[job.sales_contract_no],job.sales_contract_no);
+    if(!target)await auditPublished(c,config.sourceKey,observationId,captured.materials.bundle.materials[job.sales_contract_no],job.sales_contract_no,['ainuoke_contract_observations']);
+    await auditPublished(c,config.sourceKey,directoryId,captured.directory.bundle,'',['ainuoke_catalog_capture_evidence','ainuoke_catalog_runs']);
+    await commitWithSyncAudit(c);return result;
   }catch(e){await c.query('ROLLBACK').catch(()=>undefined);throw e;}finally{c.release();}
 }
 async function failJob(pool:Pool,job:SyncJob,code:string,unknown=false,options:{diagnostics?:RequestDiagnostic[]|null;catalogChange?:CatalogChangeDiagnostic;retry?:boolean;pauseCapture?:boolean;now?:number}={}) {
@@ -173,8 +178,11 @@ export async function runSyncTick(pool:Pool,identity:Identity,raw:CollectorConfi
     }
     const jobs=await claimSyncJobs(pool,identity,config.sourceKey,batchSize,now(),options.sourceIds);
     if(!jobs.length)return {status:'idle' as const,jobs:[]};
+    const auditTiers=new Set(jobs.map(j=>syncTier(j.delivery_date??null,now(),j.contract_date??null)).map(t=>t==='date-review'?'frequent':t));
+    const attemptId=randomUUID();
+    return await withSyncAudit(pool,{id:attemptId,sourceKey:config.sourceKey,reports:['6086103','6087105',config.materialReport??'6087050'],frequencies:[...auditTiers],type:jobs.some(j=>j.retry_of)?'retry':jobs.some(j=>j.kind==='manual')?'manual':auditTiers.size===1?[...auditTiers][0]:'mixed',contracts:jobs.map(j=>j.sales_contract_no),jobIds:jobs.map(j=>j.id),retries:Math.max(...jobs.map(j=>j.attempt_number-1))},async()=>{
     const request:SelectedSourceRequest={mode:'catalog-contracts',contracts:jobs.map(j=>j.sales_contract_no).sort()};
-    const attemptId=randomUUID(),startedAt=now();
+    const startedAt=now();
     await pool.query(`INSERT INTO ainuoke_sync_capture_attempts(id,source_key,account_fingerprint,actor_id,mode,job_ids,status,started_at)
       VALUES($1,$2,$3,$4,'catalog-contracts',$5::uuid[],'running',$6)`,[attemptId,config.sourceKey,accountFingerprint(config),identity.internalUserId,jobs.map(j=>j.id),new Date(startedAt)]);
     await pool.query('UPDATE ainuoke_sync_jobs SET capture_attempt_id=$2 WHERE id=ANY($1::uuid[]) AND status=\'running\'',[jobs.map(j=>j.id),attemptId]);
@@ -183,17 +191,18 @@ export async function runSyncTick(pool:Pool,identity:Identity,raw:CollectorConfi
     try {
       let response;
       if(options.collect){
-        const raw=await options.collect(config,request);
+        const raw=await options.collect(config,request,{onRequest:auditRequestHandler(pool)});
         if(raw&&typeof raw==='object'&&'schemaVersion' in raw&&['ainuoke-request-diagnostics.v1','ainuoke-session-diagnostics.v1'].includes(String(raw.schemaVersion))){
           const checked=await validateCatalogDiagnostic(raw,config,request,now());response=checked.capture;diagnostics=checked.diagnostics;
         }else response=await validateSelectedSourceOnce(raw,config,request,now());
       }else {const checked=await collectCatalogDiagnostic(config,request,now());response=checked.capture;diagnostics=checked.diagnostics;}
-      metrics=response.metrics;
+      metrics=response.metrics;await auditMetrics(pool,metrics);
       if(response.result!=='complete')throw new SourceError(response.code);
       if(response.mode!=='catalog-contracts')throw new SourceError('selected_source_invalid');captured=response;
     }catch(e){
       if(e instanceof CatalogDiagnosticValidationError)diagnostics=e.diagnostics;
       const code=e instanceof SourceError?e.code:'source_capture_failed';
+      await auditCaptureFailure(pool,code,diagnostics);
       await finishCaptureAttempt(pool,attemptId,code,diagnostics,metrics,now());
       const results=[];
       const retry=retryableCapture(code,diagnostics);
@@ -203,14 +212,20 @@ export async function runSyncTick(pool:Pool,identity:Identity,raw:CollectorConfi
         catalogChange:e instanceof CatalogDiagnosticValidationError?e.catalogChange:undefined,pauseCapture:!retry,now:now()})});
       return {status:'failed' as const,retryScheduled:results.some(r=>r.retry),jobs:results};
     }
+    await auditAcquired(pool,captured.directory.bundle,diagnostics);
+    for(const [contract,single] of Object.entries(captured.contracts))if(!('code' in single)){
+      await auditAcquired(pool,single.addition.colors[contract],diagnostics,contract);
+      await auditAcquired(pool,single.materials.bundle.materials[contract],diagnostics,contract);
+    }
     await finishCaptureAttempt(pool,attemptId,null,diagnostics,metrics,now());
     const results=[];
     for(const job of jobs) {
       const single=captured.contracts[job.sales_contract_no];
-      if(!single||'code' in single){results.push({id:job.id,...await failJob(pool,job,single?.code??'source_contract_missing')});continue;}
+      if(!single||'code' in single){await auditPublicationFailure(pool,job.sales_contract_no,single?.code??'source_contract_missing');results.push({id:job.id,...await failJob(pool,job,single?.code??'source_contract_missing')});continue;}
       try{results.push({id:job.id,status:'complete',result:await publishContract(pool,identity,config,job,{...single,directory:captured.directory},now(),options.adoptNewOrders)});}
-      catch(e){const code=e instanceof SourceError||e instanceof HttpError?e.code:'sync_publish_failed';const result=await failJob(pool,job,code,!(e instanceof SourceError)&&!(e instanceof HttpError));results.push({id:job.id,...result});}
+      catch(e){const code=e instanceof SourceError||e instanceof HttpError?e.code:'sync_publish_failed';await auditPublicationFailure(pool,job.sales_contract_no,code);const result=await failJob(pool,job,code,!(e instanceof SourceError)&&!(e instanceof HttpError));results.push({id:job.id,...result});}
     }
     return {status:'processed' as const,jobs:results};
+    });
   }finally{if(locked)await lease.query('SELECT pg_advisory_unlock(hashtextextended($1,0))',['ainuoke-sync-worker:'+config.sourceKey]).catch(()=>undefined);lease.release();}
 }

@@ -1,3 +1,5 @@
+当前活动：[艾诺科同步审计与暂停恢复](tasks/active/ainuoke-sync-audit-2026-11-12.md)，main基线c5133e9e9e7065dc4fe7672c0c88c75688e0c51f；仅本机开发/隔离验证，不部署。
+
 # 当前项目入口
 
 2026-11-12：[已合并物料页及staging发布](tasks/active/material-staging-release-2026-11-12.md)。main/staging c5133e9e9e7065dc4fe7672c0c88c75688e0c51f（PR145），人工验收8f5b5d89已包含；公网浏览器/真实HTTP/前后配对备份通过，来源原暂停保留。源码/证据审计基线6dc17c645215b3eb08e03624effdee2d182b3e1d。具体恢复点见[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)。

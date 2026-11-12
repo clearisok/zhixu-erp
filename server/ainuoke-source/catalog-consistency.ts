@@ -39,5 +39,11 @@ export function catalogChangeEvidence(bundle:AdditionDiscoveryBundle){
  const added=after.filter(r=>!oldIds.has(String(r.values.id).trim())).length;
  const diagnostic:CatalogChangeDiagnostic={beforeRows:before.length,afterRows:after.length,added,removed,identityChanges,changedFields:[...changedFields].sort().slice(0,32),scopeChanged};
  const additionsOnly=added>0&&after.length>before.length&&!removed&&!identityChanges&&!fixedChanged&&!scopeChanged;
- return {diagnostic,additionsOnly};
+ // This permits a NEW capture, never acceptance of either inconsistent pass.
+ // Schema, envelope, scope and contractual identity must remain identical.
+ const sameSchema=before.every(row=>{const next=byId.get(String(row.values.id).trim());return next&&Object.keys(row.values).sort().join(',')===Object.keys(next.values).sort().join(',');});
+ const nonIdentityOnly=before.length===after.length&&!added&&!removed&&!identityChanges&&!scopeChanged&&sameSchema
+  &&changedFields.size>0&&![...changedFields].some(k=>/^(id|BillNo|InsideOrderNo|unrecognized_field)$|permission|scope|tenant|account|entid|company.*id|source.*id/i.test(k))
+  &&[...before,...after].every(r=>Object.keys(r).sort().join(',')==='sourceRowIdentity,values');
+ return {diagnostic,additionsOnly,nonIdentityOnly};
 }

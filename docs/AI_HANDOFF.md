@@ -1,3 +1,7 @@
+# 当前任务：艾诺科同步审计与暂停恢复（本机开发中）
+
+分支feat/ainuoke-sync-audit，起始main c5133e9e9e7065dc4fe7672c0c88c75688e0c51f。用户授权现有系统设置新增审计页与必要表/代码、修复可恢复暂停；不需实机演示，不部署staging。读[活动任务](tasks/active/ainuoke-sync-audit-2026-11-12.md)和当前diff继续。原staging发布完整记录保留在下方，不能把本轮未完开发当已上线。新迁移仅在自有隔离测试库应用，无真实业务数据/账号/服务修改。当前主要未完：全入口回归、真实记录示例、源码/证据守卫及构建/浏览器自动验收、代码审查收口。
+
 # 物料页staging发布已完成：原来源暂停保留
 
 当前本机分支chore/material-staging-delivery-record-20261112从origin/main c5133e9e9e7065dc4fe7672c0c88c75688e0c51f建立，只做交接文档，不再推送纯文档触发CI。main/staging均该SHA，PR145已MERGED，原feature分支保留；8f5b5d89祖先与C1 head代码树一致。源码审计基线6dc17c645215b3eb08e03624effdee2d182b3e1d保留，136明确草稿不merge且冲突。完整[发布记录](tasks/active/material-staging-release-2026-11-12.md)。
