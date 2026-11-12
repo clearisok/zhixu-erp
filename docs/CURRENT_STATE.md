@@ -11,3 +11,5 @@
 [最终报告、映射与截图](tasks/active/material-seven-acceptance-2026-11-12.md)、[接力](AI_HANDOFF.md)。等待用户本机效果反馈，未经新明确批准不部署staging。
 
 最新：[颜色首列实机验收与截图](tasks/active/material-color-first-result-2026-11-12.md)。本轮8项单测、真实六视图及24组几何/名称搜索/13列检查通过，类型/lint/build通过；旧七项验收保留原时点。无新数据采集或部署。
+
+最终源码/证据守卫在8e3dc2c7ce1b95eeca4d5e3e7a847d2aa1e5c5cd通过：baseline6dc17c64、12页、68能力、3累计UI路径、0错误；首轮文档漂移已通过前向冻结修复，原失败日志保留。无远端CI或部署。
