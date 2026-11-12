@@ -85,3 +85,9 @@ test('excess warehouse preserves explicit zero and missing values without increa
  const missing=html([{...raw,num_dyc:null}]);assert.ok(missing.includes('sp-dense-excess'));assert.doesNotMatch(missing,/原字段 num_dyc[^>]*>0/);
  const projected=projectMaterialProgress(order,[page([raw])]);assert.equal(projected.rows[0].inbounds[0].quantity,12);assert.equal(projected.rows[0].inbounds[0].excessWarehouse.includedInInbound,false);
 });
+
+test('a genuinely different detail name remains visible below its group title',()=>{
+ const view=projectMaterialProgress(order,[page([demand])]);view.groups[0].name='不同的分组标题';
+ const markup=renderToStaticMarkup(createElement(PermissionProvider,null,createElement(ReadOnlyMaterialControlTower,{view})));
+ assert.ok(markup.includes('不同的分组标题'));assert.ok(markup.includes('<strong>合成同名物料</strong>'));
+});
