@@ -1,15 +1,9 @@
-# 当前状态：总览名称整列已删除，本机演示就绪
+# 当前状态：已人工验收，PR审计及staging交付进行中
 
-2026-11-12。feat/material-followup-dense；实际产品构建5bef8388d75f2e983c9397976dc6687c35f4f480，buildId local-material-color-first-20261112。main/staging仍为6dc17c645215b3eb08e03624effdee2d182b3e1d，本轮无推送/PR/CI/部署。
+2026-11-12用户正式接受8f5b5d89并授权安全PR合并及staging部署；不操作生产。main与线上仍6dc17c645215b3eb08e03624effdee2d182b3e1d。初始open仅#136（旧工具草稿、明确暂不合并、冲突），保留原状。新物料PR准备中，包含完整本机已验收历史，不删除分支。
 
-[6230-938／PI2610-181直达](http://127.0.0.1:63054/order-center/style-progress/detail?orderId=aa46192f-23b0-4fd9-9a37-55acc7703783)，已有标签F5取得新静态资源。原只读预览身份免输入密码，不能保存或源刷新。hidden PID42352保持；原63051及原617库保留，副本仍617；本机源worker=false，宁波唯一owner不变。
+重要既有问题：staging来源自11/11 15:52北京因catalog_changed_or_over_limit暂停，supervisor STOPPED_FAULT；620订单/物料head、5 queued。此次不自动清保护或重采，UI发布与来源恢复分开记录。原数据/人工内容/队列/时间保留。
 
-来源整行移至表后；按后续明确要求，总览名称整列已删除，颜色为第一列，分组名称和原名称搜索/详情保留，总览去掉采购不足/出库列，增加独立分笔多余仓；状态/操作及分组到料右侧固定。样本仍11/11 14:44真实快照10自购/3厂供/4采购/2入库/2出运/2出库，源时间/计算未改。4笔真实采购单位回显千克/个，未采购的6条待核实。num_dyc在其他真实合同核对3/29/37等值，样本缺字段不填零；直接IT采购单位字段尚未证实，复用原采购补充页QtyUnit链。
+本机演示63054仍运行、只读，源码5bef8388，8f5b5d89含最终交接；617副本保留，本机无源worker。生产部署工作流仅手动，未触发；新版本使用正常session/RBAC，不带demo入口。Git在进程级DNS/代理覆盖下读和fetch成功，未改共享配置或证书校验。
 
-本轮15单测、10隔离UI、24几何与命中案例、真实六视图/搜索/到料/原字段逐项比较通过；类型/lint/build/基线守卫通过。原库/角色/订单身份不变，业务同步403、无新任务。0艾诺科登录/报表，未全量重采或宣称历史缺失全部补齐。
-
-[最终报告、映射与截图](tasks/active/material-seven-acceptance-2026-11-12.md)、[接力](AI_HANDOFF.md)。等待用户本机效果反馈，未经新明确批准不部署staging。
-
-最新：[颜色首列实机验收与截图](tasks/active/material-color-first-result-2026-11-12.md)。本轮8项单测、真实六视图及24组几何/名称搜索/13列检查通过，类型/lint/build通过；旧七项验收保留原时点。无新数据采集或部署。
-
-最终源码/证据守卫在8e3dc2c7ce1b95eeca4d5e3e7a847d2aa1e5c5cd通过：baseline6dc17c64、12页、68能力、3累计UI路径、0错误；首轮文档漂移已通过前向冻结修复，原失败日志保留。无远端CI或部署。
+[本轮交付、全部PR审计及风险](tasks/active/material-staging-release-2026-11-12.md)，[本机验收](tasks/active/material-color-first-result-2026-11-12.md)。必要检查和发布未全部完成，不宣称已部署。

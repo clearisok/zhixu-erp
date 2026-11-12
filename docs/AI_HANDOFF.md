@@ -1,13 +1,11 @@
-# 最新恢复点：总览删除名称整列（2026-11-12）
+# 当前接力：物料页staging交付进行中
 
-当前产品5bef8388d75f2e983c9397976dc6687c35f4f480，buildId local-material-color-first-20261112；本机63054原hidden PID42352持续运行，F5加载新静态。总览13列从颜色开始，DOM完全没有name表头/td；分组/名称搜索/详情及原对象保留，厂供和流水页保持原列结构。颜色固定左，state/action固定右，group colspan按可见列动态算，原偏好不清库。用户尚未验收或批准部署。
+2026-11-12用户已人工接受8f5b5d8989c6e54ac7c336d3d6f9b14cb29df9b3，明确授权全部open PR审计、安全合并、staging部署；不生产。当前feat/material-followup-dense，相对main6dc17c645215b3eb08e03624effdee2d182b3e1d，已fetch核对同SHA。open仅#136，draft说明明确不merge、当前冲突，保留不动；新物料PR未创建。完整task docs/tasks/active/material-staging-release-2026-11-12.md。
 
-[最新结果及截图](tasks/active/material-color-first-result-2026-11-12.md)，批准文件material-color-first-approval-2026-11-12.md冻结5bef。branch feat/material-followup-dense，原main/staging M2不变，无push/PR/远端CI/部署；源worker=false、原617库/角色/宁波owner不动。产品只Tower/CSS，业务/来源原时点及权限未改。
+Git默认失效host-specific回环proxy；普通direct复位。HTTPS dns.google查询20.169.109.160后，仅进程GIT_CONFIG_COUNT=3覆盖http.https://github.com.proxy空/http.proxy空/http.curloptResolve github.com:443:20.169.109.160并清除proxy env，Gitread1831ms/fetch1918ms成功。保持TLS验证/原认证。沿原git-delivery工具只上传一次并独立API核验，不改全局配置、不使用文件API伪造提交。
 
-本轮8显示单测、type/lint/build、真实六视图/搜索/收放/列/密度/明细/到料/其他3合同、24组尺寸/等效缩放/左右滚动命中检查通过；13列/无nameDOM/物料名称搜索针织布返回2条/原progress.rows相等。1920与1600首屏10、1366首屏7。回执D:/WeaveOps-Local/material-dense-20261111/color-first-*.json/png，日志outputs/material-dense-local/color-first-*.log。基线守卫进度以日志实际结果为准，不重复跑已成功检查。
+线上ROOT /home/jackson/weaveops-staging-preview，project zhixu-quote-trial-staging-562fbf07、gateway3003、M2=6dc17c64 app+runtime catalog-sync-6dc17c64。已有发布helper在releases/directory-recovery-release-20261111。生产GitHub工作流仅手动；不要dispatch它。部署需用新独立release目录和精确合并SHA镜像，原库/卷/对象/备份/身份保留，本机demo不安装线上。
 
-原七项字段证据及限制仍见material-seven-acceptance-2026-11-12.md：采购单位来自独立采购QtyUnit，多余仓num_dyc分笔不加总，历史缺失不伪补。本轮仅移除展示结构，0源请求/0业务写。后续只按本机反馈修改，未明确批准不得发布。
+重要：发布前已有来源故障，控制paused_reason=catalog_changed_or_over_limit、heartbeat 11/11 15:52:35北京，supervisor STOPPED_FAULT worker_stopped_requires_review；620订单/head，5queued、97历史failed、27053complete。不得为新UI清暂停/重置队列/额外登录或伪造自动同步成功。标准备份supervisor会校验receipt.source==cfg.sourceSha，不能只换app而忘记备份绑定。原owner已停，发布时保留故障检查点，源恢复另需证据；当前明确告知用户。
 
-精确main/staging基线：6dc17c645215b3eb08e03624effdee2d182b3e1d。当前实际产品5bef8388，未部署。
-
-最终源码/证据守卫在8e3dc2c7ce1b95eeca4d5e3e7a847d2aa1e5c5cd通过：baseline6dc17c64、12页、68能力、3累计UI路径、0错误；首轮文档漂移已通过前向冻结修复，原失败日志保留。无远端CI或部署。
+本机63054 hiddenPID42352、产品5bef8388、617副本仍只读，原63051及原库不动，本机sourceworker=false。已通过本机8显示tests、24几何和真实6视图，上一阶段15业务/10UI通过；新交付全lint/npmtest和test:release-baseline正在运行，日志outputs/material-dense-local/delivery-*.log。没有CI/PR/合并/新部署完成；继续至合并、受保护备份/发布和真实staging验收，实际结果逐项记录。
