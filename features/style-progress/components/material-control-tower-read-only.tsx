@@ -161,10 +161,10 @@ const views = [{key:'self',label:'物料总览 / 自购需求'},{key:'factory',l
 type MainView = typeof views[number]['key'];
 export type MaterialSourceHandle={open:()=>void};
 const selfColumns = [
-  ['name','物料名称'],['color','颜色'],['spec','规格'],['width','门幅'],['gsm','克重'],['demand','需求数量'],['unit','单位'],
+  ['color','颜色'],['spec','规格'],['width','门幅'],['gsm','克重'],['demand','需求数量'],['unit','单位'],
   ['purchase','已采购'],['inbound','已入库'],['pending','待入库'],['excess','多余仓'],['shipment','物料出运'],['state','状态'],['action','操作'],
 ] as const;
-const factoryColumns = selfColumns.filter(([key])=>!['width','gsm','pending','excess','shipment'].includes(key)).map(([key,label])=>[key,key==='demand'?'厂供数量':key==='purchase'?'已落实数量':key==='inbound'?'到货数量':label] as const);
+const factoryColumns = ([['name','物料名称'],...selfColumns] as const).filter(([key])=>!['width','gsm','pending','excess','shipment'].includes(key)).map(([key,label])=>[key,key==='demand'?'厂供数量':key==='purchase'?'已落实数量':key==='inbound'?'到货数量':label] as const);
 const numericColumns = new Set(['demand','purchase','inbound','pending','excess','shipment']);
 const preferenceKey='weaveops.material-display.v1';
 /** Display preferences only. No order, source values, credentials or business state are persisted. */
@@ -172,7 +172,7 @@ function useDisplayPreferences(){
   const [density,setDensity]=useState<'compact'|'standard'>('compact'),[hidden,setHidden]=useState<string[]>([]);
   useEffect(()=>{let active=true;try{const saved=JSON.parse(localStorage.getItem(preferenceKey)||'null');
     if(saved)queueMicrotask(()=>{if(!active)return;if(['compact','standard'].includes(saved.density))setDensity(saved.density);
-      if(Array.isArray(saved.hidden))setHidden(saved.hidden.filter((key:unknown)=>typeof key==='string'&&selfColumns.some(([k])=>k===key)&&key!=='name'&&key!=='action'));});
+      if(Array.isArray(saved.hidden))setHidden(saved.hidden.filter((key:unknown)=>typeof key==='string'&&selfColumns.some(([k])=>k===key)&&key!=='color'&&key!=='action'));});
   }catch{/* Unavailable preference storage does not block the business page. */}return()=>{active=false;};},[]);
   const save=(nextDensity:typeof density,nextHidden:string[])=>{setDensity(nextDensity);setHidden(nextHidden);try{localStorage.setItem(preferenceKey,JSON.stringify({density:nextDensity,hidden:nextHidden}));}catch{}};
   return {density,hidden,setDensity:(next:typeof density)=>save(next,hidden),toggle:(key:string)=>save(density,hidden.includes(key)?hidden.filter(k=>k!==key):[...hidden,key]),reset:()=>save(density,[])};
@@ -243,7 +243,7 @@ export function ReadOnlyMaterialControlTower({ view, trimPriorityKeywords = [], 
       state:<button type="button" className="sp-business-status" data-attention={state.attention} onClick={onVerify}>{state.label}</button>,
       action:<button type="button" className="sp-dense-detail" aria-label={'查看 '+row.demand.materialName+' '+(row.demand.materialColor||'')+' 明细'} onClick={()=>open({kind:'row',id:row.demand.id},'material')}>查看明细</button>,
     };
-    return <tr key={row.demand.id} data-demand-id={row.demand.id} data-source-demand-id={row.demand.sourceDetailId}>{columns.map(([key])=><td key={key} data-column={key} className={numericColumns.has(key)?'numeric':key==='name'?'sp-business-name':key==='spec'?'sp-business-spec':undefined} title={key==='spec'?row.demand.specification||undefined:undefined}>{cells[key]}</td>)}</tr>;
+    return <tr key={row.demand.id} aria-label={row.demand.materialName+' · '+(row.demand.materialColor||'颜色未提供')} data-demand-id={row.demand.id} data-source-demand-id={row.demand.sourceDetailId}>{columns.map(([key])=><td key={key} data-column={key} className={numericColumns.has(key)?'numeric':key==='name'?'sp-business-name':key==='spec'?'sp-business-spec':undefined} title={key==='spec'?row.demand.specification||undefined:undefined}>{cells[key]}</td>)}</tr>;
   };
   const renderScope=(scope:'self'|'factory'|'unknown')=>{
     const rows=view.rows.filter(row=>materialSupplyScope(row.demand)===scope),groups=ordered.filter(group=>group.rows.some(row=>visible.has(row.demand.id)&&materialSupplyScope(row.demand)===scope));
@@ -278,7 +278,7 @@ export function ReadOnlyMaterialControlTower({ view, trimPriorityKeywords = [], 
       <select aria-label="物料状态" value={status} onChange={event=>setStatus(event.target.value as typeof status)}><option value="all">全部状态</option><option value="not_purchased">未采购</option><option value="purchasing">采购中</option><option value="pending_inbound">已采购待入库</option><option value="ready">已齐套</option><option value="unknown">状态待核实</option></select>
       <Button variant="secondary" size="compact" onClick={()=>setCollapsed(allCollapsed?new Set():new Set(allKeys))}>{allCollapsed?'展开全部':'收起全部'}</Button>
       <select aria-label="显示密度" value={display.density} onChange={event=>display.setDensity(event.target.value as 'compact'|'standard')}><option value="compact">紧凑模式</option><option value="standard">标准模式</option></select>
-      <details className="sp-dense-columns"><summary>显示列</summary><div>{selfColumns.filter(([key])=>key!=='name'&&key!=='action').map(([key,label])=><label key={key}><input type="checkbox" checked={!display.hidden.includes(key)} onChange={()=>display.toggle(key)}/>{label}</label>)}<Button variant="text" onClick={display.reset}>恢复全部列</Button></div></details>
+      <details className="sp-dense-columns"><summary>显示列</summary><div>{selfColumns.filter(([key])=>key!=='color'&&key!=='action').map(([key,label])=><label key={key}><input type="checkbox" checked={!display.hidden.includes(key)} onChange={()=>display.toggle(key)}/>{label}</label>)}<Button variant="text" onClick={display.reset}>恢复全部列</Button></div></details>
       {(search||status!=='all'||type!=='all')&&<Button variant="text" size="compact" onClick={()=>{setSearch('');setStatus('all');setType('all');}}>清除筛选</Button>}
     </div>
     {settingsNotice&&<p className="sp-business-settings-notice" role="status">{settingsNotice}</p>}

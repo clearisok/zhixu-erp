@@ -66,7 +66,7 @@ test('overview removes only approved columns and keeps the source footer after t
  assert.ok(!markup.includes('data-column="gap"'));assert.ok(!markup.includes('data-column="outbound"'));
  assert.ok(markup.includes('data-column="excess"'));assert.ok(markup.includes('data-column="shipment"'));
  assert.ok(markup.indexOf('sp-business-source')>markup.indexOf('</table>'));
- assert.ok(markup.includes('sp-dense-visually-hidden'));assert.ok(markup.includes('sp-dense-group-actions'));
+ assert.ok(!markup.includes('data-column="name"'));assert.ok(markup.includes('sp-dense-group-actions'));
  assert.ok(markup.includes('出库明细'),'outbound detail view remains available');
 });
 test('procurement display unit does not change demand facts or choose a conflicted unit',()=>{
@@ -86,8 +86,10 @@ test('excess warehouse preserves explicit zero and missing values without increa
  const projected=projectMaterialProgress(order,[page([raw])]);assert.equal(projected.rows[0].inbounds[0].quantity,12);assert.equal(projected.rows[0].inbounds[0].excessWarehouse.includedInInbound,false);
 });
 
-test('a genuinely different detail name remains visible below its group title',()=>{
+test('overview has no material-name cells but preserves identity and group labels',()=>{
  const view=projectMaterialProgress(order,[page([demand])]);view.groups[0].name='不同的分组标题';
  const markup=renderToStaticMarkup(createElement(PermissionProvider,null,createElement(ReadOnlyMaterialControlTower,{view})));
- assert.ok(markup.includes('不同的分组标题'));assert.ok(markup.includes('<strong>合成同名物料</strong>'));
+ assert.ok(markup.includes('不同的分组标题'));assert.ok(markup.includes('aria-label="合成同名物料 · 蓝"'));assert.ok(!markup.includes('data-column="name"'));
+ const header=markup.match(/<thead>(.*?)<\/thead>/)?.[1]||'';assert.ok(header.indexOf('data-column="color"')<header.indexOf('data-column="spec"'));
+ assert.equal((markup.match(/data-column=/g)||[]).length,26,'13 headers plus 13 demand cells; no empty leading cell');
 });
