@@ -37,3 +37,17 @@
 ## 自动复审P2：状态筛选与现有状态显示不一致
 
 GitHub正式自动复审2568e931给出P2（comment4547683847）：6087051投影刻意令readiness status=null，而新筛选仍按旧readiness选项比较，非all会空表。已核实projection.ts原第238行与filterProgressRows原第292行。修复仅将本页筛选复用表格已经显示的rowState（待采购、已有采购、已有入库、仅有需求、关联待核实、规格待核实），不推断齐套、不改源投影/数量或权限。搜索/类型仍复用原过滤器。保留厂供独立视图。新增6状态、未知readiness、组合搜索/类型、原数据不变单测，以及真实浏览器逐状态精确需求ID断言。局部9项单测通过；当前source CI尚未结束，因新修复必需已取消过时source，已通过的team-access/baseline不重复手工重跑。集中上传最终修订后保留必要新HEAD检查。
+
+## 合并、运行及真实验收（16:51北京）
+
+PR145已实际MERGED，合并提交c5133e9e9e7065dc4fe7672c0c88c75688e0c51f，双父6dc17c645215b3eb08e03624effdee2d182b3e1d/c1d2538fa4c3f3a4d9b9c4a494201d158308a734，tree7b5cb8f46a7d01bc8da5a2ab4a75aacc3ecceabe与已检head相同，8f5b5d89在祖先中。最终三项CI全部成功：source43179738319、team-access43179738090、baseline43179738189。P2状态筛选按原显示业务事实修复，局部9单测/11浏览器、类型/lint/build及精确guard通过。未批量重跑历史CI，过时source已取消。
+
+最终main本机fetch遇传输超时，独立宁波标准Git以HTTP/1.1+protocol.version=1取得原始M；验证双父/tree后原始Git bundle反传并正常fetch到本机origin/main，未用文件API伪造commit。用户/全局Git/TLS/代理配置未改。
+
+精确M在隔离新TASK原生Git source构建，原依赖锁一致、network=none，operator f3a64ea54f0d9b03ab2f4c1262469d65146bef7d4dd1317224b00ac47e4df050、app720b7d0d2669a5b3af1745573be76322505bf13aa6c73f9a7f7120eddfca0cfd。16:37已升级并更新正常监督/备份绑定，不启用源worker。数据库migration applied=[]，139表；原23人工表/3账号权限/620订单保全，620绑定及620读取head哈希全等，0缺快照；5正常身份真实HTTP前后rows全等、匿名401、DEMO=false。source5queued/97历史failed/27053complete及11/11心跳/目录暂停均未变。
+
+公网Chrome真实页面5订单×6视图及12尺寸/密度组合通过；颜色首列13字段、名称检索/收展、业务状态筛选、列设置、密度刷新、右侧固定操作、采购/收发明细、到料窗口、来源栏位置及退出后正常登录保护通过。实际采购单位明细38261/38262=千克，115421/115423=个。D1992为30/8/20/13/9/9（自购/厂供/采购/入库/出运/出库）；PI2610-181为15/3/4/2/2/2，与部署前真实数据一致，未套用本机旧10项。PI2605-077的7客供单独保留，不计入15自购。
+
+公网harness先后发现DOM未就绪、漏算客供独立区、到料独立请求未完成、把/cdn-cgi/rum统计POST误当业务写的断言问题；原失败日志保留，纠正等待及分类后复用core checkpoint，tail完整退出0，browser-result记录最终全场景通过。只有Cloudflare统计POST，无业务API写、无ERP来源刷新。不是把原非0命令描述为通过。
+
+发布前备份20261112T070832Z-6f815f2d，51文件2326134575字节离机哈希全等（manifest SHA256 c0eae17ff0004e19d37758aa36ffa11c8d94caa359a3464bd7ec5cabc00f4254）。发布后新配对备份20261112T085113Z-54a2de65自16:51:13开始，仍运行，尚未声称完成；接力详AI_HANDOFF。实际620数据及原库/对象/卷/旧镜像/原分支保留，不部署生产。

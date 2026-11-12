@@ -1,21 +1,25 @@
-# 最终交付复审P2修订
+# 物料页staging已上线：等待发布后备份完成
 
-PR145已就绪，head2568e931的team-access/baseline通过；source仍在运行时，GitHub自动审查发现本页状态筛选沿用readiness导致空表P2，已取消过时source以节省CI。只修筛选为表格已显示的真实业务状态，不改投影/业务数量/权限。9单测通过，待候选构建、11项显示浏览器复验及最终必要CI后合并。详见发布记录。staging仍M2=6dc17c645215b3eb08e03624effdee2d182b3e1d，620订单/来源暂停/5queued保留。配对备份51文件2326134575字节离机哈希全等。
+当前本机分支chore/material-staging-delivery-record-20261112从origin/main c5133e9e9e7065dc4fe7672c0c88c75688e0c51f建立，只做交接文档，不再推送纯文档触发CI。main/staging均该SHA，PR145已MERGED，原feature分支保留；8f5b5d89祖先与C1 head代码树一致。源码审计基线6dc17c645215b3eb08e03624effdee2d182b3e1d保留，136明确草稿不merge且冲突。完整[发布记录](tasks/active/material-staging-release-2026-11-12.md)。
 
-# PR145必要CI修订与staging恢复点
+## 必须继续的收尾
 
-2026-11-12 PR145 head2de3cd12已精确送达；team-access/baseline成功，source在旧continuous-ui交互断言失败，正在只修测试兼容，产品保持用户验收版本。来源业务/认证/数量和候选构建已通过。详见 [发布记录](tasks/active/material-staging-release-2026-11-12.md)。不得合并红CI或部署未通过版本。原open136仍draft明确不merge且冲突，保留。
+宁波ROOT=/home/jackson/weaveops-staging-preview，TASK=ROOT/releases/material-dense-release-20261112，SOURCE=TASK/source（真实Git merged-main，未伪造Git提交），RUNTIME=ROOT/runtime/catalog-sync-c5133e9e。project zhixu-quote-trial-staging-562fbf07；仅gateway127.0.0.1:3003公开经原域名。新app720b7d0d/operator f3a64ea5，旧M2镜像/配置/卷均保留。
 
-部署前备份BACKUP_VERIFIED 20261112T070832Z-6f815f2d（15:21:11北京），旧M2服务已恢复。新release /home/jackson/weaveops-staging-preview/releases/material-dense-release-20261112，helpers已准备；尚未新部署。before HTTP与23人工表/620原订单基线保留；source pause catalog_changed_or_over_limit及5 queued完整保留，不清故障、不额外登录。旧supervisor已安全DISABLED便于正式配对备份，SQL暂停仍在；新部署后按新SHA更新备份绑定并保留暂停，不activate源worker。
+正在运行 rollout.py backup-new c5133e9e9e7065dc4fe7672c0c88c75688e0c51f，backup ID20261112T085113Z-54a2de65，08:51:13Z开始；不得并行业务HTTP/SQL触碰安静窗口。只读文件status.json确认完成BACKUP_VERIFIED且source相同、originalServicesResumed=true，再执行同helper preserve-pause（不要activate），最后公网/容器/cron和队列保全复核。备份前已通过真实HTTP和浏览器，不重做全量业务测试或源采集。
 
-# 当前接力：物料页staging交付进行中
+原源故障catalog_changed_or_over_limit，heartbeat11/11 07:52:35Z；620订单/head，5queued/97历史failed/27053complete。SQL保护及任务保持，不清状态、不登录ERP。supervisor已随版本迁移但保持DISABLED；本机无新源worker、617副本不动。恢复源是另一项需要先核对目录差异的工作。
 
-2026-11-12用户已人工接受8f5b5d8989c6e54ac7c336d3d6f9b14cb29df9b3，明确授权全部open PR审计、安全合并、staging部署；不生产。当前feat/material-followup-dense，相对main6dc17c645215b3eb08e03624effdee2d182b3e1d，已fetch核对同SHA。open仅#136，draft说明明确不merge、当前冲突，保留不动；新物料PR未创建。完整task docs/tasks/active/material-staging-release-2026-11-12.md。
+## 已验证及回执
 
-Git默认失效host-specific回环proxy；普通direct复位。HTTPS dns.google查询20.169.109.160后，仅进程GIT_CONFIG_COUNT=3覆盖http.https://github.com.proxy空/http.proxy空/http.curloptResolve github.com:443:20.169.109.160并清除proxy env，Gitread1831ms/fetch1918ms成功。保持TLS验证/原认证。沿原git-delivery工具只上传一次并独立API核验，不改全局配置、不使用文件API伪造提交。
+最终CI source43179738319、team-access43179738090、baseline43179738189全部成功。9显示单测/11显示浏览器、15连续页浏览器、类型/lint/build/精确门禁通过。Windows旧fixture清理失败与过时source取消记录保留，不冒称它们成功。
 
-线上ROOT /home/jackson/weaveops-staging-preview，project zhixu-quote-trial-staging-562fbf07、gateway3003、M2=6dc17c64 app+runtime catalog-sync-6dc17c64。已有发布helper在releases/directory-recovery-release-20261111。生产GitHub工作流仅手动；不要dispatch它。部署需用新独立release目录和精确合并SHA镜像，原库/卷/对象/备份/身份保留，本机demo不安装线上。
+5订单真实gateway HTTP前后rows全等，620绑定和head哈希全等、0缺快照、原23人工表/3账号/620身份不变。正常登录、匿名401、无DEMO，迁移applied=[]。D1992 30自购8厂供20采购13入库9出运9出库；PI2610-181 15自购3厂供4采购2入库2出运2出库（不能硬套本机旧10项）。PI2605-077另7客供独立保留。
 
-重要：发布前已有来源故障，控制paused_reason=catalog_changed_or_over_limit、heartbeat 11/11 15:52:35北京，supervisor STOPPED_FAULT worker_stopped_requires_review；620订单/head，5queued、97历史failed、27053complete。不得为新UI清暂停/重置队列/额外登录或伪造自动同步成功。标准备份supervisor会校验receipt.source==cfg.sourceSha，不能只换app而忘记备份绑定。原owner已停，发布时保留故障检查点，源恢复另需证据；当前明确告知用户。
+D:/WeaveOps-Local/material-dense-20261111/staging-delivery-20261112（owner+SYSTEM私有ACL）保存前备份51文件离机全hash一致、browser-core-checkpoint.json及browser-result.json、截图与5HTTP原文；正常QA会话已退出，不输出cookie文件。完整公网core+tail通过：30视图、12桌面/缩放/密度组合、采购单位4笔、列/筛选/搜索/展开/明细/到料窗口/匿名登录。测试harness最初有DOM时序、客供计数和Cloudflare统计POST误判，修正后复用core checkpoint，tail退出0；POST仅/cdn-cgi/rum，无业务写或ERP刷新。
 
-本机63054 hiddenPID42352、产品5bef8388、617副本仍只读，原63051及原库不动，本机sourceworker=false。已通过本机8显示tests、24几何和真实6视图，上一阶段15业务/10UI通过；新交付全lint/npmtest和test:release-baseline正在运行，日志outputs/material-dense-local/delivery-*.log。没有CI/PR/合并/新部署完成；继续至合并、受保护备份/发布和真实staging验收，实际结果逐项记录。
+本机63054仍只读preview.real-orders，静态构建c1d2538f（状态筛选修复），与main产品树一致；原8f历史/数据保留。
+
+临时Git HTTPS route自有进程63194→SSH SOCKS63189，未改共享配置/认证/TLS；最终Git fetch在宁波使用HTTP/1.1+protocol.version=1成功，将原始M bundle反传本机并正常git fetch，origin/main已同M。收尾应关闭本任务自有临时网络进程；不要改服务器代理或杀其他用户进程。
+
+[原交接全文](tasks/completed/2026-11-12-before-staging-release/AI_HANDOFF.md)保留原时点。

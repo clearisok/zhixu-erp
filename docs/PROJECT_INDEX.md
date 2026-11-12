@@ -1,13 +1,8 @@
 # 当前项目入口
 
-最新：[总览颜色首列、整列删除实机结果](tasks/active/material-color-first-result-2026-11-12.md)。本机产品5bef8388，未部署。
+2026-11-12：[已合并物料页及staging发布](tasks/active/material-staging-release-2026-11-12.md)。main/staging c5133e9e9e7065dc4fe7672c0c88c75688e0c51f（PR145），人工验收8f5b5d89已包含；来源原暂停保留，发布后配对备份正在收尾。源码/证据审计基线6dc17c645215b3eb08e03624effdee2d182b3e1d。具体恢复点见[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)。
 
-2026-11-12：[七项物料显示修订及最终验收](tasks/active/material-seven-acceptance-2026-11-12.md)、[前向显示模块](features/MATERIAL_FOLLOWUP_DISPLAY_20261112.md)。63054本机候选，产品e7372a31；未部署。以下保留11月11日基线入口。
-
-2026-11-11：main/staging为6dc17c645215b3eb08e03624effdee2d182b3e1d（PR144）。新高密度物料页仅本机演示就绪，未批准staging部署。恢复点见[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)。
-
-1. [最终演示、截图和功能验收](tasks/active/material-dense-local-acceptance-2026-11-11.md)。
-2. [实施前完整功能基线及过程](tasks/active/material-dense-local-2026-11-11.md)。
-3. [具体布局批准](tasks/active/material-dense-approval-2026-11-11.md)、[显示模块](features/MATERIAL_FOLLOWUP_DENSE_VIEW.md)。
-4. [业务规则](BUSINESS_RULES.md)、[决定](DECISION_LOG.md)、[原物料来源](features/AINUOKE_IT_MATERIAL_SOURCE.md)、[来源服务](features/AINUOKE_SERVER_SOURCE.md)。
-5. [此前staging交付/回滚/后台](tasks/completed/2026-11-11-before-dense-view/AI_HANDOFF.md)，保留原日期、版本及限制。
+1. [本机颜色首列实机验收](tasks/active/material-color-first-result-2026-11-12.md)。
+2. [七项显示修订](tasks/active/material-seven-acceptance-2026-11-12.md)、[显示口径](features/MATERIAL_FOLLOWUP_DISPLAY_20261112.md)。
+3. [业务规则](BUSINESS_RULES.md)、[决定](DECISION_LOG.md)、[来源规则](features/AINUOKE_SERVER_SOURCE.md)。
+4. [此前入口原文](tasks/completed/2026-11-12-before-staging-release/PROJECT_INDEX.md)，保留所有原日期与SHA，不把旧“未部署”当最新状态。

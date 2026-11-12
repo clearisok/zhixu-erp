@@ -1,9 +1,11 @@
-# 当前状态：已人工验收，PR审计及staging交付进行中
+# 当前状态：物料页已合并并部署staging，发布备份收尾中
 
-2026-11-12用户正式接受8f5b5d89并授权安全PR合并及staging部署；不操作生产。main与线上仍6dc17c645215b3eb08e03624effdee2d182b3e1d。初始open仅#136（旧工具草稿、明确暂不合并、冲突），保留原状。新物料PR准备中，包含完整本机已验收历史，不删除分支。
+2026-11-12用户接受8f5b5d89并授权审计全部open PR、安全合并及staging发布；不操作生产。PR145已于16:27:27北京以merge commit合入main：c5133e9e9e7065dc4fe7672c0c88c75688e0c51f；双父/代码树/8f祖先均已核实。head c1d2538f的三项必要CI全部成功，自动审查1项P2筛选问题已修复验证并关闭。136保持原草稿（明确不merge、冲突），没有其他open/bot PR。
 
-重要既有问题：staging来源自11/11 15:52北京因catalog_changed_or_over_limit暂停，supervisor STOPPED_FAULT；620订单/物料head、5 queued。此次不自动清保护或重采，UI发布与来源恢复分开记录。原数据/人工内容/队列/时间保留。
+16:37升级至上述main，正常session/RBAC，本机demo未安装。5真实订单HTTP前后rows全等、620绑定/620物料head哈希不变；23人工业务表、3用户/权限、620原订单保全。迁移0。公网真实浏览器30视图及12尺寸/密度组合、颜色首列13字段、搜索/筛选/列设置/到料计划/明细/正常登录保护已通过；4采购明细实际单位千克/个核对。来源新鲜度如实显示历史，不额外采集。
 
-本机演示63054仍运行、只读，源码5bef8388，8f5b5d89含最终交接；617副本保留，本机无源worker。生产部署工作流仅手动，未触发；新版本使用正常session/RBAC，不带demo入口。Git在进程级DNS/代理覆盖下读和fetch成功，未改共享配置或证书校验。
+**既有来源问题仍保留**：catalog_changed_or_over_limit，最后心跳11/11 15:52:35北京；5 queued/97历史failed/27053 complete不变。本轮不清保护、不重置队列、不额外登录源站；本机未启采集。新宁波监督/备份绑定已更新至发布SHA，source worker保持停用。
 
-[本轮交付、全部PR审计及风险](tasks/active/material-staging-release-2026-11-12.md)，[本机验收](tasks/active/material-color-first-result-2026-11-12.md)。必要检查和发布未全部完成，不宣称已部署。
+发布前配对备份20261112T070832Z-6f815f2d验证成功并离机51文件/2326134575字节哈希全等。新版本配对备份20261112T085113Z-54a2de65运行中，结束后须核实原服务恢复及preserve-pause，再做最终收口；目前不宣称该新备份已通过。
+
+源码/证据审计基线仍6dc17c645215b3eb08e03624effdee2d182b3e1d；[发布与PR审计](tasks/active/material-staging-release-2026-11-12.md)，[此前状态归档](tasks/completed/2026-11-12-before-staging-release/CURRENT_STATE.md)。
