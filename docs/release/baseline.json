@@ -6113,6 +6113,14 @@
       "recordedAtSha": "bf9de97f049464a460cd4d7ea0dc1f533e08fbc5",
       "renderedSourceSha": "bf9de97f049464a460cd4d7ea0dc1f533e08fbc5",
       "sha256": "4d7d6c008429a4e6b413ec2511f78eed5953815d4e166a1fc851b3e118622554"
+    },
+    {
+      "id": "material-seven-approved-20261112",
+      "kind": "document",
+      "path": "docs/tasks/active/material-seven-adjustments-2026-11-12.md",
+      "recordedAtSha": "e7372a315e7e101b886563cd1f785fd46b3bf075",
+      "renderedSourceSha": "e7372a315e7e101b886563cd1f785fd46b3bf075",
+      "sha256": "09b87a2b2211d40bad39c6de2a77ee306dd6ba70f5941e580c4f6ee303741f0f"
     }
   ],
   "pages": [
@@ -6291,7 +6299,8 @@
         "read-panel-payment-fields-1440",
         "read-panel-payment-expired-1440",
         "material-dense-approved-20261111",
-        "material-dense-module-20261111"
+        "material-dense-module-20261111",
+        "material-seven-approved-20261112"
       ]
     },
     {
