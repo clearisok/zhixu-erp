@@ -3,3 +3,6 @@
 .qc-drawer.asa-drawer{width:min(1500px,calc(100vw - 48px));max-width:calc(100vw - 48px)}.asa-drawer .asa-ledger{max-height:65vh}.asa-ledger thead th{position:sticky;top:0;z-index:1}.asa-drawer .asa-ledger td:nth-child(n+2):nth-child(-n+6){text-align:right}
 
 .asa-view-switch{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.asa-view-switch small{color:#6a7d74;font-size:12px}.asa-table-view{max-height:65vh}.asa-report-table td:nth-child(n+6):nth-child(-n+10){text-align:right}.asa-report-table td:first-child,.asa-report-table th:first-child{position:sticky;left:0;background:#fff;z-index:2;min-width:210px}.asa-report-table td:last-child,.asa-report-table th:last-child{position:sticky;right:0;background:#fff;z-index:2}.asa-report-table th:first-child,.asa-report-table th:last-child{background:#f1f5f2;z-index:3}
+
+/* Keep this ledger readable despite legacy global 9px td defaults. */
+.asa-workspace td{font-size:13px;line-height:1.5}.asa-workspace th{font-size:12px;line-height:1.5}

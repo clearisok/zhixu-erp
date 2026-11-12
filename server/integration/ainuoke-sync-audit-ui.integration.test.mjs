@@ -26,6 +26,8 @@ test('sync audit menu, filters, report history, detail and readonly permissions 
   await t.test('authorized route renders actual fixture ledger, filters and batch drawer at desktop widths',async()=>{
    await navigate('/system-settings/ainuoke-sync-records');await has('数据表记录');await has('面辅料');
    assert.equal(await evaluate("document.querySelectorAll('.asa-report-table tbody tr').length>0"),true);
+   assert.equal(await evaluate("parseFloat(getComputedStyle(document.querySelector('.asa-report-table tbody td')).fontSize)>=12"),true);
+   {const directory=resolve('outputs/sync-audit-ui');await mkdir(directory,{recursive:true});const shot=await command('Page.captureScreenshot',{format:'png'});await writeFile(join(directory,'audit-overview.png'),Buffer.from(shot.data,'base64'));}
    for(const width of [1366,1920]){
     await command('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:1,mobile:false});
     assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth+1'),true);
