@@ -1,4 +1,4 @@
-import {waitForChromiumEndpoint} from './chromium-endpoint.mjs';
+import {waitForChromiumEndpoint,stopOwnedChromium} from './chromium-endpoint.mjs';
 import assert from "node:assert/strict";
 import test from "node:test";
 import { spawn } from "node:child_process";
@@ -23,12 +23,12 @@ async function until(read,label,timeout=20000){
 }
 test("built existing P6 pages use bound orders and persisted four-stream sources", {timeout:180000},async t=>{
  const info=JSON.parse(readFileSync("dist/client/build-info.json","utf8"));assert.equal(info.orderRead,"snapshot");assert.equal(info.quoteAuthority,"server");
- const x=await startContinuousFixture(resolve("dist/client"),{orderAlerts:true});const temp=await mkdtemp(join(tmpdir(),"zhixu-continuous-ui-"));const metrics=[];let browser,ws,session,id=0;const pending=new Map(),errors=[];
+ const x=await startContinuousFixture(resolve("dist/client"),{orderAlerts:true});const temp=await mkdtemp(join(tmpdir(),"zhixu-continuous-ui-"));const metrics=[];let browser,ws,session,command,id=0;const pending=new Map(),errors=[];
  try{
   const profile=join(temp,"profile");
   browser=spawn(process.env.CHROME_PATH??(process.platform==="win32"?"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe":"google-chrome"),["--headless=new","--no-first-run","--no-default-browser-check","--remote-debugging-port=0","--user-data-dir="+profile,"about:blank"],{stdio:"ignore",windowsHide:true});
   const [port,path]=await waitForChromiumEndpoint(profile,{timeoutMs:20000});ws=new WebSocket("ws://127.0.0.1:"+port+path);await new Promise((done,reject)=>{ws.addEventListener("open",done,{once:true});ws.addEventListener("error",reject,{once:true});});
-  const command=(method,params={},sid=session)=>new Promise((done,reject)=>{pending.set(++id,{done,reject});ws.send(JSON.stringify({id,method,params,sessionId:sid}));});
+  command=(method,params={},sid=session)=>new Promise((done,reject)=>{pending.set(++id,{done,reject});ws.send(JSON.stringify({id,method,params,...(sid?{sessionId:sid}:{})}));});
   ws.addEventListener("message",({data})=>{const r=JSON.parse(String(data)),p=pending.get(r.id);if(p){pending.delete(r.id);if(r.error)p.reject(Error(JSON.stringify(r.error)));else p.done(r.result);}if(r.method==="Runtime.exceptionThrown")errors.push(r.params.exceptionDetails.text);});
   const target=await command("Target.createTarget",{url:"about:blank"},undefined);session=(await command("Target.attachToTarget",{targetId:target.targetId,flatten:true},undefined)).sessionId;
   await command("Page.enable");await command("Runtime.enable");await command("Network.enable");
@@ -38,6 +38,19 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
   const login=async username=>{const cookie=await x.login(username);const split=cookie.indexOf("=");await command("Network.setCookie",{name:cookie.slice(0,split),value:cookie.slice(split+1),domain:"127.0.0.1",path:"/",httpOnly:true});};
   const screenshot=async name=>{if(process.env.AINUOKE_UI_EVIDENCE!=="1"&&process.env.MATERIAL_HEADER_UI_EVIDENCE!=="1")return;const dir=process.env.MATERIAL_HEADER_UI_EVIDENCE==="1"?resolve("outputs/material-header-ui",info.gitCommit+"-"+info.buildId):resolve("outputs/confirmed-facts-2026-10-14");await mkdir(dir,{recursive:true});const shot=await command("Page.captureScreenshot",{format:"png"});await writeFile(join(dir,name+".png"),Buffer.from(shot.data,"base64"));};
   await command("Page.addScriptToEvaluateOnNewDocument",{source:"window.businessWrites=[];window.httpFailures=[];const original=fetch;window.fetch=async(...a)=>{const path=new URL(String(a[0]),location.href).pathname;if(a[1]?.method&&!['GET','HEAD'].includes(a[1].method)&&!path.includes('/auth/'))businessWrites.push(path);try{const response=await original(...a);if(response.status>=400){let code='';try{code=(await response.clone().json()).error?.code??'';}catch{}httpFailures.push({path,status:response.status,code});}return response;}catch(error){httpFailures.push({path,networkFailure:true});throw error;}};"});
+  // The accepted UI separates self/factory views and opens details on the demand tab.
+  // Exercise both scopes and the actual procurement tab rather than legacy hidden markup.
+  const mainTab=async key=>{await evaluate("document.querySelector('.sp-dense-view-tabs [id$=\"-view-"+key+"\"]').click()");await until(()=>evaluate("document.querySelector('.sp-dense-view-tabs [id$=\"-view-"+key+"\"]').getAttribute('aria-selected')==='true'"),'material view '+key);};
+  const assertMaterialScopes=async()=>{
+   await mainTab('self');assert.equal(await evaluate("new Set([...document.querySelectorAll('[data-canonical-material-key]')].map(n=>n.getAttribute('data-canonical-material-key'))).size"),4);
+   await mainTab('factory');assert.equal(await evaluate("document.querySelectorAll('[data-supply-scope=factory] [data-canonical-material-key]').length"),1,'factory demand remains independently accessible');
+   await mainTab('self');assert.equal(await evaluate("document.querySelectorAll('[data-supply-scope=self] [data-canonical-material-key]').length"),4);
+  };
+  const openPurchaseDetails=async()=>{
+   await evaluate("[...document.querySelectorAll('button')].find(n=>n.getAttribute('aria-label')==='查看 合成棉布 明细').click()");
+   await until(()=>evaluate("!!document.querySelector('.sp-dense-events [id$=\"-tab-purchase\"]')"),'material detail drawer');
+   await evaluate("document.querySelector('.sp-dense-events [id$=\"-tab-purchase\"]').click()");await has('12.75');
+  };
   const input=(selector,value)=>evaluate("(()=>{const n=document.querySelector("+JSON.stringify(selector)+");Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(n,"+JSON.stringify(value)+");n.dispatchEvent(new Event('input',{bubbles:true}));})()");
   const click=label=>evaluate("(()=>{const n=[...document.querySelectorAll('button')].find(n=>(n.getAttribute('aria-label')??n.textContent.trim())==="+JSON.stringify(label)+"&&!n.disabled&&n.getClientRects().length);if(!n)throw Error('missing button '+"+JSON.stringify(label)+");n.click();})()");
   await command("Emulation.setDeviceMetricsOverride",{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
@@ -141,26 +154,24 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
    const result=await evaluate("(()=>{const dl=document.querySelector('.oc-server-detail-overview .qc-description-list');return{columns:getComputedStyle(dl).gridTemplateColumns.split(' ').length,overflow:document.documentElement.scrollWidth>innerWidth+1,technicalOpen:document.querySelector('.oc-server-technical-details').open};})()");
    assert.equal(result.columns,width>=1280?3:1);assert.equal(result.overflow,false);assert.equal(result.technicalOpen,false);metrics.push({width,...result});await screenshot("order-"+width);
    await evaluate("[...document.querySelectorAll('a')].find(n=>n.textContent.includes('查看物料跟进')).click()");await has("合成棉布");
-   assert.equal(await evaluate("new Set([...document.querySelectorAll('[data-canonical-material-key]')].map(n=>n.getAttribute('data-canonical-material-key'))).size"),5);
-   for(const label of ["采购","入库","物料出运","物料出库"])await has(label);
-   assert.equal(await evaluate("document.querySelectorAll('[data-supply-scope=factory] [data-canonical-material-key]').length"),1,'factory demand remains independently visible');
-   assert.equal(await evaluate("document.querySelectorAll('[data-supply-scope=self] [data-canonical-material-key]').length"),4,'the four original self-purchase groups remain visible');
+   await assertMaterialScopes();
+   for(const label of ["采购明细","入库明细","出运明细","出库明细"])await has(label);
    assert.equal(await evaluate("document.documentElement.scrollWidth>innerWidth+1"),false);
-   await evaluate("[...document.querySelectorAll('button')].find(node=>node.getAttribute('aria-label')==='查看 合成棉布 明细').click()");await has("12.75");await screenshot("material-"+width);
+   await openPurchaseDetails();await screenshot("material-"+width);
    assert.deepEqual(await evaluate("window.businessWrites"),[]);
    assert.deepEqual(await evaluate("Object.keys(localStorage).filter(k=>k.startsWith('zhixu.erp.local.'))"),[]);
   });
   await t.test("all seven trusted roles see four-stream procurement; no amount sentinel or Browser fallback",async()=>{
-   for(const user of x.users){await login(user);await navigate("/order-center/style-progress/detail?orderId="+x.orderId);await has("合成棉布");await evaluate("[...document.querySelectorAll('button')].find(node=>node.getAttribute('aria-label')==='查看 合成棉布 明细').click()");await has("12.75");assert.equal(await evaluate("document.body.innerText.includes('protected-commercial-sentinel')"),false);}
+   for(const user of x.users){await login(user);await navigate("/order-center/style-progress/detail?orderId="+x.orderId);await has("合成棉布");await openPurchaseDetails();assert.equal(await evaluate("document.body.innerText.includes('protected-commercial-sentinel')"),false);}
   });
   await t.test("automatic polling observes next persisted generation without navigation or reload",async()=>{
    const before=x.materialReads();await x.capture();await until(()=>evaluate("document.body.innerText.includes('PO-SYNTHETIC-partial-a-G1')"),"automatic next generation",40000);assert.ok(x.materialReads()>before);
   });
   await t.test("failure preserves last complete facts and focus-driven recovery reuses the existing layout",async()=>{
    x.setMode("failed");await assert.rejects(x.capture());await evaluate("window.dispatchEvent(new Event('focus'))");await has("最近刷新未成功");
-   assert.equal(await evaluate("new Set([...document.querySelectorAll('[data-canonical-material-key]')].map(n=>n.getAttribute('data-canonical-material-key'))).size"),5);
+   await evaluate("document.querySelector('.sp-dense-events > header button')?.click()");await assertMaterialScopes();
    x.setMode("ready");await x.capture();await evaluate("window.dispatchEvent(new Event('focus'))");await has("合成棉布");
-   x.setMode("stale");await evaluate("window.dispatchEvent(new Event('focus'))");await has("当前显示历史数据");assert.equal(await evaluate("new Set([...document.querySelectorAll('[data-canonical-material-key]')].map(n=>n.getAttribute('data-canonical-material-key'))).size"),5);x.setMode("ready");
+   x.setMode("stale");await evaluate("window.dispatchEvent(new Event('focus'))");await has("当前显示历史数据");await evaluate("document.querySelector('.sp-dense-events > header button')?.click()");await assertMaterialScopes();x.setMode("ready");
   });
   await t.test("missing UUID and unsupported routes cannot enter old Browser pages",async()=>{
    await navigate("/order-center/style-progress/detail");await has("仅接受正式订单 UUID");
@@ -251,7 +262,9 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
   assert.deepEqual(errors,[]);assert.deepEqual(x.errors,[]);
   if(process.env.AINUOKE_UI_EVIDENCE==="1")await writeFile(resolve("outputs/confirmed-facts-2026-10-14/computed-styles.json"),JSON.stringify({build:info,metrics},null,2)+"\n");
  }finally{
-  ws?.close();if(browser&&browser.exitCode===null){browser.kill();await wait(500);}
-  await x.close();const distance=relative(resolve(tmpdir()),resolve(temp));assert.ok(distance&&!distance.startsWith("..")&&!isAbsolute(distance)&&temp.includes("zhixu-continuous-ui-"));await rm(temp,{recursive:true,force:true});
+  let stopped=false;
+  try{await stopOwnedChromium(browser,{gracefulClose:ws?.readyState===WebSocket.OPEN&&command?()=>command('Browser.close',{},null):undefined});stopped=true;}
+  finally{ws?.close();await x.close();}
+  const distance=relative(resolve(tmpdir()),resolve(temp));assert.ok(distance&&!distance.startsWith("..")&&!isAbsolute(distance)&&temp.includes("zhixu-continuous-ui-"));if(stopped)await rm(temp,{recursive:true,force:true,maxRetries:10,retryDelay:100});
  }
 });

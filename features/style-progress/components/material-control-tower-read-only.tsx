@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useRef, useState, type ReactNode } from 'react';
+import { Fragment, useEffect, useImperativeHandle, useId, useRef, useState, type ReactNode, type Ref } from 'react';
 import { Card } from '@/components/foundation/card';
 import { Button } from '@/components/foundation/button';
 import { Drawer } from '@/components/foundation/drawer';
@@ -14,6 +14,7 @@ const text = (value: string | null | undefined) => value?.trim() || '未提供';
 const flowLabels: Record<MaterialFlow, string> = { purchase: '采购', inbound: '入库', shipment: '出运', outbound: '出库' };
 const flowFields = { purchase: 'purchases', inbound: 'inbounds', shipment: 'shipments', outbound: 'outbounds' } as const;
 const tabs = [
+  { key: 'material', label: '物料 / 需求' }, { key: 'arrivals', label: '到料计划' },
   { key: 'purchase', label: '采购明细' }, { key: 'inbound', label: '入库明细' },
   { key: 'shipment', label: '出运明细' }, { key: 'outbound', label: '出库明细' },
   { key: 'verification', label: '数据核实' }, { key: 'reconciliation', label: '对账' },
@@ -25,7 +26,7 @@ type FlowEvent = ReadPurchase | (ReadMovement & { transportMode?: string });
 function sourceStatus(view: MaterialProgressView): string | null {
   if (view.sourceStatus === 'ready') return view.insideOrderDrift ? '工厂款号有变化，请在详情核对。' : null;
   if (view.sourceStatus === 'source_failed') return view.fetchedAt ? '最近刷新未成功，保留上次成功数据。' : '最近刷新未成功，尚无可用物料数据。';
-  if (view.sourceStatus === 'stale') return view.fetchedAt ? '当前显示历史数据，来源时间见上方。' : '尚无可用物料数据。';
+  if (view.sourceStatus === 'stale') return view.fetchedAt ? '当前显示历史数据，来源更新时间见本栏。' : '尚无可用物料数据。';
   return {
     not_fetched: '物料尚未同步。', not_connected: '物料尚未接入。',
     incomplete: '本次来源不完整，未替换上次成功数据。',
@@ -74,6 +75,12 @@ function rowState(row: ProgressRow) {
   if (row.inbounds.length) return { label: '已有入库', attention: false };
   if (row.purchases.length) return { label: '已有采购', attention: false };
   return { label: materialSupplyScope(row.demand) === 'self' ? '待采购' : '仅有需求', attention: false };
+}
+const businessRowStates = ['待采购', '已有采购', '已有入库', '仅有需求', '关联待核实', '规格待核实'] as const;
+type BusinessRowState = 'all' | typeof businessRowStates[number];
+/** Filter the same observed business facts as the status cell, never infer readiness. */
+export function filterBusinessMaterialRows(view: MaterialProgressView, search: string, type: Parameters<typeof filterProgressRows>[2], status: BusinessRowState) {
+  return filterProgressRows(view, search, type, 'all').filter(row => status === 'all' || rowState(row).label === status);
 }
 function uniqueEvents(rows: ProgressRow[], flow: MaterialFlow) {
   const entries = new Map<string, { row: ProgressRow; event: FlowEvent; demands: ProgressRow[] }>();
@@ -155,89 +162,146 @@ function Verification({ rows, view }: { rows: ProgressRow[]; view: MaterialProgr
   </div>;
 }
 
-/** The existing read projection and arrival owner remain authoritative; no source request is made here. */
-export function ReadOnlyMaterialControlTower({ view, trimPriorityKeywords = [], settingsNotice, paymentScope, materialActions, materialPlan }: {
-  view: MaterialProgressView; trimPriorityKeywords?: readonly string[]; settingsNotice?: string;
+const views = [{key:'self',label:'物料总览 / 自购需求'},{key:'factory',label:'厂供记录'},
+  {key:'purchase',label:'采购明细'},{key:'inbound',label:'入库明细'},{key:'shipment',label:'出运明细'},{key:'outbound',label:'出库明细'}] as const;
+type MainView = typeof views[number]['key'];
+export type MaterialSourceHandle={open:()=>void};
+const selfColumns = [
+  ['color','颜色'],['spec','规格'],['width','门幅'],['gsm','克重'],['demand','需求数量'],['unit','单位'],
+  ['purchase','已采购'],['inbound','已入库'],['pending','待入库'],['excess','多余仓'],['shipment','物料出运'],['state','状态'],['action','操作'],
+] as const;
+const factoryColumns = ([['name','物料名称'],...selfColumns] as const).filter(([key])=>!['width','gsm','pending','excess','shipment'].includes(key)).map(([key,label])=>[key,key==='demand'?'厂供数量':key==='purchase'?'已落实数量':key==='inbound'?'到货数量':label] as const);
+const numericColumns = new Set(['demand','purchase','inbound','pending','excess','shipment']);
+const preferenceKey='weaveops.material-display.v1';
+/** Display preferences only. No order, source values, credentials or business state are persisted. */
+function useDisplayPreferences(){
+  const [density,setDensity]=useState<'compact'|'standard'>('compact'),[hidden,setHidden]=useState<string[]>([]);
+  useEffect(()=>{let active=true;try{const saved=JSON.parse(localStorage.getItem(preferenceKey)||'null');
+    if(saved)queueMicrotask(()=>{if(!active)return;if(['compact','standard'].includes(saved.density))setDensity(saved.density);
+      if(Array.isArray(saved.hidden))setHidden(saved.hidden.filter((key:unknown)=>typeof key==='string'&&selfColumns.some(([k])=>k===key)&&key!=='color'&&key!=='action'));});
+  }catch{/* Unavailable preference storage does not block the business page. */}return()=>{active=false;};},[]);
+  const save=(nextDensity:typeof density,nextHidden:string[])=>{setDensity(nextDensity);setHidden(nextHidden);try{localStorage.setItem(preferenceKey,JSON.stringify({density:nextDensity,hidden:nextHidden}));}catch{}};
+  return {density,hidden,setDensity:(next:typeof density)=>save(next,hidden),toggle:(key:string)=>save(density,hidden.includes(key)?hidden.filter(k=>k!==key):[...hidden,key]),reset:()=>save(density,[])};
+}
+/** Procurement unit is display-only. Never substitutes the demand unit used by calculations. */
+export function purchaseDisplayUnit(row: ProgressRow): {unit:string|null; reason:string} {
+  const events = row.purchases; // Unit disagreements must survive even duplicate source references.
+  if (!events.length) return {unit:row.unit,reason:row.unit?'需求原始单位；尚无采购明细':'尚无可核实的采购单位'};
+  const units = new Set(events.map(event=>event.unit===undefined?row.unit:event.unit).filter(Boolean));
+  if (units.size>1 || events.some(event=>event.unitMatchStatus==='conflict')) return {unit:null,reason:'关联采购明细存在不同单位，保留各笔证据，请核实'};
+  if (events.some(event=>!(event.unit===undefined?row.unit:event.unit) || event.relation?.status==='unidentified'
+    || event.unitMatchStatus==='missing')) return {unit:null,reason:'部分采购单位或明细关联尚未核实'};
+  return {unit:[...units][0]||null,reason:'来自已核实的关联采购明细；不推断需求或收发单位'};
+}
+function ExcessWarehouseValue({row,onClick}:{row:ProgressRow;onClick:()=>void}) {
+  const entries=[...new Map(row.inbounds.map(event=>[materialEventKey(event),event])).values()];
+  if (!entries.length) return <span className="sp-business-empty" title="来源未提供关联入库的多余仓记录，不代表数量为零">无记录</span>;
+  return <div className="sp-dense-excess">{entries.map(event=>{
+    const fact=event.excessWarehouse;
+    return <button type="button" key={materialEventKey(event)} onClick={onClick} title={'入库明细 '+(event.relation?.sourceDetailId||event.id)+'；原字段 num_dyc；分笔保留，不累计入库'}>
+      {fact?.quantity!=null?<>{number(fact.quantity)}{fact.unit&&<small> {fact.unit}</small>}{fact.status!=='known'&&<small className="sp-business-caution"> 单位待核实</small>}</>:fact?.status==='missing'?<span className="sp-business-empty">无记录</span>:<span className="sp-business-pending">待核实</span>}
+    </button>;
+  })}</div>;
+}
+/** Existing projection, per-node quantities, permission gates and arrival owner remain authoritative. */
+export function ReadOnlyMaterialControlTower({ view, trimPriorityKeywords = [], settingsNotice, paymentScope, materialActions, materialPlan, sourcePanelRef }: {
+  view: MaterialProgressView; trimPriorityKeywords?: readonly string[]; settingsNotice?: string; sourcePanelRef?:Ref<MaterialSourceHandle>;
   paymentScope?: { salesOrderId: string; identityKey: string };
   materialActions?: (key: string, name: string) => ReactNode; materialPlan?: (key: string) => ReactNode;
 }) {
-  const [search, setSearch] = useState(''), [collapsed, setCollapsed] = useState<Set<string>>(new Set());
-  const [selection, setSelection] = useState<Selection | null>(null), [tab, setTab] = useState<EventTab>('purchase');
-  const id = useId(), tabList = useRef<HTMLDivElement>(null);
-  const visible = new Set(filterProgressRows(view, search, 'all', 'all').map(row => row.demand.id));
-  const ordered = orderMaterialGroups(view.groups, trimPriorityKeywords);
-  const counts = businessTransactionCounts(view.rows);
-  const selectedRows = !selection ? [] : selection.kind === 'all' ? view.rows : selection.kind === 'row' ? view.rows.filter(row => row.demand.id === selection.id) : view.groups.find(group => group.key === selection.key)?.rows.filter(row => materialSupplyScope(row.demand) === selection.scope) ?? [];
-  const selectedName = selection?.kind === 'row' ? selectedRows[0]?.demand.materialName : selection?.kind === 'group' ? view.groups.find(group => group.key === selection.key)?.name : '全部物料';
-  const notice = sourceStatus(view);
-  const hasCompleteFacts = view.sourceStatus === 'ready' || Boolean(view.fetchedAt && ['stale', 'source_failed'].includes(view.sourceStatus));
-  const open = (target: Selection, nextTab: EventTab) => { setSelection(target); setTab(nextTab); };
-  const selectTab = (index: number) => {
-    const next = (index + tabs.length) % tabs.length;
-    setTab(tabs[next].key);
-    tabList.current?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus();
+  const [search,setSearch]=useState(''),[status,setStatus]=useState<BusinessRowState>('all'),[type,setType]=useState<Parameters<typeof filterProgressRows>[2]>('all');
+  const [mainView,setMainView]=useState<MainView>('self'),[collapsed,setCollapsed]=useState<Set<string>>(new Set());
+  const [selection,setSelection]=useState<Selection|null>(null),[tab,setTab]=useState<EventTab>('material');
+  useImperativeHandle(sourcePanelRef,()=>({open:()=>{setSelection({kind:'all'});setTab('verification');}}),[]);
+  const workspace=useRef<HTMLDivElement>(null);
+  const display=useDisplayPreferences(),id=useId(),tabList=useRef<HTMLDivElement>(null),mainTabs=useRef<HTMLDivElement>(null);
+  useEffect(()=>{
+    const tables=workspace.current?.querySelectorAll<HTMLTableElement>('.sp-dense-table');
+    const measure=()=>tables?.forEach(table=>{const width=table.querySelector<HTMLElement>('thead [data-column="action"]')?.getBoundingClientRect().width;
+      if(width)table.style.setProperty('--sp-action-width',width+'px');});
+    measure();if(typeof ResizeObserver==='undefined')return;
+    const observer=new ResizeObserver(measure);tables?.forEach(table=>observer.observe(table));return()=>observer.disconnect();
+  },[mainView,display.hidden,display.density,search,type,status,collapsed]);
+  const filtered=filterBusinessMaterialRows(view,search,type,status),visible=new Set(filtered.map(row=>row.demand.id));
+  const ordered=orderMaterialGroups(view.groups,trimPriorityKeywords),counts=businessTransactionCounts(view.rows);
+  const selfRows=view.rows.filter(row=>materialSupplyScope(row.demand)==='self'),factoryRows=view.rows.filter(row=>materialSupplyScope(row.demand)==='factory');
+  const selectedRows=!selection?[]:selection.kind==='all'?view.rows:selection.kind==='row'?view.rows.filter(row=>row.demand.id===selection.id):view.groups.find(group=>group.key===selection.key)?.rows.filter(row=>materialSupplyScope(row.demand)===selection.scope)??[];
+  const selectedGroups=ordered.filter(group=>group.rows.some(row=>selectedRows.some(selected=>selected.demand.id===row.demand.id)));
+  const selectedName=selection?.kind==='row'?selectedRows[0]?.demand.materialName:selection?.kind==='group'?view.groups.find(group=>group.key===selection.key)?.name:'全部物料';
+  const notice=sourceStatus(view),hasCompleteFacts=view.sourceStatus==='ready'||Boolean(view.fetchedAt&&['stale','source_failed'].includes(view.sourceStatus));
+  const open=(target:Selection,nextTab:EventTab)=>{setSelection(target);setTab(nextTab);};
+  const selectTab=(index:number)=>{const next=(index+tabs.length)%tabs.length;setTab(tabs[next].key);tabList.current?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus();};
+  const selectMain=(index:number)=>{const next=(index+views.length)%views.length;setMainView(views[next].key);mainTabs.current?.querySelectorAll<HTMLButtonElement>('[role="tab"]')[next]?.focus();};
+  const allKeys=ordered.flatMap(group=>(['self','factory','unknown'] as const).filter(scope=>group.rows.some(row=>materialSupplyScope(row.demand)===scope)).map(scope=>scope+':'+group.key));
+  const allCollapsed=allKeys.length>0&&allKeys.every(key=>collapsed.has(key));
+  const toggle=(key:string)=>setCollapsed(old=>{const next=new Set(old);if(next.has(key))next.delete(key);else next.add(key);return next;});
+  const renderRow=(row:ProgressRow,scope:'self'|'factory'|'unknown',groupName:string)=>{
+    const facts=row.business??materialBusinessFacts(row),state=rowState(row),displayUnit=purchaseDisplayUnit(row);
+    const onFlow=(flow:MaterialFlow)=>()=>open({kind:'row',id:row.demand.id},flow),onVerify=()=>open({kind:'row',id:row.demand.id},'verification');
+    const columns=(scope==='self'?selfColumns:factoryColumns).filter(([key])=>!display.hidden.includes(key));
+    const cells:Record<string,ReactNode>={
+      name:row.demand.materialName.normalize('NFKC').trim()===groupName.normalize('NFKC').trim()?<span className="sp-dense-visually-hidden">{row.demand.materialName}</span>:<strong>{row.demand.materialName}</strong>,color:row.demand.materialColor||'未提供',spec:row.demand.specification||'未提供',width:row.demand.width||'—',gsm:row.demand.gsm||'—',
+      demand:<button type="button" className="sp-business-demand" title="查看需求来源" onClick={onVerify}>{number(row.demand.requiredQuantity)}</button>,
+      unit:displayUnit.unit?<button type="button" className="sp-business-demand" title={displayUnit.reason} onClick={onFlow('purchase')}>{displayUnit.unit}</button>:<button type="button" className="sp-business-pending" title={displayUnit.reason} onClick={onVerify}>待核实</button>,
+      purchase:<FlowValue fact={facts.flows.purchase} label="采购" onClick={onFlow('purchase')}/>,
+      inbound:<FlowValue fact={facts.flows.inbound} label="入库" onClick={onFlow('inbound')}/>,pending:<GapValue fact={facts.pendingInbound} onClick={onVerify}/>,excess:<ExcessWarehouseValue row={row} onClick={onFlow('inbound')}/>,
+      shipment:<FlowValue fact={facts.flows.shipment} label="出运" onClick={onFlow('shipment')}/>,
+      state:<button type="button" className="sp-business-status" data-attention={state.attention} onClick={onVerify}>{state.label}</button>,
+      action:<button type="button" className="sp-dense-detail" aria-label={'查看 '+row.demand.materialName+' '+(row.demand.materialColor||'')+' 明细'} onClick={()=>open({kind:'row',id:row.demand.id},'material')}>查看明细</button>,
+    };
+    return <tr key={row.demand.id} aria-label={row.demand.materialName+' · '+(row.demand.materialColor||'颜色未提供')} data-demand-id={row.demand.id} data-source-demand-id={row.demand.sourceDetailId}>{columns.map(([key])=><td key={key} data-column={key} className={numericColumns.has(key)?'numeric':key==='name'?'sp-business-name':key==='spec'?'sp-business-spec':undefined} title={key==='spec'?row.demand.specification||undefined:undefined}>{cells[key]}</td>)}</tr>;
   };
-  const allKeys = ordered.flatMap(group => (['self', 'factory', 'unknown'] as const).filter(scope => group.rows.some(row => materialSupplyScope(row.demand) === scope)).map(scope => scope + ':' + group.key));
-  const allCollapsed = allKeys.length > 0 && allKeys.every(key => collapsed.has(key));
-  const renderRow = (row: ProgressRow, scope: 'self' | 'factory' | 'unknown') => {
-    const facts = row.business ?? materialBusinessFacts(row), state = rowState(row);
-    const onFlow = (flow: MaterialFlow) => () => open({ kind: 'row', id: row.demand.id }, flow);
-    const onVerify = () => open({ kind: 'row', id: row.demand.id }, 'verification');
-    return <tr key={row.demand.id} data-demand-id={row.demand.id} data-source-demand-id={row.demand.sourceDetailId}>
-      <td className="sp-business-name"><strong>{row.demand.materialName}</strong></td><td>{row.demand.materialColor || '未提供'}</td><td className="sp-business-spec">{row.demand.specification || '未提供'}</td>
-      {scope === 'self' && <><td>{row.demand.width || '—'}</td><td>{row.demand.gsm || '—'}</td></>}
-      <td className="numeric"><button type="button" className="sp-business-demand" title="查看需求来源" onClick={onVerify}>{number(row.demand.requiredQuantity)}</button></td>
-      <td>{row.unit || <button type="button" className="sp-business-pending" onClick={onVerify}>待核实</button>}</td>
-      <td className="numeric"><FlowValue fact={facts.flows.purchase} label="采购" onClick={onFlow('purchase')} /></td>
-      {scope === 'self' && <td className="numeric"><GapValue fact={facts.purchaseGap} onClick={onVerify} /></td>}
-      <td className="numeric"><FlowValue fact={facts.flows.inbound} label="入库" onClick={onFlow('inbound')} /></td>
-      {scope === 'self' && <><td className="numeric"><GapValue fact={facts.pendingInbound} onClick={onVerify} /></td>
-        <td className="numeric"><FlowValue fact={facts.flows.shipment} label="出运" onClick={onFlow('shipment')} /></td>
-        <td className="numeric"><FlowValue fact={facts.flows.outbound} label="出库" onClick={onFlow('outbound')} /></td></>}
-      <td><button type="button" className="sp-business-status" data-attention={state.attention} onClick={onVerify}>{state.label}</button></td>
-    </tr>;
-  };
-  return <div className="sp-business-workspace">
-    <section className="sp-business-overview" aria-label="订单物料概况">
-      <div className="sp-business-metrics">
-        <div><span>自购需求</span><strong>{hasCompleteFacts ? view.rows.filter(row => materialSupplyScope(row.demand) === 'self').length : '—'}<small>项</small></strong></div>
-        <div><span>厂供记录</span><strong>{hasCompleteFacts ? view.rows.filter(row => materialSupplyScope(row.demand) === 'factory').length : '—'}<small>项</small></strong></div>
-        {(['purchase', 'inbound', 'shipment', 'outbound'] as const).map(flow => <button key={flow} type="button" aria-label={'查看全部' + flowLabels[flow] + '明细'} onClick={() => open({ kind: 'all' }, flow)}><span>{flowLabels[flow]}明细</span><strong>{hasCompleteFacts ? counts[flow] : '—'}<small>笔</small></strong></button>)}
-      </div>
-      <div className="sp-business-source"><span>来源更新 <time dateTime={view.fetchedAt || undefined}>{view.fetchedAt ? date(view.fetchedAt, true) : '尚未同步'}</time></span><button type="button" onClick={() => open({ kind: 'all' }, 'verification')}>查看来源与核实项</button></div>
-      {notice && <p className="sp-business-source-notice" role="status">{notice}</p>}
-    </section>
-    <div className="sp-business-toolbar"><label><span className="sp-business-search-icon" aria-hidden="true">⌕</span><input type="search" aria-label="搜索物料" placeholder="搜索物料、颜色、规格、供应商或单号" value={search} onChange={event => setSearch(event.target.value)} /></label>
-      <Button variant="secondary" size="compact" onClick={() => setCollapsed(allCollapsed ? new Set() : new Set(allKeys))}>{allCollapsed ? '展开全部' : '收起全部'}</Button>
-    </div>
-    {settingsNotice && <p className="sp-business-settings-notice" role="status">{settingsNotice}</p>}
-    {(['self', 'factory', 'unknown'] as const).map(scope => {
-      const rows = view.rows.filter(row => materialSupplyScope(row.demand) === scope);
-      if (!rows.length) return null;
-      const groups = ordered.filter(group => group.rows.some(row => visible.has(row.demand.id) && materialSupplyScope(row.demand) === scope));
-      return <section key={scope} className="sp-business-section" data-supply-scope={scope} aria-label={scope === 'self' ? '自购需求' : scope === 'factory' ? '厂供记录' : '其他供料记录'}>
-        <header className="sp-business-section-title"><h2>{scope === 'self' ? '自购需求' : scope === 'factory' ? '厂供记录' : '其他供料记录'}</h2><span>{rows.length} 项</span>{scope === 'factory' && <small>独立保留，不计自购需求缺口</small>}</header>
-        {!groups.length && <Card className="sp-business-empty-card">没有符合搜索条件的记录。</Card>}
-        {groups.map((group, index) => {
-          const key = scope + ':' + group.key, closed = collapsed.has(key);
-          const groupRows = group.rows.filter(row => materialSupplyScope(row.demand) === scope);
-          const owner = group.rows.some(row => materialSupplyScope(row.demand) === 'self') ? 'self' : group.rows.some(row => materialSupplyScope(row.demand) === 'factory') ? 'factory' : 'unknown';
-          const headers = scope === 'self' ? ['物料名称', '颜色', '规格', '门幅', '克重', '需求数量', '单位', '已采购', '采购不足', '已入库', '待入库', '物料出运', '物料出库', '状态'] : ['物料名称', '颜色', '规格', scope === 'factory' ? '厂供数量' : '需求数量', '单位', '已落实数量', '到货数量', '状态'];
-          return <Card key={key} className="sp-business-material" data-canonical-material-key={group.key}>
-            <header className="sp-business-material-head"><button type="button" className="sp-business-material-toggle" aria-expanded={!closed} aria-controls={id + '-' + scope + '-' + index} onClick={() => setCollapsed(old => { const next = new Set(old); if (next.has(key)) next.delete(key); else next.add(key); return next; })}><span className="sp-business-chevron" aria-hidden="true">{closed ? '▸' : '▾'}</span><h3>{group.name}</h3><span>{group.type === 'fabric' ? '面料' : '辅料'} · {groupRows.length} 项</span></button>
-              <div className="sp-business-material-actions">{owner === scope && materialActions?.(group.key, group.name)}<Button variant="text" size="compact" aria-label={'查看 '+group.name+' 明细'} onClick={() => open({ kind: 'group', key: group.key, scope }, 'purchase')}>查看明细</Button></div>
-            </header>
-            {!closed && <><div id={id + '-' + scope + '-' + index} className="sp-business-table-scroll" tabIndex={0} aria-label={group.name + (scope === 'self' ? '自购需求表' : '厂供记录表') + '，可横向滚动'}><table className={'sp-business-table ' + (scope === 'self' ? 'sp-business-self-table' : 'sp-business-factory-table')}><thead><tr>{headers.map((header, column) => <th key={header} className={(scope === 'self' ? [5, 7, 8, 9, 10, 11, 12] : [3, 5, 6]).includes(column) ? 'numeric' : undefined}>{header}</th>)}</tr></thead>
-              <tbody>{groupRows.filter(row => visible.has(row.demand.id)).map(row => renderRow(row, scope))}</tbody>
-            </table></div>{owner === scope && materialPlan?.(group.key)}</>}
-          </Card>;
+  const renderScope=(scope:'self'|'factory'|'unknown')=>{
+    const rows=view.rows.filter(row=>materialSupplyScope(row.demand)===scope),groups=ordered.filter(group=>group.rows.some(row=>visible.has(row.demand.id)&&materialSupplyScope(row.demand)===scope));
+    if(!rows.length&&scope==='unknown')return null;
+    const columns=(scope==='self'?selfColumns:factoryColumns).filter(([key])=>!display.hidden.includes(key));
+    return <section key={scope} className="sp-dense-scope" data-supply-scope={scope} aria-label={scope==='self'?'自购需求':scope==='factory'?'厂供记录':'其他供料记录'}>
+      {scope==='unknown'&&<h2>其他供料记录 <small>供料方式待核实，独立保留</small></h2>}
+      {scope==='factory'&&<p className="sp-dense-factory-note">厂供独立保留，不计自购需求缺口。</p>}
+      {!groups.length?<Card className="sp-business-empty-card">{scope==='self'&&!view.rows.length&&<h2>{hasCompleteFacts?'暂无物料需求':'物料尚未接入'}</h2>}{rows.length?'没有符合搜索或筛选条件的记录。':scope==='factory'?(hasCompleteFacts?'暂无厂供记录。':'厂供记录尚未取得，不能认定为零。'):hasCompleteFacts?'上次完整来源没有自购需求，相关业务尚未开始。':'尚未取得完整来源，不能认定需求为零。'}</Card>:<div className="sp-business-table-scroll sp-dense-scroll" tabIndex={0} aria-label={scope==='self'?'自购需求表，可横向滚动':'厂供记录表，可横向滚动'}><table className={'sp-business-table sp-dense-table '+(scope==='self'?'sp-business-self-table':'sp-business-factory-table')}>
+        <thead><tr>{columns.map(([key,label])=><th key={key} title={key==='unit'?'关联采购单位；不用于推断需求单位或换算数量':undefined} data-column={key} className={numericColumns.has(key)?'numeric':undefined}>{label}</th>)}</tr></thead>
+        {groups.map((group,index)=>{const key=scope+':'+group.key,closed=collapsed.has(key),groupRows=group.rows.filter(row=>materialSupplyScope(row.demand)===scope&&visible.has(row.demand.id));
+          const owner=group.rows.some(row=>materialSupplyScope(row.demand)==='self')?'self':group.rows.some(row=>materialSupplyScope(row.demand)==='factory')?'factory':'unknown';
+          return <tbody key={key} id={id+'-'+scope+'-'+index} className="sp-business-material" data-canonical-material-key={group.key}>
+            <tr className="sp-dense-group"><th colSpan={columns.filter(([k])=>k!=='state'&&k!=='action').length} scope="rowgroup"><div className="sp-business-material-head">
+              <button type="button" className="sp-business-material-toggle" aria-expanded={!closed} aria-controls={id+'-'+scope+'-'+index} onClick={()=>toggle(key)}><span className="sp-business-chevron" aria-hidden="true">{closed?'▸':'▾'}</span><h3>{group.name}</h3><span>{group.type==='fabric'?'面料':'辅料'} · {groupRows.length} 项</span></button>
+              </div></th><th colSpan={columns.filter(([k])=>k==='state'||k==='action').length} className="sp-dense-group-actions"><div className="sp-business-material-actions">{owner===scope&&materialActions?.(group.key,group.name)}<Button variant="text" size="compact" aria-label={'查看 '+group.name+' 明细'} onClick={()=>open({kind:'group',key:group.key,scope},'material')}>查看明细</Button></div></th></tr>
+            <Fragment key={key+'-rows'}>{!closed&&groupRows.map(row=>renderRow(row,scope,group.name))}</Fragment>
+          </tbody>;
         })}
-      </section>;
-    })}
-    {!view.rows.length && <Card className="sp-business-empty-card"><h2>{hasCompleteFacts ? '暂无物料需求' : '物料尚未接入'}</h2><p>{hasCompleteFacts ? '上次完整来源中没有物料记录，业务尚未开始。' : '尚未取得完整来源，不能据此认定需求或采购为零。'}</p></Card>}
-    <Drawer open={Boolean(selection)} title={(selectedName || '物料') + ' · 业务明细'} description={'销售合同 ' + view.order.salesContractNo} className="sp-business-events" onClose={() => setSelection(null)}>
-      <div ref={tabList} className="sp-business-event-tabs" role="tablist" aria-label="物料明细类型">{tabs.map((item, index) => <button key={item.key} type="button" role="tab" id={id + '-tab-' + item.key} aria-controls={id + '-events'} aria-selected={tab === item.key} tabIndex={tab === item.key ? 0 : -1} onClick={() => setTab(item.key)} onKeyDown={event => { if (['ArrowRight', 'ArrowLeft', 'Home', 'End'].includes(event.key)) { event.preventDefault(); selectTab(event.key === 'Home' ? 0 : event.key === 'End' ? tabs.length - 1 : index + (event.key === 'ArrowRight' ? 1 : -1)); } }}>{item.label}{item.key !== 'verification' && item.key !== 'reconciliation' ? ' (' + businessTransactionCounts(selectedRows)[item.key] + ')' : ''}</button>)}</div>
-      <div role="tabpanel" tabIndex={0} id={id + '-events'} aria-labelledby={id + '-tab-' + tab}>{tab === 'verification' ? <Verification rows={selectedRows} view={view} /> : tab === 'reconciliation' ? paymentScope ? <PaymentRequestsReadPanel key={paymentScope.salesOrderId + '/' + paymentScope.identityKey} salesOrderId={paymentScope.salesOrderId} salesContractNo={view.order.salesContractNo} identityKey={paymentScope.identityKey} /> : <p className="sp-business-no-events">尚未取得货款申请明细。</p> : <EventTable rows={selectedRows} flow={tab} />}</div>
+      </table></div>}
+    </section>;
+  };
+  return <div ref={workspace} className="sp-business-workspace sp-dense-workspace" data-density={display.density}>
+
+    <section className="sp-business-overview" aria-label="订单物料概况"><div className="sp-business-metrics">
+      <button type="button" onClick={()=>setMainView('self')}><span>自购需求</span><strong>{hasCompleteFacts?selfRows.length:'—'}<small>项</small></strong></button>
+      <button type="button" onClick={()=>setMainView('factory')}><span>厂供记录</span><strong>{hasCompleteFacts?factoryRows.length:'—'}<small>项</small></strong></button>
+      {(['purchase','inbound','shipment','outbound'] as const).map(flow=><button key={flow} type="button" aria-label={'查看全部'+flowLabels[flow]+'明细'} onClick={()=>setMainView(flow)}><span>{flowLabels[flow]}明细</span><strong>{hasCompleteFacts?counts[flow]:'—'}<small>笔</small></strong></button>)}
+    </div></section>
+    <div className="sp-business-toolbar sp-dense-toolbar"><label className="sp-dense-search"><span className="sp-business-search-icon" aria-hidden="true">⌕</span><input type="search" aria-label="搜索物料" placeholder="物料、颜色、规格、供应商或单号" value={search} onChange={event=>setSearch(event.target.value)}/></label>
+      <select aria-label="物料类型" value={type} onChange={event=>setType(event.target.value as typeof type)}><option value="all">全部物料</option><option value="fabric">面料</option><option value="trim">辅料</option></select>
+      <select aria-label="物料状态" value={status} onChange={event=>setStatus(event.target.value as BusinessRowState)}><option value="all">全部状态</option>{businessRowStates.map(state=><option key={state} value={state}>{state}</option>)}</select>
+      <Button variant="secondary" size="compact" onClick={()=>setCollapsed(allCollapsed?new Set():new Set(allKeys))}>{allCollapsed?'展开全部':'收起全部'}</Button>
+      <select aria-label="显示密度" value={display.density} onChange={event=>display.setDensity(event.target.value as 'compact'|'standard')}><option value="compact">紧凑模式</option><option value="standard">标准模式</option></select>
+      <details className="sp-dense-columns"><summary>显示列</summary><div>{selfColumns.filter(([key])=>key!=='color'&&key!=='action').map(([key,label])=><label key={key}><input type="checkbox" checked={!display.hidden.includes(key)} onChange={()=>display.toggle(key)}/>{label}</label>)}<Button variant="text" onClick={display.reset}>恢复全部列</Button></div></details>
+      {(search||status!=='all'||type!=='all')&&<Button variant="text" size="compact" onClick={()=>{setSearch('');setStatus('all');setType('all');}}>清除筛选</Button>}
+    </div>
+    {settingsNotice&&<p className="sp-business-settings-notice" role="status">{settingsNotice}</p>}
+    <div ref={mainTabs} className="sp-dense-view-tabs" role="tablist" aria-label="物料数据视图">{views.map((item,index)=><button type="button" role="tab" key={item.key} id={id+'-view-'+item.key} aria-selected={mainView===item.key} aria-controls={id+'-main'} tabIndex={mainView===item.key?0:-1} onClick={()=>setMainView(item.key)} onKeyDown={event=>{if(['ArrowRight','ArrowLeft','Home','End'].includes(event.key)){event.preventDefault();selectMain(event.key==='Home'?0:event.key==='End'?views.length-1:index+(event.key==='ArrowRight'?1:-1));}}}>{item.label}<span>{!hasCompleteFacts?'—':item.key==='self'?selfRows.length:item.key==='factory'?factoryRows.length:counts[item.key]}</span></button>)}</div>
+    <div role="tabpanel" id={id+'-main'} aria-labelledby={id+'-view-'+mainView} className="sp-dense-main">
+      {mainView==='self'?<>{renderScope('self')}{renderScope('unknown')}</>:mainView==='factory'?renderScope('factory'):hasCompleteFacts?<EventTable rows={filtered} flow={mainView}/>:<Card className="sp-business-empty-card">尚未取得完整来源，不能据此认定没有{flowLabels[mainView]}记录。</Card>}
+    </div>
+
+    <div className="sp-business-source"><span>来源更新 <time dateTime={view.fetchedAt||undefined}>{view.fetchedAt?date(view.fetchedAt,true):'尚未同步'}</time></span>{notice&&<span className="sp-dense-source-notice" role="status">{notice}</span>}{!sourcePanelRef&&<button type="button" onClick={()=>open({kind:'all'},'verification')}>来源与核实项</button>}</div>
+    <Drawer open={Boolean(selection)} title={(selectedName||'物料')+' · 业务明细'} description={'销售合同 '+view.order.salesContractNo} className="sp-business-events sp-dense-events" onClose={()=>setSelection(null)}>
+      <div ref={tabList} className="sp-business-event-tabs" role="tablist" aria-label="物料明细类型">{tabs.map((item,index)=><button key={item.key} type="button" role="tab" id={id+'-tab-'+item.key} aria-controls={id+'-events'} aria-selected={tab===item.key} tabIndex={tab===item.key?0:-1} onClick={()=>setTab(item.key)} onKeyDown={event=>{if(['ArrowRight','ArrowLeft','Home','End'].includes(event.key)){event.preventDefault();selectTab(event.key==='Home'?0:event.key==='End'?tabs.length-1:index+(event.key==='ArrowRight'?1:-1));}}}>{item.label}{['purchase','inbound','shipment','outbound'].includes(item.key)?' ('+businessTransactionCounts(selectedRows)[item.key as MaterialFlow]+')':''}</button>)}</div>
+      <div role="tabpanel" tabIndex={0} id={id+'-events'} aria-labelledby={id+'-tab-'+tab}>
+        {tab==='material'?<><div className="sp-business-table-scroll"><table className="sp-business-event-table"><thead><tr>{['物料','供料方式','颜色','规格','门幅','克重','需求数量','单位'].map(label=><th key={label}>{label}</th>)}</tr></thead><tbody>{selectedRows.map(row=><tr key={row.demand.id}><td>{row.demand.materialName}</td><td>{text(row.demand.supplyMethod)}</td><td>{text(row.demand.materialColor)}</td><td>{text(row.demand.specification)}</td><td>{text(row.demand.width)}</td><td>{text(row.demand.gsm)}</td><td className="numeric">{number(row.demand.requiredQuantity)}</td><td>{row.unit||'待核实'}</td></tr>)}</tbody></table></div>
+          {selectedGroups.map(group=><div key={group.key} className="sp-dense-arrival-link"><strong>{group.name}</strong>{materialActions?.(group.key,group.name)}{materialPlan?.(group.key)}</div>)}<details className="sp-business-evidence"><summary>需求来源与核实项</summary><Verification rows={selectedRows} view={view}/></details></>
+        :tab==='arrivals'?<>{selectedGroups.map(group=><section key={group.key} className="sp-dense-arrival-link"><h3>{group.name}</h3>{materialActions?.(group.key,group.name)}{materialPlan?.(group.key)||<p>尚无已保存的到料计划；可打开原计划窗口查看依据。</p>}</section>)}</>
+        :tab==='verification'?<Verification rows={selectedRows} view={view}/>:tab==='reconciliation'?paymentScope?<PaymentRequestsReadPanel key={paymentScope.salesOrderId+'/'+paymentScope.identityKey} salesOrderId={paymentScope.salesOrderId} salesContractNo={view.order.salesContractNo} identityKey={paymentScope.identityKey}/>:<p className="sp-business-no-events">尚未取得货款申请明细。</p>:hasCompleteFacts?<EventTable rows={selectedRows} flow={tab}/>:<p>尚未取得完整来源，不能据此认定没有{flowLabels[tab]}记录。</p>}
+      </div>
     </Drawer>
   </div>;
 }

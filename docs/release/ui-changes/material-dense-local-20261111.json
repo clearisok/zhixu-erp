@@ -1,0 +1,20 @@
+{
+  "baselineSha": "6dc17c645215b3eb08e03624effdee2d182b3e1d",
+  "level": "V2",
+  "paths": [
+    "features/style-progress/components/material-control-tower-read-only.tsx",
+    "features/style-progress/components/style-progress-server-page.tsx",
+    "app/order-center/style-progress/style-progress.css"
+  ],
+  "pages": [
+    "material"
+  ],
+  "visibleDifference": "Local-only dense order header, six source views, grouped single table, display density/column preferences, and existing detail/arrival entry points; quantities, permissions and all business handlers preserved.",
+  "evidence": [
+    "docs/tasks/active/material-dense-local-2026-11-11.md"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/material-dense-approval-2026-11-11.md"
+  }
+}

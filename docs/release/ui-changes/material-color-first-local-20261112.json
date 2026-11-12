@@ -1,0 +1,19 @@
+{
+  "baselineSha": "6dc17c645215b3eb08e03624effdee2d182b3e1d",
+  "level": "V2",
+  "paths": [
+    "features/style-progress/components/material-control-tower-read-only.tsx",
+    "app/order-center/style-progress/style-progress.css"
+  ],
+  "pages": [
+    "material"
+  ],
+  "visibleDifference": "Overview entirely removes material-name header and demand cells; color is the pinned first column, group spans stay aligned and all names remain in original data/search/detail. Other source views and business rules unchanged.",
+  "evidence": [
+    "docs/tasks/active/material-color-first-approval-2026-11-12.md"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/material-color-first-approval-2026-11-12.md"
+  }
+}

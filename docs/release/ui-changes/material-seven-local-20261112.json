@@ -1,0 +1,19 @@
+{
+  "baselineSha": "6dc17c645215b3eb08e03624effdee2d182b3e1d",
+  "level": "V2",
+  "paths": [
+    "features/style-progress/components/material-control-tower-read-only.tsx",
+    "app/order-center/style-progress/style-progress.css"
+  ],
+  "pages": [
+    "material"
+  ],
+  "visibleDifference": "Local source footer, non-repeated names, verified procurement display units, separate per-inbound excess warehouse facts, approved column removal and pinned actions. No business arithmetic or source lifecycle changes.",
+  "evidence": [
+    "docs/tasks/active/material-seven-adjustments-2026-11-12.md"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/material-seven-adjustments-2026-11-12.md"
+  }
+}

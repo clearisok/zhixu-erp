@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "dbc61af9be80d0a72e8226afa2cefad6e240ef09",
-  "verifiedAt": "2026-11-10T14:12:08.280Z",
+  "baselineSha": "6dc17c645215b3eb08e03624effdee2d182b3e1d",
+  "verifiedAt": "2026-11-11T06:33:00Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -6097,6 +6097,48 @@
       "sha256": "13e20c967f797b6ff8debcca1eb1985b68d9f4b0074c57f652b11ca14523da9c",
       "supersedes": "ainuoke-order-discovery-source-20261109",
       "changeReason": "Preserve the previous discovery decision and add a bounded, identity-safe recapture for complete directory additions, closed failure diagnostics, and the explicit contract-date list sorting requested after the November 10 pause. Local candidate only; actual staging recovery uses the existing reviewed recovery service."
+    },
+    {
+      "id": "material-dense-approved-20261111",
+      "kind": "document",
+      "path": "docs/tasks/active/material-dense-approval-2026-11-11.md",
+      "recordedAtSha": "bf9de97f049464a460cd4d7ea0dc1f533e08fbc5",
+      "renderedSourceSha": "bf9de97f049464a460cd4d7ea0dc1f533e08fbc5",
+      "sha256": "356d23391f4a7ddcd7f3d288dddda418cb1b43d7ea139b173df3d6652290dc12"
+    },
+    {
+      "id": "material-dense-module-20261111",
+      "kind": "document",
+      "path": "docs/features/MATERIAL_FOLLOWUP_DENSE_VIEW.md",
+      "recordedAtSha": "bf9de97f049464a460cd4d7ea0dc1f533e08fbc5",
+      "renderedSourceSha": "bf9de97f049464a460cd4d7ea0dc1f533e08fbc5",
+      "sha256": "4d7d6c008429a4e6b413ec2511f78eed5953815d4e166a1fc851b3e118622554"
+    },
+    {
+      "id": "material-seven-approved-20261112",
+      "kind": "document",
+      "path": "docs/tasks/active/material-seven-adjustments-2026-11-12.md",
+      "recordedAtSha": "e7372a315e7e101b886563cd1f785fd46b3bf075",
+      "renderedSourceSha": "e7372a315e7e101b886563cd1f785fd46b3bf075",
+      "sha256": "09b87a2b2211d40bad39c6de2a77ee306dd6ba70f5941e580c4f6ee303741f0f"
+    },
+    {
+      "id": "material-color-first-approved-20261112",
+      "kind": "document",
+      "path": "docs/tasks/active/material-color-first-approval-2026-11-12.md",
+      "recordedAtSha": "5bef8388d75f2e983c9397976dc6687c35f4f480",
+      "renderedSourceSha": "5bef8388d75f2e983c9397976dc6687c35f4f480",
+      "sha256": "3959ec9e60130ed5cd620833880611ea80cb6a8ec997f22865df9bd83993255e"
+    },
+    {
+      "id": "material-display-decisions-20261112",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "ea468e23c787ebf8a654ce8820d9552b01230258",
+      "renderedSourceSha": "ea468e23c787ebf8a654ce8820d9552b01230258",
+      "sha256": "cbb8ee852a73859454ec3307d605bd470abebec6cac36f21d82f2abbd6a25770",
+      "supersedes": "directory-recovery-decisions-20261110",
+      "changeReason": "Preserve prior source and directory decisions; append the explicitly approved local-only material display decisions and subsequent complete overview name-column removal. No source lifecycle or quantity rules changed."
     }
   ],
   "pages": [
@@ -6273,7 +6315,12 @@
         "read-panel-payment-390",
         "read-panel-payment-fields-390",
         "read-panel-payment-fields-1440",
-        "read-panel-payment-expired-1440"
+        "read-panel-payment-expired-1440",
+        "material-dense-approved-20261111",
+        "material-dense-module-20261111",
+        "material-seven-approved-20261112",
+        "material-color-first-approved-20261112",
+        "material-display-decisions-20261112"
       ]
     },
     {
