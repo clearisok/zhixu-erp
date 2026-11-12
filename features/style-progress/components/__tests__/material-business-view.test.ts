@@ -3,7 +3,7 @@ import test from 'node:test';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { createHash } from 'node:crypto';
-import { ReadOnlyMaterialControlTower } from '../material-control-tower-read-only';
+import { ReadOnlyMaterialControlTower, purchaseDisplayUnit } from '../material-control-tower-read-only';
 import { PermissionProvider } from '@/features/permissions/components/permission-provider';
 import { projectMaterialProgress } from '@/features/ainuoke-material-progress/projection';
 import type { AinuokeReportSnapshot } from '@/features/ainuoke-api/model/ainuoke-api';
@@ -31,7 +31,7 @@ test('business table keeps self and factory rows separate and exposes actual qua
   assert.match(markup.slice(self,end),/>952<\/span>/); // source quantity survives unverified unit
   assert.doesNotMatch(markup.slice(self,end),/>580<\/button>/);
   assert.doesNotMatch(markup,/>580<\/button>/);
-  for(const header of ['门幅','克重','采购不足','待入库','物料出运','物料出库','显示列','紧凑模式','标准模式'])assert.ok(markup.includes(header));
+  for(const header of ['门幅','克重','多余仓','待入库','物料出运','显示列','紧凑模式','标准模式'])assert.ok(markup.includes(header));
   for(const phrase of ['单位以各行来源为准','来源值','38 项物料待核对','SERVER · MATERIAL'])assert.ok(!markup.includes(phrase));
   assert.ok(markup.includes('查看采购明细'));
 });
@@ -49,7 +49,7 @@ test('dense view preserves all six source views and original business detail ent
  for(const label of ['物料总览 / 自购需求','厂供记录','采购明细','入库明细','出运明细','出库明细','来源与核实项','查看明细','收起全部','全部状态']) assert.ok(markup.includes(label),label);
  assert.match(markup,/data-density="compact"/);
  assert.equal((markup.match(/data-demand-id=/g)||[]).length,1);
- assert.equal((markup.match(/sp-dense-group/g)||[]).length,1);
+ assert.equal((markup.match(/class="sp-dense-group"/g)||[]).length,1);
 });
 
 
@@ -59,4 +59,29 @@ test('unconnected source is not represented by zero-count source views',()=>{
  assert.ok(!markup.includes('>0<small>'));
  assert.ok(!markup.includes('>0</span>'));
  assert.ok(markup.includes('尚未取得完整来源，不能认定需求为零。'));
+});
+
+test('overview removes only approved columns and keeps the source footer after the table',()=>{
+ const markup=html([demand]);
+ assert.ok(!markup.includes('data-column="gap"'));assert.ok(!markup.includes('data-column="outbound"'));
+ assert.ok(markup.includes('data-column="excess"'));assert.ok(markup.includes('data-column="shipment"'));
+ assert.ok(markup.indexOf('sp-business-source')>markup.indexOf('</table>'));
+ assert.ok(markup.includes('sp-dense-visually-hidden'));assert.ok(markup.includes('sp-dense-group-actions'));
+ assert.ok(markup.includes('出库明细'),'outbound detail view remains available');
+});
+test('procurement display unit does not change demand facts or choose a conflicted unit',()=>{
+ const row=projectMaterialProgress(order,[page([demand])]).rows[0];const before=structuredClone(row);
+ row.purchases[0].unit='千克';row.purchases[0].unitMatchStatus='matched';
+ assert.equal(purchaseDisplayUnit(row).unit,'千克');assert.equal(row.unit,before.unit);assert.equal(row.purchaseShortfall,before.purchaseShortfall);
+ row.purchases.push({...row.purchases[0],id:'synthetic-second',unit:'米',relation:{...row.purchases[0].relation!,sourceDetailId:'201'}});
+ assert.equal(purchaseDisplayUnit(row).unit,null);assert.ok(purchaseDisplayUnit(row).reason.includes('不同单位'));
+ row.purchases[1].unit=null;assert.equal(purchaseDisplayUnit(row).unit,null);
+});
+
+test('excess warehouse preserves explicit zero and missing values without increasing inbound',()=>{
+ const raw={...demand,rkid:300,rkmxid:400,rkdh:'IN-SYN',rknum:12,num_dyc:0};
+ const zero=html([raw]);assert.ok(zero.includes('sp-dense-excess'));assert.match(zero,/原字段 num_dyc[^>]*>0/);
+ const duplicate=html([raw,raw]);assert.equal((duplicate.match(/原字段 num_dyc/g)||[]).length,1);
+ const missing=html([{...raw,num_dyc:null}]);assert.ok(missing.includes('sp-dense-excess'));assert.doesNotMatch(missing,/原字段 num_dyc[^>]*>0/);
+ const projected=projectMaterialProgress(order,[page([raw])]);assert.equal(projected.rows[0].inbounds[0].quantity,12);assert.equal(projected.rows[0].inbounds[0].excessWarehouse.includedInInbound,false);
 });

@@ -447,3 +447,18 @@
 .sp-dense-page-header .qc-page-header h1 { font-size:22px; line-height:1.25; letter-spacing:0; }
 .sp-dense-page-header .qc-page-header .qc-page-identity p { margin-top:3px; font-size:12px; }
 .sp-dense-page-header .qc-page-actions .qc-button { min-height:30px; padding:4px 10px; border-radius:5px; font-size:12px; }
+
+/* Local seven-point follow-up: source footer, compact identity and pinned actions. */
+.sp-dense-workspace > .sp-business-source { position:static; margin-top:2px; border:1px solid var(--sp-line); border-radius:5px; background:#f8faf8; }
+.sp-dense-workspace .sp-business-self-table { min-width:1280px; }
+.sp-dense-table :is(td,th)[data-column="name"] { min-width:48px; max-width:110px; }
+.sp-dense-visually-hidden { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
+.sp-dense-table :is(td,th)[data-column="action"] { position:sticky; right:0; z-index:3; background:#fff; min-width:84px; width:84px; box-shadow:-1px 0 #dce7df; }
+.sp-dense-table :is(td,th)[data-column="state"] { position:sticky; right:var(--sp-action-width,84px); z-index:3; background:#fff; min-width:94px; width:94px; box-shadow:-1px 0 #e8eeea; }
+.sp-dense-table thead :is(th[data-column="state"],th[data-column="action"]) { z-index:4; background:#f3f7f4; }
+.sp-dense-table .sp-dense-group > th.sp-dense-group-actions { position:sticky; right:0; z-index:4; background:#edf3ef; min-width:178px; width:178px; padding:1px 7px; box-shadow:-1px 0 #dce7df; }
+.sp-dense-group-actions .sp-business-material-actions { display:flex; justify-content:flex-end; flex-wrap:wrap; }
+.sp-dense-table .sp-business-material-head { min-width:0; }
+.sp-dense-excess { display:flex; flex-direction:column; align-items:flex-end; gap:3px; }
+.sp-dense-excess > button { padding:0; border:0; color:#196c57; background:transparent; cursor:pointer; font:inherit; }
+.sp-dense-excess small { font-size:11px; }
