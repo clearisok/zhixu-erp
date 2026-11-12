@@ -1,0 +1,14 @@
+{
+  "baselineSha": "6dc17c645215b3eb08e03624effdee2d182b3e1d",
+  "level": "V1",
+  "paths": [
+    "features/style-progress/components/material-control-tower-read-only.tsx"
+  ],
+  "pages": [
+    "material"
+  ],
+  "visibleDifference": "Correct status filter to use the already displayed observed business states; never infer unsupported readiness. No layout, source fields, quantities, permissions or other view changes.",
+  "evidence": [
+    "docs/tasks/active/material-staging-release-2026-11-12.md"
+  ]
+}

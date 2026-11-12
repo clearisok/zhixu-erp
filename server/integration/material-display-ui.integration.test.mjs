@@ -33,6 +33,18 @@ test('approved material ordering and event drawer run on the exact built Server 
   const capture=async name=>{if(process.env.MATERIAL_DISPLAY_UI_EVIDENCE!=='1')return;const dir=resolve('outputs/material-display-ui',info.gitCommit+'-'+info.buildId+(process.env.MATERIAL_DISPLAY_UI_RUN?'-'+process.env.MATERIAL_DISPLAY_UI_RUN:''));await mkdir(dir,{recursive:true});const image=await command('Page.captureScreenshot',{format:'png'});await writeFile(join(dir,name+'.png'),Buffer.from(image.data,'base64'));};
   const openEvents=async name=>{await evaluate("(()=>{const button=[...document.querySelectorAll('button')].find(node=>node.getAttribute('aria-label')==="+JSON.stringify('查看 '+name+' 明细')+");if(!button)throw Error('missing event button');button.focus();button.click();})()");await until(()=>evaluate("Boolean(document.querySelector('.sp-business-events'))"),'event drawer');await until(()=>evaluate("document.querySelector('.sp-business-events > header > button')===document.activeElement"),'event drawer initial focus',3000);await evaluate("document.querySelector('.sp-business-event-tabs [id$=\"-tab-purchase\"]').click()");};
   await login('demo.material');await navigate(materialPath);await has('合成排序面料大');const initialOrder=await names();
+  await t.test('status filter matches displayed business states without asserting unsupported readiness',async()=>{
+   const visible=()=>evaluate("[...document.querySelectorAll('.sp-dense-main [data-demand-id]')].map(n=>({id:n.dataset.demandId,state:n.querySelector('[data-column=state]').textContent.trim()}))");
+   const original=await visible();assert.ok(new Set(original.map(r=>r.state)).size>=2,'fixture covers distinct actual states');
+   const options=await evaluate("[...document.querySelectorAll('[aria-label=物料状态] option')].map(n=>n.value)");
+   assert.deepEqual(options,['all','待采购','已有采购','已有入库','仅有需求','关联待核实','规格待核实']);
+   for(const state of options){
+    const expected=original.filter(row=>state==='all'||row.state===state);
+    await evaluate("(()=>{const n=document.querySelector('[aria-label=物料状态]');n.value="+JSON.stringify(state)+";n.dispatchEvent(new Event('change',{bubbles:true}));})()");
+    await until(async()=>JSON.stringify(await visible())===JSON.stringify(expected),'exact displayed status '+state);
+   }
+   await click('清除筛选');assert.deepEqual(await visible(),original);
+  });
   await t.test('six widths preserve the approved header, detail expansion, drawer geometry and local table scrolling',async()=>{
    for(const width of [1920,1536,1440,1280,900,390]){
     await command('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:width===1536?1.25:1,mobile:width===390});

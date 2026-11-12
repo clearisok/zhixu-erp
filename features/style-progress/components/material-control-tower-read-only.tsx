@@ -76,6 +76,12 @@ function rowState(row: ProgressRow) {
   if (row.purchases.length) return { label: '已有采购', attention: false };
   return { label: materialSupplyScope(row.demand) === 'self' ? '待采购' : '仅有需求', attention: false };
 }
+const businessRowStates = ['待采购', '已有采购', '已有入库', '仅有需求', '关联待核实', '规格待核实'] as const;
+type BusinessRowState = 'all' | typeof businessRowStates[number];
+/** Filter the same observed business facts as the status cell, never infer readiness. */
+export function filterBusinessMaterialRows(view: MaterialProgressView, search: string, type: Parameters<typeof filterProgressRows>[2], status: BusinessRowState) {
+  return filterProgressRows(view, search, type, 'all').filter(row => status === 'all' || rowState(row).label === status);
+}
 function uniqueEvents(rows: ProgressRow[], flow: MaterialFlow) {
   const entries = new Map<string, { row: ProgressRow; event: FlowEvent; demands: ProgressRow[] }>();
   for (const row of rows) for (const event of row[flowFields[flow]]) {
@@ -203,7 +209,7 @@ export function ReadOnlyMaterialControlTower({ view, trimPriorityKeywords = [], 
   paymentScope?: { salesOrderId: string; identityKey: string };
   materialActions?: (key: string, name: string) => ReactNode; materialPlan?: (key: string) => ReactNode;
 }) {
-  const [search,setSearch]=useState(''),[status,setStatus]=useState<Parameters<typeof filterProgressRows>[3]>('all'),[type,setType]=useState<Parameters<typeof filterProgressRows>[2]>('all');
+  const [search,setSearch]=useState(''),[status,setStatus]=useState<BusinessRowState>('all'),[type,setType]=useState<Parameters<typeof filterProgressRows>[2]>('all');
   const [mainView,setMainView]=useState<MainView>('self'),[collapsed,setCollapsed]=useState<Set<string>>(new Set());
   const [selection,setSelection]=useState<Selection|null>(null),[tab,setTab]=useState<EventTab>('material');
   useImperativeHandle(sourcePanelRef,()=>({open:()=>{setSelection({kind:'all'});setTab('verification');}}),[]);
@@ -216,7 +222,7 @@ export function ReadOnlyMaterialControlTower({ view, trimPriorityKeywords = [], 
     measure();if(typeof ResizeObserver==='undefined')return;
     const observer=new ResizeObserver(measure);tables?.forEach(table=>observer.observe(table));return()=>observer.disconnect();
   },[mainView,display.hidden,display.density,search,type,status,collapsed]);
-  const filtered=filterProgressRows(view,search,type,status),visible=new Set(filtered.map(row=>row.demand.id));
+  const filtered=filterBusinessMaterialRows(view,search,type,status),visible=new Set(filtered.map(row=>row.demand.id));
   const ordered=orderMaterialGroups(view.groups,trimPriorityKeywords),counts=businessTransactionCounts(view.rows);
   const selfRows=view.rows.filter(row=>materialSupplyScope(row.demand)==='self'),factoryRows=view.rows.filter(row=>materialSupplyScope(row.demand)==='factory');
   const selectedRows=!selection?[]:selection.kind==='all'?view.rows:selection.kind==='row'?view.rows.filter(row=>row.demand.id===selection.id):view.groups.find(group=>group.key===selection.key)?.rows.filter(row=>materialSupplyScope(row.demand)===selection.scope)??[];
@@ -275,7 +281,7 @@ export function ReadOnlyMaterialControlTower({ view, trimPriorityKeywords = [], 
     </div></section>
     <div className="sp-business-toolbar sp-dense-toolbar"><label className="sp-dense-search"><span className="sp-business-search-icon" aria-hidden="true">⌕</span><input type="search" aria-label="搜索物料" placeholder="物料、颜色、规格、供应商或单号" value={search} onChange={event=>setSearch(event.target.value)}/></label>
       <select aria-label="物料类型" value={type} onChange={event=>setType(event.target.value as typeof type)}><option value="all">全部物料</option><option value="fabric">面料</option><option value="trim">辅料</option></select>
-      <select aria-label="物料状态" value={status} onChange={event=>setStatus(event.target.value as typeof status)}><option value="all">全部状态</option><option value="not_purchased">未采购</option><option value="purchasing">采购中</option><option value="pending_inbound">已采购待入库</option><option value="ready">已齐套</option><option value="unknown">状态待核实</option></select>
+      <select aria-label="物料状态" value={status} onChange={event=>setStatus(event.target.value as BusinessRowState)}><option value="all">全部状态</option>{businessRowStates.map(state=><option key={state} value={state}>{state}</option>)}</select>
       <Button variant="secondary" size="compact" onClick={()=>setCollapsed(allCollapsed?new Set():new Set(allKeys))}>{allCollapsed?'展开全部':'收起全部'}</Button>
       <select aria-label="显示密度" value={display.density} onChange={event=>display.setDensity(event.target.value as 'compact'|'standard')}><option value="compact">紧凑模式</option><option value="standard">标准模式</option></select>
       <details className="sp-dense-columns"><summary>显示列</summary><div>{selfColumns.filter(([key])=>key!=='color'&&key!=='action').map(([key,label])=><label key={key}><input type="checkbox" checked={!display.hidden.includes(key)} onChange={()=>display.toggle(key)}/>{label}</label>)}<Button variant="text" onClick={display.reset}>恢复全部列</Button></div></details>

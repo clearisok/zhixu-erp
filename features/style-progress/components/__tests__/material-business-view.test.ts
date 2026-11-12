@@ -3,7 +3,7 @@ import test from 'node:test';
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { createHash } from 'node:crypto';
-import { ReadOnlyMaterialControlTower, purchaseDisplayUnit } from '../material-control-tower-read-only';
+import { ReadOnlyMaterialControlTower, purchaseDisplayUnit, filterBusinessMaterialRows } from '../material-control-tower-read-only';
 import { PermissionProvider } from '@/features/permissions/components/permission-provider';
 import { projectMaterialProgress } from '@/features/ainuoke-material-progress/projection';
 import type { AinuokeReportSnapshot } from '@/features/ainuoke-api/model/ainuoke-api';
@@ -21,6 +21,27 @@ const demand = {id:1,lx:'面料',ExpContractNo:order.salesContractNo,insideorder
   cgid:100,cgmxid:200,cgdh:'SYN-PO',cgnum:952,cgcnname:'合成同名物料',cgCnComposition:'测试规格',cgcncolor:'蓝'};
 const html = (rows:Record<string,unknown>[]) => renderToStaticMarkup(createElement(PermissionProvider,null,
   createElement(ReadOnlyMaterialControlTower,{view:projectMaterialProgress(order,[page(rows)])})));
+
+test('IT status filtering uses observed business states when readiness is intentionally unknown',()=>{
+ const view=projectMaterialProgress(order,[page([demand,
+  {...demand,id:2,cgmxid:null,cgdh:null,cgnum:null},
+  {...demand,id:3,cgmxid:null,cgdh:null,cgnum:null,SupplyType:'厂供'},
+  {...demand,id:4,cgmxid:204,rkid:304,rkmxid:404,rkdh:'SYN-IN',rknum:10}])]);
+ assert.ok(view.rows.every(row=>row.status===null),'6087051 does not assert readiness');
+ const before=JSON.stringify(view);
+ for(const [state,sourceId] of [['已有采购','1'],['待采购','2'],['仅有需求','3'],['已有入库','4']] as const){
+  const selected=filterBusinessMaterialRows(view,'','all',state);assert.equal(selected.length,1,state);assert.equal(selected[0].demand.sourceDetailId,sourceId);
+ }
+ assert.equal(filterBusinessMaterialRows(view,'不匹配','all','已有采购').length,0);
+ assert.equal(filterBusinessMaterialRows(view,'','trim','已有采购').length,0);
+ assert.equal(filterBusinessMaterialRows(view,'','all','all').length,4);
+ assert.equal(JSON.stringify(view),before,'filter does not mutate source facts or quantity rules');
+ const row=view.rows[0],facts=row.business!;
+ row.business={...facts,flows:{...facts.flows,purchase:{...facts.flows.purchase,state:'unlinked'}}};
+ assert.equal(filterBusinessMaterialRows(view,'','all','关联待核实')[0],row);
+ row.business=facts;row.purchases[0].relation={...row.purchases[0].relation!,problems:['source specification differs']};
+ assert.equal(filterBusinessMaterialRows(view,'','all','规格待核实')[0],row);
+});
 
 test('business table keeps self and factory rows separate and exposes actual quantities with unknown units',()=>{
   const markup=html([demand,{...demand,id:2,SupplyType:'厂供',TotalNum:580,cgmxid:null,cgdh:null,cgnum:null}]);

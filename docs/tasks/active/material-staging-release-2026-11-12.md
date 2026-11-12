@@ -33,3 +33,7 @@
 部署前正式配对备份20261112T070832Z-6f815f2d于15:21:11北京完成BACKUP_VERIFIED，database.dump 2316043758字节，数据库与附件清单逐文件哈希通过，原服务恢复；保护23人工表/3用户/620订单。旧故障及5 queued/97历史failed/27053complete检查点保留。真实正常登录HTTP基线5合同通过，匿名401，本机demo未启用。没有源站登录或报表请求。
 
 最终本地continuous-ui复验15/15、退出0（106391ms），包含14业务子项及父级清理；另material-display-ui 10/10退出0。其余未受影响的Linux全量检查交由必要CI，不反复运行Windows已证实的旧fixture清理失败。仅追加此测试兼容提交，产品blob与用户验收保持一致。
+
+## 自动复审P2：状态筛选与现有状态显示不一致
+
+GitHub正式自动复审2568e931给出P2（comment4547683847）：6087051投影刻意令readiness status=null，而新筛选仍按旧readiness选项比较，非all会空表。已核实projection.ts原第238行与filterProgressRows原第292行。修复仅将本页筛选复用表格已经显示的rowState（待采购、已有采购、已有入库、仅有需求、关联待核实、规格待核实），不推断齐套、不改源投影/数量或权限。搜索/类型仍复用原过滤器。保留厂供独立视图。新增6状态、未知readiness、组合搜索/类型、原数据不变单测，以及真实浏览器逐状态精确需求ID断言。局部9项单测通过；当前source CI尚未结束，因新修复必需已取消过时source，已通过的team-access/baseline不重复手工重跑。集中上传最终修订后保留必要新HEAD检查。

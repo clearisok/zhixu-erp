@@ -1,3 +1,7 @@
+# 最终交付复审P2修订
+
+PR145已就绪，head2568e931的team-access/baseline通过；source仍在运行时，GitHub自动审查发现本页状态筛选沿用readiness导致空表P2，已取消过时source以节省CI。只修筛选为表格已显示的真实业务状态，不改投影/业务数量/权限。9单测通过，待候选构建、11项显示浏览器复验及最终必要CI后合并。详见发布记录。staging仍M2=6dc17c645215b3eb08e03624effdee2d182b3e1d，620订单/来源暂停/5queued保留。配对备份51文件2326134575字节离机哈希全等。
+
 # PR145必要CI修订与staging恢复点
 
 2026-11-12 PR145 head2de3cd12已精确送达；team-access/baseline成功，source在旧continuous-ui交互断言失败，正在只修测试兼容，产品保持用户验收版本。来源业务/认证/数量和候选构建已通过。详见 [发布记录](tasks/active/material-staging-release-2026-11-12.md)。不得合并红CI或部署未通过版本。原open136仍draft明确不merge且冲突，保留。
