@@ -51,3 +51,19 @@ PR145已实际MERGED，合并提交c5133e9e9e7065dc4fe7672c0c88c75688e0c51f，�
 公网harness先后发现DOM未就绪、漏算客供独立区、到料独立请求未完成、把/cdn-cgi/rum统计POST误当业务写的断言问题；原失败日志保留，纠正等待及分类后复用core checkpoint，tail完整退出0，browser-result记录最终全场景通过。只有Cloudflare统计POST，无业务API写、无ERP来源刷新。不是把原非0命令描述为通过。
 
 发布前备份20261112T070832Z-6f815f2d，51文件2326134575字节离机哈希全等（manifest SHA256 c0eae17ff0004e19d37758aa36ffa11c8d94caa359a3464bd7ec5cabc00f4254）。发布后新配对备份20261112T085113Z-54a2de65自16:51:13开始，仍运行，尚未声称完成；接力详AI_HANDOFF。实际620数据及原库/对象/卷/旧镜像/原分支保留，不部署生产。
+
+## 最终收口（2026-11-12，北京时间）
+
+上节备份运行中是16:51时点，现已完成：20261112T085113Z-54a2de65于17:04:28.174533完成BACKUP_VERIFIED，source精确c5133e9e9e7065dc4fe7672c0c88c75688e0c51f，originalServicesResumed=true，database.dump2316043900字节/SHA256 fdb04dfc5088e1835149f6b2e7807a6983171554589fe7d556971f98bcb07421。备份仍在宁波，已复制小回执，不冒称该新备份也已离机或重新异机恢复。发布前完整备份已离机验证。rollout preserve-pause成功；最终只读运行核对cron与已安装文件一致、build=M、620绑定/620head/0缺快照、27053complete/97历史failed/5queued及原心跳/暂停全等，0source worker运行。
+
+备份恢复服务后，正常staging身份通过公网真实浏览器完成订单中心按PI2610-181搜索、实际staging UUID的正式详情、既有“查看物料跟进”入口和颜色首列13列表格。退出本次QA会话后，直接访问D1992转正常登录，returnTo保持原深链接，匿名API401；未启本机demo。无业务API写、无来源登录/报表。final-public-smoke-result记录PASS；其初始listSummary在加载过渡期抓到0/0不作订单总数证据，合同搜索及页面跳转等待真实结果后通过，620订单范围来自独立SQL/身份保全。最终截图staging-order-center-to-material.png已目视检查。
+
+最终GitHub复核：main仍M，145 MERGED，三项CI均SUCCESS；全部open仍仅136 Draft/CONFLICTING，未改动/关闭/删除它。实际本轮合并1项、暂缓1项，无bot open PR。accepted8f已纳入，未交付产品增量0；本地chore/material-staging-delivery-record-20261112只新增事后交接文档，未另推纯文档触发CI。三产品UI文件、相应测试/启动说明依赖已全部进入M，既有后端/认证/调度依赖在M2中沿祖先保留。
+
+直达地址（正常staging登录）：
+
+- [订单中心](https://staging.weaveops.top/order-center)
+- [6230-938／PI2610-181](https://staging.weaveops.top/order-center/style-progress/detail?orderId=c0677379-a45c-44bf-ae57-9cd0569de370)
+- [D1992／PI2609-086](https://staging.weaveops.top/order-center/style-progress/detail?orderId=25285166-1585-449f-a8fd-81cbd7c98084)
+
+回滚：旧M2镜像、runtime/trial.conf、原配对备份/附件/数据库卷均保留，正常trial流程可切回旧app；本次migration applied=[]，不需要盲目恢复旧库。先停止新owner并核对真实运行绑定，不并启旧新采集器。来源恢复仍须核实catalog_changed_or_over_limit差异，不能因为UI部署结束清保护。本轮页面上线与历史数据可用已完成，自动来源更新仍暂停，不能承诺30分钟可见。
