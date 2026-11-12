@@ -6129,6 +6129,16 @@
       "recordedAtSha": "5bef8388d75f2e983c9397976dc6687c35f4f480",
       "renderedSourceSha": "5bef8388d75f2e983c9397976dc6687c35f4f480",
       "sha256": "3959ec9e60130ed5cd620833880611ea80cb6a8ec997f22865df9bd83993255e"
+    },
+    {
+      "id": "material-display-decisions-20261112",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "ea468e23c787ebf8a654ce8820d9552b01230258",
+      "renderedSourceSha": "ea468e23c787ebf8a654ce8820d9552b01230258",
+      "sha256": "cbb8ee852a73859454ec3307d605bd470abebec6cac36f21d82f2abbd6a25770",
+      "supersedes": "directory-recovery-decisions-20261110",
+      "changeReason": "Preserve prior source and directory decisions; append the explicitly approved local-only material display decisions and subsequent complete overview name-column removal. No source lifecycle or quantity rules changed."
     }
   ],
   "pages": [
@@ -6309,7 +6319,8 @@
         "material-dense-approved-20261111",
         "material-dense-module-20261111",
         "material-seven-approved-20261112",
-        "material-color-first-approved-20261112"
+        "material-color-first-approved-20261112",
+        "material-display-decisions-20261112"
       ]
     },
     {
