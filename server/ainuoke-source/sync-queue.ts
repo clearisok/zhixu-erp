@@ -8,6 +8,7 @@ import { SourceError, hash, sourceKeyValid } from './contract.js';
 import {effectiveSyncDeliverySql} from './sync-dates.js';
 import {boundedSyncBatch} from './sync-batch.js';
 import { syncSchedule, validateSyncPolicy, type SyncPolicy } from './sync-schedule.js';
+import {retryableCapture,type RequestDiagnostic} from './sync-diagnostics.js';
 
 type Identity = Pick<TrustedIdentity, 'internalUserId' | 'userId'>;
 const uuid = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
@@ -177,7 +178,7 @@ export async function resolveOrderSync(pool:Pool,identity:Identity,orderId:strin
   if(targets.length!==1)throw new SourceError('sync_contract_not_available');
   const rows=(await pool.query(`SELECT e.source_key AS "sourceKey",e.source_id AS "sourceId",e.sales_contract_no AS "salesContractNo",e.contract_date AS "contractDate",${effectiveSyncDeliverySql()} AS "deliveryDate",
     s.last_success_at AS "lastSuccessAt",s.last_automatic_attempt_at AS "lastAutomaticAttemptAt",s.last_error_code AS "lastErrorCode",s.last_diagnostic AS "lastDiagnostic",s.last_attempt_at AS "lastAttemptAt",
-    coalesce(c.enabled,false) AND c.paused_reason IS NULL AS enabled,c.policy,c.heartbeat_at AS "workerHeartbeatAt",
+    coalesce(c.enabled,false) AND c.paused_reason IS NULL AS enabled,c.enabled AS "configuredEnabled",c.paused_reason AS "pausedReason",c.catalog_retry_at AS "catalogRetryAt",c.policy,c.heartbeat_at AS "workerHeartbeatAt",
     (SELECT j.status FROM ainuoke_sync_jobs j WHERE j.source_key=e.source_key AND j.source_id=e.source_id ORDER BY j.requested_at DESC,j.attempt_number DESC LIMIT 1) AS status,
     (SELECT j.available_at FROM ainuoke_sync_jobs j WHERE j.source_key=e.source_key AND j.source_id=e.source_id AND j.status='queued' AND j.retry_of IS NOT NULL LIMIT 1) AS "retryAt"
     FROM ainuoke_catalog_entries e JOIN ainuoke_source_profiles p ON p.source_key=e.source_key AND p.enabled=true
@@ -188,5 +189,11 @@ export async function resolveOrderSync(pool:Pool,identity:Identity,orderId:strin
   if(rows.length!==1)throw new SourceError('sync_catalog_not_ready');
   const {policy,lastAutomaticAttemptAt,...row}=rows[0];
   const schedule=policy?syncSchedule({deliveryDate:row.deliveryDate,contractDate:row.contractDate,now:Date.now(),lastSuccessAt:iso(row.lastSuccessAt),lastAutomaticAttemptAt:iso(lastAutomaticAttemptAt)},policy):null;
-  return {...row,schedule};
+  let automaticResumeAt:string|null=null;
+  if(row.configuredEnabled&&row.pausedReason==='catalog_retries_exhausted'&&policy){
+   const attempt=(await pool.query(`SELECT result_code,requests,finished_at FROM ainuoke_sync_capture_attempts WHERE source_key=$1 AND mode='catalog-discovery' ORDER BY started_at DESC,id DESC LIMIT 1`,[row.sourceKey])).rows[0];
+   if(attempt?.finished_at&&['source_timeout','selected_source_timeout','source_unavailable','catalog_non_identity_content_changed','catalog_business_content_changed','catalog_additions_observed'].includes(attempt.result_code)
+    &&retryableCapture(attempt.result_code,attempt.requests as RequestDiagnostic[]|null))automaticResumeAt=new Date(new Date(attempt.finished_at).getTime()+policy.catalogMinutes*60000).toISOString();
+  }
+  return {...row,schedule,automaticResumeAt};
 }

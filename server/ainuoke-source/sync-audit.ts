@@ -4,11 +4,29 @@ import type {Pool,PoolClient} from 'pg';
 import {hash,sourceKeyValid,SourceError} from './contract.js';
 import {SYNC_AUDIT_SOURCES} from './audit-sources.js';
 import type {RequestDiagnostic} from './sync-diagnostics.js';
+import {validateSyncPolicy} from './sync-schedule.js';
 
 type DB=Pick<Pool|PoolClient,'query'>;
 type Page={reportId:string;fetchedAt:string;page:number;total:number;queryContext:Record<string,unknown>;rows:{values:Record<string,unknown>}[]};
 type Context={id:string;sourceKey:string};
 const context=new AsyncLocalStorage<Context>();
+/** Public operations must pin caller-owned input BEFORE the audit's first
+ * await, preserving their original mutation/CAS boundary. Pool and callback
+ * functions keep their identity; data objects are copied synchronously. */
+export function pinSyncCall<T extends unknown[]>(args:T):T{
+ const seen=new WeakMap<object,unknown>();
+ const copy=(value:unknown):unknown=>{
+  if(!value||typeof value!=='object')return value;
+  if(seen.has(value))return seen.get(value);
+  if(value instanceof Date)return new Date(value);
+  if(Array.isArray(value)){const out:unknown[]=[];seen.set(value,out);for(const item of value)out.push(copy(item));return out;}
+  if(Object.getPrototypeOf(value)!==Object.prototype&&Object.getPrototypeOf(value)!==null)return structuredClone(value);
+  const out:Record<string,unknown>={};seen.set(value,out);
+  for(const [key,item]of Object.entries(value))Object.defineProperty(out,key,{value:copy(item),enumerable:true,configurable:true,writable:true});
+  return out;
+ };
+ return args.map((value,index)=>index===0?value:copy(value)) as T;
+}
 const safeCode=(e:unknown)=>e&&typeof e==='object'&&'code' in e&&typeof e.code==='string'&&/^[a-z0-9_]{1,100}$/.test(e.code)?e.code:'sync_result_unknown';
 const safeRequest=(d:RequestDiagnostic)=>({kind:d.kind,reportId:d.reportId,page:d.page,elapsedMs:d.elapsedMs,outcome:d.outcome,httpStatus:d.httpStatus,
  ...(d.startedAt?{startedAt:d.startedAt}:{}),...(d.finishedAt?{finishedAt:d.finishedAt}:{}),
@@ -39,7 +57,7 @@ export function auditRecordSet(pages:readonly Page[]){
   const ownId=Object.keys(values).find(k=>k.toLowerCase()==='id');
   if(!ownId||values[ownId]===null||values[ownId]===''){ambiguous=true;continue;}
   const keys=String(page.reportId)==='6087051'?[ownId,'lx','cgmxid','rkmxid','cymxid','ckmxid']:[ownId];
-  const ids=keys.filter(k=>Object.hasOwn(values,k)).map(k=>[k,values[k]] as const);
+  const ids=keys.filter(k=>Object.hasOwn(values,k)).map(k=>[k,values[k]===null?null:String(values[k]).normalize('NFKC').trim()] as const);
   const key=hash({query:page.queryContext,ids:Object.fromEntries(ids.sort(([a],[b])=>a.localeCompare(b)))}),content=hash(values);
   if(records.has(key)){if(records.get(key)!==content)ambiguous=true;else duplicates++;}else records.set(key,content);
  }
@@ -51,8 +69,11 @@ export async function withSyncAudit<T>(pool:Pool,scope:{id?:string;sourceKey:str
  // Never spend a source request when its durable ledger is unavailable.
  if(!(await pool.query("SELECT to_regclass('public.ainuoke_sync_audit_batches') IS NOT NULL AS enabled")).rows[0].enabled)throw new SourceError('sync_audit_migration_required');
  const id=scope.id??randomUUID();
- const inserted=await pool.query(`INSERT INTO ainuoke_sync_audit_batches(id,source_key,sync_type,contracts,job_ids,retry_count,origin,frequencies,api_requests,login_requests)
-  VALUES($1,$2,$3,$4,$5,$6,$7,$8,CASE WHEN $7='historical' THEN 0 END,CASE WHEN $7='historical' THEN 0 END) ON CONFLICT DO NOTHING RETURNING id`,[id,scope.sourceKey,scope.type,scope.contracts??[],scope.jobIds??[],scope.retries??0,scope.historical?'historical':'live',scope.frequencies??[]]);
+ let policy=null;
+ const configured=(await pool.query('SELECT policy FROM ainuoke_sync_controls WHERE source_key=$1',[scope.sourceKey])).rows[0];
+ if(configured)try{policy=validateSyncPolicy(configured.policy);}catch{/* Do not copy unvalidated configuration into audit data. */}
+ const inserted=await pool.query(`INSERT INTO ainuoke_sync_audit_batches(id,source_key,sync_type,contracts,job_ids,retry_count,origin,frequencies,policy_snapshot,api_requests,login_requests)
+  VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9::jsonb,CASE WHEN $7='historical' THEN 0 END,CASE WHEN $7='historical' THEN 0 END) ON CONFLICT DO NOTHING RETURNING id`,[id,scope.sourceKey,scope.type,scope.contracts??[],scope.jobIds??[],scope.retries??0,scope.historical?'historical':'live',scope.frequencies??[],policy?JSON.stringify(policy):null]);
  if(!inserted.rowCount)return fn(); // Existing request receipts are not overwritten.
  for(const report of scope.reports??[]){
   const definition=SYNC_AUDIT_SOURCES[report];
@@ -137,12 +158,13 @@ export async function auditCaptureFailure(db:DB,code:string,diagnostics:RequestD
    VALUES($1,$2,$3,$4,$5,$6,$7,$8,$8,'failed',$9,$10) ON CONFLICT(batch_id,report_id,contract_no) DO NOTHING`,
    [ctx.id,reportId,definition?.name??'未登记报表 '+reportId,definition?.targets??[],trace[0].startedAt??null,null,trace[0].startedAt?'request_trace':'unavailable',trace.length,code,JSON.stringify({pages:trace.map(d=>d.page),complete:false})]);
  }
- await db.query('UPDATE ainuoke_sync_audit_batches SET error_code=$2,api_requests=$3,login_requests=$4,requests=$5::jsonb WHERE id=$1',[ctx.id,code,diagnostics?.length??null,diagnostics?.filter(d=>d.kind==='login').length??null,JSON.stringify(diagnostics?.map(safeRequest)??[])]);
+ await db.query('UPDATE ainuoke_sync_audit_batches SET error_code=$2,api_requests=coalesce($3,api_requests),login_requests=coalesce($4,login_requests),requests=coalesce($5::jsonb,requests) WHERE id=$1',[ctx.id,code,diagnostics?.length??null,diagnostics?.filter(d=>d.kind==='login').length??null,diagnostics?JSON.stringify(diagnostics.map(safeRequest)):null]);
 }
 /** Runs in the SAME business transaction as publication. Rollback cannot leave
  * a successful audit row or advance the comparison state. */
-export async function auditPublished(db:DB,sourceKey:string,publicationId:string,input:unknown,contract='',targets?:string[],replayed=false){
+export async function auditPublished(db:DB,sourceKey:string,publication:string|string[],input:unknown,contract='',targets?:string[],replayed=false){
  const ctx=context.getStore();if(!ctx)return;
+ const publicationIds=Array.isArray(publication)?publication:[publication],publicationId=publicationIds[0];
  if(contract)await db.query(`UPDATE ainuoke_sync_audit_batches SET contracts=ARRAY(SELECT DISTINCT unnest(contracts||ARRAY[$2::text])) WHERE id=$1`,[ctx.id,contract]);
  const pages=auditPages(input);
  for(const reportId of new Set(pages.map(p=>String(p.reportId)))){
@@ -172,14 +194,17 @@ export async function auditPublished(db:DB,sourceKey:string,publicationId:string
   let inserted=0,updated=0,unchanged=0;
   if(!ambiguous)for(const [key,content]of records){if(replayed)unchanged++;else if(!old.has(key))inserted++;else if(old.get(key)===content)unchanged++;else updated++;}
   const end=selected.map(p=>p.fetchedAt).sort().at(-1);
+  const creation=definition?.createdField?[...new Set(selected.flatMap(p=>p.rows.map(r=>r.values[definition.createdField!])))].filter(v=>typeof v==='string'&&/^\d{4}-\d{2}-\d{2}(?:[ T][0-9:.+Z-]{1,28})?$/.test(v)) as string[]:[];
   await db.query(`INSERT INTO ainuoke_sync_audit_tables(batch_id,report_id,source_name,target_tables,contract_no,read_completed_at,read_time_basis,
    fetched_count,page_count,inserted_count,updated_count,unchanged_count,failed_count,duplicate_count,status,error_code,publication_ids,transaction_id,cursor_info)
-   VALUES($1,$2,$3,$4,$5,$6,'page_completion_only',$7,$8,$9,$10,$11,0,$12,'write_pending',$13,ARRAY[$14],txid_current()::text,$15)
+   VALUES($1,$2,$3,$4,$5,$6,'page_completion_only',$7,$8,$9,$10,$11,0,$12,'write_pending',$13,$14::text[],txid_current()::text,$15)
    ON CONFLICT(batch_id,report_id,contract_no) DO UPDATE SET status='write_pending',inserted_count=excluded.inserted_count,updated_count=excluded.updated_count,
     unchanged_count=excluded.unchanged_count,failed_count=0,duplicate_count=excluded.duplicate_count,error_code=excluded.error_code,target_tables=excluded.target_tables,
-    publication_ids=excluded.publication_ids,transaction_id=excluded.transaction_id`,
+    publication_ids=excluded.publication_ids,transaction_id=excluded.transaction_id,cursor_info=ainuoke_sync_audit_tables.cursor_info||excluded.cursor_info`,
    [ctx.id,reportId,definition?.name??'未登记报表 '+reportId,targets??definition?.targets??[],contract,end,selected.reduce((n,p)=>n+p.rows.length,0),selected.length,
-    ambiguous?null:inserted,ambiguous?null:updated,ambiguous?null:unchanged,duplicates,ambiguous?'record_identity_ambiguous':null,publicationId,JSON.stringify({pages:selected.map(p=>p.page),complete:true,countBasis:'distinct_source_records'})]);
+    ambiguous?null:inserted,ambiguous?null:updated,ambiguous?null:unchanged,duplicates,ambiguous?'record_identity_ambiguous':null,publicationIds,JSON.stringify({pages:selected.map(p=>p.page),reportedTotals:[...new Set(selected.map(p=>p.total))],complete:true,coverage:'validated_requested_scope',countBasis:'distinct_source_records',
+     queries:selected.map(p=>Object.fromEntries(Object.entries(p.queryContext??{}).filter(([key,value])=>['salesContractNo','insideOrderNo'].includes(key)&&typeof value==='string'&&value.length<=80))),
+     ...(creation.length?{sourceCreationEvidence:{field:definition!.createdField,examples:creation.slice(0,5),moreValues:creation.length>5,timezone:'not_inferred'}}:{})})]);
   if(!ambiguous&&records.size)await db.query(`INSERT INTO ainuoke_sync_audit_record_state(source_key,report_id,scope_key,record_key,content_hash,batch_id)
    SELECT $1,$2,$3,r.key,r.content,$4 FROM jsonb_to_recordset($5::jsonb) AS r(key text,content text)
    ON CONFLICT(source_key,report_id,scope_key,record_key) DO UPDATE SET content_hash=excluded.content_hash,batch_id=excluded.batch_id`,
@@ -203,16 +228,17 @@ export async function auditPublicationFailure(db:DB,contract:string,code:string)
  * This makes in-flight per-report attempts durable even if the process dies. */
 export async function auditRequestProgress(db:DB,phase:'started'|'finished',d:RequestDiagnostic){
  const ctx=context.getStore();if(!ctx)return;
- if(phase==='finished')await db.query('UPDATE ainuoke_sync_audit_batches SET api_requests=coalesce(api_requests,0)+1,login_requests=coalesce(login_requests,0)+$2,requests=requests||$3::jsonb WHERE id=$1',[ctx.id,d.kind==='login'?1:0,JSON.stringify([safeRequest(d)])]);
+ if(phase==='started')await db.query('UPDATE ainuoke_sync_audit_batches SET api_requests=coalesce(api_requests,0)+1,login_requests=coalesce(login_requests,0)+$2 WHERE id=$1',[ctx.id,d.kind==='login'?1:0]);
+ if(phase==='finished')await db.query('UPDATE ainuoke_sync_audit_batches SET requests=requests||$2::jsonb WHERE id=$1',[ctx.id,JSON.stringify([safeRequest(d)])]);
  if(d.kind==='login'){
   if(phase==='finished')await db.query("INSERT INTO ainuoke_sync_audit_events(source_key,batch_id,event_type,code) VALUES($1,$2,'authentication',$3)",[ctx.sourceKey,ctx.id,d.outcome==='complete'?'authentication_accepted':'authentication_rejected']);
   return;
  }
  const id=String(d.reportId),definition=SYNC_AUDIT_SOURCES[id];
  await db.query(`INSERT INTO ainuoke_sync_audit_tables(batch_id,report_id,source_name,target_tables,read_started_at,read_time_basis,api_requests,cursor_info)
-  VALUES($1,$2,$3,$4,$5,'request_trace',0,$6) ON CONFLICT(batch_id,report_id,contract_no) DO UPDATE SET
+  VALUES($1,$2,$3,$4,$5,'request_trace',$7,$6) ON CONFLICT(batch_id,report_id,contract_no) DO UPDATE SET
    read_started_at=coalesce(ainuoke_sync_audit_tables.read_started_at,excluded.read_started_at),api_requests=ainuoke_sync_audit_tables.api_requests+$7,cursor_info=excluded.cursor_info`,
-  [ctx.id,id,definition?.name??'未登记报表 '+id,definition?.targets??[],d.startedAt??null,JSON.stringify({page:d.page,phase,outcome:d.outcome,complete:false}),phase==='finished'?1:0]);
+  [ctx.id,id,definition?.name??'未登记报表 '+id,definition?.targets??[],d.startedAt??null,JSON.stringify({page:d.page,phase,outcome:d.outcome,complete:false}),phase==='started'?1:0]);
  if(phase==='finished'&&d.outcome!=='complete')await db.query(`UPDATE ainuoke_sync_audit_tables SET status='failed',error_code=$3 WHERE batch_id=$1 AND report_id=$2 AND contract_no=''`,[ctx.id,id,d.responseIsOk===false?'upstream_business_rejected':d.outcome]);
 }
 export function auditRequestHandler(db:DB){
@@ -239,4 +265,11 @@ export async function reconcileInterruptedAudit(db:DB,sourceKey:string){
  await db.query(`WITH interrupted AS (UPDATE ainuoke_sync_audit_batches SET status='interrupted',finished_at=clock_timestamp(),error_code='restart_read_interrupted'
   WHERE source_key=$1 AND status='running' AND (cardinality(job_ids)>0 OR sync_type='catalog') RETURNING id,source_key)
   INSERT INTO ainuoke_sync_audit_events(source_key,batch_id,event_type,code) SELECT source_key,id,'interrupted','restart_read_interrupted' FROM interrupted`,[sourceKey]);
+}
+
+/** Link a capture's explicit identity, including discovery requests whose audit
+ * batch ID differs. Used by metadata backfill, never a timestamp join. */
+export async function auditLinkCapture(db:DB,captureId:string){
+ const owner=context.getStore();if(!owner)return;
+ await db.query('UPDATE ainuoke_sync_audit_batches SET capture_ids=array_append(capture_ids,$2::uuid) WHERE id=$1 AND NOT $2::uuid=ANY(capture_ids)',[owner.id,captureId]);
 }

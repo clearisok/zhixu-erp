@@ -1,4 +1,4 @@
-import {withSyncAudit,commitWithSyncAudit} from './sync-audit.js';
+import {withSyncAudit,commitWithSyncAudit,pinSyncCall} from './sync-audit.js';
 import type { Pool, PoolClient } from "pg";
 import type { TrustedIdentity } from "../auth/session.js";
 import { readCurrentActor } from "../auth/current-actor.js";
@@ -293,4 +293,4 @@ async function collectGarmentOnceImplementation(pool: Pool, caller: TrustedIdent
   } finally { finishClient?.release(); }
 }
 
-export async function collectGarmentOnce(...args:Parameters<typeof collectGarmentOnceImplementation>){return withSyncAudit(args[0],{sourceKey:args[2].config.sourceKey,type:'manual',reports:['6086979']},()=>collectGarmentOnceImplementation(...args));}
+export async function collectGarmentOnce(...args:Parameters<typeof collectGarmentOnceImplementation>){const pinned=pinSyncCall(args);return withSyncAudit(pinned[0],{sourceKey:pinned[2].config.sourceKey,type:'manual',reports:['6086979']},()=>collectGarmentOnceImplementation(...pinned));}

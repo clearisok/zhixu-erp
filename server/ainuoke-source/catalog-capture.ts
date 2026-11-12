@@ -1,4 +1,4 @@
-import {withSyncAudit,auditAcquired,auditCaptureFailure,auditRequestHandler,auditMetrics} from './sync-audit.js';
+import {withSyncAudit,auditAcquired,auditCaptureFailure,auditRequestHandler,auditMetrics,auditLinkCapture} from './sync-audit.js';
 import type { Pool, PoolClient } from 'pg';
 import type { TrustedIdentity } from '../auth/session.js';
 import { requirePermission } from '../auth/permissions.js';
@@ -53,6 +53,7 @@ async function captureUnderLease(pool:Pool,identity:Identity,raw:CollectorConfig
   diagnosticId=randomUUID();
   await pool.query(`INSERT INTO ainuoke_sync_capture_attempts(id,source_key,account_fingerprint,actor_id,mode,job_ids,status,started_at)
    VALUES($1,$2,$3,$4,'catalog-discovery','{}'::uuid[],'running',now())`,[diagnosticId,config.sourceKey,fingerprint,actor.internalUserId]);
+  await auditLinkCapture(pool,diagnosticId);
   let captured;
   if(collect){
    const raw=await collect(config,request,{resumePages,onRequest:auditRequestHandler(pool),onPage:(phase,page)=>saveCatalogScanPage(pool,config.sourceKey,requestId,phase,page)});

@@ -1,4 +1,4 @@
-import {withSyncAudit} from './sync-audit.js';
+import {withSyncAudit,pinSyncCall} from './sync-audit.js';
 import type { Pool, PoolClient } from 'pg';
 import type { TrustedIdentity } from '../auth/session.js';
 import { UUID_PATTERN } from '../sales-orders/delivery-plan-model.js';
@@ -148,4 +148,4 @@ async function collectAndPublishPaymentContractsImplementation(pool: Pool, calle
   return receipt(outcomes, { attempted: true, validated: true });
 }
 
-export async function collectAndPublishPaymentContracts(...args:Parameters<typeof collectAndPublishPaymentContractsImplementation>){return withSyncAudit(args[0],{sourceKey:args[2].config.sourceKey,type:'manual',reports:['6086941']},()=>collectAndPublishPaymentContractsImplementation(...args));}
+export async function collectAndPublishPaymentContracts(...args:Parameters<typeof collectAndPublishPaymentContractsImplementation>){const pinned=pinSyncCall(args);return withSyncAudit(pinned[0],{sourceKey:pinned[2].config.sourceKey,type:'manual',reports:['6086941']},()=>collectAndPublishPaymentContractsImplementation(...pinned));}

@@ -1,4 +1,4 @@
-import {withSyncAudit,auditAcquired,auditPublished,commitWithSyncAudit} from './sync-audit.js';
+import {withSyncAudit,auditAcquired,auditPublished,commitWithSyncAudit,pinSyncCall} from './sync-audit.js';
 import { randomUUID } from 'node:crypto';
 import type { Pool, PoolClient } from 'pg';
 import type { TrustedIdentity } from '../auth/session.js';
@@ -187,4 +187,4 @@ export function paymentReadConfig(values: Readonly<Record<string, string | undef
   return { sourceKey };
 }
 
-export async function publishPaymentSnapshot(...args:Parameters<typeof publishPaymentSnapshotImplementation>){return withSyncAudit(args[0],{sourceKey:args[2].sourceKey,type:'publication',historical:true,reports:['6086941']},()=>publishPaymentSnapshotImplementation(...args));}
+export async function publishPaymentSnapshot(...args:Parameters<typeof publishPaymentSnapshotImplementation>){const pinned=pinSyncCall(args);return withSyncAudit(pinned[0],{sourceKey:pinned[2].sourceKey,type:'publication',historical:true,reports:['6086941']},()=>publishPaymentSnapshotImplementation(...pinned));}

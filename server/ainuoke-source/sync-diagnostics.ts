@@ -4,6 +4,7 @@ import { SELECTED_SOURCE_LIMITS, validateSelectedSourceOnce, type SelectedSource
 import { SourceError } from './contract.js';
 import type {CatalogPage} from './catalog-checkpoints.js';
 import {CatalogConsistencyError,type CatalogChangeDiagnostic} from './catalog-consistency.js';
+import {auditPages} from './sync-audit.js';
 
 export type LoginEvidence = { responseShape:'data_object'|'object_without_data_object'|'non_object'; result:'accepted'|'rejected'|'malformed'; serverCode:'absent'|'cover_confirmation'|'unrecognized'; serverHint:'unclassified'|'session_exists'|'verification_required'|'credentials_rejected'|'account_unavailable'|'throttling_hint'|'cover_confirmation_required'|'user_capacity_exhausted' };
 export type LoginDetails = {at:string;interface:'loginsys2';isOk:boolean|null;businessCode:string|null;text1:string|null;message:string|null;errorMsg?:string|null};
@@ -88,6 +89,18 @@ export async function validateCatalogDiagnostic(value:unknown,cfg:CollectorConfi
   if(i<0||login?.kind!=='login'||login.outcome!=='complete'||login.loginEvidence?.result!=='accepted'
    ||retry?.kind!=='report'||retry.outcome!=='complete'||retry.reportId!==failed.reportId||retry.page!==failed.page)
    throw new SourceError('sync_diagnostics_invalid');
+ }
+ if(capture.result==='complete'){
+  const reports=diagnostics.filter(d=>d.kind==='report'&&d.outcome==='complete');
+  if(reports.some(d=>d.receivedRows!==undefined)){
+   if(reports.some(d=>d.receivedRows===undefined))throw new SourceError('sync_diagnostics_invalid');
+   const pages=auditPages(wrapped.capture),expected=new Map<string,number>(),actual=new Map<string,number>();
+   for(const p of pages)expected.set(p.reportId,(expected.get(p.reportId)??0)+p.rows.length);
+   const reused=pages.length-reports.length;
+   if(reused>0&&request.mode==='catalog-discovery')for(const p of resumePages.slice(1,1+reused))expected.set(p.reportId,(expected.get(p.reportId)??0)-p.rows.length);
+   for(const d of reports)actual.set(String(d.reportId),(actual.get(String(d.reportId))??0)+d.receivedRows!);
+   if(expected.size!==actual.size||[...expected].some(([id,count])=>actual.get(id)!==count))throw new SourceError('sync_diagnostics_invalid');
+  }
  }
  return {capture,diagnostics};
 }

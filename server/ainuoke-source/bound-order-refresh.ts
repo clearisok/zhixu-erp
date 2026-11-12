@@ -1,4 +1,4 @@
-import {withSyncAudit,auditPublished,commitWithSyncAudit} from './sync-audit.js';
+import {withSyncAudit,auditPublished,commitWithSyncAudit,pinSyncCall} from './sync-audit.js';
 import type {Pool,PoolClient} from 'pg';
 import type {TrustedIdentity} from '../auth/session.js';
 import {readCurrentActor} from '../auth/current-actor.js';
@@ -145,4 +145,4 @@ export async function refreshCollectedBoundOrderInTransaction(pool:Pool,client:P
  return {orderId:p.target.id,sourceOwnerOrderId:p.owner.id,colorLines:p.candidate.colors.length};
 }
 
-export async function applyBoundOrderRefresh(...args:Parameters<typeof applyBoundOrderRefreshImplementation>){return withSyncAudit(args[0],{sourceKey:args[2].sourceKey,type:'manual'},()=>applyBoundOrderRefreshImplementation(...args));}
+export async function applyBoundOrderRefresh(...args:Parameters<typeof applyBoundOrderRefreshImplementation>){const pinned=pinSyncCall(args);return withSyncAudit(pinned[0],{sourceKey:pinned[2].sourceKey,type:'manual'},()=>applyBoundOrderRefreshImplementation(...pinned));}

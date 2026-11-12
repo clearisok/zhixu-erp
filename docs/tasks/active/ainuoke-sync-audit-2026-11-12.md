@@ -23,3 +23,11 @@
 初轮类型检查曾通过；后续新增测试存在ExcelJS Buffer类型问题，正在修正。首轮隔离集成已有HTTP/Excel/权限与计数回滚子项通过，但总测试失败：fixture已在初始化完成一次tick，测试再次tick得到idle，断言误设processed；修正后必须重跑，不能将首轮整体写成通过。旧catalog-business-change测试仍断言复合错误码，需按新精确分类前向修订，保留身份/未知元数据不接受的断言。
 
 接力：优先读本文件、CURRENT_STATE及git diff，复用outputs/sync-audit-*.log，不重跑未受影响的旧发布CI，不碰当前63054/63051真实数据或后台服务。完成后更新真实范围、全部测试、代码版本与是否可部署；staging仍M，来源原暂停保留。
+
+## 中间检查点更新
+
+首组core-regression-05为55/55通过；补充ledger-stop-14为21/21通过，覆盖真实HTTP手动入队、自动重试独立批次、复用异步资源回执归属、历史台账幂等补录、事务回滚/未知提交及安全暂停。browser-14为3/3通过（1366/1920视口、筛选/详情、普通角色拒绝）；build-10成功。upgrade-07为2/2通过，使用已验证旧main的真实源代码构造旧schema的临时fixture，再升级0058；当前代码在迁移缺失时必须fail closed且0源请求，不为旧测试绕过保护。旧失败日志保留：regression-06的旧码断言/旧fixture和ledger-12的目录未建单发布核验不全已修；不将其写为整体通过。
+
+真实旧失败capture ID 7d0169d0-e8cd-410d-b93e-5ee4262bbea6，54个请求均complete，其中6086103的1–13页各两次；该readonly SQL确认新legacy恢复保护有实际分页证据。没有执行staging恢复。
+
+仍须：最后类型/lint、剩余受影响旧入口回归、基线/文档冻结和最终提交。当前源映射和时间/计数边界见features/AINUOKE_SYNC_AUDIT.md。台账补录只实现维护入口，尚未对真实库执行，不能宣称旧历史已进入新台账。

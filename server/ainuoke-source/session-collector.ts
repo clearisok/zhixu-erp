@@ -1,10 +1,10 @@
 import {spawn,type ChildProcessWithoutNullStreams} from 'node:child_process';
 import {resolve} from 'node:path';
 import {parseCollectorConfig,type CollectorConfig} from './collector.js';
-import {SourceError} from './contract.js';
+import {SourceError,hash} from './contract.js';
 import type {SelectedSourceRequest} from './selected-source-once.js';
 import {validateCatalogCheckpointPage,type CatalogCollectionOptions} from './catalog-checkpoints.js';
-import {validateRequestDiagnostics} from './sync-diagnostics.js';
+import {validateRequestDiagnostics,type RequestDiagnostic} from './sync-diagnostics.js';
 
 /** One owner per running worker, one in-flight capture. No token crosses stdout.
  * Transport uncertainty destroys the owner. A caller may replace it only inside
@@ -13,7 +13,7 @@ import {validateRequestDiagnostics} from './sync-diagnostics.js';
 export function createSessionCollector(start:typeof spawn=spawn){
  let child:ChildProcessWithoutNullStreams|null=null,closed=false,identity:string|null=null;
  let pending:{resolve:(v:unknown)=>void;reject:(e:Error)=>void;timer:ReturnType<typeof setTimeout>;
-  progress:Promise<void>;onPage?:CatalogCollectionOptions['onPage'];onRequest?:CatalogCollectionOptions['onRequest'];requestEvents:number;progressCount:number;progressBytes:number;finalReceived:boolean}|null=null;
+  progress:Promise<void>;onPage?:CatalogCollectionOptions['onPage'];onRequest?:CatalogCollectionOptions['onRequest'];requests:RequestDiagnostic[];requestOpen:RequestDiagnostic|null;requestEvents:number;progressCount:number;progressBytes:number;finalReceived:boolean}|null=null;
  let buffered=Buffer.alloc(0),secret:string|null=null;
  const stop=(code='capture_session_stopped')=>{
   closed=true;const active=pending;pending=null;buffered=Buffer.alloc(0);
@@ -51,6 +51,8 @@ export function createSessionCollector(start:typeof spawn=spawn){
        if(!active.onRequest||Object.keys(value).sort().join(',')!=='diagnostic,phase,schemaVersion'||!['started','finished'].includes(value.phase)
         ||++active.requestEvents>162||frame.length>4096||secret&&frame.toString('utf8').includes(secret))throw Error();
        const d=validateRequestDiagnostics([value.diagnostic])[0];
+       if(value.phase==='started'){if(active.requestOpen)throw Error();active.requestOpen=d;}
+       else{if(!active.requestOpen||hash([d.kind,d.reportId,d.page])!==hash([active.requestOpen.kind,active.requestOpen.reportId,active.requestOpen.page]))throw Error();active.requestOpen=null;active.requests.push(d);}
        active.progress=active.progress.then(()=>active.onRequest!(value.phase,d));
        void active.progress.catch(()=>stop('sync_audit_progress_failed'));
       }else if(value.schemaVersion==='ainuoke-catalog-page.v1'){
@@ -60,7 +62,8 @@ export function createSessionCollector(start:typeof spawn=spawn){
        active.progress=active.progress.then(()=>active.onPage!(value.phase,page));
        void active.progress.catch(()=>stop('catalog_checkpoint_failed'));
       }else{
-       if(value.schemaVersion!=='ainuoke-session-diagnostics.v1'||buffered.length)throw Error();
+       if(value.schemaVersion!=='ainuoke-session-diagnostics.v1'||buffered.length||active.requestOpen
+        ||active.onRequest&&hash(value.requests)!==hash(active.requests))throw Error();
        active.finalReceived=true;
        void active.progress.then(()=>{if(pending!==active)return;pending=null;clearTimeout(active.timer);active.resolve(value);},()=>stop('catalog_checkpoint_failed'));
       }
@@ -70,7 +73,7 @@ export function createSessionCollector(start:typeof spawn=spawn){
   }
   return new Promise((resolveResult,reject)=>{
    pending={resolve:resolveResult,reject,timer:setTimeout(()=>stop('source_timeout'),180000),progress:Promise.resolve(),
-    onPage:options?.onPage,onRequest:options?.onRequest,requestEvents:0,progressCount:0,progressBytes:0,finalReceived:false};
+    onPage:options?.onPage,onRequest:options?.onRequest,requests:[],requestOpen:null,requestEvents:0,progressCount:0,progressBytes:0,finalReceived:false};
    child!.stdin.write(JSON.stringify({baseUrl:cfg.baseUrl,username:cfg.username,password:cfg.password,contracts:request.contracts,
     mode:request.mode,...(cfg.materialReport&&request.mode==='catalog-contracts'?{materialReport:cfg.materialReport}:{}),
     ...(options?.onPage?{catalogProgress:true,catalogResume:options.resumePages??[]}:{}),

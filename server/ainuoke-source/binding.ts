@@ -1,5 +1,4 @@
-import {randomUUID} from 'node:crypto';
-import {withSyncAudit,auditAcquired,auditPublished,commitWithSyncAudit} from './sync-audit.js';
+import {withSyncAudit,auditAcquired,auditPublished,commitWithSyncAudit,pinSyncCall} from './sync-audit.js';
 import {orderCommandControlError} from '../sales-orders/command-control.js';
 import {lockEffectiveAttribution} from '../sales-orders/effective-attribution.js';
 import type { Pool } from "pg";
@@ -134,7 +133,7 @@ async function bindOrdersImplementation(pool: Pool, identity: Pick<TrustedIdenti
     }
     await client.query("INSERT INTO ainuoke_source_profiles(source_key,account_fingerprint) VALUES($1,$2) ON CONFLICT DO NOTHING", [options.sourceKey,options.accountFingerprint]);
     if (created) await appendOperationLog(client,currentActor,{module:"艾诺科同步",action:"首次绑定艾诺科订单",entityType:"AinuokeSourceBinding",entityId:options.sourceKey,metadata:{sourceKey:options.sourceKey,reviewHash,orderCount:created,scope:selected === undefined ? "current_account_visible" : "explicit_selected_first_binding",...(selected === undefined ? {} : {selectedContracts: preview.candidates.map(c => c.source.salesContractNo)})}});
-    await auditPublished(client,options.sourceKey,randomUUID(),data,'',['sales_orders','sales_order_source_links','ainuoke_sales_order_contract_mirrors','ainuoke_sales_order_color_mirrors']);
+    await auditPublished(client,options.sourceKey,ids,data,'',['sales_orders','sales_order_source_links','ainuoke_sales_order_contract_mirrors','ainuoke_sales_order_color_mirrors'],created===0);
     await commitWithSyncAudit(client);
     return {created,replayed:created===0,orderIds:ids,reviewHash};
   } catch(error) {
@@ -144,4 +143,4 @@ async function bindOrdersImplementation(pool: Pool, identity: Pick<TrustedIdenti
   } finally { client.release(); }
 }
 
-export async function bindOrders(...args:Parameters<typeof bindOrdersImplementation>){return withSyncAudit(args[0],{sourceKey:args[2].sourceKey,type:'manual'},()=>bindOrdersImplementation(...args));}
+export async function bindOrders(...args:Parameters<typeof bindOrdersImplementation>){const pinned=pinSyncCall(args);return withSyncAudit(pinned[0],{sourceKey:pinned[2].sourceKey,type:'manual'},()=>bindOrdersImplementation(...pinned));}

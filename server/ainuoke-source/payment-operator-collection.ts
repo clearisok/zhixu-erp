@@ -1,4 +1,4 @@
-import {withSyncAudit,commitWithSyncAudit} from './sync-audit.js';
+import {withSyncAudit,commitWithSyncAudit,pinSyncCall} from './sync-audit.js';
 import type { Pool, PoolClient } from 'pg';
 import type { TrustedIdentity } from '../auth/session.js';
 import { requireOrderCommandActor } from '../sales-orders/identity-service.js';
@@ -98,4 +98,4 @@ async function collectPaymentOnceImplementation(pool: Pool, caller: Identity, in
     receiptState, replayed: false, result, sourceReadThisInvocation: 'see_result' as const, receiptIsHistorical: false };
 }
 
-export async function collectPaymentOnce(...args:Parameters<typeof collectPaymentOnceImplementation>){return withSyncAudit(args[0],{sourceKey:args[2].config.sourceKey,type:'manual',reports:['6086941']},()=>collectPaymentOnceImplementation(...args));}
+export async function collectPaymentOnce(...args:Parameters<typeof collectPaymentOnceImplementation>){const pinned=pinSyncCall(args);return withSyncAudit(pinned[0],{sourceKey:pinned[2].config.sourceKey,type:'manual',reports:['6086941']},()=>collectPaymentOnceImplementation(...pinned));}

@@ -1,8 +1,11 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import {randomUUID} from 'node:crypto';
+import {AsyncResource} from 'node:async_hooks';
+import {backfillExistingSyncAudit} from '../ainuoke-source/audit-backfill.js';
 import ExcelJS from 'exceljs';
 import {startCatalogFixture} from './ainuoke-catalog-fixture.js';
-import {withSyncAudit,auditAcquired,auditPublished,commitWithSyncAudit,auditCaptureFailure,auditRecordSet} from '../ainuoke-source/sync-audit.js';
+import {withSyncAudit,auditAcquired,auditPublished,commitWithSyncAudit,auditCaptureFailure,auditRecordSet,auditRequestHandler,reconcileInterruptedAudit} from '../ainuoke-source/sync-audit.js';
 import {validateRequestDiagnostics} from '../ainuoke-source/sync-diagnostics.js';
 import {parseAuditQuery} from '../ainuoke-source/audit-query.js';
 
@@ -36,6 +39,44 @@ test('persistent report ledger follows real queue publication, confirmed commits
    const d=validateRequestDiagnostics([{kind:'report',reportId:6087051,page:1,elapsedMs:1,httpStatus:200,outcome:'schema_error',responseIsOk:false,startedAt:new Date().toISOString(),finishedAt:new Date().toISOString()}]);
    await withSyncAudit(f.pool,{sourceKey:f.sourceKey,type:'retry'},async()=>{await auditCaptureFailure(f.pool,'source_unavailable',d);});
    const row=(await f.pool.query("SELECT * FROM ainuoke_sync_audit_tables ORDER BY id DESC")).rows.find(r=>r.error_code==='source_unavailable');assert.ok(row);assert.equal(row.status,'failed');assert.equal(row.write_completed_at,null);
+  });
+  await t.test('real manual HTTP queue, timeout and retry produce independent durable attempts',async()=>{
+   const cookie=await f.login(f.admin),headers={Cookie:cookie,Origin:f.base,'Content-Type':'application/json','X-Zhixu-Request':'1'};
+   const requestId=randomUUID(),input={sourceKey:f.sourceKey,sourceId:'1',requestId};
+   let r=await fetch(f.base+'/api/v1/ainuoke/catalog/sync',{method:'POST',headers,body:JSON.stringify(input)});assert.equal(r.status,202);
+   const initial=await r.json();f.failNextCapture();assert.equal((await f.tick()).status,'failed');
+   r=await fetch(f.base+'/api/v1/ainuoke/catalog/sync',{method:'POST',headers,body:JSON.stringify({...input,requestId:randomUUID()})});assert.equal(r.status,202);
+   const tick=await f.tick();assert.equal(tick.status,'processed');
+   const attempts=(await f.pool.query('SELECT b.* FROM ainuoke_sync_audit_batches b JOIN ainuoke_sync_jobs j ON j.id=ANY(b.job_ids) WHERE j.id=$1 OR j.retry_of=$1 ORDER BY b.started_at',[initial.jobId])).rows;
+   assert.equal(attempts.length,2);assert.equal(attempts[0].status,'failed');assert.equal(attempts[0].sync_type,'manual');assert.equal(attempts[1].status,'success');assert.equal(attempts[1].sync_type,'retry');
+   assert.ok((await f.pool.query("SELECT id FROM ainuoke_sync_audit_events WHERE event_type='retry'")).rowCount);
+  });
+  await t.test('reused child async resource binds streamed metadata to the current batch',async()=>{
+   const resource=new AsyncResource('synthetic-reused-collector'),first=randomUUID(),second=randomUUID();
+   for(const id of [first,second])await withSyncAudit(f.pool,{id,sourceKey:f.sourceKey,type:'manual'},async()=>{
+    const callback=auditRequestHandler(f.pool),d={kind:'report' as const,reportId:6087051 as const,page:1,elapsedMs:1,httpStatus:200,outcome:'complete' as const,receivedRows:0};
+    await resource.runInAsyncScope(()=>callback('started',d));await resource.runInAsyncScope(()=>callback('finished',d));
+   });
+   const rows=(await f.pool.query('SELECT id,api_requests,jsonb_array_length(requests) AS receipts FROM ainuoke_sync_audit_batches WHERE id=ANY($1::uuid[])',[[first,second]])).rows;
+   assert.equal(rows.length,2);assert.ok(rows.every(r=>r.api_requests===1&&r.receipts===1));resource.emitDestroy();
+  });
+  await t.test('metadata backfill preserves original times and never rewrites business or invokes source',async()=>{
+   const id=randomUUID();await f.pool.query(`INSERT INTO ainuoke_sync_capture_attempts(id,source_key,account_fingerprint,actor_id,mode,job_ids,status,started_at,finished_at,result_code,requests,metrics)
+    SELECT $1,source_key,account_fingerprint,actor_id,mode,job_ids,status,started_at,finished_at,result_code,requests,metrics FROM ainuoke_sync_capture_attempts WHERE mode='catalog-contracts' AND status='complete' ORDER BY started_at LIMIT 1`,[id]);
+   const before=(await f.pool.query('SELECT (SELECT count(*) FROM sales_orders)::int AS orders,(SELECT count(*) FROM ainuoke_material_source_snapshots)::int AS snapshots,(SELECT count(*) FROM ainuoke_material_order_heads)::int AS heads')).rows[0];
+   const captures=f.captures(),preview=await backfillExistingSyncAudit(f.pool,f.actor,f.sourceKey);assert.equal(preview.records,1);
+   const receipt=await backfillExistingSyncAudit(f.pool,f.actor,f.sourceKey,{execute:true});assert.equal(receipt.inserted,1);
+   assert.equal((await backfillExistingSyncAudit(f.pool,f.actor,f.sourceKey,{execute:true})).inserted,0);assert.equal(f.captures(),captures);
+   const batch=(await f.pool.query('SELECT * FROM ainuoke_sync_audit_batches WHERE id=$1',[id])).rows[0];assert.equal(batch.origin,'historical_record');
+   const table=(await f.pool.query('SELECT * FROM ainuoke_sync_audit_tables WHERE batch_id=$1',[id])).rows[0];assert.equal(table.status,'historical_published');assert.equal(table.write_completed_at,null);assert.equal(table.inserted_count,null);
+   assert.deepEqual((await f.pool.query('SELECT (SELECT count(*) FROM sales_orders)::int AS orders,(SELECT count(*) FROM ainuoke_material_source_snapshots)::int AS snapshots,(SELECT count(*) FROM ainuoke_material_order_heads)::int AS heads')).rows[0],before);
+  });
+  await t.test('restart reconciliation keeps acknowledged rows and marks uncertain commits honestly',async()=>{
+   const id=randomUUID();await f.pool.query("INSERT INTO ainuoke_sync_audit_batches(id,source_key,sync_type,job_ids) VALUES($1,$2,'frequent',$3)",[id,f.sourceKey,[randomUUID()]]);
+   await f.pool.query("INSERT INTO ainuoke_sync_audit_tables(batch_id,report_id,source_name,status) VALUES($1,'6087051','合成来源','write_pending')",[id]);
+   await reconcileInterruptedAudit(f.pool,f.sourceKey);
+   const row=(await f.pool.query('SELECT b.status,t.status AS table_status,t.write_completed_at,t.error_code FROM ainuoke_sync_audit_batches b JOIN ainuoke_sync_audit_tables t ON t.batch_id=b.id WHERE b.id=$1',[id])).rows[0];
+   assert.equal(row.status,'interrupted');assert.equal(row.table_status,'partial');assert.equal(row.error_code,'commit_acknowledgement_missing');assert.equal(row.write_completed_at,null);
   });
   await t.test('normal HTTP query/export and immutable read-only boundary',async()=>{
    const cookie=await f.login(f.admin),reader=await f.login(f.reader);

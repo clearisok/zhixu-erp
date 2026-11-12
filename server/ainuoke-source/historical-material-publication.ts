@@ -1,4 +1,4 @@
-import {withSyncAudit,commitWithSyncAudit} from './sync-audit.js';
+import {withSyncAudit,commitWithSyncAudit,pinSyncCall} from './sync-audit.js';
 import type {Pool} from 'pg';
 import type {TrustedIdentity} from '../auth/session.js';
 import {sourceActor,boundOrders,publishMaterialSnapshotsInTransaction} from './service.js';
@@ -52,4 +52,4 @@ async function publishHistoricalMaterialObservationImplementation(pool:Pool,iden
  }catch(e){await c.query('ROLLBACK').catch(()=>undefined);throw e;}finally{c.release();}
 }
 
-export async function publishHistoricalMaterialObservation(...args:Parameters<typeof publishHistoricalMaterialObservationImplementation>){return withSyncAudit(args[0],{sourceKey:args[2].sourceKey,type:'historical',historical:true},()=>publishHistoricalMaterialObservationImplementation(...args));}
+export async function publishHistoricalMaterialObservation(...args:Parameters<typeof publishHistoricalMaterialObservationImplementation>){const pinned=pinSyncCall(args);return withSyncAudit(pinned[0],{sourceKey:pinned[2].sourceKey,type:'historical',historical:true},()=>publishHistoricalMaterialObservationImplementation(...pinned));}

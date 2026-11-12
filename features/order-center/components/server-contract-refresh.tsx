@@ -2,17 +2,18 @@
 import { useEffect, useRef, useState } from 'react';
 import { useServerSession } from '@/features/server-auth';
 import { Button } from '@/components/foundation';
-import { sourceSyncMessage } from '../source-sync-status';
+import { sourceSyncMessage,sourcePauseMessage } from '../source-sync-status';
 
 type Scope = {orderId:string} | {sourceKey:string;sourceId:string};
 type Receipt = {status:string;result?:{code?:string;observedAt?:string};requestId?:string;retryAt?:string|null;attemptNumber?:number};
 type Pending = {requestId:string;scope:Scope};
+type SyncStatus={lastSuccessAt:string|null;configuredEnabled?:boolean;pausedReason?:string|null;catalogRetryAt?:string|null;automaticResumeAt?:string|null};
 const prefix='/api/v1/ainuoke/catalog';
 const format=(date:string)=>new Date(date).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false});
 async function api<T>(url:string,body?:unknown):Promise<T>{
  const response=await fetch(url,{method:body?'POST':'GET',credentials:'include',cache:'no-store',...(body?{headers:{'Content-Type':'application/json','X-Zhixu-Request':'1'},body:JSON.stringify(body)}:{})});
  const value=await response.json();
- if(!response.ok){const error=new Error(response.status===403?'没有来源同步权限。':response.status===401?'登录已过期。':value?.error?.code==='sync_worker_not_enabled'?'来源同步服务尚未启用。':value?.error?.code==='sync_worker_paused'?'来源同步已暂停，请联系管理员核对。':value?.error?.code==='sync_catalog_not_ready'?'合同目录尚未接通，暂不能主动同步。':'暂时无法提交同步，请核对回执。');Object.assign(error,{status:response.status});throw error;}
+ if(!response.ok){const error=new Error(response.status===403?'没有来源同步权限。':response.status===401?'登录已过期。':value?.error?.code==='sync_worker_not_enabled'?'来源同步服务尚未启用。':value?.error?.code==='sync_worker_paused'?'来源同步处于保护暂停，具体原因见同步记录；已有资料保留。':value?.error?.code==='sync_catalog_not_ready'?'合同目录尚未接通，暂不能主动同步。':'暂时无法提交同步，请核对回执。');Object.assign(error,{status:response.status});throw error;}
  return value as T;
 }
 /** Persist only the actor-scoped request identifier/target, never source data or credentials. */
@@ -21,6 +22,7 @@ export function ServerContractRefresh(props:Props){const session=useServerSessio
 function RefreshControl({scope,lastSuccessAt,onComplete,showLastSuccess=true}:Props){
  const session=useServerSession(),scopeKey=JSON.stringify(scope),key='weaveops-source-sync:'+session.user?.id+':'+scopeKey;
  const [pending,setPending]=useState<Pending|null>(null),[receipt,setReceipt]=useState<Receipt|null>(null),[message,setMessage]=useState<string|null>(null),[busy,setBusy]=useState(false),[success,setSuccess]=useState<string|null>(lastSuccessAt??null);
+ const [syncStatus,setSyncStatus]=useState<SyncStatus|null>(null);
  const epoch=useRef(0),complete=useRef(onComplete);useEffect(()=>{complete.current=onComplete;},[onComplete]);
  const allowed=session.permissions.includes('ainuoke.sync')&&session.permissions.includes('style_progress.import');
  useEffect(()=>{
@@ -36,7 +38,7 @@ function RefreshControl({scope,lastSuccessAt,onComplete,showLastSuccess=true}:Pr
  },[key,scopeKey]);
  useEffect(()=>{
   const selected=JSON.parse(scopeKey) as Scope;if(!('orderId' in selected))return;
-  let active=true;api<{lastSuccessAt:string|null}>(prefix+'/sync-status?'+new URLSearchParams({orderId:selected.orderId})).then(result=>{if(active)setSuccess(result.lastSuccessAt);}).catch(()=>undefined);
+  let active=true;api<SyncStatus>(prefix+'/sync-status?'+new URLSearchParams({orderId:selected.orderId})).then(result=>{if(active){setSuccess(result.lastSuccessAt);setSyncStatus(result);}}).catch(()=>undefined);
   return()=>{active=false;};
  },[scopeKey,key]);
  const check=async(current:Pending)=>{
@@ -75,6 +77,7 @@ function RefreshControl({scope,lastSuccessAt,onComplete,showLastSuccess=true}:Pr
   {pending&&receipt?.status==='not_found'&&allowed&&<Button variant="text" disabled={busy} onClick={()=>void submit(pending)}>重送原请求</Button>}
   {receipt&&<span role="status">{sourceSyncMessage(receipt)||'正在核对同步结果'}</span>}
   </div>{showLastSuccess&&(success??lastSuccessAt)&&<small>最近同步成功：{format((success??lastSuccessAt)!)}（北京时间）</small>}
+  {syncStatus&&sourcePauseMessage(syncStatus)&&<p role="status">{sourcePauseMessage(syncStatus)}</p>}
   {message&&<p role="status">{message}</p>}
  </div>;
 }

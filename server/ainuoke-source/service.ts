@@ -1,4 +1,4 @@
-import {withSyncAudit,auditAcquired,auditPublished,commitWithSyncAudit} from './sync-audit.js';
+import {withSyncAudit,auditAcquired,auditPublished,commitWithSyncAudit,pinSyncCall} from './sync-audit.js';
 import { supportsOrderHeads, followupModes } from './followup.js';
 import { supportsEffectiveAttribution } from '../sales-orders/effective-attribution.js';
 import { HttpError } from "../http/errors.js";
@@ -192,6 +192,6 @@ export async function publishMaterialSnapshotsInTransaction(client:PoolClient,ac
  return runId;
 }
 
-export async function captureSource(...args:Parameters<typeof captureSourceImplementation>){
- return withSyncAudit(args[0],{sourceKey:args[2].sourceKey,type:'manual'},()=>captureSourceImplementation(...args));
+export async function captureSource(...args:Parameters<typeof captureSourceImplementation>){const pinned=pinSyncCall(args);
+ return withSyncAudit(pinned[0],{sourceKey:pinned[2].sourceKey,type:'manual'},()=>captureSourceImplementation(...pinned));
 }

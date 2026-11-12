@@ -4,7 +4,7 @@ import {requirePermission} from '../auth/permissions.js';
 import {appendOperationLog} from '../operation-logs/repository.js';
 import {sourceActor} from './service.js';
 import {hash, SourceError, sourceKeyValid} from './contract.js';
-import {retryableCapture,type RequestDiagnostic} from './sync-diagnostics.js';
+import {retryableCapture,validateRequestDiagnostics,type RequestDiagnostic} from './sync-diagnostics.js';
 import {reconcileInterruptedAudit} from './sync-audit.js';
 
 type Identity=Pick<TrustedIdentity,'internalUserId'|'userId'>;
@@ -29,9 +29,14 @@ export async function resumeTransientCatalogBackoff(pool:Pool,identity:Identity,
     JOIN ainuoke_sync_jobs j ON j.capture_attempt_id=a.id WHERE a.status='failed'
     AND a.result_code='catalog_changed_or_over_limit' ORDER BY j.id LIMIT 1`,[sourceKey])).rows[0];
    const d=old?.change;
-   if(!d||d.beforeRows!==d.afterRows||d.beforeRows>1400||d.added!==0||d.removed!==0||d.identityChanges!==0||d.scopeChanged!==false
+   if(!d||!Number.isSafeInteger(d.beforeRows)||d.beforeRows<0||d.beforeRows!==d.afterRows||d.beforeRows>1400||d.added!==0||d.removed!==0||d.identityChanges!==0||d.scopeChanged!==false
     ||JSON.stringify(d.changedFields)!=='["hsid"]'||!Array.isArray(old.requests)||old.requests.length===0
     ||old.requests.some((r:RequestDiagnostic)=>r.outcome!=='complete')){await c.query('COMMIT');return null;}
+   let trace:RequestDiagnostic[];try{trace=validateRequestDiagnostics(old.requests);}catch{await c.query('COMMIT');return null;}
+   const pages=Math.max(1,Math.ceil(d.beforeRows/50)),directory=trace.filter(r=>r.reportId===6086103);
+   if(directory.length!==pages*2||Array.from({length:pages},(_,i)=>i+1).some(page=>directory.filter(r=>r.page===page).length!==2)){
+    await c.query('COMMIT');return null;
+   }
    const at=new Date(old.finished_at).getTime()+control.policy.catalogMinutes*60000;
    if(now<at){await c.query('COMMIT');return {resumed:false,retryAt:new Date(at).toISOString()};}
    await c.query(`UPDATE ainuoke_sync_controls SET paused_reason=NULL,catalog_failure_count=0,catalog_retry_at=NULL,

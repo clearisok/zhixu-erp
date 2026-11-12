@@ -14,8 +14,8 @@ export function parseAuditQuery(params:URLSearchParams){
 export async function querySyncAudit(pool:Pool,params:URLSearchParams,exporting=false){
  const q=parseAuditQuery(params),values:unknown[]=[],conditions:string[]=[];
  const arg=(v:unknown)=>{values.push(v);return '$'+values.length;};
- if(q.start)conditions.push(`b.started_at>=${arg(q.start+'T00:00:00+08:00')}::timestamptz`);
- if(q.end)conditions.push(`b.started_at<(${arg(q.end+'T00:00:00+08:00')}::timestamptz+interval '1 day')`);
+ if(q.start)conditions.push(`coalesce(b.started_at,b.reference_at)>=${arg(q.start+'T00:00:00+08:00')}::timestamptz`);
+ if(q.end)conditions.push(`coalesce(b.started_at,b.reference_at)<(${arg(q.end+'T00:00:00+08:00')}::timestamptz+interval '1 day')`);
  if(q.status){const p=arg(q.status);conditions.push(`(b.status=${p} OR EXISTS(SELECT 1 FROM ainuoke_sync_audit_tables t WHERE t.batch_id=b.id AND t.contract_no='' AND t.status=${p}))`);}
  if(q.type)conditions.push(`b.sync_type=${arg(q.type)}`);
  if(q.batch)conditions.push(`position(${arg(q.batch)} in b.id::text)>0`);
@@ -27,16 +27,19 @@ export async function querySyncAudit(pool:Pool,params:URLSearchParams,exporting=
  if(exporting&&Number((await pool.query(`SELECT count(*) FROM ainuoke_sync_audit_batches b JOIN ainuoke_sync_audit_tables t ON t.batch_id=b.id ${where}`,values)).rows[0].count)>50000)
   throw new HttpError(413,'audit_export_scope_too_large','请缩小范围后导出，最多50000张表记录');
  const rows=(await pool.query(`SELECT b.*,coalesce((SELECT jsonb_agg(t ORDER BY t.report_id,t.contract_no) FROM ainuoke_sync_audit_tables t WHERE t.batch_id=b.id AND t.contract_no=''),'[]') AS tables,coalesce((SELECT jsonb_agg(t ORDER BY t.report_id,t.contract_no) FROM ainuoke_sync_audit_tables t WHERE t.batch_id=b.id AND t.contract_no<>''),'[]') AS contract_tables
-  FROM ainuoke_sync_audit_batches b ${where} ORDER BY b.started_at DESC,b.id DESC LIMIT ${arg(exporting?10000:q.limit)} OFFSET ${arg(exporting?0:q.offset)}`,values)).rows;
+  FROM ainuoke_sync_audit_batches b ${where} ORDER BY coalesce(b.started_at,b.reference_at) DESC,b.id DESC LIMIT ${arg(exporting?10000:q.limit)} OFFSET ${arg(exporting?0:q.offset)}`,values)).rows;
  const overview=(await pool.query(`SELECT json_build_object(
   'lastSuccessAt',(SELECT max(write_completed_at) FROM ainuoke_sync_audit_tables WHERE status='success'),
   'lastAttemptAt',(SELECT max(started_at) FROM ainuoke_sync_audit_batches),
-  'todayBatches',(SELECT count(*) FROM ainuoke_sync_audit_batches WHERE started_at>=(date_trunc('day',now() AT TIME ZONE 'Asia/Shanghai') AT TIME ZONE 'Asia/Shanghai')),
+  'todayBatches',(SELECT count(*) FROM ainuoke_sync_audit_batches WHERE origin<>'historical_record' AND started_at>=(date_trunc('day',now() AT TIME ZONE 'Asia/Shanghai') AT TIME ZONE 'Asia/Shanghai')),
   'todaySuccessTables',(SELECT count(*) FROM ainuoke_sync_audit_tables WHERE contract_no='' AND status='success' AND write_completed_at>=(date_trunc('day',now() AT TIME ZONE 'Asia/Shanghai') AT TIME ZONE 'Asia/Shanghai')),
-  'todayFailedTables',(SELECT count(*) FROM ainuoke_sync_audit_tables t JOIN ainuoke_sync_audit_batches b ON b.id=t.batch_id WHERE t.contract_no='' AND t.status IN ('failed','partial') AND b.started_at>=(date_trunc('day',now() AT TIME ZONE 'Asia/Shanghai') AT TIME ZONE 'Asia/Shanghai')),
+  'todayFailedTables',(SELECT count(*) FROM ainuoke_sync_audit_tables t JOIN ainuoke_sync_audit_batches b ON b.id=t.batch_id WHERE t.contract_no='' AND t.status IN ('failed','partial') AND b.origin<>'historical_record' AND coalesce(b.started_at,b.reference_at)>=(date_trunc('day',now() AT TIME ZONE 'Asia/Shanghai') AT TIME ZONE 'Asia/Shanghai')),
   'retryTasks',(SELECT count(*) FROM ainuoke_sync_jobs WHERE status='queued' AND retry_of IS NOT NULL),
   'pendingRecords',NULL,'pendingTasks',(SELECT count(*) FROM ainuoke_sync_jobs WHERE status IN ('queued','running','unknown')),
   'controls',(SELECT coalesce(json_agg(json_build_object('sourceKey',source_key,'enabled',enabled,'pausedReason',paused_reason,'heartbeatAt',heartbeat_at,'retryAt',catalog_retry_at)),'[]') FROM ainuoke_sync_controls)) AS value`)).rows[0].value;
  const events=(await pool.query('SELECT source_key,event_type,code,occurred_at,batch_id FROM ainuoke_sync_audit_events ORDER BY occurred_at DESC,id DESC LIMIT 50')).rows;
- return {rows,total,offset:q.offset,limit:q.limit,overview,events,sources:SYNC_AUDIT_SOURCES};
+ const sources={...SYNC_AUDIT_SOURCES};
+ for(const r of (await pool.query('SELECT report_id,min(source_name) AS name,array_agg(DISTINCT target) FILTER(WHERE target IS NOT NULL) AS targets FROM ainuoke_sync_audit_tables LEFT JOIN LATERAL unnest(target_tables) target ON true GROUP BY report_id')).rows)
+  if(!sources[r.report_id])sources[r.report_id]={name:r.name,targets:r.targets??[]};
+ return {rows,total,offset:q.offset,limit:q.limit,overview,events,sources};
 }
