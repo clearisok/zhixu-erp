@@ -6121,6 +6121,14 @@
       "recordedAtSha": "e7372a315e7e101b886563cd1f785fd46b3bf075",
       "renderedSourceSha": "e7372a315e7e101b886563cd1f785fd46b3bf075",
       "sha256": "09b87a2b2211d40bad39c6de2a77ee306dd6ba70f5941e580c4f6ee303741f0f"
+    },
+    {
+      "id": "material-color-first-approved-20261112",
+      "kind": "document",
+      "path": "docs/tasks/active/material-color-first-approval-2026-11-12.md",
+      "recordedAtSha": "5bef8388d75f2e983c9397976dc6687c35f4f480",
+      "renderedSourceSha": "5bef8388d75f2e983c9397976dc6687c35f4f480",
+      "sha256": "3959ec9e60130ed5cd620833880611ea80cb6a8ec997f22865df9bd83993255e"
     }
   ],
   "pages": [
@@ -6300,7 +6308,8 @@
         "read-panel-payment-expired-1440",
         "material-dense-approved-20261111",
         "material-dense-module-20261111",
-        "material-seven-approved-20261112"
+        "material-seven-approved-20261112",
+        "material-color-first-approved-20261112"
       ]
     },
     {
