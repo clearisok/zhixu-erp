@@ -1,3 +1,9 @@
+# PR145必要CI修订与staging恢复点
+
+2026-11-12 PR145 head2de3cd12已精确送达；team-access/baseline成功，source在旧continuous-ui交互断言失败，正在只修测试兼容，产品保持用户验收版本。来源业务/认证/数量和候选构建已通过。详见 [发布记录](tasks/active/material-staging-release-2026-11-12.md)。不得合并红CI或部署未通过版本。原open136仍draft明确不merge且冲突，保留。
+
+部署前备份BACKUP_VERIFIED 20261112T070832Z-6f815f2d（15:21:11北京），旧M2服务已恢复。新release /home/jackson/weaveops-staging-preview/releases/material-dense-release-20261112，helpers已准备；尚未新部署。before HTTP与23人工表/620原订单基线保留；source pause catalog_changed_or_over_limit及5 queued完整保留，不清故障、不额外登录。旧supervisor已安全DISABLED便于正式配对备份，SQL暂停仍在；新部署后按新SHA更新备份绑定并保留暂停，不activate源worker。
+
 # 当前接力：物料页staging交付进行中
 
 2026-11-12用户已人工接受8f5b5d8989c6e54ac7c336d3d6f9b14cb29df9b3，明确授权全部open PR审计、安全合并、staging部署；不生产。当前feat/material-followup-dense，相对main6dc17c645215b3eb08e03624effdee2d182b3e1d，已fetch核对同SHA。open仅#136，draft说明明确不merge、当前冲突，保留不动；新物料PR未创建。完整task docs/tasks/active/material-staging-release-2026-11-12.md。
