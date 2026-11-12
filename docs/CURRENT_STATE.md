@@ -1,11 +1,11 @@
-# 当前状态：高密度物料页本机演示就绪
+# 当前状态：七项物料页调整，本机演示就绪
 
-2026-11-11。第一阶段完成，等待用户视觉验收。分支feat/material-followup-dense，产品构建6dc9601549b65a15e60da0ae2c472c89d5e902ff。main/staging仍为6dc17c645215b3eb08e03624effdee2d182b3e1d；本轮未推送、PR、远端CI或部署，不改协议/认证/调度/计算/schema。
+2026-11-12。feat/material-followup-dense；实际产品构建e7372a315e7e101b886563cd1f785fd46b3bf075，buildId local-material-seven-20261112。main/staging仍为6dc17c645215b3eb08e03624effdee2d182b3e1d，本轮无推送/PR/CI/部署。
 
-[直接打开6230-938／PI2610-181](http://127.0.0.1:63054/order-center/style-progress/detail?orderId=aa46192f-23b0-4fd9-9a37-55acc7703783)。原preview.real-orders只读身份自动进入，业务写入和源刷新403。hidden PID42352监听loopback，原63051及原617库不变。
+[6230-938／PI2610-181直达](http://127.0.0.1:63054/order-center/style-progress/detail?orderId=aa46192f-23b0-4fd9-9a37-55acc7703783)，已有标签F5取得新静态资源。原只读预览身份免输入密码，不能保存或源刷新。hidden PID42352保持；原63051及原617库保留，副本仍617；本机源worker=false，宁波唯一owner不变。
 
-副本保留617订单。样本经原历史接纳服务载入11月11日14:44:46真实资料，10自购/3厂供/4采购/2入库/2出运/2出库，原UUID不变；0艾诺科登录/报表，时间不改。1920首屏自购4→10条，1600为9，1366为7；13px正文，分组、字段和历史/未知语义保持。
+来源整行移至表后，同组名称视觉去重（异名保留），总览去掉采购不足/出库列，增加独立分笔多余仓；状态/操作及分组到料右侧固定。样本仍11/11 14:44真实快照10自购/3厂供/4采购/2入库/2出运/2出库，源时间/计算未改。4笔真实采购单位回显千克/个，未采购的6条待核实。num_dyc在其他真实合同核对3/29/37等值，样本缺字段不填零；直接IT采购单位字段尚未证实，复用原采购补充页QtyUnit链。
 
-59个受影响测试报告项通过；类型、局部lint、构建、基线守卫及真实HTTP/独立浏览器检查完成。真实只读UI与隔离写流程分别记录，不冒称真实源刷新通过。原失败日志保留。[最终报告、截图及功能矩阵](tasks/active/material-dense-local-acceptance-2026-11-11.md)、[接力](AI_HANDOFF.md)。
+本轮15单测、10隔离UI、24几何与命中案例、真实六视图/搜索/到料/原字段逐项比较通过；类型/lint/build/基线守卫通过。原库/角色/订单身份不变，业务同步403、无新任务。0艾诺科登录/报表，未全量重采或宣称历史缺失全部补齐。
 
-下一步只接收本机演示反馈；没有明确部署批准，不进入staging阶段。[此前线上交付及回滚事实](tasks/completed/2026-11-11-before-dense-view/CURRENT_STATE.md)保留。
+[最终报告、映射与截图](tasks/active/material-seven-acceptance-2026-11-12.md)、[接力](AI_HANDOFF.md)。等待用户本机效果反馈，未经新明确批准不部署staging。
