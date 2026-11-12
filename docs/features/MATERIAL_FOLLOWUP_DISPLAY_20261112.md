@@ -11,3 +11,7 @@
 多余仓复用ReadInbound.excessWarehouse，真实字段num_dyc，仅按原入库明细sourceReferences读取；同一明细联表重复不相加，每笔入库分开显示，绝不并入rknum或订单/物料库存总量。显式0显示0，缺失无记录，非法/冲突/不完整待核实，单位未知仍标注。沿用D133的来源事实边界，不推广为新库存公式。
 
 无API返回、schema、源协议、认证复用、调度和业务计算修改。实际来源比对、截图、负向测试及限制见tasks/active/material-seven-acceptance-2026-11-12.md。
+
+## 后续明确修订：总览删除名称整列
+
+同日用户进一步要求取消整列而非视觉隐藏。总览selfColumns删除name，颜色成为固定左侧第一列，保留13字段和右侧状态/操作；factoryColumns单独保留原name字段与原结构，流水/抽屉不变。分组跨列随可见字段计算。需求name只从主表列移除，原对象、搜索、分组、详情和行可访问身份保留。此段替代上文总览同名文字隐藏方案。具体批准/结果见material-color-first-approval-2026-11-12和material-color-first-result-2026-11-12，不含部署许可。

@@ -1,15 +1,11 @@
-# 接力：七项本机修订已完成，等待验收
+# 最新恢复点：总览删除名称整列（2026-11-12）
 
-2026-11-12。工作树C:/Users/Administrator/.codex/worktrees/material-dense-local/zhixu-ainuoke-api，branch feat/material-followup-dense；产品e7372a315e7e101b886563cd1f785fd46b3bf075，批准/守卫8ce40c763d411bdb6fc753e48f03c5ea9f835df0。main/staging仍M2=6dc17c645215b3eb08e03624effdee2d182b3e1d。本轮0push/PR/远端CI/部署，0艾诺科登录/报表，0业务数据改写；不要沿用旧PR144许可部署。
+当前产品5bef8388d75f2e983c9397976dc6687c35f4f480，buildId local-material-color-first-20261112；本机63054原hidden PID42352持续运行，F5加载新静态。总览13列从颜色开始，DOM完全没有name表头/td；分组/名称搜索/详情及原对象保留，厂供和流水页保持原列结构。颜色固定左，state/action固定右，group colspan按可见列动态算，原偏好不清库。用户尚未验收或批准部署。
 
-[最终报告](tasks/active/material-seven-acceptance-2026-11-12.md)、[本轮批准与字段调查（e737冻结）](tasks/active/material-seven-adjustments-2026-11-12.md)、[前向模块](features/MATERIAL_FOLLOWUP_DISPLAY_20261112.md)。旧11月11日批准/feature及证据hash不改。D193只调整呈现，不改D133/D187/D190的业务计算。
+[最新结果及截图](tasks/active/material-color-first-result-2026-11-12.md)，批准文件material-color-first-approval-2026-11-12.md冻结5bef。branch feat/material-followup-dense，原main/staging M2不变，无push/PR/远端CI/部署；源worker=false、原617库/角色/宁波owner不动。产品只Tower/CSS，业务/来源原时点及权限未改。
 
-演示63054、hidden PID42352、原loopback preview.real-orders只读自动进入。实际前端e737/build local-material-seven-20261112，原Node启动元信息33091不代表前端版本。目标UUID aa46192f-23b0-4fd9-9a37-55acc7703783，原617与副本617身份/角色未变，原目标7行未动；源worker=false；正常后台仍宁波唯一owner。临时63053已结束，原63051不动。启动方法沿原scripts/material-dense-demo.ts --root=D:/WeaveOps-Local/material-dense-20261111，不重复占端口，不启动本机采集器。
+本轮8显示单测、type/lint/build、真实六视图/搜索/收放/列/密度/明细/到料/其他3合同、24组尺寸/等效缩放/左右滚动命中检查通过；13列/无nameDOM/物料名称搜索针织布返回2条/原progress.rows相等。1920与1600首屏10、1366首屏7。回执D:/WeaveOps-Local/material-dense-20261111/color-first-*.json/png，日志outputs/material-dense-local/color-first-*.log。基线守卫进度以日志实际结果为准，不重复跑已成功检查。
 
-用户七项：footer源信息、同组同名隐藏异名保留、可信采购单位展示、移除主表gap/outbound、逐入库excess、不相加、右侧state/action/group actions sticky。用户尚未人工接受。本轮产品只改Tower/CSS；无API/schema/源协议/认证/调度/数量修改。采购单位原独立6086405/6086408 QtyUnit按四重身份匹配已由原链保存，UI展示不写row.unit。4笔38261/38262千克、115421/115423个；其余待核实。保存7051行没有直接单位字段，不猜列名；用户补列问题仍待答，可不阻断当前安全呈现。num_dyc有真实其他合同3/29/37，样本未提供；无补零/跨批次求和。
+原七项字段证据及限制仍见material-seven-acceptance-2026-11-12.md：采购单位来自独立采购QtyUnit，多余仓num_dyc分笔不加总，历史缺失不伪补。本轮仅移除展示结构，0源请求/0业务写。后续只按本机反馈修改，未明确批准不得发布。
 
-回执受保护D:/WeaveOps-Local/material-dense-20261111：seven-field-reconciliation.private.json、seven-pinned-results.json（24 cases）、seven-after-interactive-results.json、seven-arrival.log在outputs、final-boundary-proof-20261112.json。源14:44真实快照10/3/4/2/2/2不改，较新staging15:47 18行仅只读调查不接纳，不混入视觉比较。
-
-本轮15业务/显示单测PASS、10隔离排序/流水UI PASS、24几何命中及最低1093等效125%点击到料PASS，真实6视图/列恢复/密度/搜索/原rows全相等/其他订单通过，0写/源请求。type/lint/build/guard PASS。未重复全仓/CI或此前18到料/9刷新业务处理器测试。故障注入focus撞pending只读请求的测试race已按实际故障发起计数修正，未改hook；初轮对比截图3张取得后Chrome清理超时保留私密profile，不将该进程称PASS；后续浏览器正常退出。专项初轮innerText与多笔容器断言错误改为实际视觉及指定明细核对，不改数据。不要重跑已通过检查或额外登录源站。
-
-下一步只按用户演示反馈继续本机小改。若明确批准部署再单独完成交付门禁，不提前发布。
+精确main/staging基线：6dc17c645215b3eb08e03624effdee2d182b3e1d。当前实际产品5bef8388，未部署。

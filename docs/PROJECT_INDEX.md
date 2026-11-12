@@ -1,5 +1,7 @@
 # 当前项目入口
 
+最新：[总览颜色首列、整列删除实机结果](tasks/active/material-color-first-result-2026-11-12.md)。本机产品5bef8388，未部署。
+
 2026-11-12：[七项物料显示修订及最终验收](tasks/active/material-seven-acceptance-2026-11-12.md)、[前向显示模块](features/MATERIAL_FOLLOWUP_DISPLAY_20261112.md)。63054本机候选，产品e7372a31；未部署。以下保留11月11日基线入口。
 
 2026-11-11：main/staging为6dc17c645215b3eb08e03624effdee2d182b3e1d（PR144）。新高密度物料页仅本机演示就绪，未批准staging部署。恢复点见[CURRENT_STATE](CURRENT_STATE.md)、[AI_HANDOFF](AI_HANDOFF.md)。
