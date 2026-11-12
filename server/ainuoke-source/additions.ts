@@ -1,4 +1,4 @@
-import {withSyncAudit,auditPublished,commitWithSyncAudit,pinSyncCall} from './sync-audit.js';
+import {withSyncAudit,auditPublished,commitWithSyncAudit,pinSyncCall,auditMappedOrderCounts} from './sync-audit.js';
 import {orderCommandControlError} from '../sales-orders/command-control.js';
 import {lockEffectiveAttribution,resolveEffectiveOrder,supportsEffectiveAttribution} from '../sales-orders/effective-attribution.js';
 import type { Pool, PoolClient } from 'pg';
@@ -277,7 +277,8 @@ async function addOrdersImplementation(pool: Pool, identity: Pick<TrustedIdentit
         orderCount:ids.length,scope:'current_account_visible',salesContractNos:current.candidates.map(c=>c.source.salesContractNo)}});
     if(options.receipt)await client.query('INSERT INTO ainuoke_catalog_intake_receipts(actor_id,request_id,payload_hash,result) VALUES($1,$2,$3,$4::jsonb)',
       [actor.internalUserId,options.receipt.requestId,receiptHash,JSON.stringify({created:ids.length,replayed:false,orderIds:ids,reviewHash:current.reviewHash})]);
-    await auditPublished(client,options.sourceKey,ids,data,'',['sales_orders','sales_order_source_links','ainuoke_sales_order_contract_mirrors','ainuoke_sales_order_color_mirrors']);
+    await auditPublished(client,options.sourceKey,ids,data,'',['sales_orders','sales_order_source_links','ainuoke_sales_order_contract_mirrors','ainuoke_sales_order_color_mirrors'],false,false);
+    await auditMappedOrderCounts(client,{created:ids.length,unchanged:0,createdColors:current.candidates.reduce((n,c)=>n+c.colors.length,0),unchangedColors:0,orderIds:ids});
     await commitWithSyncAudit(client);
     return {created: ids.length, replayed: false, orderIds: ids, reviewHash: current.reviewHash};
   } catch(error) {

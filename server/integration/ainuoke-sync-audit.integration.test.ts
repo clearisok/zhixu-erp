@@ -19,6 +19,8 @@ test('persistent report ledger follows real queue publication, confirmed commits
    assert.ok(rows.some(r=>r.report_id==='6086103'));assert.ok(rows.some(r=>r.report_id==='6087050'));assert.ok(rows.some(r=>r.report_id==='6087105'));
    assert.ok(rows.every(r=>r.write_completed_at&&r.read_completed_at&&r.write_completed_at>=r.read_completed_at));
    assert.ok(batches.some(b=>b.sync_type==='frequent'));
+   const binding=rows.find(r=>r.report_id==='6086103'&&r.cursor_info.countBasis==='selected_order_mirrors');assert.ok(binding);assert.equal(binding.inserted_count,2);assert.equal(binding.publication_ids.length,2);
+   const unboundColor=rows.find(r=>r.report_id==='6087105'&&r.contract_no==='SYN-SALES-3');assert.deepEqual(unboundColor.target_tables,['ainuoke_contract_observations']);
   });
   const page=(id:string,amount:number)=>({reportId:'6087051',fetchedAt:new Date().toISOString(),page:1,pageSize:50,total:1,queryContext:{salesContractNo:'SYN-AUDIT'},rows:[{values:{id,Num:amount}}]});
   const publish=async(type:string,amount:number,rollback=false)=>withSyncAudit(f.pool,{sourceKey:f.sourceKey,type,contracts:['SYN-AUDIT']},async()=>{
@@ -81,6 +83,8 @@ test('persistent report ledger follows real queue publication, confirmed commits
   await t.test('normal HTTP query/export and immutable read-only boundary',async()=>{
    const cookie=await f.login(f.admin),reader=await f.login(f.reader);
    let r=await fetch(f.base+'/api/v1/ainuoke-sync-audit?limit=1',{headers:{Cookie:cookie}});assert.equal(r.status,200);const body=await r.json();assert.equal(body.rows.length,1);assert.ok(body.total>1);assert.ok(body.overview.lastSuccessAt);
+   const second=await fetch(f.base+'/api/v1/ainuoke-sync-audit?limit=1&offset=1',{headers:{Cookie:cookie}});const next=await second.json();assert.equal(next.rows.length,1);assert.notEqual(next.rows[0].id,body.rows[0].id);
+   assert.equal((await fetch(f.base+'/api/v1/ainuoke-sync-audit',{method:'POST',headers:{Cookie:cookie}})).status,405);
    r=await fetch(f.base+'/api/v1/ainuoke-sync-audit?contract=SYN-AUDIT&status=success',{headers:{Cookie:cookie}});assert.equal(r.status,200);assert.ok((await r.json()).rows.length>=3);
    assert.equal((await fetch(f.base+'/api/v1/ainuoke-sync-audit')).status,401);
    assert.equal((await fetch(f.base+'/api/v1/ainuoke-sync-audit',{headers:{Cookie:reader}})).status,403);

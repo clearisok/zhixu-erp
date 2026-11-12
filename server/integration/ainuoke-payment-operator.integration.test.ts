@@ -1,3 +1,4 @@
+import {historicalSourceFixture} from './historical-source-fixture.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
@@ -17,7 +18,7 @@ import { validateContractEvidence } from '../ainuoke-source/payment-request-cont
 import { verifyPaymentTargetEvidence } from '../ainuoke-source/payment-target-verification.js';
 import { planPaymentTargets, applyPaymentTargets } from '../ainuoke-source/payment-targets.js';
 import { planPaymentOperatorCollection, collectPaymentOnce } from '../ainuoke-source/payment-operator-collection.js';
-import { planPaymentCollection, collectAndPublishPaymentContracts } from '../ainuoke-source/payment-request-collection.js';
+import { planPaymentCollection } from '../ainuoke-source/payment-request-collection.js';
 import { readPaymentOperatorCommand } from '../ainuoke-source/payment-operator-command-store.js';
 import { createPaymentSnapshotReader } from '../ainuoke-source/payment-request-store.js';
 import { collectionConfig, collectionSelection, collectionEvidence } from './payment-collection-fixture.js';
@@ -252,6 +253,7 @@ test('payment operator: owned PG, target lifecycle and durable one-shot commands
   });
   await t.test('nonempty 0025 upgrade preserves historical fields and adds empty command storage; old-schema rollback is rejected',async()=>{
     const directory=mkdtempSync(join(tmpdir(),'zhixu-payment-operator-upgrade-'));
+    const legacy=await historicalSourceFixture();
     const old=new pg.Pool({connectionString:await db.createDatabase('operator_upgrade'),max:2});
     try{
       for(const file of CURRENT_MIGRATION_FILES.filter(name=>Number(name.slice(0,4))<=25))copyFileSync(resolve('database/migrations',file),join(directory,file));
@@ -268,7 +270,7 @@ test('payment operator: owned PG, target lifecycle and durable one-shot commands
           VALUES($1,$2,$3,true,$4)`,[collectionConfig.sourceKey,id,selection.sourceFingerprint,hash(row)]);targets.push({alias:row.alias,salesOrderId:id});
       }
       const request={config:{...collectionConfig},selection,targets},plan=await planPaymentCollection(old,user,request,now);
-      assert.equal((await collectAndPublishPaymentContracts(old,user,request,plan.scopeHash,{now,collect})).published,2);
+      assert.equal((await legacy.collectAndPublishPaymentContracts(old,user,request,plan.scopeHash,{now,collect})).published,2);
       const tables=['app_users','sales_orders','ainuoke_sales_order_contract_mirrors','ainuoke_source_profiles','ainuoke_payment_source_targets',
         'ainuoke_payment_snapshots','ainuoke_payment_heads','operation_logs'];
       const inventory=await freezeExistingPublicRows(old,tables);
@@ -280,6 +282,6 @@ test('payment operator: owned PG, target lifecycle and durable one-shot commands
       assert.equal((await old.query('SELECT count(*)::int n FROM ainuoke_payment_operator_commands')).rows[0].n,0);
       assert.deepEqual((await runMigrations(old,resolve('database/migrations'))).applied,[]);
       await assert.rejects(()=>inspectMigrationStatus(old,directory),/Applied migration 26 .* is missing from the migration directory/u);
-    }finally{await old.end();assert.equal(dirname(directory),resolve(tmpdir()));assert.match(basename(directory),/^zhixu-payment-operator-upgrade-/u);rmSync(directory,{recursive:true,force:true});}
+    }finally{await legacy.close();await old.end();assert.equal(dirname(directory),resolve(tmpdir()));assert.match(basename(directory),/^zhixu-payment-operator-upgrade-/u);rmSync(directory,{recursive:true,force:true});}
   });
 });

@@ -86,7 +86,7 @@ async function publishCatalogImplementation(pool:Pool,identity:Pick<TrustedIdent
   const actor=await sourceActor(c,identity,true);requirePermission(actor.permissions,'ainuoke.bind');
   await requireAdditionProfile(c,options.sourceKey,options.accountFingerprint,true);
   const old=(await c.query('SELECT id,content_hash FROM ainuoke_catalog_runs WHERE source_key=$1 AND request_id=$2',[options.sourceKey,options.requestId])).rows[0];
-  if(old){if(old.content_hash!==checked.contentHash)throw new SourceError('catalog_request_conflict');await auditPublished(c,options.sourceKey,old.id,checked.bundle,'',undefined,true);await commitWithSyncAudit(c);return {runId:old.id,replayed:true,contracts:checked.rows.length};}
+  if(old){if(old.content_hash!==checked.contentHash)throw new SourceError('catalog_request_conflict');await auditPublished(c,options.sourceKey,old.id,checked.bundle,'',['ainuoke_catalog_runs','ainuoke_catalog_entries','ainuoke_catalog_capture_evidence'],true);await commitWithSyncAudit(c);return {runId:old.id,replayed:true,contracts:checked.rows.length};}
   const saved=(await c.query('SELECT source_id,sales_contract_no FROM ainuoke_catalog_entries WHERE source_key=$1',[options.sourceKey])).rows;
   for(const r of checked.rows)if(saved.some(s=>(s.source_id===r.sourceId)!==(s.sales_contract_no===r.salesContractNo)))throw new SourceError('catalog_identity_changed');
   const links=(await c.query("SELECT external_id,sales_contract_no FROM sales_order_source_links WHERE source_system='ainuoke' AND source_entity_type='sales_contract'")).rows;
@@ -130,7 +130,7 @@ async function publishCatalogImplementation(pool:Pool,identity:Pick<TrustedIdent
   }
   await appendOperationLog(c,actor,{module:'艾诺科同步',action:'更新合同目录',entityType:'AinuokeCatalogRun',entityId:id,metadata:{sourceOnly:true,contractCount:checked.rows.length,requestId:options.requestId,
    ...(historical?{historicalPublication:true,sourceRequests:0,originalCapturedAt:historical.capturedAt}:{})}});
-  await auditPublished(c,options.sourceKey,id,checked.bundle);
+  await auditPublished(c,options.sourceKey,id,checked.bundle,'',['ainuoke_catalog_runs','ainuoke_catalog_entries','ainuoke_source_profiles','ainuoke_catalog_capture_evidence',...(createdOrders?['sales_orders','sales_order_source_links','ainuoke_sales_order_contract_mirrors']:[])]);
   await commitWithSyncAudit(c);return {runId:id,replayed:false,contracts:checked.rows.length,createdOrders,pendingOrders};
  }catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}
 }

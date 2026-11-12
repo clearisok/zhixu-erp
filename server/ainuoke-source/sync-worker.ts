@@ -93,9 +93,9 @@ async function publishContract(pool:Pool,identity:Identity,config:CollectorConfi
     await c.query("UPDATE ainuoke_sync_jobs SET status='complete',finished_at=$2,result=$3::jsonb WHERE id=$1",[job.id,new Date(now),JSON.stringify(result)]);
     await appendOperationLog(c,actor,{module:'艾诺科同步',action:'采集艾诺科来源',entityType:'AinuokeCatalogRun',entityId:directoryId,
       metadata:{sourceOnly:true,jobId:job.id,requestedBy:current.requested_by},afterData:{objectName:job.sales_contract_no,values:{result:'同步成功'}}});
-    await auditPublished(c,config.sourceKey,observationId,singleAddition.colors[job.sales_contract_no],job.sales_contract_no);
+    await auditPublished(c,config.sourceKey,observationId,singleAddition.colors[job.sales_contract_no],job.sales_contract_no,target?undefined:['ainuoke_contract_observations']);
     if(!target)await auditPublished(c,config.sourceKey,observationId,captured.materials.bundle.materials[job.sales_contract_no],job.sales_contract_no,['ainuoke_contract_observations']);
-    await auditPublished(c,config.sourceKey,directoryId,captured.directory.bundle,'',['ainuoke_catalog_capture_evidence','ainuoke_catalog_runs']);
+    await auditPublished(c,config.sourceKey,directoryId,captured.directory.bundle,'',['ainuoke_catalog_capture_evidence','ainuoke_catalog_runs','ainuoke_catalog_entries']);
     await commitWithSyncAudit(c);return result;
   }catch(e){await c.query('ROLLBACK').catch(()=>undefined);throw e;}finally{c.release();}
 }

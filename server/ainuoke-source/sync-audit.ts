@@ -82,13 +82,13 @@ export async function withSyncAudit<T>(pool:Pool,scope:{id?:string;sourceKey:str
    VALUES($1,$2,$3,$4,0,0,'{"planned":true,"complete":false}')`,[id,report,definition?.name??'未登记报表 '+report,definition?.targets??[]]);
  }
  return context.run({id,sourceKey:scope.sourceKey},async()=>{
-  try{const result=await fn();await finishBatch(pool,id);return result;}
+  try{const result=await fn();const replay=result&&typeof result==='object'&&(('replayed' in result&&result.replayed===true)||('status' in result&&result.status==='existing_head_preserved'));await finishBatch(pool,id,undefined,Boolean(replay));return result;}
   catch(e){await pool.query(`UPDATE ainuoke_sync_audit_tables SET status='failed',error_code=coalesce(error_code,$2),failed_count=fetched_count
    WHERE batch_id=$1 AND status IN ('reading','acquired')`,[id,safeCode(e)]);
    await finishBatch(pool,id,safeCode(e));throw e;}
  });
 }
-async function finishBatch(db:DB,id:string,error?:string){
+async function finishBatch(db:DB,id:string,error?:string,replayed=false){
  await db.query("UPDATE ainuoke_sync_audit_tables SET error_code=coalesce(error_code,'commit_acknowledgement_missing') WHERE batch_id=$1 AND status='write_pending'",[id]);
  await db.query(`UPDATE ainuoke_sync_audit_tables t SET status='failed',error_code=coalesce(t.error_code,$2,b.error_code,'publication_not_completed')
   FROM ainuoke_sync_audit_batches b WHERE t.batch_id=b.id AND b.id=$1 AND t.status IN ('reading','acquired')`,[id,error??null]);
@@ -127,14 +127,25 @@ async function finishBatch(db:DB,id:string,error?:string){
    cursor_info=t.cursor_info||jsonb_build_object('fetchedCountBasis',CASE WHEN c.counted>0 AND c.counted=c.completed THEN 'actual_response_rows' ELSE 'verified_snapshot_rows' END)
   FROM counts c WHERE t.batch_id=$1 AND t.contract_no='' AND t.report_id=c.report_id`,[id]);
  await db.query(`UPDATE ainuoke_sync_audit_batches b SET finished_at=clock_timestamp(),error_code=coalesce($2,error_code),
-  status=CASE WHEN EXISTS(SELECT 1 FROM ainuoke_sync_audit_tables t WHERE t.batch_id=b.id AND t.status IN ('partial','write_pending')) THEN 'partial' WHEN EXISTS(SELECT 1 FROM ainuoke_sync_audit_tables t WHERE t.batch_id=b.id AND t.status='success')
+  status=CASE WHEN $3::boolean AND NOT EXISTS(SELECT 1 FROM ainuoke_sync_audit_tables t WHERE t.batch_id=b.id) THEN 'success' WHEN EXISTS(SELECT 1 FROM ainuoke_sync_audit_tables t WHERE t.batch_id=b.id AND t.status IN ('partial','write_pending')) THEN 'partial' WHEN EXISTS(SELECT 1 FROM ainuoke_sync_audit_tables t WHERE t.batch_id=b.id AND t.status='success')
     THEN CASE WHEN $2::text IS NOT NULL OR EXISTS(SELECT 1 FROM ainuoke_sync_audit_tables t WHERE t.batch_id=b.id AND t.status<>'success') THEN 'partial' ELSE 'success' END
-   ELSE 'failed' END WHERE b.id=$1`,[id,error??null]);
+   ELSE 'failed' END WHERE b.id=$1`,[id,error??null,replayed]);
 }
 /** Called only after validated complete captures. Page fetchedAt is a read
  * completion timestamp, never a source modification time or a commit time. */
+export async function auditReadStarted(db:DB,reportId:string){
+ const ctx=context.getStore();if(!ctx)return;const def=SYNC_AUDIT_SOURCES[reportId];
+ await db.query(`INSERT INTO ainuoke_sync_audit_tables(batch_id,report_id,source_name,target_tables,read_started_at,read_time_basis)
+  VALUES($1,$2,$3,$4,clock_timestamp(),'collector_invocation') ON CONFLICT(batch_id,report_id,contract_no) DO UPDATE
+  SET read_started_at=clock_timestamp(),read_time_basis='collector_invocation'`,[ctx.id,reportId,def?.name??'未登记报表 '+reportId,def?.targets??[]]);
+}
+export async function auditReportRequests(db:DB,reportId:string,count:number){
+ const ctx=context.getStore();if(!ctx||!Number.isSafeInteger(count)||count<0||count>80)return;
+ await db.query("UPDATE ainuoke_sync_audit_tables SET api_requests=$3 WHERE batch_id=$1 AND report_id=$2 AND contract_no=''",[ctx.id,reportId,count]);
+}
 export async function auditAcquired(db:DB,input:unknown,diagnostics:RequestDiagnostic[]|null=null,contract=''){
  const ctx=context.getStore();if(!ctx)return;
+ if(contract)await db.query('UPDATE ainuoke_sync_audit_batches SET contracts=ARRAY(SELECT DISTINCT unnest(contracts||ARRAY[$2::text])) WHERE id=$1',[ctx.id,contract]);
  const pages=auditPages(input);
  for(const reportId of new Set(pages.map(p=>String(p.reportId)))){
   const selected=pages.filter(p=>String(p.reportId)===reportId),definition=SYNC_AUDIT_SOURCES[reportId];
@@ -162,15 +173,19 @@ export async function auditCaptureFailure(db:DB,code:string,diagnostics:RequestD
 }
 /** Runs in the SAME business transaction as publication. Rollback cannot leave
  * a successful audit row or advance the comparison state. */
-export async function auditPublished(db:DB,sourceKey:string,publication:string|string[],input:unknown,contract='',targets?:string[],replayed=false){
+export async function auditPublished(db:DB,sourceKey:string,publication:string|string[],input:unknown,contract='',targets?:string[],replayed=false,countable=true){
  const ctx=context.getStore();if(!ctx)return;
  const publicationIds=Array.isArray(publication)?publication:[publication],publicationId=publicationIds[0];
  if(contract)await db.query(`UPDATE ainuoke_sync_audit_batches SET contracts=ARRAY(SELECT DISTINCT unnest(contracts||ARRAY[$2::text])) WHERE id=$1`,[ctx.id,contract]);
  const pages=auditPages(input);
  for(const reportId of new Set(pages.map(p=>String(p.reportId)))){
-  if((await db.query("SELECT 1 FROM ainuoke_sync_audit_tables WHERE batch_id=$1 AND report_id=$2 AND contract_no=$3 AND status='success'",[ctx.id,reportId,contract])).rowCount)continue;
+  if((await db.query("SELECT 1 FROM ainuoke_sync_audit_tables WHERE batch_id=$1 AND report_id=$2 AND contract_no=$3 AND status='success'",[ctx.id,reportId,contract])).rowCount){
+   await db.query(`UPDATE ainuoke_sync_audit_tables SET publication_ids=ARRAY(SELECT DISTINCT unnest(publication_ids||$4::text[])),
+    target_tables=ARRAY(SELECT DISTINCT unnest(target_tables||$5::text[])),status='write_pending',write_completed_at=NULL,transaction_id=txid_current()::text
+    WHERE batch_id=$1 AND report_id=$2 AND contract_no=$3`,[ctx.id,reportId,contract,publicationIds,targets??SYNC_AUDIT_SOURCES[reportId]?.targets??[]]);continue;
+  }
   const selected=pages.filter(p=>String(p.reportId)===reportId),definition=SYNC_AUDIT_SOURCES[reportId];
-  const {records,duplicates,ambiguous}=auditRecordSet(selected);
+  const {records,duplicates,ambiguous:identityAmbiguous}=auditRecordSet(selected);const ambiguous=identityAmbiguous||!countable;
   const scope=contract||hash(selected[0].queryContext??{});
   await db.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',[`sync-audit:${sourceKey}:${reportId}:${scope}`]);
   let old=new Map((await db.query('SELECT record_key,content_hash FROM ainuoke_sync_audit_record_state WHERE source_key=$1 AND report_id=$2 AND scope_key=$3',[sourceKey,reportId,scope])).rows.map(r=>[r.record_key,r.content_hash]));
@@ -202,7 +217,7 @@ export async function auditPublished(db:DB,sourceKey:string,publication:string|s
     unchanged_count=excluded.unchanged_count,failed_count=0,duplicate_count=excluded.duplicate_count,error_code=excluded.error_code,target_tables=excluded.target_tables,
     publication_ids=excluded.publication_ids,transaction_id=excluded.transaction_id,cursor_info=ainuoke_sync_audit_tables.cursor_info||excluded.cursor_info`,
    [ctx.id,reportId,definition?.name??'未登记报表 '+reportId,targets??definition?.targets??[],contract,end,selected.reduce((n,p)=>n+p.rows.length,0),selected.length,
-    ambiguous?null:inserted,ambiguous?null:updated,ambiguous?null:unchanged,duplicates,ambiguous?'record_identity_ambiguous':null,publicationIds,JSON.stringify({pages:selected.map(p=>p.page),reportedTotals:[...new Set(selected.map(p=>p.total))],complete:true,coverage:'validated_requested_scope',countBasis:'distinct_source_records',
+    ambiguous?null:inserted,ambiguous?null:updated,ambiguous?null:unchanged,duplicates,ambiguous?(countable?'record_identity_ambiguous':'record_metrics_unavailable'):null,publicationIds,JSON.stringify({pages:selected.map(p=>p.page),reportedTotals:[...new Set(selected.map(p=>p.total))],complete:true,coverage:'validated_requested_scope',countBasis:countable?'distinct_source_records':'projection_mutations_not_counted',
      queries:selected.map(p=>Object.fromEntries(Object.entries(p.queryContext??{}).filter(([key,value])=>['salesContractNo','insideOrderNo'].includes(key)&&typeof value==='string'&&value.length<=80))),
      ...(creation.length?{sourceCreationEvidence:{field:definition!.createdField,examples:creation.slice(0,5),moreValues:creation.length>5,timezone:'not_inferred'}}:{})})]);
   if(!ambiguous&&records.size)await db.query(`INSERT INTO ainuoke_sync_audit_record_state(source_key,report_id,scope_key,record_key,content_hash,batch_id)
@@ -272,4 +287,16 @@ export async function reconcileInterruptedAudit(db:DB,sourceKey:string){
 export async function auditLinkCapture(db:DB,captureId:string){
  const owner=context.getStore();if(!owner)return;
  await db.query('UPDATE ainuoke_sync_audit_batches SET capture_ids=array_append(capture_ids,$2::uuid) WHERE id=$1 AND NOT $2::uuid=ANY(capture_ids)',[owner.id,captureId]);
+}
+
+/** First binding/adoption is a selected-order projection, not a full catalogue
+ * publication. Count actual accepted mirror records; never call all read rows
+ * newly created orders. The existing command proves an all-new or exact replay. */
+export async function auditMappedOrderCounts(db:DB,value:{created:number;unchanged:number;createdColors:number;unchangedColors:number;orderIds:string[]}){
+ const owner=context.getStore();if(!owner)return;
+ await db.query(`UPDATE ainuoke_sync_audit_tables SET inserted_count=CASE WHEN report_id='6086103' THEN $2::integer ELSE $4::integer END,
+  updated_count=0,unchanged_count=CASE WHEN report_id='6086103' THEN $3::integer ELSE $5::integer END,error_code=NULL,
+  cursor_info=cursor_info||jsonb_build_object('countBasis','selected_order_mirrors','selectedOrderIds',$6::jsonb)
+  WHERE batch_id=$1 AND report_id IN ('6086103','6086997','6087105') AND status='write_pending'`,
+  [owner.id,value.created,value.unchanged,value.createdColors,value.unchangedColors,JSON.stringify(value.orderIds)]);
 }

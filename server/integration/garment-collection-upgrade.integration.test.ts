@@ -1,3 +1,4 @@
+import {historicalSourceFixture} from './historical-source-fixture.js';
 import test from "node:test";
 import { freezeExistingPublicRows } from "./legacy-row-snapshot-fixture.js";
 import assert from "node:assert/strict";
@@ -16,7 +17,7 @@ import { createAinuokeSalesOrder } from "../sales-orders/service.js";
 import { accountFingerprint } from "../ainuoke-source/collector.js";
 import { hash } from "../ainuoke-source/contract.js";
 import { garmentCollectionProof, planGarmentCollection } from "../ainuoke-source/garment-collection-control.js";
-import { prepareGarmentPublication, publishGarmentObservation, createGarmentShipmentReader } from "../ainuoke-source/garment-shipment-store.js";
+import { prepareGarmentPublication, createGarmentShipmentReader } from "../ainuoke-source/garment-shipment-store.js";
 import { validateGarmentCollectionResult } from "../ainuoke-source/garment-collection-worker.js";
 import { collectionRequest, workerFrame, configFor } from "./garment-collection-fixture.js";
 import { normalizationReferences } from "../sales-orders/normalization-preview.js";
@@ -44,7 +45,8 @@ test("0042 to 0043 preserves nonempty old source/order/history rows and leaves c
     [request.config.sourceKey, order.id, fingerprint, proof.verificationSha256]);
   const context = await prepareGarmentPublication(pool, actor, request.config.sourceKey, order.id, clock);
   const scope = { sourceFingerprint: fingerprint, salesContractNo: "SYN-UPGRADE-C1" }, collected = validateGarmentCollectionResult(workerFrame(scope, clock + 100), request.config, scope, clock + 100);
-  await publishGarmentObservation(pool, actor, context, collected.input, scope, clock + 100);
+  const legacy=await historicalSourceFixture();
+  try{await legacy.publishGarmentObservation(pool, actor, context, collected.input, scope, clock + 100);}finally{await legacy.close();}
   const tables = (await pool.query<{ tablename: string }>("SELECT tablename FROM pg_tables WHERE schemaname='public' AND tablename<>'schema_migrations' ORDER BY tablename")).rows.map(row => row.tablename);
   const snapshot = await freezeExistingPublicRows(pool, tables);
   const before = await snapshot();

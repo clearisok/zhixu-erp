@@ -1,4 +1,4 @@
-import {withSyncAudit,commitWithSyncAudit,pinSyncCall} from './sync-audit.js';
+import {withSyncAudit,commitWithSyncAudit,pinSyncCall,auditReadStarted,auditAcquired,auditCaptureFailure,auditMetrics,auditReportRequests} from './sync-audit.js';
 import type { Pool, PoolClient } from "pg";
 import type { TrustedIdentity } from "../auth/session.js";
 import { readCurrentActor } from "../auth/current-actor.js";
@@ -240,12 +240,17 @@ async function collectGarmentOnceImplementation(pool: Pool, caller: TrustedIdent
     if (scopeHash(current, permit) !== permit.scopeHash) fail(409, "garment_collection_scope_changed");
     fresh(permit, now());
     counts = "unknown";
+    await auditReadStarted(pool,'6086979');
     const raw = await (options.collect ?? collectGarmentObservationPages)(parsed.request.config,
       { sourceFingerprint: scope.context.sourceFingerprint, salesContractNo: scope.context.salesContractNo });
     collected = validateGarmentCollectionResult(raw, parsed.request.config,
       { sourceFingerprint: scope.context.sourceFingerprint, salesContractNo: scope.context.salesContractNo }, now());
     counts = collected.counts;
+    await auditAcquired(pool,collected.input,null,scope.context.salesContractNo);
+    await auditMetrics(pool,{httpAttempts:counts.httpAttempts,logins:counts.httpAttempts-counts.reportRequests});
+    await auditReportRequests(pool,'6086979',counts.reportRequests);
   } catch (error) { counts = garmentCollectionFailureCounts(error) ?? counts;
+    await auditCaptureFailure(pool,safeCode(error),null);
     result = { schemaVersion: "ainuoke-garment-collection-outcome.v1", outcome: "not_published", code: safeCode(error), requestCounts: counts }; }
 
   let finishClient: PoolClient | undefined, committing = false;

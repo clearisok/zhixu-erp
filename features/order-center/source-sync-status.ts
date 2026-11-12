@@ -16,9 +16,11 @@ export function sourceFailureMessage(outcome:string|undefined,code:string|undefi
 }
 export function sourcePauseMessage(value:{configuredEnabled?:boolean;pausedReason?:string|null;automaticResumeAt?:string|null;catalogRetryAt?:string|null}){
  if(value.configuredEnabled===false)return '管理员已停用来源同步；保留上次成功资料。';
+ if(['invalid_credential','auth_expired','source_account_mismatch'].includes(value.pausedReason??''))return '来源认证需要核对，自动采集已保护暂停；保留上次成功资料。';
+ if(value.pausedReason&&!['catalog_retries_exhausted','catalog_changed_or_over_limit','catalog_non_identity_content_changed','catalog_business_content_changed','catalog_additions_observed'].includes(value.pausedReason))return '来源一致性保护已暂停，请管理员在艾诺科同步记录中核对具体原因；保留上次成功资料。';
  const at=value.automaticResumeAt??value.catalogRetryAt;
  if(at&&Number.isFinite(Date.parse(at))){const time=new Date(at).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false});return `来源读取正在退避，后台计划于${time}重新核对（北京时间）；保留上次成功资料。`;}
- if(['invalid_credential','auth_expired','source_account_mismatch'].includes(value.pausedReason??''))return '来源认证需要核对，自动采集已保护暂停；保留上次成功资料。';
- if(value.pausedReason)return '来源一致性保护已暂停，请在艾诺科同步记录中核对具体原因；保留上次成功资料。';
+
+ if(value.pausedReason)return '来源一致性保护已暂停，请管理员在艾诺科同步记录中核对具体原因；保留上次成功资料。';
  return '';
 }

@@ -1,4 +1,4 @@
-import {withSyncAudit,pinSyncCall} from './sync-audit.js';
+import {withSyncAudit,pinSyncCall,auditReadStarted,auditAcquired,auditCaptureFailure,auditPublicationFailure,auditMetrics,auditReportRequests} from './sync-audit.js';
 import type { Pool, PoolClient } from 'pg';
 import type { TrustedIdentity } from '../auth/session.js';
 import { UUID_PATTERN } from '../sales-orders/delivery-plan-model.js';
@@ -119,6 +119,7 @@ async function collectAndPublishPaymentContractsImplementation(pool: Pool, calle
   const notAttempted = () => request.targets.map(target => ({ alias: target.alias, status: 'not_attempted' as const }));
   let captured: Array<ReturnType<typeof paymentContractSnapshotInputs>[number] & { candidateSnapshotId: string }>;
   try {
+    await auditReadStarted(pool,'6086941');
     const evidence = structuredClone(await (options.collect ?? collectPaymentContracts)(structuredClone(request.config), structuredClone(request.selection)));
     const checkedAt = now();
     captured = paymentContractSnapshotInputs(evidence, request.config, request.selection, checkedAt).map((capture, index) => {
@@ -126,11 +127,16 @@ async function collectAndPublishPaymentContractsImplementation(pool: Pool, calle
       if (Date.parse(snapshot.observedFrom) < plan.contexts[index].preparedAt) fail('payment_capture_precedes_scope');
       return { ...capture, candidateSnapshotId: snapshot.snapshotId };
     });
+    const metrics=evidence as {httpAttempts:number;reportRequests:number};
+    await auditMetrics(pool,{httpAttempts:metrics.httpAttempts,logins:metrics.httpAttempts-metrics.reportRequests});
+    await auditReportRequests(pool,'6086941',metrics.reportRequests);
+    for(const [i,capture] of captured.entries())await auditAcquired(pool,capture.input,null,plan.contexts[i].salesContractNo);
   } catch (error) {
+    await auditCaptureFailure(pool,collectionCode(error),null);
     return receipt(notAttempted(), { attempted: true, validated: false, code: collectionCode(error) });
   }
   try { await scopeUnchanged(pool, identity, request, plan, now); }
-  catch (error) { return receipt(notAttempted(), { attempted: true, validated: true, code: publicationCode(error) }); }
+  catch (error) { await auditCaptureFailure(pool,publicationCode(error),null);return receipt(notAttempted(), { attempted: true, validated: true, code: publicationCode(error) }); }
   const outcomes: Outcome[] = [];
   for (const [index, target] of request.targets.entries()) {
     try {
@@ -138,6 +144,7 @@ async function collectAndPublishPaymentContractsImplementation(pool: Pool, calle
       outcomes.push({ alias: target.alias, status: 'published', ...result });
     } catch (error) {
       const code = publicationCode(error);
+      await auditPublicationFailure(pool,plan.contexts[index].salesContractNo,code);
       if (code === 'payment_collection_publication_failed') outcomes.push({ alias: target.alias, status: 'unresolved', code,
         candidateSnapshotId: captured[index].candidateSnapshotId, expectedGeneration: plan.contexts[index].generation + 1 });
       else outcomes.push({ alias: target.alias, status: 'failed', code });

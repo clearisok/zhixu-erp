@@ -146,12 +146,12 @@ test("durable garment commands, one worker, atomic publication and original requ
   });
   await t.test("a different configured database channel cannot consume the preview", async () => {
     const job = await make(), before = calls;
-    const wrong = { options: { ...pool.options, connectionString: pool.options.connectionString!.replace("127.0.0.1", "localhost") }, connect: () => pool.connect() } as unknown as Pool;
+    const wrong = { query:pool.query.bind(pool), options: { ...pool.options, connectionString: pool.options.connectionString!.replace("127.0.0.1", "localhost") }, connect: () => pool.connect() } as unknown as Pool;
     await assert.rejects(() => collect(job, undefined, wrong), { code: "garment_collection_scope_changed" });
     assert.equal(calls, before); assert.equal(await count("ainuoke_garment_collection_commands", job), 0);
   });
   function alteredPool(hook: (text: string, values: unknown[] | undefined, run: () => Promise<unknown>) => Promise<unknown>): Pool {
-    return { options: pool.options, connect: async () => {
+    return { query:pool.query.bind(pool), options: pool.options, connect: async () => {
       const client = await pool.connect(), query = client.query.bind(client);
       return { query: (text: string, values?: unknown[]) => hook(text, values, () => query(text, values)), release: () => client.release() } as unknown as PoolClient;
     } } as unknown as Pool;

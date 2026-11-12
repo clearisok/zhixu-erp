@@ -1,3 +1,4 @@
+import {historicalSourceFixture} from './historical-source-fixture.js';
 import assert from 'node:assert/strict';
 import test from 'node:test';
 import {randomUUID} from 'node:crypto';
@@ -121,7 +122,7 @@ test('controlled offline bound-source refresh on owned disposable PG',{timeout:1
  });
  await t.test('preview is bound to connection destination even when database internal facts are identical',async()=>{
   const next=evidence(158),p=await preview(next),uri=new URL(pool.options.connectionString!);uri.hostname='different-target.invalid';
-  const redirected={connect:()=>pool.connect(),options:{...pool.options,connectionString:uri.toString()}} as unknown as pg.Pool;
+  const redirected={query:pool.query.bind(pool),connect:()=>pool.connect(),options:{...pool.options,connectionString:uri.toString()}} as unknown as pg.Pool;
   await assert.rejects(()=>applyBoundOrderRefresh(redirected,actor,scope,next,{requestId:randomUUID(),expectedPreview:p.previewHash},clock+2000),code('bound_refresh_preview_changed'));
   assert.equal((await readDeliveryPlanSet(pool,orderId)).sourceQuantity,'135');
  });
@@ -205,16 +206,17 @@ test('controlled offline bound-source refresh on owned disposable PG',{timeout:1
  });
  await t.test('0040 populated prefix upgrades only the new empty receipt relation and preserves old rows',async()=>{
   const directory=await mkdtemp(join(tmpdir(),'zhixu-refresh-prefix-')),old=new pg.Pool({connectionString:await db.createDatabase('bound_refresh_upgrade')});
+  const legacy=await historicalSourceFixture();
   try{
    for(const file of await readdir('database/migrations'))if(/^\d{4}_.+\.sql$/u.test(file)&&Number(file.slice(0,4))<=40)await copyFile(join('database/migrations',file),join(directory,file));
    await runMigrations(old,directory);await synchronizePermissionCatalog(old);await bootstrapAdmin(old,{username:'synthetic.upgrade',displayName:'Synthetic upgrade',password:'synthetic-upgrade'});
    const a=await loadExistingBootstrapActor(old,'synthetic.upgrade'),b=bindingBundle(Date.now());
-   await bindOrders(old,a,{...options,expectedPreview:(await previewBindings(b)).reviewHash,collect:async()=>b});
+   await legacy.bindOrders(old,a,{...options,expectedPreview:(await previewBindings(b)).reviewHash,collect:async()=>b});
    const tables=['app_users','app_roles','app_role_permissions','sales_orders','sales_order_source_links','ainuoke_sales_order_contract_mirrors','ainuoke_sales_order_color_mirrors','sales_order_delivery_plan_sets','sales_order_delivery_plans','operation_logs'];
    const snapshot=async()=>Promise.all(tables.map(async table=>(await old.query(`SELECT row_to_json(x) data FROM ${table} x ORDER BY row_to_json(x)::text`)).rows));
    const before=await snapshot();assert.deepEqual((await runMigrations(old,resolve('database/migrations'))).applied,migrationFilesAfter(40));
    assert.deepEqual(await snapshot(),before);assert.equal((await old.query('SELECT count(*)::int n FROM ainuoke_order_source_refresh_receipts')).rows[0].n,0);
    assert.deepEqual((await runMigrations(old,resolve('database/migrations'))).applied,[]);
-  }finally{await old.end();const child=relative(resolve(tmpdir()),resolve(directory));assert.ok(child&&!child.startsWith('..')&&!isAbsolute(child));await rm(directory,{recursive:true,force:true});}
+  }finally{await legacy.close();await old.end();const child=relative(resolve(tmpdir()),resolve(directory));assert.ok(child&&!child.startsWith('..')&&!isAbsolute(child));await rm(directory,{recursive:true,force:true});}
  });
 });

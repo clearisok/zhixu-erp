@@ -14,7 +14,8 @@ export async function historicalSourceFixture(){
   execFileSync('tar',['-xf',tar,'-C',root],{windowsHide:true});
   await symlink(resolve('node_modules'),join(root,'node_modules'),process.platform==='win32'?'junction':'dir');
   const binding=await import(pathToFileURL(join(root,'server/ainuoke-source/binding.ts')).href),service=await import(pathToFileURL(join(root,'server/ainuoke-source/service.ts')).href);
-  return {bindOrders:binding.bindOrders as typeof import('../ainuoke-source/binding.js').bindOrders,captureSource:service.captureSource as typeof import('../ainuoke-source/service.js').captureSource,close:async()=>{
+  const payments=await import(pathToFileURL(join(root,'server/ainuoke-source/payment-request-collection.ts')).href),garments=await import(pathToFileURL(join(root,'server/ainuoke-source/garment-shipment-store.ts')).href);
+  return {collectAndPublishPaymentContracts:payments.collectAndPublishPaymentContracts as typeof import('../ainuoke-source/payment-request-collection.js').collectAndPublishPaymentContracts,publishGarmentObservation:garments.publishGarmentObservation as typeof import('../ainuoke-source/garment-shipment-store.js').publishGarmentObservation,bindOrders:binding.bindOrders as typeof import('../ainuoke-source/binding.js').bindOrders,captureSource:service.captureSource as typeof import('../ainuoke-source/service.js').captureSource,close:async()=>{
    const distance=relative(resolve(tmpdir()),resolve(root));if(!distance||distance.startsWith('..')||isAbsolute(distance))throw Error('fixture_cleanup_outside_tmp');
    await rm(root,{recursive:true,force:true,maxRetries:5,retryDelay:200});
   }};
