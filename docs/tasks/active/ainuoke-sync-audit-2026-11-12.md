@@ -39,8 +39,8 @@
 |最终有界刷新入口回归|4/4 PASS|outputs/sync-audit-final-bounded-33.log|
 |真实构建前端Chromium，1366/1920、筛选/详情/权限|3/3 PASS|outputs/sync-audit-browser-27.log|
 |发布基线负向和响应式测试|182/182 PASS|outputs/sync-audit-baseline-tests-26.log|
-|源码证据守卫，基线M|PASS，13页面/68能力/8 UI路径|outputs/sync-audit-baseline-24.log|
-|Python请求诊断|13 PASS|当轮Python诊断回执，代码后续未变|
+|源码证据守卫，基线M|PASS，13页面/68能力/8 UI路径|outputs/sync-audit-final-baseline-34.log（检查文档候选b23923f5；本段回执补记不改产品或冻结证据）|
+|Python请求诊断|13 PASS|outputs/sync-audit-python-diagnostics-01.log，代码后续未变|
 |根TS、服务端编译、全量Lint|PASS|outputs/sync-audit-typecheck-32.log、sync-audit-server-build-32.log、sync-audit-lint-32.log|
 |显式Server authority前端生产构建|PASS，UI产品a3b9f81c|outputs/sync-audit-build-27.log|
 
@@ -61,3 +61,7 @@
 main/staging最近只读核实仍为 `c5133e9e9e7065dc4fe7672c0c88c75688e0c51f`（PR145）；旧暂停/worker停用保留。远端候选送达及PR以最终交付回执为准，不能从本地测试推断。上一轮运行/备份/恢复位置见[旧发布记录](material-staging-release-2026-11-12.md)。
 
 核心修改：server/ainuoke-source/sync-audit.ts、audit-query.ts、audit-routes.ts、audit-backfill.ts、audit-sources.ts、sync-recovery.ts及现有入口，Python安全诊断，database/migrations/0058，features/ainuoke-sync-audit和系统设置菜单。完整文件与提交由分支diff保留。
+
+## 最终远端交付回执
+
+2026-11-13仓库标准工具Dry Run：READY_DRY_RUN，Git只读预检exit128/uncertain_transport（2499ms），独立API通过（1685ms），networkMode=NETWORK_DEGRADED。实际pushes=0，没有创建PR/运行CI，没有重试该Git通道。所有产品代码与本地门禁保留；远端未送达不能写REMOTE PASS。最终文档补记仅记录此事实，不改已通过的产品/冻结证据。恢复时使用标准git-delivery工具和当时完整HEAD，不能换认证或强推；最终用户回执提供精确单条命令。

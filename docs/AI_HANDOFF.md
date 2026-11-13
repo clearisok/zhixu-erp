@@ -9,3 +9,5 @@
 当前63054/63051真实业务库/进程未迁移/切换；staging仍旧PR145版本、暂停/worker停用保留。不为完成本任务清暂停、启worker或部署。0058只在自有临时PG验证。历史台账维护默认preview、最多100批/次，仅metadata；真实库未回填。源时间、旧提交/旧增改计数缺失保持不可获取，不能从近似时点推算。
 
 本轮用户只要求本机工程，不需要演示，未授权staging/生产。下一步若用户授权发布：先核对远端候选/必要CI，staging自身配对备份和恢复准备→0058→同一构建版本→单认证owner受控切换→真实新审计与自动恢复验收。缺迁移fail closed；不能直接启新worker。不要重做既有物料页面或业务匹配，不碰617历史/人工数据。[原发布运行/回滚位置](tasks/active/material-staging-release-2026-11-12.md)、[先前交接](tasks/completed/2026-11-12-before-sync-audit/AI_HANDOFF.md)保留。远端/PR状态以最终交付回执核实。
+
+远端收口：2026-11-13标准Dry Run的Git预检exit128/uncertain_transport，API通过，NETWORK_DEGRADED；0次实际推送，无PR/CI，未重复撞该通道。最终源码基线34在b23923f5通过；其后仅本段交付回执补记，不改产品/冻结证据。继续工程不受影响，远端交付另待核实。
