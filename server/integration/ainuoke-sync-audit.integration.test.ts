@@ -9,6 +9,10 @@ import {startCatalogFixture} from './ainuoke-catalog-fixture.js';
 import {withSyncAudit,auditAcquired,auditPublished,commitWithSyncAudit,auditCaptureFailure,auditRecordSet,auditRequestHandler,reconcileInterruptedAudit} from '../ainuoke-source/sync-audit.js';
 import {validateRequestDiagnostics} from '../ainuoke-source/sync-diagnostics.js';
 import {parseAuditQuery} from '../ainuoke-source/audit-query.js';
+import {captureCatalogOnce} from '../ainuoke-source/catalog-capture.js';
+import {loadCatalogEvidence} from '../ainuoke-source/catalog-evidence.js';
+import {accountFingerprint} from '../ainuoke-source/collector.js';
+import {selectedConfig,selectedWorkerFixture} from './selected-source-fixture.js';
 
 test('persistent report ledger follows real queue publication, confirmed commits, rollback, retries, HTTP permissions and Excel',async t=>{
  const f=await startCatalogFixture();
@@ -22,6 +26,30 @@ test('persistent report ledger follows real queue publication, confirmed commits
    assert.ok(batches.some(b=>b.sync_type==='frequent'));
    const binding=rows.find(r=>r.report_id==='6086103'&&r.cursor_info.countBasis==='selected_order_mirrors');assert.ok(binding);assert.equal(binding.inserted_count,2);assert.equal(binding.publication_ids.length,2);
    const unboundColor=rows.find(r=>r.report_id==='6087105'&&r.contract_no==='SYN-SALES-3');assert.deepEqual(unboundColor.target_tables,['ainuoke_contract_observations']);
+  });
+  await t.test('stable settlement ID changes update current source evidence and audit while retaining old linkage and order identity',async()=>{
+   const orders=(await f.pool.query('SELECT id::text,order_no FROM sales_orders ORDER BY id')).rows;
+   for(const field of ['hsid','hsId','HSID']){
+    const captures=[];
+    for(const value of [10101,20202]){
+     const requestId=randomUUID();
+     await captureCatalogOnce(f.pool,f.actor,selectedConfig,requestId,async()=>selectedWorkerFixture('catalog-discovery',`if report == 6086103: mutate_rows(payload, lambda rows: rows[0].update(${field}=${value}))`,[]));
+     const run=(await f.pool.query('SELECT id::text,capture_evidence_id FROM ainuoke_catalog_runs WHERE source_key=$1 AND request_id=$2',[f.sourceKey,requestId])).rows[0];
+     const evidence=await loadCatalogEvidence(f.pool,f.sourceKey,run.capture_evidence_id,accountFingerprint(selectedConfig));
+     const source=evidence.discoveryAfter.flatMap(p=>p.rows).find(r=>String(r.values.id)==='1')!;
+     assert.equal(source.values[field],value);assert.equal(source.values.BillNo,'SYN-SALES-1');
+     const current=(await f.pool.query("SELECT observed_run_id::text FROM ainuoke_catalog_entries WHERE source_key=$1 AND source_id='1'",[f.sourceKey])).rows[0];
+     assert.equal(current.observed_run_id,run.id);
+     const audit=(await f.pool.query("SELECT * FROM ainuoke_sync_audit_tables WHERE batch_id=$1 AND report_id='6086103' AND contract_no=''",[requestId])).rows[0];
+     assert.equal(audit.status,'success');assert.ok(audit.write_completed_at);assert.ok(audit.publication_ids.includes(run.id));
+     if(value===20202){assert.equal(audit.updated_count,1);assert.equal(audit.inserted_count,0);assert.equal(audit.unchanged_count,2);}
+     captures.push(run);
+    }
+    const previous=await loadCatalogEvidence(f.pool,f.sourceKey,captures[0].capture_evidence_id,accountFingerprint(selectedConfig));
+    assert.equal(previous.discoveryAfter[0].rows[0].values[field],10101);
+    assert.notEqual(captures[0].capture_evidence_id,captures[1].capture_evidence_id);
+   }
+   assert.deepEqual((await f.pool.query('SELECT id::text,order_no FROM sales_orders ORDER BY id')).rows,orders);
   });
   const page=(id:string,amount:number)=>({reportId:'6087051',fetchedAt:new Date().toISOString(),page:1,pageSize:50,total:1,queryContext:{salesContractNo:'SYN-AUDIT'},rows:[{values:{id,Num:amount}}]});
   const publish=async(type:string,amount:number,rollback=false)=>withSyncAudit(f.pool,{sourceKey:f.sourceKey,type,contracts:['SYN-AUDIT']},async()=>{

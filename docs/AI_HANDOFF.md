@@ -1,4 +1,6 @@
-# 接力：同步审计本机工程已完成
+# 接力：继续同步审计staging交付
+
+最新用户已授权PR检查/合并、0058、staging部署及两个自然目录周期，production禁止。先读[交付恢复点](tasks/active/sync-audit-staging-delivery-2026-11-13.md)。8a2341d9已实际上传一次、独立API精确确认；网络原因是GitHub专用127.0.0.1:17989无监听。仅进程GIT_CONFIG_KEY_0=http.https://github.com.proxy、VALUE_0空、COUNT=1成功，不能改全局配置。Open仅136 Draft/CONFLICTING、非依赖，保留。当前增量是结算单关联证据发布回归与CI接入，18PASS；不新增结算业务模型。尚未部署/迁移/启owner/发源请求。旧运行脚本见outputs/material-staging-20261112，但必须在新任务目录前向适配当前c5133e9e目标，不能原样复用旧sha/旧回执。以下是先前本机收口时点，不再作为当前授权/远端状态。
 
 2026-11-13，工作树material-dense-local/zhixu-ainuoke-api，分支feat/ainuoke-sync-audit。基线M/main **c5133e9e9e7065dc4fe7672c0c88c75688e0c51f**；产品代码 **3d2a3737765d02eae5586e8edff40e27df166acf**。读[最终交付记录](tasks/active/ainuoke-sync-audit-2026-11-12.md)、[契约/11源清单](features/AINUOKE_SYNC_AUDIT.md)，不要从旧“开发中”归档重启任务。
 

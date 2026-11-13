@@ -1,4 +1,6 @@
-# 当前状态：同步审计与暂停恢复，本机工程通过
+# 当前状态：同步审计正在交付staging
+
+2026-11-13用户已明确授权本候选PR合并、0058和staging部署及两个自然目录周期验收，禁止production。Git专用失效代理已用仅进程覆盖绕开；标准工具一次push并独立API精确确认8a2341d9。全部Open仅136草稿冲突，非必需依赖，保留。补充结算单ID原始关联变化的真实PG发布回归18/18通过，新审计测试加入CI。当前尚未合并/迁移/部署或恢复源站；后续进度见[本次交付](tasks/active/sync-audit-staging-delivery-2026-11-13.md)。以下保留本机工程完成时点，授权和远端旧状态已由本段替代。
 
 2026-11-13。分支 `feat/ainuoke-sync-audit`，起始main/证据基线 **c5133e9e9e7065dc4fe7672c0c88c75688e0c51f**。产品代码 **3d2a3737765d02eae5586e8edff40e27df166acf**；后续文档提交不改产品。系统设置“艾诺科同步记录”已实现批次/11真实报表、读取与COMMIT确认、真实计数/未知值、失败重试事件、筛选分页和Excel，正常会话/RBAC。0058仅新增4张审计表，不重建业务数据。[完整交付与测试](tasks/active/ainuoke-sync-audit-2026-11-12.md)、[长期契约](features/AINUOKE_SYNC_AUDIT.md)。
 
