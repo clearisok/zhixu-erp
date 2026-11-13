@@ -172,7 +172,8 @@ test('controlled payment collection: owned PG, exact scope, complete capture and
     await pool.query('CREATE TRIGGER synthetic_payment_target_race AFTER INSERT ON ainuoke_payment_snapshots FOR EACH ROW EXECUTE FUNCTION synthetic_payment_target_race()');
     try {
       const result = await collectAndPublishPaymentContracts(pool, actor, request, plan.scopeHash, { now, collect });
-      assert.equal(result.result, 'PAYMENT_COLLECTION_PARTIAL'); assert.equal(result.published, 1); assert.equal(await count(request), 1);
+      assert.equal(result.result, 'PAYMENT_COLLECTION_PARTIAL');
+      assert.equal((await pool.query('SELECT status FROM ainuoke_sync_audit_batches WHERE source_key=$1 ORDER BY started_at DESC LIMIT 1',[request.config.sourceKey])).rows[0].status,'partial'); assert.equal(result.published, 1); assert.equal(await count(request), 1);
       assert.equal(result.outcomes[0].status, 'published'); assert.deepEqual(result.outcomes[1], { alias: 'S2', status: 'failed', code: 'payment_source_not_connected' });
       assert.equal((await reader(actor, first)).sourceStatus, 'observed'); assert.equal((await reader(actor, second)).sourceStatus, 'not_connected');
       assert.equal(result.automaticRetry, false);

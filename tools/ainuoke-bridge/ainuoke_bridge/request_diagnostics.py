@@ -7,16 +7,18 @@ headers and complete responses never do.
 import json
 import sys
 from time import monotonic
+from datetime import datetime, timezone
 from .login_evidence import login_evidence, login_details
 from .ainuoke_client import AuthExpiredError, NetworkAinuokeError, UpstreamSchemaError, _looks_like_auth_expired
 
 CATEGORIES = frozenset({'http_error','timeout','dns_error','tls_error','connection_refused','connection_reset','network_error'})
 
 class DiagnosticTransport:
-    def __init__(self, transport, events, clock=monotonic):
+    def __init__(self, transport, events, clock=monotonic, progress=None):
         if type(events) is not list or events:
             raise ValueError('empty_diagnostic_buffer_required')
         self.transport, self.events, self.clock = transport, events, clock
+        self.progress = progress
 
     def request(self, **request):
         if len(self.events) >= 81:
@@ -31,8 +33,24 @@ class DiagnosticTransport:
         event = {'kind':'login' if request.get('method') == 'GET' else 'report',
                  'reportId':report,'page':page,'elapsedMs':0,'outcome':'complete','httpStatus':None}
         started = self.clock()
+        event['startedAt'] = datetime.now(timezone.utc).isoformat()
+        if self.progress:
+            self.progress('started', dict(event))
         try:
             response = self.transport.request(**request)
+            if isinstance(response, dict):
+                envelope = response.get('reObj', response.get('data', response))
+                if isinstance(envelope, dict) and isinstance(envelope.get('isOk'), bool):
+                    event['responseIsOk'] = envelope['isOk']
+                    if envelope['isOk'] is False:
+                        event['outcome'] = 'schema_error'
+                if event['kind'] == 'report' and event.get('responseIsOk') is True:
+                    try:
+                        rows = json.loads(response.get('dataList', '{}')).get('rows')
+                        if isinstance(rows, list):
+                            event['receivedRows'] = len(rows)
+                    except (ValueError, TypeError, AttributeError):
+                        pass
             if event['kind'] == 'report' and _looks_like_auth_expired(response):
                 event['outcome'] = 'auth_error'
             if event['kind'] == 'login':
@@ -63,7 +81,10 @@ class DiagnosticTransport:
             if type(status) is int and 100 <= status <= 599:
                 event['httpStatus'] = status
             event['elapsedMs'] = max(0,min(180000,int((self.clock()-started)*1000)))
+            event['finishedAt'] = datetime.now(timezone.utc).isoformat()
             self.events.append(event)
+            if self.progress:
+                self.progress('finished', dict(event))
 
 def run_diagnostic(data):
     from .selected_source_once import collect_selected

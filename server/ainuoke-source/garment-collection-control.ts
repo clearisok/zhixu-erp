@@ -1,3 +1,4 @@
+import {withSyncAudit,commitWithSyncAudit,pinSyncCall,auditReadStarted,auditAcquired,auditCaptureFailure,auditMetrics,auditReportRequests} from './sync-audit.js';
 import type { Pool, PoolClient } from "pg";
 import type { TrustedIdentity } from "../auth/session.js";
 import { readCurrentActor } from "../auth/current-actor.js";
@@ -100,7 +101,7 @@ async function prepare(client: PoolClient, pool: Pool, identity: TrustedIdentity
 }
 async function readTransaction<T>(pool: Pool, fn: (client: PoolClient) => Promise<T>) {
   const client = await pool.connect();
-  try { await client.query("BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY"); const value = await fn(client); await client.query("COMMIT"); return value; }
+  try { await client.query("BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY"); const value = await fn(client); await commitWithSyncAudit(client); return value; }
   catch (error) { await client.query("ROLLBACK").catch(() => undefined); throw error; } finally { client.release(); }
 }
 export async function planGarmentCollection(pool: Pool, caller: TrustedIdentity, input: GarmentCollectionRequest,
@@ -200,7 +201,7 @@ async function finish(client: PoolClient, actor: TrustedIdentity, parsed: Return
 /** Durable one-shot command. It is not mounted in HTTP/CLI/schedulers. A started
  * receipt is never reclaimed; unknown results are reconciled by the original
  * actor/request. No transaction or database lock spans the worker invocation. */
-export async function collectGarmentOnce(pool: Pool, caller: TrustedIdentity, input: GarmentCollectionRequest,
+async function collectGarmentOnceImplementation(pool: Pool, caller: TrustedIdentity, input: GarmentCollectionRequest,
   permitInput: GarmentCollectionPermit, options: { now?: () => number;
     collect?: typeof collectGarmentObservationPages } = {}) {
   const identity = structuredClone(caller), now = options.now ?? Date.now, parsed = requestOf(input, now()), permit = permitOf(structuredClone(permitInput));
@@ -239,12 +240,17 @@ export async function collectGarmentOnce(pool: Pool, caller: TrustedIdentity, in
     if (scopeHash(current, permit) !== permit.scopeHash) fail(409, "garment_collection_scope_changed");
     fresh(permit, now());
     counts = "unknown";
+    await auditReadStarted(pool,'6086979');
     const raw = await (options.collect ?? collectGarmentObservationPages)(parsed.request.config,
       { sourceFingerprint: scope.context.sourceFingerprint, salesContractNo: scope.context.salesContractNo });
     collected = validateGarmentCollectionResult(raw, parsed.request.config,
       { sourceFingerprint: scope.context.sourceFingerprint, salesContractNo: scope.context.salesContractNo }, now());
     counts = collected.counts;
+    await auditAcquired(pool,collected.input,null,scope.context.salesContractNo);
+    await auditMetrics(pool,{httpAttempts:counts.httpAttempts,logins:counts.httpAttempts-counts.reportRequests});
+    await auditReportRequests(pool,'6086979',counts.reportRequests);
   } catch (error) { counts = garmentCollectionFailureCounts(error) ?? counts;
+    await auditCaptureFailure(pool,safeCode(error),null);
     result = { schemaVersion: "ainuoke-garment-collection-outcome.v1", outcome: "not_published", code: safeCode(error), requestCounts: counts }; }
 
   let finishClient: PoolClient | undefined, committing = false;
@@ -260,7 +266,7 @@ export async function collectGarmentOnce(pool: Pool, caller: TrustedIdentity, in
       result = { schemaVersion: "ainuoke-garment-collection-outcome.v1", outcome: "published", requestCounts: counts,
         publicationId: publication.publicationId, snapshotId: publication.snapshotId, generation: publication.generation };
     }
-    await finish(finishClient, actor, parsed, permit, result); committing = true; await finishClient.query("COMMIT");
+    await finish(finishClient, actor, parsed, permit, result); committing = true; await commitWithSyncAudit(finishClient);
     return { schemaVersion: "ainuoke-garment-collection-receipt.v1" as const, requestId: permit.requestId, receiptState: "completed" as const,
       result, replayed: false, receiptIsHistorical: false, sourceReadThisInvocation: "see_result" as const, automaticRetry: false as const };
   } catch (error) {
@@ -277,7 +283,7 @@ export async function collectGarmentOnce(pool: Pool, caller: TrustedIdentity, in
           code: safeCode(error), requestCounts: counts };
         result = failure;
         await finish(finishClient!, actor, parsed, permit, failure);
-        committing = true; await finishClient!.query("COMMIT");
+        committing = true; await commitWithSyncAudit(finishClient!);
         return { schemaVersion: "ainuoke-garment-collection-receipt.v1" as const, requestId: permit.requestId,
           receiptState: "completed" as const, result: failure, replayed: false, receiptIsHistorical: false,
           sourceReadThisInvocation: "see_result" as const, automaticRetry: false as const };
@@ -291,3 +297,5 @@ export async function collectGarmentOnce(pool: Pool, caller: TrustedIdentity, in
       sourceReadThisInvocation: "see_result" as const, automaticRetry: false as const };
   } finally { finishClient?.release(); }
 }
+
+export async function collectGarmentOnce(...args:Parameters<typeof collectGarmentOnceImplementation>){const pinned=pinSyncCall(args);return withSyncAudit(pinned[0],{sourceKey:pinned[2].config.sourceKey,type:'manual',reports:['6086979']},()=>collectGarmentOnceImplementation(...pinned));}

@@ -21,6 +21,7 @@ import { garmentCollectionProof, planGarmentCollection, collectGarmentOnce } fro
 import { createGarmentShipmentReader } from "../ainuoke-source/garment-shipment-store.js";
 import { planGarmentTarget } from "../ainuoke-source/garment-target-control.js";
 import { collectionRequest, configFor, workerFrame } from "./garment-collection-fixture.js";
+import { historicalSourceFixture } from "./historical-source-fixture.js";
 
 test("0043 nonempty upgrade preserves all old bytes and creates only an empty target receipt ledger", { timeout: 120000 }, async t => {
   const db = await startDisposablePostgres(), pool = new pg.Pool({ connectionString: await db.createDatabase("garment_target_upgrade") });
@@ -46,7 +47,9 @@ test("0043 nonempty upgrade preserves all old bytes and creates only an empty ta
   await pool.query("INSERT INTO ainuoke_garment_shipment_targets(source_key,sales_order_id,account_fingerprint,enabled,verification_sha256,freshness_ms) VALUES($1,$2,$3,true,$4,60000)",
     [request.config.sourceKey, order.id, accountFingerprint(configFor()), proof.verificationSha256]);
   const permit = { requestId: randomUUID(), expiresAt: new Date(clock + 540000).toISOString() }, plan = await planGarmentCollection(pool, actor, request, permit, clock);
-  await collectGarmentOnce(pool, actor, request, { ...permit, scopeHash: plan.scopeHash }, { now: () => clock, collect: async (_config, scope) => {
+  let sourceCalls=0;await assert.rejects(collectGarmentOnce(pool,actor,request,{...permit,scopeHash:plan.scopeHash},{now:()=>clock,collect:async()=>{sourceCalls++;throw Error('unreachable Source');}}),{code:'sync_audit_migration_required'});assert.equal(sourceCalls,0);
+  const legacy=await historicalSourceFixture();t.after(()=>legacy.close());
+  await legacy.collectGarmentOnce(pool, actor, request, { ...permit, scopeHash: plan.scopeHash }, { now: () => clock, collect: async (_config, scope) => {
     clock += 100; return workerFrame(scope, clock);
   } });
   const tables = (await pool.query<{ tablename: string }>("SELECT tablename FROM pg_tables WHERE schemaname='public' AND tablename<>'schema_migrations' ORDER BY tablename")).rows.map(row => row.tablename);

@@ -28,7 +28,7 @@ test('complete directory growth is rejected for bounded recapture with a safe di
  await assert.rejects(validateSelectedSourceOnce(missing,selectedConfig,request),error=>{assert.ok(error instanceof Error);assert.equal(retryableCapture(error.message,null),false);return true;});
  const metadata=structuredClone(growth);
  Object.assign(metadata.bundle.discoveryAfter[0].rows.at(-1)!,{unrecognizedMetadata:'changed'});
- await assert.rejects(validateSelectedSourceOnce(metadata,selectedConfig,request),{message:'catalog_changed_or_over_limit'});
+ await assert.rejects(validateSelectedSourceOnce(metadata,selectedConfig,request),{message:'catalog_identity_or_scope_changed'});
  const contradiction=requests.map((r,i)=>i===1?{...r,outcome:'auth_error'}:r);
  await assert.rejects(validateCatalogDiagnostic({schemaVersion:'ainuoke-request-diagnostics.v1',capture:growth,requests:contradiction},selectedConfig,request,Date.now()),{message:'sync_diagnostics_invalid'});
 });
@@ -52,7 +52,7 @@ test('identity, visibility, unknown metadata and mixed changes never qualify',as
   });
  }
  const identityOnly=structuredClone(original);identityOnly.bundle.discoveryAfter[0].rows[0].sourceRowIdentity='different-only';
- await assert.rejects(validateSelectedSourceOnce(identityOnly,selectedConfig,request),/catalog_changed_or_over_limit/);
+ await assert.rejects(validateSelectedSourceOnce(identityOnly,selectedConfig,request),/catalog_identity_or_scope_changed/);
  const missing=structuredClone(original);missing.bundle.discoveryAfter[0].rows.pop();
  await assert.rejects(validateSelectedSourceOnce(missing,selectedConfig,request),/selected_source_paging_invalid/);
  const account=structuredClone(original);account.sourceFingerprint='0'.repeat(64);
@@ -90,7 +90,7 @@ test('upstream image changes disappear before evidence creation without hiding i
  assert.equal((await validateSelectedSourceOnce(raw,selectedConfig,request)).result,'complete');
  assert.equal('ImageFile' in raw.bundle.discoveryBefore[0].rows[0].values,false);
  const changed=structuredClone(raw);changed.bundle.discoveryAfter[0].rows[0].values.InsideOrderNo='CHANGED-FACTORY';
- await assert.rejects(validateSelectedSourceOnce(changed,selectedConfig,request),/catalog_changed_or_over_limit/);
+ await assert.rejects(validateSelectedSourceOnce(changed,selectedConfig,request),/catalog_identity_or_scope_changed/);
  const unknown=structuredClone(raw);unknown.bundle.discoveryAfter[0].rows[0].values.UnknownField='changed';
- await assert.rejects(validateSelectedSourceOnce(unknown,selectedConfig,request),/catalog_changed_or_over_limit/);
+ await assert.rejects(validateSelectedSourceOnce(unknown,selectedConfig,request),/catalog_identity_or_scope_changed/);
 });

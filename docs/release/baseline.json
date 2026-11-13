@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "6dc17c645215b3eb08e03624effdee2d182b3e1d",
-  "verifiedAt": "2026-11-11T06:33:00Z",
+  "baselineSha": "c5133e9e9e7065dc4fe7672c0c88c75688e0c51f",
+  "verifiedAt": "2026-11-12T15:07:28.214578+00:00",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -6139,6 +6139,47 @@
       "sha256": "cbb8ee852a73859454ec3307d605bd470abebec6cac36f21d82f2abbd6a25770",
       "supersedes": "directory-recovery-decisions-20261110",
       "changeReason": "Preserve prior source and directory decisions; append the explicitly approved local-only material display decisions and subsequent complete overview name-column removal. No source lifecycle or quantity rules changed."
+    },
+    {
+      "id": "sync-audit-ui-approved-20261112",
+      "kind": "document",
+      "path": "docs/tasks/active/ainuoke-sync-audit-ui-approval-2026-11-12.md",
+      "recordedAtSha": "9fc075d8d363e243e059efb355c00c0576607615",
+      "sha256": "edb8914c7c5986ddde9f035764a4c5a9d4a6e6107eff13560e06b292ba244349"
+    },
+    {
+      "id": "sync-audit-contract-20261112",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SYNC_AUDIT.md",
+      "recordedAtSha": "7e176223d8193f0db57f203389641c7f937db720",
+      "sha256": "9e0246fff8c4c3976a63c9238d090da012b35be800444349afa289ca7030f292"
+    },
+    {
+      "id": "sync-audit-decisions-20261112",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "9fc075d8d363e243e059efb355c00c0576607615",
+      "sha256": "1cc1bebec2b49fd4833bdd87128e46f15740d8c514285b3fc9b73e66fc0b2bc1",
+      "supersedes": "material-display-decisions-20261112",
+      "changeReason": "Append user-approved D194 audit and bounded stable-scope recapture; preserve every prior material and source boundary."
+    },
+    {
+      "id": "sync-audit-business-20261112",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "9fc075d8d363e243e059efb355c00c0576607615",
+      "sha256": "bb011dd5d656746383b7e5e50079b7b12ea8c44973c81679ccef635ab3eac3db",
+      "supersedes": "ainuoke-order-discovery-business-20261109",
+      "changeReason": "Append D194 audit semantics and narrowly bounded recapture, preserving original business identity, quantities and frequency rules."
+    },
+    {
+      "id": "sync-audit-contract-review-20261113",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SYNC_AUDIT.md",
+      "recordedAtSha": "6506ffccb8e79ddccaf2364ec65359cf2ea58d7d",
+      "sha256": "5aa4587240dac74e6af4584ab130cf82493fb26f3b95477415311786a0fba2d6",
+      "supersedes": "sync-audit-contract-20261112",
+      "changeReason": "Preserve original D194 scope and all historical evidence; explicitly distinguish unrequested receipt replay from synchronization and retain failed contract/report audits. Company IT confirms settlement-reference business meaning; stable changes remain captured, not ignored."
     }
   ],
   "pages": [
@@ -6320,7 +6361,8 @@
         "material-dense-module-20261111",
         "material-seven-approved-20261112",
         "material-color-first-approved-20261112",
-        "material-display-decisions-20261112"
+        "material-display-decisions-20261112",
+        "sync-audit-ui-approved-20261112"
       ]
     },
     {
@@ -6372,7 +6414,8 @@
         "expanded-sidebar-v1-engineering-20261030",
         "expanded-sidebar-review-correction-20261030",
         "expanded-sidebar-local-validation-20261030",
-        "expanded-sidebar-binding-correction-20261030"
+        "expanded-sidebar-binding-correction-20261030",
+        "sync-audit-ui-approved-20261112"
       ]
     },
     {
@@ -6433,6 +6476,22 @@
         "closing-support-complete-engineering-20261028",
         "closing-executor-recovery-preview-20261028"
       ]
+    },
+    {
+      "id": "ainuoke-sync-records",
+      "route": "/system-settings/ainuoke-sync-records",
+      "routeFile": "app/system-settings/ainuoke-sync-records/page.tsx",
+      "components": [
+        "features/ainuoke-sync-audit/page.tsx",
+        "features/ainuoke-sync-audit/model.ts"
+      ],
+      "acceptance": "implementation-only",
+      "acceptanceScope": "Explicit user table/menu scope; synthetic automated HTTP/PostgreSQL/Chromium checks. No human pixel acceptance, new real Source requests or deployment.",
+      "evidence": [
+        "sync-audit-ui-approved-20261112",
+        "sync-audit-contract-20261112",
+        "sync-audit-contract-review-20261113"
+      ]
     }
   ],
   "css": {
@@ -6488,6 +6547,7 @@
     "/basic-settings/trims",
     "/system-settings/quote-settings",
     "/system-settings/operation-logs",
+    "/system-settings/ainuoke-sync-records",
     "/basic-settings/user-permissions",
     "/order-center",
     "/order-center/server-detail",

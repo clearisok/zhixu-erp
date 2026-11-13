@@ -7,6 +7,7 @@ import {mkdtemp,copyFile,readdir,rm} from 'node:fs/promises';
 import {tmpdir} from 'node:os';
 import pg from 'pg';
 import {startDisposablePostgres} from './postgres-container.js';
+import {historicalSourceFixture} from './historical-source-fixture.js';
 import {runMigrations} from '../db/migration-runner.js';
 import {synchronizePermissionCatalog} from '../auth/permissions.js';
 import {bootstrapAdmin} from '../auth/bootstrap.js';
@@ -105,7 +106,12 @@ test('Source target attribution and snapshot generations stay consistent on synt
    for(const file of await readdir('database/migrations'))if(Number(file.slice(0,4))<=12)await copyFile(join('database/migrations',file),join(directory,file));
    await runMigrations(old,directory);await synchronizePermissionCatalog(old);await bootstrapAdmin(old,{username:'synthetic-prefix-admin',displayName:'Synthetic',password:'Synthetic-2026'});const admin=await loadExistingBootstrapActor(old,'synthetic-prefix-admin');
    const order=(await createAinuokeSalesOrder(old,admin,{source:{sourceId:'synthetic-1',sourceRowIdentity:'synthetic-order',salesContractNo:syntheticOrder.salesContractNo,insideOrderNo:syntheticOrder.insideOrderNo,lifecycleStatusRaw:'生效',contractDate:'2026-10-01',contractDeliveryDate:'2026-11-01',styleNo:syntheticOrder.styleNo,companyNameSnapshot:'Synthetic',customerNameSnapshot:'Synthetic',brandNameSnapshot:'Synthetic',quantity:100,sourceHash:'synthetic',fetchedAt:syntheticFetchedAt},colors:[]})).salesOrder;
-   const options={sourceKey:'prefix-test',accountFingerprint:'b'.repeat(64),collect:async()=>data,maxAgeMs:1000,now:()=>clock};const first=await captureSource(old,admin,options);assert.equal((await captureSource(old,admin,options)).runId,first.runId);
+   const historical=await historicalSourceFixture();
+   const options={sourceKey:'prefix-test',accountFingerprint:'b'.repeat(64),collect:async()=>data,maxAgeMs:1000,now:()=>clock};
+   try{
+    const first=await historical.captureSource(old,admin,options);assert.equal((await historical.captureSource(old,admin,options)).runId,first.runId);
+    let requests=0;await assert.rejects(captureSource(old,admin,{...options,collect:async()=>{requests++;return data;}}),/sync_audit_migration_required/);assert.equal(requests,0);
+   }finally{await historical.close();}
    const reader=createOrderMaterialReader(createPersistedMaterialPorts(old,{sourceKey:'prefix-test',maxAgeMs:1000},()=>clock));assert.equal((await reader(admin,{salesOrderId:order.id})).status,200);
   }finally{await old.end();const distance=relative(resolve(tmpdir()),resolve(directory));assert.ok(distance&&!distance.startsWith('..')&&!isAbsolute(distance));await rm(directory,{recursive:true,force:true});}
  });

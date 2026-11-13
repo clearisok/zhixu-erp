@@ -7,6 +7,7 @@ import {join,resolve,relative,isAbsolute} from 'node:path';
 import {createServer} from 'node:http';
 import pg from 'pg';
 import {startDisposablePostgres} from './postgres-container.js';
+import {historicalSourceFixture} from './historical-source-fixture.js';
 import {runMigrations} from '../db/migration-runner.js';
 import {bootstrapAdmin} from '../auth/bootstrap.js';
 import {synchronizePermissionCatalog} from '../auth/permissions.js';
@@ -36,11 +37,13 @@ test('historical material Source remains distinct from current identity and read
  finally{const distance=relative(resolve(tmpdir()),resolve(prefix));assert.ok(distance&&!distance.startsWith('..')&&!isAbsolute(distance));await rm(prefix,{recursive:true,force:true});}
  await synchronizePermissionCatalog(pool);await bootstrapAdmin(pool,{username:'synthetic-history-admin',displayName:'Synthetic',password:'Synthetic-2026'});const actor=await loadExistingBootstrapActor(pool,'synthetic-history-admin');
  let clock=Date.now()-60000;const source=bindingBundle(clock),binding=await previewBindings(source);
- const a=(await bindOrders(pool,actor,{sourceKey:'history-test',accountFingerprint:'a'.repeat(64),expectedPreview:binding.reviewHash,collect:async()=>source})).orderIds[0];
+ const historical=await historicalSourceFixture();t.after(()=>historical.close());
+ let rejectedRequests=0;await assert.rejects(bindOrders(pool,actor,{sourceKey:'history-test',accountFingerprint:'a'.repeat(64),expectedPreview:binding.reviewHash,collect:async()=>{rejectedRequests++;return source;}}),code('sync_audit_migration_required'));assert.equal(rejectedRequests,0);
+ const a=(await historical.bindOrders(pool,actor,{sourceKey:'history-test',accountFingerprint:'a'.repeat(64),expectedPreview:binding.reviewHash,collect:async()=>source})).orderIds[0];
  const b=(await createSalesOrder(pool,{creationSource:'manual'})).id;let price=20;
  const collect=async()=>{const data=freshMaterialBundle(clock);for(const page of Object.values(data.materials).flat())for(const row of page.rows){row.values.cgprice=price;row.values.unmappedPrivateAnnotation='protected-commercial-sentinel';}return data;};
  const capture=()=>captureSource(pool,actor,{sourceKey:'history-test',accountFingerprint:'a'.repeat(64),collect,maxAgeMs:1000,now:()=>clock});
- const legacy=(await capture()).runId;
+ const legacy=(await historical.captureSource(pool,actor,{sourceKey:'history-test',accountFingerprint:'a'.repeat(64),collect,maxAgeMs:1000,now:()=>clock})).runId;
  const rawLegacy=(await pool.query('SELECT r.discovery,r.content_hash,r.discovery_hash,s.snapshots,s.content_hash AS material_hash FROM ainuoke_source_runs r JOIN ainuoke_material_source_snapshots s ON s.run_id=r.id WHERE r.id=$1',[legacy])).rows;
  await t.test('forward context upgrade does not invent link/version/scope for prior evidence',async()=>{
   assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,migrationFilesAfter(21));

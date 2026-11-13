@@ -1,3 +1,4 @@
+import {auditMetrics,withSyncAudit,pinSyncCall} from './sync-audit.js';
 import type { Pool } from 'pg';
 import type { TrustedIdentity } from '../auth/session.js';
 import { selectContracts, requireAdditionProfile } from './additions.js';
@@ -9,7 +10,7 @@ import { collectSelectedSourceOnce, validateSelectedSourceOnce, type SelectedSou
 /** One explicit, full bound scope. No binding, target enablement, or scheduling.
  * The approved list must equal the DB list both before and inside capture's lock.
  * Injection is internal test support, never exposed as a CLI configuration. */
-export async function refreshBoundMaterialsOnce(pool:Pool,actor:Pick<TrustedIdentity,'internalUserId'|'userId'>,
+async function refreshBoundMaterialsOnceImplementation(pool:Pool,actor:Pick<TrustedIdentity,'internalUserId'|'userId'>,
   config:CollectorConfig,contracts:readonly string[],
   collect?:(config:CollectorConfig,request:SelectedSourceRequest)=>Promise<unknown>) {
   const checked=parseCollectorConfig(config), selected=selectContracts(contracts.join(','));
@@ -27,9 +28,11 @@ export async function refreshBoundMaterialsOnce(pool:Pool,actor:Pick<TrustedIden
       const request:SelectedSourceRequest={mode:'bound-materials',targets};
       const capture=collect?await validateSelectedSourceOnce(await collect(checked,request),checked,request)
         :await collectSelectedSourceOnce(checked,request);
-      if(capture.result!=='complete')throw new SourceError(capture.code);
       metrics=capture.metrics;
+      if(capture.result!=='complete')throw new SourceError(capture.code);
       return capture.bundle;
-    }});
+    }}).finally(()=>auditMetrics(pool,metrics));
   return {...result,metrics};
 }
+
+export async function refreshBoundMaterialsOnce(...args:Parameters<typeof refreshBoundMaterialsOnceImplementation>){const pinned=pinSyncCall(args);return withSyncAudit(pinned[0],{sourceKey:pinned[2].sourceKey,type:'manual',contracts:[...pinned[3]]},()=>refreshBoundMaterialsOnceImplementation(...pinned));}

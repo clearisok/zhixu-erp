@@ -1,3 +1,4 @@
+import {withSyncAudit,auditAcquired,auditPublished,commitWithSyncAudit,pinSyncCall} from './sync-audit.js';
 import { randomUUID } from 'node:crypto';
 import type { Pool, PoolClient } from 'pg';
 import type { TrustedIdentity } from '../auth/session.js';
@@ -60,7 +61,7 @@ async function transaction<T>(pool: Pool, readOnly: boolean, action: (client: Po
   const client = await pool.connect();
   try {
     await client.query(readOnly ? 'BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY' : 'BEGIN');
-    const result = await action(client); await client.query('COMMIT'); return result;
+    const result = await action(client); await commitWithSyncAudit(client); return result;
   } catch (cause) { await client.query('ROLLBACK'); throw cause; } finally { client.release(); }
 }
 
@@ -81,7 +82,7 @@ export async function preparePaymentPublication(pool: Pool, identity: Identity, 
 
 /** Server-only checked-page publication. Never accepts a caller-built projection,
  * raw SQL, account credentials or permissions; rechecks all DB scope after collection. */
-export async function publishPaymentSnapshot(pool: Pool, caller: Identity, requestedContext: PaymentPublicationContext,
+async function publishPaymentSnapshotImplementation(pool: Pool, caller: Identity, requestedContext: PaymentPublicationContext,
   input: unknown, scope: PaymentSnapshotScope, now = Date.now()) {
   const identity = { internalUserId: caller.internalUserId, userId: caller.userId };
   const context = structuredClone(requestedContext), checkedInput = structuredClone(input), checkedScope = structuredClone(scope);
@@ -104,8 +105,11 @@ export async function publishPaymentSnapshot(pool: Pool, caller: Identity, reque
     if (hash(actual) !== hash(context) || snapshot.sourceFingerprint !== actual.sourceFingerprint
       || snapshot.salesContractNo !== actual.salesContractNo) error(409, 'payment_binding_changed');
     if (current && bindingMatches(current, actual)) verifyStored(current, actual);
-    if (current && bindingMatches(current, actual) && current.content_hash === hash(snapshot))
+    if (current && bindingMatches(current, actual) && current.content_hash === hash(snapshot)) {
+      await auditAcquired(client,checkedInput,null,actual.salesContractNo);
+      await auditPublished(client,actual.sourceKey,current.id,checkedInput,actual.salesContractNo,undefined,true);
       return { publicationId: current.id, snapshotId: snapshot.snapshotId, generation: current.generation, alreadyPublished: true };
+    }
     if ((current?.generation ?? 0) !== context.generation) error(409, 'payment_generation_conflict');
     if (current && (Date.parse(snapshot.observedFrom) < Date.parse(current.payload.observedFrom)
       || Date.parse(snapshot.observedThrough) < Date.parse(current.payload.observedThrough))) error(409, 'payment_observation_regressed');
@@ -126,6 +130,8 @@ export async function publishPaymentSnapshot(pool: Pool, caller: Identity, reque
       [actual.sourceKey,actual.salesOrderId,publicationId,generation]);
     await appendOperationLog(client, actor, { module: '艾诺科同步', action: '采集艾诺科来源', entityType: 'AinuokeSourceRun', entityId: publicationId,
       metadata: { sourceReportId: '6086941', publicationId, snapshotId: snapshot.snapshotId, generation, rowCount: snapshot.rows.length, sourceOnly: true } });
+    await auditAcquired(client,checkedInput,null,actual.salesContractNo);
+    await auditPublished(client,actual.sourceKey,publicationId,checkedInput,actual.salesContractNo);
     return { publicationId, snapshotId: snapshot.snapshotId, generation, alreadyPublished: false };
   });
 }
@@ -180,3 +186,5 @@ export function paymentReadConfig(values: Readonly<Record<string, string | undef
     error(400, 'invalid_payment_source_configuration');
   return { sourceKey };
 }
+
+export async function publishPaymentSnapshot(...args:Parameters<typeof publishPaymentSnapshotImplementation>){const pinned=pinSyncCall(args);return withSyncAudit(pinned[0],{sourceKey:pinned[2].sourceKey,type:'publication',historical:true,reports:['6086941']},()=>publishPaymentSnapshotImplementation(...pinned));}

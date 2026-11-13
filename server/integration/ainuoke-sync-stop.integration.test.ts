@@ -75,13 +75,13 @@ for (const mode of ['catalog-discovery', 'catalog-contracts'] as const) {
      : {kind:'report',reportId:6086103,page:1,elapsedMs:37+i,outcome:'complete',httpStatus:200});
     return {schemaVersion:'ainuoke-request-diagnostics.v1',capture:raw,requests};
    };
-   if (mode === 'catalog-discovery') await assert.rejects(captureCatalogOnce(f.pool,f.actor,selectedConfig,randomUUID(),collect),/catalog_changed_or_over_limit/);
+   if (mode === 'catalog-discovery') await assert.rejects(captureCatalogOnce(f.pool,f.actor,selectedConfig,randomUUID(),collect),/catalog_identity_or_scope_changed/);
    else assert.equal((await runSyncTick(f.pool,f.actor,selectedConfig,{automatic:false,collect})).status,'failed');
    const attempt=(await f.pool.query('SELECT status,result_code,requests,metrics FROM ainuoke_sync_capture_attempts ORDER BY started_at DESC LIMIT 1')).rows[0];
-   assert.equal(attempt.status,'failed');assert.equal(attempt.result_code,'catalog_changed_or_over_limit');
+   assert.equal(attempt.status,'failed');assert.equal(attempt.result_code,'catalog_identity_or_scope_changed');
    assert.deepEqual(attempt.requests,requests);
    assert.equal(attempt.metrics,null); // Rejected payload metrics are not trusted.
-   assert.equal((await f.pool.query('SELECT paused_reason FROM ainuoke_sync_controls')).rows[0].paused_reason,'catalog_changed_or_over_limit');
+   assert.equal((await f.pool.query('SELECT paused_reason FROM ainuoke_sync_controls')).rows[0].paused_reason,'catalog_identity_or_scope_changed');
    assert.equal((await runSyncTick(f.pool,f.actor,selectedConfig,{now:()=>now+86400000,collect})).status,'paused');
    assert.equal(calls,1);
    assert.deepEqual((await f.pool.query('SELECT source_id,observation_id,last_success_at FROM ainuoke_contract_sync_state ORDER BY source_id')).rows,before);

@@ -8,6 +8,7 @@ export type CatalogPage=AinuokeReportSnapshot<AinuokeOrderDiscoveryQuery>;
 export type CatalogCollectionOptions={
  resumePages?:CatalogPage[];
  onPage?:(phase:CatalogPhase,page:unknown)=>Promise<void>;
+ onRequest?:(phase:'started'|'finished',diagnostic:import('./sync-diagnostics.js').RequestDiagnostic)=>Promise<void>;
 };
 
 /** Checkpoint data has the same fixed empty directory query as publication.

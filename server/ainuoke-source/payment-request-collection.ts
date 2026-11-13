@@ -1,3 +1,4 @@
+import {withSyncAudit,pinSyncCall,auditReadStarted,auditAcquired,auditCaptureFailure,auditPublicationFailure,auditMetrics,auditReportRequests} from './sync-audit.js';
 import type { Pool, PoolClient } from 'pg';
 import type { TrustedIdentity } from '../auth/session.js';
 import { UUID_PATTERN } from '../sales-orders/delivery-plan-model.js';
@@ -108,7 +109,7 @@ async function scopeUnchanged(pool: Pool, identity: Identity, request: PaymentCo
  * All targets are prepared before the sole worker call; all pages validate
  * before the first publication. Per-SO transactions keep accepted history when
  * a later publication fails. Receipts contain no rows, credentials or amounts. */
-export async function collectAndPublishPaymentContracts(pool: Pool, caller: Identity, input: PaymentCollectionRequest,
+async function collectAndPublishPaymentContractsImplementation(pool: Pool, caller: Identity, input: PaymentCollectionRequest,
   expectedScopeHash: string, options: { now?: () => number;
     collect?: (config: CollectorConfig, selection: ContractSelection) => Promise<unknown> } = {}) {
   if (!sha(expectedScopeHash)) fail('payment_collection_explicit_scope_required');
@@ -118,6 +119,7 @@ export async function collectAndPublishPaymentContracts(pool: Pool, caller: Iden
   const notAttempted = () => request.targets.map(target => ({ alias: target.alias, status: 'not_attempted' as const }));
   let captured: Array<ReturnType<typeof paymentContractSnapshotInputs>[number] & { candidateSnapshotId: string }>;
   try {
+    await auditReadStarted(pool,'6086941');
     const evidence = structuredClone(await (options.collect ?? collectPaymentContracts)(structuredClone(request.config), structuredClone(request.selection)));
     const checkedAt = now();
     captured = paymentContractSnapshotInputs(evidence, request.config, request.selection, checkedAt).map((capture, index) => {
@@ -125,11 +127,16 @@ export async function collectAndPublishPaymentContracts(pool: Pool, caller: Iden
       if (Date.parse(snapshot.observedFrom) < plan.contexts[index].preparedAt) fail('payment_capture_precedes_scope');
       return { ...capture, candidateSnapshotId: snapshot.snapshotId };
     });
+    const metrics=evidence as {httpAttempts:number;reportRequests:number};
+    await auditMetrics(pool,{httpAttempts:metrics.httpAttempts,logins:metrics.httpAttempts-metrics.reportRequests});
+    await auditReportRequests(pool,'6086941',metrics.reportRequests);
+    for(const [i,capture] of captured.entries())await auditAcquired(pool,capture.input,null,plan.contexts[i].salesContractNo);
   } catch (error) {
+    await auditCaptureFailure(pool,collectionCode(error),null);
     return receipt(notAttempted(), { attempted: true, validated: false, code: collectionCode(error) });
   }
   try { await scopeUnchanged(pool, identity, request, plan, now); }
-  catch (error) { return receipt(notAttempted(), { attempted: true, validated: true, code: publicationCode(error) }); }
+  catch (error) { await auditCaptureFailure(pool,publicationCode(error),null);return receipt(notAttempted(), { attempted: true, validated: true, code: publicationCode(error) }); }
   const outcomes: Outcome[] = [];
   for (const [index, target] of request.targets.entries()) {
     try {
@@ -137,6 +144,7 @@ export async function collectAndPublishPaymentContracts(pool: Pool, caller: Iden
       outcomes.push({ alias: target.alias, status: 'published', ...result });
     } catch (error) {
       const code = publicationCode(error);
+      await auditPublicationFailure(pool,plan.contexts[index].salesContractNo,code);
       if (code === 'payment_collection_publication_failed') outcomes.push({ alias: target.alias, status: 'unresolved', code,
         candidateSnapshotId: captured[index].candidateSnapshotId, expectedGeneration: plan.contexts[index].generation + 1 });
       else outcomes.push({ alias: target.alias, status: 'failed', code });
@@ -145,4 +153,12 @@ export async function collectAndPublishPaymentContracts(pool: Pool, caller: Iden
     }
   }
   return receipt(outcomes, { attempted: true, validated: true });
+}
+
+export async function collectAndPublishPaymentContracts(...args:Parameters<typeof collectAndPublishPaymentContractsImplementation>){
+ const pinned=pinSyncCall(args);
+ // Preserve the original no-database boundary for malformed explicit scopes.
+ if(!sha(pinned[3]))fail('payment_collection_explicit_scope_required');
+ pinned[2]=parsePaymentCollectionRequest(pinned[2]);
+ return withSyncAudit(pinned[0],{sourceKey:pinned[2].config.sourceKey,type:'manual',reports:['6086941']},()=>collectAndPublishPaymentContractsImplementation(...pinned));
 }

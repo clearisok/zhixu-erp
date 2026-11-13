@@ -1,3 +1,4 @@
+import {withSyncAudit,auditAcquired,auditCaptureFailure,auditRequestHandler,auditMetrics,auditLinkCapture} from './sync-audit.js';
 import type { Pool, PoolClient } from 'pg';
 import type { TrustedIdentity } from '../auth/session.js';
 import { requirePermission } from '../auth/permissions.js';
@@ -29,7 +30,7 @@ export async function captureCatalogOnce(pool:Pool,identity:Identity,raw:Collect
   // share this lease so recovery cannot race an upstream call still in flight.
   locked=(await lease.query('SELECT pg_try_advisory_lock(hashtextextended($1,0)) AS locked',['ainuoke-sync-worker:'+config.sourceKey])).rows[0].locked;
   if(!locked)throw new SourceError('sync_worker_busy');
-  return await captureUnderLease(pool,identity,config,requestId,collect,adoptNewOrders);
+  return await withSyncAudit(pool,{sourceKey:config.sourceKey,type:'catalog',id:requestId,reports:['6086103'],frequencies:['catalog']},()=>captureUnderLease(pool,identity,config,requestId,collect,adoptNewOrders));
  }finally{
   if(locked)await lease.query('SELECT pg_advisory_unlock(hashtextextended($1,0))',['ainuoke-sync-worker:'+config.sourceKey]).catch(()=>undefined);
   if(!workerLease)lease.release();
@@ -52,17 +53,19 @@ async function captureUnderLease(pool:Pool,identity:Identity,raw:CollectorConfig
   diagnosticId=randomUUID();
   await pool.query(`INSERT INTO ainuoke_sync_capture_attempts(id,source_key,account_fingerprint,actor_id,mode,job_ids,status,started_at)
    VALUES($1,$2,$3,$4,'catalog-discovery','{}'::uuid[],'running',now())`,[diagnosticId,config.sourceKey,fingerprint,actor.internalUserId]);
+  await auditLinkCapture(pool,diagnosticId);
   let captured;
   if(collect){
-   const raw=await collect(config,request,{resumePages,onPage:(phase,page)=>saveCatalogScanPage(pool,config.sourceKey,requestId,phase,page)});
+   const raw=await collect(config,request,{resumePages,onRequest:auditRequestHandler(pool),onPage:(phase,page)=>saveCatalogScanPage(pool,config.sourceKey,requestId,phase,page)});
    if(raw&&typeof raw==='object'&&'schemaVersion' in raw&&['ainuoke-request-diagnostics.v1','ainuoke-session-diagnostics.v1'].includes(String(raw.schemaVersion))){
     const checked=await validateCatalogDiagnostic(raw,config,request,Date.now(),resumePages);captured=checked.capture;diagnostics=checked.diagnostics;
    }else captured=await validateSelectedSourceOnce(raw,config,request);
   }else{const checked=await collectCatalogDiagnostic(config,request);captured=checked.capture;diagnostics=checked.diagnostics;}
-  metrics=captured.metrics;
+  metrics=captured.metrics;await auditMetrics(pool,metrics);
   if(captured.result!=='complete')throw new SourceError(captured.code);
   if(captured.mode!=='catalog-discovery')throw new SourceError('catalog_invalid');
   completedBundle=captured.bundle;
+  await auditAcquired(pool,captured.bundle,diagnostics);
   await finishCaptureAttempt(pool,diagnosticId,null,diagnostics,metrics,Date.now());
   const result=await publishCatalog(pool,identity,{sourceKey:config.sourceKey,accountFingerprint:fingerprint,requestId,input:captured.bundle,expectedHash:captured.preview.contentHash,adoptNewOrders});
   await finishCatalogScan(pool,config.sourceKey,requestId,{...result,metrics:captured.metrics},captured.bundle);
@@ -72,6 +75,7 @@ async function captureUnderLease(pool:Pool,identity:Identity,raw:CollectorConfig
   const committed=(await pool.query('SELECT id::text FROM ainuoke_catalog_runs WHERE source_key=$1 AND request_id=$2',[config.sourceKey,requestId]).catch(()=>({rows:[]}))).rows[0];
   if(committed){await finishCatalogScan(pool,config.sourceKey,requestId,{runId:committed.id},completedBundle);return {status:'complete',result:{runId:committed.id},replayed:true};}
   const code=e instanceof SourceError?e.code:'catalog_result_unknown';
+  await auditCaptureFailure(pool,code,diagnostics);
   if(diagnosticId)await finishCaptureAttempt(pool,diagnosticId,code,diagnostics,metrics,Date.now());
   await pool.query('UPDATE ainuoke_catalog_requests SET status=$3,result=$4::jsonb,finished_at=now() WHERE source_key=$1 AND request_id=$2',[config.sourceKey,requestId,e instanceof SourceError?'failed':'unknown',JSON.stringify({code,...(e instanceof CatalogDiagnosticValidationError&&e.catalogChange?{catalogChange:e.catalogChange}:{})})]).catch(()=>undefined);
   await failCatalogScan(pool,config.sourceKey,requestId,code,!(e instanceof SourceError));

@@ -1,3 +1,5 @@
+import {withSyncAudit} from './sync-audit.js';
+import {backfillExistingSyncAudit} from './audit-backfill.js';
 import { readFileSync, statSync } from 'node:fs';
 import { requestMaterialRecovery } from './material-recovery.js';
 import { publishHistoricalMaterialObservation } from './historical-material-publication.js';
@@ -37,11 +39,11 @@ export function parseSourceArguments(args: string[]) {
     if(!match || values.has(match[1])) throw new SourceError("explicit_source_action_required");
     values.set(match[1],match[2]??"");
   }
-  const actions=["check","preview-bind","bind","preview-bind-selected","bind-selected","discover-add","preview-add","add","execute","execute-bounded","catalog","catalog-receipt","plan-followup","execute-group","group-receipt","sync-configure","sync-once","sync-run","sync-status","material-recover","material-history-publish","sync-recovery-preview","sync-recover","schedule"].filter(key=>values.has(key));
+  const actions=["check","preview-bind","bind","preview-bind-selected","bind-selected","discover-add","preview-add","add","execute","execute-bounded","catalog","catalog-receipt","plan-followup","execute-group","group-receipt","sync-configure","sync-once","sync-run","sync-status","sync-audit-backfill","material-recover","material-history-publish","sync-recovery-preview","sync-recover","schedule"].filter(key=>values.has(key));
   if(actions.length!==1 || !values.get("config")) throw new SourceError("explicit_source_action_required");
   const action=actions[0];
   if(action==='material-history-publish'&&(!values.get('source-id')||!['order-id','observation-id'].every(k=>/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(values.get(k)??''))||!/^[a-f0-9]{64}$/.test(values.get('evidence-hash')??'')))throw new SourceError('historical_material_scope_invalid');
-  const allowed=["config",action,...(action==="material-history-publish"?["source-id","order-id","observation-id","evidence-hash"]:[]),...(action==="material-recover"?["source-ids","request-id"]:[]),...(["sync-once","sync-run"].includes(action)?["source-ids"]:[]),...(action==="check"?[]:["expected-target"]),...(["bind","bind-selected","add"].includes(action)?["expected-preview"]:[]),
+  const allowed=["config",action,...(action==="sync-audit-backfill"?["limit","after-at","after-id","apply"]:[]),...(action==="material-history-publish"?["source-id","order-id","observation-id","evidence-hash"]:[]),...(action==="material-recover"?["source-ids","request-id"]:[]),...(["sync-once","sync-run"].includes(action)?["source-ids"]:[]),...(action==="check"?[]:["expected-target"]),...(["bind","bind-selected","add"].includes(action)?["expected-preview"]:[]),
     ...(["preview-add","add","preview-bind-selected","bind-selected","execute-bounded","execute-group"].includes(action)?["contracts"]:[]),...(action==="schedule"?["interval-ms","max-backoff-ms"]:[]),...(["catalog","catalog-receipt","execute-group","group-receipt"].includes(action)?["request-id"]:[]),...(action==="execute-group"?["expected-scope"]:[]),...(["plan-followup","sync-once","sync-run"].includes(action)?["batch-size"]:[]),...(action==="sync-configure"?["enabled","expected-version","policy-file"]:[]),...(action==="sync-recover"?["expected-preview","reason"]:[])];
   if([...values.keys()].some(k=>!allowed.includes(k)) || action==="check"&&values.get(action)!==""
     || action!=="check"&&(!/^[a-z][a-z0-9_-]{2,63}$/u.test(values.get(action)!)||!/^[a-f0-9]{64}$/u.test(values.get("expected-target")??""))
@@ -58,6 +60,7 @@ export function parseSourceArguments(args: string[]) {
 }
 export async function main(args: string[] = process.argv.slice(2)): Promise<void> {
   if(args.length===0 || args.length===1&&args[0]==="--help") {
+    process.stdout.write("sync-audit-backfill: metadata only, default preview; --sync-audit-backfill=<source key> --config=<private file> --expected-target=<fingerprint> [--limit=25] [--after-at=<ISO> --after-id=<UUID>] [--apply]. No upstream requests or business writes.\n");
     process.stdout.write("material-recover: --material-recover=<source key> --source-ids=<exact IDs separated by commas> --request-id=<stable recovery UUID> --expected-target=<fingerprint> --config=<private file>. Enqueues ordinary jobs only; replay the same UUID after interruption.\n");
     process.stdout.write("sync-configure: --sync-configure=<source key> --enabled=true|false --expected-version=<version> [--policy-file=<bounded JSON>] --expected-target=<fingerprint> --config=<private file>\nsync-run / sync-once: --sync-run=<source key> [--batch-size=5] --expected-target=<fingerprint> --config=<private file>. Optional --source-ids=<exact IDs> drains existing/manual selected tasks without automatic enqueue or directory scheduling; session remains reusable while waiting. No automatic retry after unknown outcomes.\nsync-status / sync-recovery-preview: database only. Recovery uses --sync-recover=<source key> --expected-preview=<reviewHash> --reason=<reviewed reason> with the same config/target. Never makes upstream requests.\n");
     process.stdout.write("catalog: --catalog=<source key> --request-id=<UUID> --expected-target=<fingerprint> --config=<private file>; bounded 1 login/40 reports/180s, no retry. Replay first checks receipt.\nplan-followup: --plan-followup=<source key> [--batch-size=5] --expected-target=<fingerprint> --config=<file>; DB only.\nexecute-group: --execute-group=<source key> --contracts=<selected BillNos> --expected-scope=<plan hash> --request-id=<UUID> --expected-target=<fingerprint> --config=<file>; at most one group, never repeats request.\nReceipts: --catalog-receipt or --group-receipt=<source key> --request-id=<UUID> --expected-target=<fingerprint> --config=<file>.\ncheck: --check --config=<absolute private file>\nread-only source preview: --preview-bind=<source key> --expected-target=<check fingerprint> --config=<file>\nbind: --bind=<source key> --expected-target=<fingerprint> --expected-preview=<reviewHash> --config=<file>\nselected first binding: --preview-bind-selected=<source key> --contracts=<BillNo,...> --expected-target=<fingerprint> --config=<file>\nconfirm first selection: --bind-selected=<source key> --contracts=<BillNo,...> --expected-preview=<reviewHash> --expected-target=<fingerprint> --config=<file>\nnew contracts: --discover-add=<source key> --expected-target=<fingerprint> --config=<file>\npreview selected: --preview-add=<source key> --contracts=<BillNo,...> --expected-target=<fingerprint> --config=<file>\nconfirm selected: --add=<source key> --contracts=<BillNo,...> --expected-preview=<reviewHash> --expected-target=<fingerprint> --config=<file>\ncapture: --execute=<source key> --expected-target=<fingerprint> --config=<file>\nbounded material capture: --execute-bounded=<source key> --contracts=<exact bound BillNos> --expected-target=<fingerprint> --config=<file>\nscheduler: --schedule=<source key> --expected-target=<fingerprint> --config=<file> [--interval-ms=300000] [--max-backoff-ms=1800000]\nNo migration, account bootstrap or deployment is performed. Scheduling does not bind orders.\n"); return;
@@ -81,6 +84,12 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
       process.stdout.write(JSON.stringify({result:"CHECKED_NO_SOURCE_READ",targetFingerprint:fingerprint,sourceKey:cfg.sourceKey,boundOrders:(await boundOrders(pool)).length})+"\n");return;
     }
     if(values.get("expected-target")!==fingerprint)throw new SourceError("source_target_mismatch");
+    if(action==='sync-audit-backfill'){
+      if(values.has('apply')&&values.get('apply')!=='')throw new SourceError('sync_audit_backfill_invalid');
+      if(values.has('after-at')!==values.has('after-id'))throw new SourceError('sync_audit_backfill_invalid');
+      const result=await backfillExistingSyncAudit(pool,actor,cfg.sourceKey,{limit:Number(values.get('limit')??25),execute:values.has('apply'),after:values.has('after-at')?{at:values.get('after-at')!,id:values.get('after-id')!}:undefined});
+      process.stdout.write(JSON.stringify(result)+'\n');return;
+    }
     if(action==='material-history-publish'){
       const result=await publishHistoricalMaterialObservation(pool,actor,{sourceKey:cfg.sourceKey,sourceId:values.get('source-id')??'',orderId:values.get('order-id')??'',observationId:values.get('observation-id')??'',expectedHash:values.get('evidence-hash')??''});
       process.stdout.write(JSON.stringify({event:'MATERIAL_HISTORY_PUBLICATION',...result})+'\n');return;
@@ -229,7 +238,7 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
     if(action==="execute"){process.stdout.write(JSON.stringify({result:"SOURCE_CAPTURED",...await capture()})+"\n");return;}
     const controller=new AbortController();const stop=()=>controller.abort();
     process.once("SIGINT",stop);process.once("SIGTERM",stop);
-    try {await runSchedule({capture,signal:controller.signal,policy:policy!,emit:event=>process.stdout.write(JSON.stringify({result:"SOURCE_SCHEDULE",...event})+"\n")});}
+    try {await runSchedule({capture:()=>withSyncAudit(pool,{sourceKey:cfg.sourceKey,type:'scheduled',frequencies:['legacy_interval_'+policy!.intervalMs+'ms']},capture),signal:controller.signal,policy:policy!,emit:event=>process.stdout.write(JSON.stringify({result:"SOURCE_SCHEDULE",...event})+"\n")});}
     finally {process.removeListener("SIGINT",stop);process.removeListener("SIGTERM",stop);}
   } finally {await pool.end();}
 }

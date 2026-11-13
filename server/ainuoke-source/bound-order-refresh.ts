@@ -1,3 +1,4 @@
+import {withSyncAudit,auditPublished,commitWithSyncAudit,pinSyncCall} from './sync-audit.js';
 import type {Pool,PoolClient} from 'pg';
 import type {TrustedIdentity} from '../auth/session.js';
 import {readCurrentActor} from '../auth/current-actor.js';
@@ -38,7 +39,7 @@ async function transaction<T>(pool:Pool,write:boolean,fn:(client:PoolClient)=>Pr
  const client=await pool.connect();try{
   await client.query(write?'BEGIN':'BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');
   if(write){await client.query("SET LOCAL lock_timeout='5s'");await client.query("SET LOCAL statement_timeout='30s'");await lockEffectiveAttribution(client);}
-  const result=await fn(client);await client.query('COMMIT');return result;
+  const result=await fn(client);await commitWithSyncAudit(client);return result;
  }catch(error){await client.query('ROLLBACK').catch(()=>undefined);throw orderCommandControlError(error);}finally{client.release();}
 }
 async function available(client:PoolClient){
@@ -102,7 +103,7 @@ export async function readBoundOrderRefreshReceipt(pool:Pool,identity:TrustedIde
    historical:true,absenceProvesFailure:false,sourceReadThisInvocation:'none' as const};
  });
 }
-export async function applyBoundOrderRefresh(pool:Pool,identity:TrustedIdentity,rawScope:BoundOrderRefreshScope,rawEvidence:unknown,
+async function applyBoundOrderRefreshImplementation(pool:Pool,identity:TrustedIdentity,rawScope:BoundOrderRefreshScope,rawEvidence:unknown,
  command:{requestId:string;expectedPreview:string},now=Date.now()){
  const scope=scopeOf(rawScope),evidence=evidenceOf(rawEvidence);
  if(!command||Object.keys(command).sort().join(',')!=='expectedPreview,requestId'||!identityUuid.test(command.requestId)||!sha(command.expectedPreview))
@@ -127,6 +128,7 @@ export async function applyBoundOrderRefresh(pool:Pool,identity:TrustedIdentity,
   await appendOperationLog(client,actor,{operationId,operationSequence:1,module:'艾诺科同步',action:'艾诺科同步订单',entityType:'SalesOrder',entityId:p.target.id,
    metadata:{mutationSurface:'bound_source_refresh',requestId,sourceOwnerOrderId:p.owner.id,previewHash:p.previewHash},
    afterData:{orderId:p.target.id,salesContractNo:result.salesContractNo,objectName:result.salesContractNo,values:{colorCount:result.colorLines}}});
+  await auditPublished(client,scope.sourceKey,requestId,evidence,result.salesContractNo,['ainuoke_sales_order_contract_mirrors','ainuoke_sales_order_color_mirrors']);
   return {replayed:false,historical:false,result};
  });
 }
@@ -142,3 +144,5 @@ export async function refreshCollectedBoundOrderInTransaction(pool:Pool,client:P
   {operationId:'catalog-sync:'+jobId,operationSequence:0});
  return {orderId:p.target.id,sourceOwnerOrderId:p.owner.id,colorLines:p.candidate.colors.length};
 }
+
+export async function applyBoundOrderRefresh(...args:Parameters<typeof applyBoundOrderRefreshImplementation>){const pinned=pinSyncCall(args);return withSyncAudit(pinned[0],{sourceKey:pinned[2].sourceKey,type:'manual'},()=>applyBoundOrderRefreshImplementation(...pinned));}

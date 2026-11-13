@@ -198,7 +198,7 @@ test("garment observation ownership, immutable SQL, trusted HTTP, CAS and curren
   });
   await t.test("COMMIT acknowledgement loss can be resolved by the original capture without another snapshot", async () => {
     const context = await prepare(), data = sample(context, 1); clock += 5000;
-    const dropped = { connect: async () => {
+    const dropped = { query: pool.query.bind(pool), connect: async () => {
       const client = await pool.connect(), query = client.query.bind(client);
       return { query: async (text: string, values?: unknown[]) => { const result = await query(text, values); if (text === "COMMIT") throw Error("synthetic commit acknowledgement lost"); return result; }, release: () => client.release() } as unknown as PoolClient;
     } } as unknown as Pool;

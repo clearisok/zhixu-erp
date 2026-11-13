@@ -1,3 +1,4 @@
+import {withSyncAudit,auditAcquired,auditPublished,commitWithSyncAudit,pinSyncCall} from './sync-audit.js';
 import { randomUUID } from "node:crypto";
 import type { Pool, PoolClient } from "pg";
 import type { TrustedIdentity } from "../auth/session.js";
@@ -51,7 +52,7 @@ async function transaction<T>(pool: Pool, write: boolean, fn: (client: PoolClien
   try {
     await client.query(write ? "BEGIN" : "BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY");
     if (write) await client.query("SET LOCAL lock_timeout='5s'");
-    const result = await fn(client); await client.query("COMMIT"); return result;
+    const result = await fn(client); await commitWithSyncAudit(client); return result;
   } catch (error) { await client.query("ROLLBACK"); throw error; } finally { client.release(); }
 }
 async function targetFor(client: PoolClient, sourceKey: string, orderId: string, lock: boolean) {
@@ -187,6 +188,8 @@ async function publishCheckedGarmentObservation(client: PoolClient, checked: Ret
     if (!bindingMatches(old, order, target) || hash(old.publication_context) !== hash(context) || hash(old.input) !== hash(checkedInput)
       || hash(verifyStored(old)) !== hash(projectColors(snapshot, old.color_basis)))
       return fail(409, "garment_capture_retry_conflict");
+    await auditAcquired(client,checkedInput,null,context.salesContractNo);
+    await auditPublished(client,context.sourceKey,old.id,checkedInput,context.salesContractNo,undefined,true);
     return { publicationId: old.id, snapshotId: old.snapshot_id, generation: old.generation, alreadyPublished: true };
   }
   if (hash(actual) !== hash(context) || snapshot.sourceFingerprint !== actual.sourceFingerprint || snapshot.salesContractNo !== actual.salesContractNo)
@@ -202,6 +205,7 @@ async function publishCheckedGarmentObservation(client: PoolClient, checked: Ret
       fail(409, "garment_observation_regressed");
   }
   const texts = await boundedStorage(client, { input: checkedInput, scope: checkedScope, context, basis, payload });
+  await auditAcquired(client,checkedInput,null,context.salesContractNo);
   for (const color of colors.filter(color => !color.ambiguous)) await ensureStableOrderColor(client, order.id, color);
   const publicationId = randomUUID(), generation = context.generation + 1;
   await client.query(`INSERT INTO ainuoke_garment_shipment_snapshots(id,source_key,sales_order_id,generation,account_fingerprint,target_version,freshness_ms,
@@ -218,6 +222,7 @@ async function publishCheckedGarmentObservation(client: PoolClient, checked: Ret
   } else await client.query("INSERT INTO ainuoke_garment_shipment_heads(source_key,sales_order_id,snapshot_id,generation) VALUES($1,$2,$3,$4)", [context.sourceKey, order.id, publicationId, generation]);
   await appendOperationLog(client, actor, { module: "艾诺科同步", action: "采集艾诺科来源", entityType: "AinuokeSourceRun", entityId: publicationId,
     afterData: { values: { salesOrderId: order.id, generation } }, metadata: { sourceReportId: "6086979", publicationId, generation, rowCount: payload.rows.length, sourceOnly: true } });
+  await auditPublished(client,context.sourceKey,publicationId,checkedInput,context.salesContractNo);
   return { publicationId, snapshotId: snapshot.snapshotId, generation, alreadyPublished: false };
 }
 
@@ -232,7 +237,7 @@ export async function publishGarmentObservationInTransaction(client: PoolClient,
 
 /** Server-only checked-page publication. Preserve synchronous input capture
  * before the first await, current permissions, scope/CAS and original replay. */
-export async function publishGarmentObservation(pool: Pool, caller: TrustedIdentity, requestedContext: GarmentPublicationContext,
+async function publishGarmentObservationImplementation(pool: Pool, caller: TrustedIdentity, requestedContext: GarmentPublicationContext,
   input: unknown, scope: GarmentObservationScope, now = Date.now()) {
   const checked = checkedGarmentPublication(caller, requestedContext, input, scope, now);
   return transaction(pool, true, client => publishCheckedGarmentObservation(client, checked));
@@ -296,3 +301,5 @@ export function garmentShipmentReadConfig(values: Readonly<Record<string, string
     fail(400, "invalid_garment_source_configuration");
   return { sourceKey };
 }
+
+export async function publishGarmentObservation(...args:Parameters<typeof publishGarmentObservationImplementation>){const pinned=pinSyncCall(args);return withSyncAudit(pinned[0],{sourceKey:pinned[2].sourceKey,type:'publication',historical:true,reports:['6086979']},()=>publishGarmentObservationImplementation(...pinned));}

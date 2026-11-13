@@ -69,3 +69,23 @@ test('final authentication refusal can be inspected even when Python immediately
  child.stdout.write(JSON.stringify(final)+'\n');child.emit('close',0);
  assert.deepEqual(await result,final);assert.equal(owner.available(),false);
 });
+test('request progress is ordered, durable before final resolution and retained across reusable captures',async()=>{
+ const {owner,child}=fixture(),saved:string[]=[];
+ for(let i=0;i<2;i++){
+  const result=owner.collect(selectedConfig,{mode:'catalog-contracts',contracts:['SYN-'+i]},{onRequest:async phase=>{await Promise.resolve();saved.push(i+':'+phase);}});
+  const diagnostic={kind:'report',reportId:6087051,page:1,elapsedMs:0,httpStatus:null,outcome:'complete',startedAt:new Date().toISOString()};
+  const finished={...diagnostic,httpStatus:200,responseIsOk:true,receivedRows:0,finishedAt:new Date().toISOString()},completed={...final,requests:[finished]};
+  child.stdout.write(JSON.stringify({schemaVersion:'ainuoke-request-event.v1',phase:'started',diagnostic})+'\n'+JSON.stringify({schemaVersion:'ainuoke-request-event.v1',phase:'finished',diagnostic:finished})+'\n'+JSON.stringify(completed)+'\n');
+  assert.deepEqual(await result,completed);
+ }
+ assert.deepEqual(saved,['0:started','0:finished','1:started','1:finished']);owner.close();
+});
+test('audit callback failure stops the owner; unrequested or secret-bearing request metadata never persists',async()=>{
+ const {owner,child}=fixture();
+ const result=owner.collect(selectedConfig,{mode:'catalog-contracts',contracts:['SYN-1']},{onRequest:async()=>{throw Error('synthetic audit database outage');}});
+ child.stdout.write(JSON.stringify({schemaVersion:'ainuoke-request-event.v1',phase:'started',diagnostic:{kind:'report',reportId:6087051,page:1,elapsedMs:0,httpStatus:null,outcome:'complete'}})+'\n');
+ await assert.rejects(result,/sync_audit_progress_failed/);assert.equal(owner.available(),false);
+ const second=fixture(),blocked=second.owner.collect(selectedConfig,{mode:'catalog-contracts',contracts:['SYN-1']});
+ second.child.stdout.write(JSON.stringify({schemaVersion:'ainuoke-request-event.v1',phase:'started',diagnostic:{secret:selectedConfig.password}})+'\n');
+ await assert.rejects(blocked,/source_invalid/);assert.equal(second.owner.available(),false);
+});

@@ -1,3 +1,4 @@
+import {withSyncAudit,commitWithSyncAudit,pinSyncCall} from './sync-audit.js';
 import type { Pool, PoolClient } from 'pg';
 import type { TrustedIdentity } from '../auth/session.js';
 import { requireOrderCommandActor } from '../sales-orders/identity-service.js';
@@ -43,7 +44,7 @@ const preCollectionCodes = new Set(['permission_denied', 'authentication_require
  * Neither a terminal replay nor an ambiguous started receipt grants a new read.
  * Target/generation races after the lease are checked again by the coordinator
  * before its worker, and again before publication. No locks span network IO. */
-export async function collectPaymentOnce(pool: Pool, caller: Identity, input: PaymentCollectionRequest,
+async function collectPaymentOnceImplementation(pool: Pool, caller: Identity, input: PaymentCollectionRequest,
   permitInput: PaymentOperatorPermit, options: Options = {}) {
   const request = parsePaymentCollectionRequest(input), permit = parsePaymentOperatorPermit(permitInput);
   const identity = { internalUserId: caller.internalUserId, userId: caller.userId }, now = options.now ?? Date.now;
@@ -64,7 +65,7 @@ export async function collectPaymentOnce(pool: Pool, caller: Identity, input: Pa
     if (actor.username !== request.config.operatorUsername) fail('payment_collection_operator_mismatch');
     const reserved = await reservePaymentOperatorCommand(client, actor, command, now());
     if (!reserved.reserved) { await client.query('ROLLBACK'); return existingReceipt(reserved.stored, command); }
-    committing = true; await client.query('COMMIT');
+    committing = true; await commitWithSyncAudit(client);
   } catch (error) {
     await client.query('ROLLBACK').catch(() => undefined);
     if (committing) return { schemaVersion: 'ainuoke-payment-operator-result.v1' as const, requestId: permit.requestId,
@@ -96,3 +97,5 @@ export async function collectPaymentOnce(pool: Pool, caller: Identity, input: Pa
   return { schemaVersion: 'ainuoke-payment-operator-result.v1' as const, requestId: permit.requestId,
     receiptState, replayed: false, result, sourceReadThisInvocation: 'see_result' as const, receiptIsHistorical: false };
 }
+
+export async function collectPaymentOnce(...args:Parameters<typeof collectPaymentOnceImplementation>){const pinned=pinSyncCall(args);return withSyncAudit(pinned[0],{sourceKey:pinned[2].config.sourceKey,type:'manual',reports:['6086941']},()=>collectPaymentOnceImplementation(...pinned));}

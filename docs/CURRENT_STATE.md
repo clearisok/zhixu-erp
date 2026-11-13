@@ -1,9 +1,13 @@
-# 当前状态：已人工验收，PR审计及staging交付进行中
+# 当前状态：同步审计正在交付staging
 
-2026-11-12用户正式接受8f5b5d89并授权安全PR合并及staging部署；不操作生产。main与线上仍6dc17c645215b3eb08e03624effdee2d182b3e1d。初始open仅#136（旧工具草稿、明确暂不合并、冲突），保留原状。新物料PR准备中，包含完整本机已验收历史，不删除分支。
+2026-11-13用户已明确授权本候选PR合并、0058和staging部署及两个自然目录周期验收，禁止production。Git专用失效代理已用仅进程覆盖绕开；标准工具一次push并独立API精确确认8a2341d9。全部Open仅136草稿冲突，非必需依赖，保留。补充结算单ID原始关联变化的真实PG发布回归18/18通过，新审计测试加入CI。当前尚未合并/迁移/部署或恢复源站；后续进度见[本次交付](tasks/active/sync-audit-staging-delivery-2026-11-13.md)。以下保留本机工程完成时点，授权和远端旧状态已由本段替代。
 
-重要既有问题：staging来源自11/11 15:52北京因catalog_changed_or_over_limit暂停，supervisor STOPPED_FAULT；620订单/物料head、5 queued。此次不自动清保护或重采，UI发布与来源恢复分开记录。原数据/人工内容/队列/时间保留。
+2026-11-13。分支 `feat/ainuoke-sync-audit`，起始main/证据基线 **c5133e9e9e7065dc4fe7672c0c88c75688e0c51f**。产品代码 **3d2a3737765d02eae5586e8edff40e27df166acf**；后续文档提交不改产品。系统设置“艾诺科同步记录”已实现批次/11真实报表、读取与COMMIT确认、真实计数/未知值、失败重试事件、筛选分页和Excel，正常会话/RBAC。0058仅新增4张审计表，不重建业务数据。[完整交付与测试](tasks/active/ainuoke-sync-audit-2026-11-12.md)、[长期契约](features/AINUOKE_SYNC_AUDIT.md)。
 
-本机演示63054仍运行、只读，源码5bef8388，8f5b5d89含最终交接；617副本保留，本机无源worker。生产部署工作流仅手动，未触发；新版本使用正常session/RBAC，不带demo入口。Git在进程级DNS/代理覆盖下读和fetch成功，未改共享配置或证书校验。
+已证实旧全局暂停由同身份/范围目录hsid变化被复合错误码拒绝且无退避造成。候选允许严格完整稳定重读，保留原1/5分钟有限重试和30分钟冷却；管理员停用、认证/证书/权限/身份异常不自动解除。业务匹配、数量、认证owner、R频率保持。
 
-[本轮交付、全部PR审计及风险](tasks/active/material-staging-release-2026-11-12.md)，[本机验收](tasks/active/material-color-first-result-2026-11-12.md)。必要检查和发布未全部完成，不宣称已部署。
+门禁：相关回归108/108、核心/升级41/41、旧入口33/33、历史/重启9/9、最终有界入口4/4、Chromium3/3、基线负向182/182全部通过；类型、Lint、服务端与前端构建通过。测试组覆盖重叠，不合计。源码基线守卫M通过，历史真实成功/失败例子来自只读既有记录；本轮0源站登录/0报表。
+
+现有本机63054/63051业务进程/真实库未迁移或切换，新台账不冒称已在旧演示运行。staging最近核实仍PR145/main **c5133e9e9e7065dc4fe7672c0c88c75688e0c51f**，暂停及worker停用未更改。生产未操作。仅工程就绪；staging部署须另批，完成其备份、0058、单owner受控切换和真实自动链路验收后才可称上线恢复。历史台账补录默认预览，真实库未执行。[旧发布/备份](tasks/active/material-staging-release-2026-11-12.md)、[此前状态](tasks/completed/2026-11-12-before-sync-audit/CURRENT_STATE.md)。远端候选事实以最终交付回执为准，不据本地通过推断。
+
+远端收口：2026-11-13标准Dry Run的Git预检exit128/uncertain_transport，API通过，NETWORK_DEGRADED；0次实际推送，无PR/CI，未重复撞该通道。最终源码基线34在b23923f5通过；其后仅本段交付回执补记，不改产品/冻结证据。继续工程不受影响，远端交付另待核实。

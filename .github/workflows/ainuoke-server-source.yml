@@ -75,6 +75,7 @@ jobs:
           npm run test:postgres
           npm run test:ainuoke-continuous
           npm run test:ainuoke-catalog
+          npx --no-install tsx --test --test-concurrency=1 server/ainuoke-source/sync-audit.test.ts server/integration/ainuoke-sync-audit.integration.test.ts server/integration/ainuoke-local-transport.integration.test.ts
           npx --no-install tsx --test --test-concurrency=1 server/ainuoke-source/configured-material-reader.test.ts server/ainuoke-source/local-unit-confirmations.test.ts server/integration/ainuoke-automatic-runner.integration.test.ts server/integration/material-archive.integration.test.ts server/integration/historical-material-publication.integration.test.ts server/integration/ainuoke-sync-handoff.integration.test.ts
           npm run test:ainuoke-readiness
           npm run test:ainuoke-readonly-audit
@@ -119,6 +120,7 @@ jobs:
           npm run test:production-planning-ui
           npm run test:ainuoke-continuous-ui
           npm run test:ainuoke-catalog-ui
+          npx --no-install tsx --test server/integration/ainuoke-sync-audit-ui.integration.test.mjs
           npm run test:processing-batches-ui
           npm run test:processing-quote-push-ui
           npm run test:order-business-source-ui

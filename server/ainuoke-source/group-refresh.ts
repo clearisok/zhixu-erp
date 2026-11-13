@@ -1,3 +1,4 @@
+import {auditMetrics,withSyncAudit,pinSyncCall} from './sync-audit.js';
 import type { Pool } from 'pg';
 import type { TrustedIdentity } from '../auth/session.js';
 import { parseCollectorConfig, accountFingerprint, type CollectorConfig } from './collector.js';
@@ -8,7 +9,7 @@ import { collectSelectedSourceOnce, validateSelectedSourceOnce, type SelectedSou
 import { followupModes } from './followup.js';
 
 /** One selected group, one bounded capture. Reusing the request never sends HTTP again. */
-export async function refreshFollowupGroup(pool:Pool,identity:Pick<TrustedIdentity,'internalUserId'|'userId'>,config:CollectorConfig,
+async function refreshFollowupGroupImplementation(pool:Pool,identity:Pick<TrustedIdentity,'internalUserId'|'userId'>,config:CollectorConfig,
  input:{contracts:string[];expectedScopeHash:string;requestId:string},
  collect?:(config:CollectorConfig,request:SelectedSourceRequest)=>Promise<unknown>) {
  const checked=parseCollectorConfig(config),contracts=selectContracts(input.contracts.join(','));
@@ -23,21 +24,27 @@ export async function refreshFollowupGroup(pool:Pool,identity:Pick<TrustedIdenti
  const inserted=await pool.query(`INSERT INTO ainuoke_material_group_requests(actor_user_id,request_id,source_key,request_hash,status)
   VALUES($1,$2,$3,$4,'running') ON CONFLICT DO NOTHING RETURNING request_id`,[actor.internalUserId,input.requestId,checked.sourceKey,digest]);
  if(!inserted.rowCount)throw new SourceError('source_group_request_in_progress');
+ let metrics:unknown;
  try {
   const result=await captureSource(pool,identity,{sourceKey:checked.sourceKey,accountFingerprint:accountFingerprint(checked),maxAgeMs:600000,
    requireExistingProfile:true,selectedOrderIds:targets.map(o=>o.id),expectedScopeHash:input.expectedScopeHash,collect:async current=>{
     if(hash([...current].sort())!==hash(contracts))throw new SourceError('source_group_changed');
     const request:SelectedSourceRequest={mode:'bound-materials',targets};
     const captured=collect?await validateSelectedSourceOnce(await collect(checked,request),checked,request):await collectSelectedSourceOnce(checked,request);
+    metrics=captured.metrics;
     if(captured.result!=='complete')throw new SourceError(captured.code);
     if(captured.mode!=='bound-materials')throw new SourceError('source_group_invalid');
     return captured.bundle;
    }});
+  await auditMetrics(pool,metrics);
   await pool.query("UPDATE ainuoke_material_group_requests SET status='complete',result=$3::jsonb WHERE actor_user_id=$1 AND request_id=$2 AND status='running'",[actor.internalUserId,input.requestId,JSON.stringify(result)]);
   return {status:'complete',result,replayed:false};
  }catch(e){
+  await auditMetrics(pool,metrics).catch(()=>undefined);
   const result={code:e instanceof SourceError?e.code:'source_group_result_unknown'};
   await pool.query("UPDATE ainuoke_material_group_requests SET status='failed',result=$3::jsonb WHERE actor_user_id=$1 AND request_id=$2 AND status='running'",[actor.internalUserId,input.requestId,JSON.stringify(result)]).catch(()=>undefined);
   throw e;
  }
 }
+
+export async function refreshFollowupGroup(...args:Parameters<typeof refreshFollowupGroupImplementation>){const pinned=pinSyncCall(args);return withSyncAudit(pinned[0],{sourceKey:pinned[2].sourceKey,id:pinned[3].requestId,type:'manual',contracts:pinned[3].contracts},()=>refreshFollowupGroupImplementation(...pinned));}

@@ -75,6 +75,8 @@ test("durable garment commands, one worker, atomic publication and original requ
     });
     assert.equal(calls, startCalls + 1); assert.equal(result.receiptState, "completed"); assert.equal(result.result?.outcome, "published");
     assert.equal((await row(job)).publication_id, result.result && "publicationId" in result.result ? result.result.publicationId : null);
+    const committedAudit=(await pool.query("SELECT b.status,t.write_completed_at,t.error_code FROM ainuoke_sync_audit_batches b JOIN ainuoke_sync_audit_tables t ON t.batch_id=b.id WHERE b.source_key=$1 ORDER BY b.started_at DESC LIMIT 1",[job.request.config.sourceKey])).rows[0];
+    assert.equal(committedAudit.status,'success');assert.ok(committedAudit.write_completed_at);assert.equal(committedAudit.error_code,null);
     assert.equal(await count("ainuoke_garment_shipment_snapshots", job), 1);
     const view = await reader.read(admin, job.orderId); assert.ok("rows" in view && view.rows.length === 1);
     for (const secret of [job.request.config.password, job.request.config.username, job.request.verification.selection.salesContractNo, "合成蓝", "9007199254740993"])
@@ -87,6 +89,8 @@ test("durable garment commands, one worker, atomic publication and original requ
     const startCalls = calls, duplicate = await collect(job); assert.equal(duplicate.receiptState, "unverified_started"); assert.equal(calls, startCalls);
     release(); assert.equal((await pending).result?.outcome, "published");
     assert.equal((await collect(job)).receiptState, "completed"); assert.equal(calls, startCalls);
+    const replayAudit=(await pool.query("SELECT b.status,t.write_completed_at FROM ainuoke_sync_audit_batches b JOIN ainuoke_sync_audit_tables t ON t.batch_id=b.id WHERE b.source_key=$1 ORDER BY b.started_at DESC LIMIT 1",[job.request.config.sourceKey])).rows[0];
+    assert.deepEqual(replayAudit,{status:'replayed',write_completed_at:null});
   });
   await t.test("v2 complete sentinel pages publish, persist original paging evidence and recover without another worker", async () => {
     const job = await make(), before = calls;
@@ -146,12 +150,12 @@ test("durable garment commands, one worker, atomic publication and original requ
   });
   await t.test("a different configured database channel cannot consume the preview", async () => {
     const job = await make(), before = calls;
-    const wrong = { options: { ...pool.options, connectionString: pool.options.connectionString!.replace("127.0.0.1", "localhost") }, connect: () => pool.connect() } as unknown as Pool;
+    const wrong = { query:pool.query.bind(pool), options: { ...pool.options, connectionString: pool.options.connectionString!.replace("127.0.0.1", "localhost") }, connect: () => pool.connect() } as unknown as Pool;
     await assert.rejects(() => collect(job, undefined, wrong), { code: "garment_collection_scope_changed" });
     assert.equal(calls, before); assert.equal(await count("ainuoke_garment_collection_commands", job), 0);
   });
   function alteredPool(hook: (text: string, values: unknown[] | undefined, run: () => Promise<unknown>) => Promise<unknown>): Pool {
-    return { options: pool.options, connect: async () => {
+    return { query:pool.query.bind(pool), options: pool.options, connect: async () => {
       const client = await pool.connect(), query = client.query.bind(client);
       return { query: (text: string, values?: unknown[]) => hook(text, values, () => query(text, values)), release: () => client.release() } as unknown as PoolClient;
     } } as unknown as Pool;

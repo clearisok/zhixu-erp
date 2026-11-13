@@ -11,7 +11,7 @@ import { synchronizePermissionCatalog } from "../auth/permissions.js";
 import { bootstrapAdmin } from "../auth/bootstrap.js";
 import { loadExistingBootstrapActor } from "../sales-orders/bootstrap-runner.js";
 import { bindOrders, previewBindings } from "../ainuoke-source/binding.js";
-import { captureSource } from "../ainuoke-source/service.js";
+import { historicalSourceFixture } from "./historical-source-fixture.js";
 import { bindingBundle, freshMaterialBundle } from "./ainuoke-binding-fixture.js";
 import { createGarmentShipmentReader } from "../ainuoke-source/garment-shipment-store.js";
 import { normalizationReferences } from "../sales-orders/normalization-preview.js";
@@ -30,8 +30,11 @@ test("0039 to 0040 is empty, additive, idempotent and preserves all old public r
   }
   await synchronizePermissionCatalog(pool); await bootstrapAdmin(pool, { username: "garment.upgrade", displayName: "合成出货升级", password: "synthetic-upgrade" });
   const actor = await loadExistingBootstrapActor(pool, "garment.upgrade"), source = { sourceKey: "synthetic-garment-upgrade", accountFingerprint: "a".repeat(64) };
-  const bundle = bindingBundle(), preview = await previewBindings(bundle), bound = await bindOrders(pool, actor, { ...source, expectedPreview: preview.reviewHash, collect: async () => bundle });
-  const orderId = bound.orderIds[0]; await captureSource(pool, actor, { ...source, maxAgeMs: 600000, collect: async () => freshMaterialBundle() });
+  const legacy=await historicalSourceFixture();t.after(()=>legacy.close());
+  const bundle = bindingBundle(), preview = await previewBindings(bundle);
+  let sourceCalls=0;await assert.rejects(bindOrders(pool,actor,{...source,expectedPreview:preview.reviewHash,collect:async()=>{sourceCalls++;return bundle;}}),{code:'sync_audit_migration_required'});assert.equal(sourceCalls,0);
+  const bound = await legacy.bindOrders(pool, actor, { ...source, expectedPreview: preview.reviewHash, collect: async () => bundle });
+  const orderId = bound.orderIds[0]; await legacy.captureSource(pool, actor, { ...source, maxAgeMs: 600000, collect: async () => freshMaterialBundle() });
   const oldTables = (await pool.query<{ tablename: string }>("SELECT tablename FROM pg_tables WHERE schemaname='public' AND tablename<>'schema_migrations' ORDER BY tablename")).rows.map(row => row.tablename);
   const snapshot = await freezeExistingPublicRows(pool, oldTables);
   const before = await snapshot(), reader = createGarmentShipmentReader(pool, { sourceKey: source.sourceKey });

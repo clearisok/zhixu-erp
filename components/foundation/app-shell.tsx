@@ -31,6 +31,7 @@ const systemRoutes = [
   { label: "模板设置", href: "/basic-settings/templates" },
   { label: "用户权限", href: "/basic-settings/user-permissions" },
   { label: "操作日志", href: "/system-settings/operation-logs" },
+  { label: "艾诺科同步记录", href: "/system-settings/ainuoke-sync-records" },
   { label: "关账设置", href: "/system-settings/closing-settings" },
   { label: "生产与运输", href: "/system-settings/production-infrastructure" },
   { label: "数据管理", href: "/system-settings/data-management" },
@@ -136,8 +137,9 @@ function AppShellFrame({ title, children, onRequestNavigation, onRequestLogout, 
     {label:"角色权限",href:"/system-settings/roles"},
     {label:"用户管理",href:"/system-settings/users"},
     {label:"操作日志",href:"/system-settings/operation-logs"},
+    {label:"艾诺科同步记录",href:"/system-settings/ainuoke-sync-records"},
   ];
-  const visibleSystemRoutes = (freshServer ? formalSystemRoutes : serverSettingsMode ? serverSystemRoutes : systemRoutes).filter((route) => (route.href !== "/system-settings/progress-settings" || freshServer && isEnabledServerRoute(route.href)) && (!freshServer || isEnabledServerRoute(route.href)) && (!localSingleUser || route.href !== "/basic-settings/user-permissions" && route.href !== "/system-settings/roles" && route.href !== "/system-settings/users") && (!freshServer || !["/system-settings/roles","/system-settings/users"].includes(route.href) || serverSession.hasPermission("user_permissions.manage")));
+  const visibleSystemRoutes = (freshServer ? formalSystemRoutes : serverSettingsMode ? serverSystemRoutes : systemRoutes).filter((route) => (route.href !== "/system-settings/ainuoke-sync-records" || freshServer && serverSession.hasPermission("ainuoke.view") && serverSession.hasPermission("audit_log.view")) && (route.href !== "/system-settings/progress-settings" || freshServer && isEnabledServerRoute(route.href)) && (!freshServer || isEnabledServerRoute(route.href)) && (!localSingleUser || route.href !== "/basic-settings/user-permissions" && route.href !== "/system-settings/roles" && route.href !== "/system-settings/users") && (!freshServer || !["/system-settings/roles","/system-settings/users"].includes(route.href) || serverSession.hasPermission("user_permissions.manage")));
   const basicActive = visibleBasicRoutes.some((route) => pathname === route.href);
   const systemActive = visibleSystemRoutes.some((route) => pathname === route.href) || freshServer && pathname === "/basic-settings/user-permissions";
   const personalActive = pathname.startsWith("/my-settings/");

@@ -1,3 +1,4 @@
+import {withSyncAudit,auditAcquired,auditPublished,commitWithSyncAudit,pinSyncCall,auditMappedOrderCounts} from './sync-audit.js';
 import {orderCommandControlError} from '../sales-orders/command-control.js';
 import {lockEffectiveAttribution} from '../sales-orders/effective-attribution.js';
 import type { Pool } from "pg";
@@ -77,7 +78,7 @@ export async function previewSelectedBindings(input: unknown, selected: readonly
         sourceMetadata: {...candidate.source.sourceMetadata, snapshotHash: undefined}},
     }))})};
 }
-export async function bindOrders(pool: Pool, identity: Pick<TrustedIdentity,"internalUserId"|"userId">, options: {
+async function bindOrdersImplementation(pool: Pool, identity: Pick<TrustedIdentity,"internalUserId"|"userId">, options: {
   sourceKey: string; accountFingerprint: string; expectedPreview: string; collect: () => Promise<unknown>; now?: () => number; selected?: readonly string[];
 }) {
   if (!sourceKeyValid(options.sourceKey) || !/^[a-f0-9]{64}$/u.test(options.accountFingerprint) || !/^[a-f0-9]{64}$/u.test(options.expectedPreview)) throw new SourceError("binding_confirmation_required");
@@ -89,6 +90,7 @@ export async function bindOrders(pool: Pool, identity: Pick<TrustedIdentity,"int
   const actor = await sourceActor(pool, identity, true); requirePermission(actor.permissions, "ainuoke.bind");
   const data=await options.collect();
   const {preview, reviewHash} = await review(data);
+  await auditAcquired(pool,data);
   if (reviewHash !== options.expectedPreview) throw new SourceError("binding_preview_changed");
   const client = await pool.connect();
   try {
@@ -131,7 +133,9 @@ export async function bindOrders(pool: Pool, identity: Pick<TrustedIdentity,"int
     }
     await client.query("INSERT INTO ainuoke_source_profiles(source_key,account_fingerprint) VALUES($1,$2) ON CONFLICT DO NOTHING", [options.sourceKey,options.accountFingerprint]);
     if (created) await appendOperationLog(client,currentActor,{module:"艾诺科同步",action:"首次绑定艾诺科订单",entityType:"AinuokeSourceBinding",entityId:options.sourceKey,metadata:{sourceKey:options.sourceKey,reviewHash,orderCount:created,scope:selected === undefined ? "current_account_visible" : "explicit_selected_first_binding",...(selected === undefined ? {} : {selectedContracts: preview.candidates.map(c => c.source.salesContractNo)})}});
-    await client.query("COMMIT");
+    await auditPublished(client,options.sourceKey,ids,data,'',['sales_orders','sales_order_source_links','ainuoke_sales_order_contract_mirrors','ainuoke_sales_order_color_mirrors'],created===0,false);
+    await auditMappedOrderCounts(client,{created,unchanged:ids.length-created,createdColors:created?candidates.reduce((n,c)=>n+c.colors.length,0):0,unchangedColors:created?0:candidates.reduce((n,c)=>n+c.colors.length,0),orderIds:ids});
+    await commitWithSyncAudit(client);
     return {created,replayed:created===0,orderIds:ids,reviewHash};
   } catch(error) {
     await client.query("ROLLBACK").catch(()=>undefined);
@@ -139,3 +143,5 @@ export async function bindOrders(pool: Pool, identity: Pick<TrustedIdentity,"int
     throw error instanceof SourceError ? error : new SourceError(['order_commands_frozen','order_command_control_unavailable'].includes(control?.code??'')?control.code!:'binding_failed');
   } finally { client.release(); }
 }
+
+export async function bindOrders(...args:Parameters<typeof bindOrdersImplementation>){const pinned=pinSyncCall(args);return withSyncAudit(pinned[0],{sourceKey:pinned[2].sourceKey,type:'manual'},()=>bindOrdersImplementation(...pinned));}

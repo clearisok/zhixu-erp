@@ -1,3 +1,4 @@
+import {withSyncAudit,commitWithSyncAudit,pinSyncCall} from './sync-audit.js';
 import type {Pool} from 'pg';
 import type {TrustedIdentity} from '../auth/session.js';
 import {sourceActor,boundOrders,publishMaterialSnapshotsInTransaction} from './service.js';
@@ -8,7 +9,7 @@ import {adaptAinuokeOrderDiscoverySnapshots} from '../../features/ainuoke-api/so
 /** Explicit historical recovery: accepted immutable observation, never new source
  * capture. Keeps original dates and refresh failure; does not finish queued jobs.
  * A pre-existing material head is never replaced, including on receipt replay. */
-export async function publishHistoricalMaterialObservation(pool:Pool,identity:Pick<TrustedIdentity,'internalUserId'|'userId'>,
+async function publishHistoricalMaterialObservationImplementation(pool:Pool,identity:Pick<TrustedIdentity,'internalUserId'|'userId'>,
  input:{sourceKey:string;sourceId:string;orderId:string;observationId:string;expectedHash:string}){
  if(!sourceKeyValid(input.sourceKey)||!sourceUuidValid(input.orderId)||!sourceUuidValid(input.observationId)||!input.sourceId
   ||!/^[a-f0-9]{64}$/.test(input.expectedHash))throw new SourceError('historical_material_scope_invalid');
@@ -35,7 +36,7 @@ export async function publishHistoricalMaterialObservation(pool:Pool,identity:Pi
    throw new SourceError('historical_material_evidence_invalid');
   const head=(await c.query('SELECT run_id::text,last_error_code FROM ainuoke_material_order_heads WHERE source_key=$1 AND sales_order_id=$2 FOR UPDATE',[input.sourceKey,input.orderId])).rows[0];
   if(head?.last_error_code&&/identity|account|visibility|permission|actor|scope|binding/.test(head.last_error_code))throw new SourceError('historical_material_identity_blocked');
-  if(head?.run_id){await c.query('COMMIT');return {status:'existing_head_preserved' as const,runId:head.run_id,sourceRequests:0};}
+  if(head?.run_id){await commitWithSyncAudit(c);return {status:'existing_head_preserved' as const,runId:head.run_id,sourceRequests:0};}
   const evidence=await hydrateContractEvidence(c,{...row,account_fingerprint:profile.account_fingerprint});
   const directory=(await adaptAinuokeOrderDiscoverySnapshots(evidence.addition.discoveryAfter)).rows;
   if(!directory.some(x=>x.sourceId===input.sourceId&&x.salesContractNo===order.salesContractNo))throw new SourceError('source_scope_mismatch');
@@ -47,6 +48,8 @@ export async function publishHistoricalMaterialObservation(pool:Pool,identity:Pi
    discoveryAfter:evidence.addition.discoveryAfter,materials:{[row.sales_contract_no]:evidence.materials}},orders,capturedAt,600000);
   if(validated.rows.length!==1)throw new SourceError('source_missing');
   const runId=await publishMaterialSnapshotsInTransaction(c,actor,input.sourceKey,validated,orders,{historicalObservationId:input.observationId});
-  await c.query('COMMIT');return {status:'historical_published' as const,runId,capturedAt:row.captured_at,sourceRequests:0};
+  await commitWithSyncAudit(c);return {status:'historical_published' as const,runId,capturedAt:row.captured_at,sourceRequests:0};
  }catch(e){await c.query('ROLLBACK').catch(()=>undefined);throw e;}finally{c.release();}
 }
+
+export async function publishHistoricalMaterialObservation(...args:Parameters<typeof publishHistoricalMaterialObservationImplementation>){const pinned=pinSyncCall(args);return withSyncAudit(pinned[0],{sourceKey:pinned[2].sourceKey,type:'historical',historical:true},()=>publishHistoricalMaterialObservationImplementation(...pinned));}

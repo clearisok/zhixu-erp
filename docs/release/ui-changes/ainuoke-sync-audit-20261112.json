@@ -1,0 +1,28 @@
+{
+  "baselineSha": "c5133e9e9e7065dc4fe7672c0c88c75688e0c51f",
+  "level": "V3",
+  "paths": [
+    "app/system-settings/ainuoke-sync-records/page.tsx",
+    "components/foundation/app-shell.tsx",
+    "features/ainuoke-sync-audit/model.ts",
+    "features/ainuoke-sync-audit/page.tsx",
+    "features/ainuoke-sync-audit/sync-audit.css",
+    "features/order-center/components/server-contract-refresh.tsx",
+    "features/order-center/source-sync-status.ts",
+    "features/quote-center/authority/quote-authority.ts"
+  ],
+  "pages": [
+    "ainuoke-sync-records",
+    "navigation",
+    "material"
+  ],
+  "visibleDifference": "Add specifically requested system-settings persistent sync ledger with batch/report views, real filters, overview, detail and Excel; original material page only explains actual pause/cooldown. Existing brand, matching, quantities and RBAC preserved.",
+  "evidence": [
+    "docs/features/AINUOKE_SYNC_AUDIT.md",
+    "docs/tasks/active/ainuoke-sync-audit-ui-approval-2026-11-12.md"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/ainuoke-sync-audit-ui-approval-2026-11-12.md"
+  }
+}

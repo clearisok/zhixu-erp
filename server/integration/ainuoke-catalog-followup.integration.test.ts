@@ -189,6 +189,22 @@ test('catalogue is not a business ledger; active groups publish and fail indepen
    const after=(await readCatalog(pool,actor,{search:'SYN-SALES-1',scope:'all',offset:0,limit:50})).rows[0];
    assert.deepEqual(after.lastSuccessAt,before.lastSuccessAt);assert.equal(after.lastErrorCode,'binding_date_invalid');
    assert.equal((await pool.query('SELECT paused_reason FROM ainuoke_sync_controls WHERE source_key=$1',[sourceKey])).rows[0].paused_reason,null);
+   const capture=(await pool.query('SELECT capture_attempt_id FROM ainuoke_sync_jobs WHERE id=$1',[result.jobs[0].id])).rows[0].capture_attempt_id;
+   assert.equal((await pool.query('SELECT status FROM ainuoke_sync_audit_batches WHERE id=$1',[capture])).rows[0].status,'partial');
+   const failed=(await pool.query("SELECT report_id,status,fetched_count,error_code FROM ainuoke_sync_audit_tables WHERE batch_id=$1 AND contract_no='SYN-SALES-1'",[capture])).rows;
+   assert.ok(failed.length>=3);assert.ok(failed.every(r=>r.status==='failed'&&r.error_code==='binding_date_invalid'));
+   assert.ok(failed.some(r=>r.fetched_count===null),'validation failure has no invented row count');
+   const directory=(await pool.query("SELECT * FROM ainuoke_sync_audit_tables WHERE batch_id=$1 AND report_id='6086103' AND contract_no=''",[capture])).rows[0];
+   assert.equal(directory.status,'partial');assert.equal(directory.error_code,'contract_publication_partial');
+   assert.ok(directory.write_completed_at);assert.ok(directory.transaction_id);
+   assert.equal(directory.publication_ids.length,4,'both successful source and catalogue commits remain traceable');
+   assert.equal(directory.fetched_count,6,'shared double-pass capture is not multiplied by contracts');
+   assert.equal(directory.inserted_count+directory.updated_count+directory.unchanged_count,3);
+   assert.equal(directory.updated_count,1,'one shared source change is counted once across successful contracts');
+   assert.ok(directory.target_tables.includes('ainuoke_catalog_runs'));
+   const published=(await pool.query('SELECT id::text FROM ainuoke_catalog_runs WHERE id=ANY($1::uuid[])',[directory.publication_ids])).rows;
+   assert.equal(published.length,2);
+   assert.equal((await pool.query('SELECT id FROM ainuoke_source_runs WHERE id=ANY($1::uuid[])',[directory.publication_ids])).rowCount,2);
   });
   await t.test('crashed worker pauses, preserves success and requires exact reviewed recovery without upstream requests',async()=>{
    const entry=(await readCatalog(pool,actor,{search:'SYN-SALES-3',scope:'all',offset:0,limit:50})).rows[0];

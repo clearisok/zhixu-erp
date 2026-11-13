@@ -4,11 +4,13 @@ import { SELECTED_SOURCE_LIMITS, validateSelectedSourceOnce, type SelectedSource
 import { SourceError } from './contract.js';
 import type {CatalogPage} from './catalog-checkpoints.js';
 import {CatalogConsistencyError,type CatalogChangeDiagnostic} from './catalog-consistency.js';
+import {auditPages} from './sync-audit.js';
 
 export type LoginEvidence = { responseShape:'data_object'|'object_without_data_object'|'non_object'; result:'accepted'|'rejected'|'malformed'; serverCode:'absent'|'cover_confirmation'|'unrecognized'; serverHint:'unclassified'|'session_exists'|'verification_required'|'credentials_rejected'|'account_unavailable'|'throttling_hint'|'cover_confirmation_required'|'user_capacity_exhausted' };
 export type LoginDetails = {at:string;interface:'loginsys2';isOk:boolean|null;businessCode:string|null;text1:string|null;message:string|null;errorMsg?:string|null};
 export type RequestDiagnostic = { kind:'login'|'report'; reportId:6086103|6087105|6087050|6087051|6086405|6086408|6086875|6086354|null;
- page:number|null; elapsedMs:number; outcome:string; httpStatus:number|null; loginEvidence?:LoginEvidence;loginDetails?:LoginDetails };
+ page:number|null; elapsedMs:number; outcome:string; httpStatus:number|null; loginEvidence?:LoginEvidence;loginDetails?:LoginDetails;
+ startedAt?:string;finishedAt?:string;responseIsOk?:boolean|null;receivedRows?:number };
 const outcomes=new Set(['complete','http_error','timeout','dns_error','tls_error','connection_refused','connection_reset','network_error','auth_error','schema_error','unknown_error']);
 /** A rejected payload is never publishable. Preserve only the independently
  * checked request trace, not its raw response, credentials or unverified metrics. */
@@ -21,8 +23,12 @@ export class CatalogDiagnosticValidationError extends SourceError {
 export function validateRequestDiagnostics(input:unknown):RequestDiagnostic[] {
  if(!Array.isArray(input)||input.length>81)throw new SourceError('sync_diagnostics_invalid');
  return input.map(value=>{
-  if(!value||typeof value!=='object'||!['elapsedMs,httpStatus,kind,outcome,page,reportId','elapsedMs,httpStatus,kind,loginEvidence,outcome,page,reportId','elapsedMs,httpStatus,kind,loginDetails,loginEvidence,outcome,page,reportId'].includes(Object.keys(value).sort().join(',')))throw new SourceError('sync_diagnostics_invalid');
+  if(!value||typeof value!=='object'||!['elapsedMs,httpStatus,kind,outcome,page,reportId','elapsedMs,httpStatus,kind,loginEvidence,outcome,page,reportId','elapsedMs,httpStatus,kind,loginDetails,loginEvidence,outcome,page,reportId'].includes(Object.keys(value).filter(k=>!['startedAt','finishedAt','responseIsOk','receivedRows'].includes(k)).sort().join(',')))throw new SourceError('sync_diagnostics_invalid');
   const d=value as RequestDiagnostic;
+  if([d.startedAt,d.finishedAt].some(t=>t!==undefined&&(typeof t!=='string'||t.length>40||!Number.isFinite(Date.parse(t))))
+   ||d.startedAt&&d.finishedAt&&Date.parse(d.finishedAt)<Date.parse(d.startedAt)
+   ||d.responseIsOk!==undefined&&d.responseIsOk!==null&&typeof d.responseIsOk!=='boolean'
+   ||d.responseIsOk===false&&d.outcome==='complete'||d.receivedRows!==undefined&&(!Number.isSafeInteger(d.receivedRows)||d.receivedRows<0||d.receivedRows>100))throw new SourceError('sync_diagnostics_invalid');
   if(!['login','report'].includes(d.kind)||!outcomes.has(d.outcome)||!Number.isSafeInteger(d.elapsedMs)||d.elapsedMs<0||d.elapsedMs>180000
    ||d.httpStatus!==null&&(!Number.isSafeInteger(d.httpStatus)||d.httpStatus<100||d.httpStatus>599)
    ||d.kind==='login'&&(d.reportId!==null||d.page!==null)
@@ -67,7 +73,7 @@ export async function validateCatalogDiagnostic(value:unknown,cfg:CollectorConfi
  catch(error){
   // A retryable domain rejection occurs only after envelope/metrics validation.
   // Do not let a contradictory transport trace turn auth/schema failures into retries.
-  if(error instanceof SourceError&&['catalog_business_content_changed','catalog_additions_observed'].includes(error.code)){
+  if(error instanceof SourceError&&['catalog_business_content_changed','catalog_additions_observed','catalog_non_identity_content_changed'].includes(error.code)){
    const metrics=(wrapped.capture as {metrics:{httpAttempts:number}}).metrics;
    if(diagnostics.length!==metrics.httpAttempts||diagnostics.some(d=>d.outcome!=='complete'))
     throw new CatalogDiagnosticValidationError('sync_diagnostics_invalid',diagnostics);
@@ -84,11 +90,23 @@ export async function validateCatalogDiagnostic(value:unknown,cfg:CollectorConfi
    ||retry?.kind!=='report'||retry.outcome!=='complete'||retry.reportId!==failed.reportId||retry.page!==failed.page)
    throw new SourceError('sync_diagnostics_invalid');
  }
+ if(capture.result==='complete'){
+  const reports=diagnostics.filter(d=>d.kind==='report'&&d.outcome==='complete');
+  if(reports.some(d=>d.receivedRows!==undefined)){
+   if(reports.some(d=>d.receivedRows===undefined))throw new SourceError('sync_diagnostics_invalid');
+   const pages=auditPages(wrapped.capture),expected=new Map<string,number>(),actual=new Map<string,number>();
+   for(const p of pages)expected.set(p.reportId,(expected.get(p.reportId)??0)+p.rows.length);
+   const reused=pages.length-reports.length;
+   if(reused>0&&request.mode==='catalog-discovery')for(const p of resumePages.slice(1,1+reused))expected.set(p.reportId,(expected.get(p.reportId)??0)-p.rows.length);
+   for(const d of reports)actual.set(String(d.reportId),(actual.get(String(d.reportId))??0)+d.receivedRows!);
+   if(expected.size!==actual.size||[...expected].some(([id,count])=>actual.get(id)!==count))throw new SourceError('sync_diagnostics_invalid');
+  }
+ }
  return {capture,diagnostics};
 }
 export const retryDelayMs=(attempt:number)=>attempt===1?60000:attempt===2?300000:null;
 export function retryableCapture(code:string,diagnostics:RequestDiagnostic[]|null) {
- if(code==='catalog_business_content_changed'||code==='catalog_additions_observed')return true;
+ if(['catalog_business_content_changed','catalog_additions_observed','catalog_non_identity_content_changed'].includes(code))return true;
  if(code==='selected_source_timeout'||code==='source_timeout')return true;
  if(code!=='source_unavailable'||!diagnostics?.length)return false;
  const last=diagnostics.at(-1)!;

@@ -37,7 +37,7 @@ test('exhausted order timeouts preserve success and allow unrelated due work to 
  }finally{await f.close();}
 });
 
-test('only evidenced transport exhaustion may resume after a full catalogue interval',{timeout:180000},async()=>{
+test('only evidenced transient or non-identity content exhaustion may resume after a full catalogue interval',{timeout:180000},async()=>{
  const f=await startCatalogFixture();try{
   // The fixture already has a successful catalogue attempt. Put the simulated
   // outage after it, then advance only this isolated clock by a full interval.
@@ -47,7 +47,7 @@ test('only evidenced transport exhaustion may resume after a full catalogue inte
   await f.pool.query("UPDATE ainuoke_sync_controls SET paused_reason='catalog_retries_exhausted',catalog_failure_count=3 WHERE source_key=$1",[f.sourceKey]);
   assert.deepEqual(await resumeTransientCatalogBackoff(f.pool,f.actor,f.sourceKey,now),{resumed:false,retryAt:new Date(now+1000).toISOString()});
   assert.equal((await resumeTransientCatalogBackoff(f.pool,f.actor,f.sourceKey,now+1001))?.resumed,true);
-  for(const reason of ['invalid_credential','auth_expired','source_account_mismatch','sync_result_unknown']){
+  for(const reason of ['invalid_credential','auth_expired','source_account_mismatch','sync_result_unknown','catalog_identity_or_scope_changed','catalog_row_limit_exceeded','staging_handoff']){
    await f.pool.query('UPDATE ainuoke_sync_controls SET paused_reason=$2 WHERE source_key=$1',[f.sourceKey,reason]);
    assert.equal(await resumeTransientCatalogBackoff(f.pool,f.actor,f.sourceKey,now+1001),null);
    assert.equal((await f.pool.query('SELECT paused_reason FROM ainuoke_sync_controls WHERE source_key=$1',[f.sourceKey])).rows[0].paused_reason,reason);
@@ -56,7 +56,11 @@ test('only evidenced transport exhaustion may resume after a full catalogue inte
   await f.pool.query(`INSERT INTO ainuoke_sync_capture_attempts(id,source_key,account_fingerprint,actor_id,mode,job_ids,status,started_at,finished_at,result_code)
    VALUES($1,$2,$3,$4,'catalog-discovery','{}','failed',$5,$6,'catalog_business_content_changed')`,
    [randomUUID(),f.sourceKey,accountFingerprint(selectedConfig),f.actor.internalUserId,new Date(lastFinished+1),new Date(lastFinished+2)]);
-  assert.equal(await resumeTransientCatalogBackoff(f.pool,f.actor,f.sourceKey,now+1001),null);
+  assert.deepEqual(await resumeTransientCatalogBackoff(f.pool,f.actor,f.sourceKey,now+1001),{resumed:false,retryAt:new Date(now+1002).toISOString()});
+  assert.equal((await resumeTransientCatalogBackoff(f.pool,f.actor,f.sourceKey,now+1003))?.resumed,true);
+  await f.pool.query("UPDATE ainuoke_sync_controls SET enabled=false,paused_reason='catalog_retries_exhausted' WHERE source_key=$1",[f.sourceKey]);
+  assert.equal(await resumeTransientCatalogBackoff(f.pool,f.actor,f.sourceKey,now+1004),null);
+  assert.equal((await f.pool.query('SELECT enabled FROM ainuoke_sync_controls WHERE source_key=$1',[f.sourceKey])).rows[0].enabled,false);
  }finally{await f.close();}
 });
 
@@ -68,5 +72,24 @@ test('authentication refusal stops the persistent runner without another source 
    createCollector:()=>({available:()=>true,close:()=>{closed++;},collect:async()=>{calls++;throw new SourceError('invalid_credential');}})});
   assert.equal(calls,1);assert.equal(closed,1);
   assert.equal((await f.pool.query('SELECT paused_reason FROM ainuoke_sync_controls WHERE source_key=$1',[f.sourceKey])).rows[0].paused_reason,'invalid_credential');
+ }finally{await f.close();}
+});
+
+
+test('legacy hsid-only pause requires complete two-pass evidence; admin disable and unsafe deltas remain stopped',{timeout:180000},async()=>{
+ const f=await startCatalogFixture();try{
+  const capture=randomUUID(),job=randomUUID(),now=Date.now()+3600000,at=new Date(now-31*60000);
+  const requests=Array.from({length:26},(_,i)=>({kind:'report',reportId:6086103,page:i%13+1,elapsedMs:20,outcome:'complete',httpStatus:200}));
+  await f.pool.query(`INSERT INTO ainuoke_sync_capture_attempts(id,source_key,account_fingerprint,actor_id,mode,job_ids,status,started_at,finished_at,result_code,requests)
+   VALUES($1,$2,$3,$4,'catalog-contracts',$5,'failed',$6,$6,'catalog_changed_or_over_limit',$7)`,[capture,f.sourceKey,accountFingerprint(selectedConfig),f.actor.internalUserId,[job],at,JSON.stringify(requests)]);
+  await f.pool.query(`INSERT INTO ainuoke_sync_jobs(id,source_key,source_id,sales_contract_no,kind,status,requested_by,capture_attempt_id,result)
+   SELECT $1,source_key,source_id,sales_contract_no,'automatic','failed',$2,$3,$4 FROM ainuoke_catalog_entries WHERE source_key=$5 ORDER BY source_id LIMIT 1`,
+   [job,f.actor.internalUserId,capture,JSON.stringify({code:'catalog_changed_or_over_limit',catalogChange:{beforeRows:621,afterRows:621,added:0,removed:0,identityChanges:0,scopeChanged:false,changedFields:['hsid']}}),f.sourceKey]);
+  await f.pool.query("UPDATE ainuoke_sync_controls SET enabled=false,paused_reason='catalog_changed_or_over_limit' WHERE source_key=$1",[f.sourceKey]);
+  assert.equal(await resumeTransientCatalogBackoff(f.pool,f.actor,f.sourceKey,now),null);
+  await f.pool.query('UPDATE ainuoke_sync_controls SET enabled=true WHERE source_key=$1',[f.sourceKey]);
+  const captures=f.captures();assert.equal((await resumeTransientCatalogBackoff(f.pool,f.actor,f.sourceKey,now))?.resumed,true);assert.equal(f.captures(),captures);
+  assert.equal((await f.pool.query('SELECT paused_reason FROM ainuoke_sync_controls WHERE source_key=$1',[f.sourceKey])).rows[0].paused_reason,null);
+  assert.ok((await f.pool.query("SELECT id FROM ainuoke_sync_audit_events WHERE event_type='resumed'")).rowCount);
  }finally{await f.close();}
 });
