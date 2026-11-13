@@ -266,7 +266,7 @@ async function collectGarmentOnceImplementation(pool: Pool, caller: TrustedIdent
       result = { schemaVersion: "ainuoke-garment-collection-outcome.v1", outcome: "published", requestCounts: counts,
         publicationId: publication.publicationId, snapshotId: publication.snapshotId, generation: publication.generation };
     }
-    await finish(finishClient, actor, parsed, permit, result); committing = true; await finishClient.query("COMMIT");
+    await finish(finishClient, actor, parsed, permit, result); committing = true; await commitWithSyncAudit(finishClient);
     return { schemaVersion: "ainuoke-garment-collection-receipt.v1" as const, requestId: permit.requestId, receiptState: "completed" as const,
       result, replayed: false, receiptIsHistorical: false, sourceReadThisInvocation: "see_result" as const, automaticRetry: false as const };
   } catch (error) {

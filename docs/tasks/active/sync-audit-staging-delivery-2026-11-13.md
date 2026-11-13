@@ -35,3 +35,9 @@ staging只读起点确认620订单/620绑定/620head、28237物料快照、0缺�
 发布前原版本配对备份20261113T071520Z-7d0120a1正在执行；旧owner配置经标准备份流程停用以避免竞争，数据库业务暂停标记未修改。尚未写0058，尚未部署新应用或启动新owner。私密配置/原业务响应仅留宁波任务目录，不入仓库。
 
 复审修复6506ffccb8e79ddccaf2364ec65359cf2ea58d7d的完整定向回归73/73通过（0失败/跳过），包括两项旧schema真实升级、批次部分失败、真实货款及成衣并发/终态回执复用、HTTP/Excel/服务重启和结算关联证据；日志outputs/sync-audit-review-fixes-38.log。类型38通过；CI已通过的baseline/team-access属于旧7354时点，新最终HEAD仍须必要检查。0058新replayed状态尚未在真实库应用。
+
+7742626d在本机前端构建、全量Lint/服务端构建、Chromium3/3及精确源码基线守卫通过；该HEAD的baseline/team-access CI成功，source第二轮暴露0043 garment-target升级fixture仍调用当前collectGarmentOnce。已扩展同一历史源码fixture并保留当前写入器0源请求拒绝断言，剩余升级检查8/8通过。没有降低缺迁移保护。
+
+最新自动复审新增P2评论4560743078：成衣正常采集终态事务仍普通COMMIT，导致真实成功被记提交待确认。修复仅使用同一审计确认COMMIT helper，新增首次实际发布success/提交时间断言；成衣collection/store全量定向41/41通过，包含原提交ACK丢失、回滚及权限并发保护。类型、定向Lint和服务端构建43通过。产品源表匹配/数量/权限/认证不变。
+
+发布前配对备份20261113T071520Z-7d0120a1于2026-11-13T07:28:33.414910Z确认BACKUP_VERIFIED、originalServicesResumed=true。新独立network=none数据库恢复校验正在运行（恢复容器/卷全新且不发布端口，不覆盖staging），尚不宣称该恢复通过。旧应用已恢复，0058尚未应用，新owner尚未启动。

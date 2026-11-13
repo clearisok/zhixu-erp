@@ -75,6 +75,8 @@ test("durable garment commands, one worker, atomic publication and original requ
     });
     assert.equal(calls, startCalls + 1); assert.equal(result.receiptState, "completed"); assert.equal(result.result?.outcome, "published");
     assert.equal((await row(job)).publication_id, result.result && "publicationId" in result.result ? result.result.publicationId : null);
+    const committedAudit=(await pool.query("SELECT b.status,t.write_completed_at,t.error_code FROM ainuoke_sync_audit_batches b JOIN ainuoke_sync_audit_tables t ON t.batch_id=b.id WHERE b.source_key=$1 ORDER BY b.started_at DESC LIMIT 1",[job.request.config.sourceKey])).rows[0];
+    assert.equal(committedAudit.status,'success');assert.ok(committedAudit.write_completed_at);assert.equal(committedAudit.error_code,null);
     assert.equal(await count("ainuoke_garment_shipment_snapshots", job), 1);
     const view = await reader.read(admin, job.orderId); assert.ok("rows" in view && view.rows.length === 1);
     for (const secret of [job.request.config.password, job.request.config.username, job.request.verification.selection.salesContractNo, "合成蓝", "9007199254740993"])

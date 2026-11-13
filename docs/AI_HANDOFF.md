@@ -1,5 +1,7 @@
 # 接力：继续同步审计staging交付
 
+再下一恢复点：7742626d精确交付后本机build/lint/server、浏览器3、源码guard通过，CI baseline/team-access成功，source因0043旧fixture使用当前collectGarmentOnce失败；现历史fixture扩展与对应升级8PASS。自动复审新增4560743078的成衣正常终态COMMIT漏确认已改commitWithSyncAudit，首发布真实审计断言及collection/store41PASS，types/lint/server43PASS。当前dirty只此产品1行、相关3测试/fixture及本段文档，待最终commit/push/必要CI/复审，不能重复已通过的无关本机组。预备备份已于07:28:33Z BACKUP_VERIFIED且原服务恢复；全新隔离restore会话83009进行中，脚本outputs/sync-audit-staging-20261113/restore-check.py，源请求0、live DB写0，容器网络none/无端口/卷保留；尚未迁移58或部署/启源。之前43231备份会话已完成。
+
 最新恢复点：PR146已创建、head7354d3c3精确送达；baseline/team-access成功，source旧schema fixture正确触发缺0058拒绝，正在前向修测试。自动复审两个P2已修代码并加回归：失败合同必须显式子记录；回执复用replayed不假成功/失败，不计新同步。当前dirty全属本修复，测试outputs/sync-audit-review-fixes-38.log在运行；类型38通过。新0058状态仍未部署，feature契约改变需要新冻结证据前向替代7e，不改旧hash。staging配对备份20261113T071520Z-7d0120a1运行中、会话43231；当前620订单/620head/28237快照/0缺、57迁移/0审计表、27053complete/97failed/5queued。23人工表/3账号/620身份和5真实HTTP基线已保存。新任务outputs/sync-audit-staging-20261113与宁波对应releases目录；预备脚本已语法检查，尚未执行新版本迁移/部署/启源。备份后须核实恢复/保全，不用旧私密回执代替新结果。
 
 最新用户已授权PR检查/合并、0058、staging部署及两个自然目录周期，production禁止。先读[交付恢复点](tasks/active/sync-audit-staging-delivery-2026-11-13.md)。8a2341d9已实际上传一次、独立API精确确认；网络原因是GitHub专用127.0.0.1:17989无监听。仅进程GIT_CONFIG_KEY_0=http.https://github.com.proxy、VALUE_0空、COUNT=1成功，不能改全局配置。Open仅136 Draft/CONFLICTING、非依赖，保留。当前增量是结算单关联证据发布回归与CI接入，18PASS；不新增结算业务模型。尚未部署/迁移/启owner/发源请求。旧运行脚本见outputs/material-staging-20261112，但必须在新任务目录前向适配当前c5133e9e目标，不能原样复用旧sha/旧回执。以下是先前本机收口时点，不再作为当前授权/远端状态。
