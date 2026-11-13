@@ -46,3 +46,6 @@ staging只读起点确认620订单/620绑定/620head、28237物料快照、0缺�
 427db08c第三轮source CI为prefix12旧fixture调用当前写入器；prefix21历史物料同类路径一并用c513真实历史代码构造旧记录，当前缺0058仍零源请求拒绝。复审4560851175共享6086103部分失败汇总修复保留成功提交时间、全部source/catalog publication IDs及原计数，同时失败子记录/批次partial保留。目录16/16、历史17/17、归属9/9、审计11/11通过（后两组45轮中目录测试预期修正前独立通过），types/Lint/server46通过。
 
 预备备份20261113T071520Z-7d0120a1实际隔离恢复成功：139表+全部序列逐行sha256集合一致、11附件bytes/哈希一致，network none/0端口/0源请求/0live库写，资产保留。原比较误将备份dict与恢复list比较，标准化结构后完整逐项比较无差异；restore-result.json成功时间2026-11-13T07:49:05.294075Z。未恢复覆盖staging。
+
+
+ba6860f1正式自动复审07:56:55Z无新问题（issuecomment6847410804，review summary commit exact），四条已修thread resolved。source第四轮约14分钟末的payment-collection单测检出审计包装提前DB查询：原无效显式scope本应零DB拒绝。现原sha及parse验证先于audit，implementation保留原验证；额外对invalid targets在collect入口验证零DB/零worker，payment22/22通过。完整旧fixture/目录/审计检查已通过；不以弱化测试解决。最终必要CI仍须新HEAD。

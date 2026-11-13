@@ -60,7 +60,9 @@ test('scope and target shape fail before any database or worker access', async (
   };
   await assert.rejects(() => collectAndPublishPaymentContracts(pool, actor, request, ''), matches('payment_collection_explicit_scope_required'));
   for (const targets of [[], [request.targets[0], request.targets[0]], [request.targets[1], request.targets[0]],
-    [{ ...request.targets[0], salesOrderId: 'SYN-SC-1' }, request.targets[1]]])
+    [{ ...request.targets[0], salesOrderId: 'SYN-SC-1' }, request.targets[1]]]){
     await assert.rejects(() => planPaymentCollection(pool, actor, { ...request, targets }), matches('payment_collection_invalid_targets'));
+    await assert.rejects(() => collectAndPublishPaymentContracts(pool, actor, { ...request, targets },'a'.repeat(64)), matches('payment_collection_invalid_targets'));
+  }
   await assert.rejects(() => planPaymentCollection(pool, actor, { ...request, config: { ...collectionConfig, username: 'another-synthetic' } }), matches('payment_contract_account_mismatch'));
 });

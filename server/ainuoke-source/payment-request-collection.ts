@@ -155,4 +155,10 @@ async function collectAndPublishPaymentContractsImplementation(pool: Pool, calle
   return receipt(outcomes, { attempted: true, validated: true });
 }
 
-export async function collectAndPublishPaymentContracts(...args:Parameters<typeof collectAndPublishPaymentContractsImplementation>){const pinned=pinSyncCall(args);return withSyncAudit(pinned[0],{sourceKey:pinned[2].config.sourceKey,type:'manual',reports:['6086941']},()=>collectAndPublishPaymentContractsImplementation(...pinned));}
+export async function collectAndPublishPaymentContracts(...args:Parameters<typeof collectAndPublishPaymentContractsImplementation>){
+ const pinned=pinSyncCall(args);
+ // Preserve the original no-database boundary for malformed explicit scopes.
+ if(!sha(pinned[3]))fail('payment_collection_explicit_scope_required');
+ pinned[2]=parsePaymentCollectionRequest(pinned[2]);
+ return withSyncAudit(pinned[0],{sourceKey:pinned[2].config.sourceKey,type:'manual',reports:['6086941']},()=>collectAndPublishPaymentContractsImplementation(...pinned));
+}

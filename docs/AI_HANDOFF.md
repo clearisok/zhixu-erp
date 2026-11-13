@@ -1,5 +1,7 @@
 # 接力：继续同步审计staging交付
 
+更新：ba6860f1自动复审07:56:55Z无新问题，四条thread已resolved；两项CI成功，source第四轮在14分钟末发现货款无效scope在audit前未校验而触DB。现包装器先原sha/parse校验再audit，保留原业务校验，补无效targets在真实collection入口零DB测试，payment22/22通过。待最终commit/CI；此前共享目录、历史升级、恢复保全结果不重做。旧应用继续可用，未迁移/部署/启源。
+
 新恢复点：427db08c复审4560851175共享目录成功证据被失败子行覆盖已修，保留确认COMMIT、发布ID并集、计数并标partial。目录16PASS、历史17PASS、45轮归属其余通过；prefix12与21旧fixture使用c513历史写入器，当前缺0058零请求拒绝保留。46类型/Lint/server通过。隔离restore139表+序列逐行哈希及11附件一致，network none/无端口，资产保留；原dict/list比较误报已修正结构，真实无内容差异。尚未合并/迁移/部署/启源，待最终必要CI与复审。
 
 再下一恢复点：7742626d精确交付后本机build/lint/server、浏览器3、源码guard通过，CI baseline/team-access成功，source因0043旧fixture使用当前collectGarmentOnce失败；现历史fixture扩展与对应升级8PASS。自动复审新增4560743078的成衣正常终态COMMIT漏确认已改commitWithSyncAudit，首发布真实审计断言及collection/store41PASS，types/lint/server43PASS。当前dirty只此产品1行、相关3测试/fixture及本段文档，待最终commit/push/必要CI/复审，不能重复已通过的无关本机组。预备备份已于07:28:33Z BACKUP_VERIFIED且原服务恢复；全新隔离restore会话83009进行中，脚本outputs/sync-audit-staging-20261113/restore-check.py，源请求0、live DB写0，容器网络none/无端口/卷保留；尚未迁移58或部署/启源。之前43231备份会话已完成。
