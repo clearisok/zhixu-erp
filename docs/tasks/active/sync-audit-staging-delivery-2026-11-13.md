@@ -33,3 +33,5 @@ Git失败已定位为用户配置中的GitHub专用代理http.https://github.com
 staging只读起点确认620订单/620绑定/620head、28237物料快照、0缺快照、migration57/0审计表；27053complete/97历史failed/5queued。23人工表、3原账号和620订单的保全基线已私密保存。5代表订单正常身份真实HTTP及匿名401通过，业务数据没有改动。
 
 发布前原版本配对备份20261113T071520Z-7d0120a1正在执行；旧owner配置经标准备份流程停用以避免竞争，数据库业务暂停标记未修改。尚未写0058，尚未部署新应用或启动新owner。私密配置/原业务响应仅留宁波任务目录，不入仓库。
+
+复审修复6506ffccb8e79ddccaf2364ec65359cf2ea58d7d的完整定向回归73/73通过（0失败/跳过），包括两项旧schema真实升级、批次部分失败、真实货款及成衣并发/终态回执复用、HTTP/Excel/服务重启和结算关联证据；日志outputs/sync-audit-review-fixes-38.log。类型38通过；CI已通过的baseline/team-access属于旧7354时点，新最终HEAD仍须必要检查。0058新replayed状态尚未在真实库应用。

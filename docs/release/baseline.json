@@ -6171,6 +6171,15 @@
       "sha256": "bb011dd5d656746383b7e5e50079b7b12ea8c44973c81679ccef635ab3eac3db",
       "supersedes": "ainuoke-order-discovery-business-20261109",
       "changeReason": "Append D194 audit semantics and narrowly bounded recapture, preserving original business identity, quantities and frequency rules."
+    },
+    {
+      "id": "sync-audit-contract-review-20261113",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SYNC_AUDIT.md",
+      "recordedAtSha": "6506ffccb8e79ddccaf2364ec65359cf2ea58d7d",
+      "sha256": "5aa4587240dac74e6af4584ab130cf82493fb26f3b95477415311786a0fba2d6",
+      "supersedes": "sync-audit-contract-20261112",
+      "changeReason": "Preserve original D194 scope and all historical evidence; explicitly distinguish unrequested receipt replay from synchronization and retain failed contract/report audits. Company IT confirms settlement-reference business meaning; stable changes remain captured, not ignored."
     }
   ],
   "pages": [
@@ -6480,7 +6489,8 @@
       "acceptanceScope": "Explicit user table/menu scope; synthetic automated HTTP/PostgreSQL/Chromium checks. No human pixel acceptance, new real Source requests or deployment.",
       "evidence": [
         "sync-audit-ui-approved-20261112",
-        "sync-audit-contract-20261112"
+        "sync-audit-contract-20261112",
+        "sync-audit-contract-review-20261113"
       ]
     }
   ],
