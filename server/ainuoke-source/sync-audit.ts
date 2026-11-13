@@ -112,7 +112,11 @@ async function finishBatch(db:DB,id:string,error?:string,replayed=false){
    CASE WHEN count(duplicate_count)=count(*) THEN sum(duplicate_count)::int END AS duplicates,sum(page_count)::int AS pages,
    CASE WHEN bool_and(status='success') THEN 'success' WHEN bool_or(status IN ('success','write_pending','partial')) THEN 'partial' ELSE 'failed' END AS status,
    min(error_code) AS error_code,jsonb_agg(contract_no) AS contracts,bool_and(status='success') AS complete
-  FROM ainuoke_sync_audit_tables WHERE batch_id=$1 AND contract_no<>'' GROUP BY batch_id,report_id)
+  FROM ainuoke_sync_audit_tables child WHERE batch_id=$1 AND contract_no<>''
+   AND NOT EXISTS(SELECT 1 FROM ainuoke_sync_audit_tables shared WHERE shared.batch_id=child.batch_id
+    AND shared.report_id=child.report_id AND shared.report_id='6086103' AND shared.contract_no=''
+    AND shared.write_completed_at IS NOT NULL AND shared.transaction_id IS NOT NULL AND cardinality(shared.publication_ids)>0)
+  GROUP BY batch_id,report_id)
   INSERT INTO ainuoke_sync_audit_tables(batch_id,report_id,source_name,target_tables,contract_no,read_started_at,read_completed_at,
    write_completed_at,read_time_basis,fetched_count,inserted_count,updated_count,unchanged_count,failed_count,duplicate_count,page_count,status,error_code,cursor_info,publication_ids)
   SELECT batch_id,report_id,source_name,ARRAY(SELECT DISTINCT v FROM jsonb_array_elements(target_sets) a CROSS JOIN LATERAL jsonb_array_elements_text(a.value) b(v)),
@@ -124,6 +128,16 @@ async function finishBatch(db:DB,id:string,error?:string,replayed=false){
    fetched_count=excluded.fetched_count,inserted_count=excluded.inserted_count,updated_count=excluded.updated_count,unchanged_count=excluded.unchanged_count,
    failed_count=excluded.failed_count,duplicate_count=excluded.duplicate_count,page_count=excluded.page_count,status=excluded.status,error_code=excluded.error_code,
    cursor_info=ainuoke_sync_audit_tables.cursor_info||excluded.cursor_info,publication_ids=excluded.publication_ids,target_tables=excluded.target_tables`,[id]);
+ // Directory evidence is shared by all contracts. A rejected contract must
+ // make its report partial without erasing another contract's confirmed
+ // directory COMMIT, counts, or immutable publication references.
+ await db.query(`UPDATE ainuoke_sync_audit_tables shared SET status='partial',
+  error_code=coalesce(shared.error_code,'contract_publication_partial'),
+  cursor_info=shared.cursor_info||'{"complete":false,"contractPublicationPartial":true}'::jsonb
+  WHERE shared.batch_id=$1 AND shared.report_id='6086103' AND shared.contract_no=''
+   AND shared.write_completed_at IS NOT NULL AND shared.transaction_id IS NOT NULL AND cardinality(shared.publication_ids)>0
+   AND EXISTS(SELECT 1 FROM ainuoke_sync_audit_tables child WHERE child.batch_id=shared.batch_id
+    AND child.report_id=shared.report_id AND child.contract_no<>'' AND child.status<>'success')`,[id]);
  await db.query(`WITH counts AS (
   SELECT d->>'reportId' AS report_id,count(*)::int AS requests,
    count(*) FILTER(WHERE d->>'outcome'='complete')::int AS completed,
@@ -225,7 +239,7 @@ export async function auditPublished(db:DB,sourceKey:string,publication:string|s
    VALUES($1,$2,$3,$4,$5,$6,'page_completion_only',$7,$8,$9,$10,$11,0,$12,'write_pending',$13,$14::text[],txid_current()::text,$15)
    ON CONFLICT(batch_id,report_id,contract_no) DO UPDATE SET status='write_pending',inserted_count=excluded.inserted_count,updated_count=excluded.updated_count,
     unchanged_count=excluded.unchanged_count,failed_count=0,duplicate_count=excluded.duplicate_count,error_code=excluded.error_code,target_tables=excluded.target_tables,
-    publication_ids=excluded.publication_ids,transaction_id=excluded.transaction_id,cursor_info=ainuoke_sync_audit_tables.cursor_info||excluded.cursor_info`,
+    publication_ids=ARRAY(SELECT DISTINCT unnest(ainuoke_sync_audit_tables.publication_ids||excluded.publication_ids)),transaction_id=excluded.transaction_id,cursor_info=ainuoke_sync_audit_tables.cursor_info||excluded.cursor_info`,
    [ctx.id,reportId,definition?.name??'未登记报表 '+reportId,targets??definition?.targets??[],contract,end,selected.reduce((n,p)=>n+p.rows.length,0),selected.length,
     ambiguous?null:inserted,ambiguous?null:updated,ambiguous?null:unchanged,duplicates,ambiguous?(countable?'record_identity_ambiguous':'record_metrics_unavailable'):null,publicationIds,JSON.stringify({pages:selected.map(p=>p.page),reportedTotals:[...new Set(selected.map(p=>p.total))],complete:true,coverage:'validated_requested_scope',countBasis:countable?'distinct_source_records':'projection_mutations_not_counted',
      queries:selected.map(p=>Object.fromEntries(Object.entries(p.queryContext??{}).filter(([key,value])=>['salesContractNo','insideOrderNo'].includes(key)&&typeof value==='string'&&value.length<=80))),
