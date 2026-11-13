@@ -203,7 +203,12 @@ export async function auditPublished(db:DB,sourceKey:string,publication:string|s
  if(contract)await db.query(`UPDATE ainuoke_sync_audit_batches SET contracts=ARRAY(SELECT DISTINCT unnest(contracts||ARRAY[$2::text])) WHERE id=$1`,[ctx.id,contract]);
  const pages=auditPages(input);
  for(const reportId of new Set(pages.map(p=>String(p.reportId)))){
-  if((await db.query("SELECT 1 FROM ainuoke_sync_audit_tables WHERE batch_id=$1 AND report_id=$2 AND contract_no=$3 AND status='success'",[ctx.id,reportId,contract])).rowCount){
+  // Every contract in a worker batch reuses the SAME validated directory.
+  // Its first publication already compared source records with the previous
+  // batch; later projections must append commit references, not compare the
+  // just-written state again and erase the original changed-record counts.
+  if((await db.query(`SELECT 1 FROM ainuoke_sync_audit_tables WHERE batch_id=$1 AND report_id=$2 AND contract_no=$3
+   AND (status='success' OR ($4::boolean AND transaction_id IS NOT NULL AND cardinality(publication_ids)>0))`,[ctx.id,reportId,contract,reportId==='6086103'&&!contract])).rowCount){
    await db.query(`UPDATE ainuoke_sync_audit_tables SET publication_ids=ARRAY(SELECT DISTINCT unnest(publication_ids||$4::text[])),
     target_tables=ARRAY(SELECT DISTINCT unnest(target_tables||$5::text[])),status='write_pending',write_completed_at=NULL,transaction_id=txid_current()::text
     WHERE batch_id=$1 AND report_id=$2 AND contract_no=$3`,[ctx.id,reportId,contract,publicationIds,targets??SYNC_AUDIT_SOURCES[reportId]?.targets??[]]);continue;

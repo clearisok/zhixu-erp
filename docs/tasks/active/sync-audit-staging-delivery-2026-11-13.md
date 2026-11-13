@@ -49,3 +49,8 @@ staging只读起点确认620订单/620绑定/620head、28237物料快照、0缺�
 
 
 ba6860f1正式自动复审07:56:55Z无新问题（issuecomment6847410804，review summary commit exact），四条已修thread resolved。source第四轮约14分钟末的payment-collection单测检出审计包装提前DB查询：原无效显式scope本应零DB拒绝。现原sha及parse验证先于audit，implementation保留原验证；额外对invalid targets在collect入口验证零DB/零worker，payment22/22通过。完整旧fixture/目录/审计检查已通过；不以弱化测试解决。最终必要CI仍须新HEAD。
+
+
+共享目录源记录比较补充实际回归：同批后续合同会重新比较已更新record_state，把updated=1覆成0（48日志明确0!=1），现已保留同一validated共享目录首次计数，仅追加真实publication IDs。49目录通过，原其他审计/权限/提交保护继续回归。e912复审无问题但其CI不代替本修订最终CI。
+
+预备备份52文件2326134762字节完整离机验证（2026-11-13T08:14:47.425Z），manifest SHA256 a09f1e1051bd4ca139861c41436448588d63c9efb873a7e72e55b19a787a939f，目录D:/WeaveOps-Backups/ningbo-trial/bundles/20261113T071520Z-7d0120a1。常设Node同步哈希工具readFileSync遇2GiB限制；实际文件已复制，scratch流式sha256核对全部文件后原子接纳，没有重复传输或删除资产，常设工具未擅改。

@@ -1,5 +1,7 @@
 # 接力：继续同步审计staging交付
 
+新检查点：e912d20b已精确送达、复审6847694671无新问题，来源CI第五轮仍在运行。自主补充共享目录计数断言证明旧updated=0应为1，已修同batch同validated directory只保留首次源记录比较、后续追加publication IDs；49目录与持久审计27/27通过，types/lint通过。最终需集中commit/push并以新HEAD CI为准，不能部署过时e912。预备备份52文件2326134762字节已流式逐文件离机核对到D:/WeaveOps-Backups/ningbo-trial/bundles/20261113T071520Z-7d0120a1，manifest SHA a09f1e1051bd4ca139861c41436448588d63c9efb873a7e72e55b19a787a939f。旧工具readFileSync超过2GiB失败，本次不重传，scratch流式复核成功；常设工具未改。恢复139表/序列/11附件已通过。staging未迁移/部署/启源，native source已私密clone旧c513等待最终真实merge对象，source-accept.py的expected head须改为最终修订。
+
 更新：ba6860f1自动复审07:56:55Z无新问题，四条thread已resolved；两项CI成功，source第四轮在14分钟末发现货款无效scope在audit前未校验而触DB。现包装器先原sha/parse校验再audit，保留原业务校验，补无效targets在真实collection入口零DB测试，payment22/22通过。待最终commit/CI；此前共享目录、历史升级、恢复保全结果不重做。旧应用继续可用，未迁移/部署/启源。
 
 新恢复点：427db08c复审4560851175共享目录成功证据被失败子行覆盖已修，保留确认COMMIT、发布ID并集、计数并标partial。目录16PASS、历史17PASS、45轮归属其余通过；prefix12与21旧fixture使用c513历史写入器，当前缺0058零请求拒绝保留。46类型/Lint/server通过。隔离restore139表+序列逐行哈希及11附件一致，network none/无端口，资产保留；原dict/list比较误报已修正结构，真实无内容差异。尚未合并/迁移/部署/启源，待最终必要CI与复审。

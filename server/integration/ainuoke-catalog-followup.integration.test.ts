@@ -200,6 +200,7 @@ test('catalogue is not a business ledger; active groups publish and fail indepen
    assert.equal(directory.publication_ids.length,4,'both successful source and catalogue commits remain traceable');
    assert.equal(directory.fetched_count,6,'shared double-pass capture is not multiplied by contracts');
    assert.equal(directory.inserted_count+directory.updated_count+directory.unchanged_count,3);
+   assert.equal(directory.updated_count,1,'one shared source change is counted once across successful contracts');
    assert.ok(directory.target_tables.includes('ainuoke_catalog_runs'));
    const published=(await pool.query('SELECT id::text FROM ainuoke_catalog_runs WHERE id=ANY($1::uuid[])',[directory.publication_ids])).rows;
    assert.equal(published.length,2);
