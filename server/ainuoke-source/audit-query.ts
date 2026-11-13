@@ -6,7 +6,7 @@ export function parseAuditQuery(params:URLSearchParams){
  const get=(key:string,max=100)=>{const v=params.get(key)?.trim()??'';if(v.length>max||/[\x00-\x1f]/.test(v))throw new HttpError(400,'audit_query_invalid','查询条件无效');return v;};
  const start=get('start',10),end=get('end',10),status=get('status',20),type=get('type',30),report=get('report',80),batch=get('batch',40),contract=get('contract',80);
  for(const d of [start,end])if(d&&(!/^\d{4}-\d{2}-\d{2}$/.test(d)||!Number.isFinite(Date.parse(d))||new Date(d).toISOString().slice(0,10)!==d))throw new HttpError(400,'audit_query_invalid','日期无效');
- if(start&&end&&start>end||status&&!['running','success','partial','failed','interrupted'].includes(status))throw new HttpError(400,'audit_query_invalid','查询条件无效');
+ if(start&&end&&start>end||status&&!['running','success','partial','failed','interrupted','replayed'].includes(status))throw new HttpError(400,'audit_query_invalid','查询条件无效');
  const offset=Number(params.get('offset')??0),limit=Number(params.get('limit')??25);
  if(!Number.isSafeInteger(offset)||offset<0||offset>1000000||!Number.isSafeInteger(limit)||limit<1||limit>100)throw new HttpError(400,'audit_query_invalid','分页无效');
  return {start,end,status,type,report,batch,contract,offset,limit};
@@ -30,8 +30,8 @@ export async function querySyncAudit(pool:Pool,params:URLSearchParams,exporting=
   FROM ainuoke_sync_audit_batches b ${where} ORDER BY coalesce(b.started_at,b.reference_at) DESC,b.id DESC LIMIT ${arg(exporting?10000:q.limit)} OFFSET ${arg(exporting?0:q.offset)}`,values)).rows;
  const overview=(await pool.query(`SELECT json_build_object(
   'lastSuccessAt',(SELECT max(write_completed_at) FROM ainuoke_sync_audit_tables WHERE status='success'),
-  'lastAttemptAt',(SELECT max(started_at) FROM ainuoke_sync_audit_batches),
-  'todayBatches',(SELECT count(*) FROM ainuoke_sync_audit_batches WHERE origin<>'historical_record' AND started_at>=(date_trunc('day',now() AT TIME ZONE 'Asia/Shanghai') AT TIME ZONE 'Asia/Shanghai')),
+  'lastAttemptAt',(SELECT max(started_at) FROM ainuoke_sync_audit_batches WHERE status<>'replayed'),
+  'todayBatches',(SELECT count(*) FROM ainuoke_sync_audit_batches WHERE status<>'replayed' AND origin<>'historical_record' AND started_at>=(date_trunc('day',now() AT TIME ZONE 'Asia/Shanghai') AT TIME ZONE 'Asia/Shanghai')),
   'todaySuccessTables',(SELECT count(*) FROM ainuoke_sync_audit_tables WHERE contract_no='' AND status='success' AND write_completed_at>=(date_trunc('day',now() AT TIME ZONE 'Asia/Shanghai') AT TIME ZONE 'Asia/Shanghai')),
   'todayFailedTables',(SELECT count(*) FROM ainuoke_sync_audit_tables t JOIN ainuoke_sync_audit_batches b ON b.id=t.batch_id WHERE t.contract_no='' AND t.status IN ('failed','partial') AND b.origin<>'historical_record' AND coalesce(b.started_at,b.reference_at)>=(date_trunc('day',now() AT TIME ZONE 'Asia/Shanghai') AT TIME ZONE 'Asia/Shanghai')),
   'retryTasks',(SELECT count(*) FROM ainuoke_sync_jobs WHERE status='queued' AND retry_of IS NOT NULL),

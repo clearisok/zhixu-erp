@@ -12,7 +12,7 @@ import { synchronizePermissionCatalog } from "../auth/permissions.js";
 import { bootstrapAdmin } from "../auth/bootstrap.js";
 import { loadExistingBootstrapActor } from "../sales-orders/bootstrap-runner.js";
 import { bindOrders, previewBindings } from "../ainuoke-source/binding.js";
-import { captureSource } from "../ainuoke-source/service.js";
+import { historicalSourceFixture } from "./historical-source-fixture.js";
 import { createPersistedMaterialPorts } from "../ainuoke-source/reader.js";
 import { createOrderMaterialReader } from "../../features/ainuoke-material-progress/read-service.js";
 import { bindingBundle, freshMaterialBundle } from "./ainuoke-binding-fixture.js";
@@ -35,8 +35,11 @@ test("0038 to 0039 creates empty arrival owner and preserves nonempty Source/tra
   }
   await synchronizePermissionCatalog(pool); await bootstrapAdmin(pool, { username: "arrival.upgrade", displayName: "合成到仓升级", password: "synthetic-upgrade" });
   const actor = await loadExistingBootstrapActor(pool, "arrival.upgrade"), source = { sourceKey: "synthetic-upgrade", accountFingerprint: "a".repeat(64) };
-  const bundle = bindingBundle(), preview = await previewBindings(bundle), bound = await bindOrders(pool, actor, { ...source, expectedPreview: preview.reviewHash, collect: async () => bundle });
-  const orderId = bound.orderIds[0]; await captureSource(pool, actor, { ...source, maxAgeMs: 600000, collect: async () => freshMaterialBundle() });
+  const legacy=await historicalSourceFixture();t.after(()=>legacy.close());
+  const bundle = bindingBundle(), preview = await previewBindings(bundle);
+  let sourceCalls=0;await assert.rejects(bindOrders(pool,actor,{...source,expectedPreview:preview.reviewHash,collect:async()=>{sourceCalls++;return bundle;}}),{code:'sync_audit_migration_required'});assert.equal(sourceCalls,0);
+  const bound = await legacy.bindOrders(pool, actor, { ...source, expectedPreview: preview.reviewHash, collect: async () => bundle });
+  const orderId = bound.orderIds[0]; await legacy.captureSource(pool, actor, { ...source, maxAgeMs: 600000, collect: async () => freshMaterialBundle() });
   const hubCommand = parseLogisticsResourceCommand({ action: "create", requestId: randomUUID(), kind: "hubs", resourceId: null, expectedVersion: 0, data: { name: "合成升级仓", enabled: true, remark: "升级前保持" } });
   const hub = await executeProductionResourceCommand(pool, actor, hubCommand); assert.equal(hub.status, "applied"); if (hub.status !== "applied") assert.fail();
   const tracking = await previewOrderTracking(pool, actor, { action: "set_order_tracking", orderId, expectedVersion: 0, data: { supplyHubId: hub.resource.id, remark: "合成升级保留备注" } });

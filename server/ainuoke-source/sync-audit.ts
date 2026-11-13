@@ -89,6 +89,15 @@ export async function withSyncAudit<T>(pool:Pool,scope:{id?:string;sourceKey:str
  });
 }
 async function finishBatch(db:DB,id:string,error?:string,replayed=false){
+ // A receipt replay performs no new Source read or publication. Keep its
+ // planned rows as an explicit no-read outcome, never a fabricated failure or
+ // a new successful synchronization. Touched/failed rows cannot use this path.
+ if(replayed&&!error)await db.query(`UPDATE ainuoke_sync_audit_tables SET status='replayed',
+  fetched_count=0,inserted_count=0,updated_count=0,unchanged_count=0,failed_count=0,duplicate_count=0,
+  api_requests=0,page_count=0,cursor_info=cursor_info||'{"receiptReplay":true,"sourceReadThisInvocation":"none"}'::jsonb
+  WHERE batch_id=$1 AND status='reading' AND read_started_at IS NULL AND read_completed_at IS NULL
+   AND write_completed_at IS NULL AND transaction_id IS NULL AND cardinality(publication_ids)=0
+   AND coalesce(api_requests,0)=0 AND cursor_info @> '{"planned":true}'::jsonb`,[id]);
  await db.query("UPDATE ainuoke_sync_audit_tables SET error_code=coalesce(error_code,'commit_acknowledgement_missing') WHERE batch_id=$1 AND status='write_pending'",[id]);
  await db.query(`UPDATE ainuoke_sync_audit_tables t SET status='failed',error_code=coalesce(t.error_code,$2,b.error_code,'publication_not_completed')
   FROM ainuoke_sync_audit_batches b WHERE t.batch_id=b.id AND b.id=$1 AND t.status IN ('reading','acquired')`,[id,error??null]);
@@ -127,9 +136,10 @@ async function finishBatch(db:DB,id:string,error?:string,replayed=false){
    cursor_info=t.cursor_info||jsonb_build_object('fetchedCountBasis',CASE WHEN c.counted>0 AND c.counted=c.completed THEN 'actual_response_rows' ELSE 'verified_snapshot_rows' END)
   FROM counts c WHERE t.batch_id=$1 AND t.contract_no='' AND t.report_id=c.report_id`,[id]);
  await db.query(`UPDATE ainuoke_sync_audit_batches b SET finished_at=clock_timestamp(),error_code=coalesce($2,error_code),
-  status=CASE WHEN $3::boolean AND NOT EXISTS(SELECT 1 FROM ainuoke_sync_audit_tables t WHERE t.batch_id=b.id) THEN 'success' WHEN EXISTS(SELECT 1 FROM ainuoke_sync_audit_tables t WHERE t.batch_id=b.id AND t.status IN ('partial','write_pending')) THEN 'partial' WHEN EXISTS(SELECT 1 FROM ainuoke_sync_audit_tables t WHERE t.batch_id=b.id AND t.status='success')
+  status=CASE WHEN $3::boolean AND $2::text IS NULL AND NOT EXISTS(SELECT 1 FROM ainuoke_sync_audit_tables t WHERE t.batch_id=b.id AND t.status<>'replayed') THEN 'replayed' WHEN EXISTS(SELECT 1 FROM ainuoke_sync_audit_tables t WHERE t.batch_id=b.id AND t.status IN ('partial','write_pending')) THEN 'partial' WHEN EXISTS(SELECT 1 FROM ainuoke_sync_audit_tables t WHERE t.batch_id=b.id AND t.status='success')
     THEN CASE WHEN $2::text IS NOT NULL OR EXISTS(SELECT 1 FROM ainuoke_sync_audit_tables t WHERE t.batch_id=b.id AND t.status<>'success') THEN 'partial' ELSE 'success' END
    ELSE 'failed' END WHERE b.id=$1`,[id,error??null,replayed]);
+ await db.query("UPDATE ainuoke_sync_audit_batches SET api_requests=0,login_requests=0 WHERE id=$1 AND status='replayed'",[id]);
 }
 /** Called only after validated complete captures. Page fetchedAt is a read
  * completion timestamp, never a source modification time or a commit time. */
@@ -237,7 +247,16 @@ export async function commitWithSyncAudit(client:PoolClient){
 }
 export async function auditPublicationFailure(db:DB,contract:string,code:string){
  const ctx=context.getStore();if(!ctx)return;
- await db.query("UPDATE ainuoke_sync_audit_tables SET status='failed',error_code=$3,failed_count=fetched_count WHERE batch_id=$1 AND contract_no=$2 AND status IN ('reading','acquired')",[ctx.id,contract,code]);
+ // Validation can reject a contract before acquired child rows were created.
+ // Persist its expected report failures with unknown counts instead of losing
+ // the failure during the successful-contract rollup.
+ await db.query(`INSERT INTO ainuoke_sync_audit_tables(batch_id,report_id,source_name,target_tables,contract_no,status,error_code,cursor_info)
+  SELECT batch_id,report_id,source_name,target_tables,$2,'failed',$3,
+   '{"stage":"contract_validation_or_publication","complete":false,"recordCounts":"unavailable"}'::jsonb
+  FROM ainuoke_sync_audit_tables WHERE batch_id=$1 AND contract_no=''
+  ON CONFLICT(batch_id,report_id,contract_no) DO UPDATE SET status='failed',error_code=excluded.error_code,
+   failed_count=ainuoke_sync_audit_tables.fetched_count
+  WHERE ainuoke_sync_audit_tables.status IN ('reading','acquired')`,[ctx.id,contract,code]);
 }
 /** Streamed, closed metadata only; never URLs, query values or response bodies.
  * This makes in-flight per-report attempts durable even if the process dies. */

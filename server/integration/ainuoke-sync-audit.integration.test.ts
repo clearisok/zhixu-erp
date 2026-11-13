@@ -8,7 +8,7 @@ import ExcelJS from 'exceljs';
 import {startCatalogFixture} from './ainuoke-catalog-fixture.js';
 import {withSyncAudit,auditAcquired,auditPublished,commitWithSyncAudit,auditCaptureFailure,auditRecordSet,auditRequestHandler,reconcileInterruptedAudit} from '../ainuoke-source/sync-audit.js';
 import {validateRequestDiagnostics} from '../ainuoke-source/sync-diagnostics.js';
-import {parseAuditQuery} from '../ainuoke-source/audit-query.js';
+import {parseAuditQuery,querySyncAudit} from '../ainuoke-source/audit-query.js';
 import {captureCatalogOnce} from '../ainuoke-source/catalog-capture.js';
 import {loadCatalogEvidence} from '../ainuoke-source/catalog-evidence.js';
 import {accountFingerprint} from '../ainuoke-source/collector.js';
@@ -70,6 +70,19 @@ test('persistent report ledger follows real queue publication, confirmed commits
    const d=validateRequestDiagnostics([{kind:'report',reportId:6087051,page:1,elapsedMs:1,httpStatus:200,outcome:'schema_error',responseIsOk:false,startedAt:new Date().toISOString(),finishedAt:new Date().toISOString()}]);
    await withSyncAudit(f.pool,{sourceKey:f.sourceKey,type:'retry'},async()=>{await auditCaptureFailure(f.pool,'source_unavailable',d);});
    const row=(await f.pool.query("SELECT * FROM ainuoke_sync_audit_tables ORDER BY id DESC")).rows.find(r=>r.error_code==='source_unavailable');assert.ok(row);assert.equal(row.status,'failed');assert.equal(row.write_completed_at,null);
+  });
+  await t.test('untouched receipt replay is explicit, makes no Source read and does not inflate sync success or failure',async()=>{
+   const before=await querySyncAudit(f.pool,new URLSearchParams()),calls=f.captures();
+   for(const reports of [[],['6086941'],['6086979']]){
+    const id=randomUUID();await withSyncAudit(f.pool,{id,sourceKey:f.sourceKey,type:'manual',reports},async()=>({replayed:true}));
+    const b=(await f.pool.query('SELECT status,api_requests,login_requests FROM ainuoke_sync_audit_batches WHERE id=$1',[id])).rows[0];
+    assert.deepEqual(b,{status:'replayed',api_requests:0,login_requests:0});
+    const rows=(await f.pool.query('SELECT * FROM ainuoke_sync_audit_tables WHERE batch_id=$1',[id])).rows;
+    assert.equal(rows.length,reports.length);assert.ok(rows.every(r=>r.status==='replayed'&&r.write_completed_at===null&&r.read_completed_at===null&&r.fetched_count===0&&r.cursor_info.sourceReadThisInvocation==='none'));
+   }
+   const after=await querySyncAudit(f.pool,new URLSearchParams());
+   for(const key of ['lastAttemptAt','todayBatches','todaySuccessTables','todayFailedTables'] as const)assert.deepEqual(after.overview[key],before.overview[key]);
+   assert.equal(f.captures(),calls);assert.equal((await querySyncAudit(f.pool,new URLSearchParams('status=replayed'))).total,3);
   });
   await t.test('real manual HTTP queue, timeout and retry produce independent durable attempts',async()=>{
    const cookie=await f.login(f.admin),headers={Cookie:cookie,Origin:f.base,'Content-Type':'application/json','X-Zhixu-Request':'1'};

@@ -23,3 +23,13 @@ Git失败已定位为用户配置中的GitHub专用代理http.https://github.com
 现有runtime/catalog-sync-c5133e9e，supervisor enabled=true、状态DISABLED、code=preserved_source_pause，运行source owner数0。应用/库/订单实际范围、0058是否存在、队列/暂停/备份在发布前完整记录，不沿用617作为写死数量。旧main/staging c5133e9e的配对备份及回滚位置见material-staging-release-2026-11-12.md。
 
 尚未合并、迁移、切换应用/worker、恢复来源或新增源站登录/报表。后续结果只能按真实回执更新。既有本机数据与退役采集器保留，production未操作。
+
+## PR146复审恢复点
+
+7354d3c398968d01e098a6a4f1830c4d9375489f已精确送达，唯一PR https://github.com/clearisok/zhixu-erp/pull/146 ，无冲突。三项CI中baseline/team-access成功；source失败在material-arrivals-upgrade：旧0038 fixture使用当前写入器被sync_audit_migration_required正确拦截。改用原c5133e9e历史写入器构造旧库，并增加当前写入器0源请求拒绝断言；相同问题一并核查0039成衣升级fixture。不能放宽缺0058保护。
+
+正式自动复审7354d3c3给出两个P2：评论4560596842（失败合同在校验时未建审计子记录导致汇总假成功）、4560596852（旧回执复用的计划表误报失败）。已实施显式失败子记录、未知数量null；未取数回执明确replayed并排除新同步统计，0058未部署前前向补状态。相关定向测试/构建/最终CI仍在收口；不提前写审查通过或部署。
+
+staging只读起点确认620订单/620绑定/620head、28237物料快照、0缺快照、migration57/0审计表；27053complete/97历史failed/5queued。23人工表、3原账号和620订单的保全基线已私密保存。5代表订单正常身份真实HTTP及匿名401通过，业务数据没有改动。
+
+发布前原版本配对备份20261113T071520Z-7d0120a1正在执行；旧owner配置经标准备份流程停用以避免竞争，数据库业务暂停标记未修改。尚未写0058，尚未部署新应用或启动新owner。私密配置/原业务响应仅留宁波任务目录，不入仓库。

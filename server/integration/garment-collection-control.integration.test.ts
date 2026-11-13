@@ -87,6 +87,8 @@ test("durable garment commands, one worker, atomic publication and original requ
     const startCalls = calls, duplicate = await collect(job); assert.equal(duplicate.receiptState, "unverified_started"); assert.equal(calls, startCalls);
     release(); assert.equal((await pending).result?.outcome, "published");
     assert.equal((await collect(job)).receiptState, "completed"); assert.equal(calls, startCalls);
+    const replayAudit=(await pool.query("SELECT b.status,t.write_completed_at FROM ainuoke_sync_audit_batches b JOIN ainuoke_sync_audit_tables t ON t.batch_id=b.id WHERE b.source_key=$1 ORDER BY b.started_at DESC LIMIT 1",[job.request.config.sourceKey])).rows[0];
+    assert.deepEqual(replayAudit,{status:'replayed',write_completed_at:null});
   });
   await t.test("v2 complete sentinel pages publish, persist original paging evidence and recover without another worker", async () => {
     const job = await make(), before = calls;

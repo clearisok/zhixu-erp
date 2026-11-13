@@ -189,6 +189,11 @@ test('catalogue is not a business ledger; active groups publish and fail indepen
    const after=(await readCatalog(pool,actor,{search:'SYN-SALES-1',scope:'all',offset:0,limit:50})).rows[0];
    assert.deepEqual(after.lastSuccessAt,before.lastSuccessAt);assert.equal(after.lastErrorCode,'binding_date_invalid');
    assert.equal((await pool.query('SELECT paused_reason FROM ainuoke_sync_controls WHERE source_key=$1',[sourceKey])).rows[0].paused_reason,null);
+   const capture=(await pool.query('SELECT capture_attempt_id FROM ainuoke_sync_jobs WHERE id=$1',[result.jobs[0].id])).rows[0].capture_attempt_id;
+   assert.equal((await pool.query('SELECT status FROM ainuoke_sync_audit_batches WHERE id=$1',[capture])).rows[0].status,'partial');
+   const failed=(await pool.query("SELECT report_id,status,fetched_count,error_code FROM ainuoke_sync_audit_tables WHERE batch_id=$1 AND contract_no='SYN-SALES-1'",[capture])).rows;
+   assert.ok(failed.length>=3);assert.ok(failed.every(r=>r.status==='failed'&&r.error_code==='binding_date_invalid'));
+   assert.ok(failed.some(r=>r.fetched_count===null),'validation failure has no invented row count');
   });
   await t.test('crashed worker pauses, preserves success and requires exact reviewed recovery without upstream requests',async()=>{
    const entry=(await readCatalog(pool,actor,{search:'SYN-SALES-3',scope:'all',offset:0,limit:50})).rows[0];

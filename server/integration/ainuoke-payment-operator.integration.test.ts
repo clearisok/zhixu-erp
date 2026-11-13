@@ -143,6 +143,8 @@ test('payment operator: owned PG, target lifecycle and durable one-shot commands
     const first=await running;assert.equal(first.result?.published,2);
     const replay=await collectPaymentOnce(pool,actor,p.request,permitOf(plan),{now,collect:async()=>{assert.fail('no retry');}});
     assert.equal(replay.replayed,true);assert.deepEqual(replay.result,first.result);assert.equal(calls,1);
+    const replayAudit=(await pool.query("SELECT b.status,t.write_completed_at FROM ainuoke_sync_audit_batches b JOIN ainuoke_sync_audit_tables t ON t.batch_id=b.id WHERE b.source_key=$1 ORDER BY b.started_at DESC LIMIT 1",[collectionConfig.sourceKey])).rows[0];
+    assert.deepEqual(replayAudit,{status:'replayed',write_completed_at:null});
     const changed={...p.request,targets:p.request.targets.map((row,i)=>({...row,salesOrderId:i?row.salesOrderId:randomUUID()}))};
     await assert.rejects(()=>collectPaymentOnce(pool,actor,changed,permitOf(plan),{now,collect}),matches('payment_operator_request_conflict'));
     for(const secret of [collectionConfig.password,collectionConfig.username,'SYN-SC','9007199254740993'])assert.equal(JSON.stringify(first).includes(secret),false);

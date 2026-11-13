@@ -4,7 +4,7 @@ CREATE TABLE ainuoke_sync_audit_batches (
  sync_type TEXT NOT NULL, started_at TIMESTAMPTZ DEFAULT clock_timestamp(),
  reference_at TIMESTAMPTZ, reference_basis TEXT, recorded_at TIMESTAMPTZ NOT NULL DEFAULT clock_timestamp(),
  finished_at TIMESTAMPTZ, status TEXT NOT NULL DEFAULT 'running'
- CHECK(status IN ('running','success','partial','failed','interrupted')),
+ CHECK(status IN ('running','success','partial','failed','interrupted','replayed')),
  capture_ids UUID[] NOT NULL DEFAULT '{}', job_ids UUID[] NOT NULL DEFAULT '{}', contracts TEXT[] NOT NULL DEFAULT '{}', frequencies TEXT[] NOT NULL DEFAULT '{}', policy_snapshot JSONB,
  retry_count INTEGER NOT NULL DEFAULT 0 CHECK(retry_count>=0),
  api_requests INTEGER, login_requests INTEGER, error_code TEXT,
@@ -31,7 +31,7 @@ CREATE TABLE ainuoke_sync_audit_tables (
  updated_count INTEGER CHECK(updated_count>=0), unchanged_count INTEGER CHECK(unchanged_count>=0),
  failed_count INTEGER CHECK(failed_count>=0), duplicate_count INTEGER CHECK(duplicate_count>=0),
  api_requests INTEGER, page_count INTEGER, cursor_info JSONB NOT NULL DEFAULT '{}'::jsonb,
- status TEXT NOT NULL DEFAULT 'reading' CHECK(status IN ('reading','acquired','write_pending','success','failed','partial','historical_published')),
+ status TEXT NOT NULL DEFAULT 'reading' CHECK(status IN ('reading','acquired','write_pending','success','failed','partial','historical_published','replayed')),
  error_code TEXT CHECK(error_code ~ '^[a-z0-9_]{1,100}$'),
  publication_ids TEXT[] NOT NULL DEFAULT '{}', transaction_id TEXT,
  UNIQUE(batch_id,report_id,contract_no),
