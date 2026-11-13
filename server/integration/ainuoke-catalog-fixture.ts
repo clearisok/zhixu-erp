@@ -48,10 +48,10 @@ export async function startCatalogFixture(staticDirectory=resolve('dist/client')
   }});
   await tick();
   let materialOffset=0;
-  const app=createApp({pool,staticDirectory,attachmentStorage:new MemoryAttachmentStorage(),allowedOrigins:origins,security:{secureCookies:false,sessionTtlSeconds:7200},logger:{error:e=>errors.push(e)},orderMaterialRead:createPersistedMaterialPorts(pool,{sourceKey,maxAgeMs:1800000},()=>Date.now()+materialOffset)});
-  server.on('request',app);await new Promise<void>(r=>server.listen(0,'127.0.0.1',r));const address=server.address();if(!address||typeof address!=='object')throw Error('loopback fixture failed');
+  const app=()=>createApp({pool,staticDirectory,attachmentStorage:new MemoryAttachmentStorage(),allowedOrigins:origins,security:{secureCookies:false,sessionTtlSeconds:7200},logger:{error:e=>errors.push(e)},orderMaterialRead:createPersistedMaterialPorts(pool,{sourceKey,maxAgeMs:1800000},()=>Date.now()+materialOffset)});
+  server.on('request',app());await new Promise<void>(r=>server.listen(0,'127.0.0.1',r));const address=server.address();if(!address||typeof address!=='object')throw Error('loopback fixture failed');
   const base='http://127.0.0.1:'+address.port;origins.push(base);
   const login=async(username:string)=>{const response=await fetch(base+'/api/v1/auth/login',{method:'POST',headers:{'Content-Type':'application/json',Origin:base,'X-Zhixu-Request':'1'},body:JSON.stringify({username,password})});if(!response.ok)throw Error('synthetic login failed');return response.headers.get('set-cookie')!.split(';')[0];};
-  return {pool,base,sourceKey,actor,admin,reader,password,orderIds:bound.orderIds,errors,login,tick,setMaterialOffset:(n:number)=>{materialOffset=n;},captures:()=>captures,failNextCapture:()=>{failNext=true;},close};
+  return {pool,base,sourceKey,actor,admin,reader,password,orderIds:bound.orderIds,errors,login,tick,setMaterialOffset:(n:number)=>{materialOffset=n;},captures:()=>captures,failNextCapture:()=>{failNext=true;},restartHttp:async()=>{server.closeAllConnections();await new Promise<void>(r=>server.close(()=>r()));server.removeAllListeners('request');server.on('request',app());await new Promise<void>(r=>server.listen(address.port,'127.0.0.1',r));},close};
  }catch(e){await close();throw e;}
 }

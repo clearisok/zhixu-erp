@@ -17,7 +17,15 @@ export async function backfillExistingSyncAudit(pool:Pool,identity:Identity,sour
  const args:unknown[]=[sourceKey,options.after?.at??'1970-01-01T00:00:00Z',options.after?.id??'00000000-0000-0000-0000-000000000000',limit];
  // Prefer explicit request/capture/publication keys. Never join old operations
  // merely because their timestamps are close.
- const records=(await pool.query<Legacy>(`WITH legacy AS (
+ const records=(await pool.query<Legacy>(`WITH candidates AS MATERIALIZED (
+  SELECT k.id,k.kind FROM (
+   SELECT id,'capture' AS kind,started_at AS at FROM ainuoke_sync_capture_attempts WHERE source_key=$1 AND mode='catalog-contracts' AND status<>'running'
+   UNION ALL SELECT request_id,'catalog',created_at FROM ainuoke_catalog_requests WHERE source_key=$1 AND status<>'running'
+   UNION ALL SELECT id,'payment',created_at FROM ainuoke_payment_snapshots WHERE source_key=$1
+   UNION ALL SELECT id,'garment',created_at FROM ainuoke_garment_shipment_snapshots WHERE source_key=$1) k
+  WHERE (k.at,k.id)>($2::timestamptz,$3::uuid)
+   AND NOT EXISTS(SELECT 1 FROM ainuoke_sync_audit_batches b WHERE b.id=k.id OR k.id=ANY(b.capture_ids))
+  ORDER BY k.at,k.id LIMIT $4), legacy AS (
   SELECT a.id,'capture' AS kind,a.source_key,a.started_at,a.finished_at,a.started_at AS reference_at,a.status,a.result_code AS error_code,a.job_ids,a.metrics,a.requests,
    ARRAY(SELECT j.sales_contract_no FROM ainuoke_sync_jobs j WHERE j.id=ANY(a.job_ids)) AS contracts,
    cardinality(a.job_ids)>0 AND NOT EXISTS(SELECT 1 FROM ainuoke_sync_jobs j WHERE j.id=ANY(a.job_ids) AND (j.status<>'complete' OR NOT EXISTS(SELECT 1 FROM ainuoke_contract_observations o WHERE o.job_id=j.id AND o.source_key=j.source_key AND o.source_id=j.source_id) OR (j.result->>'orderId' IS NOT NULL AND NOT EXISTS(
@@ -27,21 +35,21 @@ export async function backfillExistingSyncAudit(pool:Pool,identity:Identity,sour
     SELECT p->>'reportId' AS report_id,sum(jsonb_array_length(p->'rows')) AS n,max(p->>'fetchedAt') AS at
     FROM ainuoke_sync_jobs j JOIN ainuoke_material_source_snapshots s ON s.run_id::text=j.result->>'publicationRunId' AND s.sales_order_id::text=j.result->>'orderId'
     CROSS JOIN LATERAL jsonb_array_elements(s.snapshots) p WHERE j.id=ANY(a.job_ids) GROUP BY p->>'reportId')r),'[]') AS reports
-  FROM ainuoke_sync_capture_attempts a WHERE a.source_key=$1 AND a.mode='catalog-contracts' AND a.status<>'running'
+  FROM ainuoke_sync_capture_attempts a JOIN candidates k ON k.id=a.id AND k.kind='capture' WHERE a.source_key=$1 AND a.mode='catalog-contracts' AND a.status<>'running'
   UNION ALL
   SELECT q.request_id,'catalog',q.source_key,q.created_at,q.finished_at,q.created_at,q.status,q.result->>'code','{}'::uuid[],NULL::jsonb,NULL::jsonb,'{}'::text[],
    EXISTS(SELECT 1 FROM ainuoke_catalog_runs r WHERE r.source_key=q.source_key AND r.request_id=q.request_id),
    (SELECT id::text FROM ainuoke_catalog_runs r WHERE r.source_key=q.source_key AND r.request_id=q.request_id LIMIT 1),
    jsonb_build_array(jsonb_build_object('report_id','6086103','rows',NULL,'read_at',NULL))
-  FROM ainuoke_catalog_requests q WHERE q.source_key=$1 AND q.status<>'running'
+  FROM ainuoke_catalog_requests q JOIN candidates k ON k.id=q.request_id AND k.kind='catalog' WHERE q.source_key=$1 AND q.status<>'running'
   UNION ALL
   SELECT s.id,'payment',s.source_key,NULL,NULL,s.created_at,'complete',NULL,'{}'::uuid[],NULL::jsonb,NULL::jsonb,ARRAY[s.sales_contract_no],true,s.id::text,
    jsonb_build_array(jsonb_build_object('report_id','6086941','rows',jsonb_array_length(s.payload->'rows'),'read_at',s.observed_through))
-  FROM ainuoke_payment_snapshots s WHERE s.source_key=$1
+  FROM ainuoke_payment_snapshots s JOIN candidates k ON k.id=s.id AND k.kind='payment' WHERE s.source_key=$1
   UNION ALL
   SELECT s.id,'garment',s.source_key,NULL,NULL,s.created_at,'complete',NULL,'{}'::uuid[],NULL::jsonb,NULL::jsonb,ARRAY[s.sales_contract_no],true,s.id::text,
    jsonb_build_array(jsonb_build_object('report_id','6086979','rows',s.row_count,'read_at',s.observed_through))
-  FROM ainuoke_garment_shipment_snapshots s WHERE s.source_key=$1)
+  FROM ainuoke_garment_shipment_snapshots s JOIN candidates k ON k.id=s.id AND k.kind='garment' WHERE s.source_key=$1)
   SELECT * FROM legacy l WHERE (coalesce(started_at,reference_at),id)>($2::timestamptz,$3::uuid)
    AND NOT EXISTS(SELECT 1 FROM ainuoke_sync_audit_batches b WHERE b.id=l.id OR l.id=ANY(b.capture_ids))
   ORDER BY coalesce(started_at,reference_at),id LIMIT $4`,args)).rows;

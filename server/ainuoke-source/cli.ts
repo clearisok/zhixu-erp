@@ -1,3 +1,4 @@
+import {withSyncAudit} from './sync-audit.js';
 import {backfillExistingSyncAudit} from './audit-backfill.js';
 import { readFileSync, statSync } from 'node:fs';
 import { requestMaterialRecovery } from './material-recovery.js';
@@ -237,7 +238,7 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
     if(action==="execute"){process.stdout.write(JSON.stringify({result:"SOURCE_CAPTURED",...await capture()})+"\n");return;}
     const controller=new AbortController();const stop=()=>controller.abort();
     process.once("SIGINT",stop);process.once("SIGTERM",stop);
-    try {await runSchedule({capture,signal:controller.signal,policy:policy!,emit:event=>process.stdout.write(JSON.stringify({result:"SOURCE_SCHEDULE",...event})+"\n")});}
+    try {await runSchedule({capture:()=>withSyncAudit(pool,{sourceKey:cfg.sourceKey,type:'scheduled',frequencies:['legacy_interval_'+policy!.intervalMs+'ms']},capture),signal:controller.signal,policy:policy!,emit:event=>process.stdout.write(JSON.stringify({result:"SOURCE_SCHEDULE",...event})+"\n")});}
     finally {process.removeListener("SIGINT",stop);process.removeListener("SIGTERM",stop);}
   } finally {await pool.end();}
 }

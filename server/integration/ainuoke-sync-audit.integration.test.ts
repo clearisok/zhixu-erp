@@ -1,3 +1,4 @@
+import {get as httpGet} from 'node:http';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {randomUUID} from 'node:crypto';
@@ -90,6 +91,11 @@ test('persistent report ledger follows real queue publication, confirmed commits
    assert.equal((await fetch(f.base+'/api/v1/ainuoke-sync-audit',{headers:{Cookie:reader}})).status,403);
    r=await fetch(f.base+'/api/v1/ainuoke-sync-audit/export?contract=SYN-AUDIT',{headers:{Cookie:cookie}});assert.equal(r.status,200);const bytes=Buffer.from(await r.arrayBuffer());assert.equal(bytes.subarray(0,2).toString(),'PK');const book=new ExcelJS.Workbook();await book.xlsx.load(bytes as unknown as Parameters<typeof book.xlsx.load>[0]);assert.ok(book.worksheets[0].rowCount>3);
    await assert.rejects(f.pool.query('DELETE FROM ainuoke_sync_audit_batches'),/cannot be deleted/);
+   const captured=f.captures();await f.restartHttp();
+   // A fresh TCP client avoids reusing the deliberately closed fetch keepalive.
+   const afterRestart=await new Promise<{status:number|undefined;total:number}>((resolve,reject)=>{
+    httpGet(f.base+'/api/v1/ainuoke-sync-audit?limit=1',{agent:false,headers:{Cookie:cookie}},response=>{let text='';response.on('data',chunk=>{text+=chunk;});response.on('error',reject);response.on('end',()=>{try{resolve({status:response.statusCode,total:JSON.parse(text).total});}catch(e){reject(e);}});}).on('error',reject);
+   });assert.equal(afterRestart.status,200);assert.equal(afterRestart.total,body.total);assert.equal(f.captures(),captured);
    const c=await f.pool.connect();try{assert.ok(Number((await c.query('SELECT count(*) FROM ainuoke_sync_audit_batches')).rows[0].count)>3);}finally{c.release();}
    assert.throws(()=>parseAuditQuery(new URLSearchParams('start=2026-02-30')),/日期/);
   });
