@@ -5,6 +5,7 @@ import {hash,sourceKeyValid,SourceError} from './contract.js';
 import {SYNC_AUDIT_SOURCES} from './audit-sources.js';
 import type {RequestDiagnostic} from './sync-diagnostics.js';
 import {validateSyncPolicy} from './sync-schedule.js';
+import {loadCatalogEvidence} from './catalog-evidence.js';
 
 type DB=Pick<Pool|PoolClient,'query'>;
 type Page={reportId:string;fetchedAt:string;page:number;total:number;queryContext:Record<string,unknown>;rows:{values:Record<string,unknown>}[]};
@@ -62,6 +63,15 @@ export function auditRecordSet(pages:readonly Page[]){
   if(records.has(key)){if(records.get(key)!==content)ambiguous=true;else duplicates++;}else records.set(key,content);
  }
  return {records,duplicates,ambiguous};
+}
+/** Reconstruct the accepted original directory, including shared packed rows.
+ * Absence of a readable prior baseline is not evidence that every row is new. */
+export async function catalogAuditRecordSet(db:DB,sourceKey:string,run:{capture_evidence_id:string|null;account_fingerprint:string;discovery:unknown}){
+ if(!/^[a-f0-9]{64}$/.test(run.account_fingerprint??''))throw new SourceError('catalog_audit_baseline_unavailable');
+ const input=run.capture_evidence_id?await loadCatalogEvidence(db,sourceKey,run.capture_evidence_id,run.account_fingerprint):run.discovery;
+ const pages=auditPages(input);
+ if(!pages.length||pages.some(p=>p.reportId!=='6086103'))throw new SourceError('catalog_audit_baseline_unavailable');
+ return auditRecordSet(pages);
 }
 export async function withSyncAudit<T>(pool:Pool,scope:{id?:string;sourceKey:string;type:string;contracts?:string[];jobIds?:string[];retries?:number;historical?:boolean;frequencies?:string[];reports?:string[]},fn:()=>Promise<T>):Promise<T>{
  if(!sourceKeyValid(scope.sourceKey))throw new SourceError('invalid_source_configuration');
@@ -214,7 +224,8 @@ export async function auditPublished(db:DB,sourceKey:string,publication:string|s
     WHERE batch_id=$1 AND report_id=$2 AND contract_no=$3`,[ctx.id,reportId,contract,publicationIds,targets??SYNC_AUDIT_SOURCES[reportId]?.targets??[]]);continue;
   }
   const selected=pages.filter(p=>String(p.reportId)===reportId),definition=SYNC_AUDIT_SOURCES[reportId];
-  const {records,duplicates,ambiguous:identityAmbiguous}=auditRecordSet(selected);const ambiguous=identityAmbiguous||!countable;
+  const {records,duplicates,ambiguous:identityAmbiguous}=auditRecordSet(selected);let ambiguous=identityAmbiguous||!countable;
+  let metricsError=identityAmbiguous?'record_identity_ambiguous':!countable?'record_metrics_unavailable':null;
   const scope=contract||hash(selected[0].queryContext??{});
   await db.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',[`sync-audit:${sourceKey}:${reportId}:${scope}`]);
   let old=new Map((await db.query('SELECT record_key,content_hash FROM ainuoke_sync_audit_record_state WHERE source_key=$1 AND report_id=$2 AND scope_key=$3',[sourceKey,reportId,scope])).rows.map(r=>[r.record_key,r.content_hash]));
@@ -224,10 +235,11 @@ export async function auditPublished(db:DB,sourceKey:string,publication:string|s
    if(prior){const baseline=auditRecordSet(auditPages(prior.snapshots).filter(p=>String(p.reportId)===reportId));if(!baseline.ambiguous)old=baseline.records;}
   }
   if(!old.size&&reportId==='6086103'){
-   const prior=(await db.query(`SELECT CASE WHEN r.capture_evidence_id IS NOT NULL THEN e.directory ELSE r.discovery END AS pages
-    FROM ainuoke_catalog_runs r LEFT JOIN ainuoke_catalog_capture_evidence e ON e.id=r.capture_evidence_id AND e.source_key=r.source_key
+   const prior=(await db.query(`SELECT r.capture_evidence_id,r.account_fingerprint,r.discovery
+    FROM ainuoke_catalog_runs r
     WHERE r.source_key=$1 AND r.id::text<>$2 ORDER BY r.captured_at DESC LIMIT 1`,[sourceKey,publicationId])).rows[0];
-   if(prior){const baseline=auditRecordSet(auditPages(prior.pages));if(!baseline.ambiguous)old=baseline.records;}
+   if(prior)try{const baseline=await catalogAuditRecordSet(db,sourceKey,prior);if(baseline.ambiguous){ambiguous=true;metricsError='record_identity_ambiguous';}else old=baseline.records;}
+   catch(error){if(error instanceof SourceError){ambiguous=true;metricsError='comparison_baseline_unavailable';}else throw error;}
   }
   if(!old.size&&['6086997','6087105'].includes(reportId)&&contract){
    const prior=(await db.query(`SELECT o.evidence->'colors'->$2 AS pages FROM ainuoke_contract_observations o
@@ -246,7 +258,7 @@ export async function auditPublished(db:DB,sourceKey:string,publication:string|s
     unchanged_count=excluded.unchanged_count,failed_count=0,duplicate_count=excluded.duplicate_count,error_code=excluded.error_code,target_tables=excluded.target_tables,
     publication_ids=ARRAY(SELECT DISTINCT unnest(ainuoke_sync_audit_tables.publication_ids||excluded.publication_ids)),transaction_id=excluded.transaction_id,cursor_info=ainuoke_sync_audit_tables.cursor_info||excluded.cursor_info`,
    [ctx.id,reportId,definition?.name??'未登记报表 '+reportId,targets??definition?.targets??[],contract,end,selected.reduce((n,p)=>n+p.rows.length,0),selected.length,
-    ambiguous?null:inserted,ambiguous?null:updated,ambiguous?null:unchanged,duplicates,ambiguous?(countable?'record_identity_ambiguous':'record_metrics_unavailable'):null,publicationIds,JSON.stringify({pages:selected.map(p=>p.page),reportedTotals:[...new Set(selected.map(p=>p.total))],complete:true,coverage:'validated_requested_scope',countBasis:countable?'distinct_source_records':'projection_mutations_not_counted',
+    ambiguous?null:inserted,ambiguous?null:updated,ambiguous?null:unchanged,duplicates,ambiguous?metricsError:null,publicationIds,JSON.stringify({pages:selected.map(p=>p.page),reportedTotals:[...new Set(selected.map(p=>p.total))],complete:true,coverage:'validated_requested_scope',countBasis:countable?'distinct_source_records':'projection_mutations_not_counted',
      queries:selected.map(p=>Object.fromEntries(Object.entries(p.queryContext??{}).filter(([key,value])=>['salesContractNo','insideOrderNo'].includes(key)&&typeof value==='string'&&value.length<=80))),
      ...(creation.length?{sourceCreationEvidence:{field:definition!.createdField,examples:creation.slice(0,5),moreValues:creation.length>5,timezone:'not_inferred'}}:{})})]);
   if(!ambiguous&&records.size)await db.query(`INSERT INTO ainuoke_sync_audit_record_state(source_key,report_id,scope_key,record_key,content_hash,batch_id)
