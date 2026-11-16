@@ -1,3 +1,9 @@
+# 当前：已部署M，修首轮压缩目录审计计数
+
+本次源码检查基线：b3047410ac292c48f0850e841241c00658dc0d75。历史部署和冻结证据保留原版本。
+
+先读[当前修复与真实恢复点](tasks/active/sync-audit-packed-baseline-fix-2026-11-16.md)。本机release记录分支9588ddb7保留。M=b3047410已真实部署/0058/发布后备份完成；11/16 11:40Z正常启唯一owner，首目录成功/626订单，后续复用登录。发现首台账626假新增，真实旧621→新626为5/11/610，正本分支修复+明确保留原计数的受控维护能力；尚未在真实台账更正/部署新修订。原数据/同步业务不变。以下为M合并前旧记录，不再代表现授权/部署状态。
+
 # 接力：继续同步审计staging交付
 
 新检查点：e912d20b已精确送达、复审6847694671无新问题，来源CI第五轮仍在运行。自主补充共享目录计数断言证明旧updated=0应为1，已修同batch同validated directory只保留首次源记录比较、后续追加publication IDs；49目录与持久审计27/27通过，types/lint通过。最终需集中commit/push并以新HEAD CI为准，不能部署过时e912。预备备份52文件2326134762字节已流式逐文件离机核对到D:/WeaveOps-Backups/ningbo-trial/bundles/20261113T071520Z-7d0120a1，manifest SHA a09f1e1051bd4ca139861c41436448588d63c9efb873a7e72e55b19a787a939f。旧工具readFileSync超过2GiB失败，本次不重传，scratch流式复核成功；常设工具未改。恢复139表/序列/11附件已通过。staging未迁移/部署/启源，native source已私密clone旧c513等待最终真实merge对象，source-accept.py的expected head须改为最终修订。

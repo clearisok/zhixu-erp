@@ -1,5 +1,7 @@
 # 当前项目入口
 
+2026-11-16当前任务：[压缩目录审计基线修复](tasks/active/sync-audit-packed-baseline-fix-2026-11-16.md)，本次已核实main基线 b3047410ac292c48f0850e841241c00658dc0d75。PR146已部署，PR147仅修正审计证据比较和受控计数维护；以下记录保留原时点。
+
 2026-11-13正在执行[同步审计PR合并与staging交付](tasks/active/sync-audit-staging-delivery-2026-11-13.md)。用户已授权本次部署/迁移及真实两个目录周期验收，禁止production；以下本机完成报告保留原时点。
 
 当前任务：[艾诺科同步记录与暂停恢复，本机工程交付](tasks/active/ainuoke-sync-audit-2026-11-12.md)。2026-11-13已完成本机自动验收；未部署。起始main/本次证据基线 **c5133e9e9e7065dc4fe7672c0c88c75688e0c51f**；产品代码 **3d2a3737765d02eae5586e8edff40e27df166acf**。
