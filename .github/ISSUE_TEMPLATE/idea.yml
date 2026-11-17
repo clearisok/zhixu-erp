@@ -1,0 +1,46 @@
+name: 产品想法
+description: 随时记录想法，不需要先想清楚方案；所有内容均可选。
+title: "[想法] "
+labels: [product, idea]
+body:
+  - type: markdown
+    attributes:
+      value: 先记下来即可。提交后进入产品需求中心，由调研逐步补齐；记录想法不代表批准开发。请勿上传密码、令牌或未脱敏业务数据。
+  - type: textarea
+    id: idea
+    attributes:
+      label: 我的想法
+      placeholder: 一句话、几句话或一张截图都可以。
+    validations:
+      required: false
+  - type: textarea
+    id: problem
+    attributes:
+      label: 希望解决的问题
+    validations:
+      required: false
+  - type: textarea
+    id: current
+    attributes:
+      label: 当前处理方式
+    validations:
+      required: false
+  - type: textarea
+    id: outcome
+    attributes:
+      label: 期望效果
+    validations:
+      required: false
+  - type: textarea
+    id: attachments
+    attributes:
+      label: 截图及附件
+      description: 可拖入已脱敏的截图或附件。
+    validations:
+      required: false
+  - type: textarea
+    id: notes
+    attributes:
+      label: 其他补充
+    validations:
+      required: false

@@ -1,0 +1,38 @@
+name: 功能优化
+description: 在已有功能基础上提出改进，尚未确定的部分可以留空。
+title: "[优化] "
+labels: [product, improvement]
+body:
+  - type: markdown
+    attributes:
+      value: 先说明使用场景与希望改善的结果，无需预先设计实现。请勿附未脱敏业务数据或凭据。
+  - type: textarea
+    id: feature
+    attributes:
+      label: 当前功能与使用场景
+    validations:
+      required: false
+  - type: textarea
+    id: problem
+    attributes:
+      label: 当前不便之处
+    validations:
+      required: false
+  - type: textarea
+    id: outcome
+    attributes:
+      label: 希望如何改善
+    validations:
+      required: false
+  - type: textarea
+    id: boundaries
+    attributes:
+      label: 需要保留的行为或限制
+    validations:
+      required: false
+  - type: textarea
+    id: attachments
+    attributes:
+      label: 截图、附件及其他补充
+    validations:
+      required: false

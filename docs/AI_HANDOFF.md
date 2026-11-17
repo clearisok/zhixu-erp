@@ -1,4 +1,10 @@
-# 当前：已部署M，修首轮压缩目录审计计数
+# 当前：产品需求管理配置，等待 Project 权限与配置 PR 审批
+
+2026-11-17基线main **b4fc85ed0ac09ad45db8959257a9b2d840abba26**，工作树 product-management-workflow/zhixu-ainuoke-api，分支 chore/product-management-workflow。先读 [接入审计](product-management/AUDIT-2026-11-17.md) 和 [产品生命周期](product-management/WORKFLOW.md)。只做管理基础设施；不继续下方历史部署任务。旧本地文档分支6c2d5535保留，不合入本轮。
+
+已补8标签，bug复用；3表单/4规范/AGENTS集成。现有用户Project配置全部保留。CLI当前身份clearisok、repo可写，缺Project范围；用户需自行授权project读写。之后读取真实字段/选项→TEST Issue product自动入Idea→观察证据后才测试该项状态写→关闭/移出测试事项，绝不手动添加掩盖。Issue Forms正式生效测试只能在本配置PR经用户批准合并后做；本次不合并、不部署、不改真实Issue/PR。结果与检查日志以接入审计为准。
+
+# 以下历史：已部署M，修首轮压缩目录审计计数
 
 本次源码检查基线：b3047410ac292c48f0850e841241c00658dc0d75。历史部署和冻结证据保留原版本。
 

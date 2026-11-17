@@ -70,6 +70,16 @@ npm run build
 
 ## GitHub 交付协议
 
+### 产品需求与 AI 协作（2026-11-17）
+
+- 产品需求统一使用 `clearisok/zhixu-erp` 的独立 Issue，纳入既有 [WeaveOps 产品需求与开发管理 Project #1](https://github.com/users/clearisok/projects/1)。处理需求前读取 `docs/product-management/WORKFLOW.md`、`IDEA_GUIDE.md`、`ACCEPTANCE.md`、`CODEX_GUIDE.md` 及对应 Issue 的最新方案与用户决定。
+- 保留用户已配置的 Status、Work Type/Area/Priority/Effort/Start Date/Target Date、六个视图及自动化，不重复创建或擅改。先读实际字段/选项/权限，不猜 ID 或自行提升 GitHub 权限。
+- Idea 只记录；Research 只读调研；Design 提交版本化完整方案并等待用户；只有用户明确批准对应版本与范围才能进入 Ready。Project 状态、标签、AI 推荐、CI 通过均不是授权，Codex 不得自行批准。
+- In Progress 仅实施获批范围；Review 提供测试、PR 和适用的真实浏览器验收材料并等待用户；Staging 须另有用户部署授权；用户确认最终标准达成后才能 Done 并关闭 Issue。Parked/Won't Do 保留用户决定、原因和历史。纯文档任务可记录部署不适用，不虚构实机业务验收。
+- 调研、方案版本、用户决定、进展、提交、测试、PR、部署及验收均回链对应 Issue。聊天授权可明确标为“Codex 转录用户决定”，保留原话、时间、版本及可用来源，不能冒充用户评论。复杂任务可拆 Sub-issues，不能扩大授权。
+- 最终验收前仅用 `Refs #编号` 等非关闭关联，禁止使用自动关闭 Issue 的 PR 关联及 Closes/Fixes/Resolves 等关闭关键词。不得因 PR 合并自动完成需求。
+- 不自动拆分、关闭或改写旧 Issue/PR，不新增自动开发、自动合并或自动部署。本节不放宽下文 Git 交付协议、数据保全、真实采集及发布边界；已有明确授权不重复索取，超范围变化按具体影响重新确认。
+
 本仓库远端：
 
 - Repository: `clearisok/zhixu-erp`

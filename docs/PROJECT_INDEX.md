@@ -1,5 +1,9 @@
 # 当前项目入口
 
+2026-11-17当前任务：[产品需求管理基础设施与接入审计](product-management/AUDIT-2026-11-17.md)。本次核实 main 基线 **b4fc85ed0ac09ad45db8959257a9b2d840abba26**。只改 Issue Forms、产品规范及 AGENTS/接力；不改业务/数据库/部署，不处理旧 Issue/PR，不合并。本次 Project CLI 缺权限，实际自动化验证待补。以下保留历史原时点，不作为新的部署操作依据。
+
+产品入口：[Project #1](https://github.com/users/clearisok/projects/1)；[生命周期](product-management/WORKFLOW.md)、[想法与调研](product-management/IDEA_GUIDE.md)、[验收](product-management/ACCEPTANCE.md)、[Codex 日常操作](product-management/CODEX_GUIDE.md)。
+
 2026-11-16当前任务：[压缩目录审计基线修复](tasks/active/sync-audit-packed-baseline-fix-2026-11-16.md)，本次已核实main基线 b3047410ac292c48f0850e841241c00658dc0d75。PR146已部署，PR147仅修正审计证据比较和受控计数维护；以下记录保留原时点。
 
 2026-11-13正在执行[同步审计PR合并与staging交付](tasks/active/sync-audit-staging-delivery-2026-11-13.md)。用户已授权本次部署/迁移及真实两个目录周期验收，禁止production；以下本机完成报告保留原时点。
