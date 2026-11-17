@@ -1,6 +1,6 @@
 # 当前项目入口
 
-2026-11-17当前任务：[产品需求管理基础设施与接入审计](product-management/AUDIT-2026-11-17.md)。本次核实 main 基线 **b4fc85ed0ac09ad45db8959257a9b2d840abba26**。只改 Issue Forms、产品规范及 AGENTS/接力；不改业务/数据库/部署，不处理旧 Issue/PR，不合并。本次 Project CLI 缺权限，实际自动化验证待补。以下保留历史原时点，不作为新的部署操作依据。
+2026-11-17当前任务：[产品需求管理基础设施与接入审计](product-management/AUDIT-2026-11-17.md)。本次核实 main 基线 **b4fc85ed0ac09ad45db8959257a9b2d840abba26**。只改 Issue Forms、产品规范及 AGENTS/接力；不改业务/数据库/部署，不处理旧 Issue/PR，不合并。PR148实现提交三CI通过；用户补齐权限后的字段/视图/工作流启停、TEST149自动入Idea/状态写权限及清理已验证。03开发视图筛选文字异常保留待用户确认，正式表单测试留待批准合并后。以下保留历史原时点，不作为新的部署操作依据。
 
 产品入口：[Project #1](https://github.com/users/clearisok/projects/1)；[生命周期](product-management/WORKFLOW.md)、[想法与调研](product-management/IDEA_GUIDE.md)、[验收](product-management/ACCEPTANCE.md)、[Codex 日常操作](product-management/CODEX_GUIDE.md)。
 
