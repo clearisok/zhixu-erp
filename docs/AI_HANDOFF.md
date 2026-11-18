@@ -1,4 +1,12 @@
-# 当前：已部署M，修首轮压缩目录审计计数
+# 当前：产品需求管理配置与 Project 实测完成，配置 PR 待用户审阅
+
+2026-11-17基线main **b4fc85ed0ac09ad45db8959257a9b2d840abba26**，工作树 product-management-workflow/zhixu-ainuoke-api，分支 chore/product-management-workflow。先读 [接入审计](product-management/AUDIT-2026-11-17.md) 和 [产品生命周期](product-management/WORKFLOW.md)。只做管理基础设施；不继续下方历史部署任务。旧本地文档分支6c2d5535保留，不合入本轮。
+
+已补8标签，bug复用；3表单/4规范/AGENTS集成。用户现已授权Project：19字段/选项、6视图、7workflow全页读完；TEST Issue149于21:47:11创建、21:47:13自动入卡（延迟2秒），21:47:50首次观察Idea（此前未手动加卡/改状态）。保存证据后只测该项Research/Idea写权限并读回；21:49:33关闭not planned，卡片移出后Project0项，完整配置前后deep-equal未变。证据永久写入审计和Issue评论，不能再次建立相同测试或重写旧结果。
+
+PR148实现beeb7a86三CI全部成功、源码守卫0 UI变化；本次文档补记的精确head/Checks以PR为准。03 · Development筛选文字实际为`03 · Development`，建议用户确认后改`status:Ready,"In Progress"`，本轮没有改。API只提供workflow启停元数据，不暴露触发器/动作，精确筛选和Issue-only配置未逐字读证，正向自动化实测通过。正式Issue Forms测试只在本配置PR经用户批准合并后做；本次不合并、不部署、不改真实Issue/PR。继续时先看PR148状态，不把已清理TEST当待处理需求。
+
+# 以下历史：已部署M，修首轮压缩目录审计计数
 
 本次源码检查基线：b3047410ac292c48f0850e841241c00658dc0d75。历史部署和冻结证据保留原版本。
 

@@ -1,0 +1,39 @@
+name: 问题反馈
+description: 记录实际问题、影响及复现线索；暂时不清楚的内容可以留空。
+title: "[问题] "
+labels: [product, bug]
+body:
+  - type: markdown
+    attributes:
+      value: 请勿上传密码、Token、Cookie、完整登录响应或未脱敏业务数据。反馈问题不代表授权修改数据库或部署。
+  - type: textarea
+    id: problem
+    attributes:
+      label: 遇到什么问题
+    validations:
+      required: false
+  - type: textarea
+    id: steps
+    attributes:
+      label: 操作步骤与发生时间
+      description: 可附页面路径、浏览器和环境；不要在链接中包含秘密。
+    validations:
+      required: false
+  - type: textarea
+    id: expected
+    attributes:
+      label: 期望结果与实际结果
+    validations:
+      required: false
+  - type: textarea
+    id: impact
+    attributes:
+      label: 影响范围
+    validations:
+      required: false
+  - type: textarea
+    id: attachments
+    attributes:
+      label: 截图及附件
+    validations:
+      required: false

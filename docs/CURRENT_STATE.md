@@ -1,4 +1,10 @@
-# 2026-11-16当前进度
+# 2026-11-17当前进度：产品需求管理基础设施
+
+main 已用 GitHub API及fetch核实 **b4fc85ed0ac09ad45db8959257a9b2d840abba26**。独立分支 chore/product-management-workflow 新增3份可选输入 Issue Forms、4份产品管理规范及接入审计，AGENTS 保留原约束并追加 Project/方案版本审批/验收规则。8标签已新增，bug原样复用。旧 Issue96、Draft PR136不动。
+
+用户补齐Project授权后，19字段/选项、6视图、7workflow已完整读取。TEST Issue149创建2秒后自动入Project，首次观察Idea；保存自动证据后测试Research→Idea并读回，通过后关闭Issue/移出卡片，原配置deep-equal未变。发现03 · Development的filter是同名文字而非状态条件，保留未改、建议用户确认。公开API不提供workflow触发器/动作完整配置，精确过滤字符串仍据用户给定，正向自动化已实测。PR148实现提交beeb7a86三项CI全过；后续仅补审计/状态，最新Checks见PR。正式表单入口仍需用户批准合并后验证。本轮不合并、不部署、不读写业务数据、不改业务代码及Actions。[详细结果与恢复位置](product-management/AUDIT-2026-11-17.md)。以下原文保留各自日期，不是本轮运行核查。
+
+# 2026-11-16历史进度
 
 PR146/main/staging b3047410ac292c48f0850e841241c00658dc0d75已合并部署，0058及发布后备份完成；11/16正常启宁波唯一owner，首自然周期成功并接纳6新订单至626。真实首轮台账压缩基线计数缺陷正在[最小修复](tasks/active/sync-audit-packed-baseline-fix-2026-11-16.md)，16项相关测试通过，待最终PR/CI及正常发布/台账更正和两个自然周期验收。人工数据保留，production未操作。以下旧阶段报告保留原时点，不代表当前发布事实。
 
