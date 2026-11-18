@@ -1,5 +1,21 @@
 # 2026-11-18 恢复证据接线交接
 
+## 已获真实Staging授权，执行中（08:17Z之后）
+
+用户已明确同时授权合并PR154与真实Staging部署/受控备份/安全恢复及两轮自然30分钟验收；不再需要这两项批准。仅Staging，禁止Production、伪造/回填heartbeat或last_run、清旧fault/未知结果、手工补跑自然验收。Worker不正常退出不能SIGKILL。
+
+已核实原HEAD d2ec945357569a12316704a03c90682dee7f3b06、CI三项全部成功、无Review threads/审批阻塞，Ready后正常merge（精确HEAD约束）；merge/main **4a8c9bc24b00983d0d79150349adeed5a333a237**，双父a915c7a1/d2ec9453，tree与已验收HEAD一致。生产workflow仅dispatch，未触发。WindowsCLI一次连接超时后连接器核实Ready状态，随后merge成功；有界Git进程proxy覆盖fetch main成功，无共享配置变化。
+
+运行工作目录：宁波SSH alias weaveops，`/home/jackson/weaveops-staging-preview/releases/sync-recovery-release-20261118`（TASK）；本机操作记录branch `chore/staging-recovery-acceptance-20261118`起点4a8c9bc2且干净，不向已合并修复分支加代码。TASK/source是旧b4fc发布Git的独立clone加原Git bundle，HEAD精确4a8c9bc2、clean。TASK/install.py是本次分阶段安装/只读检查脚本；build-staging.py复用前版离线配方，仅重绑TASK。私密结果仅留主机。
+
+真实预检：project zhixu-quote-trial-staging-562fbf07；旧runtime/catalog-sync-b4fc85ed仍STOPPED_FAULT/backup_failed_requires_review，旧Worker exit0停止；分钟cron与cron服务活。626订单/626绑定；30975 complete、97历史failed、1queued；running/unknown jobs/catalog/capture均0，admin enabled=true/paused=null，旧heartbeat2026-11-16T19:12:01.067Z。新operator DB-only sync-health通过完整migration/current、DB非recovery、noUnknownResult=true、workerLeaseHeld=false，0源请求。DB无公网端口，原default internal/ingress标签归属符合；不改网络/daemon/proxy。
+
+原runtime、旧policy/status/latest、原failure.json及cron已完整保全至TASK/preserved-before，manifest SHA256 **7ee401e28a75c41c87e5c86d46d0770e95bbe6e0117e45e5f8dca9bbcd0be6d3**。原executor SHA 2a4d0f89fcfcd08d75986906d887eeac4ead2c103afb79558e053c6bd13d0803保留；通过受锁安装新executor到原私有路径（SHA **9765b3a95131cd685a9b02c21c80123e19a93c900e40b28014959f11cb4e7a27**，1000/600），同目录安装gate并更新旧policy精确pin，check通过。原故障和控制未清。
+
+合并版离线构建：operator **sha256:9fe679cba15927c2c345921ea7b20bae95ca30190a49bb993e9bd70f86fd851b**，app **sha256:6024cb566e6930aa351c9e2fcf86b1a09ee36c7b66a380cbae65818859924085**；buildId staging-material-4a8c9bc2/buildTime 2026-11-18T08:21:33.189Z。均仅构建未切应用。
+
+当前受控部署前备份 **20261118T082150Z-63545d6c** 使用真实新executor、旧实际应用b4fc的准确旧policy；工具session2235仍运行，不重复启动。输出TASK/controlled-predeploy-backup.log。`python3 TASK/install.py inspect-backup`可脱敏查看真实状态/命令事件/DB等待；曾观测snapshot_query=true运行105秒、BufFileWrite/MessageQueueSend。未确定失败，不沿用历史315秒推断。下一步必须先读terminal回执和清理、确认服务恢复。新应用尚未切换、新runtime/cron尚未安装、恢复和两轮自然调度尚未执行。原始容器/镜像/卷均仍在。
+
 分支 `fix/staging-backup-sync-recovery`。已核实main **a915c7a130ddada13118a1d245b41e7999b9d395**；起点24953ec47b523d65bb57094958c61a2a2179ef96。用户授权实现、隔离测试与Draft PR；不merge、不部署、不改真实Staging状态。Refs [Issue153](https://github.com/clearisok/zhixu-erp/issues/153)。
 
 实际采集已替换空recovery_evidence，复用现有迁移/DB/source target检查及worker启动。新executor回执记录进程身份和正向清理证据；监管器持备份锁完成检查及启动。心跳验证与未知结果保护保留。详见[契约/一次性旧故障恢复](ops/ainuoke-catalog-sync-supervisor.md)。
