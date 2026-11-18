@@ -1,4 +1,12 @@
-# 2026-11-18 17:14 北京 Staging 恢复接力
+# 2026-11-18 17:29 北京 Staging 恢复接力
+
+**最新覆盖下方“备份正在运行”时点**：session24948已exit0；新4a备份20261118T091329Z-a0d73b4a于09:24:53.448136Z成功BACKUP_VERIFIED，cleanup全true/服务恢复。TASK/new-backup-verification.py独立核实56文件、143表、11对象、dump2659790990bytes，manifest **2bca43c332b2eaa596593882d05f7a5817a4e14b701ae24695150e15a2e3cd1d**；所有Policy pin/cron/三模块1000:0600/原私有executor更新/原failure不变均PASS。回执TASK/independent-new-release-backup.json。首次09:25分钟tick因executor仍完成收尾而安全阻断，09:25:59真实readonly Recovery Gate九项全true（工具响应）；后续实际只读文件TASK/recovery-gate-after-backup.json。
+
+正常分钟cron09:26:01.792690Z开始恢复，Worker342e3b7d796b81a82f379da631cc793b958fe8faab43fbaa95982fa6468f2c3c于09:26:03.510281077Z启动（唯一，image9fe679…，仅本project default+ingress）；09:27:01.813141Z Supervisor RUNNING/recoveryResult=heartbeat_verified。真实09:27:11.972Z PG heartbeat已观察，admin enabled/无pause。旧OLD STOPPED_FAULT仍未清；新状态保留originalFault以及上次阻断code=backup_cleanup_unverified，该code是保留历史字段，不代表当前gate失败。
+
+自然目录09:26:10.118323Z完成并接纳2新订单，628orders/bindings（原626保留）；next_scan09:56:10.118323Z。09:27:20自然15automatic完成/5running/356queued，无新failed/unknown，原manual1已complete但不得计自然轮，97历史failed仍在；高频260、daily117、weekly185、monthly66，无重复slot/observation，无到期却无pending。TASK/natural-observation.py仅DB READ ONLY+Docker inspect，并用networknone同Workerimage的原syncSchedule纯函数计算计划；不写heartbeat/任务或访问Source。原始私密证据TASK/natural-observations/*private.json，latest-summary.json脱敏汇总。TASK/round-summary.py从第一真实观察固定260高频cohort，每个必须两次automatic root job complete/published；manual占过首个slot的一单会晚半小时，仍继续等，不缩小cohort冒称完成。尚未达2/2。
+
+本机npm run check:release-baseline第一次因继承manifest baseline=a915和新文档缺旧基线锚报BASE_SHA_MISMATCH/STATE_BASELINE_DRIFT，已只读ls-remote核实main仍4a，于docs/release/baseline.json仅前向改baselineSha/verifiedAt，不改冻结证据/截图/UI。修后源码门禁PASS（checkedHead de3c0230，0UI变化）；npm run test:release-baseline仍session45450运行（WindowsCPU密集，未完成不能写PASS）。相关产品测试仍验收head d2的原通过，无产品代码变化不重复跑root/type/build。de3c023023c3a07724ae7599fdabb43bec5ba6bb操作checkpoint已DELIVERED_VERIFIED。当前新Gate须收口文档+manifest commit并标准push一次。
 
 最新用户明确批准正式机制重建app/gateway/objects-tls；此前保留其Container ID的限制被替代，不再待答。其余数据库、objects及全部卷保全/Production禁止规则继续。详细历史操作与精确SHA完整保存在[切版前接力](tasks/completed/2026-11-18-before-stateless-release/AI_HANDOFF.md)，不可按其中旧“待答”限制停止本次已授权工作。
 
