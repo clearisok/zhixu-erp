@@ -6,6 +6,56 @@ not evidence of absence. This module does not itself start a worker.
 """
 import json
 import subprocess
+import os
+from pathlib import Path
+
+
+def process_identity(pid):
+    """Linux PID plus start ticks and boot ID; fail closed on inaccessible proc."""
+    stat = Path('/proc', str(pid), 'stat').read_text()
+    return {'pid': int(pid), 'startTicks': stat[stat.rfind(')') + 2:].split()[19],
+            'bootId': Path('/proc/sys/kernel/random/boot_id').read_text().strip()}
+
+
+def process_exited(identity):
+    try:
+        if (not isinstance(identity, dict) or set(identity) != {'pid', 'startTicks', 'bootId'}
+                or type(identity.get('pid')) is not int or identity['pid'] <= 1
+                or not isinstance(identity['startTicks'], str) or not identity['startTicks'].isdigit()
+                or not isinstance(identity['bootId'], str) or len(identity['bootId']) != 36):
+            return False
+        current = process_identity(identity['pid'])
+        return current != identity
+    except FileNotFoundError:
+        # A missing /proc mount or boot-id file is missing evidence, not proof
+        # that the process exited. Only an absent PID on a readable Linux proc
+        # filesystem establishes that fact.
+        try:
+            boot = Path('/proc/sys/kernel/random/boot_id').read_text().strip()
+            if len(boot) != 36:
+                return False
+            try:
+                os.stat('/proc/' + str(identity['pid']))
+                return False
+            except FileNotFoundError:
+                return True
+        except (OSError, KeyError, TypeError):
+            return False
+        return False
+    except (OSError, ValueError, IndexError, KeyError):
+        return False
+
+
+def process_group_exited(pid):
+    try:
+        if not isinstance(pid, int) or pid <= 1:
+            return False
+        os.killpg(pid, 0)
+        return False
+    except ProcessLookupError:
+        return True
+    except (OSError, ValueError, AttributeError):
+        return False
 
 
 def docker_exec_quiescent(container, *, docker='/usr/bin/docker', run=subprocess.run):

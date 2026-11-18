@@ -88,7 +88,8 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
     if(action==='sync-health'){
       // One read-only snapshot; migrations were checked against the running
       // image's checksums above. This never resolves unknown source outcomes.
-      process.stdout.write(JSON.stringify(await readSyncHealth(pool,cfg.sourceKey,migrationStatus.applied))+'\n');
+      process.stdout.write(JSON.stringify({...await readSyncHealth(pool,cfg.sourceKey,migrationStatus.applied),
+        sourceKey:cfg.sourceKey,targetFingerprint:fingerprint,checkedAt:new Date().toISOString()})+'\n');
       return;
     }
     if(action==='sync-audit-backfill'){

@@ -12,6 +12,12 @@ module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 
 class SupervisorSafety(unittest.TestCase):
+    def test_real_evidence_missing_configuration_is_nonempty_and_denied(self):
+        evidence=module.recovery_evidence({}, {}, None)
+        self.assertTrue(evidence)
+        self.assertIsNotNone(evidence['collectionError'])
+        self.assertFalse(module.recovery_gate_result(evidence)['allowed'])
+
     def test_recovery_gate_blocks_every_unverified_condition(self):
         cfg={'enabled':True,'oldStatusFile':'old','containerName':'worker'}
         good={key:True for key in ('admin_not_paused','backup_process_exited','backup_children_exited',

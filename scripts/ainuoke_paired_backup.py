@@ -13,6 +13,10 @@ import subprocess
 import sys
 import time
 import uuid
+try:
+    from ainuoke_recovery_gate import process_identity, process_group_exited, docker_exec_quiescent
+except ModuleNotFoundError:
+    from scripts.ainuoke_recovery_gate import process_identity, process_group_exited, docker_exec_quiescent
 
 
 class Stop(RuntimeError):
@@ -20,6 +24,27 @@ class Stop(RuntimeError):
 
 COMMAND_EVENTS = []
 CURRENT_STEP = 'initialization'
+
+
+def cleanup_evidence(services, events, services_resumed):
+    """Same positive cleanup sampler for executor receipts and isolated tests."""
+    groups_clear = all(e.get('processGroupExited') is True and
+                       (e.get('pid') is None or process_group_exited(e['pid'])) for e in events)
+    commands_certain = all(not e.get('timedOut') and e.get('errorCode') not in
+                           ('command_killed', 'cleanup_failed') for e in events)
+    execs_clear = bool(services)
+    try:
+        for service in services.values():
+            actual = json.loads(subprocess.run(['docker', 'inspect', service['id']],
+                capture_output=True, text=True, timeout=20, check=True).stdout)[0]
+            if actual.get('Id') != service['id'] or actual.get('Image') != service['image']:
+                execs_clear = False
+            execs_clear = execs_clear and docker_exec_quiescent(service['id'], docker='docker')
+    except (OSError, ValueError, KeyError, IndexError, subprocess.SubprocessError):
+        execs_clear = False
+    return {'schemaVersion': 'weaveops-backup-cleanup.v1', 'commandGroupsExited': groups_clear,
+            'commandsCertain': commands_certain, 'dockerExecQuiescent': execs_clear,
+            'verified': groups_clear and commands_certain and execs_clear and services_resumed is True}
 
 
 def digest(path):
@@ -103,6 +128,7 @@ def execute(args, *, data=None, input_stream=None, output=None, timeout=120):
                 event['errorCode'] = 'cleanup_failed'
         event['finishedAt'] = dt.datetime.now(dt.timezone.utc).isoformat()
         event['durationMs'] = round((time.monotonic() - clock) * 1000)
+        event['processGroupExited'] = process is None or process_group_exited(process.pid)
         COMMAND_EVENTS.append(event)
 
 
@@ -264,6 +290,7 @@ class Backup:
         result = {"contract": "weaveops-paired-backup.v1", "id": name, "project": self.project,
                   "source": self.p["source"], "state": "RUNNING", "startedAt": dt.datetime.now(dt.timezone.utc).isoformat(),
                   "sourceRequests": 0, "businessWrites": 0, "deletedAssets": 0, "snapshotAlgorithm": "row-sha256-multiset-v2"}
+        result['executorProcess'] = process_identity(os.getpid())
         try:
             CURRENT_STEP = 'validate'
             self.validate()
@@ -325,6 +352,10 @@ class Backup:
                     result.update({"state": "FAILED", "resumeCode": "original_services_need_attention", "originalServicesResumed": False})
             result["finishedAt"] = dt.datetime.now(dt.timezone.utc).isoformat()
             result['commandEvents'] = COMMAND_EVENTS.copy()
+            # A terminal failure can still have completed cleanup. Keep this
+            # separate from backup SUCCESS, and never assert cleanup after a
+            # timeout/signal: Docker daemon-owned children may outlive its CLI.
+            result['cleanup'] = cleanup_evidence(self.p['services'], COMMAND_EVENTS, not self.frozen)
             if bundle.exists():
                 if result["state"] == "BACKUP_VERIFIED":
                     result["files"] = {str(p.relative_to(bundle)): {"bytes": p.stat().st_size, "sha256": digest(p)}
