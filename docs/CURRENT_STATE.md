@@ -1,15 +1,13 @@
-# 2026-11-18 16:59 北京时间：Staging 恢复执行状态
+# 2026-11-18 17:14 北京时间：Staging 切版完成，恢复验收进行中
 
-用户已同时授权合并PR154和真实Staging部署、受控备份、安全恢复及两轮自然30分钟验收；禁止Production、伪造状态、清除旧fault/未知结果及强杀Worker。PR154已MERGED，main **4a8c9bc24b00983d0d79150349adeed5a333a237**；tree与验收d2ec945357569a12316704a03c90682dee7f3b06一致。完整CI/1026根测试/182基线/23 Linux/恢复E2E已通过。
+用户已授权合并PR154、真实Staging部署/受控备份/安全恢复及仅重建app、gateway、objects-tls。Production禁止。PR154已MERGED，部署源码 **4a8c9bc24b00983d0d79150349adeed5a333a237**，tree与验收d2ec9453一致；此前1026根测试/182基线/23 Linux/恢复E2E及全部CI通过，产品代码未追加修改。
 
-Staging应用仍 **b4fc85ed**，原五个容器/镜像/卷保留且健康，旧Worker仍停止、旧STOPPED_FAULT/backup_failed_requires_review未清。新4a应用和Worker镜像已离线构建，私有Supervisor/executor/gate及运行配置已准备并通过模型/镜像检查；新cron未安装，业务调度和两轮自然验收尚未开始。
+正式trial.mjs/Compose于17:12:45北京切版完成；三个新容器使用app镜像 **sha256:6024cb566e6930aa351c9e2fcf86b1a09ee36c7b66a380cbae65818859924085**，配置hash/HTTPS/应用及对象存储readiness通过。database和objects原Container ID不变，四个原卷inspect身份及挂载关系相同，旧镜像仍可用。完整旧inspect、展开Compose、配置/环境/证书/密钥及挂载文件私密保存在TASK/stateless-rollback-assets，清单SHA256 **f45c469c0d8e4775df932448fb633d9cbfef43e84487e0a90666a3fca7ca92c4**。未重建数据服务、创建空替代卷或初始化数据库。
 
-真实新executor的两次部署前备份在snapshot步骤300103ms超时，失败包保留，后续遗留查询/exec均已退出。只读执行计划和同快照200行哈希等价对照后，大表替代计划实际完成31782行/141.053秒；仅对Staging的quote_trial角色IN DATABASE quote_trial设置enable_presorted_aggregate=off，原值与精确回滚SQL保存在私密TASK。不改业务SQL、哈希算法、表结构、心跳或调度时间。
+新版Supervisor/executor/gate、真实新容器Policy及分钟cron于17:13安装。迁移仍max0058/57条，无新增迁移。Worker仍停止，旧STOPPED_FAULT及原失败回执保留；切版后97历史failed/1queued/30975complete、626订单/626绑定均在。只读recovery-check因新版本尚无terminal receipt正确拒绝，没有清控制状态或伪造时间。
 
-随后标准备份 **20261118T084308Z-e594db1c** 于16:54:33北京成功，cleanup全部通过；独立核实52文件/143表/11对象、2659790990字节dump，manifest SHA256 **f58426b22c72b62b25ca65aa95a77a12dfbac172b1f0b8d807d8f242d7a3d1e5**。此备份绑定当前旧应用b4fc，不能替代切版后的新版本备份。旧失败字节已独立核实未变。
+新版本受控配对备份 **20261118T091329Z-a0d73b4a** 于17:13:29北京开始，尚未完成。完成后独立验证回执与清理，由正常分钟tick通过门禁启动Worker并验证真实PG心跳，再观察两轮自然30分钟任务；不手工补跑。尚不能宣布自动同步恢复。
 
-当前唯一待答约束：现有正式trial.mjs/Compose会替换app、gateway、objects-tls三个无状态容器，与用户要求保留原容器ID冲突；已在聊天发出具体澄清，尚无回复，故未切应用。新Supervisor正常tick为RECOVERY_BLOCKED/evidenceError=backup_policy_identity_changed，正确拒绝新runtime配旧实际策略；并非管理员暂停（真实adminNotPaused=true）。原fault仍保留，不强行启动。
+部署前旧版本备份20261118T084308Z-e594db1c已独立验证52文件/143表/11对象，不冒充新版本备份。今天前两次snapshot_timeout失败包保留。只读等价验证后，仅Staging quote_trial角色IN DATABASE quote_trial的enable_presorted_aggregate=off使标准快照完成；原值及精确回滚SQL保全并纳入新Policy。无业务数据、heartbeat或last_run_at人工修改。
 
-16:58:51北京核实：迁移max0058、57条已应用记录，完整checksum检查通过；enabled=true/paused=null，30975 complete/97历史failed/1queued，无running/unknown；无Worker租约，旧heartbeat仍2026-11-17 03:12:01.067北京。系统分钟监管cron active，业务Scheduler随Worker未恢复。详细组件SHA、TASK路径、下一步和已完成命令见[AI_HANDOFF](AI_HANDOFF.md)。本次操作记录在chore/staging-recovery-acceptance-20261118分支，不向已验收产品树添加未审代码。
-
-收到容器方式答复后，再执行已准备的正式切版、基于实际新服务身份重建policy/cron、新版本真实配对备份、Supervisor门禁/新心跳及两轮自然周期。备份超过两小时需重新取得真实新备份，不改时间。历史日期/hash/限制完整保留在[实施前状态](tasks/completed/2026-11-18-before-staging-recovery-status/CURRENT_STATE.md)。
+完整SHA和执行恢复点见[AI_HANDOFF](AI_HANDOFF.md)；此前日期/hash/限制完整保存在[切版前归档](tasks/completed/2026-11-18-before-stateless-release/CURRENT_STATE.md)。操作记录分支chore/staging-recovery-acceptance-20261118，不向已验收产品树添加代码。
