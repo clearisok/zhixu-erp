@@ -1,5 +1,19 @@
 # 2026-11-18 恢复证据接线交接
 
+## 最新恢复点：2026-11-18 16:59北京，等待容器保留方式答复
+
+合并与Staging操作两项均已批准，不再申请；仅尚待答复“是否允许正式机制重建app/gateway/objects-tls三个无状态容器”（已发送async选项），因用户同时要求保留原容器ID。**未获该具体澄清前不得运行deploy-app**，不能默认视为允许。当前实际应用/cron仍b4fc、旧Worker停止/旧fault未清，Production未动。
+
+第三次标准预备备份**20261118T084308Z-e594db1c**已在08:54:33.590736Z成功BACKUP_VERIFIED、originalServicesResumed=true、cleanup全部true。独立逐文件验证52文件、143表、11对象，dump **2659790990** bytes，manifest SHA256 **f58426b22c72b62b25ca65aa95a77a12dfbac172b1f0b8d807d8f242d7a3d1e5**，旧原failure.json字节未改；TASK/independent-predeploy-backup.json。此绑定真实当前旧应用b4fc，不是新4a应用备份。session48052/56730均已完成，不重复启动。PG role+database planner=off限定变更仍生效，回滚SQL见下文；没有持久修改其他PG配置。
+
+新runtime已执行正常Supervisor tick，状态**RECOVERY_BLOCKED**，evidenceError=**backup_policy_identity_changed**、originalFault=backup_failed_requires_review；顶层admin_paused_or_unknown来自失败后全false封闭结果，**实际管理员未暂停**。08:57Z真实DB-only新image health全部健康/迁移current/adminNotPaused/noUnknownResult、workerLeaseHeld=false，旧heartbeat未变。08:58:51Z最终hold-observation.json：5个原容器同ID且healthy、ExecIDs全null；schema_migrations count57/max58（不要写58条），30975complete/97历史failed/1queued，无unsafe catalog/capture；cron active但仍旧版，业务scheduler未运行。
+
+Active Supervisor SHA256 **8bad74017308d686fef0a073f58af3810bd06592b6992c793a0da16ab7f3dbd4**；准备的新Supervisor SHA256 **a0109d4fd68b8ff3fe5556f8e3e1b61312396cc9d3eadc8e861a0e6587441676**。新operator/app完整image SHA与executor SHA见下文，均已真实构建/安装/校验。实际旧Worker image仍6c7a0439…、停止；新9fe679…未启动。
+
+TASK/install.py分阶段动作已准备并语法校验：`check-prepared`已PASS（模型只改image/编译元数据/同哈希挂载路径、DB/storage不变；唯一object-bundle旧source路径已重绑）。收到“允许重建三个无状态容器”明确答复后，先复核现场和backup两小时新鲜度；过期就用当前executor/policy重新标准备份。再运行`deploy-app --allow-stateless-recreate`（有fresh backup/no owner/model guards，失败走原trial/compose回滚，不动DB卷）；随后`install-policy-cron`（只改两段原owned cron、从真实新容器重建143表policy并pin全部新组件），用新私有supervisor `--config <new>/supervisor.json --reason '<user approval reference>' backup`做新版本真实备份，保留原故障由正常分钟tick门禁→启动→新心跳。**这些切版/新cron/新版本备份动作尚未执行。**
+
+新policy安装动作已额外pin TASK/planner-setting-before.json、planner-setting-applied.json和planner-setting-rollback.sql，便于恢复时保全该限定GUC；deploy-app另核实独立校验回执的id/manifest与当前备份一致。所有已准备的运行脚本仅在主机TASK；本机对应Temp/weaveops-staging-recovery-install.py。之后等待两轮真实自然调度，读真实audit/catalog/job IDs和时间，不创建/补跑任务，不写heartbeat/last_run、不清暂停/unknown。旧故障记录、2个新失败包、成功包均保留；只保留在宁波私密目录，不上传凭据/原始业务/备份。
+
 ## 已获真实Staging授权，执行中（08:17Z之后）
 
 用户已明确同时授权合并PR154与真实Staging部署/受控备份/安全恢复及两轮自然30分钟验收；不再需要这两项批准。仅Staging，禁止Production、伪造/回填heartbeat或last_run、清旧fault/未知结果、手工补跑自然验收。Worker不正常退出不能SIGKILL。

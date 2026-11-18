@@ -1,15 +1,15 @@
-# 2026-11-18 当前状态
+# 2026-11-18 16:59 北京时间：Staging 恢复执行状态
 
-08:43Z执行状态：用户已明确授权PR154合并及真实Staging部署/备份/安全恢复和两轮自然验收，Production禁止。PR154已MERGED，main **4a8c9bc24b00983d0d79150349adeed5a333a237**，tree与验收d2ec9453一致。Staging应用仍旧b4fc，旧Worker/fault完整保留；新镜像和runtime已准备但未切。真实新executor两次快照300103ms超时、失败包保留；经只读执行计划/哈希等价与全表耗时验证，已限定Staging role+database关闭预排序聚合并保存精确回滚，第三次标准备份进行中。另有“正式机制重建三个无状态容器”与“保留原容器ID”冲突待用户澄清；未收到答复前不切应用。最新现场、工具session和接力见AI_HANDOFF；以下保留本轮操作前的工程阶段事实。
+用户已同时授权合并PR154和真实Staging部署、受控备份、安全恢复及两轮自然30分钟验收；禁止Production、伪造状态、清除旧fault/未知结果及强杀Worker。PR154已MERGED，main **4a8c9bc24b00983d0d79150349adeed5a333a237**；tree与验收d2ec945357569a12316704a03c90682dee7f3b06一致。完整CI/1026根测试/182基线/23 Linux/恢复E2E已通过。
 
-当前任务：Staging 备份失败后的真实恢复证据接线，分支 `fix/staging-backup-sync-recovery`；本次 GitHub API 核实 main 基线 **a915c7a130ddada13118a1d245b41e7999b9d395**。起点 **24953ec47b523d65bb57094958c61a2a2179ef96**，工作树起始干净；保留此前全部调查及工程检查点。用户授权本机实现、隔离测试和 Draft PR，禁止合并/真实部署。关联 [Issue153](https://github.com/clearisok/zhixu-erp/issues/153)。
+Staging应用仍 **b4fc85ed**，原五个容器/镜像/卷保留且健康，旧Worker仍停止、旧STOPPED_FAULT/backup_failed_requires_review未清。新4a应用和Worker镜像已离线构建，私有Supervisor/executor/gate及运行配置已准备并通过模型/镜像检查；新cron未安装，业务调度和两轮自然验收尚未开始。
 
-`recovery_evidence` 已接入身份/hash、executor进程/清理回执/锁、当前Docker exec、DB-only CLI、现有迁移检查、管理员状态、任务未知结果和advisory lease。正常路径不再返回空值；失败返回明确否定。门禁通过后复用原worker启动并等待新PG心跳，失败回执不改。详见[监管及旧故障恢复步骤](ops/ainuoke-catalog-sync-supervisor.md)。
+真实新executor的两次部署前备份在snapshot步骤300103ms超时，失败包保留，后续遗留查询/exec均已退出。只读执行计划和同快照200行哈希等价对照后，大表替代计划实际完成31782行/141.053秒；仅对Staging的quote_trial角色IN DATABASE quote_trial设置enable_presorted_aggregate=off，原值与精确回滚SQL保存在私密TASK。不改业务SQL、哈希算法、表结构、心跳或调度时间。
 
-隔离 Docker/PostgreSQL E2E 已通过真实采集、Worker启动/新心跳/后续到期任务；管理员停用、迁移错误、DB暂停、备份锁/exec占用和未知结果均阻止启动。测试Source用已有合成SDK，不访问真实艾诺科。最终质量检查及Draft交付回执在AI_HANDOFF。没有新migration，没有业务数据回填。
+随后标准备份 **20261118T084308Z-e594db1c** 于16:54:33北京成功，cleanup全部通过；独立核实52文件/143表/11对象、2659790990字节dump，manifest SHA256 **f58426b22c72b62b25ca65aa95a77a12dfbac172b1f0b8d807d8f242d7a3d1e5**。此备份绑定当前旧应用b4fc，不能替代切版后的新版本备份。旧失败字节已独立核实未变。
 
-[Draft PR #154](https://github.com/clearisok/zhixu-erp/pull/154) 进入合并前工程验收。9ca4ec1443d6f7b86ee9db91ab6c4f3671b01046的baseline/team-access已覆盖完整根测试、182项基线、typecheck/lint及构建；source仅在新增Python模块的嵌套工作目录导入失败。修正测试加载路径并纳入gate/backup定向CI；另以失败回归证实并修复“监管器久停后误接纳旧的恢复后心跳”，现在要求最近两分钟内的真实新心跳。最终验收以PR最新HEAD的Actions及同HEAD隔离E2E回执为准，旧提交通过不能替代。PR保持Draft，部署边界不变。
+当前唯一待答约束：现有正式trial.mjs/Compose会替换app、gateway、objects-tls三个无状态容器，与用户要求保留原容器ID冲突；已在聊天发出具体澄清，尚无回复，故未切应用。新Supervisor正常tick为RECOVERY_BLOCKED/evidenceError=backup_policy_identity_changed，正确拒绝新runtime配旧实际策略；并非管理员暂停（真实adminNotPaused=true）。原fault仍保留，不强行启动。
 
-真实Staging仍旧b4fc85ed版本与旧STOPPED_FAULT；旧回执缺新证明，不自动冒认历史清理。部署需另批，按只读recovery-check→审核新配对备份→新证明→正常tick恢复。超时/信号的容器后代不确定仍人工核对，不能宣称所有崩溃自动恢复。生产未操作，两轮真实自然同步未验收。
+16:58:51北京核实：迁移max0058、57条已应用记录，完整checksum检查通过；enabled=true/paused=null，30975 complete/97历史failed/1queued，无running/unknown；无Worker租约，旧heartbeat仍2026-11-17 03:12:01.067北京。系统分钟监管cron active，业务Scheduler随Worker未恢复。详细组件SHA、TASK路径、下一步和已完成命令见[AI_HANDOFF](AI_HANDOFF.md)。本次操作记录在chore/staging-recovery-acceptance-20261118分支，不向已验收产品树添加未审代码。
 
-此前状态及所有原日期/hash/结果/限制完整保存在[11/18前状态](tasks/completed/2026-11-18-before-recovery-evidence/CURRENT_STATE.md)；历史发布与来源审计仍按对应任务证据，不用当前工程通过替代。
+收到容器方式答复后，再执行已准备的正式切版、基于实际新服务身份重建policy/cron、新版本真实配对备份、Supervisor门禁/新心跳及两轮自然周期。备份超过两小时需重新取得真实新备份，不改时间。历史日期/hash/限制完整保留在[实施前状态](tasks/completed/2026-11-18-before-staging-recovery-status/CURRENT_STATE.md)。
