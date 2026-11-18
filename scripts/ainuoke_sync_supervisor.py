@@ -58,7 +58,8 @@ def perform_backup(cfg, root, path, previous):
     began = datetime.now(timezone.utc)
     began_clock = time.monotonic()
     run_id = str(uuid.uuid4())
-    save(path, {'state': 'BACKUP_IN_PROGRESS', 'startedAt': began.isoformat(), 'backupRunId': run_id,
+    save(path, {'state': 'BACKUP_IN_PROGRESS', 'startedAt': began.isoformat(), 'backupBeganAt': began.isoformat(),
+                'backupRunId': run_id, 'originalFault': previous.get('originalFault', previous.get('code')),
                 'previousState': previous, 'sourceRequests': 0})
     code = 'backup_result_unknown'
     exit_code = None
@@ -74,7 +75,7 @@ def perform_backup(cfg, root, path, previous):
         if (result.returncode or receipt.get('state') != 'BACKUP_VERIFIED' or receipt.get('source') != cfg['sourceSha']
                 or receipt.get('project') != cfg['project'] or not receipt.get('originalServicesResumed') or finished < began):
             raise RuntimeError('paired_backup_not_verified')
-        save(path, previous)
+        save(path, {**previous, 'executorBackupId': receipt.get('id'), 'backupBeganAt': began.isoformat()})
         success = True
         return receipt
     except subprocess.TimeoutExpired:

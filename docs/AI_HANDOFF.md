@@ -11,3 +11,5 @@
 本轮工程结果：Python定向22项（Windows21通过/1 POSIX跳过）；Linux定向22/22通过，真实证据E2E在代码提交efb9b251523d00e1310edbf9d4f609a1df8600fe对应镜像通过（55.113秒），含失败回执保留、新worker心跳、后续到期任务及DB/admin/migration/lock/exec/unknown阻断；相关TS/PG/调度10项通过；typecheck、lint、前后端build、diff-check通过。首次源码基线仅因D195与同步契约文档冻结版本未前向登记而失败，待新commit blob登记后重验；182基线回归已启动，结果另记。Draft PR不代表部署。
 
 已对D195与同步审计契约新增前向冻结记录，旧ID/blob/hash均保留。主机Staging仍原样；Git交付仅使用本机及宁波/tmp隔离Git目录，不属于应用部署。Windows交付预检曾在manifest待提交时拒绝dirty，0push；已核实只含本任务18行前向记录并收口后再交付，未清理或覆盖其他改动。
+
+交付前补上中断安全边界：备份在启动子进程前就持久化backupBeganAt，避免监管器与executor同时中断时复用旧terminal回执；新成功备份绑定新executorBackupId。定向测试增加1项（Windows共23项，22通过/1 POSIX跳过）。源码基线前向登记后已PASS（e8e8e75a，0 UI路径变化）；182基线套件仍运行，不假报PASS。宁波标准Dry Run网络超时、0push且无gh；随后本机精确URL级进程proxy空值+HTTP1.1只读核验main成功，准备按相同进程参数运行标准交付工具。未修改共享代理/TLS/认证。

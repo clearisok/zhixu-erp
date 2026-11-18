@@ -18,6 +18,18 @@ class SupervisorSafety(unittest.TestCase):
         self.assertIsNotNone(evidence['collectionError'])
         self.assertFalse(module.recovery_gate_result(evidence)['allowed'])
 
+    def test_backup_intent_binds_start_time_before_any_child_is_started(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory);path=root/'status.json'
+            cfg={'backupCommand':['private-command']}
+            def crash(*args,**kwargs):
+                intent=json.loads(path.read_text())
+                self.assertEqual(intent['backupBeganAt'],intent['startedAt'])
+                self.assertEqual(intent['state'],'BACKUP_IN_PROGRESS')
+                raise subprocess.TimeoutExpired('private-command',1800)
+            with patch.object(module.subprocess,'run',side_effect=crash):
+                with self.assertRaises(subprocess.TimeoutExpired):module.perform_backup(cfg,root,path,{'state':'BACKUP_QUIET'})
+
     def test_recovery_gate_blocks_every_unverified_condition(self):
         cfg={'enabled':True,'oldStatusFile':'old','containerName':'worker'}
         good={key:True for key in ('admin_not_paused','backup_process_exited','backup_children_exited',
