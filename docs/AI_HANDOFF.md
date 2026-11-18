@@ -16,6 +16,16 @@
 
 当前受控部署前备份 **20261118T082150Z-63545d6c** 使用真实新executor、旧实际应用b4fc的准确旧policy；工具session2235仍运行，不重复启动。输出TASK/controlled-predeploy-backup.log。`python3 TASK/install.py inspect-backup`可脱敏查看真实状态/命令事件/DB等待；曾观测snapshot_query=true运行105秒、BufFileWrite/MessageQueueSend。未确定失败，不沿用历史315秒推断。下一步必须先读terminal回执和清理、确认服务恢复。新应用尚未切换、新runtime/cron尚未安装、恢复和两轮自然调度尚未执行。原始容器/镜像/卷均仍在。
 
+08:43Z续接：上述首次备份和独立一次重试**20261118T083009Z-5d484603**均真实snapshot_timeout，snapshot/docker命令均300103ms，原服务恢复、terminal cleanup=false。两个failure.json保留；后续核实所有exec/备份锁已释放且snapshot backend=0，清理记录独立保存，没有改写失败回执。DB实际5,102,246,935 bytes，143表，ainuoke_source_runs约3.58GB；当前运行曾明确观测该表快照90s时BufFileWrite/Read。此为今天新证据，不补造11/17子步骤。
+
+已只读EXPLAIN与同快照200行hash等价验证：PG16 enable_presorted_aggregate=on产生宽行Sort/Gather Merge，off无该节点；off全31782行hash实际完成141.053s（120s首个诊断预算未完成，第二次有界200s完成），SQL/哈希算法未改。08:43:08Z仅对**该Staging集群quote_trial角色IN DATABASE quote_trial**设置enable_presorted_aggregate=off，原override=null/effective=on已保全，回滚SQL `ALTER ROLE quote_trial IN DATABASE quote_trial RESET enable_presorted_aggregate;` 在TASK/planner-setting-rollback.sql。不改系统/Docker/其他库/业务数据或schema；真实标准新备份第三次已启动，session**48052**（log controlled-predeploy-backup-plan-off.log），不得重复启动或将其当已成功。
+
+新runtime/catalog-sync-4a8c9bc2已准备：3个私有Python组件（600/1000）、collector/env/units复制、trial/image/config/identity绑定同4a版本，状态仍精确继承旧fault。Supervisor SHA256 **a0109d4fd68b8ff3fe5556f8e3e1b61312396cc9d3eadc8e861a0e6587441676**。实际新应用未切、cron仍旧；对新runtime recovery-check真实拒绝backup_policy_identity_changed（当前policy绑定旧真实app b4fc，不能伪装新版本）。模型检查已PASS，修正override唯一旧object-bundle挂载到新源码且逐字hash相同；新镜像检查compiled metadata PASS。
+
+**必须保留的待答澄清**：本聊天已用request_user_input_async询问用户是否允许现有trial.mjs:160/Compose正常重建app/gateway/objects-tls三个无状态容器（数据容器/卷不变），因为用户本轮另要求保留原容器ID，而正式机制会替换三个ID。尚无回复，不能把两项已获授权或等待时间当成对此冲突的回答；不能执行app切换。TASK/install.py已准备但未执行deploy-app（另需明确`--allow-stateless-recreate`）和install-policy-cron动作。两项合并/部署本身已批准，不重复申请。
+
+当前Git操作记录branch前checkpoint6703ac8de73645ba7c4083b28c7da4400580352b已标准push精确核实。授权/merge/两次新失败与边界已回链Issue153评论6973386118。继续先等第三次真实备份terminal，核实清理/manifest/服务；只在用户澄清允许无状态重建后再按准备动作切应用、重建真实服务policy/安装实际新cron、用新Supervisor带review reason受控新版本备份、正常cron门禁/心跳恢复及两轮自然周期。未知任务/管理员暂停/清理不明仍阻断，绝不SIGKILL Worker。
+
 分支 `fix/staging-backup-sync-recovery`。已核实main **a915c7a130ddada13118a1d245b41e7999b9d395**；起点24953ec47b523d65bb57094958c61a2a2179ef96。用户授权实现、隔离测试与Draft PR；不merge、不部署、不改真实Staging状态。Refs [Issue153](https://github.com/clearisok/zhixu-erp/issues/153)。
 
 实际采集已替换空recovery_evidence，复用现有迁移/DB/source target检查及worker启动。新executor回执记录进程身份和正向清理证据；监管器持备份锁完成检查及启动。心跳验证与未知结果保护保留。详见[契约/一次性旧故障恢复](ops/ainuoke-catalog-sync-supervisor.md)。
