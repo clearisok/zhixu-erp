@@ -1,3 +1,5 @@
+# 2026-11-18 Staging 备份与同步调查恢复点当前分支 `fix/staging-backup-sync-recovery`，经宁波 Git 只读核实 main 完整基线 `a915c7a130ddada13118a1d245b41e7999b9d395`；本机 Git 代理连接失败，NETWORK_DEGRADED。11/17 备份失败导致 sticky supervisor fault、worker 停止；准确子命令尚未证明，系统日志无权限。证据和后续安全约束见 [调查记录](tasks/active/staging-backup-sync-investigation-2026-11-18.md)。用户已授权本机修复、测试、PR，未授权合并或部署。实际备份执行器为部署主机私有文件，不在仓库；不可凭修改监管器单独宣称完成。未知结果不得盲目重试。未操作 Staging 状态或数据，未完成自然周期验收。
+
 # 当前：产品需求管理配置与 Project 实测完成，配置 PR 待用户审阅
 
 2026-11-17基线main **b4fc85ed0ac09ad45db8959257a9b2d840abba26**，工作树 product-management-workflow/zhixu-ainuoke-api，分支 chore/product-management-workflow。先读 [接入审计](product-management/AUDIT-2026-11-17.md) 和 [产品生命周期](product-management/WORKFLOW.md)。只做管理基础设施；不继续下方历史部署任务。旧本地文档分支6c2d5535保留，不合入本轮。
