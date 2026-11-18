@@ -13,3 +13,7 @@
 已对D195与同步审计契约新增前向冻结记录，旧ID/blob/hash均保留。主机Staging仍原样；Git交付仅使用本机及宁波/tmp隔离Git目录，不属于应用部署。Windows交付预检曾在manifest待提交时拒绝dirty，0push；已核实只含本任务18行前向记录并收口后再交付，未清理或覆盖其他改动。
 
 交付前补上中断安全边界：备份在启动子进程前就持久化backupBeganAt，避免监管器与executor同时中断时复用旧terminal回执；新成功备份绑定新executorBackupId。定向测试增加1项（Windows共23项，22通过/1 POSIX跳过）。源码基线前向登记后已PASS（e8e8e75a，0 UI路径变化）；182基线套件仍运行，不假报PASS。宁波标准Dry Run网络超时、0push且无gh；随后本机精确URL级进程proxy空值+HTTP1.1只读核验main成功，准备按相同进程参数运行标准交付工具。未修改共享代理/TLS/认证。
+
+最终交付回执：代码提交 **cd87ec868ff58619a1a305f85e1495c0624e90ce** 的Linux定向测试23/23通过；同SHA镜像真实Docker/PostgreSQL恢复E2E通过（54.083秒），未mock recovery_evidence。标准git-delivery以进程级代理覆盖执行，实际push一次，独立GitHub API核实exact SHA，结果DELIVERED_VERIFIED；这不代表共享网络配置已修复。已创建并核实[Draft PR #154](https://github.com/clearisok/zhixu-erp/pull/154)：OPEN、Draft、未合并，包含所有既有检查点。随后仅收口本交付记录。
+
+长回归收口：最终HEAD源码门禁重复运行及完整`npm run test:release-baseline`均未取得可核实的完成结果，已中断，不计PASS；保留此前e8e8e75a源码门禁PASS，完整基线回归及根npm test仍待完成。PR须明确这些限制。Staging/Production未部署、真实业务状态未改，两轮自然30分钟同步未执行。后续仅经用户批准才部署匹配组件、执行文档中的旧故障安全核验。
