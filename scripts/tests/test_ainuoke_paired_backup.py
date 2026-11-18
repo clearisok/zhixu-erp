@@ -8,7 +8,8 @@ from unittest.mock import patch
 
 spec = importlib.util.spec_from_file_location('paired_backup', Path(__file__).parents[1] / 'ainuoke_paired_backup.py')
 backup = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(backup)
+with patch.object(sys, 'path', [str(Path(__file__).resolve().parents[1]), *sys.path]):
+    spec.loader.exec_module(backup)
 
 
 class BackupCommandTests(unittest.TestCase):

@@ -17,3 +17,11 @@
 最终交付回执：代码提交 **cd87ec868ff58619a1a305f85e1495c0624e90ce** 的Linux定向测试23/23通过；同SHA镜像真实Docker/PostgreSQL恢复E2E通过（54.083秒），未mock recovery_evidence。标准git-delivery以进程级代理覆盖执行，实际push一次，独立GitHub API核实exact SHA，结果DELIVERED_VERIFIED；这不代表共享网络配置已修复。已创建并核实[Draft PR #154](https://github.com/clearisok/zhixu-erp/pull/154)：OPEN、Draft、未合并，包含所有既有检查点。随后仅收口本交付记录。
 
 长回归收口：最终HEAD源码门禁重复运行及完整`npm run test:release-baseline`均未取得可核实的完成结果，已中断，不计PASS；保留此前e8e8e75a源码门禁PASS，完整基线回归及根npm test仍待完成。PR须明确这些限制。Staging/Production未部署、真实业务状态未改，两轮自然30分钟同步未执行。后续仅经用户批准才部署匹配组件、执行文档中的旧故障安全核验。
+
+## PR154 工程验收续接（2026-11-18）
+
+本Phase起始branch为fix/staging-backup-sync-recovery、HEAD为9ca4ec1443d6f7b86ee9db91ab6c4f3671b01046、工作树干净；GitHub main仍为a915c7a130ddada13118a1d245b41e7999b9d395。用户仅授权验收及本PR缺陷修复，不merge、不部署、不改真实DB/fault、不调用真实艾诺科故障测试。
+
+起点Actions已经补齐上段长回归缺项：[baseline](https://github.com/clearisok/zhixu-erp/actions/runs/44254344961)通过182项基线及源码门禁；[team-access](https://github.com/clearisok/zhixu-erp/actions/runs/44254344528)通过根npm test、typecheck、lint、server/default-browser/server-session构建。[source](https://github.com/clearisok/zhixu-erp/actions/runs/44254344503)仅末步Python discovery失败，具体是tools/ainuoke-bridge cwd下动态加载supervisor无法找到ainuoke_recovery_gate；其他SQL/API、候选构建及Chromium步骤已过。不重跑本机相同大套件，修复后的最终结果必须取最新HEAD对应的新Actions。
+
+窄修复：两个动态加载测试在加载时临时加入实际scripts目录，保持生产import和全局sys.path不变；source CI补跑已有gate/paired-backup测试。审查门禁/清理/心跳/未知结果/旧故障流程时，增加旧心跳回归，先在Linux复现RUNNING误判，再给新心跳增加与既有恢复窗口一致的两分钟时效约束；Linux原CI嵌套cwd下16项supervisor已通过，另gate2项/backup5项通过。无调度/业务规则/迁移变化。最终HEAD、完整Actions与隔离E2E证据记录在同一Draft PR的Validation，等待用户批准后才能进入部署准备。

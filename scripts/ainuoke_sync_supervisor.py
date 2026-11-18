@@ -361,8 +361,9 @@ def recovery_heartbeat_is_fresh(evidence, state):
     try:
         heartbeat = datetime.fromisoformat(evidence['heartbeatAt'].replace('Z', '+00:00'))
         started = datetime.fromisoformat(state['recoveryStartedAt'].replace('Z', '+00:00'))
+        now = datetime.now(timezone.utc)
         return (heartbeat.tzinfo is not None and started.tzinfo is not None and heartbeat > started
-                and heartbeat <= datetime.now(timezone.utc) + timedelta(seconds=5))
+                and now - timedelta(minutes=2) <= heartbeat <= now + timedelta(seconds=5))
     except (KeyError, TypeError, ValueError):
         return False
 

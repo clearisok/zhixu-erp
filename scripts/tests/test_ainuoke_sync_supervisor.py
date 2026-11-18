@@ -5,11 +5,15 @@ import unittest
 import tempfile
 import subprocess
 import json
+import sys
 from unittest.mock import patch
 
 spec = importlib.util.spec_from_file_location('source_supervisor', Path(__file__).parents[1] / 'ainuoke_sync_supervisor.py')
 module = importlib.util.module_from_spec(spec)
-spec.loader.exec_module(module)
+# The CI discovery command runs from tools/ainuoke-bridge. Loading a file
+# explicitly does not add its sibling modules to Python's search path.
+with patch.object(sys, 'path', [str(Path(__file__).resolve().parents[1]), *sys.path]):
+    spec.loader.exec_module(module)
 
 class SupervisorSafety(unittest.TestCase):
     def test_real_evidence_missing_configuration_is_nonempty_and_denied(self):
@@ -45,13 +49,16 @@ class SupervisorSafety(unittest.TestCase):
                 self.assertEqual(result['originalFault'],'backup_failed_requires_review')
                 start.assert_not_called()
 
-    def test_recovery_timeout_does_not_restart_again(self):
+    def test_recovery_timeout_rejects_stale_post_start_heartbeat_without_restarting(self):
         cfg={'enabled':True,'oldStatusFile':'old','containerName':'worker'}
         evidence={key:True for key in ('admin_not_paused','backup_process_exited','backup_children_exited',
                   'docker_exec_quiescent','backup_lock_released','database_healthy','migrations_current',
                   'no_unknown_result','worker_exclusivity_verified')}
         state={'state':'RECOVERING','recoveryStartedAt':'2020-01-01T00:00:00+00:00',
                'recoveryDeadline':'2020-01-01T00:02:00+00:00'}
+        # A supervisor restarted much later must not promote an old heartbeat
+        # merely because it happened after the original recovery start.
+        evidence['heartbeatAt']='2020-01-01T00:00:30+00:00'
         with patch.object(module,'private_json',return_value={'state':'PAUSED'}), \
              patch.object(module,'recovery_evidence',return_value=evidence), \
              patch.object(module,'inspect_owned',return_value={'State':{'Running':True}}), \
