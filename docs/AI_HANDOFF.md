@@ -1,4 +1,8 @@
-# 2026-11-18 Staging 备份与同步调查恢复点当前分支 `fix/staging-backup-sync-recovery`，经宁波 Git 只读核实 main 完整基线 `a915c7a130ddada13118a1d245b41e7999b9d395`；本机 Git 代理连接失败，NETWORK_DEGRADED。11/17 备份失败导致 sticky supervisor fault、worker 停止；准确子命令尚未证明，系统日志无权限。证据和后续安全约束见 [调查记录](tasks/active/staging-backup-sync-investigation-2026-11-18.md)。用户已授权本机修复、测试、PR，未授权合并或部署。实际备份执行器为部署主机私有文件，不在仓库；不可凭修改监管器单独宣称完成。未知结果不得盲目重试。未操作 Staging 状态或数据，未完成自然周期验收。
+# 2026-11-18 Staging 备份与同步调查恢复点
+
+后续工程尚未完成：已增加备份执行器级脱敏失败回执及中断恢复阻塞检查，不能自动恢复；仍缺可靠子进程清理、数据库/迁移/管理员核验、告警、自动重试和 Worker 安全恢复。不得作为修复发布。详见 [监管契约](ops/ainuoke-catalog-sync-supervisor.md)。
+
+当前分支 `fix/staging-backup-sync-recovery`，经宁波 Git 只读核实 main 完整基线 `a915c7a130ddada13118a1d245b41e7999b9d395`；本机 Git 代理连接失败，NETWORK_DEGRADED。11/17 备份失败导致 sticky supervisor fault、worker 停止；准确子命令尚未证明，系统日志无权限。证据和后续安全约束见 [调查记录](tasks/active/staging-backup-sync-investigation-2026-11-18.md)。用户已授权本机修复、测试、PR，未授权合并或部署。实际备份执行器为部署主机私有文件，不在仓库；不可凭修改监管器单独宣称完成。未知结果不得盲目重试。未操作 Staging 状态或数据，未完成自然周期验收。
 
 # 当前：产品需求管理配置与 Project 实测完成，配置 PR 待用户审阅
 

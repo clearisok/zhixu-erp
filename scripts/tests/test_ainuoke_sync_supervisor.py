@@ -2,6 +2,9 @@ import importlib.util
 from datetime import datetime, timezone
 from pathlib import Path
 import unittest
+import tempfile
+import subprocess
+import json
 from unittest.mock import patch
 
 spec = importlib.util.spec_from_file_location('source_supervisor', Path(__file__).parents[1] / 'ainuoke_sync_supervisor.py')
@@ -9,6 +12,51 @@ module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 
 class SupervisorSafety(unittest.TestCase):
+    def test_failed_backup_retains_redacted_receipt_and_reconciles_without_starting(self):
+        cfg={'backupCommand':['private-command'], 'backupStatusFile':'backup', 'sourceSha':'candidate',
+             'project':'trial', 'enabled':True, 'oldStatusFile':'old', 'containerName':'worker'}
+        with tempfile.TemporaryDirectory() as directory:
+            root=Path(directory)
+            with patch.object(module.subprocess,'run',side_effect=subprocess.TimeoutExpired('secret-command',1800)):
+                with self.assertRaises(subprocess.TimeoutExpired):
+                    module.perform_backup(cfg,root,root/'status.json',{'state':'BACKUP_QUIET'})
+            state=json.loads((root/'status.json').read_text())
+            record=json.loads(next(root.glob('backup-attempt-*.json')).read_text())
+            self.assertEqual(record['errorCode'],'command_timeout')
+            self.assertTrue(record['timedOut'])
+            self.assertNotIn('secret-command',json.dumps(record))
+            with patch.object(module,'inspect_owned',return_value={'State':{'Running':False}}), \
+                 patch.object(module,'private_json',return_value={'state':'PAUSED'}), \
+                 patch.object(module,'command') as start:
+                reconciled=module.tick(cfg,root,state)
+            self.assertEqual(reconciled['state'],'RECOVERY_BLOCKED')
+            self.assertEqual(reconciled['recoveryAttemptCount'],1)
+            start.assert_not_called()
+
+    def test_failed_backup_distinguishes_start_and_exit_without_recording_output(self):
+        cfg={'backupCommand':['private-command'], 'backupStatusFile':'backup', 'sourceSha':'candidate','project':'trial'}
+        for outcome,expected in [(OSError('secret'),'command_start_failed'),
+                                 (subprocess.CompletedProcess([],7,'secret','secret'),'command_exit_nonzero')]:
+            with self.subTest(expected=expected), tempfile.TemporaryDirectory() as directory:
+                root=Path(directory)
+                with patch.object(module.subprocess,'run',side_effect=outcome if isinstance(outcome,Exception) else None,
+                                  return_value=outcome), patch.object(module,'private_json',return_value={}):
+                    with self.assertRaises((RuntimeError,OSError)):
+                        module.perform_backup(cfg,root,root/'status.json',{'state':'BACKUP_QUIET'})
+                record=json.loads(next(root.glob('backup-attempt-*.json')).read_text())
+                self.assertEqual(record['errorCode'],expected)
+                self.assertNotIn('secret',json.dumps(record))
+
+    def test_interrupted_backup_reconciliation_respects_admin_disable(self):
+        cfg={'enabled':False,'oldStatusFile':'old','containerName':'worker'}
+        state={'state':'BACKUP_IN_PROGRESS','backupRunId':'interrupted'}
+        with patch.object(module,'inspect_owned',return_value={'State':{'Running':False}}), \
+             patch.object(module,'private_json',return_value={'state':'PAUSED'}), \
+             patch.object(module,'command') as start:
+            result=module.tick(cfg,Path('private'),state)
+        self.assertEqual(result['state'],'DISABLED')
+        start.assert_not_called()
+
     def test_egress_is_limited_to_the_same_owned_staging_project(self):
         cfg={'project':'trial','network':'trial_default','egressNetwork':'trial_ingress'}
         self.assertEqual(module.worker_networks(cfg),['trial_default','trial_ingress'])

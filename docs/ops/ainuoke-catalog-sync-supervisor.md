@@ -1,5 +1,11 @@
 # 宁波合同分档同步监管
 
+## 2026-11-18 未完成的恢复候选
+
+本机候选对新发备份失败写入独立脱敏 `weaveops-backup-attempt.v1` 回执，区分执行器启动失败、超时、非零退出及信号；不记录原始命令、stdout 或 stderr。备份中断或失败后标记 `RECOVERY_BLOCKED / backup_cleanup_unverified`，下次 tick 记录检查时间及次数，不启动 worker。现有成功备份流程保持。此状态仅提供安全阻塞，并未实现安全条件通过后的自动恢复、告警、重试、数据库核验或子进程回收；历史 `STOPPED_FAULT` 也不会自动解除。不得据此部署或宣称事故已修复。
+
+实际 Staging 私有执行器路径为 `runtime/catalog-sync-b4fc85ed/paired-backup.py`，由主管理器以 Python 和私有 policy 调用；文件 SHA256 `2a4d0f89fcfcd08d75986906d887eeac4ead2c103afb79558e053c6bd13d0803`，现场用户具写权限，但用户未授权部署，未修改。其步骤级错误诊断和可靠子进程生命周期证明仍需在后续实现与发布中解决。未知远端结果继续保留原人工核对保护。
+
 源码：`scripts/ainuoke_sync_supervisor.py`；审批及当前候选/真实结果见[执行报告](../tasks/active/ainuoke-sync-resilience-2026-11-04.md)。这是现有同步CLI的薄监管器，不新增采集、登录、订单或日志系统。默认不安装/激活；认证暂停未澄清时禁止上线。
 
 ## 私密配置与身份

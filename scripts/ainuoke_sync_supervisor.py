@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import time
 import uuid
 
 BEIJING = timezone(timedelta(hours=8))
@@ -47,26 +48,54 @@ def backup_due(state, running, receipt, source, project, now):
 
 def perform_backup(cfg, root, path, previous):
     began = datetime.now(timezone.utc)
-    save(path, {'state': 'BACKUP_IN_PROGRESS', 'startedAt': began.isoformat(), 'sourceRequests': 0})
+    began_clock = time.monotonic()
+    run_id = str(uuid.uuid4())
+    save(path, {'state': 'BACKUP_IN_PROGRESS', 'startedAt': began.isoformat(), 'backupRunId': run_id,
+                'previousState': previous, 'sourceRequests': 0})
+    code = 'backup_result_unknown'
+    exit_code = None
+    success = False
     try:
         result = subprocess.run(cfg['backupCommand'], capture_output=True, text=True, timeout=1800)
-        output = root / ('backup-' + uuid.uuid4().hex + '.log')
-        output.write_text(result.stdout + result.stderr)
-        os.chmod(output, 0o600)
+        exit_code = result.returncode
+        code = 'command_killed' if exit_code < 0 else 'command_exit_nonzero' if exit_code else 'backup_receipt_invalid'
+        if exit_code:
+            raise RuntimeError(code)
         receipt = private_json(cfg['backupStatusFile'])
         finished = datetime.fromisoformat(receipt['finishedAt'].replace('Z', '+00:00'))
         if (result.returncode or receipt.get('state') != 'BACKUP_VERIFIED' or receipt.get('source') != cfg['sourceSha']
                 or receipt.get('project') != cfg['project'] or not receipt.get('originalServicesResumed') or finished < began):
             raise RuntimeError('paired_backup_not_verified')
         save(path, previous)
+        success = True
         return receipt
-    except Exception:
-        save(path, {'state': 'STOPPED_FAULT', 'code': 'backup_failed_requires_review', 'sourceRequests': 0})
+    except subprocess.TimeoutExpired:
+        code = 'command_timeout'
         raise
+    except OSError:
+        code = 'command_start_failed'
+        raise
+    finally:
+        # A durable, separate receipt must not contain command arguments, stdout,
+        # stderr, credentials or customer data. Subprocess termination is not
+        # evidence that grandchildren, including docker exec, have stopped.
+        if not success:
+            finished = datetime.now(timezone.utc)
+            record = {'schemaVersion': 'weaveops-backup-attempt.v1', 'backupRunId': run_id,
+                      'startedAt': began.isoformat(), 'finishedAt': finished.isoformat(),
+                      'durationMs': round((time.monotonic() - began_clock) * 1000),
+                      'step': 'backup_executor', 'errorCode': code, 'exitCode': exit_code,
+                      'terminationSignal': -exit_code if exit_code is not None and exit_code < 0 else None,
+                      'timedOut': code == 'command_timeout', 'recoveryStatus': 'RECOVERY_BLOCKED'}
+            save(root / ('backup-attempt-' + run_id + '.json'), record)
+            save(path, {'state': 'RECOVERY_BLOCKED', 'code': 'backup_cleanup_unverified',
+                        'backupRunId': run_id, 'blockedAt': finished.isoformat(),
+                        'lastCheckAt': finished.isoformat(), 'nextCheckAt': (finished + timedelta(minutes=5)).isoformat(),
+                        'recoveryAttemptCount': 0, 'sourceRequests': 0})
 
 
 def decision(state, running, now, backup_ok=False):
-    if state in ('DISABLED', 'STOPPED_FAULT', 'BACKUP_IN_PROGRESS'):
+    if state in ('DISABLED', 'STOPPED_FAULT', 'BACKUP_IN_PROGRESS', 'RECOVERY_BLOCKED'):
         return 'wait'
     if quiet_window(now):
         if running:
@@ -152,6 +181,14 @@ def tick(cfg, root, state):
         if running:
             command([DOCKER, 'kill', '--signal=TERM', cfg['containerName']])
         return {'state': 'DISABLED', 'sourceRequests': 0}
+    if state.get('state') in ('RECOVERY_BLOCKED', 'BACKUP_IN_PROGRESS'):
+        # Reconciliation records its continued blockage, but cannot infer that
+        # the legacy executor's descendants or DB-side operations have ended.
+        # No worker may be started without a future verified cleanup contract.
+        return {**state, 'state': 'RECOVERY_BLOCKED', 'code': 'backup_cleanup_unverified',
+                'blockedAt': state.get('blockedAt', now.isoformat()), 'lastCheckAt': now.isoformat(),
+                'nextCheckAt': (now + timedelta(minutes=5)).isoformat(),
+                'recoveryAttemptCount': state.get('recoveryAttemptCount', 0) + 1, 'sourceRequests': 0}
     receipt = private_json(cfg['backupStatusFile'])
     if backup_due(state, running, receipt, cfg['sourceSha'], cfg['project'], now):
         receipt = perform_backup(cfg, root, root / 'status.json', state)
