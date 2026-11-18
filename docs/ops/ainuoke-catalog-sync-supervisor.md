@@ -2,6 +2,8 @@
 
 ## 2026-11-18 未完成的恢复候选
 
+最新监管器已接入 fail-closed 状态转换：历史备份故障及中断状态可进入门禁，通过后复用原容器启动并等待新心跳；失败启动先持久化失败意图，避免反复盲启。仅模拟测试注入了通过证据。真实 `recovery_evidence` 目前返回空证据，尚未对接可信清理证明与 `--sync-health`，所以不会自动放行；这不是恢复闭环，不能发布为修复。
+
 后续新增只读 `--sync-health` CLI：仍校验现有 target fingerprint 和完整 migration checksum，报告 PostgreSQL 是否处于恢复模式、0058、enabled/paused、运行中或未知任务及 capture。它只是恢复证据之一，不证明数据库无损坏、不持有 worker 锁，也不启动任何任务。`scripts/ainuoke_recovery_gate.py` 对每项缺失证据 fail closed；Docker exec 列表检查仅是一个必要条件，不能证明已退出 exec 产生的后台后代也已退出。模块尚未接入主管理器，故自动恢复仍未实现，不能部署或标为闭环。
 
 后续仓库新增 `scripts/ainuoke_paired_backup.py` 候选，基于下列现场固定版本；新增命令步骤、耗时、退出和脱敏输出标记，以及 POSIX 子进程组超时终止。此候选未安装、未连接监管器，不能证明 Docker daemon 内 exec 子进程退出，不能作为 cleanup verified 放行。需完成数据库后端/容器 exec 状态核验、执行器中断恢复、监管器门禁及心跳和端到端回归，才能交付真实恢复；脚本中无私密 policy 或业务备份。目标现场原文件由 cron 引用，修改原路径即生效，按本轮禁止 Staging 部署的约束保持原状；部署须重新校验文件与备份 policy 的 pin 和回滚方案。

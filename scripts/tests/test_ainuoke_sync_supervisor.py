@@ -12,6 +12,65 @@ module = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(module)
 
 class SupervisorSafety(unittest.TestCase):
+    def test_recovery_gate_blocks_every_unverified_condition(self):
+        cfg={'enabled':True,'oldStatusFile':'old','containerName':'worker'}
+        good={key:True for key in ('admin_not_paused','backup_process_exited','backup_children_exited',
+              'docker_exec_quiescent','backup_lock_released','database_healthy','migrations_current',
+              'no_unknown_result','worker_exclusivity_verified')}
+        for key in good:
+            with self.subTest(key=key), patch.object(module,'private_json',return_value={'state':'PAUSED'}), \
+                 patch.object(module,'recovery_evidence',return_value={**good,key:False}), \
+                 patch.object(module,'inspect_owned',return_value={'State':{'Running':False}}), \
+                 patch.object(module,'quiet_window',return_value=False), patch.object(module,'command') as start:
+                result=module.tick(cfg,Path('private'),{'state':'STOPPED_FAULT','code':'backup_failed_requires_review'})
+                self.assertEqual(result['state'],'RECOVERY_BLOCKED')
+                self.assertEqual(result['originalFault'],'backup_failed_requires_review')
+                start.assert_not_called()
+
+    def test_recovery_timeout_does_not_restart_again(self):
+        cfg={'enabled':True,'oldStatusFile':'old','containerName':'worker'}
+        evidence={key:True for key in ('admin_not_paused','backup_process_exited','backup_children_exited',
+                  'docker_exec_quiescent','backup_lock_released','database_healthy','migrations_current',
+                  'no_unknown_result','worker_exclusivity_verified')}
+        state={'state':'RECOVERING','recoveryStartedAt':'2020-01-01T00:00:00+00:00',
+               'recoveryDeadline':'2020-01-01T00:02:00+00:00'}
+        with patch.object(module,'private_json',return_value={'state':'PAUSED'}), \
+             patch.object(module,'recovery_evidence',return_value=evidence), \
+             patch.object(module,'inspect_owned',return_value={'State':{'Running':True}}), \
+             patch.object(module,'quiet_window',return_value=False), patch.object(module,'command') as start:
+            result=module.tick(cfg,Path('private'),state)
+        self.assertEqual(result['state'],'RECOVERY_FAILED')
+        start.assert_not_called()
+
+    def test_recovery_simulation_waits_for_new_heartbeat_and_preserves_fault(self):
+        class Clock(datetime):
+            current='2026-11-05T04:00:00+08:00'
+            @classmethod
+            def now(cls, tz=None):
+                return cls.fromisoformat(cls.current).astimezone(tz)
+        cfg={'enabled':True,'oldStatusFile':'old','containerName':'worker','sourceSha':'candidate',
+             'project':'trial','backupStatusFile':'backup'}
+        evidence={key:True for key in ('admin_not_paused','backup_process_exited','backup_children_exited',
+                  'docker_exec_quiescent','backup_lock_released','database_healthy','migrations_current',
+                  'no_unknown_result','worker_exclusivity_verified')}
+        state={'state':'STOPPED_FAULT','code':'backup_failed_requires_review'}
+        with patch.object(module,'datetime',Clock), patch.object(module,'private_json',side_effect=lambda p: {'state':'PAUSED'} if p=='old' else {}), \
+             patch.object(module,'recovery_evidence',return_value=evidence), patch.object(module,'command') as start, patch.object(module,'save'), \
+             patch.object(module,'inspect_owned',return_value={'State':{'Running':False}}):
+            state=module.tick(cfg,Path('private'),state)
+        self.assertEqual(state['state'],'RECOVERING')
+        self.assertEqual(state['originalFault'],'backup_failed_requires_review')
+        start.assert_called_once_with([module.DOCKER,'start','worker'])
+        Clock.current='2026-11-05T04:01:00+08:00'
+        evidence['heartbeatAt']='2026-11-05T04:00:30+08:00'
+        with patch.object(module,'datetime',Clock), patch.object(module,'private_json',return_value={'state':'PAUSED'}), \
+             patch.object(module,'recovery_evidence',return_value=evidence), patch.object(module,'command') as start, \
+             patch.object(module,'inspect_owned',return_value={'State':{'Running':True}}):
+            state=module.tick(cfg,Path('private'),state)
+        self.assertEqual(state['state'],'RUNNING')
+        self.assertEqual(state['recoveryResult'],'heartbeat_verified')
+        start.assert_not_called()
+
     def test_failed_backup_retains_redacted_receipt_and_reconciles_without_starting(self):
         cfg={'backupCommand':['private-command'], 'backupStatusFile':'backup', 'sourceSha':'candidate',
              'project':'trial', 'enabled':True, 'oldStatusFile':'old', 'containerName':'worker'}

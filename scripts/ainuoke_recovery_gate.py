@@ -49,3 +49,13 @@ def can_recover_sync_worker(evidence):
         if evidence.get(key) is not True:
             return reason
     return None
+
+
+def recovery_gate_result(evidence):
+    reason = can_recover_sync_worker(evidence)
+    value = evidence if isinstance(evidence, dict) else {}
+    return {'allowed': reason is None, 'reason': reason or 'all_recovery_checks_passed',
+            'checks': {key: value.get(key) is True for key in (
+                'admin_not_paused', 'backup_process_exited', 'backup_children_exited',
+                'docker_exec_quiescent', 'backup_lock_released', 'database_healthy',
+                'migrations_current', 'no_unknown_result', 'worker_exclusivity_verified')}}

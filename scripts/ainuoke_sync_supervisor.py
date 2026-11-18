@@ -12,6 +12,10 @@ import re
 import subprocess
 import time
 import uuid
+try:
+    from ainuoke_recovery_gate import recovery_gate_result
+except ModuleNotFoundError:
+    from scripts.ainuoke_recovery_gate import recovery_gate_result
 
 BEIJING = timezone(timedelta(hours=8))
 DOCKER = '/usr/bin/docker'
@@ -95,7 +99,7 @@ def perform_backup(cfg, root, path, previous):
 
 
 def decision(state, running, now, backup_ok=False):
-    if state in ('DISABLED', 'STOPPED_FAULT', 'BACKUP_IN_PROGRESS', 'RECOVERY_BLOCKED'):
+    if state in ('DISABLED', 'STOPPED_FAULT', 'BACKUP_IN_PROGRESS', 'RECOVERY_BLOCKED', 'RECOVERY_FAILED'):
         return 'wait'
     if quiet_window(now):
         if running:
@@ -168,6 +172,24 @@ def inspect_owned(cfg):
         raise RuntimeError('worker_identity_changed')
     return info
 
+
+def recovery_evidence(cfg, state, worker):
+    """Fail closed until the trusted cleanup and DB probes are installed.
+
+    Never derive positive cleanup evidence merely from a process exit code or
+    an empty Docker ExecIDs list: detached container children may survive.
+    """
+    return {}
+
+
+def recovery_heartbeat_is_fresh(evidence, state):
+    try:
+        heartbeat = datetime.fromisoformat(evidence['heartbeatAt'].replace('Z', '+00:00'))
+        started = datetime.fromisoformat(state['recoveryStartedAt'].replace('Z', '+00:00'))
+        return heartbeat.tzinfo is not None and started.tzinfo is not None and heartbeat > started
+    except (KeyError, TypeError, ValueError):
+        return False
+
 def tick(cfg, root, state):
     now = datetime.now(timezone.utc)
     worker = inspect_owned(cfg)
@@ -181,14 +203,44 @@ def tick(cfg, root, state):
         if running:
             command([DOCKER, 'kill', '--signal=TERM', cfg['containerName']])
         return {'state': 'DISABLED', 'sourceRequests': 0}
-    if state.get('state') in ('RECOVERY_BLOCKED', 'BACKUP_IN_PROGRESS'):
-        # Reconciliation records its continued blockage, but cannot infer that
-        # the legacy executor's descendants or DB-side operations have ended.
-        # No worker may be started without a future verified cleanup contract.
-        return {**state, 'state': 'RECOVERY_BLOCKED', 'code': 'backup_cleanup_unverified',
-                'blockedAt': state.get('blockedAt', now.isoformat()), 'lastCheckAt': now.isoformat(),
-                'nextCheckAt': (now + timedelta(minutes=5)).isoformat(),
-                'recoveryAttemptCount': state.get('recoveryAttemptCount', 0) + 1, 'sourceRequests': 0}
+    recovering = state.get('state') == 'RECOVERING'
+    recovery_candidate = (state.get('state') in ('RECOVERY_BLOCKED', 'BACKUP_IN_PROGRESS', 'RECOVERING')
+                          or state.get('state') == 'STOPPED_FAULT' and state.get('code') in
+                          ('backup_failed_requires_review', 'worker_stopped_requires_review'))
+    if recovery_candidate:
+        if quiet_window(now):
+            return {**state, 'state': 'RECOVERY_BLOCKED', 'code': 'backup_quiet_window',
+                    'originalFault': state.get('originalFault', state.get('code')), 'lastCheckAt': now.isoformat()}
+        evidence = recovery_evidence(cfg, state, worker)
+        gate = recovery_gate_result(evidence)
+        if not gate['allowed']:
+            # Preserve the first fault across repeated checks, even when its
+            # immediate blocked reason changes.
+            return {**state, 'state': 'RECOVERY_BLOCKED', 'code': gate['reason'], 'recoveryChecks': gate['checks'],
+                    'originalFault': state.get('originalFault', state.get('code')),
+                    'blockedAt': state.get('blockedAt', now.isoformat()), 'lastCheckAt': now.isoformat(),
+                    'nextCheckAt': (now + timedelta(minutes=5)).isoformat(),
+                    'recoveryAttemptCount': state.get('recoveryAttemptCount', 0) + 1, 'sourceRequests': 0}
+        if recovering:
+            if running and recovery_heartbeat_is_fresh(evidence, state):
+                return {**state, 'state': 'RUNNING', 'recoveryFinishedAt': now.isoformat(),
+                        'recoveryResult': 'heartbeat_verified', 'sourceRequests': 'worker-owned'}
+            try:
+                deadline = datetime.fromisoformat(state['recoveryDeadline'])
+            except (KeyError, TypeError, ValueError):
+                deadline = now
+            if not running or now >= deadline:
+                return {**state, 'state': 'RECOVERY_FAILED', 'code': 'worker_heartbeat_timeout',
+                        'recoveryFinishedAt': now.isoformat(), 'sourceRequests': 0}
+            return state
+        if running:
+            # Do not start a duplicate; only a heartbeat later than this check
+            # can establish that this particular recovery is alive.
+            return {**state, 'state': 'RECOVERING', 'recoveryAttemptId': str(uuid.uuid4()),
+                    'recoveryStartedAt': now.isoformat(), 'recoveryDeadline': (now + timedelta(minutes=2)).isoformat()}
+        state = {**state, 'state': 'START_REQUESTED', 'originalFault': state.get('originalFault', state.get('code')),
+                 'recoveryAttemptId': str(uuid.uuid4()), 'recoveryStartedAt': now.isoformat(),
+                 'recoveryDeadline': (now + timedelta(minutes=2)).isoformat()}
     receipt = private_json(cfg['backupStatusFile'])
     if backup_due(state, running, receipt, cfg['sourceSha'], cfg['project'], now):
         receipt = perform_backup(cfg, root, root / 'status.json', state)
@@ -196,6 +248,11 @@ def tick(cfg, root, state):
     okay = backup_verified(receipt, cfg['sourceSha'], cfg['project'], state.get('quietDate', ''), now)
     action = decision(state.get('state'), running, now, okay)
     if action == 'start':
+        if state.get('recoveryAttemptId'):
+            # Persist a fail-closed intent before any Docker mutation. If this
+            # process dies or Docker fails, a later tick must not blindly retry.
+            save(root / 'status.json', {**state, 'state': 'RECOVERY_FAILED',
+                                       'code': 'recovery_start_unconfirmed', 'sourceRequests': 0})
         if not worker:
             # File ownership is also checked inside the existing CLI.
             private_json(cfg['collectorFile'])
@@ -222,6 +279,8 @@ def tick(cfg, root, state):
                 command([DOCKER, 'network', 'connect', cfg['egressNetwork'], cfg['containerName']])
                 inspect_owned(cfg)
         command([DOCKER, 'start', cfg['containerName']])
+        if state.get('recoveryAttemptId'):
+            return {**state, 'state': 'RECOVERING', 'sourceRequests': 'worker-owned'}
         return {'state': 'RUNNING', 'sourceSha': cfg['sourceSha'], 'startedAt': now.isoformat(), 'sourceRequests': 'worker-owned'}
     if action == 'stop':
         command([DOCKER, 'kill', '--signal=TERM', cfg['containerName']])
