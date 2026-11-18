@@ -11,6 +11,7 @@ import { DEFAULT_SYNC_POLICY } from './sync-schedule.js';
 import { runSyncTick } from './sync-worker.js';
 import { createSessionCollector } from './session-collector.js';
 import {runAutomaticSync} from './sync-runner.js';
+import {readSyncHealth} from './sync-health.js';
 import { planFollowupGroups } from './followup.js';
 import { refreshFollowupGroup } from './group-refresh.js';
 import { pathToFileURL } from "node:url";
@@ -39,7 +40,7 @@ export function parseSourceArguments(args: string[]) {
     if(!match || values.has(match[1])) throw new SourceError("explicit_source_action_required");
     values.set(match[1],match[2]??"");
   }
-  const actions=["check","preview-bind","bind","preview-bind-selected","bind-selected","discover-add","preview-add","add","execute","execute-bounded","catalog","catalog-receipt","plan-followup","execute-group","group-receipt","sync-configure","sync-once","sync-run","sync-status","sync-audit-backfill","material-recover","material-history-publish","sync-recovery-preview","sync-recover","schedule"].filter(key=>values.has(key));
+  const actions=["check","preview-bind","bind","preview-bind-selected","bind-selected","discover-add","preview-add","add","execute","execute-bounded","catalog","catalog-receipt","plan-followup","execute-group","group-receipt","sync-configure","sync-once","sync-run","sync-status","sync-health","sync-audit-backfill","material-recover","material-history-publish","sync-recovery-preview","sync-recover","schedule"].filter(key=>values.has(key));
   if(actions.length!==1 || !values.get("config")) throw new SourceError("explicit_source_action_required");
   const action=actions[0];
   if(action==='material-history-publish'&&(!values.get('source-id')||!['order-id','observation-id'].every(k=>/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(values.get(k)??''))||!/^[a-f0-9]{64}$/.test(values.get('evidence-hash')??'')))throw new SourceError('historical_material_scope_invalid');
@@ -74,7 +75,7 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
   if(server.identityMode!=="session")throw new SourceError("source_session_required");
   const pool=createDatabasePool({connectionString:server.databaseUrl,max:4});
   try {
-    await verifyMigrationsCurrent(pool,server.migrationsDirectory);
+    const migrationStatus=await verifyMigrationsCurrent(pool,server.migrationsDirectory);
     const actor=await loadExistingBootstrapActor(pool,cfg.operatorUsername);
     await sourceActor(pool,actor,true);
     const db=(await pool.query("SELECT current_database() AS database,current_user AS db_user,inet_server_addr()::text AS address,inet_server_port() AS port")).rows[0];
@@ -84,6 +85,12 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
       process.stdout.write(JSON.stringify({result:"CHECKED_NO_SOURCE_READ",targetFingerprint:fingerprint,sourceKey:cfg.sourceKey,boundOrders:(await boundOrders(pool)).length})+"\n");return;
     }
     if(values.get("expected-target")!==fingerprint)throw new SourceError("source_target_mismatch");
+    if(action==='sync-health'){
+      // One read-only snapshot; migrations were checked against the running
+      // image's checksums above. This never resolves unknown source outcomes.
+      process.stdout.write(JSON.stringify(await readSyncHealth(pool,cfg.sourceKey,migrationStatus.applied))+'\n');
+      return;
+    }
     if(action==='sync-audit-backfill'){
       if(values.has('apply')&&values.get('apply')!=='')throw new SourceError('sync_audit_backfill_invalid');
       if(values.has('after-at')!==values.has('after-id'))throw new SourceError('sync_audit_backfill_invalid');
