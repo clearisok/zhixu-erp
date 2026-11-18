@@ -1,39 +1,27 @@
-# 当前：产品需求管理配置与 Project 实测完成，配置 PR 待用户审阅
+# 2026-11-18 恢复证据接线交接
 
-2026-11-17基线main **b4fc85ed0ac09ad45db8959257a9b2d840abba26**，工作树 product-management-workflow/zhixu-ainuoke-api，分支 chore/product-management-workflow。先读 [接入审计](product-management/AUDIT-2026-11-17.md) 和 [产品生命周期](product-management/WORKFLOW.md)。只做管理基础设施；不继续下方历史部署任务。旧本地文档分支6c2d5535保留，不合入本轮。
+分支 `fix/staging-backup-sync-recovery`。已核实main **a915c7a130ddada13118a1d245b41e7999b9d395**；起点24953ec47b523d65bb57094958c61a2a2179ef96。用户授权实现、隔离测试与Draft PR；不merge、不部署、不改真实Staging状态。Refs [Issue153](https://github.com/clearisok/zhixu-erp/issues/153)。
 
-已补8标签，bug复用；3表单/4规范/AGENTS集成。用户现已授权Project：19字段/选项、6视图、7workflow全页读完；TEST Issue149于21:47:11创建、21:47:13自动入卡（延迟2秒），21:47:50首次观察Idea（此前未手动加卡/改状态）。保存证据后只测该项Research/Idea写权限并读回；21:49:33关闭not planned，卡片移出后Project0项，完整配置前后deep-equal未变。证据永久写入审计和Issue评论，不能再次建立相同测试或重写旧结果。
+实际采集已替换空recovery_evidence，复用现有迁移/DB/source target检查及worker启动。新executor回执记录进程身份和正向清理证据；监管器持备份锁完成检查及启动。心跳验证与未知结果保护保留。详见[契约/一次性旧故障恢复](ops/ainuoke-catalog-sync-supervisor.md)。
 
-PR148实现beeb7a86三CI全部成功、源码守卫0 UI变化；本次文档补记的精确head/Checks以PR为准。03 · Development筛选文字实际为`03 · Development`，建议用户确认后改`status:Ready,"In Progress"`，本轮没有改。API只提供workflow启停元数据，不暴露触发器/动作，精确筛选和Issue-only配置未逐字读证，正向自动化实测通过。正式Issue Forms测试只在本配置PR经用户批准合并后做；本次不合并、不部署、不改真实Issue/PR。继续时先看PR148状态，不把已清理TEST当待处理需求。
+真实隔离E2E已通过（非mock证据）：失败命令→真实清理→真实DB/migration/admin/lease→启动→新PG心跳→后续高频到期任务；包含拒绝恢复场景。执行命令：`pwsh -File scripts/tests/Invoke-AinuokeRecoveryRuntime.ps1 -SourceSha <candidate full SHA>`。测试镜像Source传输为合成SDK，无真实ERP请求。最终测试与交付回执随后补记；不要因Draft PR冒称Staging修复。
 
-# 以下历史：已部署M，修首轮压缩目录审计计数
+真实Staging只读核实仍旧fault，缺新executor pin/cleanup/process证明，现场未修改。需批准部署后进行一次新受控配对备份取得独立新证明，不能回填旧失败记录。超时/信号/未知后代仍fail closed。原始调查和历史接力完整保存在[归档](tasks/completed/2026-11-18-before-recovery-evidence/AI_HANDOFF.md)。
 
-本次源码检查基线：b3047410ac292c48f0850e841241c00658dc0d75。历史部署和冻结证据保留原版本。
+本轮工程结果：Python定向22项（Windows21通过/1 POSIX跳过）；Linux定向22/22通过，真实证据E2E在代码提交efb9b251523d00e1310edbf9d4f609a1df8600fe对应镜像通过（55.113秒），含失败回执保留、新worker心跳、后续到期任务及DB/admin/migration/lock/exec/unknown阻断；相关TS/PG/调度10项通过；typecheck、lint、前后端build、diff-check通过。首次源码基线仅因D195与同步契约文档冻结版本未前向登记而失败，待新commit blob登记后重验；182基线回归已启动，结果另记。Draft PR不代表部署。
 
-先读[当前修复与真实恢复点](tasks/active/sync-audit-packed-baseline-fix-2026-11-16.md)。本机release记录分支9588ddb7保留。M=b3047410已真实部署/0058/发布后备份完成；11/16 11:40Z正常启唯一owner，首目录成功/626订单，后续复用登录。发现首台账626假新增，真实旧621→新626为5/11/610，正本分支修复+明确保留原计数的受控维护能力；尚未在真实台账更正/部署新修订。原数据/同步业务不变。以下为M合并前旧记录，不再代表现授权/部署状态。
+已对D195与同步审计契约新增前向冻结记录，旧ID/blob/hash均保留。主机Staging仍原样；Git交付仅使用本机及宁波/tmp隔离Git目录，不属于应用部署。Windows交付预检曾在manifest待提交时拒绝dirty，0push；已核实只含本任务18行前向记录并收口后再交付，未清理或覆盖其他改动。
 
-# 接力：继续同步审计staging交付
+交付前补上中断安全边界：备份在启动子进程前就持久化backupBeganAt，避免监管器与executor同时中断时复用旧terminal回执；新成功备份绑定新executorBackupId。定向测试增加1项（Windows共23项，22通过/1 POSIX跳过）。源码基线前向登记后已PASS（e8e8e75a，0 UI路径变化）；182基线套件仍运行，不假报PASS。宁波标准Dry Run网络超时、0push且无gh；随后本机精确URL级进程proxy空值+HTTP1.1只读核验main成功，准备按相同进程参数运行标准交付工具。未修改共享代理/TLS/认证。
 
-新检查点：e912d20b已精确送达、复审6847694671无新问题，来源CI第五轮仍在运行。自主补充共享目录计数断言证明旧updated=0应为1，已修同batch同validated directory只保留首次源记录比较、后续追加publication IDs；49目录与持久审计27/27通过，types/lint通过。最终需集中commit/push并以新HEAD CI为准，不能部署过时e912。预备备份52文件2326134762字节已流式逐文件离机核对到D:/WeaveOps-Backups/ningbo-trial/bundles/20261113T071520Z-7d0120a1，manifest SHA a09f1e1051bd4ca139861c41436448588d63c9efb873a7e72e55b19a787a939f。旧工具readFileSync超过2GiB失败，本次不重传，scratch流式复核成功；常设工具未改。恢复139表/序列/11附件已通过。staging未迁移/部署/启源，native source已私密clone旧c513等待最终真实merge对象，source-accept.py的expected head须改为最终修订。
+最终交付回执：代码提交 **cd87ec868ff58619a1a305f85e1495c0624e90ce** 的Linux定向测试23/23通过；同SHA镜像真实Docker/PostgreSQL恢复E2E通过（54.083秒），未mock recovery_evidence。标准git-delivery以进程级代理覆盖执行，实际push一次，独立GitHub API核实exact SHA，结果DELIVERED_VERIFIED；这不代表共享网络配置已修复。已创建并核实[Draft PR #154](https://github.com/clearisok/zhixu-erp/pull/154)：OPEN、Draft、未合并，包含所有既有检查点。随后仅收口本交付记录。
 
-更新：ba6860f1自动复审07:56:55Z无新问题，四条thread已resolved；两项CI成功，source第四轮在14分钟末发现货款无效scope在audit前未校验而触DB。现包装器先原sha/parse校验再audit，保留原业务校验，补无效targets在真实collection入口零DB测试，payment22/22通过。待最终commit/CI；此前共享目录、历史升级、恢复保全结果不重做。旧应用继续可用，未迁移/部署/启源。
+长回归收口：最终HEAD源码门禁重复运行及完整`npm run test:release-baseline`均未取得可核实的完成结果，已中断，不计PASS；保留此前e8e8e75a源码门禁PASS，完整基线回归及根npm test仍待完成。PR须明确这些限制。Staging/Production未部署、真实业务状态未改，两轮自然30分钟同步未执行。后续仅经用户批准才部署匹配组件、执行文档中的旧故障安全核验。
 
-新恢复点：427db08c复审4560851175共享目录成功证据被失败子行覆盖已修，保留确认COMMIT、发布ID并集、计数并标partial。目录16PASS、历史17PASS、45轮归属其余通过；prefix12与21旧fixture使用c513历史写入器，当前缺0058零请求拒绝保留。46类型/Lint/server通过。隔离restore139表+序列逐行哈希及11附件一致，network none/无端口，资产保留；原dict/list比较误报已修正结构，真实无内容差异。尚未合并/迁移/部署/启源，待最终必要CI与复审。
+## PR154 工程验收续接（2026-11-18）
 
-再下一恢复点：7742626d精确交付后本机build/lint/server、浏览器3、源码guard通过，CI baseline/team-access成功，source因0043旧fixture使用当前collectGarmentOnce失败；现历史fixture扩展与对应升级8PASS。自动复审新增4560743078的成衣正常终态COMMIT漏确认已改commitWithSyncAudit，首发布真实审计断言及collection/store41PASS，types/lint/server43PASS。当前dirty只此产品1行、相关3测试/fixture及本段文档，待最终commit/push/必要CI/复审，不能重复已通过的无关本机组。预备备份已于07:28:33Z BACKUP_VERIFIED且原服务恢复；全新隔离restore会话83009进行中，脚本outputs/sync-audit-staging-20261113/restore-check.py，源请求0、live DB写0，容器网络none/无端口/卷保留；尚未迁移58或部署/启源。之前43231备份会话已完成。
+本Phase起始branch为fix/staging-backup-sync-recovery、HEAD为9ca4ec1443d6f7b86ee9db91ab6c4f3671b01046、工作树干净；GitHub main仍为a915c7a130ddada13118a1d245b41e7999b9d395。用户仅授权验收及本PR缺陷修复，不merge、不部署、不改真实DB/fault、不调用真实艾诺科故障测试。
 
-最新恢复点：PR146已创建、head7354d3c3精确送达；baseline/team-access成功，source旧schema fixture正确触发缺0058拒绝，正在前向修测试。自动复审两个P2已修代码并加回归：失败合同必须显式子记录；回执复用replayed不假成功/失败，不计新同步。当前dirty全属本修复，测试outputs/sync-audit-review-fixes-38.log在运行；类型38通过。新0058状态仍未部署，feature契约改变需要新冻结证据前向替代7e，不改旧hash。staging配对备份20261113T071520Z-7d0120a1运行中、会话43231；当前620订单/620head/28237快照/0缺、57迁移/0审计表、27053complete/97failed/5queued。23人工表/3账号/620身份和5真实HTTP基线已保存。新任务outputs/sync-audit-staging-20261113与宁波对应releases目录；预备脚本已语法检查，尚未执行新版本迁移/部署/启源。备份后须核实恢复/保全，不用旧私密回执代替新结果。
+起点Actions已经补齐上段长回归缺项：[baseline](https://github.com/clearisok/zhixu-erp/actions/runs/44254344961)通过182项基线及源码门禁；[team-access](https://github.com/clearisok/zhixu-erp/actions/runs/44254344528)通过根npm test、typecheck、lint、server/default-browser/server-session构建。[source](https://github.com/clearisok/zhixu-erp/actions/runs/44254344503)仅末步Python discovery失败，具体是tools/ainuoke-bridge cwd下动态加载supervisor无法找到ainuoke_recovery_gate；其他SQL/API、候选构建及Chromium步骤已过。不重跑本机相同大套件，修复后的最终结果必须取最新HEAD对应的新Actions。
 
-最新用户已授权PR检查/合并、0058、staging部署及两个自然目录周期，production禁止。先读[交付恢复点](tasks/active/sync-audit-staging-delivery-2026-11-13.md)。8a2341d9已实际上传一次、独立API精确确认；网络原因是GitHub专用127.0.0.1:17989无监听。仅进程GIT_CONFIG_KEY_0=http.https://github.com.proxy、VALUE_0空、COUNT=1成功，不能改全局配置。Open仅136 Draft/CONFLICTING、非依赖，保留。当前增量是结算单关联证据发布回归与CI接入，18PASS；不新增结算业务模型。尚未部署/迁移/启owner/发源请求。旧运行脚本见outputs/material-staging-20261112，但必须在新任务目录前向适配当前c5133e9e目标，不能原样复用旧sha/旧回执。以下是先前本机收口时点，不再作为当前授权/远端状态。
-
-2026-11-13，工作树material-dense-local/zhixu-ainuoke-api，分支feat/ainuoke-sync-audit。基线M/main **c5133e9e9e7065dc4fe7672c0c88c75688e0c51f**；产品代码 **3d2a3737765d02eae5586e8edff40e27df166acf**。读[最终交付记录](tasks/active/ainuoke-sync-audit-2026-11-12.md)、[契约/11源清单](features/AINUOKE_SYNC_AUDIT.md)，不要从旧“开发中”归档重启任务。
-
-已完成4审计表、各现有入口、GET/RBAC/Excel/新菜单、安全持久计数和COMMIT确认；旧hsid-only全局无期限暂停原因有真实54请求/13页双遍证据。仅有限完整重读，人工/认证/权限/身份保护不变。无新增源站登录/报表。
-
-最终测试108回归、41核心、33旧入口、9历史/重启、4有界入口、3浏览器、182基线负向均PASS；类型/Lint/服务端/前端构建PASS。各组重叠。**不要重复22分钟的182负向套件**，除非产品/守卫/冻结证据又有变化。日志名、旧失败原因、真实历史例子见最终记录。
-
-当前63054/63051真实业务库/进程未迁移/切换；staging仍旧PR145版本、暂停/worker停用保留。不为完成本任务清暂停、启worker或部署。0058只在自有临时PG验证。历史台账维护默认preview、最多100批/次，仅metadata；真实库未回填。源时间、旧提交/旧增改计数缺失保持不可获取，不能从近似时点推算。
-
-本轮用户只要求本机工程，不需要演示，未授权staging/生产。下一步若用户授权发布：先核对远端候选/必要CI，staging自身配对备份和恢复准备→0058→同一构建版本→单认证owner受控切换→真实新审计与自动恢复验收。缺迁移fail closed；不能直接启新worker。不要重做既有物料页面或业务匹配，不碰617历史/人工数据。[原发布运行/回滚位置](tasks/active/material-staging-release-2026-11-12.md)、[先前交接](tasks/completed/2026-11-12-before-sync-audit/AI_HANDOFF.md)保留。远端/PR状态以最终交付回执核实。
-
-远端收口：2026-11-13标准Dry Run的Git预检exit128/uncertain_transport，API通过，NETWORK_DEGRADED；0次实际推送，无PR/CI，未重复撞该通道。最终源码基线34在b23923f5通过；其后仅本段交付回执补记，不改产品/冻结证据。继续工程不受影响，远端交付另待核实。
+窄修复：两个动态加载测试在加载时临时加入实际scripts目录，保持生产import和全局sys.path不变；source CI补跑已有gate/paired-backup测试。审查门禁/清理/心跳/未知结果/旧故障流程时，增加旧心跳回归，先在Linux复现RUNNING误判，再给新心跳增加与既有恢复窗口一致的两分钟时效约束；Linux原CI嵌套cwd下16项supervisor已通过，另gate2项/backup5项通过。无调度/业务规则/迁移变化。最终HEAD、完整Actions与隔离E2E证据记录在同一Draft PR的Validation，等待用户批准后才能进入部署准备。

@@ -1,5 +1,7 @@
 # 决策日志
 
+2026-11-18 D195（Active，工程候选，未部署）：用户明确授权接入真实 recovery_evidence、隔离 Docker/PostgreSQL 验证并创建 Draft PR。备份失败与业务同步状态分离；普通失败只有在匹配发布身份、terminal receipt、新正向清理证明、原服务恢复、独占备份锁、当前Docker exec、DB/完整migration/admin/任务未知结果/现有advisory lease检查都满足时，才能复用原worker启动并验证新心跳。缺证据/超时/信号/未知容器后代继续阻断；管理员和认证/身份暂停不自动解除，unknown不转failed重试。旧回执不补造证据，只能在后续批准部署后保留旧故障并进行新受控配对备份取得新证明。本条窄替代旧“备份一旦失败即永久停止”的监管行为，不改D179/D188/D191频率和业务规则，不授权真实部署/数据库状态操作。代码证据：scripts/ainuoke_sync_supervisor.py、scripts/ainuoke_paired_backup.py、scripts/ainuoke_recovery_gate.py、server/ainuoke-source/sync-health.ts；验证与限制见docs/ops/ainuoke-catalog-sync-supervisor.md。
+
 2026-11-12 D194（Active，本机候选，尚未部署）：用户明确要求永久艾诺科同步台账和可恢复暂停。所有已接入报表经现有业务路径记录独立批次/逐表读取、真实事务提交确认、稳定来源记录版本差异及安全请求回执；不更改订单匹配、数量、认证owner或R分档。没有明确源端时间或旧运行提交时刻的值保持不可获取，历史台账补录不算今日源站刷新。此条窄补充D180/D181/D191/D192：身份、范围和字段集合不变的非身份内容漂移，只授权有限重新取得完整稳定双遍；原1/5分钟三次突发耗尽后按原目录周期退避再评估，不接受不一致批次。已证明hsid-only且分页完整的旧复合暂停同样只允许重新读取；hsid业务含义不推测。管理员停用、认证/证书/权限/身份/查询范围/未知结果仍不自动解除。单合同失败保留原成功数据与独立恢复任务。证据、计数边界与维护入口见features/AINUOKE_SYNC_AUDIT.md、tasks/active/ainuoke-sync-audit-2026-11-12.md。没有staging或生产部署授权。
 
 2026-11-12 D193后续明确展示修订（仅本机）：用户要求总览删除物料名称整列，替代仅隐藏文字。颜色成为第一列，原名称/搜索/分组/详情和厂供/流水结构不变。只改展示，不改业务计算或来源；具体13列及验收见tasks/active/material-color-first-result-2026-11-12.md。未授权部署。

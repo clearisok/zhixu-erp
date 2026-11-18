@@ -138,3 +138,5 @@ jobs:
         run: |
           python3 -m unittest discover -s tests
           python3 -m unittest discover -s ../../scripts/tests -p test_ainuoke_sync_supervisor.py
+          python3 -m unittest discover -s ../../scripts/tests -p test_ainuoke_recovery_gate.py
+          python3 -m unittest discover -s ../../scripts/tests -p test_ainuoke_paired_backup.py

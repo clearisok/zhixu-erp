@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "b4fc85ed0ac09ad45db8959257a9b2d840abba26",
-  "verifiedAt": "2026-11-17T12:08:52.581Z",
+  "baselineSha": "a915c7a130ddada13118a1d245b41e7999b9d395",
+  "verifiedAt": "2026-11-18T06:30:46.686Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -6180,6 +6180,24 @@
       "sha256": "5aa4587240dac74e6af4584ab130cf82493fb26f3b95477415311786a0fba2d6",
       "supersedes": "sync-audit-contract-20261112",
       "changeReason": "Preserve original D194 scope and all historical evidence; explicitly distinguish unrequested receipt replay from synchronization and retain failed contract/report audits. Company IT confirms settlement-reference business meaning; stable changes remain captured, not ignored."
+    },
+    {
+      "id": "sync-recovery-decisions-20261118",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "efb9b251523d00e1310edbf9d4f609a1df8600fe",
+      "sha256": "78208ea595ce3a181615c1c4a77191ac0e4074ac73b6f03da5215899c2b07aea",
+      "supersedes": "sync-audit-decisions-20261112",
+      "changeReason": "Append user-authorized D195 recovery evidence and safety gates; retain all prior business, Source, UI and deployment boundaries."
+    },
+    {
+      "id": "sync-recovery-contract-20261118",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SYNC_AUDIT.md",
+      "recordedAtSha": "efb9b251523d00e1310edbf9d4f609a1df8600fe",
+      "sha256": "1d555ce1ed3d4e3b52a236376b1c373ee40309ad9612b14c18b420a1f0495d34",
+      "supersedes": "sync-audit-contract-review-20261113",
+      "changeReason": "Document candidate supervisor recovery and unchanged audit/unknown-result semantics; no UI, schema, real deployment or natural-sync acceptance change."
     }
   ],
   "pages": [
