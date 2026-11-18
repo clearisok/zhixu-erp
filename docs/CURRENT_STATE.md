@@ -1,4 +1,4 @@
-# 2026-11-18 17:29 北京时间：Staging 已恢复运行，自然同步验收进行中
+# 2026-11-18 17:59 北京时间：Staging 已恢复，首轮自然同步完成
 
 用户已授权合并PR154、真实Staging部署/受控备份/安全恢复及仅重建app、gateway、objects-tls。Production禁止。PR154已MERGED，部署源码 **4a8c9bc24b00983d0d79150349adeed5a333a237**，tree与验收d2ec9453一致；此前1026根测试/182基线/23 Linux/恢复E2E及全部CI通过，产品代码未追加修改。
 
@@ -8,7 +8,9 @@
 
 新版本受控配对备份 **20261118T091329Z-a0d73b4a** 于17:24:53北京成功；独立核实56文件/143表/11对象，manifest **2bca43c332b2eaa596593882d05f7a5817a4e14b701ae24695150e15a2e3cd1d**，cleanup全部true、服务已恢复。随后实际Recovery Gate九项全通过；正常分钟cron于17:26:03启动唯一新Worker（image 9fe679cb…），17:27:01Supervisor验证新PG heartbeat进入RUNNING，originalFault仍保留。没有手动启动或伪造时间。
 
-自然调度已开始：17:27:20核实15个automatic完成、无新增失败、97历史failed保留，原manual1完成但不计自然轮。目录自然接纳2新单，订单/绑定628；高频260个，无无任务的到期遗漏、无重复时隙/发布。只读取证记录真实IDs/slot/start/end/result并复用原syncSchedule计算；需要每个高频订单两次自然automatic完成，不能用manual冒充。完整两轮仍待观察。
+**首轮自然高频260/260成功**：实际开始17:26:17.150，最后完成17:57:10.156北京；原manual1不计入。第二轮17:56:55.252已自然开始，17:58:53观察20完成/5running/5queued，230尚未到期入队；已有30对真实任务下一计划均精确为前次完成后1800秒。瞬时到期未入队10单的最长等待30.56秒，属于下一正常分钟调度检查，继续观察实际入队，不清时间/补跑。无新增失败/unknown/重复slot或publication，97历史failed保留。自然目录接纳2新单后订单/绑定628。完整两轮仍未完成。
+
+操作记录HEAD17a522971ca450326f1fbcaec4e62eee46b4c64a追加Linux只读断网复核：源码门禁PASS（基线4a8c9bc2、0UI变化），完整基线套件**182/182 PASS**（89.804秒，串行+Docker --init）。无init时合跑的responsive子进程SIGABRT日志保留；相同20项独立通过，加init对照完整通过，未改产品代码，具体OS退出原因未确认。两个Windows运行分别因旧基线快照失效和Linux完整通过后避免重复而主动取消，不计PASS。原d2工程CI/1026/23/E2E/type/lint/build通过仍独立保留。
 
 部署前旧版本备份20261118T084308Z-e594db1c已独立验证52文件/143表/11对象，不冒充新版本备份。今天前两次snapshot_timeout失败包保留。只读等价验证后，仅Staging quote_trial角色IN DATABASE quote_trial的enable_presorted_aggregate=off使标准快照完成；原值及精确回滚SQL保全并纳入新Policy。无业务数据、heartbeat或last_run_at人工修改。
 

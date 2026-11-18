@@ -1,4 +1,8 @@
-# 2026-11-18 17:29 北京 Staging 恢复接力
+# 2026-11-18 17:59 北京 Staging 恢复接力
+
+**最新Gate：首轮260/260真实automatic complete/published完成**。范围来自首个09:26:18真实观察的260高频订单，原manual不计；首轮started09:26:17.150Z–last finished09:57:10.156Z。第二轮started09:56:55.252Z，09:58:53观察20complete/5running/5queued，230尚未创建；30对计划间隔均精确1800秒。10个瞬时due但未入队最长30.564128秒（下一分钟automatic tick前的正常等待）；不要把这当长期遗漏，也不得用人工enqueue消掉。TASK/round-summary.py新增实际oldestDueWaitSeconds字段，复用原syncSchedule，没有门禁默认通过。全部两轮仍INCOMPLETE，必须继续等包括原manual对应订单的第二次automatic（预计10:27Z之后），不要缩小cohort。
+
+17a522971ca450326f1fbcaec4e62eee46b4c64a操作记录已DELIVERED_VERIFIED。当前HEAD追加Linux隔离复核（git bundle→TASK/acceptance-source-17a独立clean checkout，只读挂载到同operator image，networknone/不接DB或ERP）：source guard PASS，完整182/182在Docker --init+serial模式89.804秒通过（09:54:33.574630–09:56:04.077018Z）；TASK/release-source-guard-linux-17a.log/json和release-baseline-init-linux-17a.log/json。最初无init并行及串行均162源码断言通过但第二responsive子进程SIGABRT；单独responsive20/20通过，加init完整182通过，失败日志全部保留；进程回收是对照支持的推断，具体OS原因未确证。Windows旧快照运行和后来的重复运行均主动取消，不计PASS；后者精准停止本机测试child44764（parent14804），不涉及真实Worker。session45450/89851/11105/70881/64475/20819全部完成，无这些后台测试。源guard17a确切HEAD/4a基线PASS，不重跑原已验收产品根测试。
 
 **最新覆盖下方“备份正在运行”时点**：session24948已exit0；新4a备份20261118T091329Z-a0d73b4a于09:24:53.448136Z成功BACKUP_VERIFIED，cleanup全true/服务恢复。TASK/new-backup-verification.py独立核实56文件、143表、11对象、dump2659790990bytes，manifest **2bca43c332b2eaa596593882d05f7a5817a4e14b701ae24695150e15a2e3cd1d**；所有Policy pin/cron/三模块1000:0600/原私有executor更新/原failure不变均PASS。回执TASK/independent-new-release-backup.json。首次09:25分钟tick因executor仍完成收尾而安全阻断，09:25:59真实readonly Recovery Gate九项全true（工具响应）；后续实际只读文件TASK/recovery-gate-after-backup.json。
 
