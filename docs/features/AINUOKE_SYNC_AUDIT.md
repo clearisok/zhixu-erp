@@ -8,6 +8,8 @@
 
 0059新增ainuoke_catalog_diagnostics：batch_id、source_key、report_id、kind、page、row_id、sales_contract_no、field、retry_count、final_decision及JSON evidence。difference证据含before/after_exists/type/value/hash、after_page、classification、values_redacted、两遍fetched_at、request_started_at/finished_at及逐次请求状态；不可获取时间为null。recapture_page保留受影响页的合同/id、原Price等安全投影、全行和响应hash；decision记录关联原任务/批次及完整稳定content_hash。只追加，UPDATE/DELETE拒绝；旧失败/成功记录不修改。姓名/未知字段原值不保存；真实来源价格/合同沿现有受控运维权限，无新增匿名/普通角色API。诊断保存失败不覆盖主错误，并停止该自动重采；0059缺失在Source IO前失败关闭。
 
+序列化边界：JSON数字1与1.0在Node中相同，Python原先却生成不同SourceRow指纹。新6103行指纹仅对已确认可变字段内、有限且安全的整数float采用同一数值指纹；原values、原分页snapshotHash和旧保存证据完全不改。字符串"1"、布尔值、未知字段、id/BillNo/InsideOrderNo、非整数或超安全精度数值不进行此转换。真正的值、存在性、JSON类型或字符串格式差异仍保留并重采；不以浮点舍入恢复已丢失的JSON数字词法精度。
+
 历史batch cc1cacad-0de3-46f6-807a-3778b9d586dc只留Price聚合字段，无法恢复具体旧值或类型；当前没有旧暂停自动解除通道。本轮仅实现/隔离测试/PR。实际部署及受控来源恢复设计见[任务](../tasks/active/catalog-mutable-recapture-2026-11-19.md)。
 
 ## 2026-11-18 后台恢复候选（D195，未部署）

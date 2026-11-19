@@ -4,9 +4,22 @@ from ainuoke_bridge.selected_source_once import collect_selected
 from ainuoke_bridge.ainuoke_client import NetworkAinuokeError
 from selected_source_fixture import FakeSelectedTransport, mutate_rows
 from test_selected_source_once import CONFIG
+from ainuoke_bridge.contracts import build_report_snapshot
 
 
 class CatalogRecaptureTests(TestCase):
+    def test_equal_json_numbers_keep_business_identity_without_rewriting_values_or_unknown_fields(self):
+        def snapshot(**values):
+            return build_report_snapshot(report_key='order_discovery', rows=[{'id':'1','BillNo':'SYN-1',**values}],
+                                         page=1,page_size=50,total=1,query_context={})
+        for field in ('Price','Num','DeliveryDate','ContractDate','Status','GoodsDesc','Brand','CustomerName'):
+            before, after = snapshot(**{field:1}), snapshot(**{field:1.0})
+            self.assertEqual(before.rows[0].source_row_identity, after.rows[0].source_row_identity)
+            self.assertIs(type(after.rows[0].values[field]), float)
+            self.assertNotEqual(before.snapshot_hash, after.snapshot_hash)
+        self.assertNotEqual(snapshot(Price=1).rows[0].source_row_identity, snapshot(Price='1').rows[0].source_row_identity)
+        self.assertNotEqual(snapshot(Unknown=1).rows[0].source_row_identity, snapshot(Unknown=1.0).rows[0].source_row_identity)
+        self.assertNotEqual(snapshot(Price=1).rows[0].source_row_identity, snapshot(Price=True).rows[0].source_row_identity)
     def capture(self, transport, pages=None, **options):
         return collect_selected({**CONFIG, 'mode':'catalog-discovery', 'contracts':[]}, transport,
                                 recapture_pages=[13] if pages is None else pages, **options)

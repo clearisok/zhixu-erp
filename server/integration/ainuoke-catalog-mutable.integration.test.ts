@@ -18,6 +18,9 @@ const moving=`if report == 6086103:
             mutate_rows(payload, lambda rows: [row.update(Price='12.000') for row in rows if row['id']=='601'])`;
 const stable=`if report == 6086103:
         mutate_rows(payload, lambda rows: [row.update(Price='12.000') for row in rows if row['id']=='601'])`;
+const movingNumbers=`if report == 6086103:
+        if page == 1: change.pass_number=getattr(change,'pass_number',0)+1
+        mutate_rows(payload, lambda rows: [row.update(Price=getattr(change,'pass_number',0)) for row in rows if row['id']=='601'])`;
 // Real SDK + bounded transport + real envelope validation, synthetic source only.
 function collector(mutation:string,seen:number[][]=[]){
  return async(_cfg:unknown,r:SelectedSourceRequest,options?:CatalogCollectionOptions)=>{
@@ -73,7 +76,7 @@ test('three inconsistent captures exhaust finite retry, report mutable_field_uns
  try{
   const initial=hash(await heads(f));await request(f);const start=Date.now()+30000,seen:number[][]=[];
   for(const [i,offset] of [0,60000,360000].entries()){
-   const result=await runSyncTick(f.pool,f.actor,selectedConfig,{automatic:false,batchSize:1,now:()=>start+offset,collect:collector(moving,seen)});
+   const result=await runSyncTick(f.pool,f.actor,selectedConfig,{automatic:false,batchSize:1,now:()=>start+offset,collect:collector(movingNumbers,seen)});
    assert.equal(result.status,'failed');if(result.status==='failed')assert.equal(result.retryScheduled,i<2,JSON.stringify(result));
    assert.equal(hash(await heads(f)),initial);
   }
@@ -82,8 +85,9 @@ test('three inconsistent captures exhaust finite retry, report mutable_field_uns
   assert.equal((await runSyncTick(f.pool,f.actor,selectedConfig,{automatic:false,collect:collector(stable,seen)})).status,'idle');
   assert.equal(seen.length,3);
   assert.equal((await f.pool.query("SELECT count(*)::int n FROM ainuoke_sync_jobs WHERE status IN ('queued','running','unknown')")).rows[0].n,0);
-  const rows=(await f.pool.query("SELECT retry_count,final_decision FROM ainuoke_catalog_diagnostics WHERE kind='difference' ORDER BY retry_count")).rows;
+  const rows=(await f.pool.query("SELECT retry_count,final_decision,evidence FROM ainuoke_catalog_diagnostics WHERE kind='difference' ORDER BY retry_count")).rows;
   assert.deepEqual(rows.map(r=>r.retry_count),[0,1,2]);assert.equal(rows[2].final_decision,'mutable_field_unstable');
+  assert.ok(rows.every(r=>r.evidence.before_exists&&r.evidence.after_exists&&r.evidence.before_type==='number'&&r.evidence.after_type==='number'));
  }finally{await f.close();}
 });
 test('periodic directory captures also retain rejected states and use targeted NEW full passes',{timeout:180000},async()=>{

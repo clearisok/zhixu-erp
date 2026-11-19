@@ -2,13 +2,23 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {selectedConfig,selectedWorkerFixture} from '../integration/selected-source-fixture.js';
 import {previewCatalog} from './catalog.js';
-import {CatalogConsistencyError} from './catalog-consistency.js';
+import {CatalogConsistencyError,mutableCatalogFields} from './catalog-consistency.js';
+import {validateSelectedSourceOnce} from './selected-source-once.js';
 import {validateCatalogDiagnostic} from './sync-diagnostics.js';
 import {recapturePagesFor} from './catalog-diagnostics.js';
 import type {AdditionDiscoveryBundle} from './additions.js';
 
 const raw=selectedWorkerFixture('catalog-discovery','',[],630) as {bundle:AdditionDiscoveryBundle};
 const absent=Symbol('absent');
+test('actual SDK integer/decimal JSON spelling cannot invent identity drift in approved mutable fields',async()=>{
+ const fields=[...mutableCatalogFields];
+ const wire=selectedWorkerFixture('catalog-discovery',`if report == 6086103:
+        change.pass_number=getattr(change,'pass_number',0)+1
+        mutate_rows(payload, lambda rows: rows[0].update({field: 1 if change.pass_number==1 else 1.0 for field in ${JSON.stringify(fields)}}))`,[]) as typeof raw;
+ assert.equal(wire.bundle.discoveryBefore[0].rows[0].sourceRowIdentity,wire.bundle.discoveryAfter[0].rows[0].sourceRowIdentity);
+ assert.notEqual(wire.bundle.discoveryBefore[0].snapshotHash,wire.bundle.discoveryAfter[0].snapshotHash);
+ assert.equal((await validateSelectedSourceOnce(wire,selectedConfig,{mode:'catalog-discovery',contracts:[]})).result,'complete');
+});
 function pair(before:unknown,after:unknown){
  const bundle=structuredClone(raw.bundle);
  for(const [pages,value] of [[bundle.discoveryBefore,before],[bundle.discoveryAfter,after]] as const){

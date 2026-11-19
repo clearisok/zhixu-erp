@@ -23,3 +23,28 @@ Gate3回归校正：完整目录套件初轮100项有4项失败（新增0059的�
 依赖审计：高频catalog-contracts（6086103→6087105→6087050或6087051/单位6086405/6086408/6086875/6086354）以及bound/selected材料入口都需完整目录。独立货款6086941和成衣出运6086979使用其自身显式授权/绑定/目标/完整性回执，不由本轮创建自动任务、不把它们加入合同队列或修改其保护。已读成功资料仍可只读展示，但从不作为新的发布证据。未知提交结果和身份/范围/分页/认证的全局阻断不放宽。
 
 根npm test1026/1026、release-baseline182/182及显式基线guard PASS对应不可变3f83c611b12d9ac54726d0db8e5b2310d6f6f8b6，Linux隔离无网络容器，锁文件hash与本地一致；后续源代码修正另由新定向/集成及最终CI验证，不将旧SHA测试冒作新HEAD。typecheck、lint、前后端build已通过，最终源代码更新后复核继续。
+
+Gate4：同样全量1026/182/guard在e97c32fb4ebe09ae5ae80b206cb04926a55ce997再次PASS；目录101/101、审计/恢复24/24、Python210/210、typecheck/lint/前后端build通过。最后源码复核发现真正的Python整数/float JSON拼写指纹差异（1/1.0在Node均为number 1），仅对已确认可变字段内有限安全整数float的指纹规范化；原values、page hash、旧回执不改，未知/身份字段不处理。这一补充通过真实SDK14/14、Python全211/211及隔离PG五项完整流转5/5；数字持续变化用number而非仅存在性变化模拟，before/after类型均number并保留原值。最终冻结源码全量再验收继续。
+
+## 回归覆盖索引
+
+| 用户项 | 证据测试 | 验证边界 |
+| --- | --- | --- |
+| 1 Price不变 | catalog-mutable-recapture.test.ts | 原数值/字符串原值不改，稳定完整快照 |
+| 2 正常数值变 | 同上value；PG numeric三次 | mutable分支，非identity |
+| 3/4 字段出现/消失 | 同上appearance/disappearance；PG保全重采 | exists原状态及页/合同可定位 |
+| 5/6 null/空串 | 同上null/to-null/empty | 不当成0，不混同缺失 |
+| 7 类型变化 | 同上type | string与number保留区别 |
+| 8 同值格式 | 同上format/decimals、actual SDK spelling | 字符串格式重采；JSON同数值不制造身份变化 |
+| 9 三次仍变 | ainuoke-catalog-mutable.integration.test.ts | 630/13页，实际number持续变化，有限失败保全 |
+| 10 稳定身份变 | catalog-business-change.test.ts、sync-stop集成 | id/BillNo/关联/未知结构严格阻断 |
+| 11/12 新增/删除 | catalog-business-change及sync-resilience集成 | 不发布不一致目录，完整新证据才可再评估 |
+| 13/14 漏页/重复页 | catalog-mutable-recapture及selected-source验证 | 分页不完整不发布 |
+| 15 HTTP200/isOk=false | test_catalog_recapture.py、sync-audit/stop集成 | 业务失败非HTTP成功 |
+| 16 超时 | test_catalog_recapture.py、sync-resilience集成 | 有界退避，旧成功不变 |
+| 17/18 重采成功/失败 | PG五项完整流转、真实SDK/IPC | 先定向新before，再完整after；不取最后一遍 |
+| 19/20 旧成功/不部分发布 | PG失败前后head/run/hash、目录profile指针 | 拒绝批次不更新业务事实 |
+| 21 独立任务 | PG independent fresh capture、local-transport | 必须自身新完整证据，不借旧目录；目录周期退避 |
+| 22 未知结果 | catalog-followup crashed worker、sync-stop集成 | unknown保持人工核对，不盲目重提 |
+
+本轮没有读取真实ERP作故障注入，也没有真实Staging DB/worker/cron/配置操作。0059只在自有一次性PG执行。后续恢复不得拿本地合成测试冒充真实来源证据。
