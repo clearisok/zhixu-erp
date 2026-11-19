@@ -48,3 +48,11 @@ c8e82b11全量npm test已在Linux只读networknone完成exit0（106.547秒），
 部署前03:02Z当前4a Worker因catalog_identity_or_scope_changed停止，SQL enabled=true/paused_reason非空，Supervisor正确RECOVERY_BLOCKED；这发生于本次UI切版前，无本次运行修改。保留暂停，UI发布不清该来源故障、不启动Worker或采集真实接口。需要按保留暂停正式机制部署，工程与来源健康分别汇报。
 
 a44455d3最新team-access CI完整PASS（含新增Linux Chromium9/9与清理）、baselinePASS。source CI已通过全部SQL/会话/权限及前段UI，在material-history-ui:56因等待被批准删除的hero说明“含历史记录”失败；实际历史SO及历史重复行均已显示。仅改断言为真实订单范围select.value=history，原历史身份/只读/事件/撤权/无写入检查全保留，需定向和新HEAD CI。产品源码与a444/5396仍完全相同，不能说a444三CI全过。旧版本受控备份仍进行，不切版。
+
+## 90de候选正式切版检查点（2026-11-19）
+
+三项Actions全部SUCCESS，最新候选全量1026、发布基线182、紧凑Linux Chromium9均通过。物料历史旧hero断言修后9/9；CI未执行后段四套浏览器独立43/43通过，之后90 source CI完整通过，未跳过任何步骤。
+
+正式发布已按原trial/Compose机制完成，仅3无状态容器重建；原4卷、database/objects、旧镜像及52文件回滚资产保全，23人工表/3账号权限/630订单身份零差异。公网build90，正常会话真实浏览器12组合、7现存服务器报价、维护和更多功能及正常logout PASS，0业务写入/0来源刷新。首次私有QA脚本误用“更多”而非“更多报价操作”超时，修真实定位器后完整退出0；不是产品失败或伪造通过。对照截图报价表上移86.9px、订单204.9px，保持品牌与可读性。
+
+旧版配对备份20261119T032302Z-a97b1f27于03:37:40.328352Z成功恢复服务，独立56文件/3419126506字节dump/11对象/143表哈希通过。新版本90配对备份已启动，终态尚未验收。切版前已有的catalog_identity_or_scope_changed安全暂停和原B4故障保留，0Worker，不宣称自动同步恢复。待新备份及最终只读健康检查后交付，禁止合并/Production。
