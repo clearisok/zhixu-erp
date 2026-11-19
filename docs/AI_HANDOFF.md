@@ -21,3 +21,5 @@ SSH weaveops，隔离工程TASK=/home/jackson/weaveops-staging-preview/releases/
 最新70be产品浏览器子场景全部通过但Windows清理失败；交期回归390顶部grid真实未换行，已限定actions顶栏修CSS跨行，需重build/交期/紧凑UI/CI。两测试退出budget仅调整到已有最大10秒；不修改共享清理机制、不冒称失败通过。Staging仍4a/唯一Worker健康，未切版。
 
 5396交期14/14 PASS/清理PASS，最新type/lint/build及team-access/baselineCI PASS；紧凑8子场景PASS但Win关闭失败，将其加入现有team-access的CHROME_PATH Linux步骤，需最新CI。真实Staging03:02Z自行catalog_identity_or_scope_changed，enabled true但paused_reason非空，无Worker，Supervisor阻断正确。UI本轮不清暂停、不启动、不故障注入真实接口；部署保留此状态。候选仅隔离构建准备，SSH间歇timeout，未切版。
+
+a444 source CI在material-history-ui:56旧hero说明“含历史记录”超时，具体页面功能正常；已改真实筛选值history，不删业务断言。正在跑material-history和CI未执行的物料展示/成衣出货/付款/关账浏览器回归；需checkpoint新HEAD和CI。a444应用镜像b01862/operator d011已隔离构建、回滚52文件/原4卷及仅3容器dry-runPASS，未部署。旧版备份20261119T032302Z-a97b1f27进行中，保留来源identity暂停。

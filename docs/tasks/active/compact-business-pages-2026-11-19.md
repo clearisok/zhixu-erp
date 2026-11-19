@@ -46,3 +46,5 @@ c8e82b11全量npm test已在Linux只读networknone完成exit0（106.547秒），
 
 5396846c已DELIVERED_VERIFIED，typecheck/lint/Server build退出0，GitHub team-access（含全量npm test及Browser/Server构建）和baseline通过；交期维护实机14/14完整通过，含320/390触控及权限/未知回执，清理PASS。紧凑UI八子场景再次通过但Windows Chrome退出仍超时，不称整套通过；将新紧凑回归纳入既有team-access私有Linux Chromium，正常CI验证，未删检查。
 部署前03:02Z当前4a Worker因catalog_identity_or_scope_changed停止，SQL enabled=true/paused_reason非空，Supervisor正确RECOVERY_BLOCKED；这发生于本次UI切版前，无本次运行修改。保留暂停，UI发布不清该来源故障、不启动Worker或采集真实接口。需要按保留暂停正式机制部署，工程与来源健康分别汇报。
+
+a44455d3最新team-access CI完整PASS（含新增Linux Chromium9/9与清理）、baselinePASS。source CI已通过全部SQL/会话/权限及前段UI，在material-history-ui:56因等待被批准删除的hero说明“含历史记录”失败；实际历史SO及历史重复行均已显示。仅改断言为真实订单范围select.value=history，原历史身份/只读/事件/撤权/无写入检查全保留，需定向和新HEAD CI。产品源码与a444/5396仍完全相同，不能说a444三CI全过。旧版本受控备份仍进行，不切版。
