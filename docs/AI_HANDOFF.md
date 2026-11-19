@@ -13,3 +13,7 @@ Staging ROOT=/home/jackson/weaveops-staging-preview，TASK=ROOT/releases/compact
 最终真实公网浏览器目录staging-90de-settled已完整退出0，receipt.logoutVerified=true：12桌面组合真实业务行+连续750ms空闲，详情物料摘要终态，订单实际第二页SO630→580并回原页，7现存报价价格独立、原维护/更多弹窗、无业务写入/来源刷新。已目视复核。原staging-90de-final骨架截图有superseded限定，staging-90de-ready的二次异步race失败保留；不得再用其冒充最终PASS。正常logout后本机私密cookie副本删除、主机cookie标记REVOKED，未提交秘密。
 
 本机artifact根：C:/Users/Administrator/.codex/visualizations/2026/11/18/01a1ec55-eaa3-75f0-a103-83b015d43fb4/compact-business-pages-20261119。comparison.html同合成前后，final-5396产品与90相同，三态/多价是隔离PG合成；Staging实际只有未确认/全部确认，不编造部分确认。1366报价有表内横滚，页面无溢出。最终报告及截图见acceptance-report.md。下一步仅等待用户UI人工验收；未获批准不得合并/Production/继续修来源故障。
+
+版本记录：1c35dca9a763e0d32999ead2f14747f86e57f041仅同步最终部署验收与两feature/用户D196决定；新baseline evidence前向绑定该提交DECISION_LOG精确blob，旧冻结ID/hash均保留，不更新截图哈希或能力标签。后续清单提交仍仅文档/证据，无运行代码差异。
+
+最终前向证据门禁已PASS：main4a8c9bc24b00983d0d79150349adeed5a333a237，17 UI路径、0错误；全部历史evidence/capability逐项未改。产品测试结论以实际90与b734已完成CI为准，最新文档提交CI单独记录。
