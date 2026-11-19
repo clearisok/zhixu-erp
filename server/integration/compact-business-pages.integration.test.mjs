@@ -24,7 +24,7 @@ test('compact business pages: actual headers, prices, routes, permissions and de
  const x=await startContinuousFixture(staticDirectory,{materialDisplay:true});
  const dir=resolve(process.env.COMPACT_UI_EVIDENCE_DIR??'outputs/compact-business-pages');await mkdir(dir,{recursive:true});
  const profile=await mkdtemp(join(tmpdir(),'weaveops-compact-chrome-'));let chrome,ws,session,id=0;const pending=new Map(),errors=[];
- const evidence={build,observingBaseline:observing,synthetic:true,liveErpRequests:0,checks:[],geometry:[],quotes:[],orderId:x.orderId};
+ const evidence={fixtureContainer:x.containerName,build,observingBaseline:observing,synthetic:true,liveErpRequests:0,checks:[],geometry:[],quotes:[],orderId:x.orderId};
  try{
   const actor=await loadExistingBootstrapActor(x.pool,'demo.admin');
   for(let n=0;n<28;n++){
@@ -41,14 +41,15 @@ test('compact business pages: actual headers, prices, routes, permissions and de
   chrome=spawn(process.env.CHROME_PATH??'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',['--headless=new','--no-first-run','--no-default-browser-check','--remote-debugging-port=0','--user-data-dir='+profile,'about:blank'],{stdio:'ignore',windowsHide:true});
   const [port,path]=await waitForChromiumEndpoint(profile,{timeoutMs:20000});ws=new WebSocket('ws://127.0.0.1:'+port+path);await new Promise((done,reject)=>{ws.addEventListener('open',done,{once:true});ws.addEventListener('error',reject,{once:true});});
   const command=(method,params={},sid=session)=>new Promise((done,reject)=>{const key=++id;const timer=setTimeout(()=>{pending.delete(key);reject(Error('CDP timeout '+method));},30000);pending.set(key,{done:v=>{clearTimeout(timer);done(v);},reject});ws.send(JSON.stringify({id:key,method,params,sessionId:sid}));});
-  ws.addEventListener('message',({data})=>{const r=JSON.parse(String(data)),p=pending.get(r.id);if(p){pending.delete(r.id);r.error?p.reject(Error(JSON.stringify(r.error))):p.done(r.result);}if(r.method==='Runtime.exceptionThrown')errors.push(r.params.exceptionDetails.text);});
+  ws.addEventListener('message',({data})=>{const r=JSON.parse(String(data)),p=pending.get(r.id);if(p){pending.delete(r.id);if(r.error)p.reject(Error(JSON.stringify(r.error)));else p.done(r.result);}if(r.method==='Runtime.exceptionThrown')errors.push(r.params.exceptionDetails.text);});
   const target=await command('Target.createTarget',{url:'about:blank'},undefined);session=(await command('Target.attachToTarget',{targetId:target.targetId,flatten:true},undefined)).sessionId;
   await command('Page.enable');await command('Runtime.enable');await command('Network.enable');
   const evaluate=async expression=>{const r=await command('Runtime.evaluate',{expression,awaitPromise:true,returnByValue:true});assert.equal(r.exceptionDetails,undefined,JSON.stringify(r.exceptionDetails));return r.result.value;};
   const navigate=async path=>{const marker=randomUUID();await evaluate('window.navMarker='+JSON.stringify(marker));await command('Page.navigate',{url:x.base+path});await until(()=>evaluate('window.navMarker!=='+JSON.stringify(marker)+'&&document.readyState==="complete"'),'navigate '+path);};
   const has=async text=>until(()=>evaluate('Boolean(document.body?.innerText.includes('+JSON.stringify(text)+'))'),text);
   const click=async label=>{await until(()=>evaluate('[...document.querySelectorAll("button")].some(n=>(n.getAttribute("aria-label")??n.textContent.trim())==='+JSON.stringify(label)+'&&!n.disabled&&n.getClientRects().length)'),label);await evaluate('(()=>{const n=[...document.querySelectorAll("button")].find(n=>(n.getAttribute("aria-label")??n.textContent.trim())==='+JSON.stringify(label)+'&&!n.disabled&&n.getClientRects().length);n.click();})()');};
-  const select=async(label,value)=>evaluate('(()=>{const n=[...document.querySelectorAll("select")].find(n=>[...n.options].some(o=>o.value==='+JSON.stringify(value)+'));if(!n)throw Error("missing select");n.value='+JSON.stringify(value)+';n.dispatchEvent(new Event("change",{bubbles:true}));})()');
+  const typeIn=async(label,value)=>{await evaluate('(()=>{const n=[...document.querySelectorAll("input")].find(n=>n.getAttribute("aria-label")==='+JSON.stringify(label)+');if(!n)throw Error("missing input");n.focus();n.select();})()');await command('Input.dispatchKeyEvent',{type:'keyDown',key:'Backspace',windowsVirtualKeyCode:8});await command('Input.dispatchKeyEvent',{type:'keyUp',key:'Backspace',windowsVirtualKeyCode:8});if(value)await command('Input.insertText',{text:value});};
+  const select=async(value)=>evaluate('(()=>{const n=[...document.querySelectorAll("select")].find(n=>[...n.options].some(o=>o.value==='+JSON.stringify(value)+'));if(!n)throw Error("missing select");n.value='+JSON.stringify(value)+';n.dispatchEvent(new Event("change",{bubbles:true}));})()');
   const login=async user=>{await command('Network.clearBrowserCookies');const cookie=await x.login(user),split=cookie.indexOf('=');await command('Network.setCookie',{name:cookie.slice(0,split),value:cookie.slice(split+1),domain:'127.0.0.1',path:'/',httpOnly:true});};
   const screenshot=async name=>{const shot=await command('Page.captureScreenshot',{format:'png'});await writeFile(join(dir,name+'.png'),Buffer.from(shot.data,'base64'));};
   const checkPage=async(kind,width,height,zoom=1)=>{
@@ -84,9 +85,11 @@ test('compact business pages: actual headers, prices, routes, permissions and de
   });
   await t.test('quote pagination and filters and actual order query/sort/pagination controls remain',async()=>{
    await navigate('/quote-center');await has('下一页');await click('下一页');await until(()=>evaluate('document.querySelector(".qc-batch-selection-toolbar")?.innerText.includes("上一页")'),'next quote page');await click('上一页');
+   await typeIn('搜索报价','SYN-COMPACT-27');await until(()=>evaluate('document.querySelectorAll(".qc-server-business-list tbody tr").length===1&&document.querySelector("tbody")?.innerText.includes("SYN-COMPACT-27")'),'quote search');await typeIn('搜索报价','');await select('confirmed');await until(()=>evaluate('[...document.querySelectorAll(".qc-confirmation-cell small")].length>0&&[...document.querySelectorAll(".qc-confirmation-cell small")].every(n=>n.textContent==="全部确认")'),'confirmed-only filter');
    await navigate('/order-center');await has('SO-');await screenshot('order-list-paging');assert.equal(await evaluate('document.querySelectorAll(".sp-order-nav").length'),0);
    assert.equal(await evaluate('[...document.querySelectorAll("button")].some(n=>["款式进度","风险预警"].includes(n.textContent.trim()))'),false);
-   await click('下一页');await until(()=>evaluate('document.querySelector(".oc-server-pagination")?.innerText.includes("51–")'),'order page 2');await click('上一页');await select('排序方向','asc');await until(()=>evaluate('[...document.querySelectorAll("select")].some(n=>n.value==="asc")'),'ascending order sort');
+   await click('下一页');await until(()=>evaluate('document.querySelector(".oc-server-pagination")?.innerText.includes("51–")'),'order page 2');await click('上一页');await select('asc');await until(()=>evaluate('[...document.querySelectorAll("select")].some(n=>n.value==="asc")'),'ascending order sort');
+   await typeIn('搜索正式订单','SYN-COMPACT-50');await click('查询');await until(()=>evaluate('document.querySelectorAll(".oc-server-order-table tbody tr").length===1&&document.querySelector(".oc-server-order-table tbody")?.innerText.includes("SYN-COMPACT-50")'),'order search');await select('draft');await until(()=>evaluate('[...document.querySelectorAll("select")].some(n=>n.value==="draft")'),'order lifecycle filter');
    const selects=await evaluate('[...document.querySelectorAll("select")].map(n=>({label:n.getAttribute("aria-label"),values:[...n.options].map(o=>o.value)}))');evidence.checks.push({orderFilterControls:selects});
   });
   await t.test('topbar order controls and maintenance dialogs preserve scope without writing business fixtures',async()=>{
@@ -94,6 +97,11 @@ test('compact business pages: actual headers, prices, routes, permissions and de
    await navigate('/order-center/server-detail?id='+x.orderId);await has('订单概况');await click('维护来源');await has('维护来源');await screenshot('source-maintenance-dialog');await click('关闭');
    await click('维护交期');await has('维护交期');await screenshot('delivery-maintenance-dialog');await click('取消');
    await command('Page.reload',{ignoreCache:true});await has('订单概况');await until(()=>evaluate('document.querySelector(".ops-page-actions")?.innerText.includes("维护来源")'),'refreshed owned header actions');
+  });
+  await t.test('persistent client navigation replaces page-owned topbar controls without stale actions',async()=>{
+   await click('返回订单列表');await has('全部合同 / 历史查阅');assert.equal(await evaluate('document.querySelector(".ops-page-actions").innerText.includes("维护来源")'),false);
+   await click('报价中心');await has('SYN-COMPACT-');await until(()=>evaluate('document.querySelector(".ops-page-actions").innerText.includes("新建报价")'),'quote client actions');assert.equal(await evaluate('document.querySelector(".ops-page-actions").innerText.includes("导入加工订单")'),false);
+   await click('订单中心');await has('全部合同 / 历史查阅');assert.equal(await evaluate('document.querySelector(".ops-page-actions").innerText.includes("新建报价")'),false);
   });
   await t.test('retired routes inaccessible; shared material detail retained',async()=>{
    for(const path of ['/order-center/style-progress','/order-center/risks']){await navigate(path);assert.equal(await evaluate('Boolean(document.querySelector(".sp-contract-list,.sp-risk-list"))'),false);}
@@ -105,6 +113,8 @@ test('compact business pages: actual headers, prices, routes, permissions and de
   });
   assert.deepEqual(x.errors,[]);assert.deepEqual(errors,[]);await writeFile(join(dir,'results.json'),JSON.stringify(evidence,null,2)+'\n');
  }finally{
-  await stopOwnedChromium(chrome,{gracefulClose:()=>ws?.send(JSON.stringify({id:++id,method:'Browser.close'}))});ws?.close();await x.close();await rm(profile,{recursive:true,force:true});
+  try { await stopOwnedChromium(chrome,{gracefulClose:()=>ws?.send(JSON.stringify({id:++id,method:'Browser.close'})),graceMs:10000,exitMs:10000}); }
+  finally { ws?.close();await x.close(); }
+  await rm(profile,{recursive:true,force:true});
  }
 });
