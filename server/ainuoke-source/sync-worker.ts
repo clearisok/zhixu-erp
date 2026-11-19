@@ -192,9 +192,11 @@ export async function runSyncTick(pool:Pool,identity:Identity,raw:CollectorConfi
     let captured:Captured;
     let diagnostics:RequestDiagnostic[]|null=null,metrics:unknown=null;
     const retryCount=Math.max(...jobs.map(j=>j.attempt_number-1));
-    const recapturePages=await loadRecapturePages(pool,config.sourceKey,jobs.flatMap(j=>j.retry_of?[j.retry_of]:[]));
-    const captureOptions:CatalogCollectionOptions={onRequest:auditRequestHandler(pool),recapturePages,onRecapturePage:recapturePageHandler(pool,retryCount,now)};
+    let recapturePages:number[]=[];
+    const captureOptions:CatalogCollectionOptions={onRequest:auditRequestHandler(pool),onRecapturePage:recapturePageHandler(pool,retryCount,now)};
     try {
+      recapturePages=await loadRecapturePages(pool,config.sourceKey,accountFingerprint(config),jobs.flatMap(j=>j.retry_of?[j.retry_of]:[]));
+      captureOptions.recapturePages=recapturePages;
       let response;
       if(options.collect){
         const raw=await options.collect(config,request,captureOptions);
@@ -209,12 +211,22 @@ export async function runSyncTick(pool:Pool,identity:Identity,raw:CollectorConfi
       metrics=response.metrics;await auditMetrics(pool,metrics);
       if(response.result!=='complete')throw new SourceError(response.code);
       if(response.mode!=='catalog-contracts')throw new SourceError('selected_source_invalid');captured=response;
+      // These writes precede every business transaction. Failure here is known
+      // not submitted, never an unknown publication or an orphan running job.
+      if(recapturePages.length)await appendCatalogDiagnostic(pool,'decision',retryCount,'full_stable_capture_validated',{
+       prior_jobs:jobs.flatMap(j=>j.retry_of?[j.retry_of]:[]),pages:recapturePages,content_hash:captured.directory.contentHash});
+      await auditAcquired(pool,captured.directory.bundle,diagnostics);
+      for(const [contract,single] of Object.entries(captured.contracts))if(!('code' in single)){
+        await auditAcquired(pool,single.addition.colors[contract],diagnostics,contract);
+        await auditAcquired(pool,single.materials.bundle.materials[contract],diagnostics,contract);
+      }
+      await finishCaptureAttempt(pool,attemptId,null,diagnostics,metrics,now());
     }catch(e){
       if(e instanceof CatalogDiagnosticValidationError)diagnostics=e.diagnostics;
       const change=e instanceof CatalogDiagnosticValidationError||e instanceof CatalogConsistencyError?e:undefined;
       const mutable=e instanceof SourceError&&e.code==='catalog_business_content_changed';
       const code=mutable&&retryCount>=2?'mutable_field_unstable':e instanceof SourceError?e.code:'source_capture_failed';
-      let diagnosticsPersisted=change?.differences.length?await retainCatalogDifferences(pool,change.differences,diagnostics,retryCount,code):undefined;
+      let diagnosticsPersisted=code==='catalog_diagnostic_write_failed'?false:change?.differences.length?await retainCatalogDifferences(pool,change.differences,diagnostics,retryCount,code):undefined;
       try{for(const p of change?.recaptured??[])await captureOptions.onRecapturePage!(p);}catch{diagnosticsPersisted=false;}
       await auditCaptureFailure(pool,code,diagnostics);
       await finishCaptureAttempt(pool,attemptId,code,diagnostics,metrics,now());
@@ -226,14 +238,6 @@ export async function runSyncTick(pool:Pool,identity:Identity,raw:CollectorConfi
         catalogChange:change?.catalogChange,recapturePages:change?recapturePagesFor(change.differences):undefined,diagnosticsPersisted,pauseCapture:!retry,now:now()})});
       return {status:'failed' as const,retryScheduled:results.some(r=>r.retry),jobs:results};
     }
-    if(recapturePages.length)await appendCatalogDiagnostic(pool,'decision',retryCount,'full_stable_capture_validated',{
-     prior_jobs:jobs.flatMap(j=>j.retry_of?[j.retry_of]:[]),pages:recapturePages,content_hash:captured.directory.contentHash});
-    await auditAcquired(pool,captured.directory.bundle,diagnostics);
-    for(const [contract,single] of Object.entries(captured.contracts))if(!('code' in single)){
-      await auditAcquired(pool,single.addition.colors[contract],diagnostics,contract);
-      await auditAcquired(pool,single.materials.bundle.materials[contract],diagnostics,contract);
-    }
-    await finishCaptureAttempt(pool,attemptId,null,diagnostics,metrics,now());
     const results=[];
     for(const job of jobs) {
       const single=captured.contracts[job.sales_contract_no];

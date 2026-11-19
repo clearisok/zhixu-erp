@@ -60,3 +60,16 @@ Gate4：同样全量1026/182/guard在e97c32fb4ebe09ae5ae80b206cb04926a55ce997再
 后续真实恢复顺序：用户审查并另行批准→核对实际发布SHA、镜像/collector/executor/Policy/目标身份及兼容回滚→0059正式迁移及健康→保留旧paused_reason和原故障审计→受控取得6086103全新双遍/分页/Price稳定证据，核对其他实际依赖报表→对旧聚合暂停执行正式预览、精确reviewHash和获批恢复操作，保留原事件→正式Recovery Gate→Supervisor正常启动/真实新PG心跳→核对实际到期集合、去重/租约/未知结果/并发限制后沿现有30分钟策略自然调度。不能把此前259视作当前固定数量，不能人工补造全部任务、直接SQL清暂停或假造成功。
 
 修改范围：catalog-consistency/catalog比较与类型诊断；catalog-diagnostics及0059持久化；selected-source-once/session-collector/sync-diagnostics与Python契约/会话/SDK采集；sync-worker/catalog-capture及原sync-queue/sync-recovery的有界处理；公共/定向测试和package CI入口；业务/feature/决策/发布证据与接力文档。无前端页面、计算价、合同匹配、定时频率、Supervisor/备份执行器或真实配置改动。
+
+
+## 最终执行授权与安全收口（2026-11-19，覆盖此前仅PR的后续限制）
+
+用户在当前聊天附件《最终执行授权》明确批准：必要修复、完整测试/CI、PR158正常保护合并、准确main部署真实Staging、0059正式迁移、受控来源恢复与两轮自然30分钟验收；不操作Production，不绕Gate或直接SQL清暂停。授权转录：[Issue157评论](https://github.com/clearisok/zhixu-erp/issues/157#issuecomment-7009672967)。起始分支fix/catalog-mutable-recapture、HEAD faee779b4539625e36d26f7942b53194cfc57517、工作树clean，main仍1ab40fd39b035e471f5557903c026dd36d3bab8e。该起始HEAD三项Actions均SUCCESS，新增修复必须独立验收。
+
+最后审查修复：sync-worker把重采计划读取、稳定decision及发布前acquired/完成采集记录纳入已知未提交异常边界。diagnostic INSERT异常转catalog_diagnostic_write_failed，任务failed、明确diagnosticsPersisted=false、暂停等待存储核查，不伪报业务成功、不误认unknown、不留running；业务事务已开始后的未知结果保护不变。catalog-diagnostics将异常对象/数组/布尔值只保存类型/长度/hash，difference路径亦不保存复杂原文，正常字符串/数字/null保持原值。重采计划只继承同sourceKey、account fingerprint、原capture/batch job membership且包含6086103报表的失败证据；周期目录亦按账号过滤。当前采集始终重新验证sourceFingerprint/报表/页/当前audit context，不跨批次使用历史页面。
+
+新增真实隔离PG测试：稳定重采后的decision INSERT失败；不同source/account/report/批次成员拒绝旧计划；默认batchSize=5自动合同中一个Price漂移。共享目录不一致时五单均不得发布；其余四单各自全新完整稳定双遍后一次重采完成，异常合同三次仍变保留mutable_field_unstable，无全局暂停、未知、running、重复观察或异常合同发布。该共享目录真实依赖不能被行级拼页绕过：若其他合同自己的全目录也持续不稳定，同样不能发布，未声称可在不一致目录上运行。
+
+新增测试首轮夹具失败保留：注入时钟超出来源10分钟时效，被正确拒绝；尝试修改/删除既有测试审计/失败回执亦被不可变保护正确拒绝。已改为合成过期调度状态及新增反例批次，不放宽运行时保护。必要定向测试通过后冻结最终HEAD，再执行用户要求全套工程/Actions，旧HEAD结果不代替新HEAD。
+
+真实Staging只读预检2026-11-19T12:56:20Z：app/gateway/objects-tls仍90de5b0a镜像674bef4e，三者healthy；DB migration58、630目录、112failed、39740complete，0running/queued/unknown，0running capture或unknown/running catalog。原catalog_identity_or_scope_changed暂停及03:02:46.56Z旧心跳仍在；未执行恢复、部署或数据改写。此前备份90de5b0a/20261119T041319Z-efa1f646仍BACKUP_VERIFIED，不充当本次新备份。部署前仍须新的备份、0059兼容回滚候选和准确主版本组件/Policy。

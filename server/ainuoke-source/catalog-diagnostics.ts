@@ -11,9 +11,16 @@ import type {RequestDiagnostic} from './sync-diagnostics.js';
 export function recapturePagesFor(differences:readonly CatalogFieldDifference[]):number[]{
  return [...new Set(differences.flatMap(d=>[d.page,d.afterPage]))].sort((a,b)=>a-b);
 }
+/** Untrusted complex business values are never stored verbatim, even for Price. */
+export function diagnosticValue(value:unknown):unknown{
+ if(value===null||typeof value==='string'||typeof value==='number'&&Number.isFinite(value))return value;
+ return {redacted:true,type:Array.isArray(value)?'array':typeof value,hash:hash(value??null),
+  ...(Array.isArray(value)?{length:value.length}:value&&typeof value==='object'?{length:Object.keys(value).length}:{})};
+}
 export async function appendCatalogDiagnostic(pool:Pool,kind:'difference'|'recapture_page'|'decision',retry:number,decision:string,
  evidence:Record<string,unknown>,locator:{page?:number;rowId?:string;salesContractNo?:string;field?:string}={}){
  const ctx=currentSyncAudit();if(!ctx)throw new SourceError('catalog_diagnostic_context_missing');
+ try{
  const inserted=await pool.query(`INSERT INTO ainuoke_catalog_diagnostics(batch_id,source_key,report_id,kind,page,row_id,sales_contract_no,field,retry_count,final_decision,evidence)
  VALUES($1,$2,'6086103',$3,$4,$5,$6,$7,$8,$9,$10::jsonb) ON CONFLICT DO NOTHING RETURNING id`,[ctx.id,ctx.sourceKey,kind,locator.page??null,locator.rowId??null,
  locator.salesContractNo??null,locator.field??null,retry,decision,JSON.stringify(evidence)]);
@@ -21,10 +28,16 @@ export async function appendCatalogDiagnostic(pool:Pool,kind:'difference'|'recap
   const old=(await pool.query("SELECT evidence FROM ainuoke_catalog_diagnostics WHERE batch_id=$1 AND page=$2 AND kind='recapture_page'",[ctx.id,locator.page])).rows[0];
   if(!old||hash(old.evidence)!==hash(evidence))throw new SourceError('catalog_recapture_evidence_changed');
  }
+ }catch(error){if(error instanceof SourceError)throw error;throw new SourceError('catalog_diagnostic_write_failed');}
 }
-export async function loadRecapturePages(pool:Pool,sourceKey:string,priorJobs:readonly string[]){
+export async function loadRecapturePages(pool:Pool,sourceKey:string,fingerprint:string,priorJobs:readonly string[]){
  if(!priorJobs.length)return [];
- const rows=(await pool.query('SELECT result FROM ainuoke_sync_jobs WHERE source_key=$1 AND id=ANY($2::uuid[]) AND status=\'failed\'',[sourceKey,priorJobs])).rows;
+ const rows=(await pool.query(`SELECT j.result FROM ainuoke_sync_jobs j
+ JOIN ainuoke_sync_capture_attempts a ON a.id=j.capture_attempt_id AND a.source_key=j.source_key
+ JOIN ainuoke_sync_audit_batches b ON b.id=a.id AND b.source_key=a.source_key
+ WHERE j.source_key=$1 AND j.id=ANY($2::uuid[]) AND j.status='failed'
+ AND a.account_fingerprint=$3 AND a.mode='catalog-contracts' AND j.id=ANY(a.job_ids)
+ AND j.id=ANY(b.job_ids) AND EXISTS(SELECT 1 FROM ainuoke_sync_audit_tables t WHERE t.batch_id=b.id AND t.report_id='6086103')`,[sourceKey,priorJobs,fingerprint])).rows;
  return validatedRecapturePages(rows.flatMap(r=>r.result?.recapturePages??[]));
 }
 export function validatedRecapturePages(pages:unknown):number[]{
@@ -40,7 +53,7 @@ export async function retainCatalogDifferences(pool:Pool,differences:readonly Ca
    const reads=trace?.filter(t=>t.kind==='report'&&t.reportId===6086103&&(t.page===d.page||t.page===d.afterPage))??[];
    await appendCatalogDiagnostic(pool,'difference',retry,decision,{
     before_exists:d.beforeExists,after_exists:d.afterExists,before_type:d.beforeType,after_type:d.afterType,
-    before_value:d.beforeValue,after_value:d.afterValue,before_hash:d.beforeHash,after_hash:d.afterHash,
+    before_value:diagnosticValue(d.beforeValue),after_value:diagnosticValue(d.afterValue),before_hash:d.beforeHash,after_hash:d.afterHash,
     after_page:d.afterPage,classification:d.classification,values_redacted:d.valuesRedacted,
     before_fetched_at:d.beforeFetchedAt,after_fetched_at:d.afterFetchedAt,
     request_started_at:reads[0]?.startedAt??null,request_finished_at:reads.at(-1)?.finishedAt??null,
@@ -56,7 +69,7 @@ export function recapturePageHandler(pool:Pool,retry:number,now:()=>number=Date.
   const rows=page.rows.map(row=>({row_id:String(row.values.id),sales_contract_no:row.values.BillNo,row_hash:hash(row.values),
    // Keep exact approved business field states; do not store names or unknown
    // fields that could contain PII. Hashes still bind the original response.
-   values:Object.fromEntries(Object.entries(row.values).filter(([k])=>['Price','Num','Status','DeliveryDate','ContractDate','hsid'].includes(k)))}));
+   values:Object.fromEntries(Object.entries(row.values).filter(([k])=>['Price','Num','Status','DeliveryDate','ContractDate','hsid'].includes(k)).map(([k,v])=>[k,diagnosticValue(v)]))}));
   await appendCatalogDiagnostic(pool,'recapture_page',retry,'targeted_read_not_publishable',{
    fetched_at:page.fetchedAt,total:page.total,page_size:page.pageSize,response_hash:hash(page),rows}, {page:page.page});
  };

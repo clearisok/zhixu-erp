@@ -65,7 +65,7 @@ export function catalogChangeEvidence(bundle:AdditionDiscoveryBundle){
     const a=state(row.values,key),b=state(next.values,key),p=beforePages.get(String(row.values.id).trim())!,q=afterPages.get(String(next.values.id).trim())!;
     // Names/unknown fields can contain personal or credential material. Keep
     // exact type/existence/hash, but raw values only for approved non-PII data.
-    const redacted=!['Price','Num','Status','DeliveryDate','ContractDate','GoodsDesc','Brand','id','BillNo','InsideOrderNo','hsid'].includes(field);
+    const redacted=[a.value,b.value].some(v=>v!==null&&!['string','number'].includes(typeof v))||!['Price','Num','Status','DeliveryDate','ContractDate','GoodsDesc','Brand','id','BillNo','InsideOrderNo','hsid'].includes(field);
     differences.push({reportId:'6086103',page:p.page,afterPage:q.page,rowId:String(row.values.id).trim(),salesContractNo:String(row.values.BillNo),field,
      beforeExists:a.exists,afterExists:b.exists,beforeType:a.type,afterType:b.type,beforeValue:redacted?null:a.value,afterValue:redacted?null:b.value,
      beforeHash:hash(a),afterHash:hash(b),beforeFetchedAt:p.fetchedAt,afterFetchedAt:q.fetchedAt,

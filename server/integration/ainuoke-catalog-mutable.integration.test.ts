@@ -4,12 +4,14 @@ import {randomUUID} from 'node:crypto';
 import {startCatalogFixture} from './ainuoke-catalog-fixture.js';
 import {selectedConfig,selectedWorkerFixture} from './selected-source-fixture.js';
 import {runSyncTick} from '../ainuoke-source/sync-worker.js';
-import {requestContractSync} from '../ainuoke-source/sync-queue.js';
+import {enqueueAutomaticSync,requestContractSync} from '../ainuoke-source/sync-queue.js';
 import {captureCatalogOnce} from '../ainuoke-source/catalog-capture.js';
 import {resumeTransientCatalogBackoff} from '../ainuoke-source/sync-recovery.js';
 import type {CatalogCollectionOptions} from '../ainuoke-source/catalog-checkpoints.js';
 import type {SelectedSourceRequest} from '../ainuoke-source/selected-source-once.js';
 import type {RequestDiagnostic} from '../ainuoke-source/sync-diagnostics.js';
+import {loadRecapturePages,diagnosticValue} from '../ainuoke-source/catalog-diagnostics.js';
+import {accountFingerprint} from '../ainuoke-source/collector.js';
 import {hash} from '../ainuoke-source/contract.js';
 
 const moving=`if report == 6086103:
@@ -137,4 +139,91 @@ test('unstable periodic directory waits its full cycle, then only authorizes new
   assert.equal(result.status,'complete');assert.deepEqual(seen,[[],[13],[13],[13]]);
   assert.equal((await f.pool.query("SELECT count(*)::int n FROM ainuoke_catalog_requests WHERE status='failed'")).rows[0].n,3);
  }finally{await f.close();}
+});
+
+
+test('stable retry decision diagnostic failure is known not published, finishes jobs and never becomes unknown',{timeout:180000},async()=>{
+ const f=await startCatalogFixture();
+ try{
+  const initial=await heads(f),first=await request(f),start=Date.now()+30000;
+  await runSyncTick(f.pool,f.actor,selectedConfig,{automatic:false,now:()=>start,collect:collector(moving)});
+  await f.pool.query(`CREATE FUNCTION reject_catalog_decision_test() RETURNS trigger LANGUAGE plpgsql AS $$ BEGIN
+   IF NEW.kind='decision' THEN RAISE EXCEPTION 'synthetic decision unavailable'; END IF; RETURN NEW; END $$;
+   CREATE TRIGGER reject_catalog_decision_test BEFORE INSERT ON ainuoke_catalog_diagnostics FOR EACH ROW EXECUTE FUNCTION reject_catalog_decision_test()`);
+  const result=await runSyncTick(f.pool,f.actor,selectedConfig,{automatic:false,now:()=>start+60000,collect:collector(stable)});
+  assert.equal(result.status,'failed');
+  const child=(await f.pool.query('SELECT status,result FROM ainuoke_sync_jobs WHERE retry_of=$1',[first.jobId])).rows[0];
+  assert.equal(child.status,'failed');assert.equal(child.result.code,'catalog_diagnostic_write_failed');
+  assert.equal(child.result.diagnosticsPersisted,false);assert.deepEqual(await heads(f),initial);
+  assert.equal((await f.pool.query("SELECT count(*)::int n FROM ainuoke_sync_jobs WHERE status IN ('running','queued','unknown')")).rows[0].n,0);
+  assert.equal((await f.pool.query("SELECT count(*)::int n FROM ainuoke_sync_capture_attempts WHERE status='running'")).rows[0].n,0);
+  assert.equal((await f.pool.query('SELECT paused_reason FROM ainuoke_sync_controls')).rows[0].paused_reason,'catalog_diagnostic_write_failed');
+ }finally{await f.close();}
+});
+
+test('recapture plans cannot cross source, account, report or capture membership',{timeout:180000},async()=>{
+ const f=await startCatalogFixture();
+ try{
+  const first=await request(f);
+  await runSyncTick(f.pool,f.actor,selectedConfig,{automatic:false,collect:collector(moving)});
+  const fp=accountFingerprint(selectedConfig);
+  assert.deepEqual(await loadRecapturePages(f.pool,f.sourceKey,fp,[first.jobId]),[13]);
+  assert.deepEqual(await loadRecapturePages(f.pool,'another-source',fp,[first.jobId]),[]);
+  assert.deepEqual(await loadRecapturePages(f.pool,f.sourceKey,'a'.repeat(64),[first.jobId]),[]);
+  const id=(await f.pool.query('SELECT capture_attempt_id FROM ainuoke_sync_jobs WHERE id=$1',[first.jobId])).rows[0].capture_attempt_id;
+  const other=randomUUID(),otherJob=randomUUID();
+  await f.pool.query("INSERT INTO ainuoke_sync_audit_batches(id,source_key,sync_type,job_ids) VALUES($1,$2,'manual',$3::uuid[])",[other,f.sourceKey,[otherJob]]);
+  await f.pool.query(`INSERT INTO ainuoke_sync_audit_tables(batch_id,report_id,source_name) VALUES($1,'6087105','synthetic other report')`,[other]);
+  await f.pool.query(`INSERT INTO ainuoke_sync_capture_attempts(id,source_key,account_fingerprint,actor_id,mode,job_ids,status,started_at)
+   SELECT $1,source_key,account_fingerprint,actor_id,mode,$3::uuid[],status,started_at FROM ainuoke_sync_capture_attempts WHERE id=$2`,[other,id,[otherJob]]);
+  await f.pool.query(`INSERT INTO ainuoke_sync_jobs(id,source_key,source_id,sales_contract_no,kind,status,requested_by,capture_attempt_id,result)
+   VALUES($1,$2,'3','SYN-SALES-3','manual','failed',$3,$4,'{"recapturePages":[13]}'::jsonb)`,[otherJob,f.sourceKey,f.actor.internalUserId,other]);
+  assert.deepEqual(await loadRecapturePages(f.pool,f.sourceKey,fp,[otherJob]),[]);
+  // Correct report without this job's membership still cannot authorize reuse.
+  await f.pool.query(`INSERT INTO ainuoke_sync_audit_tables(batch_id,report_id,source_name) VALUES($1,'6086103','synthetic directory')`,[other]);
+  const unrelated=randomUUID();
+  await f.pool.query(`INSERT INTO ainuoke_sync_jobs(id,source_key,source_id,sales_contract_no,kind,status,requested_by,capture_attempt_id,result)
+   VALUES($1,$2,'3','SYN-SALES-3','manual','failed',$3,$4,'{"recapturePages":[13]}'::jsonb)`,[unrelated,f.sourceKey,f.actor.internalUserId,other]);
+  assert.deepEqual(await loadRecapturePages(f.pool,f.sourceKey,fp,[unrelated]),[]);
+ }finally{await f.close();}
+});
+
+test('default five automatic contracts reject the shared drifting pair; four finish on their own fresh proof without repeated retry or duplicate publication',{timeout:180000},async()=>{
+ const f=await startCatalogFixture();
+ try{
+  await captureCatalogOnce(f.pool,f.actor,selectedConfig,randomUUID(),async()=>selectedWorkerFixture('catalog-discovery','',[],5));
+  const start=Date.now()+30000;
+  await f.pool.query("UPDATE ainuoke_contract_sync_state SET last_success_at=now()-interval '31 minutes',last_automatic_attempt_at=now()-interval '31 minutes'");
+  await enqueueAutomaticSync(f.pool,f.actor,f.sourceKey,start);
+  const initial=await heads(f),seen:number[][]=[];
+  const drift5=moving.replaceAll("'601'","'5'");
+  const failed=await runSyncTick(f.pool,f.actor,selectedConfig,{automatic:false,now:()=>start,collect:collector(drift5,seen)});
+  assert.equal(failed.status,'failed');assert.equal(failed.jobs.length,5);assert.deepEqual(await heads(f),initial);
+  const parents=(await f.pool.query("SELECT id,source_id FROM ainuoke_sync_jobs WHERE status='failed' AND result->>'code'='catalog_business_content_changed'")).rows;
+  assert.equal(parents.length,5);
+  // A changing shared directory authorizes nobody. The other four must obtain
+  // fresh complete stable pairs, never publish their details from the rejected pair.
+  for(const id of ['1','2','3','4']){
+   const result=await runSyncTick(f.pool,f.actor,selectedConfig,{automatic:false,sourceIds:[id],now:()=>start+60000,collect:collector(stable,seen)});
+   assert.equal(result.status,'processed');assert.equal(result.jobs.length,1);assert.equal(result.jobs[0].status,'complete');
+  }
+  for(const offset of [60000,360000])await runSyncTick(f.pool,f.actor,selectedConfig,{automatic:false,sourceIds:['5'],now:()=>start+offset,collect:collector(drift5,seen)});
+  const receipts=(await f.pool.query(`SELECT j.id,j.source_id,j.status,j.attempt_number,j.result FROM ainuoke_sync_jobs j
+   WHERE j.root_job_id=ANY($1::uuid[]) ORDER BY source_id,attempt_number`,[parents.map(p=>p.id)])).rows;
+  assert.equal(receipts.filter(r=>r.source_id!=='5').length,4);
+  assert.ok(receipts.filter(r=>r.source_id!=='5').every(r=>r.status==='complete'&&r.attempt_number===2));
+  assert.equal(receipts.at(-1).status,'failed');assert.equal(receipts.at(-1).result.code,'mutable_field_unstable');
+  assert.equal((await f.pool.query("SELECT count(*)::int n FROM ainuoke_contract_observations WHERE job_id=ANY($1::uuid[])",[[...parents.filter(r=>r.source_id==='5'),...receipts.filter(r=>r.source_id==='5')].map(r=>r.id)])).rows[0].n,0);
+  assert.equal((await f.pool.query("SELECT count(*)::int n FROM ainuoke_sync_jobs WHERE status IN ('running','queued','unknown')")).rows[0].n,0);
+  assert.equal((await f.pool.query('SELECT paused_reason FROM ainuoke_sync_controls')).rows[0].paused_reason,null);
+  assert.equal((await f.pool.query('SELECT count(*)::int n FROM (SELECT job_id FROM ainuoke_contract_observations GROUP BY job_id HAVING count(*)>1) x')).rows[0].n,0);
+ }finally{await f.close();}
+});
+
+test('diagnostic complex Price values retain only safe type, size and hash',()=>{
+ assert.equal(diagnosticValue(null),null);assert.equal(diagnosticValue('12.00'),'12.00');assert.equal(diagnosticValue(12),12);
+ for(const value of [{password:'never-persist',nested:{token:'never-persist'}},['never-persist'],true]){
+  const result=diagnosticValue(value) as Record<string,unknown>;
+  assert.equal(result.redacted,true);assert.equal(result.hash,hash(value));assert.ok(!JSON.stringify(result).includes('never-persist'));
+ }
 });
