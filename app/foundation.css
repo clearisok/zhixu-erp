@@ -382,6 +382,8 @@
 @media (max-width: 700px) {
   .ops-topbar:has(.ops-page-actions:not(:empty)) { flex-wrap: wrap; }
   .ops-topbar:has(.ops-page-actions:not(:empty)) > .topbar-actions { flex: 1 1 100%; }
+  .ops-shell:is([data-responsive-mode="tablet"], [data-responsive-mode="mobile"]) .ops-topbar:has(.ops-page-actions:not(:empty)) { height: auto; padding-block: 10px; }
+  .ops-shell:is([data-responsive-mode="tablet"], [data-responsive-mode="mobile"]) .ops-topbar:has(.ops-page-actions:not(:empty)) > .topbar-actions { grid-column: 1 / -1; }
   .ops-page-actions { gap: 8px; }
 }
 

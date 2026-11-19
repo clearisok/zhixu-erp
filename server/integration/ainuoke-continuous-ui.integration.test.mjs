@@ -176,7 +176,12 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
   });
   await t.test("missing UUID and unsupported routes cannot enter old Browser pages",async()=>{
    await navigate("/order-center/style-progress/detail");await has("仅接受正式订单 UUID");
-   for(const route of ["/order-center/new","/order-center/style-progress","/order-center/risks"]){await navigate(route);await has("此模块未在当前候选中启用");}
+   await navigate("/order-center/new");await has("此模块未在当前候选中启用");
+   for(const route of ["/order-center/style-progress","/order-center/risks"]){
+    await navigate(route);
+    assert.equal(await evaluate("(async()=> (await fetch(location.pathname)).status)()"),404,'retired list route stays unavailable');
+    assert.equal(await evaluate("document.querySelector('.sp-page')!==null"),false,'retired route cannot render a Browser page');
+   }
    assert.deepEqual(await evaluate("Object.keys(localStorage).filter(k=>k.startsWith('zhixu.erp.local.'))"),[]);
   });
   await t.test("approved snapshot closing routes enforce trusted permissions without Browser fallback or writes",async()=>{

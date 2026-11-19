@@ -17,3 +17,5 @@ SSH weaveops，隔离工程TASK=/home/jackson/weaveops-staging-preview/releases/
 远端交付：b10a7e7e1b75d9d67f4045753b4ed45aad11b8e2已标准git-delivery进程级proxy空值对照单次push DELIVERED_VERIFIED，Draft PR156已创建（首次传输异常先查head无PR再建，唯一PR），未合并。精确b10源码门禁PASS，17UI路径/0错误；CI team-access和baseline成功，source长套件进行中。追加复核既有ainuoke-continuous-ui的旧h1/“概况不含BillNo”断言需按获批新布局同步，正在独立测试；产品tree仍等于c8。PR正文如实描述范围/全部失败与取消/测试。SSH Staging间歇22超时，tailscale只读ping可经DERP(hkg)达，未改网络配置，真实Staging仍未开始修改。
 
 现有CI浏览器回归进一步发现两个旧位置定位：连续同步返回列表等h1、交期维护操作组closest旧PageHeader。已改为真实topbar，并将概况款号设语义h1保持原21px、顶栏coarse触控44px（桌面40）。需最终重新build并跑9项UI、原连续同步和交期维护；不能把c8 UI结果冒称最新这3个CSS/TSX变化已验。source CI目前仍旧b10运行，推送此正常checkpoint会由原workflow自动取新head，不绕过。Staging仍未修改。
+
+最新70be产品浏览器子场景全部通过但Windows清理失败；交期回归390顶部grid真实未换行，已限定actions顶栏修CSS跨行，需重build/交期/紧凑UI/CI。两测试退出budget仅调整到已有最大10秒；不修改共享清理机制、不冒称失败通过。Staging仍4a/唯一Worker健康，未切版。

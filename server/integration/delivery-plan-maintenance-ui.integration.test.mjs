@@ -28,7 +28,7 @@ async function until(read, label, timeout = 16000) {
 }
 
 test('approved delivery plan maintenance works on the exact built Server detail', { timeout: 360000 }, async t => {
-  const phase = async (name, run) => { let failure; await t.test(name, async () => { try { await run(); } catch (error) { failure = error; throw error; } }); if (failure) throw failure; };
+  const phase = async (name, run) => { let failure; await t.test(name, async () => { try { await run(); } catch (error) { failure = error; t.diagnostic(error.stack); throw error; } }); if (failure) throw failure; };
   const beforeBuild = process.env.DELIVERY_PLAN_UI_BEFORE === '1';
   if (!beforeBuild) assert.equal(process.env.DELIVERY_PLAN_STATIC_DIR, undefined, 'after requires its own exact static build');
   const staticDirectory = resolve(beforeBuild ? process.env.DELIVERY_PLAN_STATIC_DIR ?? 'dist/client' : 'dist/client');
@@ -358,7 +358,7 @@ test('approved delivery plan maintenance works on the exact built Server detail'
   } finally {
     let evidenceError,stopError,stopped=false;
     try { if(evidence) await writeFile(join(directory,'build-and-checks.json'),JSON.stringify({driverSourceSha,renderedSourceSha:info.gitCommit,before:beforeBuild,build:info,headerMetrics,metrics,errors,diagnostic:await captureDiagnostic?.()},null,2)+'\n'); } catch(error){evidenceError=error;}
-    try { await stopOwnedChromium(browser,{gracefulClose:closeBrowser}); stopped=true; } catch(error){stopError=error;}
+    try { await stopOwnedChromium(browser,{gracefulClose:closeBrowser,graceMs:10000,exitMs:10000}); stopped=true; } catch(error){stopError=error;}
     finally { ws?.close(); for(const item of pending.values())item.reject(Error('Owned delivery fixture closed')); pending.clear(); }
     try { await x.close(); } finally {
       const owned=relative(resolve(tmpdir()),resolve(temp));
