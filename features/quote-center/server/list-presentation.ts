@@ -8,7 +8,7 @@ export function presentedWidthKey(preferences: ServerListPreferences, key: Busin
   return preferences.presentation === "original" ? Object.entries(listWidthGroups).find(([, fields]) => (fields as readonly string[]).includes(key))?.[0] ?? key : key;
 }
 export function presentedMinWidth(key: BusinessColumn, fields: BusinessColumn[]): number {
-  return key === "styleImage" ? 56 : key === "styleIdentity" ? 80 : key === "quote" ? 180 : key === "quantity" ? 72 : key === "type" || key === "date" ? 80 : fields.includes("fabricCost") ? 126 : fields.includes("confirmedGarment") ? 110 : 88;
+  return key === "styleImage" ? 56 : key === "styleIdentity" ? 80 : key === "quote" ? 180 : key === "quantity" ? 72 : key === "type" || key === "date" ? 80 : fields.includes("fabricCost") ? 126 : fields.includes("confirmedGarment") ? 138 : 88;
 }
 export function presentedWidth(preferences: ServerListPreferences, key: BusinessColumn): number {
   return preferences.groupWidths[presentedWidthKey(preferences, key)] ?? preferences.columnWidths[key];
@@ -43,7 +43,7 @@ export function fittedPresentedTablePreference(preferences: ServerListPreference
   }
   const target = Math.floor(containerWidth - auxiliaryWidth);
   // Only automatic defaults adapt downwards; saved/manual pixels never enter here.
-  const floor = ({ key, fields }: PresentedColumn) => Math.max(presentedMinWidth(key, fields), key === "styleIdentity" ? 156 : key === "type" || key === "status" || key === "date" ? 100 : 0);
+  const floor = ({ key, fields }: PresentedColumn) => Math.max(presentedMinWidth(key, fields), key === "styleIdentity" ? 144 : key === "type" || key === "status" || key === "date" ? 100 : 0);
   let excess = Object.values(table.columnWidths).reduce((sum, width) => sum + width, 0) - target;
   while (excess > 0) {
     const shrinking = columns.filter(column => table.columnWidths[column.key] > floor(column));

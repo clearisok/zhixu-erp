@@ -564,7 +564,7 @@ export function LegacyStyleProgressDetailPage() {
     return (
       <AppShell title="款式进度详情" backTarget={backTarget}>
         <PageContainer className="sp-page">
-          
+
           <PageHeader title={contract || "款式进度详情"} />
           <EmptyState
             title="当前导入数据未找到该款"
@@ -579,7 +579,7 @@ export function LegacyStyleProgressDetailPage() {
       backTarget={backTarget}
     >
       <PageContainer className="sp-page sp-detail">
-        
+
         <PageHeader
           variant="object"
           eyebrow="STYLE PROGRESS"

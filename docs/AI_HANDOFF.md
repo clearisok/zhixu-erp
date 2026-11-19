@@ -7,3 +7,7 @@
 fetch因现有127.0.0.1代理拒绝NETWORK_DEGRADED，GitHub连接器main确认4a；开放PR136不涉及页面。按有界Git交付协议，不重试失败通道/改全局代理。当前仅初始契约checkpoint，尚未实现/测试/PR/部署。后续通过真实浏览器和必要测试再交付，不把历史通过结果冒称本次。
 
 最新覆盖初始方案：用户v2明确永久取消款式进度列表/风险预警，原迁移二级菜单要求作废；订单中心只保留订单列表。已做依赖审计，保留共享物料详情路由、ControlTower、Summary、数据/表/Repository/API；清理两专用根路由、导航组件/引用、两个专用页面及列表私有导入UI。详情返回订单列表，不留死链。详见任务v2。第一版源码b1e45bd8已完成17项价格专项、typecheck/lint和Server前端build；之后用户调整产生新代码，最终候选需重新必要验证，不能冒称旧结果覆盖v2。
+
+v2工程恢复点：247bb83e真实Chromium八项PASS（含21尺寸/等效缩放组合、确认三态/多价、顶栏/弹窗/创建/刷新/分页/角色和共享物料详情）；截图/JSON输出本机visualizations/2026/11/18/01a1ec55-eaa3-75f0-a103-83b015d43fb4/compact-business-pages-20261119，全合成隔离PG，不访问艾诺科。Linux只读断网full在247为1025/1026，唯一旧测试读已删除Tab文件，已按v2修复，生产定向25/25；后续最终full需再跑。Windows早期full旧文案失败和长baselinechild4636主动取消，不计PASS。新增紧凑区间视觉修正，17专项已通过；最终type/lint进行中。公开旧构建4a从旧镜像只读导出到本机Temp/compact-before-4a，before观察脚本正在跑，不能误当新候选。
+
+SSH weaveops，隔离工程TASK=/home/jackson/weaveops-staging-preview/releases/compact-ui-20261119，audit-source为独立Git clone（不是live源码）；linux-tests.py full/baseline/guard用已存在不可变9fe679镜像、只读挂载、networknone/--init/cgroups写私密日志。真实Staging尚未改动；source/policy/Worker保持4a。正式trial.mjs接受显式完整候选SHA无main限制，但仍需push/Draft PR/测试/备份/完整身份核验后才部署。普通Git代理失败，单次进程URL专用proxy空值只读ls-remote成功核实main4a；共享配置/认证未改，后续只在同进程对照下使用标准git-delivery一次执行核实，不假称网络永久恢复。

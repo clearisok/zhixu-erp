@@ -25,8 +25,9 @@ export function ServerListCell({ fields:requestedFields, row, imageLoader }: { f
     const status = fields.includes("confirmationStatus") ? row.business?.confirmationStatus?.display : undefined;
     const unknown = price?.display === "关联未核实";
     const display = unknown ? "—" : price?.display ?? "—";
+    const compactDisplay = display.replace(/^(¥[\d,.]+) – ¥([\d,.]+)$/u, "$1–$2");
     return <div className="qc-primary-cell qc-confirmation-cell" title={sourceTitle}>
-      <strong className="qc-list-price-value">{row.summary && row.summary.priceVersionCount > 1 && price?.value !== null && price?.value !== undefined && !unknown ? <a href={`/quote-center/detail?id=${encodeURIComponent(row.id)}`} aria-label={`查看价格方案：${display}`} onClick={event => event.stopPropagation()}>{display}</a> : display}</strong>
+      <strong className="qc-list-price-value" title={display}>{row.summary && row.summary.priceVersionCount > 1 && price?.value !== null && price?.value !== undefined && !unknown ? <a href={`/quote-center/detail?id=${encodeURIComponent(row.id)}`} aria-label={`查看价格方案：${display}`} onClick={event => event.stopPropagation()}>{compactDisplay}</a> : compactDisplay}</strong>
       {status && <small title={status}>{status.replace(/（.*）$/u, "")}</small>}
     </div>;
   }

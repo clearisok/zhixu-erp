@@ -19,11 +19,12 @@ const pause=ms=>new Promise(done=>setTimeout(done,ms));
 async function until(read,label){for(let n=0;n<200;n++){try{if(await read())return;}catch(e){if(!/Execution context was destroyed|Cannot find context with specified id|Inspected target navigated or closed/.test(String(e)))throw e;}await pause(100);}throw Error('Timed out: '+label);}
 
 test('compact business pages: actual headers, prices, routes, permissions and desktop/zoom geometry',{timeout:360000},async t=>{
- const build=JSON.parse(readFileSync('dist/client/build-info.json','utf8'));assert.equal(build.quoteAuthority,'server');assert.equal(build.orderRead,'snapshot');
- const x=await startContinuousFixture(resolve('dist/client'),{materialDisplay:true});
+ const observing=Boolean(process.env.COMPACT_UI_BASELINE_BUILD);const staticDirectory=resolve(process.env.COMPACT_UI_BASELINE_BUILD??'dist/client');
+ const build=JSON.parse(readFileSync(join(staticDirectory,'build-info.json'),'utf8'));if(observing)assert.equal(build.gitCommit,'4a8c9bc24b00983d0d79150349adeed5a333a237');assert.equal(build.quoteAuthority,'server');assert.equal(build.orderRead,'snapshot');
+ const x=await startContinuousFixture(staticDirectory,{materialDisplay:true});
  const dir=resolve(process.env.COMPACT_UI_EVIDENCE_DIR??'outputs/compact-business-pages');await mkdir(dir,{recursive:true});
  const profile=await mkdtemp(join(tmpdir(),'weaveops-compact-chrome-'));let chrome,ws,session,id=0;const pending=new Map(),errors=[];
- const evidence={build,synthetic:true,liveErpRequests:0,checks:[],geometry:[],quotes:[],orderId:x.orderId};
+ const evidence={build,observingBaseline:observing,synthetic:true,liveErpRequests:0,checks:[],geometry:[],quotes:[],orderId:x.orderId};
  try{
   const actor=await loadExistingBootstrapActor(x.pool,'demo.admin');
   for(let n=0;n<28;n++){
@@ -54,12 +55,12 @@ test('compact business pages: actual headers, prices, routes, permissions and de
    await command('Emulation.setDeviceMetricsOverride',{width:Math.floor(width/zoom),height:Math.floor(height/zoom),deviceScaleFactor:zoom,mobile:false});
    await navigate(kind==='quote'?'/quote-center':kind==='orders'?'/order-center':'/order-center/server-detail?id='+x.orderId);
    await has(kind==='quote'?'SYN-COMPACT-':kind==='orders'?'SO-':'订单概况');
-   await until(()=>evaluate('document.querySelector(".ops-page-actions button")!==null'),'page actions');
+   if(!observing)await until(()=>evaluate('document.querySelector(".ops-page-actions button")!==null'),'page actions');
    const geometry=await evaluate(`(()=>{const header=document.querySelector('.ops-topbar'),content=document.querySelector('.ops-content'),workspace=document.querySelector('.ops-workspace'),identity=document.querySelector('.oc-overview-heading'),table=document.querySelector('.qc-data-table'),actions=[...document.querySelectorAll('.ops-page-actions button')].filter(n=>n.getClientRects().length),box=n=>n?Object.fromEntries(['x','y','width','height','right','bottom'].map(k=>[k,n.getBoundingClientRect()[k]])):null;return {header:box(header),content:box(content),identity:box(identity),table:box(table),actions:actions.map(n=>({label:n.textContent.trim(),...box(n)})),viewport:innerWidth,documentOverflow:document.documentElement.scrollWidth>innerWidth+1,workspaceOverflow:workspace.scrollWidth>workspace.clientWidth+1,heroCount:content.querySelectorAll('.qc-page-header,.sp-order-nav').length,topbar:header.innerText,body:content.innerText};})()`);
-   assert.equal(geometry.heroCount,0,'no empty/repeated header or tabs');assert.equal(geometry.documentOverflow,false);assert.equal(geometry.workspaceOverflow,false);
+   if(!observing)assert.equal(geometry.heroCount,0,'no empty/repeated header or tabs');assert.equal(geometry.documentOverflow,false);assert.equal(geometry.workspaceOverflow,false);
    assert.ok(geometry.actions.every(a=>a.x>=0&&a.right<=geometry.viewport+1&&a.y>=geometry.header.y&&a.bottom<=geometry.header.bottom+1),'actions inside topbar');
-   assert.ok(!geometry.body.includes('Server identity'),'no redundant identity');
-   if(kind==='detail'){assert.ok(geometry.identity.y-geometry.header.bottom<45,'overview immediately below header');assert.ok(!geometry.topbar.includes('新建报价'),'no stale quote controls');}
+   if(!observing)assert.ok(!geometry.body.includes('Server identity'),'no redundant identity');
+   if(kind==='detail'&&!observing){assert.ok(geometry.identity.y-geometry.header.bottom<45,'overview immediately below header');assert.ok(!geometry.topbar.includes('新建报价'),'no stale quote controls');}
    if(kind==='quote')assert.ok(!geometry.topbar.includes('维护来源'),'no stale detail controls');
    evidence.geometry.push({kind,width,height,zoom,...geometry,body:undefined});await screenshot(kind+'-'+width+'x'+height+'-z'+zoom);
   };
@@ -68,10 +69,11 @@ test('compact business pages: actual headers, prices, routes, permissions and de
    for(const [w,h]of [[1366,768],[1440,900],[1920,1080],[2560,1440]])for(const kind of ['quote','orders','detail'])await checkPage(kind,w,h);
    for(const z of [.75,1.25,1.5])for(const kind of ['quote','orders','detail'])await checkPage(kind,1366,768,z);
   });
+  if(observing){await writeFile(join(dir,'results.json'),JSON.stringify(evidence,null,2)+'\n');return;}
   await command('Emulation.setDeviceMetricsOverride',{width:1440,height:900,deviceScaleFactor:1,mobile:false});await navigate('/quote-center');await has('SYN-COMPACT-');
   await t.test('independent actual prices and confirmation states, with all distinct prices and existing detail access',async()=>{
    const rows=await evaluate(`[...document.querySelectorAll('tbody tr')].filter(n=>n.innerText.includes('SYN-COMPACT-')).map(n=>({calculated:n.querySelector('[data-column-key="garmentPrice"]')?.innerText,confirmed:n.querySelector('[data-column-key="confirmedGarment"]')?.innerText,link:n.querySelector('.qc-confirmation-cell a')?.getAttribute('href')}))`);
-   assert.ok(rows.some(r=>r.confirmed?.includes('未确认')&&r.confirmed.includes('—')));assert.ok(rows.some(r=>r.confirmed?.includes('部分确认')&&r.confirmed.includes('¥91.25')));assert.ok(rows.some(r=>r.confirmed?.includes('全部确认')&&r.confirmed.includes('¥91.25 – ¥108.75')&&r.link?.startsWith('/quote-center/detail?id=')));
+   assert.ok(rows.some(r=>r.confirmed?.includes('未确认')&&r.confirmed.includes('—')));assert.ok(rows.some(r=>r.confirmed?.includes('部分确认')&&r.confirmed.includes('¥91.25')));assert.ok(rows.some(r=>r.confirmed?.includes('全部确认')&&r.confirmed.includes('¥91.25–108.75')&&r.link?.startsWith('/quote-center/detail?id=')));
    assert.ok(rows.every(r=>!r.calculated?.includes('确认')&&!r.calculated?.includes('91.25')&&!r.calculated?.includes('108.75')));await screenshot('confirmation-three-states-synthetic');evidence.checks.push('three real persisted synthetic confirmation states and multi-price range');
   });
   await t.test('topbar more menu and settings dialog, original column modes, direct creation and route cleanup',async()=>{

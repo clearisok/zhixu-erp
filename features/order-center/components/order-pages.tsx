@@ -447,7 +447,7 @@ export function OrderCenterPage() {
   return (
     <AppShell title="订单中心">
       <PageContainer className="oc-order-center-page">
-        
+
         <PageHeader
           eyebrow="ORDER CENTER"
           title="订单中心"
@@ -1170,7 +1170,7 @@ function OrderEditor({
     return (
       <AppShell title="订单明细" backTarget={{ href: "/order-center", label: "返回订单中心" }} onRequestNavigation={requestNavigation}>
         <PageContainer className="oc-cockpit-page">
-          
+
           <FormShell submitOnEnter={false} onSubmit={() => void save()}>
             <Workspace
               className="oc-order-workspace"

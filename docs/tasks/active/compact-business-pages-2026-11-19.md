@@ -29,3 +29,9 @@ Codex转录本聊天追加决定：用户确认这两个功能以后不再需要
 依赖审计：两个根列表路由仅分别导入StyleProgressPage和StyleRiskPage，均未在Server allowlist内；可清理其路由、专用页面函数及列表导入弹窗/补日志私有辅助。OrderCenterNavigation仅提供三Tab，已删除组件及全部引用，撤销此前新加左侧子菜单。不能删除整个style-progress-pages模块：其StyleProgressDetailPage、LegacyStyleProgressDetailPage、OrderStyleProgressSummary仍被订单详情、全局搜索与生产排单复用。保留/order-center/style-progress/detail、MaterialControlTower、所有来源/物料服务、DB/迁移/Repository/数据和共享接口，仅将其返回链接改为订单列表，防止死链。不再保留空Tab容器。数据库零结构/数据变更。
 
 补充回归覆盖：废弃根路由无入口，直接访问不读Browser；共享物料详情仍能访问，原生产/物料计算回归保持。权限和保存保护不变。
+
+247bb83e真实生产构建+新隔离PostgreSQL+独有Chromium八项通过（60.744秒主体，74.720秒总计）：四尺寸×三页12组合、75/125/150%等效CSS viewport/DPR×三页9组合，无文档/工作区横向溢出、顶栏按钮完整且无重复hero；真实持久合成确认三态/多价范围及详情链接；菜单/设置/独立与组合列视图；实际新建草稿跳详情且旧顶栏动作卸载；报价分页、订单分页/排序；合同切换、加工导入、来源/交期弹窗与刷新；废弃根路由不展示旧页、共用物料详情保留；受限会话不显示价格。截图/几何JSON在本机脱敏artifact目录，非真实客户业务数据。
+
+只读Linux full npm test在247bb83e为1025/1026；唯一失败是历史production-scheduling测试读取已删除导航文件，现已改成断言废弃导航不存在、共享详情存在；定向25/25通过。Windows早期full根测试因旧两文案断言失败及baseline子进程长时间运行而主动结束，仅停本任务本机child4636，不触及Worker/用户浏览器；不计PASS。第一版typecheck/lint/前后端build通过；v2最终仍需精确HEAD验证。
+
+查看真实1366截图后只将同CNY多价格显示压缩为“¥91.25–108.75”（原business值/数值/详情/完整tooltip仍不变），自动确认列最小138、款号自动下限144，手工列宽不改；17项专项再次通过。正在从旧正式镜像独立提取公开静态构建4a以同合成数据做前后几何/截图对照，不读旧镜像秘密或真实数据库。
