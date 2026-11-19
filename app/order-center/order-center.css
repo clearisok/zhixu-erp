@@ -539,6 +539,6 @@
 
 /* Order identity belongs to the overview, leaving no removed hero placeholder. */
 .oc-server-detail-overview > .oc-overview-heading { align-items: flex-start; gap: 12px; padding: 14px 18px; }
-.oc-overview-heading .oc-order-identity { color: #173d31; font-size: 21px; line-height: 1.25; overflow-wrap: anywhere; }
+.oc-overview-heading .oc-order-identity { margin: 0; font-family: inherit; font-weight: 750; color: #173d31; font-size: 21px; line-height: 1.25; overflow-wrap: anywhere; }
 .oc-overview-heading .oc-order-identifiers { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 2px 0 0; font-size: 12px; color: #6d7d75; }
 .oc-overview-heading .oc-order-identifiers > span:first-child { font-weight: 700; color: #35584b; }

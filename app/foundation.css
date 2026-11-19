@@ -384,3 +384,7 @@
   .ops-topbar:has(.ops-page-actions:not(:empty)) > .topbar-actions { flex: 1 1 100%; }
   .ops-page-actions { gap: 8px; }
 }
+
+@media (pointer: coarse) {
+  .ops-page-actions :is(.qc-button, .qc-floating-menu-trigger) { min-height: 44px; height: 44px; }
+}

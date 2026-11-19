@@ -221,7 +221,7 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
         <div className="oc-server-detail-content">
           {detail.attribution?.historicalDuplicate&&<AlertBanner tone="warning" title="历史重复订单 · 原身份与记录保留" actions={<a className="qc-button qc-button-secondary" href={`/order-center/server-detail?id=${encodeURIComponent(detail.attribution.effectiveOrderId)}`}>查看有效订单</a>}>此单不再接收新的执行、认领或价格采用。原合同、商业版本和历史流水保持。</AlertBanner>}
           <Card className="oc-server-detail-section oc-server-detail-zhixu oc-server-detail-overview">
-            <header className="oc-overview-heading"><div><h2>订单概况</h2><strong className="oc-order-identity">{detail.businessType==='ainuoke_contract' ? detail.insideOrderNo || "工厂款号待获取" : detail.styleNo || "款号待维护"}</strong><p className="oc-order-identifiers"><span>{detail.orderNo}</span><span>{detail.businessType==='processing' ? "加工订单" : `BillNo ${detail.billNo ?? "—"}`}</span></p></div><StatusTag tone={lifecycleTone(detail.lifecycleState)}>{lifecycleLabels[detail.lifecycleState]}</StatusTag></header>
+            <header className="oc-overview-heading"><div><h2>订单概况</h2><h1 className="oc-order-identity">{detail.businessType==='ainuoke_contract' ? detail.insideOrderNo || "工厂款号待获取" : detail.styleNo || "款号待维护"}</h1><p className="oc-order-identifiers"><span>{detail.orderNo}</span><span>{detail.businessType==='processing' ? "加工订单" : `BillNo ${detail.billNo ?? "—"}`}</span></p></div><StatusTag tone={lifecycleTone(detail.lifecycleState)}>{lifecycleLabels[detail.lifecycleState]}</StatusTag></header>
             <DescriptionList columns={3} compact items={[
               { key: "styleNo", label: "业务款号", value: detail.styleNo },
               { key: "customer", label: "客户", value: detail.customerName },

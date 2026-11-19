@@ -15,3 +15,5 @@ SSH weaveops，隔离工程TASK=/home/jackson/weaveops-staging-preview/releases/
 最终产品源码c8e82b11be7cd6ec6eae29579f24ca8ef155500f：Linux full npm test exit0，1026项套件，106.547秒；前后端build exit0；最终typecheck exit0、lint exit0（测试JS一条unused-expression已改明确if）。c8实机构建Chromium完整8项exit0（79.315秒，确认区间紧凑修正后），before21几何组合保存但Chrome teardown失败，不冒称before wrapper PASS；清理仅自身临时child/PG，已修嵌套finally+有限退出预算。追加真实搜索/筛选/客户端顶栏owner回归属于测试变化，产品代码未再改。SSH曾单次连接超时导致guard未执行，随后有界只读已连通；不可把超时写为guard失败或PASS，仍需执行guard和独立release-baseline。真实Staging仍未变更。
 
 远端交付：b10a7e7e1b75d9d67f4045753b4ed45aad11b8e2已标准git-delivery进程级proxy空值对照单次push DELIVERED_VERIFIED，Draft PR156已创建（首次传输异常先查head无PR再建，唯一PR），未合并。精确b10源码门禁PASS，17UI路径/0错误；CI team-access和baseline成功，source长套件进行中。追加复核既有ainuoke-continuous-ui的旧h1/“概况不含BillNo”断言需按获批新布局同步，正在独立测试；产品tree仍等于c8。PR正文如实描述范围/全部失败与取消/测试。SSH Staging间歇22超时，tailscale只读ping可经DERP(hkg)达，未改网络配置，真实Staging仍未开始修改。
+
+现有CI浏览器回归进一步发现两个旧位置定位：连续同步返回列表等h1、交期维护操作组closest旧PageHeader。已改为真实topbar，并将概况款号设语义h1保持原21px、顶栏coarse触控44px（桌面40）。需最终重新build并跑9项UI、原连续同步和交期维护；不能把c8 UI结果冒称最新这3个CSS/TSX变化已验。source CI目前仍旧b10运行，推送此正常checkpoint会由原workflow自动取新head，不绕过。Staging仍未修改。
