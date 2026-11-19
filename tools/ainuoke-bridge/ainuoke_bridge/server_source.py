@@ -158,7 +158,8 @@ def validate_input(data):
         raise ValueError("addition_scope_limit")
     return data
 
-def collect(data, client=None, include_colors=False, material_report=None, catalog_progress=None, catalog_resume=None):
+def collect(data, client=None, include_colors=False, material_report=None, catalog_progress=None, catalog_resume=None,
+            recapture_pages=None, recaptured=None, recapture_progress=None):
     data = validate_input(data)
     if data.get("mode") in ("selected-bindings", "selected-materials", "bound-materials", "catalog-discovery", "catalog-contracts"):
         if client is not None:
@@ -238,6 +239,24 @@ def collect(data, client=None, include_colors=False, material_report=None, catal
                 return result
         raise UpstreamSchemaError("page_limit")
 
+    # Targeted reads are diagnostic only. Always follow them with a wholly NEW
+    # before/details/after capture. Never splice an offset page into old data.
+    for index in recapture_pages or []:
+        page = client.read_report(REPORT_CATALOG['order_discovery'], jwt_token=session.jwt_token,
+                                  page=index, page_size=50, query_context={})
+        if (page.page_index != index or page.page_size != 50 or index > max(1, (page.total+49)//50)
+                or len(page.rows) != min(50, max(0, page.total-50*(index-1)))):
+            raise UpstreamSchemaError('incomplete_paging')
+        snapshot = build_report_snapshot(report_key='order_discovery', rows=page.rows, page=index,
+                                         page_size=50, total=page.total, query_context={}).to_dict()
+        if hasattr(client, 'secrets'):
+            from .selected_source_once import reject_secret_values
+            reject_secret_values(snapshot, client.secrets)
+        total_rows += len(snapshot['rows'])
+        total_bytes += len(json.dumps(snapshot, ensure_ascii=False).encode('utf8'))
+        recaptured.append(snapshot)
+        if recapture_progress:
+            recapture_progress(snapshot)
     before = pages("order_discovery", {})
     lookup = {}
     for page in before:

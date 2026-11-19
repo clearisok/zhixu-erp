@@ -2,8 +2,8 @@ import type { Pool, PoolClient } from 'pg';
 import { collectWithPython, parseCollectorConfig, type CollectorConfig } from './collector.js';
 import { SELECTED_SOURCE_LIMITS, validateSelectedSourceOnce, type SelectedSourceRequest } from './selected-source-once.js';
 import { SourceError } from './contract.js';
-import type {CatalogPage} from './catalog-checkpoints.js';
-import {CatalogConsistencyError,type CatalogChangeDiagnostic} from './catalog-consistency.js';
+import {validateCatalogCheckpointPage,type CatalogPage,type CatalogCollectionOptions} from './catalog-checkpoints.js';
+import {CatalogConsistencyError,type CatalogChangeDiagnostic,type CatalogFieldDifference} from './catalog-consistency.js';
 import {auditPages} from './sync-audit.js';
 
 export type LoginEvidence = { responseShape:'data_object'|'object_without_data_object'|'non_object'; result:'accepted'|'rejected'|'malformed'; serverCode:'absent'|'cover_confirmation'|'unrecognized'; serverHint:'unclassified'|'session_exists'|'verification_required'|'credentials_rejected'|'account_unavailable'|'throttling_hint'|'cover_confirmation_required'|'user_capacity_exhausted' };
@@ -16,7 +16,7 @@ const outcomes=new Set(['complete','http_error','timeout','dns_error','tls_error
  * checked request trace, not its raw response, credentials or unverified metrics. */
 export class CatalogDiagnosticValidationError extends SourceError {
  readonly diagnostics:RequestDiagnostic[];
- constructor(code:string,diagnostics:RequestDiagnostic[],readonly catalogChange?:CatalogChangeDiagnostic) {
+ constructor(code:string,diagnostics:RequestDiagnostic[],readonly catalogChange?:CatalogChangeDiagnostic,readonly differences:CatalogFieldDifference[]=[],readonly recaptured:CatalogPage[]=[]) {
   super(code);this.diagnostics=validateRequestDiagnostics(diagnostics);
  }
 }
@@ -53,23 +53,31 @@ export function validateRequestDiagnostics(input:unknown):RequestDiagnostic[] {
   return {...d};
  });
 }
-export async function collectCatalogDiagnostic(config:CollectorConfig,request:SelectedSourceRequest,now=Date.now()) {
+export async function collectCatalogDiagnostic(config:CollectorConfig,request:SelectedSourceRequest,now=Date.now(),options?:CatalogCollectionOptions) {
  if(request.mode!=='catalog-discovery'&&request.mode!=='catalog-contracts')throw new SourceError('selected_source_scope_invalid');
  const cfg=parseCollectorConfig(config);
  // Reject invalid scopes through the normal preflight BEFORE spawning Python.
  if(request.mode==='catalog-contracts'&&(!Array.isArray(request.contracts)||request.contracts.length<1||request.contracts.length>25
   ||new Set(request.contracts).size!==request.contracts.length||request.contracts.some(c=>!/^[A-Z0-9][A-Z0-9/._-]{0,79}$/u.test(c))))throw new SourceError('selected_source_scope_invalid');
- const value=await collectWithPython(cfg,request.contracts,{mode:request.mode,timeoutMs:SELECTED_SOURCE_LIMITS.timeoutMs,diagnostics:true});
- return validateCatalogDiagnostic(value,cfg,request,Math.max(now,Date.now()));
+ const targets=options?.recapturePages??[];
+ if(targets.length>28||new Set(targets).size!==targets.length||targets.some(p=>!Number.isSafeInteger(p)||p<1||p>28))throw new SourceError('selected_source_scope_invalid');
+ const value=await collectWithPython(cfg,request.contracts,{mode:request.mode,timeoutMs:SELECTED_SOURCE_LIMITS.timeoutMs,diagnostics:true,recapturePages:targets});
+ // Standalone diagnostic captures have no progress channel. Validate the whole
+ // envelope before retaining their targeted page evidence, including failures.
+ const checked=await validateCatalogDiagnostic(value,cfg,request,Math.max(now,Date.now()),[],targets);
+ if(options?.onRecapturePage&&value&&typeof value==='object'&&'capture' in value){
+  for(const p of (value.capture as {recapture?:unknown[]}).recapture??[])await options.onRecapturePage(validateCatalogCheckpointPage(p));
+ }
+ return checked;
 }
-export async function validateCatalogDiagnostic(value:unknown,cfg:CollectorConfig,request:SelectedSourceRequest,now:number,resumePages:readonly CatalogPage[]=[]) {
+export async function validateCatalogDiagnostic(value:unknown,cfg:CollectorConfig,request:SelectedSourceRequest,now:number,resumePages:readonly CatalogPage[]=[],recapturePages:readonly number[]=[]) {
  if(!value||typeof value!=='object'||Object.keys(value).sort().join(',')!=='capture,requests,schemaVersion')throw new SourceError('sync_diagnostics_invalid');
  const wrapped=value as {schemaVersion:string;capture:unknown;requests:unknown};
  const sessionReuse=wrapped.schemaVersion==='ainuoke-session-diagnostics.v1';
  if(!sessionReuse&&wrapped.schemaVersion!=='ainuoke-request-diagnostics.v1')throw new SourceError('sync_diagnostics_invalid');
  const diagnostics=validateRequestDiagnostics(wrapped.requests);
  let capture;
- try {capture=await validateSelectedSourceOnce(wrapped.capture,cfg,request,now,sessionReuse,resumePages);}
+ try {capture=await validateSelectedSourceOnce(wrapped.capture,cfg,request,now,sessionReuse,resumePages,recapturePages);}
  catch(error){
   // A retryable domain rejection occurs only after envelope/metrics validation.
   // Do not let a contradictory transport trace turn auth/schema failures into retries.
@@ -78,7 +86,7 @@ export async function validateCatalogDiagnostic(value:unknown,cfg:CollectorConfi
    if(diagnostics.length!==metrics.httpAttempts||diagnostics.some(d=>d.outcome!=='complete'))
     throw new CatalogDiagnosticValidationError('sync_diagnostics_invalid',diagnostics);
   }
-  if(error instanceof SourceError)throw new CatalogDiagnosticValidationError(error.code,diagnostics,error instanceof CatalogConsistencyError?error.catalogChange:undefined);
+  if(error instanceof SourceError)throw new CatalogDiagnosticValidationError(error.code,diagnostics,error instanceof CatalogConsistencyError?error.catalogChange:undefined,error instanceof CatalogConsistencyError?error.differences:[],error instanceof CatalogConsistencyError?error.recaptured:[]);
   throw error;
  }
  const errors=diagnostics.filter(d=>d.outcome!=='complete');

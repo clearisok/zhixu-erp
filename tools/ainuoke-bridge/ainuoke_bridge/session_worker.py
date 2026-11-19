@@ -17,6 +17,7 @@ def main():
             data = json.loads(line)
             progress = data.pop('catalogProgress', False)
             audit_progress = data.pop('auditProgress', False)
+            targets = data.pop('recapturePages', [])
             if type(audit_progress) is not bool:
                 raise ValueError('invalid_audit_progress')
             resume = data.pop('catalogResume', [])
@@ -43,9 +44,15 @@ def main():
                 reject_secret_values(diagnostic, secrets)
                 sys.stdout.write(json.dumps({'schemaVersion':'ainuoke-request-event.v1','phase':phase,'diagnostic':diagnostic},ensure_ascii=False)+'\n')
                 sys.stdout.flush()
+            def recapture_saved(page):
+                from .selected_source_once import reject_secret_values
+                reject_secret_values(page, [data['password'], owner.session.jwt_token] if owner.session else [data['password']])
+                sys.stdout.write(json.dumps({'schemaVersion':'ainuoke-recapture-page.v1','page':page}, ensure_ascii=False)+'\n')
+                sys.stdout.flush()
             capture = collect_selected(data, diagnostics=events, session_owner=owner,
                                        catalog_progress=page_saved if progress else None, catalog_resume=resume,
-                                       request_progress=request_saved if audit_progress else None)
+                                       request_progress=request_saved if audit_progress else None,
+                                       recapture_pages=targets, recapture_progress=recapture_saved if targets else None)
             result = {'schemaVersion':'ainuoke-session-diagnostics.v1','capture':capture,'requests':events}
             sys.stdout.write(json.dumps(result, ensure_ascii=False) + '\n')
             sys.stdout.flush()

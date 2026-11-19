@@ -185,7 +185,8 @@ class BudgetClient:
         return result
 
 
-def collect_selected(data, transport=None, clock=monotonic, diagnostics=None, session_owner=None, catalog_progress=None, catalog_resume=None, request_progress=None):
+def collect_selected(data, transport=None, clock=monotonic, diagnostics=None, session_owner=None, catalog_progress=None, catalog_resume=None, request_progress=None,
+                     recapture_pages=None, recapture_progress=None):
     """Injection is an internal testing seam, never an argv/stdin flag."""
     data = validate_input(data)
     if session_owner:
@@ -193,6 +194,11 @@ def collect_selected(data, transport=None, clock=monotonic, diagnostics=None, se
     if data.get("mode") not in MODES:
         raise ValueError("invalid_selected_scope")
     catalog = data["mode"] == "catalog-discovery"
+    targets = recapture_pages or []
+    if (not isinstance(targets, list) or len(targets) > 28 or len(set(targets)) != len(targets)
+            or any(type(p) is not int or not 1 <= p <= 28 for p in targets)
+            or targets and (data['mode'] not in ('catalog-discovery', 'catalog-contracts') or catalog_resume)):
+        raise ValueError('invalid_recapture_scope')
     if (catalog_progress or catalog_resume) and not catalog:
         raise ValueError('invalid_catalog_checkpoint')
     from .catalog_checkpoint import validated_prefix
@@ -207,6 +213,9 @@ def collect_selected(data, transport=None, clock=monotonic, diagnostics=None, se
               "mode": data["mode"], "limits": CATALOG_LIMITS if catalog else CATALOG_CONTRACT_LIMITS if data["mode"] == "catalog-contracts" else {**LIMITS, **({"contracts": 25} if bounded else {})},
               "sourceFingerprint": fingerprint(data), "selectedContracts": list(data["contracts"]),
               "databaseAccess": "none", "sourceActivation": "not-activated"}
+    recaptured = []
+    if targets:
+        common['recapture'] = recaptured
     try:
         sdk = AinuokeClient(base_url=data["baseUrl"], transport=budget, network_retries=0,
                            timeout_seconds=CATALOG_REQUEST_TIMEOUT_SECONDS if data["mode"] in ("catalog-discovery", "catalog-contracts") else 15)
@@ -219,10 +228,12 @@ def collect_selected(data, transport=None, clock=monotonic, diagnostics=None, se
         else:
             engine.pop("mode")
         bundle = collect(engine, client, include_colors=data["mode"] == "catalog-contracts", material_report=engine.pop("materialReport", None),
-                         catalog_progress=catalog_progress, catalog_resume=prefix)
+                         catalog_progress=catalog_progress, catalog_resume=prefix, recapture_pages=targets,
+                         recaptured=recaptured, recapture_progress=recapture_progress)
         reject_secret_values(bundle, client.secrets)
+        reject_secret_values(recaptured, client.secrets)
         if sum(len(p["rows"]) for p in [*bundle["discoveryBefore"], *bundle["discoveryAfter"],
-              *(p for key in ("colors", "materials") for pages in bundle.get(key, {}).values() for p in pages)]) > LIMITS["sourceRows"]:
+              *recaptured, *(p for key in ("colors", "materials") for pages in bundle.get(key, {}).values() for p in pages)]) > LIMITS["sourceRows"]:
             raise Refused("selected_source_row_limit")
         return {**common, "result": "complete", "code": None, "metrics": budget.metrics(), "bundle": bundle}
     except (Exception, KeyboardInterrupt) as error:

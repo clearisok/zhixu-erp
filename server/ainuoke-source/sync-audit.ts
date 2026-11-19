@@ -11,6 +11,7 @@ type DB=Pick<Pool|PoolClient,'query'>;
 type Page={reportId:string;fetchedAt:string;page:number;total:number;queryContext:Record<string,unknown>;rows:{values:Record<string,unknown>}[]};
 type Context={id:string;sourceKey:string};
 const context=new AsyncLocalStorage<Context>();
+export const currentSyncAudit=()=>context.getStore();
 /** Public operations must pin caller-owned input BEFORE the audit's first
  * await, preserving their original mutation/CAS boundary. Pool and callback
  * functions keep their identity; data objects are copied synchronously. */
@@ -78,6 +79,7 @@ export async function withSyncAudit<T>(pool:Pool,scope:{id?:string;sourceKey:str
  if(context.getStore()?.sourceKey===scope.sourceKey)return fn();
  // Never spend a source request when its durable ledger is unavailable.
  if(!(await pool.query("SELECT to_regclass('public.ainuoke_sync_audit_batches') IS NOT NULL AS enabled")).rows[0].enabled)throw new SourceError('sync_audit_migration_required');
+ if(!(await pool.query("SELECT to_regclass('public.ainuoke_catalog_diagnostics') IS NOT NULL AS enabled")).rows[0].enabled)throw new SourceError('catalog_diagnostics_migration_required');
  const id=scope.id??randomUUID();
  let policy=null;
  const configured=(await pool.query('SELECT policy FROM ainuoke_sync_controls WHERE source_key=$1',[scope.sourceKey])).rows[0];

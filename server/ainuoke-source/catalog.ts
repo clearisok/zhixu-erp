@@ -40,6 +40,7 @@ function onlyCatalogBusinessChanged(b:AdditionDiscoveryBundle):boolean {
  for(const row of before){
   const next=byId.get(String(row.values.id).trim());
   if(!next||[row,next].some(r=>Object.keys(r).sort().join(',')!=='sourceRowIdentity,values'))return false;
+  if([row,next].some(r=>'Price' in r.values&&r.values.Price!==null&&!['string','number'].includes(typeof r.values.Price)))return false;
   const fixed=(values:typeof row.values)=>Object.fromEntries(Object.entries(values).filter(([key])=>!mutableCatalogFields.has(key)));
   // Includes exact id/BillNo/InsideOrderNo and every unknown field. The SDK row
   // fingerprint hashes the whole row and is not the stable contract identity.
@@ -59,7 +60,7 @@ export async function previewCatalog(input:unknown,now=Date.now()) {
  if(before.total>1400||after.total>1400)throw new SourceError('catalog_row_limit_exceeded');
  if(before.snapshotHash!==after.snapshotHash||discoveryContentHash(b.discoveryBefore)!==discoveryContentHash(b.discoveryAfter)){
   const change=catalogChangeEvidence(b);
-  throw new CatalogConsistencyError(change.additionsOnly?'catalog_additions_observed':onlyCatalogBusinessChanged(b)?'catalog_business_content_changed':change.nonIdentityOnly?'catalog_non_identity_content_changed':'catalog_identity_or_scope_changed',change.diagnostic);
+  throw new CatalogConsistencyError(change.additionsOnly?'catalog_additions_observed':onlyCatalogBusinessChanged(b)?'catalog_business_content_changed':change.nonIdentityOnly?'catalog_non_identity_content_changed':'catalog_identity_or_scope_changed',change.diagnostic,change.differences);
  }
  const raw=new Map(b.discoveryAfter.flatMap(p=>p.rows).map(r=>[String(r.values.id).trim(),r.values]));
  const rows=after.rows.map(r=>{const v=raw.get(r.sourceId)!;return {...r,contractDate:date(r.contractDate),deliveryDate:date(r.deliveryDate),

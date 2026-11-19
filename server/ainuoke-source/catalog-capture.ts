@@ -12,6 +12,8 @@ import { randomUUID } from 'node:crypto';
 import {beginCatalogScan,saveCatalogScanPage,loadCatalogScanResume,finishCatalogScan,failCatalogScan,type CatalogCollectionOptions} from './catalog-checkpoints.js';
 import type {AdditionDiscoveryBundle} from './additions.js';
 import { CatalogDiagnosticValidationError, collectCatalogDiagnostic, validateCatalogDiagnostic, finishCaptureAttempt, retryableCapture, type RequestDiagnostic } from './sync-diagnostics.js';
+import {CatalogConsistencyError} from './catalog-consistency.js';
+import {retainCatalogDifferences,recapturePagesFor,validatedRecapturePages,recapturePageHandler,appendCatalogDiagnostic} from './catalog-diagnostics.js';
 type Identity=Pick<TrustedIdentity,'internalUserId'|'userId'>;
 export async function readCatalogCaptureReceipt(pool:Pool,identity:Identity,sourceKey:string,requestId:string){
  const actor=await sourceActor(pool,identity,true);
@@ -43,11 +45,14 @@ async function captureUnderLease(pool:Pool,identity:Identity,raw:CollectorConfig
  const fingerprint=accountFingerprint(config);await requireAdditionProfile(pool,config.sourceKey,fingerprint);
  const prior=await readCatalogCaptureReceipt(pool,identity,config.sourceKey,requestId);
  if(prior)return {...prior,replayed:true};
+ const last=(await pool.query('SELECT request_id,status,result FROM ainuoke_catalog_requests WHERE source_key=$1 ORDER BY created_at DESC LIMIT 1',[config.sourceKey])).rows[0];
+ const recapturePages=last?.status==='failed'&&last.result?.code==='catalog_business_content_changed'?validatedRecapturePages(last.result.recapturePages??[]):[];
+ const retryCount=Number((await pool.query('SELECT catalog_failure_count FROM ainuoke_sync_controls WHERE source_key=$1',[config.sourceKey])).rows[0]?.catalog_failure_count??0);
  const started=await pool.query(`INSERT INTO ainuoke_catalog_requests(source_key,request_id,actor_id,account_fingerprint,status) VALUES($1,$2,$3,$4,'running') ON CONFLICT DO NOTHING RETURNING request_id`,[config.sourceKey,requestId,actor.internalUserId,fingerprint]);
  if(!started.rowCount)throw new SourceError('catalog_request_in_progress');
  let diagnosticId:string|null=null,diagnostics:RequestDiagnostic[]|null=null,metrics:unknown=null,completedBundle:AdditionDiscoveryBundle|undefined;
  try {
-  const resumePages=collect?await loadCatalogScanResume(pool,config.sourceKey,fingerprint):[];
+  const resumePages=collect&&!recapturePages.length?await loadCatalogScanResume(pool,config.sourceKey,fingerprint):[];
   await beginCatalogScan(pool,config.sourceKey,requestId);
   const request:SelectedSourceRequest={mode:'catalog-discovery',contracts:[]};
   diagnosticId=randomUUID();
@@ -55,16 +60,20 @@ async function captureUnderLease(pool:Pool,identity:Identity,raw:CollectorConfig
    VALUES($1,$2,$3,$4,'catalog-discovery','{}'::uuid[],'running',now())`,[diagnosticId,config.sourceKey,fingerprint,actor.internalUserId]);
   await auditLinkCapture(pool,diagnosticId);
   let captured;
+  const captureOptions:CatalogCollectionOptions={resumePages,recapturePages,onRecapturePage:recapturePageHandler(pool,retryCount),onRequest:auditRequestHandler(pool),onPage:(phase,page)=>saveCatalogScanPage(pool,config.sourceKey,requestId,phase,page)};
   if(collect){
-   const raw=await collect(config,request,{resumePages,onRequest:auditRequestHandler(pool),onPage:(phase,page)=>saveCatalogScanPage(pool,config.sourceKey,requestId,phase,page)});
+   const raw=await collect(config,request,captureOptions);
    if(raw&&typeof raw==='object'&&'schemaVersion' in raw&&['ainuoke-request-diagnostics.v1','ainuoke-session-diagnostics.v1'].includes(String(raw.schemaVersion))){
-    const checked=await validateCatalogDiagnostic(raw,config,request,Date.now(),resumePages);captured=checked.capture;diagnostics=checked.diagnostics;
-   }else captured=await validateSelectedSourceOnce(raw,config,request);
-  }else{const checked=await collectCatalogDiagnostic(config,request);captured=checked.capture;diagnostics=checked.diagnostics;}
+    const checked=await validateCatalogDiagnostic(raw,config,request,Date.now(),resumePages,recapturePages);captured=checked.capture;diagnostics=checked.diagnostics;
+   }else captured=await validateSelectedSourceOnce(raw,config,request,Date.now(),false,[],recapturePages);
+   if(recapturePages.length){const payload=raw&&typeof raw==='object'&&'capture' in raw?raw.capture:raw;
+    for(const p of (payload as {recapture?:unknown[]}).recapture??[])await captureOptions.onRecapturePage!(p);}
+  }else{const checked=await collectCatalogDiagnostic(config,request,Date.now(),captureOptions);captured=checked.capture;diagnostics=checked.diagnostics;}
   metrics=captured.metrics;await auditMetrics(pool,metrics);
   if(captured.result!=='complete')throw new SourceError(captured.code);
   if(captured.mode!=='catalog-discovery')throw new SourceError('catalog_invalid');
   completedBundle=captured.bundle;
+  if(recapturePages.length)await appendCatalogDiagnostic(pool,'decision',retryCount,'full_stable_capture_validated',{prior_batch:last.request_id,pages:recapturePages,content_hash:captured.preview.contentHash});
   await auditAcquired(pool,captured.bundle,diagnostics);
   await finishCaptureAttempt(pool,diagnosticId,null,diagnostics,metrics,Date.now());
   const result=await publishCatalog(pool,identity,{sourceKey:config.sourceKey,accountFingerprint:fingerprint,requestId,input:captured.bundle,expectedHash:captured.preview.contentHash,adoptNewOrders});
@@ -74,14 +83,18 @@ async function captureUnderLease(pool:Pool,identity:Identity,raw:CollectorConfig
   if(e instanceof CatalogDiagnosticValidationError)diagnostics=e.diagnostics;
   const committed=(await pool.query('SELECT id::text FROM ainuoke_catalog_runs WHERE source_key=$1 AND request_id=$2',[config.sourceKey,requestId]).catch(()=>({rows:[]}))).rows[0];
   if(committed){await finishCatalogScan(pool,config.sourceKey,requestId,{runId:committed.id},completedBundle);return {status:'complete',result:{runId:committed.id},replayed:true};}
-  const code=e instanceof SourceError?e.code:'catalog_result_unknown';
+  const change=e instanceof CatalogDiagnosticValidationError||e instanceof CatalogConsistencyError?e:undefined;
+  const code=e instanceof SourceError&&e.code==='catalog_business_content_changed'&&retryCount>=2?'mutable_field_unstable':e instanceof SourceError?e.code:'catalog_result_unknown';
+  let diagnosticsPersisted=change?.differences.length?await retainCatalogDifferences(pool,change.differences,diagnostics,retryCount,code):undefined;
+  try{for(const p of change?.recaptured??[])await recapturePageHandler(pool,retryCount)(p);}catch{diagnosticsPersisted=false;}
   await auditCaptureFailure(pool,code,diagnostics);
   if(diagnosticId)await finishCaptureAttempt(pool,diagnosticId,code,diagnostics,metrics,Date.now());
-  await pool.query('UPDATE ainuoke_catalog_requests SET status=$3,result=$4::jsonb,finished_at=now() WHERE source_key=$1 AND request_id=$2',[config.sourceKey,requestId,e instanceof SourceError?'failed':'unknown',JSON.stringify({code,...(e instanceof CatalogDiagnosticValidationError&&e.catalogChange?{catalogChange:e.catalogChange}:{})})]).catch(()=>undefined);
+  await pool.query('UPDATE ainuoke_catalog_requests SET status=$3,result=$4::jsonb,finished_at=now() WHERE source_key=$1 AND request_id=$2',[config.sourceKey,requestId,e instanceof SourceError?'failed':'unknown',JSON.stringify({code,...(change?{catalogChange:change.catalogChange,recapturePages:recapturePagesFor(change.differences),diagnosticsPersisted}:{})})]).catch(()=>undefined);
   await failCatalogScan(pool,config.sourceKey,requestId,code,!(e instanceof SourceError));
   // Only proven transient failures can be scheduled again. Certificate, scope,
   // permission, pagination and unknown failures must also stop future ticks.
-  if(!retryableCapture(code,diagnostics))await pool.query('UPDATE ainuoke_sync_controls SET paused_reason=$2 WHERE source_key=$1',[config.sourceKey,code]).catch(()=>undefined);
+  if(diagnosticsPersisted===false||!retryableCapture(code,diagnostics))await pool.query('UPDATE ainuoke_sync_controls SET paused_reason=$2 WHERE source_key=$1',[config.sourceKey,code]).catch(()=>undefined);
+  if(code==='mutable_field_unstable')throw new CatalogConsistencyError(code,change!.catalogChange!,change!.differences);
   throw e;
  }
 }

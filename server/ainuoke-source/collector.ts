@@ -71,6 +71,7 @@ export function collectWithPython(config: CollectorConfig, contracts: string[], 
     python?: string;
     timeoutMs?: number;
     diagnostics?: boolean;
+    recapturePages?: readonly number[];
     mode?: "bindings" | "probe" | "discovery" | "additions" | "selected-bindings" | "selected-materials" | "bound-materials" | "catalog-discovery" | "catalog-contracts";
 } = {}): Promise<unknown> {
     return new Promise((resolveResult, reject) => {
@@ -114,6 +115,7 @@ export function collectWithPython(config: CollectorConfig, contracts: string[], 
             }
         });
         child.stdin.end(JSON.stringify({ baseUrl: config.baseUrl, username: config.username, password: config.password, contracts,
+            ...(options.recapturePages?.length?{recapturePages:options.recapturePages}:{}),
             ...(options.mode ? {mode: options.mode} : {}), ...(config.materialReport && ["catalog-contracts", "bound-materials"].includes(options.mode ?? "") ? {materialReport: config.materialReport} : {}), ...(config.transportPolicy ? {transportPolicy: config.transportPolicy} : {}) }));
     });
 }

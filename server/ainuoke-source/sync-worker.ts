@@ -18,7 +18,8 @@ import {requirePermission} from '../auth/permissions.js';
 import {createAinuokeSalesOrderInTransaction} from '../sales-orders/service.js';
 import {lockEffectiveAttribution} from '../sales-orders/effective-attribution.js';
 import { saveCatalogEvidence } from './catalog-evidence.js';
-import type {CatalogChangeDiagnostic} from './catalog-consistency.js';
+import {CatalogConsistencyError,type CatalogChangeDiagnostic} from './catalog-consistency.js';
+import {retainCatalogDifferences,recapturePagesFor,loadRecapturePages,recapturePageHandler,appendCatalogDiagnostic} from './catalog-diagnostics.js';
 import { CatalogDiagnosticValidationError, collectCatalogDiagnostic, validateCatalogDiagnostic, diagnosticSummary, finishCaptureAttempt, retryDelayMs, retryableCapture, type RequestDiagnostic } from './sync-diagnostics.js';
 
 type Identity = Pick<TrustedIdentity,'internalUserId'|'userId'>;
@@ -99,7 +100,7 @@ async function publishContract(pool:Pool,identity:Identity,config:CollectorConfi
     await commitWithSyncAudit(c);return result;
   }catch(e){await c.query('ROLLBACK').catch(()=>undefined);throw e;}finally{c.release();}
 }
-async function failJob(pool:Pool,job:SyncJob,code:string,unknown=false,options:{diagnostics?:RequestDiagnostic[]|null;catalogChange?:CatalogChangeDiagnostic;retry?:boolean;pauseCapture?:boolean;now?:number}={}) {
+async function failJob(pool:Pool,job:SyncJob,code:string,unknown=false,options:{diagnostics?:RequestDiagnostic[]|null;catalogChange?:CatalogChangeDiagnostic;recapturePages?:number[];diagnosticsPersisted?:boolean;retry?:boolean;pauseCapture?:boolean;now?:number}={}) {
   const c=await pool.connect();try {
     await c.query('BEGIN');
     await c.query('SELECT pg_advisory_xact_lock(hashtextextended($1,0))',['ainuoke-sync-queue:'+job.source_key]);
@@ -108,7 +109,9 @@ async function failJob(pool:Pool,job:SyncJob,code:string,unknown=false,options:{
     // job and its business publications share one transaction.
     const state=(await c.query('SELECT status,result FROM ainuoke_sync_jobs WHERE id=$1 FOR UPDATE',[job.id])).rows[0];
     if(state?.status==='complete'){await c.query('COMMIT');return state;}
-    const failure={code,...(options.catalogChange?{catalogChange:options.catalogChange}:{})};
+    const failure={code,...(options.catalogChange?{catalogChange:options.catalogChange}:{}),
+     ...(options.recapturePages?.length?{recapturePages:options.recapturePages}:{}),
+     ...(options.diagnosticsPersisted!==undefined?{diagnosticsPersisted:options.diagnosticsPersisted}:{})};
     await c.query("UPDATE ainuoke_sync_jobs SET status=$2,finished_at=now(),result=$3::jsonb WHERE id=$1 AND status='running'",[job.id,unknown?'unknown':'failed',JSON.stringify(failure)]);
     const now=options.now??Date.now(),transport=diagnosticSummary(options.diagnostics??null);
     const summary=options.catalogChange?{...(transport??{}),catalogChange:options.catalogChange}:transport;
@@ -188,30 +191,43 @@ export async function runSyncTick(pool:Pool,identity:Identity,raw:CollectorConfi
     await pool.query('UPDATE ainuoke_sync_jobs SET capture_attempt_id=$2 WHERE id=ANY($1::uuid[]) AND status=\'running\'',[jobs.map(j=>j.id),attemptId]);
     let captured:Captured;
     let diagnostics:RequestDiagnostic[]|null=null,metrics:unknown=null;
+    const retryCount=Math.max(...jobs.map(j=>j.attempt_number-1));
+    const recapturePages=await loadRecapturePages(pool,config.sourceKey,jobs.flatMap(j=>j.retry_of?[j.retry_of]:[]));
+    const captureOptions:CatalogCollectionOptions={onRequest:auditRequestHandler(pool),recapturePages,onRecapturePage:recapturePageHandler(pool,retryCount)};
     try {
       let response;
       if(options.collect){
-        const raw=await options.collect(config,request,{onRequest:auditRequestHandler(pool)});
+        const raw=await options.collect(config,request,captureOptions);
         if(raw&&typeof raw==='object'&&'schemaVersion' in raw&&['ainuoke-request-diagnostics.v1','ainuoke-session-diagnostics.v1'].includes(String(raw.schemaVersion))){
-          const checked=await validateCatalogDiagnostic(raw,config,request,now());response=checked.capture;diagnostics=checked.diagnostics;
-        }else response=await validateSelectedSourceOnce(raw,config,request,now());
-      }else {const checked=await collectCatalogDiagnostic(config,request,now());response=checked.capture;diagnostics=checked.diagnostics;}
+          const checked=await validateCatalogDiagnostic(raw,config,request,now(),[],recapturePages);response=checked.capture;diagnostics=checked.diagnostics;
+        }else response=await validateSelectedSourceOnce(raw,config,request,now(),false,[],recapturePages);
+        if(recapturePages.length){
+         const payload=raw&&typeof raw==='object'&&'capture' in raw?raw.capture:raw;
+         for(const p of (payload as {recapture?:unknown[]}).recapture??[])await captureOptions.onRecapturePage!(p);
+        }
+      }else {const checked=await collectCatalogDiagnostic(config,request,now(),captureOptions);response=checked.capture;diagnostics=checked.diagnostics;}
       metrics=response.metrics;await auditMetrics(pool,metrics);
       if(response.result!=='complete')throw new SourceError(response.code);
       if(response.mode!=='catalog-contracts')throw new SourceError('selected_source_invalid');captured=response;
     }catch(e){
       if(e instanceof CatalogDiagnosticValidationError)diagnostics=e.diagnostics;
-      const code=e instanceof SourceError?e.code:'source_capture_failed';
+      const change=e instanceof CatalogDiagnosticValidationError||e instanceof CatalogConsistencyError?e:undefined;
+      const mutable=e instanceof SourceError&&e.code==='catalog_business_content_changed';
+      const code=mutable&&retryCount>=2?'mutable_field_unstable':e instanceof SourceError?e.code:'source_capture_failed';
+      let diagnosticsPersisted=change?.differences.length?await retainCatalogDifferences(pool,change.differences,diagnostics,retryCount,code):undefined;
+      try{for(const p of change?.recaptured??[])await captureOptions.onRecapturePage!(p);}catch{diagnosticsPersisted=false;}
       await auditCaptureFailure(pool,code,diagnostics);
       await finishCaptureAttempt(pool,attemptId,code,diagnostics,metrics,now());
       const results=[];
-      const retry=retryableCapture(code,diagnostics);
+      const retry=diagnosticsPersisted!==false&&retryableCapture(code,diagnostics);
       // Refusing a retry child is insufficient: the next tick could claim a new
       // contract or a new scheduled slot. Unsafe captures require explicit recovery.
       for(const job of jobs)results.push({id:job.id,...await failJob(pool,job,code,false,{diagnostics,retry,
-        catalogChange:e instanceof CatalogDiagnosticValidationError?e.catalogChange:undefined,pauseCapture:!retry,now:now()})});
+        catalogChange:change?.catalogChange,recapturePages:change?recapturePagesFor(change.differences):undefined,diagnosticsPersisted,pauseCapture:!retry,now:now()})});
       return {status:'failed' as const,retryScheduled:results.some(r=>r.retry),jobs:results};
     }
+    if(recapturePages.length)await appendCatalogDiagnostic(pool,'decision',retryCount,'full_stable_capture_validated',{
+     prior_jobs:jobs.flatMap(j=>j.retry_of?[j.retry_of]:[]),pages:recapturePages,content_hash:captured.directory.contentHash});
     await auditAcquired(pool,captured.directory.bundle,diagnostics);
     for(const [contract,single] of Object.entries(captured.contracts))if(!('code' in single)){
       await auditAcquired(pool,single.addition.colors[contract],diagnostics,contract);
