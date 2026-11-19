@@ -1,0 +1,31 @@
+{
+  "baselineSha": "4a8c9bc24b00983d0d79150349adeed5a333a237",
+  "level": "V3",
+  "paths": [
+    "app/foundation.css",
+    "app/order-center/order-center.css",
+    "app/quote-center/quote-center.css",
+    "components/foundation/app-shell.tsx",
+    "features/order-center/components/server-order-center-page.tsx",
+    "features/order-center/components/server-sales-order-detail-page.tsx",
+    "features/quote-center/components/production-quote-list-page.tsx",
+    "features/quote-center/components/server-list-cell.tsx",
+    "features/quote-center/server/list-preferences.ts",
+    "features/quote-center/server/list-presentation.ts",
+    "features/style-progress/components/order-center-navigation.tsx"
+  ],
+  "pages": [
+    "quote-list",
+    "order-list",
+    "order-detail",
+    "navigation"
+  ],
+  "visibleDifference": "User-approved four-screenshot layout: consolidate repeated heroes into existing topbar actions; order submenu; overview identity; independent calculated and actual confirmed prices. Existing style, authority, permissions and all business modules retained.",
+  "evidence": [
+    "docs/tasks/active/compact-business-pages-2026-11-19.md"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/compact-business-pages-2026-11-19.md"
+  }
+}

@@ -1456,3 +1456,8 @@ textarea.qc-note-control { min-height: 72px; height: 72px; }
 .qc-processing-push-quote{padding:12px 0;border-bottom:1px solid var(--qc-border);}
 .qc-processing-push-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;}
 .qc-processing-push-quote .oc-source-table input.qc-control{min-width:96px;}
+
+/* Independent calculated and confirmed prices; never color a guessed value. */
+.qc-server-business-list .qc-list-price-value, .qc-server-business-list .qc-list-price-value a { color: #151b18; font-size: 15px; font-weight: 750; line-height: 1.4; white-space: normal; overflow-wrap: anywhere; }
+.qc-server-business-list .qc-list-price-value a { text-decoration: underline; text-decoration-color: #b9c8c1; text-underline-offset: 3px; }
+.qc-server-business-list .qc-confirmation-cell > small { color: #78857e; font-size: 12px; }

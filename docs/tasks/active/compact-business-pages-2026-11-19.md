@@ -17,3 +17,7 @@ Refs [Issue155](https://github.com/clearisok/zhixu-erp/issues/155)。Codex转录
 基线：GitHub连接器独立核实main4a8c9bc24b00983d0d79150349adeed5a333a237，本地对象存在。起始worktree clean de6f36b7d62d51c79a94a2859eedd45e6d20fa7a（此前操作记录分支，完整保留）；新分支feat/compact-business-pages从main4a创建。开放PR136只有Git工具无UI重叠。fetch被现有127.0.0.1代理拒绝→NETWORK_DEGRADED，未改全局配置；工程与远端交付分别核实，缺交付不能冒称PR/部署。
 
 状态：实施中，尚未测试/创建PR/部署，不预写PASS。初始业务检查：server/quotes/business-source.ts复用resolveConfirmationSource读取当前CCT或PV确认快照，businessValues已分离真实确认价；订单维护组件与原权限/导航守卫保持。无需SQL/schema/业务数据迁移。
+
+首批实现：AppShell页面owner portal承载主按钮；正式列表/详情冗余hero移除、工厂款/SO/BillNo放概况；确认价格字段默认/旧组合偏好向前幂等接入。原服务器readBusinessSources/businessValues未改变。17项定向价格/偏好/权限/原投影测试通过，首次15→16默认列断言已按新增字段更新。typecheck已通过第一版；root/lint仍运行，最终精确代码另核实，不预写PASS。
+
+发现真实既有能力限制：正式Server allowlist不包含款式进度列表/风险预警；这两个旧页面读Browser本地Repository，不能直接启用混用数据。已向用户说明并询问是否保留原禁用边界或先不部署另定范围，其他实现/隔离验证继续。不会通过改allowlist绕过。

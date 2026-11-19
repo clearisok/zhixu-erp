@@ -20,11 +20,9 @@ import {
   ErrorState,
   LoadingState,
   PageContainer,
-  PageHeader,
   StatusTag,
 } from "@/components/foundation";
 import { ServerLoginCard, useServerSession } from "@/features/server-auth";
-import { OrderCenterNavigation } from "@/features/style-progress/components/order-center-navigation";
 import { SalesOrderServerReadError } from "../server/sales-order-server-client";
 import { loadServerOrderCenterDetail } from "../server/server-order-center-query";
 import { serverSalesOrderReadRepository } from "../server/server-sales-order-read-repository";
@@ -65,7 +63,6 @@ function unavailableMessage(error: unknown): string {
 }
 
 function ServerDetailFrame({
-  detail,
   children,
   onRequestNavigation,
   onRequestLogout,
@@ -78,18 +75,8 @@ function ServerDetailFrame({
   sourceAction?: React.ReactNode;
 }) {
   return (
-    <AppShell title="正式订单详情" backTarget={{href:"/order-center",label:"返回订单列表"}} identityMode="server" onRequestNavigation={onRequestNavigation} onRequestLogout={onRequestLogout}>
+    <AppShell title="正式订单详情" backTarget={{href:"/order-center",label:"返回订单列表"}} identityMode="server" headerActions={sourceAction} onRequestNavigation={onRequestNavigation} onRequestLogout={onRequestLogout}>
       <PageContainer className="oc-order-center-page oc-server-detail-page">
-        <OrderCenterNavigation onRequestNavigation={onRequestNavigation} />
-        <PageHeader
-          eyebrow="READ ONLY · POSTGRESQL"
-          title={!detail ? "正式订单详情" : detail.businessType==='ainuoke_contract' ? detail.insideOrderNo || "工厂款号待获取" : detail.styleNo || "正式订单详情"}
-          description={detail
-            ? <><strong>{detail.orderNo}</strong><span>{detail.businessType==='processing'?" · 加工订单":` · BillNo ${detail.billNo ?? "—"}`}</span></>
-            : "从 PostgreSQL 读取权威订单与艾诺科来源事实。"}
-          status={detail ? <StatusTag tone={lifecycleTone(detail.lifecycleState)}>{lifecycleLabels[detail.lifecycleState]}</StatusTag> : undefined}
-          actions={sourceAction}
-        />
         {children}
       </PageContainer>
     </AppShell>
@@ -234,7 +221,7 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
         <div className="oc-server-detail-content">
           {detail.attribution?.historicalDuplicate&&<AlertBanner tone="warning" title="历史重复订单 · 原身份与记录保留" actions={<a className="qc-button qc-button-secondary" href={`/order-center/server-detail?id=${encodeURIComponent(detail.attribution.effectiveOrderId)}`}>查看有效订单</a>}>此单不再接收新的执行、认领或价格采用。原合同、商业版本和历史流水保持。</AlertBanner>}
           <Card className="oc-server-detail-section oc-server-detail-zhixu oc-server-detail-overview">
-            <header><div><h2>订单概况</h2></div><span>来源权威 · 不可编辑</span></header>
+            <header className="oc-overview-heading"><div><h2>订单概况</h2><strong className="oc-order-identity">{detail.businessType==='ainuoke_contract' ? detail.insideOrderNo || "工厂款号待获取" : detail.styleNo || "款号待维护"}</strong><p className="oc-order-identifiers"><span>{detail.orderNo}</span><span>{detail.businessType==='processing' ? "加工订单" : `BillNo ${detail.billNo ?? "—"}`}</span></p></div><StatusTag tone={lifecycleTone(detail.lifecycleState)}>{lifecycleLabels[detail.lifecycleState]}</StatusTag></header>
             <DescriptionList columns={3} compact items={[
               { key: "styleNo", label: "业务款号", value: detail.styleNo },
               { key: "customer", label: "客户", value: detail.customerName },

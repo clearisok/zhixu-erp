@@ -3,12 +3,12 @@ import type { ServerListPreferences } from "./list-preferences.ts";
 import { listWidthGroups } from "./list-preferences.ts";
 import type { TablePreference } from "../../../components/foundation/table-preference.ts";
 
-const groups: readonly BusinessColumn[][] = [["brand", "salesperson"], ["type", "status"], ["fabricCost", "trimCost", "labor"], ["garmentPrice", "confirmationStatus"], ["revision", "versions"]];
+const groups: readonly BusinessColumn[][] = [["brand", "salesperson"], ["type", "status"], ["fabricCost", "trimCost", "labor"], ["confirmedGarment", "confirmationStatus"], ["revision", "versions"]];
 export function presentedWidthKey(preferences: ServerListPreferences, key: BusinessColumn): string {
   return preferences.presentation === "original" ? Object.entries(listWidthGroups).find(([, fields]) => (fields as readonly string[]).includes(key))?.[0] ?? key : key;
 }
 export function presentedMinWidth(key: BusinessColumn, fields: BusinessColumn[]): number {
-  return key === "styleImage" ? 56 : key === "styleIdentity" ? 80 : key === "quote" ? 180 : key === "quantity" ? 72 : key === "type" || key === "date" ? 80 : fields.includes("fabricCost") ? 126 : 88;
+  return key === "styleImage" ? 56 : key === "styleIdentity" ? 80 : key === "quote" ? 180 : key === "quantity" ? 72 : key === "type" || key === "date" ? 80 : fields.includes("fabricCost") ? 126 : fields.includes("confirmedGarment") ? 110 : 88;
 }
 export function presentedWidth(preferences: ServerListPreferences, key: BusinessColumn): number {
   return preferences.groupWidths[presentedWidthKey(preferences, key)] ?? preferences.columnWidths[key];
