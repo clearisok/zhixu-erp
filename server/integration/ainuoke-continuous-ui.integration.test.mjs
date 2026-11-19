@@ -80,21 +80,22 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
    assert.equal(await evaluate("location.pathname+location.search"),material);
    assert.deepEqual(await evaluate("Object.keys(localStorage).filter(k=>k.startsWith('zhixu.erp.local.'))"),[]);
   });
-  await t.test("approved headers use factory style and compact guarded back arrows at six widths",async()=>{
+  await t.test("approved overview identity and compact guarded back arrows work at six widths",async()=>{
    await login(x.users[0]);
    const detail=await evaluate("(async()=> (await (await fetch('/api/v1/sales-orders/"+x.orderId+"')).json()).salesOrder)()");
    assert.ok(detail.insideOrderNo&&detail.styleNo&&detail.insideOrderNo!==detail.styleNo,'fixture must distinguish business and factory styles');
    for(const [width,deviceScaleFactor] of [[1920,1],[1536,1.25],[1440,1],[1280,1],[900,1],[390,1]]){
     await command('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor,mobile:width===390});
     await navigate('/order-center/server-detail?id='+x.orderId);await has('业务款号');
-    assert.equal(await evaluate("document.querySelector('h1').textContent"),detail.insideOrderNo);
+    assert.equal(await evaluate("document.querySelector('.oc-order-identity').textContent"),detail.insideOrderNo);
     const overview=await evaluate("document.querySelector('.oc-server-detail-overview').innerText");
-    assert.ok(overview.includes(detail.styleNo));assert.doesNotMatch(overview,/正式订单号|BillNo/);
+    assert.ok(overview.includes(detail.styleNo));assert.ok(overview.includes(detail.orderNo));assert.ok(overview.includes(detail.salesContractNo));assert.match(overview,/BillNo/);
     assert.equal(await evaluate("document.querySelectorAll('.ops-topbar-back').length"),1);
     assert.equal(await evaluate("document.querySelectorAll('.qc-page-back').length"),0);
     assert.ok(await evaluate("document.querySelector('.ops-topbar-back').getBoundingClientRect().width<=32"));
-    const aligned=await evaluate("({title:document.querySelector('h1').getBoundingClientRect().left,card:document.querySelector('.oc-server-detail-overview').getBoundingClientRect().left,columns:getComputedStyle(document.querySelector('.qc-page-header')).gridTemplateColumns})");
-    assert.ok(Math.abs(aligned.title-aligned.card)<=2,JSON.stringify({width,...aligned}));
+    const aligned=await evaluate("({title:document.querySelector('.oc-order-identity').getBoundingClientRect().left,card:document.querySelector('.oc-server-detail-overview').getBoundingClientRect().left})");
+    assert.ok(aligned.title>=aligned.card&&aligned.title-aligned.card<=24,JSON.stringify({width,...aligned}));
+    assert.equal(await evaluate("document.querySelectorAll('.qc-page-header,.sp-order-nav').length"),0);
     assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth+1'),true);
     if(width===1440||width===390)await screenshot('order-header-'+width);
     await navigate('/order-center/style-progress/detail?orderId='+x.orderId);await has('合成棉布');
