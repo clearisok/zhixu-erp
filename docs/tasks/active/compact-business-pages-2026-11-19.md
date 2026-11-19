@@ -43,3 +43,6 @@ c8e82b11全量npm test已在Linux只读networknone完成exit0（106.547秒），
 既有连续同步UI在新概况身份/六宽度检查中进一步复现“返回订单列表仍等旧h1”定位超时，其余七角色/物料四流、登录/脏保护、1440/1280/390布局均继续通过；已将返回定位改现有顶栏标题。交期维护回归也仍从旧PageHeader找操作组，改为现有topbar下标题；全部原可点击/权限/触控/业务不写断言保留。概况工厂款使用语义h1且保持21px原观感，兼容共用旧回归的标题滚动定位；新增顶栏触控44px下限，桌面保持40px。此为共享组件必要回归修正，未扩展业务。
 
 70be构建的紧凑UI八个子场景、连续同步十四个子场景全部断言通过，但Windows Chromium退出未确认导致主测试非0，不冒称整套PASS。交期回归真实390宽发现旧grid使操作仍与标题同排，原flex-wrap不生效；修正仅有actions的tablet/mobile顶栏grid跨行与自动高度，保留44px触控目标。废弃根路由回归按明确取消契约断言404，其他未启用路由保持原阻断。需新构建验证。
+
+5396846c已DELIVERED_VERIFIED，typecheck/lint/Server build退出0，GitHub team-access（含全量npm test及Browser/Server构建）和baseline通过；交期维护实机14/14完整通过，含320/390触控及权限/未知回执，清理PASS。紧凑UI八子场景再次通过但Windows Chrome退出仍超时，不称整套通过；将新紧凑回归纳入既有team-access私有Linux Chromium，正常CI验证，未删检查。
+部署前03:02Z当前4a Worker因catalog_identity_or_scope_changed停止，SQL enabled=true/paused_reason非空，Supervisor正确RECOVERY_BLOCKED；这发生于本次UI切版前，无本次运行修改。保留暂停，UI发布不清该来源故障、不启动Worker或采集真实接口。需要按保留暂停正式机制部署，工程与来源健康分别汇报。

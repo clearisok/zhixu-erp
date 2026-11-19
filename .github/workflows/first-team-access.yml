@@ -52,7 +52,10 @@ jobs:
           NEXT_PUBLIC_ZHIXU_ORDER_READ: snapshot
         run: npm run build
       - name: Existing UI with synthetic accounts in Chromium
+        env:
+          CHROME_PATH: google-chrome
         run: |
           npm run test:team-access-ui
           npm run test:server-auth-frontend
           npm run test:animated-login-ui
+          npx --no-install tsx --test server/integration/compact-business-pages.integration.test.mjs

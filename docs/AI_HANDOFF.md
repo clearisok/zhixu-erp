@@ -19,3 +19,5 @@ SSH weaveops，隔离工程TASK=/home/jackson/weaveops-staging-preview/releases/
 现有CI浏览器回归进一步发现两个旧位置定位：连续同步返回列表等h1、交期维护操作组closest旧PageHeader。已改为真实topbar，并将概况款号设语义h1保持原21px、顶栏coarse触控44px（桌面40）。需最终重新build并跑9项UI、原连续同步和交期维护；不能把c8 UI结果冒称最新这3个CSS/TSX变化已验。source CI目前仍旧b10运行，推送此正常checkpoint会由原workflow自动取新head，不绕过。Staging仍未修改。
 
 最新70be产品浏览器子场景全部通过但Windows清理失败；交期回归390顶部grid真实未换行，已限定actions顶栏修CSS跨行，需重build/交期/紧凑UI/CI。两测试退出budget仅调整到已有最大10秒；不修改共享清理机制、不冒称失败通过。Staging仍4a/唯一Worker健康，未切版。
+
+5396交期14/14 PASS/清理PASS，最新type/lint/build及team-access/baselineCI PASS；紧凑8子场景PASS但Win关闭失败，将其加入现有team-access的CHROME_PATH Linux步骤，需最新CI。真实Staging03:02Z自行catalog_identity_or_scope_changed，enabled true但paused_reason非空，无Worker，Supervisor阻断正确。UI本轮不清暂停、不启动、不故障注入真实接口；部署保留此状态。候选仅隔离构建准备，SSH间歇timeout，未切版。
