@@ -6234,6 +6234,24 @@
       "sha256": "1d62e8b54bb4b3d487c4ba0a16e7795a4b0516fd29527bc844c1ba251dce0ca0",
       "supersedes": "compact-business-ui-v2-decisions-20261119",
       "changeReason": "Append user-approved D197 mutable Price classification, bounded fresh capture and append-only diagnostics. Preserve prior decisions, images, runtime observations and all historical evidence; no UI or deployment acceptance change."
+    },
+    {
+      "id": "catalog-mutable-contract-v2-20261119",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SYNC_AUDIT.md",
+      "recordedAtSha": "e1579edbafc4c1922a10a1c0013edbb60bc1b8e0",
+      "sha256": "4defad1b385ada6352d3b1bc29c15b73b61622c1dd83ad8a08470d5127b74f41",
+      "supersedes": "catalog-mutable-contract-20261119",
+      "changeReason": "Clarify existing D183/D194 scoped exhaustion and catalogue-cycle backoff. Targeted pages belong to the entirely fresh before pass and do not expand the original read budget. Preserve all prior evidence and deployment limits."
+    },
+    {
+      "id": "catalog-mutable-decisions-v2-20261119",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "e1579edbafc4c1922a10a1c0013edbb60bc1b8e0",
+      "sha256": "1d62e8b54bb4b3d487c4ba0a16e7795a4b0516fd29527bc844c1ba251dce0ca0",
+      "supersedes": "catalog-mutable-decisions-20261119",
+      "changeReason": "Clarify existing D183/D194 scoped exhaustion and catalogue-cycle backoff. Targeted pages belong to the entirely fresh before pass and do not expand the original read budget. Preserve all prior evidence and deployment limits."
     }
   ],
   "pages": [
