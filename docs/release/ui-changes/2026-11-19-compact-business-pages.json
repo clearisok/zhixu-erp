@@ -1,0 +1,37 @@
+{
+  "baselineSha": "4a8c9bc24b00983d0d79150349adeed5a333a237",
+  "level": "V3",
+  "paths": [
+    "app/foundation.css",
+    "app/order-center/order-center.css",
+    "app/order-center/risks/page.tsx",
+    "app/order-center/style-progress/page.tsx",
+    "app/order-center/style-progress/style-progress.css",
+    "app/quote-center/quote-center.css",
+    "components/foundation/app-shell.tsx",
+    "features/ainuoke-sync/components/ainuoke-sync-page.tsx",
+    "features/order-center/components/order-pages.tsx",
+    "features/order-center/components/server-order-center-page.tsx",
+    "features/order-center/components/server-sales-order-detail-page.tsx",
+    "features/quote-center/components/production-quote-list-page.tsx",
+    "features/quote-center/components/server-list-cell.tsx",
+    "features/quote-center/server/list-preferences.ts",
+    "features/quote-center/server/list-presentation.ts",
+    "features/style-progress/components/order-center-navigation.tsx",
+    "features/style-progress/components/style-progress-pages.tsx"
+  ],
+  "pages": [
+    "quote-list",
+    "order-list",
+    "order-detail",
+    "navigation"
+  ],
+  "visibleDifference": "User-approved v2: compact titles/topbar actions and overview identity; independent calculated/actual confirmed prices; retire only style/risk list routes and their tabs. Shared material detail, DB/history, permissions and other business modules retained.",
+  "evidence": [
+    "docs/tasks/active/compact-business-pages-2026-11-19.md"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/compact-business-pages-2026-11-19.md"
+  }
+}

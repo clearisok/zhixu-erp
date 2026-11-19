@@ -1,27 +1,19 @@
-# 2026-11-18 恢复证据接线交接
+# 2026-11-19 UI Staging 交付接力
 
-分支 `fix/staging-backup-sync-recovery`。已核实main **a915c7a130ddada13118a1d245b41e7999b9d395**；起点24953ec47b523d65bb57094958c61a2a2179ef96。用户授权实现、隔离测试与Draft PR；不merge、不部署、不改真实Staging状态。Refs [Issue153](https://github.com/clearisok/zhixu-erp/issues/153)。
+main基线4a8c9bc24b00983d0d79150349adeed5a333a237，分支feat/compact-business-pages，Draft PR156 / Issue155。用户v2只保留订单列表，退休款式/风险列表，保留共享物料详情和数据库历史；用户批准候选Staging，禁止合并/Production。当前交付到人工验收边界，勿继续部署或扩展来源修复。
 
-实际采集已替换空recovery_evidence，复用现有迁移/DB/source target检查及worker启动。新executor回执记录进程身份和正向清理证据；监管器持备份锁完成检查及启动。心跳验证与未知结果保护保留。详见[契约/一次性旧故障恢复](ops/ainuoke-catalog-sync-supervisor.md)。
+实际部署不可变源码90de5b0af2dede0afc820aa1fd38dfe8315e9e7a，后续仅文档提交。候选三CI全部SUCCESS（1026/182/紧凑Chromium9，typecheck/lint/前后端build）；b7349f1994b5a1cb4a55802c64e71184ffa5e479三CI也已SUCCESS。原失败和全部授权/测试映射保存在[任务](tasks/active/compact-business-pages-2026-11-19.md)、[工程归档](tasks/completed/2026-11-19-compact-ui-engineering-handoff.md)。
 
-真实隔离E2E已通过（非mock证据）：失败命令→真实清理→真实DB/migration/admin/lease→启动→新PG心跳→后续高频到期任务；包含拒绝恢复场景。执行命令：`pwsh -File scripts/tests/Invoke-AinuokeRecoveryRuntime.ps1 -SourceSha <candidate full SHA>`。测试镜像Source传输为合成SDK，无真实ERP请求。最终测试与交付回执随后补记；不要因Draft PR冒称Staging修复。
+Staging ROOT=/home/jackson/weaveops-staging-preview，TASK=ROOT/releases/compact-ui-20261119，SOURCE=TASK/source clean Git90，RUNTIME=ROOT/runtime/catalog-sync-90de5b0a。仅正式trial/Compose重建3无状态容器，旧镜像、52配置文件、原4卷、database/objects保留。app镜像sha256:674bef4e052c933cf1bfca79f6f54c9c6df7ce407c008eb8067d74a0abd75aed；operator/Worker镜像sha256:6ba443a3acd82bae5042673e0780f71845d6e08b0a69fee52f9641369a29d5b5；Supervisor a0109d4fd68b8ff3fe5556f8e3e1b61312396cc9d3eadc8e861a0e6587441676；executor9765b3a95131cd685a9b02c21c80123e19a93c900e40b28014959f11cb4e7a27。新Policy/cron匹配90，原4卷和23人工表/3账号/630订单身份核验不变，五服务healthy。
 
-真实Staging只读核实仍旧fault，缺新executor pin/cleanup/process证明，现场未修改。需批准部署后进行一次新受控配对备份取得独立新证明，不能回填旧失败记录。超时/信号/未知后代仍fail closed。原始调查和历史接力完整保存在[归档](tasks/completed/2026-11-18-before-recovery-evidence/AI_HANDOFF.md)。
+新配对备份20261119T041319Z-efa1f646于04:27:55.877451Z成功，独立56文件hash/143表/11对象/3419126585字节dump；manifest c4587c8cb2d29fdf70bdd4aef3495e891a9002a83a7424eb09ec52e4cb10b939，恢复/清理有效。TASK/final-acceptance.json于04:31:23Z只读核验PASS，账本整数58/57记录，不是字符串0058；私有脚本错误断言已按真实SQL类型修正，无DB改动。原B4 STOPPED_FAULT和20261116T193001Z-c6870e6d失败原字节保留。
 
-本轮工程结果：Python定向22项（Windows21通过/1 POSIX跳过）；Linux定向22/22通过，真实证据E2E在代码提交efb9b251523d00e1310edbf9d4f609a1df8600fe对应镜像通过（55.113秒），含失败回执保留、新worker心跳、后续到期任务及DB/admin/migration/lock/exec/unknown阻断；相关TS/PG/调度10项通过；typecheck、lint、前后端build、diff-check通过。首次源码基线仅因D195与同步契约文档冻结版本未前向登记而失败，待新commit blob登记后重验；182基线回归已启动，结果另记。Draft PR不代表部署。
+独立来源故障必须保留：切版前旧4a 03:02:46.56Z因catalog_identity_or_scope_changed停止，enabled=true但paused_reason非空，0Worker。真实Gate8项通过，仅admin_not_paused=false，正确RECOVERY_BLOCKED；不是新备份失败，也不能描述成人工管理员操作。39740完成/112失败/0待处理/运行/未知。UI任务不清暂停/改心跳/last_run/补跑，不声称自然同步恢复。
 
-已对D195与同步审计契约新增前向冻结记录，旧ID/blob/hash均保留。主机Staging仍原样；Git交付仅使用本机及宁波/tmp隔离Git目录，不属于应用部署。Windows交付预检曾在manifest待提交时拒绝dirty，0push；已核实只含本任务18行前向记录并收口后再交付，未清理或覆盖其他改动。
+最终真实公网浏览器目录staging-90de-settled已完整退出0，receipt.logoutVerified=true：12桌面组合真实业务行+连续750ms空闲，详情物料摘要终态，订单实际第二页SO630→580并回原页，7现存报价价格独立、原维护/更多弹窗、无业务写入/来源刷新。已目视复核。原staging-90de-final骨架截图有superseded限定，staging-90de-ready的二次异步race失败保留；不得再用其冒充最终PASS。正常logout后本机私密cookie副本删除、主机cookie标记REVOKED，未提交秘密。
 
-交付前补上中断安全边界：备份在启动子进程前就持久化backupBeganAt，避免监管器与executor同时中断时复用旧terminal回执；新成功备份绑定新executorBackupId。定向测试增加1项（Windows共23项，22通过/1 POSIX跳过）。源码基线前向登记后已PASS（e8e8e75a，0 UI路径变化）；182基线套件仍运行，不假报PASS。宁波标准Dry Run网络超时、0push且无gh；随后本机精确URL级进程proxy空值+HTTP1.1只读核验main成功，准备按相同进程参数运行标准交付工具。未修改共享代理/TLS/认证。
+本机artifact根：C:/Users/Administrator/.codex/visualizations/2026/11/18/01a1ec55-eaa3-75f0-a103-83b015d43fb4/compact-business-pages-20261119。comparison.html同合成前后，final-5396产品与90相同，三态/多价是隔离PG合成；Staging实际只有未确认/全部确认，不编造部分确认。1366报价有表内横滚，页面无溢出。最终报告及截图见acceptance-report.md。下一步仅等待用户UI人工验收；未获批准不得合并/Production/继续修来源故障。
 
-最终交付回执：代码提交 **cd87ec868ff58619a1a305f85e1495c0624e90ce** 的Linux定向测试23/23通过；同SHA镜像真实Docker/PostgreSQL恢复E2E通过（54.083秒），未mock recovery_evidence。标准git-delivery以进程级代理覆盖执行，实际push一次，独立GitHub API核实exact SHA，结果DELIVERED_VERIFIED；这不代表共享网络配置已修复。已创建并核实[Draft PR #154](https://github.com/clearisok/zhixu-erp/pull/154)：OPEN、Draft、未合并，包含所有既有检查点。随后仅收口本交付记录。
+版本记录：1c35dca9a763e0d32999ead2f14747f86e57f041仅同步最终部署验收与两feature/用户D196决定；新baseline evidence前向绑定该提交DECISION_LOG精确blob，旧冻结ID/hash均保留，不更新截图哈希或能力标签。后续清单提交仍仅文档/证据，无运行代码差异。
 
-长回归收口：最终HEAD源码门禁重复运行及完整`npm run test:release-baseline`均未取得可核实的完成结果，已中断，不计PASS；保留此前e8e8e75a源码门禁PASS，完整基线回归及根npm test仍待完成。PR须明确这些限制。Staging/Production未部署、真实业务状态未改，两轮自然30分钟同步未执行。后续仅经用户批准才部署匹配组件、执行文档中的旧故障安全核验。
-
-## PR154 工程验收续接（2026-11-18）
-
-本Phase起始branch为fix/staging-backup-sync-recovery、HEAD为9ca4ec1443d6f7b86ee9db91ab6c4f3671b01046、工作树干净；GitHub main仍为a915c7a130ddada13118a1d245b41e7999b9d395。用户仅授权验收及本PR缺陷修复，不merge、不部署、不改真实DB/fault、不调用真实艾诺科故障测试。
-
-起点Actions已经补齐上段长回归缺项：[baseline](https://github.com/clearisok/zhixu-erp/actions/runs/44254344961)通过182项基线及源码门禁；[team-access](https://github.com/clearisok/zhixu-erp/actions/runs/44254344528)通过根npm test、typecheck、lint、server/default-browser/server-session构建。[source](https://github.com/clearisok/zhixu-erp/actions/runs/44254344503)仅末步Python discovery失败，具体是tools/ainuoke-bridge cwd下动态加载supervisor无法找到ainuoke_recovery_gate；其他SQL/API、候选构建及Chromium步骤已过。不重跑本机相同大套件，修复后的最终结果必须取最新HEAD对应的新Actions。
-
-窄修复：两个动态加载测试在加载时临时加入实际scripts目录，保持生产import和全局sys.path不变；source CI补跑已有gate/paired-backup测试。审查门禁/清理/心跳/未知结果/旧故障流程时，增加旧心跳回归，先在Linux复现RUNNING误判，再给新心跳增加与既有恢复窗口一致的两分钟时效约束；Linux原CI嵌套cwd下16项supervisor已通过，另gate2项/backup5项通过。无调度/业务规则/迁移变化。最终HEAD、完整Actions与隔离E2E证据记录在同一Draft PR的Validation，等待用户批准后才能进入部署准备。
+最终前向证据门禁已PASS：main4a8c9bc24b00983d0d79150349adeed5a333a237，17 UI路径、0错误；全部历史evidence/capability逐项未改。产品测试结论以实际90与b734已完成CI为准，最新文档提交CI单独记录。

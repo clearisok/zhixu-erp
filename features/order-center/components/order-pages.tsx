@@ -75,7 +75,6 @@ import {
   projectOrderSchedule,
   type ProductionSchedulingState,
 } from "@/features/production-scheduling";
-import { OrderCenterNavigation } from "@/features/style-progress/components/order-center-navigation";
 import { OrderStyleProgressSummary } from "@/features/style-progress/components/style-progress-pages";
 import {
   closingRepository,
@@ -448,7 +447,7 @@ export function OrderCenterPage() {
   return (
     <AppShell title="订单中心">
       <PageContainer className="oc-order-center-page">
-        <OrderCenterNavigation />
+
         <PageHeader
           eyebrow="ORDER CENTER"
           title="订单中心"
@@ -1171,7 +1170,7 @@ function OrderEditor({
     return (
       <AppShell title="订单明细" backTarget={{ href: "/order-center", label: "返回订单中心" }} onRequestNavigation={requestNavigation}>
         <PageContainer className="oc-cockpit-page">
-          <OrderCenterNavigation />
+
           <FormShell submitOnEnter={false} onSubmit={() => void save()}>
             <Workspace
               className="oc-order-workspace"

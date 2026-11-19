@@ -2,7 +2,7 @@
 import { DeferredModule } from "@/components/foundation/deferred-module";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useProtectedRouter as useRouter } from "@/components/foundation/server-navigation-protection";
-import { AppShell, Button, Card, DataTable, ErrorState, FloatingMenu, FormItem, LoadingState, PageContainer, PageHeader, Toolbar, type DataColumn } from "@/components/foundation";
+import { AppShell, Button, Card, DataTable, ErrorState, FloatingMenu, FormItem, LoadingState, PageContainer, Toolbar, type DataColumn } from "@/components/foundation";
 import { useServerSession } from "@/features/server-auth";
 import { quoteAuthority } from "../authority/quote-authority";
 import { quoteServerClient, QuoteServerError, type QuoteServerListItem, type QuoteServerPage } from "../server/quote-server-client";
@@ -114,7 +114,7 @@ function ServerList() {
     ...presentedListColumns(preferences).map(({ key, fields }) => {
       const leftSummary = (fields.length === 1 && fields[0] === "quantity") || (fields.length > 1 && fields.every(field => ["fabricCost", "trimCost", "labor"].includes(field)));
       return {
-      key, header: rows.length&&rows.every(r=>r.summary?.quoteType==='processing')&&fields.includes('fabricCost')?'报价工价':rows.length&&rows.every(r=>r.summary?.quoteType==='processing')&&fields.includes('garmentPrice')?'客户确认':serverListHeader(fields),
+      key, header: rows.length&&rows.every(r=>r.summary?.quoteType==='processing')&&fields.includes('fabricCost')?'报价工价':serverListHeader(fields),
       className: leftSummary ? "qc-server-left-summary" : undefined,
       minWidth: presentedMinWidth(key, fields),
       width: displayedTable.columnWidths[key],
@@ -123,9 +123,7 @@ function ServerList() {
     }; }),
     { key: "action", header: "操作", minWidth: 104, width: 104, sticky: "right", render: (row) => <Button variant="text" onClick={() => router.push(`/quote-center/detail?id=${encodeURIComponent(row.id)}`)}>打开报价 →</Button> },
   ];
-  return <AppShell title="报价中心"><PageContainer className="qc-quote-center-page qc-server-business-list">
-    <PageHeader eyebrow="QUOTE CENTER" title="报价中心" count={page ? `${page.total} 条` : ""} description="按款式识别报价，区分报价历史、价格方案与客户确认。"
-      secondaryActions={<FloatingMenu className="qc-list-more-actions" menuClassName="qc-list-more-menu" label="更多报价操作">
+  return <AppShell title="报价中心" headerActions={<><FloatingMenu className="qc-list-more-actions" menuClassName="qc-list-more-menu" label="更多报价操作">
         <Button disabled={batchBusy||!session.hasPermission('quote.export')||!session.hasPermission('quote.cost.view')} variant="text" onClick={()=>beginSelection('zip')}>批量客户报价</Button>
         <Button disabled={batchBusy||!session.hasPermission('quote.export')} variant="text" onClick={()=>beginSelection('summary')}>内部报价汇总</Button>
         <Button disabled={batchBusy||!session.hasPermission('order.processing.consume')} variant="text" onClick={()=>beginSelection('processing')}>推送加工订单</Button>
@@ -133,8 +131,7 @@ function ServerList() {
         <Button variant="text" onClick={()=>setPriceDialog('adjust')}>批量调整订单成交价</Button>
         <Button variant="text" onClick={()=>setPriceDialog('history')}>订单调价历史</Button>
         <Button disabled={batchBusy} variant="text" onClick={() => persistPreferences({ ...preferences, presentation: preferences.presentation === "original" ? "fields" : "original" })}>{preferences.presentation === "original" ? "独立字段视图" : "原版组合视图"}</Button>
-      </FloatingMenu>}
-      primaryAction={<DirectQuoteCreateButton />} />
+      </FloatingMenu><DirectQuoteCreateButton /></>}><PageContainer className="qc-quote-center-page qc-server-business-list">
     <Toolbar className="qc-quote-toolbar" search={<label className="qc-search-field"><span aria-hidden="true">⌕</span><input aria-label="搜索报价" placeholder="全库搜索编号、款号、款名、品牌、业务员" value={query.search} onChange={(event) => setQuery({ ...query, search: event.target.value, offset: 0 })} /></label>}
       resultSummary={page ? `显示 ${page.count} / ${page.total} 条` : ""} mobileFilterTitle="报价筛选"
       moreFilters={<><FormItem label="报价类型"><select className="qc-control" value={query.type} onChange={(event) => setQuery({ ...query, type: event.target.value, offset: 0 })}><option value="">全部类型</option><option value="distribution">经销</option><option value="processing">加工</option></select></FormItem><FormItem label="报价状态"><select className="qc-control" value={query.status} onChange={(event) => setQuery({ ...query, status: event.target.value, offset: 0 })}><option value="">全部状态</option><option value="draft">草稿</option><option value="quoting">报价中</option><option value="partially_confirmed">部分确认</option><option value="confirmed">已确认</option></select></FormItem></>} />

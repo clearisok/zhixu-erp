@@ -2,13 +2,13 @@ import { allowedBusinessColumns, type BusinessColumn } from "../model/quote-busi
 import type { TablePreference } from "../../../components/foundation/table-preference.ts";
 export const listWidthGroups = {
   "group.brand": ["brand", "salesperson"], "group.type": ["type", "status"],
-  "group.cost": ["fabricCost", "trimCost", "labor"], "group.price": ["garmentPrice", "confirmationStatus"],
+  "group.cost": ["fabricCost", "trimCost", "labor"], "group.price": ["confirmedGarment", "confirmationStatus"],
   "group.revision": ["revision", "versions"],
 } as const;
-export type ServerListPreferences = { userId: string; visibleColumns: BusinessColumn[]; columnOrder: BusinessColumn[]; columnWidths: Record<string, number>; groupWidths: Record<string, number>; presentation: "original" | "fields"; widthMode: "fill" | "manual" };
+export type ServerListPreferences = { priceColumnsVersion?: 2; userId: string; visibleColumns: BusinessColumn[]; columnOrder: BusinessColumn[]; columnWidths: Record<string, number>; groupWidths: Record<string, number>; presentation: "original" | "fields"; widthMode: "fill" | "manual" };
 const key = (id: string) => `zhixu.ui.server.quote-list.v1.${encodeURIComponent(id)}`;
-export const defaultServerListColumns: BusinessColumn[] = ["styleImage", "styleIdentity", "brand", "salesperson", "type", "status", "quantity", "fabricCost", "trimCost", "labor", "garmentPrice", "confirmationStatus", "revision", "versions", "date"];
-const originalWidths: Partial<Record<BusinessColumn, number>> = { styleImage: 56, styleIdentity: 156, brand: 120, salesperson: 104, type: 80, status: 88, quantity: 72, fabricCost: 126, trimCost: 96, labor: 92, garmentPrice: 120, confirmationStatus: 112, revision: 88, versions: 108, date: 80 };
+export const defaultServerListColumns: BusinessColumn[] = ["styleImage", "styleIdentity", "brand", "salesperson", "type", "status", "quantity", "fabricCost", "trimCost", "labor", "garmentPrice", "confirmedGarment", "confirmationStatus", "revision", "versions", "date"];
+const originalWidths: Partial<Record<BusinessColumn, number>> = { styleImage: 56, styleIdentity: 156, brand: 120, salesperson: 104, type: 80, status: 88, quantity: 72, fabricCost: 126, trimCost: 96, labor: 92, garmentPrice: 88, confirmedGarment: 112, confirmationStatus: 112, revision: 88, versions: 108, date: 80 };
 export function normalizeServerListPreferences(userId: string, permissions: readonly string[], value?: unknown): ServerListPreferences {
   const allowed = allowedBusinessColumns(permissions);
   const data = value && typeof value === "object" ? value as Partial<ServerListPreferences> : {};
@@ -26,7 +26,13 @@ export function normalizeServerListPreferences(userId: string, permissions: read
   // Only first use / an explicit reset opt in to filling the container. Existing
   // saved v1 objects have no flag and retain their exact personal pixel widths.
   const widthMode = value === undefined || data.widthMode === "fill" ? "fill" : "manual";
-  return { userId, visibleColumns: keys(data.visibleColumns, defaultServerListColumns.filter(k => allowed.includes(k))), columnOrder, columnWidths, groupWidths, presentation, widthMode };
+  const visibleColumns = keys(data.visibleColumns, defaultServerListColumns.filter(k => allowed.includes(k)));
+  // Add the new price field once for the old combined layout, never for an
+  // independently customized field view. Afterwards explicit hiding stays hidden.
+  if (presentation === "original" && data.priceColumnsVersion !== 2 && visibleColumns.includes("confirmationStatus") && allowed.includes("confirmedGarment") && !visibleColumns.includes("confirmedGarment")) {
+    visibleColumns.splice(visibleColumns.indexOf("confirmationStatus"), 0, "confirmedGarment");
+  }
+  return { userId, visibleColumns, columnOrder, columnWidths, groupWidths, presentation, widthMode, priceColumnsVersion: 2 };
 }
 export function loadServerListPreferences(store: Pick<Storage, "getItem">, userId: string, permissions: readonly string[]): ServerListPreferences {
   try { const raw = store.getItem(key(userId)); return normalizeServerListPreferences(userId, permissions, raw ? JSON.parse(raw) : undefined); }

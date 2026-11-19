@@ -1,32 +1,27 @@
 "use client";
 
-import { Fragment, useEffect, useMemo, useState } from "react";
+import { Fragment, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   AlertBanner,
   AppShell,
   Button,
   Card,
-  DataTable,
   Drawer,
   EmptyState,
   ErrorState,
   LoadingState,
-  Modal,
   PageContainer,
   PageHeader,
   StatusTag,
   Toast,
-  type DataColumn,
 } from "@/components/foundation";
-import { orderRepository } from "@/features/order-center/repository/order-repository";
 import type { SalesOrder } from "@/features/order-center/model/order";
 import {
   operationLogRepository,
   createOperationLogDraft,
 } from "@/features/operation-logs";
 import { usePermissions } from "@/features/permissions";
-import { parseMaterialFollowUpWorkbook } from "../parser/material-follow-up-parser";
 import { styleProgressRepository } from "../repository/style-progress-repository";
 import {
   fabricDisplayOrder,
@@ -38,21 +33,11 @@ import {
 } from "../service/style-progress-service";
 import { loadStyleProgress, type LoadedStyleProgress } from "../service/style-progress-loader";
 import type {
-  MaterialImportBatch,
-  MaterialImportPreview,
   StyleProgressData,
 } from "../model/style-progress";
-import { OrderCenterNavigation } from "./order-center-navigation";
 import { MaterialControlTower } from "./material-control-tower";
 
 type Loaded = LoadedStyleProgress;
-type ImportPreviewAudit = {
-  contracts: number;
-  contractsMatched: number;
-  contractsWithoutOrder: number;
-  sourceDateChanges: number;
-  manualOverridesPreserved: number;
-};
 const readinessLabels = {
   not_purchased: "未采购",
   purchasing: "采购中",
@@ -113,58 +98,6 @@ async function loadProgress(includeTrace = false): Promise<Loaded> {
   return loadStyleProgress(includeTrace ? { loadData: () => styleProgressRepository.loadAll() } : {});
 }
 
-async function ensureMaterialImportOperationLogs(
-  batches: MaterialImportBatch[],
-): Promise<void> {
-  const existing = await operationLogRepository.list();
-  const loggedBatchIds = new Set(
-    existing
-      .filter(
-        (item) =>
-          item.entityType === "MaterialImportBatch" &&
-          item.action === "导入面辅料跟进",
-      )
-      .map((item) => item.entityId),
-  );
-  const missing = batches.filter(
-    (batch) => batch.status === "committed" && !loggedBatchIds.has(batch.id),
-  );
-  if (!missing.length) return;
-  await operationLogRepository.appendMany(
-    missing.map((batch) =>
-      createOperationLogDraft({
-        actor: {
-          userId: `material-import:${batch.createdBy}`,
-          userName: batch.createdBy,
-        },
-        module: "款式进度",
-        entityType: "MaterialImportBatch",
-        entityId: batch.id,
-        action: "导入面辅料跟进",
-        createdAt: batch.committedAt ?? batch.createdAt,
-        afterData: {
-          objectName: batch.sourceKind === "api" ? `6087050 / ${batch.queryContext.insideOrderNo}` : batch.fileName,
-          values: {
-            ...(batch.sourceKind === "api" ? {
-              来源: "艾诺科 Direct API",
-              报表: batch.reportId,
-              InsideOrderNo: batch.queryContext.insideOrderNo,
-            } : { 文件哈希: batch.fileHash }),
-            原始行: batch.rawRowCount,
-            有效行: batch.validRowCount,
-            "无效 Trace": batch.invalidRowCount,
-            物料需求: batch.demandCount,
-            采购事件: batch.purchaseEventCount,
-            入库事件: batch.inboundEventCount,
-            出运事件: batch.shipmentEventCount,
-            出库事件: batch.outboundEventCount,
-          },
-        },
-      }),
-    ),
-  );
-}
-
 function SummaryMetrics({ rows }: { rows: StyleProgressProjection[] }) {
   const totalMaterials = rows.reduce(
     (total, item) => total + item.totalMaterials,
@@ -194,495 +127,6 @@ function SummaryMetrics({ rows }: { rows: StyleProgressProjection[] }) {
         </div>
       ))}
     </section>
-  );
-}
-
-function ImportModal({
-  open,
-  onClose,
-  onCommitted,
-}: {
-  open: boolean;
-  onClose: () => void;
-  onCommitted: () => void;
-}) {
-  const { currentUser, can } = usePermissions();
-  const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<MaterialImportPreview | null>(null);
-  const [previewAudit, setPreviewAudit] = useState<ImportPreviewAudit | null>(
-    null,
-  );
-  const [duplicate, setDuplicate] = useState(false);
-  const [working, setWorking] = useState(false);
-  const [error, setError] = useState("");
-  const [report, setReport] = useState("");
-  const runPreview = async () => {
-    if (!file) return;
-    setWorking(true);
-    setError("");
-    setReport("");
-    try {
-      const buffer = await file.arrayBuffer();
-      const next = await parseMaterialFollowUpWorkbook({
-        buffer,
-        fileName: file.name,
-        actorName: currentUser.name,
-      });
-      if (next.batch.sourceKind === "api") throw new Error("Excel 导入预检返回了错误的 Source 类型");
-      const [alreadyCommitted, existing, orders] = await Promise.all([
-        styleProgressRepository.hasCommittedFile(next.batch.fileHash),
-        styleProgressRepository.listDemands(),
-        orderRepository.list(),
-      ]);
-      const contracts = new Set(
-        next.demands.map((item) => item.salesContractNo),
-      );
-      const orderContracts = new Set(
-        orders
-          .map((item) => item.salesContractNo)
-          .filter((value): value is string => Boolean(value)),
-      );
-      const existingById = new Map(existing.map((item) => [item.id, item]));
-      setPreviewAudit({
-        contracts: contracts.size,
-        contractsMatched: [...contracts].filter((item) =>
-          orderContracts.has(item),
-        ).length,
-        contractsWithoutOrder: [...contracts].filter(
-          (item) => !orderContracts.has(item),
-        ).length,
-        sourceDateChanges: next.demands.filter((item) => {
-          const current = existingById.get(item.id);
-          return (
-            current &&
-            current.sourceMaterialDueDate !== item.sourceMaterialDueDate
-          );
-        }).length,
-        manualOverridesPreserved: next.demands.filter(
-          (item) => existingById.get(item.id)?.expectedDateSource === "manual",
-        ).length,
-      });
-      setDuplicate(alreadyCommitted);
-      setPreview(next);
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "预检失败");
-    } finally {
-      setWorking(false);
-    }
-  };
-  const commit = async () => {
-    if (!preview || !can("style_progress.import")) return;
-    if (preview.batch.sourceKind === "api") return;
-    setWorking(true);
-    setError("");
-    try {
-      const result = await styleProgressRepository.commitImport(preview);
-      const actual = await styleProgressRepository.loadAll();
-      await operationLogRepository.append(
-        createOperationLogDraft({
-          actor: { userId: currentUser.id, userName: currentUser.name },
-          module: "款式进度",
-          entityType: "MaterialImportBatch",
-          entityId: preview.batch.id,
-          action: "导入面辅料跟进",
-          afterData: {
-            objectName: preview.batch.fileName,
-            values: {
-              文件哈希: preview.batch.fileHash,
-              重复文件: result.duplicateFile ? "是" : "否",
-              新增需求: result.newDemands,
-              新增采购: result.newPurchaseEvents,
-              新增入库: result.newInboundEvents,
-              新增出运: result.newShipmentEvents,
-              新增出库: result.newOutboundEvents,
-            },
-          },
-        }),
-      );
-      const contracts = new Set(
-        actual.demands.map((item) => item.salesContractNo),
-      ).size;
-      const delta = `新增：需求 ${result.newDemands} / 采购 ${result.newPurchaseEvents} / 入库 ${result.newInboundEvents} / 出运 ${result.newShipmentEvents} / 出库 ${result.newOutboundEvents}`;
-      const totals = `Repository 实际：批次 ${actual.batches.length} / Raw ${actual.rawSnapshots.length} / 需求 ${actual.demands.length} / 采购 ${actual.purchaseEvents.length} / 入库 ${actual.inboundEvents.length} / 出运 ${actual.shipmentEvents.length} / 出库 ${actual.outboundEvents.length} / 合同 ${contracts}${previewAudit ? ` / 已匹配订单 ${previewAudit.contractsMatched} / 尚无订单 ${previewAudit.contractsWithoutOrder}` : ""}`;
-      setReport(
-        `${result.duplicateFile ? "相同文件已正式导入，业务事实零重复。" : "正式导入已提交。"}${delta}；${totals}`,
-      );
-      onCommitted();
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "正式导入失败");
-    } finally {
-      setWorking(false);
-    }
-  };
-  const b = preview?.batch.sourceKind === "api" ? null : preview?.batch;
-  return (
-    <Modal
-      open={open}
-      title="导入面辅料申购统计"
-      eyebrow="AINUOKE MATERIAL FOLLOW-UP"
-      description="上传后先预检，不会直接写入正式物料记录。"
-      onClose={onClose}
-      footer={
-        <>
-          <Button variant="secondary" onClick={onClose}>
-            关闭
-          </Button>
-          {preview ? (
-            <Button
-              permission="style_progress.import"
-              disabled={working}
-              onClick={() => void commit()}
-            >
-              {working
-                ? "提交中…"
-                : duplicate
-                  ? "验证幂等（零新增）"
-                  : "确认正式导入"}
-            </Button>
-          ) : (
-            <Button
-              permission="style_progress.import"
-              disabled={working || !file}
-              onClick={() => void runPreview()}
-            >
-              {working ? "解析中…" : "运行预检"}
-            </Button>
-          )}
-        </>
-      }
-    >
-      <AlertBanner tone="info" title="来源权威说明">
-        《面辅料申购统计》是艾诺科跟进来源，只通过销售合同号关联正式订单；不会覆盖订单品牌、款号、数量或合同交期。
-      </AlertBanner>
-      <label className="sp-file-input">
-        <strong>选择 .xlsx 文件</strong>
-        <input
-          type="file"
-          accept=".xlsx"
-          aria-label="选择面辅料申购统计文件"
-          onChange={(event) => {
-            setFile(event.target.files?.[0] ?? null);
-            setPreview(null);
-            setPreviewAudit(null);
-            setReport("");
-          }}
-        />
-        <span>{file?.name ?? "尚未选择"}</span>
-      </label>
-      {error && <ErrorState title="导入预检失败" description={error} />}
-      {report && (
-        <AlertBanner tone="info" title="导入完成">
-          {report}
-        </AlertBanner>
-      )}
-      {b && (
-        <div className="sp-import-preview">
-          <h3>预检结果</h3>
-          <dl>
-            <div>
-              <dt>文件哈希</dt>
-              <dd>{b.fileHash}</dd>
-            </div>
-            <div>
-              <dt>Sheet / 范围</dt>
-              <dd>
-                {b.sheetName} · {b.usedRange}
-              </dd>
-            </div>
-            <div>
-              <dt>原始行 / 有效 / 无效</dt>
-              <dd>
-                {b.rawRowCount} / {b.validRowCount} / {b.invalidRowCount}
-              </dd>
-            </div>
-            <div>
-              <dt>物料需求</dt>
-              <dd>
-                {b.demandCount}（去除展开 {b.duplicateDemandRows} 行）
-              </dd>
-            </div>
-            <div>
-              <dt>采购 / 入库 / 出运 / 出库</dt>
-              <dd>
-                {b.purchaseEventCount} / {b.inboundEventCount} /{" "}
-                {b.shipmentEventCount} / {b.outboundEventCount}
-              </dd>
-            </div>
-            <div>
-              <dt>重复事件展开</dt>
-              <dd>{b.duplicateEventRows}</dd>
-            </div>
-            {previewAudit && (
-              <>
-                <div>
-                  <dt>销售合同 / 已匹配订单 / 尚无订单</dt>
-                  <dd>
-                    {previewAudit.contracts} / {previewAudit.contractsMatched} /{" "}
-                    {previewAudit.contractsWithoutOrder}
-                  </dd>
-                </div>
-                <div>
-                  <dt>来源交期变化 / 保留人工预计</dt>
-                  <dd>
-                    {previewAudit.sourceDateChanges} /{" "}
-                    {previewAudit.manualOverridesPreserved}
-                  </dd>
-                </div>
-              </>
-            )}
-          </dl>
-          {duplicate && (
-            <AlertBanner tone="warning" title="重复文件">
-              该文件哈希已有正式批次；再次提交只验证幂等，不会新增业务记录。
-            </AlertBanner>
-          )}
-          {b.invalidRowCount > 0 && (
-            <AlertBanner tone="warning" title="存在无效行">
-              无效行保留技术 Trace、不生成业务记录；其余有效行可正式提交。
-            </AlertBanner>
-          )}
-          <AlertBanner tone="info" title="当前预计到料日">
-            拟定交期只作为初始来源；已人工调整的跟进日期在重新导入时保留，不会被永久覆盖。
-          </AlertBanner>
-        </div>
-      )}
-    </Modal>
-  );
-}
-
-export function StyleProgressPage() {
-  const router = useRouter();
-  const { can } = usePermissions();
-  const [loaded, setLoaded] = useState<Loaded | null>(null);
-  const [error, setError] = useState("");
-  const [query, setQuery] = useState("");
-  const [importOpen, setImportOpen] = useState(false);
-  const [toast, setToast] = useState("");
-  const reload = async () => {
-    setError("");
-    try {
-      setLoaded(await loadProgress());
-    } catch (reason) {
-      setError(reason instanceof Error ? reason.message : "无法读取款式进度");
-    }
-  };
-  useEffect(() => {
-    Promise.resolve().then(() => void reload());
-  }, []);
-  useEffect(() => {
-    if (!toast) return;
-    const timer = setTimeout(() => setToast(""), 2400);
-    return () => clearTimeout(timer);
-  }, [toast]);
-  useEffect(() => {
-    if (loaded) void styleProgressRepository.listImportBatches().then(ensureMaterialImportOperationLogs);
-  }, [loaded]);
-  const rows = useMemo(
-    () =>
-      (loaded?.projections ?? []).filter((item) =>
-        [
-          item.salesContractNo,
-          item.styleNo,
-          item.factoryStyleNo,
-          item.brand,
-          item.owner,
-        ]
-          .join(" ")
-          .toLocaleLowerCase()
-          .includes(query.trim().toLocaleLowerCase()),
-      ),
-    [loaded, query],
-  );
-  const columns: DataColumn<StyleProgressProjection>[] = [
-    {
-      key: "risk",
-      header: "风险",
-      width: 90,
-      sticky: "left",
-      render: (row) => (
-        <StatusTag tone={tone(row.salesRisk)}>
-          {salesRiskLabels[row.salesRisk]}
-        </StatusTag>
-      ),
-    },
-    {
-      key: "style",
-      header: "工厂款号",
-      minWidth: 130,
-      sticky: "left",
-      render: (row) => <strong>{row.factoryStyleNo || row.styleNo}</strong>,
-    },
-    {
-      key: "contract",
-      header: "销售合同",
-      minWidth: 130,
-      render: (row) => row.salesContractNo,
-    },
-    { key: "brand", header: "品牌", minWidth: 120, render: (row) => row.brand },
-    { key: "owner", header: "跟单人", width: 90, render: (row) => row.owner },
-    {
-      key: "quantity",
-      header: "成衣数量",
-      width: 100,
-      align: "right",
-      render: (row) => quantity(row.garmentQuantity),
-    },
-    {
-      key: "delivery",
-      header: "合同交期",
-      width: 110,
-      render: (row) => row.contractDeliveryDate,
-    },
-    {
-      key: "fabric",
-      header: "面料齐套",
-      width: 95,
-      render: (row) => `${row.fabricReady}/${row.fabricTotal}`,
-    },
-    {
-      key: "trim",
-      header: "辅料齐套",
-      width: 95,
-      render: (row) => `${row.trimReady}/${row.trimTotal}`,
-    },
-    {
-      key: "rate",
-      header: "总齐套",
-      width: 85,
-      render: (row) => `${row.readinessRate.toFixed(1)}%`,
-    },
-    {
-      key: "unpurchase",
-      header: "未采购",
-      width: 80,
-      align: "right",
-      render: (row) => row.notPurchasedCount,
-    },
-    {
-      key: "inbound",
-      header: "待入库",
-      width: 80,
-      align: "right",
-      render: (row) => row.pendingInboundCount,
-    },
-    {
-      key: "transport",
-      header: "运输风险",
-      minWidth: 110,
-      render: (row) => transportRiskLabels[row.transportRisk],
-    },
-    {
-      key: "view",
-      header: "操作",
-      width: 86,
-      sticky: "right",
-      render: (row) => (
-        <Button
-          variant="text"
-          onClick={() =>
-            router.push(
-              `/order-center/style-progress/detail?contract=${encodeURIComponent(row.salesContractNo)}`,
-            )
-          }
-        >
-          查看
-        </Button>
-      ),
-    },
-  ];
-  if (!can("style_progress.read"))
-    return (
-      <AppShell title="款式进度">
-        <PageContainer>
-          <ErrorState
-            title="暂无权限"
-            description="请联系管理员开通款式进度查看权限。"
-          />
-        </PageContainer>
-      </AppShell>
-    );
-  return (
-    <AppShell title="款式进度">
-      <PageContainer className="sp-page">
-        <OrderCenterNavigation />
-        <PageHeader
-          eyebrow="MATERIAL CONTROL TOWER"
-          title="款式进度"
-          count={`${rows.length} 款`}
-          description="按合同查看采购、到料、齐套与运输风险；正式订单字段始终来自订单中心。"
-          primaryAction={
-            <Button
-              permission="style_progress.import"
-              onClick={() => setImportOpen(true)}
-            >
-              导入面辅料跟进
-            </Button>
-          }
-        />
-        {error && (
-          <ErrorState
-            title="读取失败"
-            description={error}
-            onRetry={() => void reload()}
-          />
-        )}
-        {!loaded && !error ? (
-          <LoadingState label="正在计算物料齐套与物流建议" />
-        ) : (
-          <>
-            <SummaryMetrics rows={rows} />
-            <Card className="sp-toolbar">
-              <input
-                value={query}
-                onChange={(event) => setQuery(event.target.value)}
-                placeholder="搜索销售合同、款号、品牌或跟单人"
-                aria-label="搜索款式进度"
-              />
-            </Card>
-            <DataTable
-              rows={rows}
-              columns={columns}
-              rowKey={(row) => row.salesContractNo}
-              onRowActivate={(row) =>
-                router.push(
-                  `/order-center/style-progress/detail?contract=${encodeURIComponent(row.salesContractNo)}`,
-                )
-              }
-              ariaLabel="款式进度列表"
-              emptyTitle="尚无款式进度"
-              emptyDescription="请先导入真实《面辅料申购统计.xlsx》。"
-              renderRecord={(row) => (
-                <>
-                  <header>
-                    <strong>{row.factoryStyleNo || row.styleNo}</strong>
-                    <StatusTag tone={tone(row.salesRisk)}>
-                      {salesRiskLabels[row.salesRisk]}
-                    </StatusTag>
-                  </header>
-                  <p>
-                    {row.salesContractNo} · {row.brand}
-                  </p>
-                  <small>
-                    面料 {row.fabricReady}/{row.fabricTotal} · 辅料{" "}
-                    {row.trimReady}/{row.trimTotal} · 未采购{" "}
-                    {row.notPurchasedCount}
-                  </small>
-                </>
-              )}
-            />
-          </>
-        )}
-        <ImportModal
-          open={importOpen}
-          onClose={() => setImportOpen(false)}
-          onCommitted={() => {
-            setToast("正式物料数据已更新");
-            void reload();
-          }}
-        />
-        {toast && <Toast message={toast} />}
-      </PageContainer>
-    </AppShell>
   );
 }
 
@@ -1018,7 +462,7 @@ function MaterialSourceHistory({
 
 export function LegacyStyleProgressDetailPage() {
   const router = useRouter();
-  const backTarget = { href: "/order-center/style-progress", label: "返回款式进度" };
+  const backTarget = { href: "/order-center", label: "返回订单列表" };
   const params = useSearchParams();
   const contract =
     params.get("contract")?.normalize("NFKC").trim().toLocaleUpperCase() ?? "";
@@ -1120,7 +564,7 @@ export function LegacyStyleProgressDetailPage() {
     return (
       <AppShell title="款式进度详情" backTarget={backTarget}>
         <PageContainer className="sp-page">
-          <OrderCenterNavigation />
+
           <PageHeader title={contract || "款式进度详情"} />
           <EmptyState
             title="当前导入数据未找到该款"
@@ -1135,7 +579,7 @@ export function LegacyStyleProgressDetailPage() {
       backTarget={backTarget}
     >
       <PageContainer className="sp-page sp-detail">
-        <OrderCenterNavigation />
+
         <PageHeader
           variant="object"
           eyebrow="STYLE PROGRESS"
@@ -1289,110 +733,11 @@ export function StyleProgressDetailPage() {
   };
   useEffect(() => { Promise.resolve().then(() => void reload()); }, []);
   const projection = loaded?.projections.find((item) => item.salesContractNo === contract) ?? null;
-  const backTarget = { href: "/order-center/style-progress", label: "返回款式进度" };
+  const backTarget = { href: "/order-center", label: "返回订单列表" };
   if (!loaded && !error) return <AppShell title="款式进度详情" backTarget={backTarget}><PageContainer><LoadingState label="正在读取物料明细" /></PageContainer></AppShell>;
   if (error) return <AppShell title="款式进度详情" backTarget={backTarget}><PageContainer><ErrorState title="读取失败" description={error} onRetry={() => void reload()} /></PageContainer></AppShell>;
-  if (!loaded || !projection) return <AppShell title="款式进度详情" backTarget={backTarget}><PageContainer className="sp-page"><OrderCenterNavigation /><PageHeader title={contract || "款式进度详情"} /><EmptyState title="当前导入数据未找到该款" description="没有使用虚构数据补齐；请核对销售合同号或导入最新面辅料申购统计。" /></PageContainer></AppShell>;
-  return <AppShell title={`${projection.factoryStyleNo || projection.styleNo} · 款式进度`} backTarget={backTarget}><PageContainer className="sp-page sp-detail sp-v4-page"><OrderCenterNavigation /><MaterialControlTower projection={projection} data={loaded.data} settings={loaded.settings} onReload={reload} onToast={setToast} />{toast && <Toast message={toast} />}</PageContainer></AppShell>;
-}
-
-export function StyleRiskPage() {
-  const router = useRouter();
-  const [loaded, setLoaded] = useState<Loaded | null>(null);
-  const [tab, setTab] = useState("all");
-  useEffect(() => {
-    void loadProgress().then(setLoaded);
-  }, []);
-  if (!loaded)
-    return (
-      <AppShell title="风险预警">
-        <PageContainer>
-          <LoadingState label="正在汇总风险" />
-        </PageContainer>
-      </AppShell>
-    );
-  const tabs = [
-    ["overdue", "已逾期"],
-    ["7d", "7天"],
-    ["14d", "14天"],
-    ["30d", "30天"],
-    ["unpurchase", "未采购"],
-    ["inbound", "待入库"],
-    ["transport", "运输风险"],
-    ["all", "全部异常"],
-  ];
-  const rows = loaded.projections.filter((item) =>
-    tab === "all"
-      ? item.salesRisk !== "normal" ||
-        item.notPurchasedCount > 0 ||
-        item.pendingInboundCount > 0 ||
-        item.transportRisk !== "none"
-      : ["overdue", "7d", "14d", "30d"].includes(tab)
-        ? item.salesRisk === tab
-        : tab === "unpurchase"
-          ? item.notPurchasedCount > 0
-          : tab === "inbound"
-            ? item.pendingInboundCount > 0
-            : item.transportRisk !== "none",
-  );
-  return (
-    <AppShell title="风险预警">
-      <PageContainer className="sp-page">
-        <OrderCenterNavigation />
-        <PageHeader
-          eyebrow="RISK CENTER"
-          title="风险预警"
-          count={`${rows.length} 款`}
-          description="销售交期、物料和运输风险分维度并存，不用单一状态掩盖原因。"
-        />
-        <nav className="sp-risk-tabs">
-          {tabs.map(([id, label]) => (
-            <button
-              key={id}
-              className={tab === id ? "active" : ""}
-              onClick={() => setTab(id)}
-            >
-              {label}
-            </button>
-          ))}
-        </nav>
-        <section className="sp-risk-list">
-          {rows.map((row) => (
-            <Card key={row.salesContractNo}>
-              <header>
-                <div>
-                  <strong>{row.factoryStyleNo || row.styleNo}</strong>
-                  <span>
-                    {row.salesContractNo} · {row.brand}
-                  </span>
-                </div>
-                <StatusTag tone={tone(row.salesRisk)}>
-                  {salesRiskLabels[row.salesRisk]}
-                </StatusTag>
-              </header>
-              <p>
-                未采购 {row.notPurchasedCount} · 待入库{" "}
-                {row.pendingInboundCount} · 运输{" "}
-                {transportRiskLabels[row.transportRisk]}
-              </p>
-              <small>{row.keyExceptions[0] ?? "查看完整物料明细"}</small>
-              <Button
-                variant="text"
-                onClick={() =>
-                  router.push(
-                    `/order-center/style-progress/detail?contract=${encodeURIComponent(row.salesContractNo)}`,
-                  )
-                }
-              >
-                查看款式进度
-              </Button>
-            </Card>
-          ))}
-        </section>
-        {!rows.length && <EmptyState title="当前筛选没有风险记录" />}
-      </PageContainer>
-    </AppShell>
-  );
+  if (!loaded || !projection) return <AppShell title="款式进度详情" backTarget={backTarget}><PageContainer className="sp-page"><PageHeader title={contract || "款式进度详情"} /><EmptyState title="当前导入数据未找到该款" description="没有使用虚构数据补齐；请核对销售合同号或导入最新面辅料申购统计。" /></PageContainer></AppShell>;
+  return <AppShell title={`${projection.factoryStyleNo || projection.styleNo} · 款式进度`} backTarget={backTarget}><PageContainer className="sp-page sp-detail sp-v4-page"><MaterialControlTower projection={projection} data={loaded.data} settings={loaded.settings} onReload={reload} onToast={setToast} />{toast && <Toast message={toast} />}</PageContainer></AppShell>;
 }
 
 export function OrderStyleProgressSummary({ order }: { order: SalesOrder }) {

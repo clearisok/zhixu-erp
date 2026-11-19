@@ -28,7 +28,7 @@ async function until(read, label, timeout = 16000) {
 }
 
 test('approved delivery plan maintenance works on the exact built Server detail', { timeout: 360000 }, async t => {
-  const phase = async (name, run) => { let failure; await t.test(name, async () => { try { await run(); } catch (error) { failure = error; throw error; } }); if (failure) throw failure; };
+  const phase = async (name, run) => { let failure; await t.test(name, async () => { try { await run(); } catch (error) { failure = error; t.diagnostic(error.stack); throw error; } }); if (failure) throw failure; };
   const beforeBuild = process.env.DELIVERY_PLAN_UI_BEFORE === '1';
   if (!beforeBuild) assert.equal(process.env.DELIVERY_PLAN_STATIC_DIR, undefined, 'after requires its own exact static build');
   const staticDirectory = resolve(beforeBuild ? process.env.DELIVERY_PLAN_STATIC_DIR ?? 'dist/client' : 'dist/client');
@@ -156,7 +156,7 @@ test('approved delivery plan maintenance works on the exact built Server detail'
       await until(() => evaluate("(()=>{const buttons=[...document.querySelectorAll('.oc-server-detail-actions button')];return buttons.length===2&&buttons.every(n=>!n.disabled)})()"), 'header actions hydrated');
       for (const [width, height, touch, dpr] of [[1920, 1080, false, 1], [1536, 864, false, 1.25], [1440, 1000, false, 1], [1280, 900, false, 1], [900, 900, false, 1], [736, 900, false, 1], [390, 844, true, 1], [320, 740, true, 1], [320, 740, false, 1]]) {
         await command('Emulation.setDeviceMetricsOverride', { width, height, deviceScaleFactor: dpr, mobile: touch }); await command('Emulation.setTouchEmulationEnabled', { enabled: touch });
-        const header = await evaluate("(()=>{const group=document.querySelector('.oc-server-detail-actions'),identity=group.closest('.qc-page-header').querySelector('.qc-page-identity'),buttons=[...group.querySelectorAll('button')];return{documentOverflow:document.documentElement.scrollWidth>innerWidth+1,actionsBelowIdentity:innerWidth>=600||group.getBoundingClientRect().top>=identity.getBoundingClientRect().bottom-1,actionsShareRow:Math.abs(buttons[0].getBoundingClientRect().top-buttons[1].getBoundingClientRect().top)<=1,buttons:buttons.map(n=>{const r=n.getBoundingClientRect(),hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2),s=getComputedStyle(n);return{label:n.textContent.trim(),visible:r.width>0&&r.height>0&&s.visibility==='visible'&&s.display!=='none',disabled:n.disabled,reachable:!!hit&&n.contains(hit),inside:r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight,touchTarget:!matchMedia('(pointer:coarse)').matches||r.height>=44}})}})()");
+        const header = await evaluate("(()=>{const group=document.querySelector('.oc-server-detail-actions'),identity=group.closest('.ops-topbar').querySelector('.ops-topbar-heading'),buttons=[...group.querySelectorAll('button')];return{documentOverflow:document.documentElement.scrollWidth>innerWidth+1,actionsBelowIdentity:innerWidth>=600||group.getBoundingClientRect().top>=identity.getBoundingClientRect().bottom-1,actionsShareRow:Math.abs(buttons[0].getBoundingClientRect().top-buttons[1].getBoundingClientRect().top)<=1,buttons:buttons.map(n=>{const r=n.getBoundingClientRect(),hit=document.elementFromPoint(r.left+r.width/2,r.top+r.height/2),s=getComputedStyle(n);return{label:n.textContent.trim(),visible:r.width>0&&r.height>0&&s.visibility==='visible'&&s.display!=='none',disabled:n.disabled,reachable:!!hit&&n.contains(hit),inside:r.left>=0&&r.right<=innerWidth&&r.top>=0&&r.bottom<=innerHeight,touchTarget:!matchMedia('(pointer:coarse)').matches||r.height>=44}})}})()");
         if ([1440, 390, 320].includes(width)) await shot('header-' + width + (width === 320 && !touch ? '-fine' : ''));
         const diagnostic = JSON.stringify({ width, header });
         assert.equal(header.documentOverflow, false, diagnostic); assert.equal(header.actionsBelowIdentity, true, diagnostic); assert.equal(header.actionsShareRow, true, diagnostic); assert.deepEqual(header.buttons.map(n => n.label), ['维护来源', '维护交期']);
@@ -358,7 +358,7 @@ test('approved delivery plan maintenance works on the exact built Server detail'
   } finally {
     let evidenceError,stopError,stopped=false;
     try { if(evidence) await writeFile(join(directory,'build-and-checks.json'),JSON.stringify({driverSourceSha,renderedSourceSha:info.gitCommit,before:beforeBuild,build:info,headerMetrics,metrics,errors,diagnostic:await captureDiagnostic?.()},null,2)+'\n'); } catch(error){evidenceError=error;}
-    try { await stopOwnedChromium(browser,{gracefulClose:closeBrowser}); stopped=true; } catch(error){stopError=error;}
+    try { await stopOwnedChromium(browser,{gracefulClose:closeBrowser,graceMs:10000,exitMs:10000}); stopped=true; } catch(error){stopError=error;}
     finally { ws?.close(); for(const item of pending.values())item.reject(Error('Owned delivery fixture closed')); pending.clear(); }
     try { await x.close(); } finally {
       const owned=relative(resolve(tmpdir()),resolve(temp));

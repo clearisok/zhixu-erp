@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, existsSync } from "node:fs";
 import { migrateProductionSchedulingV8ToV9 } from "../features/production-scheduling/migration/production-scheduling-v8-to-v9.ts";
 import { createLocalDataStore } from "../features/data-management/repository/local-data-store.ts";
 import { createProductionSchedulingRepository } from "../features/production-scheduling/repository/production-scheduling-repository.ts";
@@ -52,6 +52,6 @@ test("生产日常 UI 不再维护第二套面辅料日期，并保留真实导�
   for (const contract of ["styleProgressRepository.loadAll", "buildStyleProgressProjections", "暂无面辅料跟进数据", "查看订单", "查看物流 / 款式进度", "action=price", "FloatingMenu"]) assert.match(source, new RegExp(contract));
   assert.doesNotMatch(source, /物料未齐/);
   assert.equal(source.match(/查看 \/ 调整排单/g)?.length, 1);
-  const navigation = readFileSync(new URL("../features/style-progress/components/order-center-navigation.tsx", import.meta.url), "utf8");
-  assert.doesNotMatch(navigation, /ainuoke-sync|艾诺科同步/);
+  assert.equal(existsSync(new URL("../features/style-progress/components/order-center-navigation.tsx", import.meta.url)), false, "retired order tabs cannot reappear");
+  assert.ok(existsSync(new URL("../app/order-center/style-progress/detail/page.tsx", import.meta.url)), "shared material detail remains reachable");
 });

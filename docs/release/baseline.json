@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "a915c7a130ddada13118a1d245b41e7999b9d395",
-  "verifiedAt": "2026-11-18T06:30:46.686Z",
+  "baselineSha": "4a8c9bc24b00983d0d79150349adeed5a333a237",
+  "verifiedAt": "2026-11-19T02:07:47.917Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -6198,6 +6198,15 @@
       "sha256": "1d555ce1ed3d4e3b52a236376b1c373ee40309ad9612b14c18b420a1f0495d34",
       "supersedes": "sync-audit-contract-review-20261113",
       "changeReason": "Document candidate supervisor recovery and unchanged audit/unknown-result semantics; no UI, schema, real deployment or natural-sync acceptance change."
+    },
+    {
+      "id": "compact-business-ui-v2-decisions-20261119",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "1c35dca9a763e0d32999ead2f14747f86e57f041",
+      "sha256": "1e3d66d308e9c2be59315a0fb9f1cc7454ebae1a5a5710ba650fb2dc08b7ffc4",
+      "supersedes": "sync-recovery-decisions-20261118",
+      "changeReason": "Record user-approved D196 retirement of dedicated style/risk lists and compact UI; preserve shared material dependencies, all historical decisions and deployment boundaries."
     }
   ],
   "pages": [

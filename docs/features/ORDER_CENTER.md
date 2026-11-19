@@ -1,3 +1,11 @@
+## 2026-11-19 用户批准 v2：紧凑订单列表/详情（Staging待人工验收）
+
+订单中心只保留订单列表。此前三Tab及迁入二级菜单的建议已由用户明确废止：移除款式进度列表、风险预警专用根路由/页面和入口，不开发Server接入，不删除数据库历史/共享接口。保留其他页面依赖的StyleProgressDetailPage、LegacyStyleProgressDetailPage、OrderStyleProgressSummary、MaterialControlTower及/order-center/style-progress/detail，共享详情返回订单列表。下文旧三Tab说明仅为历史，不可据此恢复入口。
+
+Server列表删除重复hero、PostgreSQL/identity提示，原合同历史/加工导入迁现有顶栏。详情移除独立hero，工厂款号、SO/BillNo整合概况头部；状态及颜色/调价历史/物料等所有业务模块保留。来源/交期原按钮迁顶栏，原权限/弹窗/未知结果及保存保护不变。代码：server-order-center-page.tsx、server-sales-order-detail-page.tsx、app-shell.tsx、style-progress-pages.tsx。无API/schema/业务规则修改。[用户v2、依赖审计和部署验证](../tasks/active/compact-business-pages-2026-11-19.md)。实际Staging源码90de5b0a；未合并，不代表人工认可或来源恢复。
+
+## 以下保留各日期历史
+
 2026-11-10本地候选：现有Server订单中心默认按合同日期降序，缺失最后；同日按正式订单号和UUID降序，服务端排序后分页。API新增明确contractDate排序项，未指定时仍保留原orderNo升序默认。来源合同日期取原mirror.contract_date，加工单取原processing_batch.order_date，不以交期、updated_at或建单顺序冒充合同日期；既有列/筛选/权限/人工数据不变。[任务与用户要求](../tasks/active/ainuoke-directory-recovery-sort-2026-11-10.md)。尚未合并或部署。
 
 2026-10-15 Gate5 B1本地候选：正式详情返回复用顶部小箭头；合同标题展示可信工厂款号，概况业务款号取来源styleNo并移除重复SO/BillNo。加工标题用其业务款号，不虚构销售合同；原准备未知请求保护仍适用于顶部返回与退出。未部署或人工验收。

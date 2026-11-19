@@ -5,10 +5,10 @@ import type { ListImageLoader } from "../server/list-image-loader";
 
 const labels = (fields: BusinessColumn[]) => fields.map(key => businessColumns.find(item => item.key === key)!.label).join(" / ");
 export function serverListHeader(fields: BusinessColumn[]) {
-  if (fields.length === 1) return fields[0] === "styleIdentity" ? "款号 / 款式名称" : labels(fields);
+  if (fields.length === 1) return fields[0] === "styleIdentity" ? "款号 / 款式名称" : fields[0] === "garmentPrice" ? "成衣价格" : fields[0] === "confirmedGarment" ? "客户确认价格" : labels(fields);
   if (fields.every(key => ["fabricCost", "trimCost", "labor"].includes(key))) return "成本摘要";
   if (fields.every(key => ["revision", "versions"].includes(key))) return "报价历史 / 价格方案";
-  if (fields.every(key => ["garmentPrice", "confirmationStatus"].includes(key))) return "成衣价 / 客户确认";
+  if (fields.every(key => ["confirmedGarment", "confirmationStatus"].includes(key))) return "客户确认";
   if (fields.every(key => ["brand", "salesperson"].includes(key))) return "品牌 / 业务员";
   if (fields.every(key => ["type", "status"].includes(key))) return "类型 / 状态";
   return labels(fields);
@@ -20,6 +20,17 @@ export function ServerListCell({ fields:requestedFields, row, imageLoader }: { f
   if (fields.length === 1 && fields[0] === "styleIdentity") return <div className="qc-primary-cell"><strong title={row.summary?.quoteStyleNo}>{row.summary?.quoteStyleNo || "—"}</strong><small title={row.summary?.styleName}>{row.summary?.styleName || "未填写款式名称"}</small></div>;
   if(!fields.length)return <span>不适用</span>;
   const sourceTitle = fields.includes("confirmationStatus") ? row.confirmationSources?.map(source => `${source.priceVersionId}: ${source.linkage}${source.termsVersion === null ? "" : ` / CCT v${source.termsVersion}`}`).join("；") : undefined;
+  if (fields.includes("confirmedGarment")) {
+    const price = row.business?.confirmedGarment;
+    const status = fields.includes("confirmationStatus") ? row.business?.confirmationStatus?.display : undefined;
+    const unknown = price?.display === "关联未核实";
+    const display = unknown ? "—" : price?.display ?? "—";
+    const compactDisplay = display.replace(/^(¥[\d,.]+) – ¥([\d,.]+)$/u, "$1–$2");
+    return <div className="qc-primary-cell qc-confirmation-cell" title={sourceTitle}>
+      <strong className="qc-list-price-value" title={display}>{row.summary && row.summary.priceVersionCount > 1 && price?.value !== null && price?.value !== undefined && !unknown ? <a href={`/quote-center/detail?id=${encodeURIComponent(row.id)}`} aria-label={`查看价格方案：${display}`} onClick={event => event.stopPropagation()}>{compactDisplay}</a> : compactDisplay}</strong>
+      {status && <small title={status}>{status.replace(/（.*）$/u, "")}</small>}
+    </div>;
+  }
   const prefix: Partial<Record<BusinessColumn, string>> = { fabricCost: "面 ", trimCost: "辅 ", labor: "工 " };
   if (fields.length > 1 && fields.every(key => key in prefix)) {
     const values = fields.map(key => `${prefix[key]}${row.business?.[key]?.display ?? "—"}`);
@@ -28,6 +39,6 @@ export function ServerListCell({ fields:requestedFields, row, imageLoader }: { f
   return <div className="qc-primary-cell" title={sourceTitle}>{fields.map((key, index) => {
     const value = row.business?.[key]?.display ?? "—";
     const content = <>{fields.length > 1 ? prefix[key] : ""}{value}{key === "versions" ? " 个" : ""}</>;
-    return index === 0 ? <strong key={key} className={key === "revision" ? "qc-revision-chip" : undefined}>{content}</strong> : <small key={key}>{content}</small>;
+    return index === 0 ? <strong key={key} className={key === "revision" ? "qc-revision-chip" : key === "garmentPrice" ? "qc-list-price-value" : undefined}>{content}</strong> : <small key={key}>{content}</small>;
   })}</div>;
 }

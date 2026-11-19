@@ -1,3 +1,9 @@
+## 2026-11-19 紧凑Server列表（Staging待人工验收）
+
+删除列表重复英文/大标题/数量/说明，原更多和新建报价操作迁AppShell顶栏，页面owner portal保留原回调、权限和弹窗，不缓存陈旧动作。计算成衣价格garmentPrice与真实PV/CCT确认confirmedGarment分列，确认列第一行金额、第二行灰色原业务状态；未确认金额为横杠，未知关联继续未知，不以计算价填确认价。多真实确认金额保留范围、币种及详情，CNY同币范围只压缩重复符号，原业务数值/完整tooltip不变。
+
+复用readBusinessSources/businessValues及原confirmationStatus，无价格算法/确认判定/API/历史修改。旧组合列UI偏好只前向幂等升级，保持原namespace、手动宽度/隐藏/独立视图与权限，不读写Browser业务库或Seed。代码：production-quote-list-page.tsx、server-list-cell.tsx、list-preferences.ts、list-presentation.ts。四桌面/缩放、三态/多价/权限及真实Staging验证见[任务](../tasks/active/compact-business-pages-2026-11-19.md)。源码90de5b0a已部署Staging，实际7报价没有部分确认样本，完整三态使用隔离PG合成，不写入真实数据；PR未合并、等待人工验收。
+
 ## 当前阅读入口（2026-11-04复核）
 
 当前源码已有Server报价读写、版本/确认、报价来源选择、按订单议价、加工批次和角色/用户管理。报价确认权威见`server/confirmed-commercial-terms/confirmation-source.ts`；订单实际采用价见`server/sales-orders/commercial-version-service.ts`，不能将订单议价写回报价CCT。角色管理接口见`server/auth/managed-role-routes.ts`。下文按日期保留工程过程，其中“Server角色管理尚未实现”“本地候选/未交付”等是当时状态，不作为当前功能缺口。当前远端、CI与体验站版本以[CURRENT_STATE](../CURRENT_STATE.md)为准；本段不追加部署或验收声明。

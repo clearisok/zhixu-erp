@@ -2,6 +2,7 @@
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, useTransition, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import { useResponsiveMode } from "./responsive";
 import { SidebarFloatingMenu } from "./sidebar-floating-menu";
 import { Drawer } from "./drawer";
@@ -49,26 +50,27 @@ export type AppShellBackTarget = {
   label: string;
 };
 
-type AppShellProps = { title: string; children: ReactNode; onRequestNavigation?: (target: string) => void; onRequestLogout?: () => Promise<void>; backTarget?: AppShellBackTarget; identityMode?: "browser" | "server" };
+type AppShellProps = { title: string; children: ReactNode; headerActions?: ReactNode; onRequestNavigation?: (target: string) => void; onRequestLogout?: () => Promise<void>; backTarget?: AppShellBackTarget; identityMode?: "browser" | "server" };
 type ShellPage = Omit<AppShellProps, "children" | "identityMode"> & { token: symbol; route: string; scope: string };
-const ServerShellContext = createContext<{ scope: string; register(page: ShellPage): () => void } | null>(null);
+const ServerShellContext = createContext<{ scope: string; actionsTarget: HTMLDivElement | null; register(page: ShellPage): () => void } | null>(null);
 
 /** The Server boundary owns only the frame; page state and authority stay in the page. */
 export function PersistentServerAppShell({ children, scope, title = "业务工作区" }: { children: ReactNode; scope: string | null; title?: string }) {
   const path = usePathname(), search = useSearchParams().toString();
   const route = `${path}?${search}`;
   const [page, setPage] = useState<ShellPage | null>(null);
+  const [actionsTarget, setActionsTarget] = useState<HTMLDivElement | null>(null);
   const register = useCallback((next: ShellPage) => {
     setPage(next);
     return () => setPage(current => current?.token === next.token ? null : current);
   }, []);
-  const context = useMemo(() => ({ scope: scope ?? "unavailable", register }), [scope, register]);
+  const context = useMemo(() => ({ scope: scope ?? "unavailable", register, actionsTarget }), [scope, register, actionsTarget]);
   // A stale page may finish cleanup after its replacement. Never use its identity/title/callbacks.
   const current = scope !== null && page?.scope === scope && page.route === route ? page : null;
-  return <ServerShellContext.Provider value={context}><AppShellFrame title={current?.title ?? title} identityMode="server" backTarget={current?.backTarget} onRequestNavigation={current?.onRequestNavigation} onRequestLogout={current?.onRequestLogout}>{children}</AppShellFrame></ServerShellContext.Provider>;
+  return <ServerShellContext.Provider value={context}><AppShellFrame title={current?.title ?? title} identityMode="server" actionsTargetRef={setActionsTarget} backTarget={current?.backTarget} onRequestNavigation={current?.onRequestNavigation} onRequestLogout={current?.onRequestLogout}>{children}</AppShellFrame></ServerShellContext.Provider>;
 }
 
-function ServerShellPage({ children, title, backTarget, onRequestNavigation, onRequestLogout }: AppShellProps) {
+function ServerShellPage({ children, title, backTarget, headerActions, onRequestNavigation, onRequestLogout }: AppShellProps) {
   const context = useContext(ServerShellContext)!;
   const path = usePathname(), search = useSearchParams().toString();
   const token = useRef(Symbol("shell-page"));
@@ -81,7 +83,7 @@ function ServerShellPage({ children, title, backTarget, onRequestNavigation, onR
   const backHref = backTarget?.href, backLabel = backTarget?.label;
   const hasNavigation = Boolean(onRequestNavigation), hasLogout = Boolean(onRequestLogout);
   useLayoutEffect(() => context.register({ token: token.current, route: `${path}?${search}`, scope: context.scope, title, backTarget: backHref && backLabel ? { href: backHref, label: backLabel } : undefined, onRequestNavigation: hasNavigation ? navigation : undefined, onRequestLogout: hasLogout ? logout : undefined }), [context, path, search, title, backHref, backLabel, hasNavigation, hasLogout, navigation, logout]);
-  return children;
+  return <>{context.actionsTarget && headerActions && createPortal(headerActions, context.actionsTarget)}{children}</>;
 }
 
 export function AppShell(props: AppShellProps) {
@@ -89,7 +91,7 @@ export function AppShell(props: AppShellProps) {
   return context ? <ServerShellPage {...props} /> : <AppShellFrame {...props} />;
 }
 
-function AppShellFrame({ title, children, onRequestNavigation, onRequestLogout, backTarget, identityMode = "browser" }: AppShellProps) {
+function AppShellFrame({ title, children, headerActions, actionsTargetRef, onRequestNavigation, onRequestLogout, backTarget, identityMode = "browser" }: AppShellProps & { actionsTargetRef?: (node: HTMLDivElement | null) => void }) {
   const freshServer = quoteAuthority() === "server";
   if (freshServer) identityMode = "server";
   const router = useProtectedRouter();
@@ -252,7 +254,7 @@ function AppShellFrame({ title, children, onRequestNavigation, onRequestLogout, 
           {backTarget && <button type="button" className="ops-topbar-back" aria-label={backTarget.label} title={backTarget.label} onClick={() => navigateRequest(backTarget.href)}><span aria-hidden="true">‹</span></button>}
           <div className="ops-topbar-title"><small>织序 / 业务中心 / {personalActive ? "我的设置" : basicActive ? "基础设置" : systemActive ? "系统设置" : pathname.startsWith("/ainuoke-sync") || pathname.startsWith("/order-center") ? "订单中心" : pathname.startsWith("/closing-center") ? "关账中心" : pathname.startsWith("/production-scheduling") ? "生产排单" : "报价中心"}</small><strong>{title}</strong></div>
         </div>
-        <div className="topbar-actions">{!serverIdentityMode && !localSingleUser && <><button type="button" className="qc-global-search-trigger" aria-label="打开全局搜索" title="全局搜索（Ctrl+K）" onClick={() => setGlobalSearchOpen(true)}><span>⌕</span><b>搜索</b><kbd>Ctrl K</kbd></button><button type="button" className="icon-button" title="通知">♢</button><label className="qc-test-user-switcher" title="切换测试账号"><span>{userInitial}</span><select aria-label="切换测试账号" value={currentUser.id} onChange={(event) => setCurrentUser(event.target.value)}>{permissionState.users.filter((user) => user.status === "active").map((user) => <option key={user.id} value={user.id}>{user.name} · {permissionState.roles.find((role) => role.id === user.roleId)?.name ?? "未分配"}</option>)}</select></label></>}</div>
+        <div className="topbar-actions"><div className="ops-page-actions" ref={actionsTargetRef}>{headerActions}</div>{!serverIdentityMode && !localSingleUser && <><button type="button" className="qc-global-search-trigger" aria-label="打开全局搜索" title="全局搜索（Ctrl+K）" onClick={() => setGlobalSearchOpen(true)}><span>⌕</span><b>搜索</b><kbd>Ctrl K</kbd></button><button type="button" className="icon-button" title="通知">♢</button><label className="qc-test-user-switcher" title="切换测试账号"><span>{userInitial}</span><select aria-label="切换测试账号" value={currentUser.id} onChange={(event) => setCurrentUser(event.target.value)}>{permissionState.users.filter((user) => user.status === "active").map((user) => <option key={user.id} value={user.id}>{user.name} · {permissionState.roles.find((role) => role.id === user.roleId)?.name ?? "未分配"}</option>)}</select></label></>}</div>
       </header>
       {isNavigating && <div className="ops-route-progress" role="status" aria-live="polite">正在打开页面…</div>}
       {children}

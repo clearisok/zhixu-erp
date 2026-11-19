@@ -16,14 +16,12 @@ import {
   FormItem,
   LoadingState,
   PageContainer,
-  PageHeader,
   SearchField,
   StatusTag,
   Toolbar,
   type DataColumn,
 } from "@/components/foundation";
 import { ServerLoginCard, useServerSession } from "@/features/server-auth";
-import { OrderCenterNavigation } from "@/features/style-progress/components/order-center-navigation";
 import { SalesOrderServerReadError } from "../server/sales-order-server-client";
 import {
   initialServerOrderCenterQuery,
@@ -78,7 +76,6 @@ function lifecycleTone(
 }
 
 function OrderCenterFrame({
-  count,
   children,
   actions,
 }: {
@@ -87,16 +84,8 @@ function OrderCenterFrame({
   actions?: React.ReactNode;
 }) {
   return (
-    <AppShell title="订单中心" identityMode="server">
+    <AppShell title="订单中心" identityMode="server" headerActions={actions}>
       <PageContainer className="oc-order-center-page oc-server-order-center-page">
-        <OrderCenterNavigation />
-        <PageHeader
-          eyebrow="ORDER CENTER"
-          title="订单中心"
-          count={count}
-          description="正式订单基础视图；数据源：PostgreSQL。"
-          actions={actions}
-        />
         {children}
       </PageContainer>
     </AppShell>
@@ -348,11 +337,6 @@ export function ServerOrderCenterPage() {
 
   return (
     <OrderCenterFrame count={loadedScope===scopeKey?`${page.total} 条${query.includeHistorical?'（含历史记录）':''}`:"—"} actions={<><Button className="oc-catalog-toggle" variant="secondary" onClick={()=>setCatalogOpen(value=>!value)}>{catalogOpen?"当前跟进":"全部合同 / 历史查阅"}</Button><ProcessingBatchDialog key={serverSession.user.id} mode="import" /></>}>
-      <div className="oc-server-source-bar">
-        <span><i aria-hidden="true" />数据源：PostgreSQL</span>
-        <small>Server identity：{trustedIdentity}</small>
-
-      </div>
       {catalogOpen?<ServerSourceCatalog key={serverSession.user.id} canManage={serverSession.hasPermission("ainuoke.bind")} onChanged={()=>void loadList()}/>:<>
       <form
         onSubmit={(event) => {
