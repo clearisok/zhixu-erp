@@ -1,5 +1,19 @@
 # 艾诺科同步审计台账（D194）
 
+2026-11-19最终授权后安全收口：发布前诊断写入异常明确catalog_diagnostic_write_failed/failed，diagnosticsPersisted=false，保留原成功且阻止后续采集；不把尚未开始的业务提交认作unknown，业务提交后的未知保护不变。复杂Price对象/数组/其他异常类型只保存类型、长度或hash，不存复杂原文；正常数字/字符串/null原值保留。重采计划只继承同sourceKey/account fingerprint、原capture与audit batch任务成员且存在6086103报表的失败证据；周期目录按账号过滤。当前批次的targeted页与全新before逐字节绑定。默认五合同共享目录拒绝后，不发布任一合同；其余四单仍需自己的全新完整稳定证据，异常单有限失败不误伤后续独立可信采集。用户现已批准PR158合并及仅Staging部署/0059/受控恢复/两轮自然验收，以下未授权说明为原历史时点，不能视为当前阻塞；所有安全前置仍适用。
+
+## 2026-11-19 Price与可变字段诊断（D197，工程候选）
+
+6086103的id/BillNo绑定由目录映射与数据库双向唯一检查决定，InsideOrderNo原守卫继续保留；Price不属于该身份。已有七个可变业务字段加Price允许存在性/值/类型差异进入有限重采，未知字段/结构、认证、范围和完整分页仍严格拒绝。原hsid大小写变体只保留原字段集合不变的有限重读例外。比较不舍入价格，也不把来源Price写进织序商业版本。
+
+首次目录不一致不发布，记录逐字段原状态；现有1/5分钟、总计3次采集的持久重试会先读取受影响页，再取得全新完整before/details/after。定向页不能替换旧页，也不授权发布。预算仍为每次目录56/合同80请求、4000行、180秒，定向读也计入。完全相同的原始类型和值才能通过，数值相同但格式不同也须证明稳定。三次业务漂移返回mutable_field_unstable，保全旧成功；单合同耗尽不全局暂停，其他合同只有自己的新完整目录/明细证明通过才可继续。周期目录三次耗尽仍走原catalog_retries_exhausted、等待一个目录周期后仅允许新完整读取；不将退避解除当成发布成功。
+
+0059新增ainuoke_catalog_diagnostics：batch_id、source_key、report_id、kind、page、row_id、sales_contract_no、field、retry_count、final_decision及JSON evidence。difference证据含before/after_exists/type/value/hash、after_page、classification、values_redacted、两遍fetched_at、request_started_at/finished_at及逐次请求状态；不可获取时间为null。recapture_page保留受影响页的合同/id、原Price等安全投影、全行和响应hash；decision记录关联原任务/批次及完整稳定content_hash。只追加，UPDATE/DELETE拒绝；旧失败/成功记录不修改。姓名/未知字段原值不保存；真实来源价格/合同沿现有受控运维权限，无新增匿名/普通角色API。诊断保存失败不覆盖主错误，并停止该自动重采；0059缺失在Source IO前失败关闭。
+
+序列化边界：JSON数字1与1.0在Node中相同，Python原先却生成不同SourceRow指纹。新6103行指纹仅对已确认可变字段内、有限且安全的整数float采用同一数值指纹；原values、原分页snapshotHash和旧保存证据完全不改。字符串"1"、布尔值、未知字段、id/BillNo/InsideOrderNo、非整数或超安全精度数值不进行此转换。真正的值、存在性、JSON类型或字符串格式差异仍保留并重采；不以浮点舍入恢复已丢失的JSON数字词法精度。
+
+历史batch cc1cacad-0de3-46f6-807a-3778b9d586dc只留Price聚合字段，无法恢复具体旧值或类型；当前没有旧暂停自动解除通道。本轮仅实现/隔离测试/PR。实际部署及受控来源恢复设计见[任务](../tasks/active/catalog-mutable-recapture-2026-11-19.md)。
+
 ## 2026-11-18 后台恢复候选（D195，未部署）
 
 监管器已接入每tick真实恢复证据，备份普通失败可在清理、发布身份、DB/migration/admin/任务/lease检查全部通过后恢复worker并等待新心跳。原FAILED回执、原fault及未知任务保留，不通过修改heartbeat或成功时间恢复。只读`--sync-health`复用原target/RBAC和完整迁移验证；不访问艾诺科、不写任务、不清暂停。旧Staging缺失的历史证明不补造，超时/信号/不确定容器后代仍阻断。无新schema/迁移，无UI变化；工程测试和未来一次性核验步骤见[监管契约](../ops/ainuoke-catalog-sync-supervisor.md)，不代表真实自然调度已验收。

@@ -1,4 +1,5 @@
 import test from 'node:test';
+import type {CatalogCollectionOptions} from '../ainuoke-source/catalog-checkpoints.js';
 import assert from 'node:assert/strict';
 import { startCatalogFixture } from './ainuoke-catalog-fixture.js';
 import { hydrateContractEvidence, loadCatalogEvidence, saveCatalogEvidence } from '../ainuoke-source/catalog-evidence.js';
@@ -136,11 +137,15 @@ for(const mode of ['catalog-discovery','catalog-contracts'] as const){
    const input={sourceKey:f.sourceKey,sourceId:entry.source_id,requestId:randomUUID()};
    if(mode==='catalog-contracts')await requestContractSync(f.pool,f.actor,input);
    let now=Date.now()+31*60000,calls=0;
-   const collect=async()=>{
+   const collect=async(_cfg:unknown,_request:unknown,options?:CatalogCollectionOptions)=>{
     calls++;
-    const raw=selectedWorkerFixture(mode,'',mode==='catalog-discovery'?[]:[entry.sales_contract_no]) as {bundle:{discoveryBefore:Array<{fetchedAt:string;rows:Array<{values:Record<string,unknown>}>}>;discoveryAfter:Array<{fetchedAt:string;rows:Array<{values:Record<string,unknown>}>}>};metrics:{httpAttempts:number}};
+    type Raw={bundle:{discoveryBefore:Array<{fetchedAt:string;rows:Array<{values:Record<string,unknown>}>}>;discoveryAfter:Array<{fetchedAt:string;rows:Array<{values:Record<string,unknown>}>}>};metrics:{httpAttempts:number};recapture?:Array<{fetchedAt:string}>};
+    const wire=selectedWorkerFixture(mode,'',mode==='catalog-discovery'?[]:[entry.sales_contract_no],3,undefined,options?.recapturePages?.length?options.recapturePages:undefined) as Raw|{capture:Raw;requests:unknown[]};
+    const raw='capture' in wire?wire.capture:wire;
     if(mode==='catalog-contracts')for(const p of [...raw.bundle.discoveryBefore,...raw.bundle.discoveryAfter])p.fetchedAt=new Date(now).toISOString();
+    if(mode==='catalog-contracts')for(const p of raw.recapture??[])p.fetchedAt=new Date(now).toISOString();
     raw.bundle.discoveryAfter[0].rows[0].values.Num=123456;
+    if('capture' in wire)return wire;
     return {schemaVersion:'ainuoke-request-diagnostics.v1',capture:raw,requests:Array.from({length:raw.metrics.httpAttempts},(_,i)=>i===0
      ?{kind:'login',reportId:null,page:null,elapsedMs:10,outcome:'complete',httpStatus:200}
      :{kind:'report',reportId:6086103,page:1,elapsedMs:20,outcome:'complete',httpStatus:200})};
@@ -161,7 +166,8 @@ for(const mode of ['catalog-discovery','catalog-contracts'] as const){
    now+=86400000;assert.equal((await tick()).status,mode==='catalog-discovery'?'paused':'idle');assert.equal(calls,3);
    if(mode==='catalog-discovery')await assert.rejects(requestContractSync(f.pool,f.actor,{...input,requestId:randomUUID()}));
    assert.deepEqual((await f.pool.query('SELECT source_id,observation_id,last_success_at FROM ainuoke_contract_sync_state ORDER BY source_id')).rows,baseline);
-   assert.equal(Number((await f.pool.query("SELECT count(*) n FROM ainuoke_sync_capture_attempts WHERE result_code='catalog_business_content_changed' AND status='failed' AND requests IS NOT NULL")).rows[0].n),3);
+   assert.equal(Number((await f.pool.query("SELECT count(*) n FROM ainuoke_sync_capture_attempts WHERE result_code='catalog_business_content_changed' AND status='failed' AND requests IS NOT NULL")).rows[0].n),2);
+   assert.equal(Number((await f.pool.query("SELECT count(*) n FROM ainuoke_sync_capture_attempts WHERE result_code='mutable_field_unstable' AND status='failed' AND requests IS NOT NULL")).rows[0].n),1);
    assert.equal(Number((await f.pool.query("SELECT count(*) n FROM ainuoke_sync_jobs WHERE retry_of IS NOT NULL AND status='queued'")).rows[0].n),0);
   }finally{await f.close();}
  });
@@ -174,8 +180,8 @@ test('stable recapture publishes only its contract and preserves the original fa
   const entry=(await f.pool.query('SELECT source_id,sales_contract_no FROM ainuoke_catalog_entries ORDER BY source_id LIMIT 1')).rows[0];
   const input={sourceKey:f.sourceKey,sourceId:entry.source_id,requestId:randomUUID()};
   const first=await requestContractSync(f.pool,f.actor,input);let calls=0;
-  const collect=async()=>{
-   const raw=selectedWorkerFixture('catalog-contracts','',[entry.sales_contract_no]) as {bundle:{discoveryAfter:Array<{rows:Array<{values:Record<string,unknown>}>}>}};
+  const collect=async(_cfg:unknown,_request:unknown,options?:CatalogCollectionOptions)=>{
+   const raw=selectedWorkerFixture('catalog-contracts','',[entry.sales_contract_no],3,undefined,options?.recapturePages?.length?options.recapturePages:undefined) as {bundle:{discoveryAfter:Array<{rows:Array<{values:Record<string,unknown>}>}>}};
    if(++calls===1)raw.bundle.discoveryAfter[0].rows[0].values.Num=123456;
    return raw;
   };

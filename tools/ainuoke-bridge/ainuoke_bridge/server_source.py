@@ -158,7 +158,8 @@ def validate_input(data):
         raise ValueError("addition_scope_limit")
     return data
 
-def collect(data, client=None, include_colors=False, material_report=None, catalog_progress=None, catalog_resume=None):
+def collect(data, client=None, include_colors=False, material_report=None, catalog_progress=None, catalog_resume=None,
+            recapture_pages=None, recaptured=None, recapture_progress=None):
     data = validate_input(data)
     if data.get("mode") in ("selected-bindings", "selected-materials", "bound-materials", "catalog-discovery", "catalog-contracts"):
         if client is not None:
@@ -174,6 +175,7 @@ def collect(data, client=None, include_colors=False, material_report=None, catal
     total_bytes = 0
     requests = 0
     discovery_pass = 0
+    fresh_targets = {}
 
     def pages(key, query):
         nonlocal session, renewals, total_rows, total_bytes, requests, discovery_pass
@@ -181,8 +183,10 @@ def collect(data, client=None, include_colors=False, material_report=None, catal
         expected = None
         phase = None
         prefix = []
-        if key == 'order_discovery' and data.get('mode') == 'discovery':
-            phase = 'before' if discovery_pass == 0 else 'after'
+        is_before = key == 'order_discovery' and discovery_pass == 0
+        if key == 'order_discovery':
+            if data.get('mode') == 'discovery':
+                phase = 'before' if is_before else 'after'
             discovery_pass += 1
             if phase == 'before':
                 prefix = catalog_resume or []
@@ -198,6 +202,16 @@ def collect(data, client=None, include_colors=False, material_report=None, catal
                 catalog_progress(phase, snapshot)
 
         for index in range(1, 201):
+            if is_before and index in fresh_targets:
+                snapshot = fresh_targets[index]
+                if expected is None:
+                    expected = snapshot['total']
+                if snapshot['total'] != expected:
+                    raise UpstreamSchemaError('inconsistent_paging')
+                append(snapshot)
+                if index * 50 >= expected:
+                    return result
+                continue
             if index > 1 and index <= len(prefix):
                 append(prefix[index-1])
                 if index * 50 >= expected:
@@ -238,6 +252,24 @@ def collect(data, client=None, include_colors=False, material_report=None, catal
                 return result
         raise UpstreamSchemaError("page_limit")
 
+    # Read affected pages FIRST as part of this NEW before pass. Fill every
+    # other before page, then details and a complete after pass. No old page is
+    # reused, no budget expands; the complete after pass must still match.
+    for index in recapture_pages or []:
+        page = client.read_report(REPORT_CATALOG['order_discovery'], jwt_token=session.jwt_token,
+                                  page=index, page_size=50, query_context={})
+        if (page.page_index != index or page.page_size != 50 or index > max(1, (page.total+49)//50)
+                or len(page.rows) != min(50, max(0, page.total-50*(index-1)))):
+            raise UpstreamSchemaError('incomplete_paging')
+        snapshot = build_report_snapshot(report_key='order_discovery', rows=page.rows, page=index,
+                                         page_size=50, total=page.total, query_context={}).to_dict()
+        if hasattr(client, 'secrets'):
+            from .selected_source_once import reject_secret_values
+            reject_secret_values(snapshot, client.secrets)
+        recaptured.append(snapshot)
+        fresh_targets[index] = snapshot
+        if recapture_progress:
+            recapture_progress(snapshot)
     before = pages("order_discovery", {})
     lookup = {}
     for page in before:

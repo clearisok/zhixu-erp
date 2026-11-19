@@ -192,7 +192,7 @@ export async function resolveOrderSync(pool:Pool,identity:Identity,orderId:strin
   let automaticResumeAt:string|null=null;
   if(row.configuredEnabled&&row.pausedReason==='catalog_retries_exhausted'&&policy){
    const attempt=(await pool.query(`SELECT result_code,requests,finished_at FROM ainuoke_sync_capture_attempts WHERE source_key=$1 AND mode='catalog-discovery' ORDER BY started_at DESC,id DESC LIMIT 1`,[row.sourceKey])).rows[0];
-   if(attempt?.finished_at&&['source_timeout','selected_source_timeout','source_unavailable','catalog_non_identity_content_changed','catalog_business_content_changed','catalog_additions_observed'].includes(attempt.result_code)
+   if(attempt?.finished_at&&['source_timeout','selected_source_timeout','source_unavailable','catalog_non_identity_content_changed','catalog_business_content_changed','mutable_field_unstable','catalog_additions_observed'].includes(attempt.result_code)
     &&retryableCapture(attempt.result_code,attempt.requests as RequestDiagnostic[]|null))automaticResumeAt=new Date(new Date(attempt.finished_at).getTime()+policy.catalogMinutes*60000).toISOString();
   }
   return {...row,schedule,automaticResumeAt};

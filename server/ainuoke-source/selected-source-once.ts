@@ -6,7 +6,8 @@ import { SourceError, hash, inspect, validateBundle } from './contract.js';
 import { previewSelectedBindings } from './binding.js';
 import { previewAdditions, hasCompleteEmptyColorEvidence, type AdditionBundle } from './additions.js';
 import {normalizeAinuokeSalesContractNo} from '../../features/ainuoke-sync/source/ainuoke-garment-color-size-adapter.js';
-import type {CatalogPage} from './catalog-checkpoints.js';
+import {validateCatalogCheckpointPage,type CatalogPage} from './catalog-checkpoints.js';
+import {CatalogConsistencyError} from './catalog-consistency.js';
 
 /** Fixed engineering budget, not human authorization or a scheduler lease. */
 export const SELECTED_SOURCE_LIMITS = Object.freeze({contracts:2,logins:1,reportRequests:80,httpAttempts:81,
@@ -59,8 +60,9 @@ function scope(config:CollectorConfig,request:SelectedSourceRequest) {
 /** Revalidate untrusted child output before handing it to the existing domain mappers.
  * No database access, persistence, credentials-file loader, or source enable operation.
  */
-export async function validateSelectedSourceOnce(input:unknown,config:CollectorConfig,request:SelectedSourceRequest,now=Date.now(),sessionReuse=false,resumePages:readonly CatalogPage[]=[]) {
+export async function validateSelectedSourceOnce(input:unknown,config:CollectorConfig,request:SelectedSourceRequest,now=Date.now(),sessionReuse=false,resumePages:readonly CatalogPage[]=[],recapturePages:readonly number[]=[]) {
   const checked=scope(config,request);
+  let targetedEvidence:CatalogPage[]=[];
   try {
     const serialized=JSON.stringify(input);
     if(!serialized||Buffer.byteLength(serialized)>SELECTED_SOURCE_LIMITS.workerBytes)
@@ -68,7 +70,7 @@ export async function validateSelectedSourceOnce(input:unknown,config:CollectorC
     inspect(input);
     rejectSecretValue(input,checked.config.password);
     const value=object(structuredClone(input));
-    if(keys(value)!=='bundle,code,databaseAccess,limits,metrics,mode,result,schemaVersion,selectedContracts,sourceActivation,sourceFingerprint'
+    if(Object.keys(value).filter(k=>k!=='recapture').sort().join(',')!=='bundle,code,databaseAccess,limits,metrics,mode,result,schemaVersion,selectedContracts,sourceActivation,sourceFingerprint'
       ||value.schemaVersion!==checked.schemaVersion||value.mode!==checked.request.mode
       ||value.databaseAccess!=='none'||value.sourceActivation!=='not-activated'
       ||hash(value.limits)!==hash(checked.limits)||value.sourceFingerprint!==accountFingerprint(checked.config)
@@ -80,6 +82,16 @@ export async function validateSelectedSourceOnce(input:unknown,config:CollectorC
       ||m.httpAttempts!==Number(m.logins)+Number(m.reportRequests)||(!sessionReuse&&m.logins===0&&m.reportRequests!==0))
       throw new SourceError('selected_source_metrics_invalid');
     const metrics=m as SelectedSourceMetrics;
+    if(recapturePages.length&&(!['catalog-discovery','catalog-contracts'].includes(request.mode)||resumePages.length)
+     ||recapturePages.length>28||new Set(recapturePages).size!==recapturePages.length
+     ||recapturePages.some(p=>!Number.isSafeInteger(p)||p<1||p>28))throw new SourceError('selected_source_scope_invalid');
+    const targeted=recapturePages.length?value.recapture:[];
+    if(!recapturePages.length&&'recapture' in value||!Array.isArray(targeted)||targeted.length>recapturePages.length
+     ||value.result==='complete'&&targeted.length!==recapturePages.length)throw new SourceError('selected_source_scope_mismatch');
+    const recaptured=(targeted as unknown[]).map((p,i)=>{
+     const page=validateCatalogCheckpointPage(p,now);if(page.page!==recapturePages[i])throw new SourceError('selected_source_scope_mismatch');return page;
+    });
+    targetedEvidence=recaptured;
     if(value.result==='failed') {
       if(value.bundle!==null||typeof value.code!=='string'||!failureCodes.has(value.code))throw new SourceError('selected_source_invalid');
       return {result:'failed' as const,code:value.code,metrics};
@@ -110,6 +122,10 @@ export async function validateSelectedSourceOnce(input:unknown,config:CollectorC
      }
     }
     let pageCount=0,rowCount=0;
+    // Targeted pages are fetched first within THIS fresh before pass, not
+    // additional pages or historical checkpoints. Bind their exact bytes.
+    if(!Array.isArray(b.discoveryBefore)||recaptured.some(p=>hash(p)!==hash((b.discoveryBefore as unknown[])[p.page-1])))
+      throw new SourceError('catalog_recapture_evidence_changed');
     const detailGroups=details.flatMap(d=>Object.values(d.value)).flatMap(value=>{
       if(!Array.isArray(value))throw new SourceError('selected_source_invalid');
       const groups=new Map<string,unknown[]>();
@@ -176,7 +192,10 @@ export async function validateSelectedSourceOnce(input:unknown,config:CollectorC
     const validated=await validateBundle(value.bundle,checked.request.targets,now,600000);
     if(validated.rows.length!==checked.contracts.length)throw new SourceError('selected_source_scope_mismatch');
     return {result:'complete' as const,mode:checked.request.mode,metrics,bundle:validated.bundle,validated};
-  } catch(error) {throw error instanceof SourceError?error:new SourceError('selected_source_invalid');}
+  } catch(error) {
+    if(error instanceof CatalogConsistencyError)throw new CatalogConsistencyError(error.code,error.catalogChange,error.differences,targetedEvidence);
+    throw error instanceof SourceError?error:new SourceError('selected_source_invalid');
+  }
 }
 
 export async function collectSelectedSourceOnce(config:CollectorConfig,request:SelectedSourceRequest,

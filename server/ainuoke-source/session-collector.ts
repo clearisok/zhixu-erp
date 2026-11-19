@@ -13,7 +13,7 @@ import {validateRequestDiagnostics,type RequestDiagnostic} from './sync-diagnost
 export function createSessionCollector(start:typeof spawn=spawn){
  let child:ChildProcessWithoutNullStreams|null=null,closed=false,identity:string|null=null;
  let pending:{resolve:(v:unknown)=>void;reject:(e:Error)=>void;timer:ReturnType<typeof setTimeout>;
-  progress:Promise<void>;onPage?:CatalogCollectionOptions['onPage'];onRequest?:CatalogCollectionOptions['onRequest'];requests:RequestDiagnostic[];requestOpen:RequestDiagnostic|null;requestEvents:number;progressCount:number;progressBytes:number;finalReceived:boolean}|null=null;
+  progress:Promise<void>;onPage?:CatalogCollectionOptions['onPage'];onRequest?:CatalogCollectionOptions['onRequest'];onRecapturePage?:CatalogCollectionOptions['onRecapturePage'];targets:number[];recaptured:unknown[];requests:RequestDiagnostic[];requestOpen:RequestDiagnostic|null;requestEvents:number;progressCount:number;progressBytes:number;finalReceived:boolean}|null=null;
  let buffered=Buffer.alloc(0),secret:string|null=null;
  const stop=(code='capture_session_stopped')=>{
   closed=true;const active=pending;pending=null;buffered=Buffer.alloc(0);
@@ -30,6 +30,9 @@ export function createSessionCollector(start:typeof spawn=spawn){
   const binding=JSON.stringify([cfg.sourceKey,cfg.baseUrl,cfg.username,cfg.password,cfg.operatorUsername,cfg.materialReport,cfg.transportPolicy]);
   if(identity!==null&&identity!==binding){stop();throw new SourceError('source_account_mismatch');}identity=binding;
   if((options?.onPage||options?.resumePages)&&request.mode!=='catalog-discovery')throw new SourceError('selected_source_scope_invalid');
+  const targets=options?.recapturePages??[];
+  if(!Array.isArray(targets)||targets.length>28||new Set(targets).size!==targets.length||targets.some(p=>!Number.isSafeInteger(p)||p<1||p>28)
+   ||targets.length&&(!options?.onRecapturePage||options.resumePages?.length))throw new SourceError('selected_source_scope_invalid');
   secret=cfg.password;
   if(!child){
    child=start(process.platform==='win32'?'python':'python3',['-m','ainuoke_bridge.session_worker'],{
@@ -55,6 +58,13 @@ export function createSessionCollector(start:typeof spawn=spawn){
        else{if(!active.requestOpen||hash([d.kind,d.reportId,d.page])!==hash([active.requestOpen.kind,active.requestOpen.reportId,active.requestOpen.page]))throw Error();active.requestOpen=null;active.requests.push(d);}
        active.progress=active.progress.then(()=>active.onRequest!(value.phase,d));
        void active.progress.catch(()=>stop('sync_audit_progress_failed'));
+      }else if(value.schemaVersion==='ainuoke-recapture-page.v1'){
+       if(!active.onRecapturePage||Object.keys(value).sort().join(',')!=='page,schemaVersion'||secret&&frame.toString('utf8').includes(secret))throw Error();
+       const page=validateCatalogCheckpointPage(value.page);
+       if(page.page!==active.targets[active.recaptured.length])throw Error();
+       active.recaptured.push(page);
+       active.progress=active.progress.then(()=>active.onRecapturePage!(page));
+       void active.progress.catch(()=>stop('catalog_diagnostic_write_failed'));
       }else if(value.schemaVersion==='ainuoke-catalog-page.v1'){
        if(!active.onPage||Object.keys(value).sort().join(',')!=='page,phase,schemaVersion'||!['before','after'].includes(value.phase)
         ||++active.progressCount>56||(active.progressBytes+=frame.length)>32*1024*1024||secret&&frame.toString('utf8').includes(secret))throw Error();
@@ -63,7 +73,8 @@ export function createSessionCollector(start:typeof spawn=spawn){
        void active.progress.catch(()=>stop('catalog_checkpoint_failed'));
       }else{
        if(value.schemaVersion!=='ainuoke-session-diagnostics.v1'||buffered.length||active.requestOpen
-        ||active.onRequest&&hash(value.requests)!==hash(active.requests))throw Error();
+        ||active.onRequest&&hash(value.requests)!==hash(active.requests)
+        ||active.targets.length&&hash(value.capture?.recapture)!==hash(active.recaptured))throw Error();
        active.finalReceived=true;
        void active.progress.then(()=>{if(pending!==active)return;pending=null;clearTimeout(active.timer);active.resolve(value);},()=>stop('catalog_checkpoint_failed'));
       }
@@ -73,11 +84,12 @@ export function createSessionCollector(start:typeof spawn=spawn){
   }
   return new Promise((resolveResult,reject)=>{
    pending={resolve:resolveResult,reject,timer:setTimeout(()=>stop('source_timeout'),180000),progress:Promise.resolve(),
-    onPage:options?.onPage,onRequest:options?.onRequest,requests:[],requestOpen:null,requestEvents:0,progressCount:0,progressBytes:0,finalReceived:false};
+    onPage:options?.onPage,onRequest:options?.onRequest,onRecapturePage:options?.onRecapturePage,targets:[...targets],recaptured:[],requests:[],requestOpen:null,requestEvents:0,progressCount:0,progressBytes:0,finalReceived:false};
    child!.stdin.write(JSON.stringify({baseUrl:cfg.baseUrl,username:cfg.username,password:cfg.password,contracts:request.contracts,
     mode:request.mode,...(cfg.materialReport&&request.mode==='catalog-contracts'?{materialReport:cfg.materialReport}:{}),
     ...(options?.onPage?{catalogProgress:true,catalogResume:options.resumePages??[]}:{}),
     ...(options?.onRequest?{auditProgress:true}:{}),
+    ...(targets.length?{recapturePages:targets}:{}),
     ...(cfg.transportPolicy?{transportPolicy:cfg.transportPolicy}:{})})+'\n');
   });
  };

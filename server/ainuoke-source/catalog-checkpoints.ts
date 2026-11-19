@@ -6,6 +6,8 @@ import type {AdditionDiscoveryBundle} from './additions.js';
 export type CatalogPhase='before'|'after';
 export type CatalogPage=AinuokeReportSnapshot<AinuokeOrderDiscoveryQuery>;
 export type CatalogCollectionOptions={
+ recapturePages?:number[];
+ onRecapturePage?:(page:unknown)=>Promise<void>;
  resumePages?:CatalogPage[];
  onPage?:(phase:CatalogPhase,page:unknown)=>Promise<void>;
  onRequest?:(phase:'started'|'finished',diagnostic:import('./sync-diagnostics.js').RequestDiagnostic)=>Promise<void>;

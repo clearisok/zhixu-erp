@@ -245,7 +245,19 @@ def validate_query_for_report(definition: ReportDefinition, query_context: Mappi
 def _row_identity(report_id: str, row: Mapping[str, Any]) -> str:
     # Captured report/view responses do not prove `id` uniqueness; 6087050 is
     # known to repeat it. This fingerprint is independent of page and sort order.
-    return f"{report_id}:sha256:{sha256(_canonical_json(row).encode('utf-8')).hexdigest()}"
+    fingerprint_row = row
+    if report_id == '6086103':
+        # JSON has one number type. Python's 1/1.0 serialization must not make
+        # equal business values appear to be a different contractual identity
+        # after Node parses both as 1. Preserve original values/page hashes;
+        # never normalize id/BillNo/InsideOrderNo, unknown fields, strings,
+        # booleans, non-integral values or unsafe integers.
+        fingerprint_row = dict(row)
+        for key in ('Price', 'Num', 'DeliveryDate', 'ContractDate', 'Status', 'GoodsDesc', 'Brand', 'CustomerName'):
+            value = row.get(key)
+            if type(value) is float and isfinite(value) and value.is_integer() and abs(value) <= 9007199254740991:
+                fingerprint_row[key] = int(value)
+    return f"{report_id}:sha256:{sha256(_canonical_json(fingerprint_row).encode('utf-8')).hexdigest()}"
 
 
 def build_report_snapshot(

@@ -89,11 +89,12 @@ class DiagnosticTransport:
 def run_diagnostic(data):
     from .selected_source_once import collect_selected
     from .server_source import validate_input
+    targets = data.pop('recapturePages', [])
     checked = validate_input(data)
     if checked.get('mode') not in ('catalog-discovery','catalog-contracts'):
         raise ValueError('diagnostic_scope_invalid')
     events = []
-    capture = collect_selected(checked, diagnostics=events)
+    capture = collect_selected(checked, diagnostics=events, recapture_pages=targets)
     return {'schemaVersion':'ainuoke-request-diagnostics.v1','capture':capture,'requests':events}
 
 def main():

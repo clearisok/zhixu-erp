@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "4a8c9bc24b00983d0d79150349adeed5a333a237",
-  "verifiedAt": "2026-11-19T02:07:47.917Z",
+  "baselineSha": "1ab40fd39b035e471f5557903c026dd36d3bab8e",
+  "verifiedAt": "2026-11-19T10:01:08.114753+00:00",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -6207,6 +6207,87 @@
       "sha256": "1e3d66d308e9c2be59315a0fb9f1cc7454ebae1a5a5710ba650fb2dc08b7ffc4",
       "supersedes": "sync-recovery-decisions-20261118",
       "changeReason": "Record user-approved D196 retirement of dedicated style/risk lists and compact UI; preserve shared material dependencies, all historical decisions and deployment boundaries."
+    },
+    {
+      "id": "catalog-mutable-business-20261119",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "fb27f41dd100e8dd8f69bd3565872e539429ca12",
+      "sha256": "4b70c52b7dffff627cccf4a4c43af7331616878ba36bb69935855c5e17525df8",
+      "supersedes": "sync-audit-business-20261112",
+      "changeReason": "Append user-approved D197 mutable Price classification, bounded fresh capture and append-only diagnostics. Preserve prior decisions, images, runtime observations and all historical evidence; no UI or deployment acceptance change."
+    },
+    {
+      "id": "catalog-mutable-contract-20261119",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SYNC_AUDIT.md",
+      "recordedAtSha": "fb27f41dd100e8dd8f69bd3565872e539429ca12",
+      "sha256": "3518d7cb18831f6acb6fc9c426f75f4625e43c7cdba8325a914d846c7605a366",
+      "supersedes": "sync-recovery-contract-20261118",
+      "changeReason": "Append user-approved D197 mutable Price classification, bounded fresh capture and append-only diagnostics. Preserve prior decisions, images, runtime observations and all historical evidence; no UI or deployment acceptance change."
+    },
+    {
+      "id": "catalog-mutable-decisions-20261119",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "fb27f41dd100e8dd8f69bd3565872e539429ca12",
+      "sha256": "1d62e8b54bb4b3d487c4ba0a16e7795a4b0516fd29527bc844c1ba251dce0ca0",
+      "supersedes": "compact-business-ui-v2-decisions-20261119",
+      "changeReason": "Append user-approved D197 mutable Price classification, bounded fresh capture and append-only diagnostics. Preserve prior decisions, images, runtime observations and all historical evidence; no UI or deployment acceptance change."
+    },
+    {
+      "id": "catalog-mutable-contract-v2-20261119",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SYNC_AUDIT.md",
+      "recordedAtSha": "e1579edbafc4c1922a10a1c0013edbb60bc1b8e0",
+      "sha256": "4defad1b385ada6352d3b1bc29c15b73b61622c1dd83ad8a08470d5127b74f41",
+      "supersedes": "catalog-mutable-contract-20261119",
+      "changeReason": "Clarify existing D183/D194 scoped exhaustion and catalogue-cycle backoff. Targeted pages belong to the entirely fresh before pass and do not expand the original read budget. Preserve all prior evidence and deployment limits."
+    },
+    {
+      "id": "catalog-mutable-decisions-v2-20261119",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "e1579edbafc4c1922a10a1c0013edbb60bc1b8e0",
+      "sha256": "1d62e8b54bb4b3d487c4ba0a16e7795a4b0516fd29527bc844c1ba251dce0ca0",
+      "supersedes": "catalog-mutable-decisions-20261119",
+      "changeReason": "Clarify existing D183/D194 scoped exhaustion and catalogue-cycle backoff. Targeted pages belong to the entirely fresh before pass and do not expand the original read budget. Preserve all prior evidence and deployment limits."
+    },
+    {
+      "id": "catalog-mutable-json-number-contract-20261119",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SYNC_AUDIT.md",
+      "recordedAtSha": "16c57f7153a5dce1a93d707eea753f0971a08bc3",
+      "sha256": "9e0144093787677acb625ef352bc82ce2e2b8119538dac33d05c2c38d768e2bb",
+      "supersedes": "catalog-mutable-contract-v2-20261119",
+      "changeReason": "Record verified Python/Node JSON numeric-spelling boundary for approved mutable fields. Preserve original values, page hashes, historical evidence and strict identity/unknown-field guards."
+    },
+    {
+      "id": "catalog-final-safety-business-20261119",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "c4d19dc8fe3a74ed6e29bd480474523d4d30bde0",
+      "sha256": "fbbeaa46478e55732567748469045043321fd7ff29586b404f1ed19b91cb9fa7",
+      "supersedes": "catalog-mutable-business-20261119",
+      "changeReason": "Record final user PR158 merge/Staging recovery authorization and pre-publication diagnostic, safe complex-value and recapture identity boundaries. Preserve historical evidence, Production prohibition and all data/Gate restrictions."
+    },
+    {
+      "id": "catalog-final-safety-decisions-20261119",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "c4d19dc8fe3a74ed6e29bd480474523d4d30bde0",
+      "sha256": "982eebe51d60acb29cb09ba8081abc0056c69c5d17807df5cee178e9a03efa5b",
+      "supersedes": "catalog-mutable-decisions-v2-20261119",
+      "changeReason": "Record final user PR158 merge/Staging recovery authorization and pre-publication diagnostic, safe complex-value and recapture identity boundaries. Preserve historical evidence, Production prohibition and all data/Gate restrictions."
+    },
+    {
+      "id": "catalog-final-safety-contract-20261119",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SYNC_AUDIT.md",
+      "recordedAtSha": "c4d19dc8fe3a74ed6e29bd480474523d4d30bde0",
+      "sha256": "02e698d014f74f13af718b6d11428769516a893a7654f783fb7de830d40062eb",
+      "supersedes": "catalog-mutable-json-number-contract-20261119",
+      "changeReason": "Record final user PR158 merge/Staging recovery authorization and pre-publication diagnostic, safe complex-value and recapture identity boundaries. Preserve historical evidence, Production prohibition and all data/Gate restrictions."
     }
   ],
   "pages": [
