@@ -1,13 +1,9 @@
-# 当前接力：6086103可变字段有界重采
+# 当前接力：6086103 Price恢复修复已交付Draft PR
 
-2026-11-19，Refs Issue157。分支fix/catalog-mutable-recapture；main基线1ab40fd39b035e471f5557903c026dd36d3bab8e，clean起点。用户仅批准实现、隔离测试和PR；不得部署/合并/改真实Staging暂停或数据。
+2026-11-19，分支fix/catalog-mutable-recapture，main基线1ab40fd39b035e471f5557903c026dd36d3bab8e；Draft PR158 / Issue157。用户仅批准代码、隔离测试及PR，不合并、不部署、不解除真实Staging暂停或补跑任务。
 
-Gate1接入Price分类、真实SDK定向页读、全新完整双遍、持久队列1/5分钟三次总采集、0059差异诊断。30/30相关单元/真实合成SDK测试、根typecheck及server build通过。还未完成隔离PG完整流转和最终回归，不能宣布修复验收完成。
+完整运行源码冻结73384534ed555f72348d9188f27fa8c780d67bc8：1026 npm /182 baseline /102目录 /211Python /24审计恢复全通过，真实SDK14、PG五项E2E、typecheck/lint/前后端build通过，guard 0 UI变更。保留初始失败历史，详任务。源码末次16c57f71只修复已确认可变字段JSON 1/1.0指纹，不改原values/page hash或身份/未知字段。
 
-Gate2已补隔离Docker/PostgreSQL四项完整流转并通过：保留旧成功→重试→定向页→全新完整发布；独立合同新证据发布；三次不稳阻断；目录入口同样重采；诊断存储失败保留主错。首次测试固定时钟早于新采集被正确拒绝，修正测试时钟后4/4通过。Python完整210/210、IPC补充8/8、lint通过；新单次worker也复用现有NDJSON进度协议，超时前已读证据可持久保存。已接入既有CI脚本，完整目录回归/根npm test/基线/前后端build正在继续；本轮不操作真实环境。
+PR158首轮Source CI因公共current-migration-ledger-fixture少0059而失败；已补显式条目，不降低严格数据/迁移断言。本地test:ainuoke-server-source20通过、1 Linux CLI在Windows跳过。最终HEAD Actions需独立核实，不拿旧7338失败或通过冒作最新HEAD。最后增量仅该测试清单和文档；运行源码与完整冻结相同。
 
-继续任务、依赖/预算/历史证据限制及受控恢复设计见 docs/tasks/active/catalog-mutable-recapture-2026-11-19.md。此前UI接力完整保留于 docs/tasks/completed/2026-11-19-before-catalog-recapture/AI_HANDOFF.md。当前Staging仍按既有来源暂停保全，不进行真实采集或恢复。
-
-Gate3纠正单合同耗尽不应全局暂停的回归，周期目录沿原30分钟退避；定向页作为本次全新before的一部分，不增加请求/行预算，仍须完整新after匹配。根1026/182/guard在3f83c611已PASS；最终源码回归和新证据前向锚定继续，不能提前标最终验收PASS。
-
-Gate4追加数字序列化指纹边界：Python1/1.0仅在已确认可变字段中按同JSON数值指纹计算，不改原values/page hash/身份/未知字段。真实SDK14/14、Python211/211及隔离PG5/5通过；最终冻结源码全量复验继续。e97c32f已完成1026/182/guard及目录101/24回归，不能将其冒作追加后最终HEAD。
+0059仅新增append-only诊断，真实Staging未执行。旧Price原行丢失不能编造；旧暂停没有自动解除通道，必须用户批准后新完整来源证据和正式恢复Gate。旧镜像直接连0059账本会被校验拒绝，部署前需兼容回滚候选，不删除账本条目。当前状态见docs/CURRENT_STATE.md，22项索引、范围/依赖/预算/恢复设计与初轮失败见docs/tasks/active/catalog-mutable-recapture-2026-11-19.md。PR保持Draft、Issue保持Review/Open，等待用户审查，不做后续环境动作。

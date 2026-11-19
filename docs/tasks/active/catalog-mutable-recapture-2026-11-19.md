@@ -48,3 +48,15 @@ Gate4：同样全量1026/182/guard在e97c32fb4ebe09ae5ae80b206cb04926a55ce997再
 | 22 未知结果 | catalog-followup crashed worker、sync-stop集成 | unknown保持人工核对，不盲目重提 |
 
 本轮没有读取真实ERP作故障注入，也没有真实Staging DB/worker/cron/配置操作。0059只在自有一次性PG执行。后续恢复不得拿本地合成测试冒充真实来源证据。
+
+## 最终工程交付（Draft PR158）
+
+[PR158](https://github.com/clearisok/zhixu-erp/pull/158)，Refs Issue157，保持Draft/Open，不合并或部署。完整冻结73384534ed555f72348d9188f27fa8c780d67bc8的最终复验：npm test1026/1026、release-baseline182/182、显式基线guard PASS（0 UI文件）、test:ainuoke-catalog102/102、Python全211/211、审计/恢复24/24；真实SDK14/14、隔离PG五项完整流转5/5属于上述相关套件，不重复相加。typecheck、lint、server build及frontend build均通过。根测试/基线在无网络只读Linux Docker、当前独立Git副本运行；PG真实迁移/事务/队列/审计在自有一次性Docker PostgreSQL16，SDK源站为内存合成HTTP，不访问实际艾诺科。
+
+首轮GitHub Source运行44503495524失败为公共显式迁移测试清单遗漏0059，定位current-migration-ledger-fixture.ts；新增确切0059条目，不从生产目录动态推导清单、不减少数据保全或SQL断言。补清单后本地test:ainuoke-server-source20通过/1 Linux-only CLI在Windows跳过，最终HEAD由Actions独立验证。原7338 baseline已SUCCESS；其余旧SHA状态不能冒作最后提交的CI。最后Git增量仅公共测试清单及交付记录，运行源码不变。
+
+回滚具体限制：migration-runner.verifyAppliedMigrations拒绝目录中不存在的已应用版本。因此原0058镜像不能直接连接升级后账本；后续真实部署前须在正式发布机制中构建/审核含0059清单的兼容回滚候选，并隔离验证。若未准备，不部署；若运行故障则停止候选Worker、保留0059/失败回执/新数据并安全暂停，禁止删schema_migrations条目、drop诊断表或破坏性降级。本轮未构建/部署真实发布镜像，未执行真实迁移。
+
+后续真实恢复顺序：用户审查并另行批准→核对实际发布SHA、镜像/collector/executor/Policy/目标身份及兼容回滚→0059正式迁移及健康→保留旧paused_reason和原故障审计→受控取得6086103全新双遍/分页/Price稳定证据，核对其他实际依赖报表→对旧聚合暂停执行正式预览、精确reviewHash和获批恢复操作，保留原事件→正式Recovery Gate→Supervisor正常启动/真实新PG心跳→核对实际到期集合、去重/租约/未知结果/并发限制后沿现有30分钟策略自然调度。不能把此前259视作当前固定数量，不能人工补造全部任务、直接SQL清暂停或假造成功。
+
+修改范围：catalog-consistency/catalog比较与类型诊断；catalog-diagnostics及0059持久化；selected-source-once/session-collector/sync-diagnostics与Python契约/会话/SDK采集；sync-worker/catalog-capture及原sync-queue/sync-recovery的有界处理；公共/定向测试和package CI入口；业务/feature/决策/发布证据与接力文档。无前端页面、计算价、合同匹配、定时频率、Supervisor/备份执行器或真实配置改动。
