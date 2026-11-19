@@ -16,20 +16,20 @@ class CatalogRecaptureTests(TestCase):
         saved = []
         result = self.capture(transport, recapture_progress=saved.append)
         self.assertEqual(result['result'], 'complete')
-        self.assertEqual(result['metrics']['reportRequests'], 27)
+        self.assertEqual(result['metrics']['reportRequests'], 26)
         self.assertEqual(len(saved), 1)
         self.assertEqual(saved, result['recapture'])
         self.assertEqual(len(result['bundle']['discoveryBefore']), 13)
         self.assertEqual(len(result['bundle']['discoveryAfter']), 13)
+        self.assertEqual(result['recapture'][0], result['bundle']['discoveryBefore'][12])
         self.assertEqual(transport.calls[1]['body']['sqlCdtn']['pageIndex'], 13)
         self.assertEqual(transport.calls[2]['body']['sqlCdtn']['pageIndex'], 1)
 
     def test_limits_do_not_expand_for_targeted_reads(self):
         result = self.capture(FakeSelectedTransport(total=1400), pages=[1])
-        self.assertEqual(result['result'], 'failed')
-        self.assertEqual(result['code'], 'selected_source_request_limit')
+        self.assertEqual(result['result'], 'complete')
         self.assertEqual(result['metrics']['reportRequests'], 56)
-        self.assertIsNone(result['bundle'])
+        self.assertEqual(len(result['bundle']['discoveryAfter']), 28)
 
     def test_targeted_timeout_and_http200_business_rejection_never_publish(self):
         for timeout in (False, True):

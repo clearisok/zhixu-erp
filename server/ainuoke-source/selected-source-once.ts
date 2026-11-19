@@ -121,7 +121,11 @@ export async function validateSelectedSourceOnce(input:unknown,config:CollectorC
       }
      }
     }
-    let pageCount=recaptured.length,rowCount=recaptured.reduce((n,p)=>n+p.rows.length,0);
+    let pageCount=0,rowCount=0;
+    // Targeted pages are fetched first within THIS fresh before pass, not
+    // additional pages or historical checkpoints. Bind their exact bytes.
+    if(!Array.isArray(b.discoveryBefore)||recaptured.some(p=>hash(p)!==hash((b.discoveryBefore as unknown[])[p.page-1])))
+      throw new SourceError('catalog_recapture_evidence_changed');
     const detailGroups=details.flatMap(d=>Object.values(d.value)).flatMap(value=>{
       if(!Array.isArray(value))throw new SourceError('selected_source_invalid');
       const groups=new Map<string,unknown[]>();

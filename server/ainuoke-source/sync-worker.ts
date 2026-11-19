@@ -193,7 +193,7 @@ export async function runSyncTick(pool:Pool,identity:Identity,raw:CollectorConfi
     let diagnostics:RequestDiagnostic[]|null=null,metrics:unknown=null;
     const retryCount=Math.max(...jobs.map(j=>j.attempt_number-1));
     const recapturePages=await loadRecapturePages(pool,config.sourceKey,jobs.flatMap(j=>j.retry_of?[j.retry_of]:[]));
-    const captureOptions:CatalogCollectionOptions={onRequest:auditRequestHandler(pool),recapturePages,onRecapturePage:recapturePageHandler(pool,retryCount)};
+    const captureOptions:CatalogCollectionOptions={onRequest:auditRequestHandler(pool),recapturePages,onRecapturePage:recapturePageHandler(pool,retryCount,now)};
     try {
       let response;
       if(options.collect){

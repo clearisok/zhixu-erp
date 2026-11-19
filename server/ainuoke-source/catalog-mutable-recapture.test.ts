@@ -19,6 +19,7 @@ function pair(before:unknown,after:unknown){
 test('630 rows / 13 pages: identical Price stays exact and publishable',async()=>{
  const b=pair('12.000','12.000'),checked=await previewCatalog(b);
  assert.equal(checked.rows.length,630);assert.equal(checked.bundle.discoveryAfter[12].rows[0].values.Price,'12.000');
+ assert.equal((await previewCatalog(pair(12,12))).bundle.discoveryAfter[12].rows[0].values.Price,12);
 });
 for(const [label,before,after,classification] of [
  ['value',12,13,'value_changed'],['appearance',absent,12,'field_appeared'],['disappearance',12,absent,'field_disappeared'],
@@ -49,8 +50,8 @@ test('targeted actual SDK reread followed by NEW complete double pass validates;
  const r=selectedWorkerFixture('catalog-discovery',`if report == 6086103:
         mutate_rows(payload, lambda rows: [row.update(Price='12.000') for row in rows])`,[],630,undefined,[13]);
  const checked=await validateCatalogDiagnostic(r,selectedConfig,{mode:'catalog-discovery',contracts:[]},Date.now(),[],[13]);
- assert.equal(checked.capture.result,'complete');assert.equal(checked.capture.metrics.reportRequests,27);
- assert.equal(checked.diagnostics.filter(d=>d.page===13).length,3);
+ assert.equal(checked.capture.result,'complete');assert.equal(checked.capture.metrics.reportRequests,26);
+ assert.equal(checked.diagnostics.filter(d=>d.page===13).length,2);
  await assert.rejects(validateCatalogDiagnostic(r,selectedConfig,{mode:'catalog-discovery',contracts:[]},Date.now()),/selected_source_scope_mismatch/);
  const corrupted=structuredClone(r) as {capture:{bundle:AdditionDiscoveryBundle}};corrupted.capture.bundle.discoveryAfter.pop();
  await assert.rejects(validateCatalogDiagnostic(corrupted,selectedConfig,{mode:'catalog-discovery',contracts:[]},Date.now(),[],[13]));

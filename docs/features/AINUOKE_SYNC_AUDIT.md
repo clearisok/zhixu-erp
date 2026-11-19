@@ -4,7 +4,7 @@
 
 6086103的id/BillNo绑定由目录映射与数据库双向唯一检查决定，InsideOrderNo原守卫继续保留；Price不属于该身份。已有七个可变业务字段加Price允许存在性/值/类型差异进入有限重采，未知字段/结构、认证、范围和完整分页仍严格拒绝。原hsid大小写变体只保留原字段集合不变的有限重读例外。比较不舍入价格，也不把来源Price写进织序商业版本。
 
-首次目录不一致不发布，记录逐字段原状态；现有1/5分钟、总计3次采集的持久重试会先读取受影响页，再取得全新完整before/details/after。定向页不能替换旧页，也不授权发布。预算仍为每次目录56/合同80请求、4000行、180秒，定向读也计入。完全相同的原始类型和值才能通过，数值相同但格式不同也须证明稳定。三次业务漂移返回mutable_field_unstable，保全旧成功；共享目录无法证明一致时不强行隔离。另一个合同只有自己的新完整目录/明细证明通过才可以继续。
+首次目录不一致不发布，记录逐字段原状态；现有1/5分钟、总计3次采集的持久重试会先读取受影响页，再取得全新完整before/details/after。定向页不能替换旧页，也不授权发布。预算仍为每次目录56/合同80请求、4000行、180秒，定向读也计入。完全相同的原始类型和值才能通过，数值相同但格式不同也须证明稳定。三次业务漂移返回mutable_field_unstable，保全旧成功；单合同耗尽不全局暂停，其他合同只有自己的新完整目录/明细证明通过才可继续。周期目录三次耗尽仍走原catalog_retries_exhausted、等待一个目录周期后仅允许新完整读取；不将退避解除当成发布成功。
 
 0059新增ainuoke_catalog_diagnostics：batch_id、source_key、report_id、kind、page、row_id、sales_contract_no、field、retry_count、final_decision及JSON evidence。difference证据含before/after_exists/type/value/hash、after_page、classification、values_redacted、两遍fetched_at、request_started_at/finished_at及逐次请求状态；不可获取时间为null。recapture_page保留受影响页的合同/id、原Price等安全投影、全行和响应hash；decision记录关联原任务/批次及完整稳定content_hash。只追加，UPDATE/DELETE拒绝；旧失败/成功记录不修改。姓名/未知字段原值不保存；真实来源价格/合同沿现有受控运维权限，无新增匿名/普通角色API。诊断保存失败不覆盖主错误，并停止该自动重采；0059缺失在Source IO前失败关闭。
 

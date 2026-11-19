@@ -6,7 +6,8 @@ import {validateCatalogCheckpointPage} from './catalog-checkpoints.js';
 import type {RequestDiagnostic} from './sync-diagnostics.js';
 
 /** A retry is diagnostic + a NEW complete capture. Targeted pages alone can
- * never replace pages in either accepted pass (offset paging can move rows). */
+ * never replace historical pages. They belong to the NEW before pass, whose
+ * entire result must match a new complete after pass (offsets can move rows). */
 export function recapturePagesFor(differences:readonly CatalogFieldDifference[]):number[]{
  return [...new Set(differences.flatMap(d=>[d.page,d.afterPage]))].sort((a,b)=>a-b);
 }
@@ -49,9 +50,9 @@ export async function retainCatalogDifferences(pool:Pool,differences:readonly Ca
   return true;
  }catch{return false;}
 }
-export function recapturePageHandler(pool:Pool,retry:number){
+export function recapturePageHandler(pool:Pool,retry:number,now:()=>number=Date.now){
  return async(value:unknown)=>{
-  const page=validateCatalogCheckpointPage(value);
+  const page=validateCatalogCheckpointPage(value,now());
   const rows=page.rows.map(row=>({row_id:String(row.values.id),sales_contract_no:row.values.BillNo,row_hash:hash(row.values),
    // Keep exact approved business field states; do not store names or unknown
    // fields that could contain PII. Hashes still bind the original response.

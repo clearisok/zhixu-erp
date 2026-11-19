@@ -46,7 +46,7 @@ async function captureUnderLease(pool:Pool,identity:Identity,raw:CollectorConfig
  const prior=await readCatalogCaptureReceipt(pool,identity,config.sourceKey,requestId);
  if(prior)return {...prior,replayed:true};
  const last=(await pool.query('SELECT request_id,status,result FROM ainuoke_catalog_requests WHERE source_key=$1 ORDER BY created_at DESC LIMIT 1',[config.sourceKey])).rows[0];
- const recapturePages=last?.status==='failed'&&last.result?.code==='catalog_business_content_changed'?validatedRecapturePages(last.result.recapturePages??[]):[];
+ const recapturePages=last?.status==='failed'&&['catalog_business_content_changed','mutable_field_unstable'].includes(last.result?.code)?validatedRecapturePages(last.result.recapturePages??[]):[];
  const retryCount=Number((await pool.query('SELECT catalog_failure_count FROM ainuoke_sync_controls WHERE source_key=$1',[config.sourceKey])).rows[0]?.catalog_failure_count??0);
  const started=await pool.query(`INSERT INTO ainuoke_catalog_requests(source_key,request_id,actor_id,account_fingerprint,status) VALUES($1,$2,$3,$4,'running') ON CONFLICT DO NOTHING RETURNING request_id`,[config.sourceKey,requestId,actor.internalUserId,fingerprint]);
  if(!started.rowCount)throw new SourceError('catalog_request_in_progress');

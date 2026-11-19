@@ -111,7 +111,7 @@ export async function validateCatalogDiagnostic(value:unknown,cfg:CollectorConfi
   const reports=diagnostics.filter(d=>d.kind==='report'&&d.outcome==='complete');
   if(reports.some(d=>d.receivedRows!==undefined)){
    if(reports.some(d=>d.receivedRows===undefined))throw new SourceError('sync_diagnostics_invalid');
-   const pages=auditPages(wrapped.capture),expected=new Map<string,number>(),actual=new Map<string,number>();
+   const pages=auditPages({...wrapped.capture as object,recapture:undefined}),expected=new Map<string,number>(),actual=new Map<string,number>();
    for(const p of pages)expected.set(p.reportId,(expected.get(p.reportId)??0)+p.rows.length);
    const reused=pages.length-reports.length;
    if(reused>0&&request.mode==='catalog-discovery')for(const p of resumePages.slice(1,1+reused))expected.set(p.reportId,(expected.get(p.reportId)??0)-p.rows.length);
@@ -123,7 +123,9 @@ export async function validateCatalogDiagnostic(value:unknown,cfg:CollectorConfi
 }
 export const retryDelayMs=(attempt:number)=>attempt===1?60000:attempt===2?300000:null;
 export function retryableCapture(code:string,diagnostics:RequestDiagnostic[]|null) {
- if(['catalog_business_content_changed','catalog_additions_observed','catalog_non_identity_content_changed'].includes(code))return true;
+ // Exhaustion rejects this job, not future independent complete captures.
+ // retryDelayMs returns null at attempt 3; directory scans retain their circuit.
+ if(['catalog_business_content_changed','mutable_field_unstable','catalog_additions_observed','catalog_non_identity_content_changed'].includes(code))return true;
  if(code==='selected_source_timeout'||code==='source_timeout')return true;
  if(code!=='source_unavailable'||!diagnostics?.length)return false;
  const last=diagnostics.at(-1)!;

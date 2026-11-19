@@ -6,6 +6,7 @@ import {selectedConfig,selectedWorkerFixture} from './selected-source-fixture.js
 import {runSyncTick} from '../ainuoke-source/sync-worker.js';
 import {requestContractSync} from '../ainuoke-source/sync-queue.js';
 import {captureCatalogOnce} from '../ainuoke-source/catalog-capture.js';
+import {resumeTransientCatalogBackoff} from '../ainuoke-source/sync-recovery.js';
 import type {CatalogCollectionOptions} from '../ainuoke-source/catalog-checkpoints.js';
 import type {SelectedSourceRequest} from '../ainuoke-source/selected-source-once.js';
 import type {RequestDiagnostic} from '../ainuoke-source/sync-diagnostics.js';
@@ -77,8 +78,8 @@ test('three inconsistent captures exhaust finite retry, report mutable_field_uns
    assert.equal(hash(await heads(f)),initial);
   }
   assert.deepEqual(seen,[[],[13],[13]]);
-  assert.equal((await f.pool.query('SELECT paused_reason FROM ainuoke_sync_controls')).rows[0].paused_reason,'mutable_field_unstable');
-  assert.equal((await runSyncTick(f.pool,f.actor,selectedConfig,{automatic:false,collect:collector(stable,seen)})).status,'paused');
+  assert.equal((await f.pool.query('SELECT paused_reason FROM ainuoke_sync_controls')).rows[0].paused_reason,null);
+  assert.equal((await runSyncTick(f.pool,f.actor,selectedConfig,{automatic:false,collect:collector(stable,seen)})).status,'idle');
   assert.equal(seen.length,3);
   assert.equal((await f.pool.query("SELECT count(*)::int n FROM ainuoke_sync_jobs WHERE status IN ('queued','running','unknown')")).rows[0].n,0);
   const rows=(await f.pool.query("SELECT retry_count,final_decision FROM ainuoke_catalog_diagnostics WHERE kind='difference' ORDER BY retry_count")).rows;
@@ -108,5 +109,28 @@ test('diagnostic storage failure does not replace primary error or permit retry/
   const receipt=(await f.pool.query('SELECT result FROM ainuoke_sync_jobs WHERE id=$1',[job.jobId])).rows[0].result;
   assert.equal(receipt.code,'catalog_business_content_changed');assert.equal(receipt.diagnosticsPersisted,false);
   assert.deepEqual(await heads(f),initial);
+ }finally{await f.close();}
+});
+test('unstable periodic directory waits its full cycle, then only authorizes new complete evidence',{timeout:180000},async()=>{
+ const f=await startCatalogFixture();
+ try{
+  const initial=(await f.pool.query('SELECT catalog_run_id FROM ainuoke_source_profiles')).rows[0].catalog_run_id;
+  const start=Date.now()+31*60000,seen:number[][]=[];
+  for(const [i,offset] of [0,60000,360000].entries()){
+   const result=await runSyncTick(f.pool,f.actor,selectedConfig,{now:()=>start+offset,collect:collector(moving,seen)});
+   assert.equal(result.status,i<2?'catalog_retry_wait':'paused');
+  }
+  const ctl=(await f.pool.query('SELECT paused_reason FROM ainuoke_sync_controls')).rows[0];
+  assert.equal(ctl.paused_reason,'catalog_retries_exhausted');assert.deepEqual(seen,[[],[13],[13]]);
+  assert.equal((await f.pool.query('SELECT catalog_run_id FROM ainuoke_source_profiles')).rows[0].catalog_run_id,initial);
+  const last=(await f.pool.query("SELECT finished_at,result_code FROM ainuoke_sync_capture_attempts WHERE mode='catalog-discovery' ORDER BY started_at DESC LIMIT 1")).rows[0];
+  assert.equal(last.result_code,'mutable_field_unstable');
+  const end=new Date(last.finished_at).getTime();
+  assert.equal((await resumeTransientCatalogBackoff(f.pool,f.actor,f.sourceKey,end+29*60000))?.resumed,false);
+  assert.equal((await resumeTransientCatalogBackoff(f.pool,f.actor,f.sourceKey,end+30*60000))?.resumed,true);
+  assert.equal((await f.pool.query('SELECT catalog_run_id FROM ainuoke_source_profiles')).rows[0].catalog_run_id,initial);
+  const result=await captureCatalogOnce(f.pool,f.actor,selectedConfig,randomUUID(),collector(stable,seen));
+  assert.equal(result.status,'complete');assert.deepEqual(seen,[[],[13],[13],[13]]);
+  assert.equal((await f.pool.query("SELECT count(*)::int n FROM ainuoke_catalog_requests WHERE status='failed'")).rows[0].n,3);
  }finally{await f.close();}
 });

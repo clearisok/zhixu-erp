@@ -175,6 +175,7 @@ def collect(data, client=None, include_colors=False, material_report=None, catal
     total_bytes = 0
     requests = 0
     discovery_pass = 0
+    fresh_targets = {}
 
     def pages(key, query):
         nonlocal session, renewals, total_rows, total_bytes, requests, discovery_pass
@@ -182,8 +183,10 @@ def collect(data, client=None, include_colors=False, material_report=None, catal
         expected = None
         phase = None
         prefix = []
-        if key == 'order_discovery' and data.get('mode') == 'discovery':
-            phase = 'before' if discovery_pass == 0 else 'after'
+        is_before = key == 'order_discovery' and discovery_pass == 0
+        if key == 'order_discovery':
+            if data.get('mode') == 'discovery':
+                phase = 'before' if is_before else 'after'
             discovery_pass += 1
             if phase == 'before':
                 prefix = catalog_resume or []
@@ -199,6 +202,16 @@ def collect(data, client=None, include_colors=False, material_report=None, catal
                 catalog_progress(phase, snapshot)
 
         for index in range(1, 201):
+            if is_before and index in fresh_targets:
+                snapshot = fresh_targets[index]
+                if expected is None:
+                    expected = snapshot['total']
+                if snapshot['total'] != expected:
+                    raise UpstreamSchemaError('inconsistent_paging')
+                append(snapshot)
+                if index * 50 >= expected:
+                    return result
+                continue
             if index > 1 and index <= len(prefix):
                 append(prefix[index-1])
                 if index * 50 >= expected:
@@ -239,8 +252,9 @@ def collect(data, client=None, include_colors=False, material_report=None, catal
                 return result
         raise UpstreamSchemaError("page_limit")
 
-    # Targeted reads are diagnostic only. Always follow them with a wholly NEW
-    # before/details/after capture. Never splice an offset page into old data.
+    # Read affected pages FIRST as part of this NEW before pass. Fill every
+    # other before page, then details and a complete after pass. No old page is
+    # reused, no budget expands; the complete after pass must still match.
     for index in recapture_pages or []:
         page = client.read_report(REPORT_CATALOG['order_discovery'], jwt_token=session.jwt_token,
                                   page=index, page_size=50, query_context={})
@@ -252,9 +266,8 @@ def collect(data, client=None, include_colors=False, material_report=None, catal
         if hasattr(client, 'secrets'):
             from .selected_source_once import reject_secret_values
             reject_secret_values(snapshot, client.secrets)
-        total_rows += len(snapshot['rows'])
-        total_bytes += len(json.dumps(snapshot, ensure_ascii=False).encode('utf8'))
         recaptured.append(snapshot)
+        fresh_targets[index] = snapshot
         if recapture_progress:
             recapture_progress(snapshot)
     before = pages("order_discovery", {})

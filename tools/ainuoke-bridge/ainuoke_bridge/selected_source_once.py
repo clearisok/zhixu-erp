@@ -233,7 +233,7 @@ def collect_selected(data, transport=None, clock=monotonic, diagnostics=None, se
         reject_secret_values(bundle, client.secrets)
         reject_secret_values(recaptured, client.secrets)
         if sum(len(p["rows"]) for p in [*bundle["discoveryBefore"], *bundle["discoveryAfter"],
-              *recaptured, *(p for key in ("colors", "materials") for pages in bundle.get(key, {}).values() for p in pages)]) > LIMITS["sourceRows"]:
+              *(p for key in ("colors", "materials") for pages in bundle.get(key, {}).values() for p in pages)]) > LIMITS["sourceRows"]:
             raise Refused("selected_source_row_limit")
         return {**common, "result": "complete", "code": None, "metrics": budget.metrics(), "bundle": bundle}
     except (Exception, KeyboardInterrupt) as error:
