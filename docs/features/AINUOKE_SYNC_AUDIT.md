@@ -1,5 +1,15 @@
 # 艾诺科同步审计台账（D194）
 
+## 2026-11-19 Price与可变字段诊断（D197，工程候选）
+
+6086103的id/BillNo绑定由目录映射与数据库双向唯一检查决定，InsideOrderNo原守卫继续保留；Price不属于该身份。已有七个可变业务字段加Price允许存在性/值/类型差异进入有限重采，未知字段/结构、认证、范围和完整分页仍严格拒绝。原hsid大小写变体只保留原字段集合不变的有限重读例外。比较不舍入价格，也不把来源Price写进织序商业版本。
+
+首次目录不一致不发布，记录逐字段原状态；现有1/5分钟、总计3次采集的持久重试会先读取受影响页，再取得全新完整before/details/after。定向页不能替换旧页，也不授权发布。预算仍为每次目录56/合同80请求、4000行、180秒，定向读也计入。完全相同的原始类型和值才能通过，数值相同但格式不同也须证明稳定。三次业务漂移返回mutable_field_unstable，保全旧成功；共享目录无法证明一致时不强行隔离。另一个合同只有自己的新完整目录/明细证明通过才可以继续。
+
+0059新增ainuoke_catalog_diagnostics：batch_id、source_key、report_id、kind、page、row_id、sales_contract_no、field、retry_count、final_decision及JSON evidence。difference证据含before/after_exists/type/value/hash、after_page、classification、values_redacted、两遍fetched_at、request_started_at/finished_at及逐次请求状态；不可获取时间为null。recapture_page保留受影响页的合同/id、原Price等安全投影、全行和响应hash；decision记录关联原任务/批次及完整稳定content_hash。只追加，UPDATE/DELETE拒绝；旧失败/成功记录不修改。姓名/未知字段原值不保存；真实来源价格/合同沿现有受控运维权限，无新增匿名/普通角色API。诊断保存失败不覆盖主错误，并停止该自动重采；0059缺失在Source IO前失败关闭。
+
+历史batch cc1cacad-0de3-46f6-807a-3778b9d586dc只留Price聚合字段，无法恢复具体旧值或类型；当前没有旧暂停自动解除通道。本轮仅实现/隔离测试/PR。实际部署及受控来源恢复设计见[任务](../tasks/active/catalog-mutable-recapture-2026-11-19.md)。
+
 ## 2026-11-18 后台恢复候选（D195，未部署）
 
 监管器已接入每tick真实恢复证据，备份普通失败可在清理、发布身份、DB/migration/admin/任务/lease检查全部通过后恢复worker并等待新心跳。原FAILED回执、原fault及未知任务保留，不通过修改heartbeat或成功时间恢复。只读`--sync-health`复用原target/RBAC和完整迁移验证；不访问艾诺科、不写任务、不清暂停。旧Staging缺失的历史证明不补造，超时/信号/不确定容器后代仍阻断。无新schema/迁移，无UI变化；工程测试和未来一次性核验步骤见[监管契约](../ops/ainuoke-catalog-sync-supervisor.md)，不代表真实自然调度已验收。

@@ -5,6 +5,7 @@ import { SourceError } from './contract.js';
 import {validateCatalogCheckpointPage,type CatalogPage,type CatalogCollectionOptions} from './catalog-checkpoints.js';
 import {CatalogConsistencyError,type CatalogChangeDiagnostic,type CatalogFieldDifference} from './catalog-consistency.js';
 import {auditPages} from './sync-audit.js';
+import {createSessionCollector} from './session-collector.js';
 
 export type LoginEvidence = { responseShape:'data_object'|'object_without_data_object'|'non_object'; result:'accepted'|'rejected'|'malformed'; serverCode:'absent'|'cover_confirmation'|'unrecognized'; serverHint:'unclassified'|'session_exists'|'verification_required'|'credentials_rejected'|'account_unavailable'|'throttling_hint'|'cover_confirmation_required'|'user_capacity_exhausted' };
 export type LoginDetails = {at:string;interface:'loginsys2';isOk:boolean|null;businessCode:string|null;text1:string|null;message:string|null;errorMsg?:string|null};
@@ -61,6 +62,14 @@ export async function collectCatalogDiagnostic(config:CollectorConfig,request:Se
   ||new Set(request.contracts).size!==request.contracts.length||request.contracts.some(c=>!/^[A-Z0-9][A-Z0-9/._-]{0,79}$/u.test(c))))throw new SourceError('selected_source_scope_invalid');
  const targets=options?.recapturePages??[];
  if(targets.length>28||new Set(targets).size!==targets.length||targets.some(p=>!Number.isSafeInteger(p)||p<1||p>28))throw new SourceError('selected_source_scope_invalid');
+ if(options?.onRequest||targets.length){
+  // Even a one-shot worker needs durable per-request/page progress if a later
+  // read times out. Reuse the production owner protocol instead of buffering
+  // every diagnostic until a successful process exit.
+  const owner=createSessionCollector();
+  try{return await validateCatalogDiagnostic(await owner.collect(cfg,request,options),cfg,request,Math.max(now,Date.now()),options?.resumePages??[],targets);}
+  finally{owner.close();}
+ }
  const value=await collectWithPython(cfg,request.contracts,{mode:request.mode,timeoutMs:SELECTED_SOURCE_LIMITS.timeoutMs,diagnostics:true,recapturePages:targets});
  // Standalone diagnostic captures have no progress channel. Validate the whole
  // envelope before retaining their targeted page evidence, including failures.

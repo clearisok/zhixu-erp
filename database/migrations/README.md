@@ -121,3 +121,5 @@ permission or business backfill. Startup stays verify-only. Only owned synthetic
 核对42份旧SQL全hash，原观察、目标、命令与全部旧public表原值保留；正常启动仍verify-only。
 
 0057_ainuoke_catalog_scan_checkpoints.sql：新增空目录扫描时钟、水位与不可变分页引用，复用0055行块；不启动来源、不建单、不改旧时间或任务。来源合同缺少数量保留null、缺少非身份工厂款号可空，销售合同号/sourceId约束保留。实际staging升级仍经本轮明确授权、配对备份及兼容验收。
+
+0059_ainuoke_catalog_diagnostics.sql仅新增空append-only来源差异证据表/索引，不回填或改动旧回执、暂停、任务或成功资料。应用采集前要求该表存在。回滚应用时保留该表和全部证据，不执行删除表/数据的down migration。真实升级和来源恢复须另经用户审查授权。

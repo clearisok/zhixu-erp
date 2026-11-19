@@ -33,6 +33,18 @@ with patch('ainuoke_bridge.selected_source_once.ProtectedTransport',return_value
 const page=()=>({schemaVersion:'ainuoke-direct-read.v2',reportId:'6086103',page:1,pageSize:50,total:1,
  rows:[{sourceRowIdentity:'synthetic-row',values:{id:'1',BillNo:'SYN-1'}}],queryContext:{},fetchedAt:new Date().toISOString(),snapshotHash:'a'.repeat(64)});
 const final={schemaVersion:'ainuoke-session-diagnostics.v1',capture:{synthetic:true},requests:[]};
+
+test('targeted IPC waits for durable evidence and rejects altered final page receipts',async()=>{
+ for(const altered of [false,true]){
+  const {owner,child}=fixture(),p=page(),saved:number[]=[];
+  const result=owner.collect(selectedConfig,{mode:'catalog-contracts',contracts:['SYN-1']},{recapturePages:[1],onRecapturePage:async q=>{await Promise.resolve();saved.push((q as {page:number}).page);}});
+  const end={...final,capture:{recapture:[altered?{...p,total:2}:p]}};
+  child.stdout.write(JSON.stringify({schemaVersion:'ainuoke-recapture-page.v1',page:p})+'\n'+JSON.stringify(end)+'\n');
+  if(altered)await assert.rejects(result,/source_invalid/);
+  else{assert.deepEqual(await result,end);assert.deepEqual(saved,[1]);}
+  owner.close();
+ }
+});
 function fixture(){
  class Child extends EventEmitter{
   stdin=new PassThrough();stdout=new PassThrough();stderr=new PassThrough();killed=false;

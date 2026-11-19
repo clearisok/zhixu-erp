@@ -1,0 +1,71 @@
+import json
+from unittest import TestCase
+from ainuoke_bridge.selected_source_once import collect_selected
+from ainuoke_bridge.ainuoke_client import NetworkAinuokeError
+from selected_source_fixture import FakeSelectedTransport, mutate_rows
+from test_selected_source_once import CONFIG
+
+
+class CatalogRecaptureTests(TestCase):
+    def capture(self, transport, pages=None, **options):
+        return collect_selected({**CONFIG, 'mode':'catalog-discovery', 'contracts':[]}, transport,
+                                recapture_pages=[13] if pages is None else pages, **options)
+
+    def test_targeted_page_is_followed_by_two_new_complete_passes(self):
+        transport = FakeSelectedTransport(total=630)
+        saved = []
+        result = self.capture(transport, recapture_progress=saved.append)
+        self.assertEqual(result['result'], 'complete')
+        self.assertEqual(result['metrics']['reportRequests'], 27)
+        self.assertEqual(len(saved), 1)
+        self.assertEqual(saved, result['recapture'])
+        self.assertEqual(len(result['bundle']['discoveryBefore']), 13)
+        self.assertEqual(len(result['bundle']['discoveryAfter']), 13)
+        self.assertEqual(transport.calls[1]['body']['sqlCdtn']['pageIndex'], 13)
+        self.assertEqual(transport.calls[2]['body']['sqlCdtn']['pageIndex'], 1)
+
+    def test_limits_do_not_expand_for_targeted_reads(self):
+        result = self.capture(FakeSelectedTransport(total=1400), pages=[1])
+        self.assertEqual(result['result'], 'failed')
+        self.assertEqual(result['code'], 'selected_source_request_limit')
+        self.assertEqual(result['metrics']['reportRequests'], 56)
+        self.assertIsNone(result['bundle'])
+
+    def test_targeted_timeout_and_http200_business_rejection_never_publish(self):
+        for timeout in (False, True):
+            def mutate(report, page, payload):
+                if report:
+                    if timeout:
+                        raise NetworkAinuokeError('synthetic timeout')
+                    payload['reObj']['isOk'] = False
+            result = self.capture(FakeSelectedTransport(mutate, total=630))
+            self.assertEqual(result['result'], 'failed')
+            self.assertIsNone(result['bundle'])
+            self.assertEqual(result['recapture'], [])
+
+    def test_partial_targeted_evidence_survives_later_failure_but_cannot_be_published(self):
+        count = [0]
+        def mutate(report, page, payload):
+            if report:
+                count[0] += 1
+                if count[0] == 2:
+                    raise NetworkAinuokeError('synthetic timeout')
+        result = self.capture(FakeSelectedTransport(mutate, total=630))
+        self.assertEqual(result['result'], 'failed')
+        self.assertIsNone(result['bundle'])
+        self.assertEqual(len(result['recapture']), 1)
+
+    def test_secret_reflection_is_rejected_before_targeted_progress_or_final_output(self):
+        def mutate(report, page, payload):
+            if report == 6086103:
+                mutate_rows(payload, lambda rows: rows[0].update(Price=CONFIG['password']))
+        saved = []
+        result = self.capture(FakeSelectedTransport(mutate, total=630), recapture_progress=saved.append)
+        self.assertEqual(result['result'], 'failed')
+        self.assertEqual(saved, [])
+        self.assertNotIn(CONFIG['password'], json.dumps(result))
+
+    def test_invalid_targets_and_resumed_pages_are_not_accepted(self):
+        for pages in ([1,1], [0], [29], ['1'], [True]):
+            with self.assertRaises(ValueError):
+                self.capture(FakeSelectedTransport(total=630), pages=pages)
