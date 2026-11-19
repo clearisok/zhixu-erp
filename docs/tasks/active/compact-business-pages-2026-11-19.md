@@ -21,3 +21,11 @@ Refs [Issue155](https://github.com/clearisok/zhixu-erp/issues/155)。Codex转录
 首批实现：AppShell页面owner portal承载主按钮；正式列表/详情冗余hero移除、工厂款/SO/BillNo放概况；确认价格字段默认/旧组合偏好向前幂等接入。原服务器readBusinessSources/businessValues未改变。17项定向价格/偏好/权限/原投影测试通过，首次15→16默认列断言已按新增字段更新。typecheck已通过第一版；root/lint仍运行，最终精确代码另核实，不预写PASS。
 
 发现真实既有能力限制：正式Server allowlist不包含款式进度列表/风险预警；这两个旧页面读Browser本地Repository，不能直接启用混用数据。已向用户说明并询问是否保留原禁用边界或先不部署另定范围，其他实现/隔离验证继续。不会通过改allowlist绕过。
+
+## v2：用户明确废止款式进度列表与风险预警（2026-11-19）
+
+Codex转录本聊天追加决定：用户确认这两个功能以后不再需要；订单中心只保留订单列表，原三Tab迁移二级菜单要求作废。删除两功能入口和不再需要的路由/页面展示，不做PostgreSQL/API接入。数据库历史/表/共享接口未经另批不得删除。继续其余UI与Staging候选部署，未授权合并/Production。
+
+依赖审计：两个根列表路由仅分别导入StyleProgressPage和StyleRiskPage，均未在Server allowlist内；可清理其路由、专用页面函数及列表导入弹窗/补日志私有辅助。OrderCenterNavigation仅提供三Tab，已删除组件及全部引用，撤销此前新加左侧子菜单。不能删除整个style-progress-pages模块：其StyleProgressDetailPage、LegacyStyleProgressDetailPage、OrderStyleProgressSummary仍被订单详情、全局搜索与生产排单复用。保留/order-center/style-progress/detail、MaterialControlTower、所有来源/物料服务、DB/迁移/Repository/数据和共享接口，仅将其返回链接改为订单列表，防止死链。不再保留空Tab容器。数据库零结构/数据变更。
+
+补充回归覆盖：废弃根路由无入口，直接访问不读Browser；共享物料详情仍能访问，原生产/物料计算回归保持。权限和保存保护不变。

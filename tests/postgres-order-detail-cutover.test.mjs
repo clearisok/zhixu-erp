@@ -94,7 +94,8 @@ test("detail uses exact Server source fields and presents source quantity as rea
     "detail.sourceLifecycleStatus",
     "detail.colorCount",
     "订单数量（来源只读）",
-    "来源权威 · 不可编辑",
+    "oc-overview-heading",
+    "oc-order-identifiers",
   ]) assert.match(detailSource, new RegExp(token.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "u"));
   assert.match(modelSource, /insideOrderNo:\s*dto\.insideOrderNo/u);
   assert.match(modelSource, /quantity:\s*dto\.quantity/u);

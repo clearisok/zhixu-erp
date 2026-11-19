@@ -12,7 +12,6 @@ import { orderRepository } from "@/features/order-center/repository/order-reposi
 import { usePermissions } from "@/features/permissions";
 import { productionSchedulingRepository } from "@/features/production-scheduling/repository/production-scheduling-repository";
 import { styleProgressRepository } from "@/features/style-progress";
-import { OrderCenterNavigation } from "@/features/style-progress/components/order-center-navigation";
 import type { AinuokeContractMirror, AinuokeImportRun, AinuokeSyncState } from "../model/ainuoke";
 import { parseAinuokeWorkbooks } from "../parser/ainuoke-excel-parser";
 import { buildHistoricalProductionImport, parseHistoricalClosingWorkbook, parseHistoricalScheduleWorkbook, type HistoricalImportResult } from "../parser/historical-production-parser";
@@ -242,7 +241,7 @@ export function AinuokeSyncPage() {
   ] : [["镜像合同", state.contracts.length], ["待确认", visibleReviews.length], ["导入批次", state.importRuns.length], ["已绑定", state.contracts.filter((item) => item.boundOrderId).length], ["异常", state.contracts.filter((item) => item.validationStatus !== "valid").length], ["订单总数", orders.length]];
 
   if (loading) return <AppShell title="艾诺科同步"><PageContainer><LoadingState label="正在读取同步镜像" /></PageContainer></AppShell>;
-  return <AppShell title="艾诺科同步"><PageContainer className="as-page"><OrderCenterNavigation />
+  return <AppShell title="艾诺科同步"><PageContainer className="as-page">
     <PageHeader eyebrow="AINUOKE ERP SYNC" title="艾诺科同步" count={`${visibleReviews.length} 条待确认`} description="API 与 Excel 只是不同来源；两者共用唯一合同镜像、匹配服务和提交边界。" primaryAction={sourceMode === "api"
       ? <Button permission="ainuoke.view" disabled={working || !insideOrderNo.trim()} onClick={() => void runUnifiedPreview()}>{working ? "刷新中…" : "刷新艾诺科"}</Button>
       : <Button permission="ainuoke.sync" disabled={working || !salesFile || !colorFile || !scheduleFile || !closingFile} onClick={() => void runExcelPreview()}>{working ? "处理中…" : "运行四文件预检"}</Button>} />

@@ -43,7 +43,8 @@ test("production /order-center selects the dedicated PostgreSQL component", () =
   assert.match(routeSource, /ServerOrderCenterPage/u);
   assert.doesNotMatch(routeSource, /<OrderCenterPage\s*\//u);
   assert.match(productionSource, /serverSalesOrderReadRepository/u);
-  assert.match(productionSource, /数据源：PostgreSQL/u);
+  assert.doesNotMatch(productionSource, /oc-server-source-bar/u);
+  assert.match(productionSource, /headerActions=\{actions\}/u);
   assert.doesNotMatch(productionSource, /DEV SHADOW READ/u);
 });
 
