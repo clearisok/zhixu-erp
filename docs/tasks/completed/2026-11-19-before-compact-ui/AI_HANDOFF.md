@@ -1,0 +1,27 @@
+# 2026-11-18 恢复证据接线交接
+
+分支 `fix/staging-backup-sync-recovery`。已核实main **a915c7a130ddada13118a1d245b41e7999b9d395**；起点24953ec47b523d65bb57094958c61a2a2179ef96。用户授权实现、隔离测试与Draft PR；不merge、不部署、不改真实Staging状态。Refs [Issue153](https://github.com/clearisok/zhixu-erp/issues/153)。
+
+实际采集已替换空recovery_evidence，复用现有迁移/DB/source target检查及worker启动。新executor回执记录进程身份和正向清理证据；监管器持备份锁完成检查及启动。心跳验证与未知结果保护保留。详见[契约/一次性旧故障恢复](ops/ainuoke-catalog-sync-supervisor.md)。
+
+真实隔离E2E已通过（非mock证据）：失败命令→真实清理→真实DB/migration/admin/lease→启动→新PG心跳→后续高频到期任务；包含拒绝恢复场景。执行命令：`pwsh -File scripts/tests/Invoke-AinuokeRecoveryRuntime.ps1 -SourceSha <candidate full SHA>`。测试镜像Source传输为合成SDK，无真实ERP请求。最终测试与交付回执随后补记；不要因Draft PR冒称Staging修复。
+
+真实Staging只读核实仍旧fault，缺新executor pin/cleanup/process证明，现场未修改。需批准部署后进行一次新受控配对备份取得独立新证明，不能回填旧失败记录。超时/信号/未知后代仍fail closed。原始调查和历史接力完整保存在[归档](tasks/completed/2026-11-18-before-recovery-evidence/AI_HANDOFF.md)。
+
+本轮工程结果：Python定向22项（Windows21通过/1 POSIX跳过）；Linux定向22/22通过，真实证据E2E在代码提交efb9b251523d00e1310edbf9d4f609a1df8600fe对应镜像通过（55.113秒），含失败回执保留、新worker心跳、后续到期任务及DB/admin/migration/lock/exec/unknown阻断；相关TS/PG/调度10项通过；typecheck、lint、前后端build、diff-check通过。首次源码基线仅因D195与同步契约文档冻结版本未前向登记而失败，待新commit blob登记后重验；182基线回归已启动，结果另记。Draft PR不代表部署。
+
+已对D195与同步审计契约新增前向冻结记录，旧ID/blob/hash均保留。主机Staging仍原样；Git交付仅使用本机及宁波/tmp隔离Git目录，不属于应用部署。Windows交付预检曾在manifest待提交时拒绝dirty，0push；已核实只含本任务18行前向记录并收口后再交付，未清理或覆盖其他改动。
+
+交付前补上中断安全边界：备份在启动子进程前就持久化backupBeganAt，避免监管器与executor同时中断时复用旧terminal回执；新成功备份绑定新executorBackupId。定向测试增加1项（Windows共23项，22通过/1 POSIX跳过）。源码基线前向登记后已PASS（e8e8e75a，0 UI路径变化）；182基线套件仍运行，不假报PASS。宁波标准Dry Run网络超时、0push且无gh；随后本机精确URL级进程proxy空值+HTTP1.1只读核验main成功，准备按相同进程参数运行标准交付工具。未修改共享代理/TLS/认证。
+
+最终交付回执：代码提交 **cd87ec868ff58619a1a305f85e1495c0624e90ce** 的Linux定向测试23/23通过；同SHA镜像真实Docker/PostgreSQL恢复E2E通过（54.083秒），未mock recovery_evidence。标准git-delivery以进程级代理覆盖执行，实际push一次，独立GitHub API核实exact SHA，结果DELIVERED_VERIFIED；这不代表共享网络配置已修复。已创建并核实[Draft PR #154](https://github.com/clearisok/zhixu-erp/pull/154)：OPEN、Draft、未合并，包含所有既有检查点。随后仅收口本交付记录。
+
+长回归收口：最终HEAD源码门禁重复运行及完整`npm run test:release-baseline`均未取得可核实的完成结果，已中断，不计PASS；保留此前e8e8e75a源码门禁PASS，完整基线回归及根npm test仍待完成。PR须明确这些限制。Staging/Production未部署、真实业务状态未改，两轮自然30分钟同步未执行。后续仅经用户批准才部署匹配组件、执行文档中的旧故障安全核验。
+
+## PR154 工程验收续接（2026-11-18）
+
+本Phase起始branch为fix/staging-backup-sync-recovery、HEAD为9ca4ec1443d6f7b86ee9db91ab6c4f3671b01046、工作树干净；GitHub main仍为a915c7a130ddada13118a1d245b41e7999b9d395。用户仅授权验收及本PR缺陷修复，不merge、不部署、不改真实DB/fault、不调用真实艾诺科故障测试。
+
+起点Actions已经补齐上段长回归缺项：[baseline](https://github.com/clearisok/zhixu-erp/actions/runs/44254344961)通过182项基线及源码门禁；[team-access](https://github.com/clearisok/zhixu-erp/actions/runs/44254344528)通过根npm test、typecheck、lint、server/default-browser/server-session构建。[source](https://github.com/clearisok/zhixu-erp/actions/runs/44254344503)仅末步Python discovery失败，具体是tools/ainuoke-bridge cwd下动态加载supervisor无法找到ainuoke_recovery_gate；其他SQL/API、候选构建及Chromium步骤已过。不重跑本机相同大套件，修复后的最终结果必须取最新HEAD对应的新Actions。
+
+窄修复：两个动态加载测试在加载时临时加入实际scripts目录，保持生产import和全局sys.path不变；source CI补跑已有gate/paired-backup测试。审查门禁/清理/心跳/未知结果/旧故障流程时，增加旧心跳回归，先在Linux复现RUNNING误判，再给新心跳增加与既有恢复窗口一致的两分钟时效约束；Linux原CI嵌套cwd下16项supervisor已通过，另gate2项/backup5项通过。无调度/业务规则/迁移变化。最终HEAD、完整Actions与隔离E2E证据记录在同一Draft PR的Validation，等待用户批准后才能进入部署准备。
