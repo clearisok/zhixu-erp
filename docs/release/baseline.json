@@ -6261,6 +6261,33 @@
       "sha256": "9e0144093787677acb625ef352bc82ce2e2b8119538dac33d05c2c38d768e2bb",
       "supersedes": "catalog-mutable-contract-v2-20261119",
       "changeReason": "Record verified Python/Node JSON numeric-spelling boundary for approved mutable fields. Preserve original values, page hashes, historical evidence and strict identity/unknown-field guards."
+    },
+    {
+      "id": "catalog-final-safety-business-20261119",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "c4d19dc8fe3a74ed6e29bd480474523d4d30bde0",
+      "sha256": "fbbeaa46478e55732567748469045043321fd7ff29586b404f1ed19b91cb9fa7",
+      "supersedes": "catalog-mutable-business-20261119",
+      "changeReason": "Record final user PR158 merge/Staging recovery authorization and pre-publication diagnostic, safe complex-value and recapture identity boundaries. Preserve historical evidence, Production prohibition and all data/Gate restrictions."
+    },
+    {
+      "id": "catalog-final-safety-decisions-20261119",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "c4d19dc8fe3a74ed6e29bd480474523d4d30bde0",
+      "sha256": "982eebe51d60acb29cb09ba8081abc0056c69c5d17807df5cee178e9a03efa5b",
+      "supersedes": "catalog-mutable-decisions-v2-20261119",
+      "changeReason": "Record final user PR158 merge/Staging recovery authorization and pre-publication diagnostic, safe complex-value and recapture identity boundaries. Preserve historical evidence, Production prohibition and all data/Gate restrictions."
+    },
+    {
+      "id": "catalog-final-safety-contract-20261119",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SYNC_AUDIT.md",
+      "recordedAtSha": "c4d19dc8fe3a74ed6e29bd480474523d4d30bde0",
+      "sha256": "02e698d014f74f13af718b6d11428769516a893a7654f783fb7de830d40062eb",
+      "supersedes": "catalog-mutable-json-number-contract-20261119",
+      "changeReason": "Record final user PR158 merge/Staging recovery authorization and pre-publication diagnostic, safe complex-value and recapture identity boundaries. Preserve historical evidence, Production prohibition and all data/Gate restrictions."
     }
   ],
   "pages": [
