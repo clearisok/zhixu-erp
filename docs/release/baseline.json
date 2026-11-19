@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "1ab40fd39b035e471f5557903c026dd36d3bab8e",
-  "verifiedAt": "2026-11-19T02:07:47.917Z",
+  "verifiedAt": "2026-11-19T10:01:08.114753+00:00",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -6252,6 +6252,15 @@
       "sha256": "1d62e8b54bb4b3d487c4ba0a16e7795a4b0516fd29527bc844c1ba251dce0ca0",
       "supersedes": "catalog-mutable-decisions-20261119",
       "changeReason": "Clarify existing D183/D194 scoped exhaustion and catalogue-cycle backoff. Targeted pages belong to the entirely fresh before pass and do not expand the original read budget. Preserve all prior evidence and deployment limits."
+    },
+    {
+      "id": "catalog-mutable-json-number-contract-20261119",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SYNC_AUDIT.md",
+      "recordedAtSha": "16c57f7153a5dce1a93d707eea753f0971a08bc3",
+      "sha256": "9e0144093787677acb625ef352bc82ce2e2b8119538dac33d05c2c38d768e2bb",
+      "supersedes": "catalog-mutable-contract-v2-20261119",
+      "changeReason": "Record verified Python/Node JSON numeric-spelling boundary for approved mutable fields. Preserve original values, page hashes, historical evidence and strict identity/unknown-field guards."
     }
   ],
   "pages": [
