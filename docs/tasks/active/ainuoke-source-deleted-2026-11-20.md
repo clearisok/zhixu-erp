@@ -68,3 +68,20 @@ Git远端交付：原代理通道失败和宁波90秒预检失败保留；宁波
 交付限制：仅本地候选；真实Staging仍未部署0060、两样本未作真实生命周期转换，最终业务验收未发生。同BillNo若源站以不同不可变id重建，现有身份冲突保护仍要求人工核对，不自动改绑。回滚不drop0060/事件/历史业务数据；将来真实部署前需另行授权及完整备份/兼容性检查，不能用本机tmpfs演示代替部署恢复证据。
 
 清空Docker后的生命周期/升级复验最终10/10、零失败/跳过，耗时194725ms（sourceSha368bfb38）；浏览器1/1耗时57279ms。新临时PG验证非空历史逐行hash、队列隔离、重复事件防护和恢复，未改代码/超时/断言。Project #1的Issue159改Review，保持Open与Draft PR，等待用户本地人工验收。
+
+
+## Staging部署授权与Gate A（2026-11-20）
+
+用户后续明确“部署到staging我看一下是否ok”，并要求继续，授权转录回链Issue159。只部署未合并候选6178e666bf45e80cf51cd9962521e264d3a97385，三项最新Actions已全部SUCCESS；不合并、不操作Production。起始本地feat/ainuoke-source-deleted/6178e666、clean。旧“仅本地/不部署”是此前阶段的范围，本次明确后续授权替代其Staging限制，不改变业务规则。
+
+部署前真实只读：Staging原636a、0059/144表，Worker0，enabled=true/version5/paused_reason=selected_source_invalid，真实heartbeat2026-11-20T02:49:40.874Z，142failed/45833complete/20queued/0running/0unknown。此独立来源故障发生于本候选切版前，保留暂停与全部失败，不自动SQL清除或手动补任务。
+
+主机私密release source-deleted-20261120，精确Git bundle SHA25633b5ca5ed8d00a0077c1d68daf7cf3ec38489294afa7dc3b880eb9aa6da358a5及候选source HEAD核实；沿用既有offline build/catalog-release-install/trial/Compose机制，仅参数对齐本次source、旧runtime、migration0060/table145及现场暂停，不另写Docker重建机制。64份回滚资产、完整旧inspect/Compose/config/secrets/镜像及原四卷保存，权限700/600，不提交秘密。database CID0f4bc649…、objects CIDf2ed36f7…，旧app image32a8230a…均保留。
+
+Gate A身份/构建通过：app sha256:d5aa124262d344d259a9cf36b87e4416646c541da61cd5a1f01a0250e2144edc；operator/Worker sha256:d40600b39347d33f80d6452fe44f3d93d54a67629df1b6b8badeb5b6d0a56471；DEV与部署镜像分开，正式buildId staging-material-6178e666、time2026-11-20T05:50:37.363Z，均networknone/锁文件不变。新runtime已准备、未装cron，Supervisor a0109d4f…/executor9765b3a9…与原字节相同，collector/私密身份匹配；正式trial check与完整Compose差异检查PASS（仅三无状态服务image/metadata/等价挂载路径；database/objects不变）。
+
+兼容回滚app sha256:0d5fd0bf86ea43569c1606fb32da8de9c7118850d107d51feb44915349947009，只给原636a app增加0060迁移清单，不改旧业务代码。真实一次性PG16/tmpfs/networknone执行新完整迁移后，旧app的verifyMigrationsCurrent校验integrity valid、pending0、59项且包含0060；不接触真实DB，旧Worker回滚时保持停止。初次FROM image-id被BuildKit解释为registry引用，改为校验过的本地tag，未改代理；初次QA错把按文本版本排序的最后文件当最高版本，修为明确包含0060，不改产品/断言边界，原失败日志保留。
+
+预部署配对备份20261120T054906Z-7df3bfd9于05:54:23Z snapshot_timeout（300秒），原服务已恢复，失败包不改；独立清理确认executor已退出、快照backend0、Docker ExecIDs全空。当前只在全部构建结束后做一次有上限复验20261120T055650Z-f633997c，无超时/算法/配置改动，尚未通过，不能切版。真实库约7.6GB，planner off；是否负载/规模导致首次超时尚未证明，不编造根因。
+
+内置浏览器工具两次启动报kernel assets路径不存在（含reset后复验）；未绕过浏览器安全限制，不将未完成的真实Staging浏览器核验写PASS。后续验收按实际可用工具与用户页面结果单独记录。

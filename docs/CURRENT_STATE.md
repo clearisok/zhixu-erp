@@ -1,11 +1,11 @@
-# 当前：Issue159候选完成，等待本地人工验收
+# 当前：Issue159获批Staging候选部署，备份门禁待完成
 
-2026-11-20；main基线636a5ad0d2d1acbe6b2705696e782dea12ee9f00，分支feat/ainuoke-source-deleted。Issue [159](https://github.com/clearisok/zhixu-erp/issues/159)，Draft PR [160](https://github.com/clearisok/zhixu-erp/pull/160)。本轮仅代码、测试、本地实机演示和独立PR；未合并、未部署、未写Staging/Production。
+2026-11-20；feat/ainuoke-source-deleted；main基线636a5ad0d2d1acbe6b2705696e782dea12ee9f00；实际候选6178e666bf45e80cf51cd9962521e264d3a97385，三CI全成功，PR160 Draft/未合并。用户当前聊天已明确批准Staging部署，未授权合并/Production。
 
-0060前向新增source_deleted/present、确认时间及不可变删除/恢复事件。只有历史完整出现证据加新的认证完整双遍目录、完整分页、同账号/报表/空范围、BillNo唯一关联及id额外核验才转换。旧invisible不回填、未知不自动重试；停止已删除合同自动任务，正常订单及Price隔离/原30分钟机制保持。原业务订单/生产/报价成本/物料/出运/快照均保留。红色订单删除复用原异常列尺寸，不改列宽；独立异常保持。
+64份回滚资产及原四卷/DB/objects保全；离线app d5aa1242、operator d40600b3构建和正式Compose/trial check PASS；0060兼容旧app0d5fd0bf在隔离PG完整迁移账本校验通过。新runtime catalog-sync-6178e666已准备但未装cron/未部署。
 
-代码检查点368bfb38783e234684ea0506b58ff97cf37f3c63已精确送达，三项GitHub CI全部成功。完整npm test1026/1026在2fb03344（之后仅CI/文档）；独立release-baseline182/182，显式main基线guard通过；目录/Price106/106、生命周期/升级10/10（含非空成本12.5/生产累计10.125的业务表逐行hash保全）、旧alerts1/1、Source20通过/1 Linux-only跳过；typecheck/lint/前后端build及实际Chromium四桌面/两角色/刷新通过。跳过不算通过，Linux CI另有全套覆盖，版本及历史失败见[任务证据](tasks/active/ainuoke-source-deleted-2026-11-20.md)。
+真实旧版636a目前因selected_source_invalid暂停、Worker0、142failed/20queued/0running/0unknown；保留故障，不SQL清暂停/补任务。首次预备份054906Z-7df3bfd9在snapshot300秒超时，旧服务恢复，失败/清理证据保存；只做一次无构建负载复验055650Z-f633997c，尚未通过，不得切版。旧app回滚兼容0060只增加清单，旧Worker不得自动连接。
 
-用户解决D盘满后自行清空初始化Docker；未尝试恢复旧本地业务库。已只读导出既有官方PostgreSQL镜像并导入本机，未改远端容器/卷/服务或本机Docker配置。新临时PG/显式DEV Server构建368bfb38的四桌面浏览器重新通过；本地演示使用合成SDK+真实PG+实际构建UI，真实艾诺科请求0、Staging写入0，启动命令npm run demo:source-deleted，运行2小时自动清理自有资源。
+下一步：先读主机/home/jackson/weaveops-staging-preview/releases/source-deleted-20261120与weaveops-trial-backups真实状态，核实复验终态；备份成功且独立hash/cleanup验证后才能正式0060/三个无状态容器发布/匹配policy/cron/版本和卷保全核验。若再次失败，不再盲重试，不绕备份。新完整目录转换与真实页面验收仍未发生。内置浏览器kernel assets启动失败，不冒称UI验收。
 
-真实两单本轮仅只读取证：visible=false、draft、数量10000/8000、历史出现及同账号13/13目录；没有执行真实source_deleted转换。以后需单独部署授权、备份、0060/组件健康及新鲜完整目录沿正式状态机处理，不能SQL回填。同BillNo以不同源id重建仍按原身份冲突阻断，不自动重新绑定。
+工程1026/182/106、PG10/10、合成Chrome四桌面/两角色及质量/build已通过，不能代替真实Staging部署验收。[完整阶段证据](tasks/active/ainuoke-source-deleted-2026-11-20.md)。NETWORK_DEGRADED的原代理/宁波失败历史保留；本Gate先本地checkpoint，最终用既有已验证进程级正式工具做独立送达核实。
