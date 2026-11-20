@@ -51,3 +51,9 @@ Windows定向Supervisor19/19、paired8通过/1 POSIX跳过、Gate2/2；paired新
 正式sync-recovery-preview：jobs=[]/captures=[]、enabled/version5/selected_source_invalid、reviewHash5dccf60f86cef467ba9c82a87311fc54e951aba379554ed352d721c506070aa1。只通过正式sync-recover提交同hash和审查原因，resolvedJobs0/resolvedCatalogRequests0/sourceRequests0；未SQL清pause、未unknown转failed。随后自然cron 11:36:01.367609Z九Gate全true，由Supervisor新建/启动唯一Worker90af91577393a37169490255131495a5deeb1222a613e1f5b8527cabf855d439，StartedAt11:36:03.195029143Z、新PG heartbeat11:36:05.329Z，11:37:01.395140Z进入RUNNING/heartbeat_verified；restart=no/count0，原internal/default及owned ingress隔离保持。未手工tick/启动Worker/入队。
 
 11:38:21Z观察已成功35，队列215/running5、历史failed142hash不变、unknown0、owner1/重复inflight0；两source_deleted/version1保持、其新任务0、生命周期事件仍2。只读观察器每30秒保存实际状态，不干预调度；尚须完成255合同首轮及下一个自然1800秒周期，当前不能宣称2/2。
+
+## 首轮自然调度完成（1/2）
+
+第一轮255个真实高频合同任务11:36:05.599Z开始至11:52:09.288Z结束，255complete/0failed/0unknown，255独立observation回执，排队和running均清空。首例PI2604-065/job18d42164-bb6b-4e1b-8ef0-ac31010b28a8，完成11:36:23.038Z，observation bb314aeb-c349-489f-8e89-4394d071bd58；第二轮应由现有策略在各自完成+1800秒自然入队，不人工触发。只读完整清单保存在主机first-natural-round.private.json，公开摘要first-natural-round-summary.json。两删除合同仍无新任务/版本1/事件2，历史142失败完整行SHA4c2c0ae4a25d10296e2be631008f250c144e65c3de3a715f35bcc2b6bbb9b401。
+
+REMOTE DELIVERY区分：0752代码、c915和dfcd部署文档已DELIVERED_VERIFIED；0c5db44e真实心跳文档提交的正式git-delivery DryRun发生Git/API uncertain_transport，pushes0，进入NETWORK_DEGRADED。该本地检查点未推送，不重复撞失败Git通道，不影响已核实0752实际代码部署和继续自然验收。后续仅本地checkpoint并提供一条正式恢复命令；PR不冒称未交付文档已在远端。
