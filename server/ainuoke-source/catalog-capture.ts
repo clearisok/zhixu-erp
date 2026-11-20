@@ -76,7 +76,7 @@ async function captureUnderLease(pool:Pool,identity:Identity,raw:CollectorConfig
   if(recapturePages.length)await appendCatalogDiagnostic(pool,'decision',retryCount,'full_stable_capture_validated',{prior_batch:last.request_id,pages:recapturePages,content_hash:captured.preview.contentHash});
   await auditAcquired(pool,captured.bundle,diagnostics);
   await finishCaptureAttempt(pool,diagnosticId,null,diagnostics,metrics,Date.now());
-  const result=await publishCatalog(pool,identity,{sourceKey:config.sourceKey,accountFingerprint:fingerprint,requestId,input:captured.bundle,expectedHash:captured.preview.contentHash,adoptNewOrders});
+  const result=await publishCatalog(pool,identity,{sourceKey:config.sourceKey,accountFingerprint:fingerprint,requestId,input:captured.bundle,expectedHash:captured.preview.contentHash,adoptNewOrders,confirmLifecycle:resumePages.length===0});
   await finishCatalogScan(pool,config.sourceKey,requestId,{...result,metrics:captured.metrics},captured.bundle);
   return {status:'complete',result,replayed:false};
  }catch(e){

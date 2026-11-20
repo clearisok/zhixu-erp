@@ -81,11 +81,12 @@ export async function requestContractSync(pool: Pool, identity: Identity, input:
       return { jobId: prior.job_id as string, requestId: input.requestId, replayed: true };
     }
     await control(c, input.sourceKey);
-    const entry = (await c.query('SELECT sales_contract_no,visible FROM ainuoke_catalog_entries WHERE source_key=$1 AND source_id=$2 FOR SHARE', [input.sourceKey,input.sourceId])).rows[0];
+    const entry = (await c.query('SELECT sales_contract_no,visible,source_lifecycle_state FROM ainuoke_catalog_entries WHERE source_key=$1 AND source_id=$2 FOR SHARE', [input.sourceKey,input.sourceId])).rows[0];
     if (!entry) throw new SourceError('sync_contract_not_available');
     // A previously visible contract can still be requested; upstream visibility is rechecked.
     const existing = (await c.query("SELECT id::text,status,kind FROM ainuoke_sync_jobs WHERE source_key=$1 AND source_id=$2 AND status IN ('queued','running','unknown') FOR UPDATE", [input.sourceKey,input.sourceId])).rows[0];
     if (existing?.status === 'unknown') throw new SourceError('sync_result_unknown');
+    if(entry.source_lifecycle_state==='source_deleted')throw new SourceError('source_contract_deleted');
     const jobId: string = existing?.id ?? randomUUID();
     if (!existing) await c.query(`INSERT INTO ainuoke_sync_jobs(id,source_key,source_id,sales_contract_no,kind,status,requested_by)
       VALUES($1,$2,$3,$4,'manual','queued',$5)`, [jobId,input.sourceKey,input.sourceId,entry.sales_contract_no,actor.internalUserId]);
@@ -103,7 +104,7 @@ export async function enqueueAutomaticSync(pool: Pool, identity: Identity, sourc
     const rows = (await c.query(`SELECT e.source_id,e.sales_contract_no,e.contract_date,${effectiveSyncDeliverySql()} AS delivery_date,s.last_success_at,s.last_automatic_attempt_at,
       EXISTS(SELECT 1 FROM ainuoke_sync_jobs j WHERE j.source_key=e.source_key AND j.source_id=e.source_id AND j.status IN ('queued','running','unknown')) AS pending
       FROM ainuoke_catalog_entries e LEFT JOIN ainuoke_contract_sync_state s USING(source_key,source_id)
-      WHERE e.source_key=$1 AND e.visible=true ORDER BY e.sales_contract_no LIMIT 1401`, [sourceKey])).rows;
+      WHERE e.source_key=$1 AND e.visible=true AND e.source_lifecycle_state='present' ORDER BY e.sales_contract_no LIMIT 1401`, [sourceKey])).rows;
     if (rows.length > 1400) throw new SourceError('sync_catalog_capacity_exceeded');
     let queued = 0;
     for (const row of rows) {
@@ -140,6 +141,10 @@ export async function claimSyncJobs(pool: Pool, identity: Identity, sourceKey: s
     const directoryRows=Number((await c.query('SELECT count(*)::int AS n FROM ainuoke_catalog_entries WHERE source_key=$1 AND visible=true',[sourceKey])).rows[0].n);
     const selected=boundedSyncBatch(rows,maximum,directoryRows);
     for (const job of selected) {
+      const lifecycle=(await c.query('SELECT source_lifecycle_state FROM ainuoke_catalog_entries WHERE source_key=$1 AND source_id=$2 FOR SHARE',[sourceKey,job.source_id])).rows[0];
+      if(lifecycle?.source_lifecycle_state==='source_deleted'){
+        await c.query("UPDATE ainuoke_sync_jobs SET status='failed',finished_at=$2,result=$3::jsonb WHERE id=$1",[job.id,new Date(now),JSON.stringify({code:'source_contract_deleted'})]);continue;
+      }
       if(job.kind==='automatic'){
         const current=(await c.query(`SELECT e.visible,e.contract_date,${effectiveSyncDeliverySql()} AS delivery_date,s.last_success_at,s.last_automatic_attempt_at FROM ainuoke_catalog_entries e
           LEFT JOIN ainuoke_contract_sync_state s USING(source_key,source_id) WHERE e.source_key=$1 AND e.source_id=$2`,[sourceKey,job.source_id])).rows[0];

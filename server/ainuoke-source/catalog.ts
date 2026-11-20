@@ -16,6 +16,7 @@ import {createAinuokeSalesOrderInTransaction} from '../sales-orders/service.js';
 import {lockEffectiveAttribution} from '../sales-orders/effective-attribution.js';
 import {HttpError} from '../http/errors.js';
 import {CatalogConsistencyError,catalogChangeEvidence,mutableCatalogFields} from './catalog-consistency.js';
+import {reconcileCatalogLifecycle} from './catalog-lifecycle.js';
 
 const text = (v:unknown) => typeof v==='string' && v.trim() ? v.normalize('NFKC').trim() : null;
 const date = (v:unknown) => {
@@ -72,6 +73,8 @@ export async function previewCatalog(input:unknown,now=Date.now()) {
 async function publishCatalogImplementation(pool:Pool,identity:Pick<TrustedIdentity,'internalUserId'|'userId'>,options:{
  sourceKey:string;accountFingerprint:string;requestId:string;input:unknown;expectedHash:string;adoptNewOrders?:boolean;
  historicalEvidence?:{capturedAt:string;bundleHash:string};
+ /** Only fresh authenticated catalog-discovery; never caller JSON/partial IO. */
+ confirmLifecycle?:boolean;
 }) {
  if(!/^[0-9a-f-]{36}$/i.test(options.requestId))throw new SourceError('catalog_request_invalid');
  const historical=options.historicalEvidence;
@@ -96,6 +99,7 @@ async function publishCatalogImplementation(pool:Pool,identity:Pick<TrustedIdent
   const captureId=await saveCatalogEvidence(c,options.sourceKey,options.accountFingerprint,checked.bundle);
   await c.query("INSERT INTO ainuoke_catalog_runs(id,source_key,account_fingerprint,request_id,actor_user_id,captured_at,discovery,content_hash,capture_evidence_id) VALUES($1,$2,$3,$4,$5,$6,'[]'::jsonb,$7,$8)",
    [id,options.sourceKey,options.accountFingerprint,options.requestId,actor.internalUserId,checked.capturedAt,checked.contentHash,captureId]);
+  const lifecycle=options.confirmLifecycle&&!historical?await reconcileCatalogLifecycle(c,options.sourceKey,options.accountFingerprint,id,checked):{deleted:0,restored:0};
   await c.query('UPDATE ainuoke_catalog_entries SET visible=false WHERE source_key=$1',[options.sourceKey]);
   for(const r of checked.rows)await c.query(`INSERT INTO ainuoke_catalog_entries(source_key,source_id,sales_contract_no,inside_order_no,style_no,customer_name,brand_name,quantity,contract_date,delivery_date,lifecycle_status_raw,observed_run_id)
    VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) ON CONFLICT(source_key,source_id) DO UPDATE SET
@@ -129,10 +133,10 @@ async function publishCatalogImplementation(pool:Pool,identity:Pick<TrustedIdent
     await c.query("UPDATE ainuoke_sync_jobs SET kind='automatic' WHERE source_key=$1 AND source_id=$2 AND status='queued' AND requested_by=$3",[options.sourceKey,row.sourceId,actor.internalUserId]);
    }
   }
-  await appendOperationLog(c,actor,{module:'艾诺科同步',action:'更新合同目录',entityType:'AinuokeCatalogRun',entityId:id,metadata:{sourceOnly:true,contractCount:checked.rows.length,requestId:options.requestId,
+  await appendOperationLog(c,actor,{module:'艾诺科同步',action:'更新合同目录',entityType:'AinuokeCatalogRun',entityId:id,metadata:{sourceOnly:true,contractCount:checked.rows.length,requestId:options.requestId,lifecycle,
    ...(historical?{historicalPublication:true,sourceRequests:0,originalCapturedAt:historical.capturedAt}:{})}});
   await auditPublished(c,options.sourceKey,id,checked.bundle,'',['ainuoke_catalog_runs','ainuoke_catalog_entries','ainuoke_source_profiles','ainuoke_catalog_capture_evidence',...(createdOrders?['sales_orders','sales_order_source_links','ainuoke_sales_order_contract_mirrors']:[])]);
-  await commitWithSyncAudit(c);return {runId:id,replayed:false,contracts:checked.rows.length,createdOrders,pendingOrders};
+  await commitWithSyncAudit(c);return {runId:id,replayed:false,contracts:checked.rows.length,createdOrders,pendingOrders,lifecycle};
  }catch(e){await c.query('ROLLBACK');throw e;}finally{c.release();}
 }
 

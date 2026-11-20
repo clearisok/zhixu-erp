@@ -21,7 +21,8 @@ import {createPersistedMaterialPorts} from '../ainuoke-source/reader.js';
 import {selectedConfig,selectedContracts,selectedWorkerFixture} from './selected-source-fixture.js';
 
 /** Synthetic SDK transport and owned tmpfs DB only. No credential/env discovery. */
-export async function startCatalogFixture(staticDirectory=resolve('dist/client')){
+export async function startCatalogFixture(staticDirectory=resolve('dist/client'),options:{contracts?:string[];workerFixture?:typeof selectedWorkerFixture;beforeBind?:(pool:pg.Pool)=>Promise<void>}={}){
+ const contracts=options.contracts??selectedContracts,workerFixture=options.workerFixture??selectedWorkerFixture;
  const db=await startDisposablePostgres(),pool=new pg.Pool({connectionString:await db.createDatabase('catalogue_ui')});
  const server=createServer(),origins:string[]=[],errors:unknown[]=[];
  const close=async()=>{server.closeAllConnections();if(server.listening)await new Promise<void>(r=>server.close(()=>r()));await pool.end();await db.stop();};
@@ -31,16 +32,17 @@ export async function startCatalogFixture(staticDirectory=resolve('dist/client')
   await bootstrapAdmin(pool,{username:admin,displayName:'合成合同管理员',password});
   const actor=await loadExistingBootstrapActor(pool,admin),sourceKey=selectedConfig.sourceKey;
   await executeTeamCommand(pool,actor,{action:'create',requestId:randomUUID(),account:reader,name:'合成只读用户',password,roleIds:['role-team-material-manager']});
-  const selected=await validateSelectedSourceOnce(selectedWorkerFixture('selected-bindings'),selectedConfig,{mode:'selected-bindings',contracts:selectedContracts});
+  await options.beforeBind?.(pool);
+  const selected=await validateSelectedSourceOnce(workerFixture('selected-bindings','',contracts),selectedConfig,{mode:'selected-bindings',contracts});
   if(selected.result!=='complete'||selected.mode!=='selected-bindings')throw Error('synthetic binding invalid');
-  const bound=await bindOrders(pool,actor,{sourceKey,accountFingerprint:accountFingerprint(selectedConfig),selected:selectedContracts,expectedPreview:selected.preview.reviewHash,collect:async()=>selected.bundle});
-  await captureCatalogOnce(pool,actor,selectedConfig,randomUUID(),async()=>selectedWorkerFixture('catalog-discovery','',[]));
+  const bound=await bindOrders(pool,actor,{sourceKey,accountFingerprint:accountFingerprint(selectedConfig),selected:contracts,expectedPreview:selected.preview.reviewHash,collect:async()=>selected.bundle});
+  await captureCatalogOnce(pool,actor,selectedConfig,randomUUID(),async()=>workerFixture('catalog-discovery','',[]));
   await configureSync(pool,actor,{sourceKey,enabled:true,expectedVersion:0,policy:{...DEFAULT_SYNC_POLICY}});
   await enqueueAutomaticSync(pool,actor,sourceKey);
   let captures=0,failNext=false;
   const tick=()=>runSyncTick(pool,actor,selectedConfig,{automatic:false,collect:async(_c,r)=>{
    captures++;if(r.mode!=='catalog-contracts')throw Error('unexpected source scope');
-   const raw=selectedWorkerFixture('catalog-contracts','',r.contracts);
+   const raw=workerFixture('catalog-contracts','',r.contracts);
    if(failNext){failNext=false;return {schemaVersion:'ainuoke-request-diagnostics.v1',capture:{...(raw as Record<string,unknown>),result:'failed',bundle:null,code:'source_unavailable',metrics:{logins:1,reportRequests:1,httpAttempts:2,networkRetries:0,authRenewals:0}},requests:[
     {kind:'login',reportId:null,page:null,elapsedMs:10,outcome:'complete',httpStatus:null},
     {kind:'report',reportId:6087105,page:1,elapsedMs:45015,outcome:'timeout',httpStatus:null}]};}

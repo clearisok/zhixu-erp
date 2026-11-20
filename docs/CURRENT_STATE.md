@@ -1,9 +1,9 @@
-# 当前：PR158最后安全收口与Staging恢复授权
+# 当前：Issue159订单删除候选，本轮不部署
 
-2026-11-19，main基线1ab40fd39b035e471f5557903c026dd36d3bab8e；分支fix/catalog-mutable-recapture，PR158 / Issue157。用户最终授权必要修复/完整验收、正常合并、仅Staging部署/0059/正式恢复及两轮自然30分钟；无需重复申请，Production禁止。授权原话、此前限制和历史检查点保存在任务文档及Issue评论。
+2026-11-20；核实main基线636a5ad0d2d1acbe6b2705696e782dea12ee9f00，分支feat/ainuoke-source-deleted，自clean main新建，不包含旧分支运维checkpoint。PR158已合并/Staging636a继续运行；之前两轮257+257通过的运维记录保留在旧分支32293c35，不把本候选冒作部署。
 
-起始faee三项Actions已全SUCCESS。最后审查补齐发布前诊断异常的已知失败收口、复杂Price类型脱敏及重采计划账号/批次成员/报表约束；新增真实PG默认五合同、诊断decision INSERT失败、身份反例测试。共享目录不一致仍拒绝所有发布；其他合同仅凭各自新完整稳定证据继续，不拼历史页。新增修复的完整套件与最新HEAD CI待最终冻结后验证，旧1026/182/102/211结果不冒作新HEAD。
+用户明确要求「订单删除」生命周期/红色异常/停止已删除来源自动任务/重新出现恢复/历史保全；仅代码、本地实机演示、测试、独立PR，不合并、不部署、不写真实状态。Issue159已有用户决定v1转录，Project In Progress。0060前向新增状态与不可变事件，不把旧invisible直接当deleted。只有新鲜、未复用断点的完整认证双遍目录确认，匹配仅BillNo/id额外核验；旧完整出现证据需同账号/报表/范围。原Price隔离/租约/30分钟/unknown保护不改。
 
-Staging 12:56Z只读核实：app/gateway/objects-tls healthy，仍90de5b0a；0058、112failed、39740complete、0queued/running/unknown，630目录；原catalog_identity_or_scope_changed和旧心跳保留。尚未合并/部署/迁移/恢复。部署前须新受控备份、完整资产/卷保全及含0059清单的兼容回滚候选；旧0058镜像不可直接接0059账本。未知结果、身份/权限、备份/可回滚或Gate失败停止相关操作并保留现场。
+隔离PG状态/升级10/10；typecheck、lint、完整目录/根测试/build与真实浏览器仍以任务后续收口为准，不能提前写PASS。产品代码进展见[当前任务](tasks/active/ainuoke-source-deleted-2026-11-20.md)。真实两单只读取证visible=false、draft、数量10000/8000、同账号13/13目录，无真实转换。
 
-[完整任务及历史证据](tasks/active/catalog-mutable-recapture-2026-11-19.md)，[接力](AI_HANDOFF.md)。Issue保持Open，合并不等于用户最终验收。
+Windowsfetch代理失败进入NETWORK_DEGRADED，API精确main与本地对象已核实，可做独立本地阶段。远端代码交付待单独核实，不重复同失败通道push，不伪称PR已创建。旧历史状态[归档](tasks/completed/2026-11-20-before-source-deleted/CURRENT_STATE.md)。

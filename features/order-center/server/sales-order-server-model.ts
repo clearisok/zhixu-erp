@@ -17,6 +17,7 @@ export type ServerSalesOrderReadDto = {
   salesContractNo: string | null;
   insideOrderNo: string | null;
   sourceLifecycleStatus: string;
+  sourceLifecycle?: {state:'present'|'source_deleted';deletedAt:string|null;version:number};
   businessType?: "ainuoke_contract"|"processing"|"unclassified";
   ownerName?:string|null;
   businessSource?:"quote"|"reorder"|null;
@@ -82,6 +83,7 @@ export type OrderCenterServerListViewModel = {
   brandName: string;
   initialQuantity: number | null;
   sourceLifecycleStatus: string;
+  sourceLifecycle?: {state:'present'|'source_deleted';deletedAt:string|null;version:number};
   businessType?: "ainuoke_contract"|"processing"|"unclassified";
   ownerName?:string|null;
   businessSource?:"quote"|"reorder"|null;
@@ -121,6 +123,7 @@ export function adaptServerSalesOrderListItem(dto: ServerSalesOrderReadDto): Ord
     brandName: dto.brandName,
     initialQuantity: dto.quantity,
     sourceLifecycleStatus: dto.sourceLifecycleStatus,
+    ...(dto.sourceLifecycle?{sourceLifecycle:dto.sourceLifecycle}:{}),
     ...(dto.businessType ? {businessType:dto.businessType,ownerName:dto.ownerName??null} : {}),
     contractDate: dto.contractDate,
     contractDeliveryDate: dto.contractDeliveryDate,
@@ -149,6 +152,7 @@ export function adaptServerSalesOrderDetail(dto: ServerSalesOrderDetailDto): Ord
     brandName: dto.brandName,
     quantity: dto.quantity,
     sourceLifecycleStatus: dto.sourceLifecycleStatus,
+    ...(dto.sourceLifecycle?{sourceLifecycle:dto.sourceLifecycle}:{}),
     ...(dto.businessType ? {businessType:dto.businessType,ownerName:dto.ownerName??null} : {}),
     contractDate: dto.contractDate,
     contractDeliveryDate: dto.contractDeliveryDate,

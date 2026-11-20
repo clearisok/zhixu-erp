@@ -15,6 +15,9 @@ export async function attachOrderAlerts(items: SalesOrderReadModel[], identity: 
     while(index<candidates.length){const item=candidates[index++];const alerts: OrderAlert[]=item.alerts;
       const value=reader ? await reader(identity,{salesOrderId:item.id}) : null;
       if (!value || value.status!==200 || value.body.progress.sourceStatus!=="ready") {
+        // Deletion explains why this source no longer refreshes. Independent
+        // colour/unit alerts remain; ordinary stale orders keep their warning.
+        if(alerts.some(alert=>alert.code==='order_source_deleted'))continue;
         alerts.push({code:value?.status===200 && value.body.progress.sourceStatus==="stale" ? "material_source_stale" : "material_source_unavailable"}); continue;
       }
       const rows=value.body.progress.rows;
