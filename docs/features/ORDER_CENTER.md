@@ -1,3 +1,7 @@
+## 2026-11-20 当前交付：订单删除与自动同步已验收
+
+用户正式认可Staging订单删除和自动同步恢复；PR160已正常合并，main代码整合SHA 4e1f9a514c8ff6e9cf7289d724df33c32bc05368，实际Staging仍0752d64f309d68b6e52afbbd712d28e0d9db9c1e。删除合同仅凭完整成功目录双遍及历史身份/唯一BillNo证据进入source_deleted，保留业务历史，红色标签替代该来源过期而保留独立异常；重新完整出现才追加恢复事件。两真实合同无新自动任务、正常255合同两轮510/510成功，原142失败和未知保护保留。本轮无新业务规则或部署。[最终验收与保留限制](../tasks/completed/pr160-final-acceptance-2026-11-20.md)。下文各候选/未部署说明保持其原日期，不能覆盖本次最终状态。
+
 ## 2026-11-19 用户批准 v2：紧凑订单列表/详情（Staging待人工验收）
 
 订单中心只保留订单列表。此前三Tab及迁入二级菜单的建议已由用户明确废止：移除款式进度列表、风险预警专用根路由/页面和入口，不开发Server接入，不删除数据库历史/共享接口。保留其他页面依赖的StyleProgressDetailPage、LegacyStyleProgressDetailPage、OrderStyleProgressSummary、MaterialControlTower及/order-center/style-progress/detail，共享详情返回订单列表。下文旧三Tab说明仅为历史，不可据此恢复入口。
