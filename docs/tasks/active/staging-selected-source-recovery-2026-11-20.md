@@ -24,10 +24,14 @@ Staging实际app c3e4251fc9f9a7cc6a18aaa7c2dad8fcc192ea90 / sha256:c29fdf707c846
 
 新增require_reviewed_worker_backup，仅显式3–300字符reason、STOPPED_FAULT/RECOVERY_BLOCKED且原fault精确worker_stopped_requires_review、配置enabled、旧ownerPAUSED且当前无运行owner时允许准备。复用提取的原recovery_release_policy身份/文件pin/网络/镜像检查和既有只读--sync-health；必须DB/migration/全部running和unknown/lease正向通过、时钟新鲜。允许保留来源pause时取得备份，不清pause、不改变Gate、不自动启动，不接受未知故障/RECOVERY_FAILED。原Supervisor锁覆盖实际backup，原executor .backup.lock不绕过。
 
-备份cleanup原成功回执可能采到恢复后健康检查的短暂Docker exec；新Sampler仅在原commandsCertain/groupsExited/servicesResumed均为true时最多3次、间隔0.5秒重新正向核实每个精确服务Id/image及ExecIDs空。持久/不可访问exec、身份变化、超时或未知子进程仍false，不改旧回执。新增execObservationAttempts/observedAt，原完整快照SQL/450预算/文件哈希/前后比较不改。现阶段仅候选代码，真实runtime尚未换装。
+备份cleanup原成功回执可能采到恢复后健康检查的短暂Docker exec；新Sampler仅在原commandsCertain/groupsExited/servicesResumed均为true时最多3次、间隔0.5秒重新正向核实每个精确服务Id/image及ExecIDs空。持久/不可访问exec、身份变化、超时或未知子进程仍false，不改旧回执。新增execObservationAttempts/observedAt，原完整快照SQL/450预算/文件哈希/前后比较不改。0752d64f工程通过后已按正式安装适配器换装c3主机组件以取得切版前备份；app/Worker身份仍保持c3，来源pause不清除。
 
-Windows定向Supervisor19/19、paired8通过/1 POSIX跳过、Gate2/2；paired新测试首轮缺subprocess import导致2错误，修正测试import后通过，未放宽断言。Linux/实际Docker PostgreSQL恢复E2E、完整工程/CI与新候选部署待执行，不能提前PASS。
+Windows定向Supervisor19/19、paired8通过/1 POSIX跳过、Gate2/2；paired新测试首轮缺subprocess import导致2错误，修正测试import后通过，未放宽断言。精确0752d64f309d68b6e52afbbd712d28e0d9db9c1e已完成Linux30/30、真实Docker/PostgreSQL恢复E2E1/1（36.444s，实际采集函数/实际PG heartbeat），Release Guard对main636a通过；GitHub source/baseline/team-access全部success，根npm test1026/1026、baseline182/182、typecheck/lint/前后端build通过，不重复运行同SHA测试。Source CI：https://github.com/clearisok/zhixu-erp/actions/runs/44699634508/job/136164599518。
 
 ## 后续执行边界
 
 先真实隔离E2E/完整CI，通过后保存当前c3旧组件/策略/故障精确字节，用正式安装机制部署必要匹配资产；只通过正式Supervisor backup获取一次新受控配对备份，原失败包保留。若最终cleanup或任何Gate不通过即阻断。新鲜完整6086103双遍及相关报表合格后，生成正式sync-recovery-preview，确认jobs/captures未知集为空且reviewHash准确，通过sync-recover追加审计，不直接SQL。恢复前再次审查20队列/去重/租约/并发及两删除合同保全。Supervisor独占RECOVERING→真实新heartbeat→RUNNING，后续只观察自然cron/30分钟调度至少两轮，不手动tick伪造自然调度。
+
+## 2026-11-20继续执行检查点（真实恢复尚未完成）
+
+18:50北京时间核实同分支/0752完整HEAD/clean和三项CI成功。主机仍c3，142failed/20queued完整行hash与保存点相同，无running/unknown；五服务健康、原DB/objects CID及四卷未改变。64个私有回滚资产逐项SHA验证通过。18:51正式安装新Supervisor980fa09871aa54086ead56d37df8454d68a9797bfc073ce5e4ac5cd4842c361d与executor0e5c3f00667e5855e28a6e8850486a1491138f9525bbaefa5e12f3d78bdee9ba，保留原始字节/权限/配置，c3 source/image身份保持。正式backup-check=BACKUP_WORKER_QUIET。10:51:44Z启动正式Supervisor受控配对备份20261120T105144Z-a4de43bd（不是直接executor）；当前RUNNING，未宣称终态或cleanup通过，pause/version/heartbeat仍原值。
