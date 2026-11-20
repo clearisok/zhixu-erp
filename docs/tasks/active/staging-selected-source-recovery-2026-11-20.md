@@ -1,3 +1,5 @@
+> 2026-11-20最终状态：用户已正式验收订单删除及Staging自动同步；PR160已合并至main 4e1f9a514c8ff6e9cf7289d724df33c32bc05368，受审e833三CI全部success。实际Staging仍0752；本轮未重新部署/重启或修改业务数据。[最终验收与Git交付](../completed/pr160-final-acceptance-2026-11-20.md)。下文按原日期保留阶段限制、失败和证据，不代表当前仍未验收/未送达。
+
 # Staging selected_source_invalid恢复 — Issue161
 
 2026-11-20；用户附件41393477-cc82-4797-b097-6371667022da明确授权Staging排查、必要最小修复、正式恢复及至少两轮自然调度。PR160保持Draft/Open，禁止Production/合并/SQL清pause/改失败回执/人工heartbeat或last_run/补造任务/批量重试142失败。Refs [Issue161](https://github.com/clearisok/zhixu-erp/issues/161)。

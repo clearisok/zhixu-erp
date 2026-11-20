@@ -1,15 +1,13 @@
-# 当前：Issue161 Staging自动同步真实恢复，2/2自然验收完成
+# 当前：PR160已合并，订单删除与Staging同步恢复已验收
 
-2026-11-20；分支feat/ainuoke-source-deleted。main已核实636a5ad0d2d1acbe6b2705696e782dea12ee9f00；PR160 Draft/Open，未合并。用户明确授权Staging必要最小修复、备份、正式恢复及自然两轮；Production禁止。历史状态保留在tasks/completed/2026-11-20-before-selected-source-recovery。
+2026-11-20；代码整合main基线 **4e1f9a514c8ff6e9cf7289d724df33c32bc05368**（PR160 merge commit），受审分支HEAD e833b819f653f27b3448e447795864693a0a6568。用户在本会话明确认可订单删除及自动同步恢复，并授权Ready/正常合并、Issue159与Project收尾；Production及本轮重新部署/Worker重启/业务数据操作仍禁止。本次后续仅文档收尾；未来任务先fetch并核实实际origin/main，不把部署SHA当主线SHA。
 
-实际部署代码0752d64f309d68b6e52afbbd712d28e0d9db9c1e，五服务健康，0060/145表，原database/objects容器及四卷不变。Supervisor980fa098…/Worker image d3015e58…/executor0e5c3f00…/collector bf2ff18d…/37个policy pins实际匹配。c3预备份a4de43bd和0752新备份20261120T111255Z-b640f966均正式完成且原cleanup=true，后者56文件完整SHA/size验证。旧失败包/原故障字节保留。
+实际Staging仍为已验收代码 **0752d64f309d68b6e52afbbd712d28e0d9db9c1e**，未因Git合并重新部署。0060/145表，原database/objects容器及四卷保留。新备份20261120T111255Z-b640f966、原清理证明、九Gate全PASS，Supervisor自然启动唯一Worker并验证真实PG心跳。两轮255+255=510成功/0失败，每合同下一次计划为完成+1800秒；142原失败及所有暂停/恢复历史保留。两删除合同PI2611-142/143保持source_deleted/version1、无新自动任务，数量10000/8000及历史不变。以上是2026-11-20验收事实，本轮未新查业务数据库或更改运行环境。
 
-新鲜6086103完整双遍631行/13页及相关54报表全部业务验证通过；空unknown集合正式previewHash恢复控制version5→6、保留旧暂停事件，九项Gate全PASS。自然cron/Supervisor19:36:03启动唯一Worker，19:36:05真实PG心跳、19:37 RUNNING/heartbeat_verified。无手动Worker启动/补任务/改时间。
+用户已验收红色“订单删除”及其他订单不受影响。完整双遍、历史成功出现、账号/身份/报表/范围/分页和唯一BillNo关联仍为删除/恢复门槛；不物理删除、不改Price隔离/未知结果保护/30分钟策略。Issue159和161正式验收完成；GitHub实际Done/关闭结果见[最终收尾记录](tasks/completed/pr160-final-acceptance-2026-11-20.md)。用户验收不倒改此前助手Staging浏览器工具故障的历史记录。
 
-当前255高频合同：首轮19:36:05.599–19:52:09.288、第二轮20:06:39.721–20:23:21.144，北京时间，各255成功/0失败；510唯一任务/发布，每合同第二次计划精确前次完成+1800秒，实际start延后1.569–153.026秒正常节流。原142failed hash完整保留，旧20queued自然完成，最终queued/running/unknown0。两source_deleted订单version1/事件2/无新任务、数量历史不变；23手工报价表/630原订单/3用户角色完整hash保全。Worker和Scheduler继续RUNNING。
+e833最新三项CI全部真实SUCCESS：Source44741932214、Release baseline44741932219、First team access44741932341。0752已有root1026/1026、baseline182/182、目录106、生命周期PG10、Linux30、真实Docker/PG E2E1及typecheck/lint/前后端build，未重跑同SHA完整套件。旧dfcd Source cancelled保留历史，不能代替本轮success。纯文档收尾只新增适用的基线/链接检查，不改业务代码、UI、SQL、脚本或workflow。
 
-工程0752：root1026/1026、baseline182/182、Linux30/30、真实Docker/PostgreSQL恢复E2E1/1、typecheck/lint/前后端build及三项CI成功，同SHA不重复。后续仅四份证据文档。远端最新dfcd文档HEAD baseline/team通过，Source CI约25分钟后cancelled（疑预算、非已证明断言失败），不写PASS；实际0752完整CI绑定独立保留。
+Git当前已证明星辰VPN7888可用，旧GitHub专用代理17989无监听；正式脚本一次push把e833精确送达。仅子进程覆盖代理，不改全局/共享Git配置、认证或TLS。长期仓库级方案与回退边界见最终收尾记录，尚未执行持久修改。
 
-Git：0752/c915/dfcd已精确送达；0c5/b1a及最终证据本地checkpoint，git-delivery DryRun uncertain_transport/pushes0，NETWORK_DEGRADED，禁止继续重复push同通道。PR正文/Issue可通过原GitHub插件记录事实，但不冒称未交付源码已在远端。恢复通道后用正式单条精确HEAD命令送达并补齐相应CI。
-
-[完整恢复证据与限制](tasks/active/staging-selected-source-recovery-2026-11-20.md)。旧失败原raw缺失，具体坏行/字段无法还原；未猜测修改来源比较器或关闭保护。下一步等待用户验收；不合并、不进一步改动Staging或Production。
+保留限制：旧selected_source_invalid原始坏行raw缺失，无法还原具体字段；两轮验收不是永久无故障承诺。备份资产、旧失败、私密配置及证据仍在原受控位置，不上传秘密/原业务导出。[恢复证据](tasks/active/staging-selected-source-recovery-2026-11-20.md)、[删除生命周期证据](tasks/active/ainuoke-source-deleted-2026-11-20.md)、[上阶段摘要原件](tasks/completed/2026-11-20-pr160-before-final-acceptance/CURRENT_STATE.md)。本轮无新功能，下一步以最新origin/main为稳定开发基线。
