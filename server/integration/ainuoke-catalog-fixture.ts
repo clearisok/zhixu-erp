@@ -33,10 +33,17 @@ export async function startCatalogFixture(staticDirectory=resolve('dist/client')
   const actor=await loadExistingBootstrapActor(pool,admin),sourceKey=selectedConfig.sourceKey;
   await executeTeamCommand(pool,actor,{action:'create',requestId:randomUUID(),account:reader,name:'合成只读用户',password,roleIds:['role-team-material-manager']});
   await options.beforeBind?.(pool);
-  const selected=await validateSelectedSourceOnce(workerFixture('selected-bindings','',contracts),selectedConfig,{mode:'selected-bindings',contracts});
+  // Initial binding deliberately remains the approved exact two-contract scope.
+  // Larger synthetic demos use the normal full-catalogue intake for extra SOs.
+  const selection=contracts.slice(0,2);
+  const selected=await validateSelectedSourceOnce(workerFixture('selected-bindings','',selection),selectedConfig,{mode:'selected-bindings',contracts:selection});
   if(selected.result!=='complete'||selected.mode!=='selected-bindings')throw Error('synthetic binding invalid');
-  const bound=await bindOrders(pool,actor,{sourceKey,accountFingerprint:accountFingerprint(selectedConfig),selected:contracts,expectedPreview:selected.preview.reviewHash,collect:async()=>selected.bundle});
-  await captureCatalogOnce(pool,actor,selectedConfig,randomUUID(),async()=>workerFixture('catalog-discovery','',[]));
+  const bound=await bindOrders(pool,actor,{sourceKey,accountFingerprint:accountFingerprint(selectedConfig),selected:selection,expectedPreview:selected.preview.reviewHash,collect:async()=>selected.bundle});
+  await captureCatalogOnce(pool,actor,selectedConfig,randomUUID(),async()=>workerFixture('catalog-discovery','',[]),undefined,contracts.length>2);
+  if(contracts.length>2){
+   const links=(await pool.query("SELECT sales_contract_no,sales_order_id FROM sales_order_source_links WHERE source_system='ainuoke' AND source_entity_type='sales_contract' AND sales_contract_no=ANY($1::text[])",[contracts])).rows;
+   bound.orderIds=contracts.map(contract=>{const link=links.find(l=>l.sales_contract_no===contract);if(!link)throw Error('synthetic intake failed');return link.sales_order_id as string;});
+  }
   await configureSync(pool,actor,{sourceKey,enabled:true,expectedVersion:0,policy:{...DEFAULT_SYNC_POLICY}});
   await enqueueAutomaticSync(pool,actor,sourceKey);
   let captures=0,failNext=false;

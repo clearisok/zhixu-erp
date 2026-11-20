@@ -7,3 +7,5 @@
 隔离PG状态/升级10/10；typecheck、lint、完整目录/根测试/build与真实浏览器仍以任务后续收口为准，不能提前写PASS。产品代码进展见[当前任务](tasks/active/ainuoke-source-deleted-2026-11-20.md)。真实两单只读取证visible=false、draft、数量10000/8000、同账号13/13目录，无真实转换。
 
 Windowsfetch代理失败进入NETWORK_DEGRADED，API精确main与本地对象已核实，可做独立本地阶段。远端代码交付待单独核实，不重复同失败通道push，不伪称PR已创建。旧历史状态[归档](tasks/completed/2026-11-20-before-source-deleted/CURRENT_STATE.md)。
+
+检查点二：106/106目录/Price回归、旧alerts1/1、Source20/1skip、前后端build、实际Chromium1/1四桌面/两角色/刷新/颜色尺寸列宽通过。演示只用合成SDK+PG，未写真实状态。演示夹具的2单绑定/row_scope/可见DOM/清理问题均修正，原安全边界不放宽。新UI测试与夹具收口本checkpoint；Root首轮冻结未对齐和Linux依赖挂载失败均保留，重跑仍待结果。宁波通道恢复连通但尚未push，勿提前宣称PR送达。

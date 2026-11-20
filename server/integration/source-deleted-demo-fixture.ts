@@ -12,14 +12,13 @@ const contracts=['PI2611-142','PI2611-143','SYN-SALES-3','SYN-SALES-4'];
 const rename=`if report == 6086103:
         mutate_rows(payload, lambda rows: [row.update(BillNo={'1':'PI2611-142','2':'PI2611-143'}.get(row['id'],row['BillNo']), Num={'1':10000,'2':8000}.get(row['id'],100), GoodsDesc={'1':'1320/226','2':'1396/332'}.get(row['id'],row['GoodsDesc']), ContractDate='2026-11-18' if row['id'] in ['1','2'] else '2026-10-01') for row in rows])
     elif report == 6087105:
-        mutate_rows(payload, lambda rows: [row.update(BillNo={'SYN-SALES-142':'PI2611-142','SYN-SALES-143':'PI2611-143'}.get(row['BillNo'],row['BillNo'])) for row in rows])
+        mutate_rows(payload, lambda rows: [row.update(BillNo={'SYN-SALES-1':'PI2611-142','SYN-SALES-2':'PI2611-143','SYN-SALES-142':'PI2611-142','SYN-SALES-143':'PI2611-143'}.get(row['BillNo'],row['BillNo'])) for row in rows])
     elif report == 6087050:
-        mutate_rows(payload, lambda rows: [row.update(ExpContractNo={'SYN-SALES-142':'PI2611-142','SYN-SALES-143':'PI2611-143'}.get(row['ExpContractNo'],row['ExpContractNo'])) for row in rows])`;
+        mutate_rows(payload, lambda rows: [row.update(ExpContractNo={'SYN-SALES-1':'PI2611-142','SYN-SALES-2':'PI2611-143','SYN-SALES-142':'PI2611-142','SYN-SALES-143':'PI2611-143'}.get(row['ExpContractNo'],row['ExpContractNo'])) for row in rows])`;
 const remove=`if report == 6086103:
         mutate_rows(payload, lambda rows: rows.__setitem__(slice(None), [r for r in rows if r['id'] not in ['1','2']]))
         payload['dataCount']=2`;
-const fixture:typeof selectedWorkerFixture=(mode,mutation='',selected=contracts,_total=4,materialReport,recapturePages)=>
- selectedWorkerFixture(mode,rename+(mutation?'\n    '+mutation:''),selected,4,materialReport,recapturePages);
+const fixture:typeof selectedWorkerFixture=(mode,mutation='',selected=contracts,_total=4,materialReport,recapturePages)=>{void _total;return selectedWorkerFixture(mode,rename+(mutation?'\n    '+mutation:''),selected,4,materialReport,recapturePages);};
 
 export async function startSourceDeletedDemo(){
  const f=await startCatalogFixture(resolve('dist/client'),{contracts,workerFixture:fixture,
