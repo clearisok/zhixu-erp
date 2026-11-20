@@ -57,3 +57,26 @@ Windows定向Supervisor19/19、paired8通过/1 POSIX跳过、Gate2/2；paired新
 第一轮255个真实高频合同任务11:36:05.599Z开始至11:52:09.288Z结束，255complete/0failed/0unknown，255独立observation回执，排队和running均清空。首例PI2604-065/job18d42164-bb6b-4e1b-8ef0-ac31010b28a8，完成11:36:23.038Z，observation bb314aeb-c349-489f-8e89-4394d071bd58；第二轮应由现有策略在各自完成+1800秒自然入队，不人工触发。只读完整清单保存在主机first-natural-round.private.json，公开摘要first-natural-round-summary.json。两删除合同仍无新任务/版本1/事件2，历史142失败完整行SHA4c2c0ae4a25d10296e2be631008f250c144e65c3de3a715f35bcc2b6bbb9b401。
 
 REMOTE DELIVERY区分：0752代码、c915和dfcd部署文档已DELIVERED_VERIFIED；0c5db44e真实心跳文档提交的正式git-delivery DryRun发生Git/API uncertain_transport，pushes0，进入NETWORK_DEGRADED。该本地检查点未推送，不重复撞失败Git通道，不影响已核实0752实际代码部署和继续自然验收。后续仅本地checkpoint并提供一条正式恢复命令；PR不冒称未交付文档已在远端。
+
+## 最终真实验收：两轮自然调度2/2（2026-11-20）
+
+| 周期（北京时间） | 开始 | 完成 | 合同/成功/失败/未知/缺发布 |
+|---|---|---|---|
+| 第一轮自然到期补齐 | 19:36:05.599 | 19:52:09.288 | 255/255/0/0/0 |
+| 第二轮自然1800秒 | 20:06:39.721 | 20:23:21.144 | 255/255/0/0/0 |
+
+严格逐单验证255合同/510唯一任务/510唯一observation/510唯一source+scheduled_slot；全部automatic、attempt1、retry_of空，第二轮每个scheduled_slot精确等于首轮finished_at+1800秒，无提前执行。实际第二轮start延后1.569–153.026秒，来自正常minute/batch/并发节流，不伪称所有启动正好间隔1800秒。原20排队任务使用原ID自然完成，没有补造/批量重试142失败。完整逐单CSV SHA256 aa1b60fe57456daeb983aebdf3752ed28eed99b7b839bd7a56e2de930860feb5；主机two-natural-cycles-contracts.csv和本机脱敏artifact同字节核实。
+
+同合同示例PI2604-065：第一任务18d42164-bb6b-4e1b-8ef0-ac31010b28a8，19:36:05.599–19:36:23.038，observation bb314aeb-c349-489f-8e89-4394d071bd58；第二任务f8f26e87-69b6-46f9-90e8-00338ebf797f，计划20:06:23.038、实际20:06:39.721–20:06:53.390，observation8294df1e-0128-4834-b54d-248311cfdd03。两个周期均实际SDK读取/数据库发布，不是手动tick或mock。自然目录run7b792c97-63e2-40f5-ad41-83dbc3db9602在20:03:38成功/错误空/哈希与恢复时一致，下一次20:33:38。
+
+九Gate均PASS：admin_not_paused、backup_process_exited、backup_children_exited、docker_exec_quiescent、backup_lock_released、database_healthy、migrations_current、no_unknown_result、worker_exclusivity_verified。正常状态机RECOVERING→RUNNING/heartbeat_verified，实际Worker90af9157/image d3015e58未重启，Supervisor/Worker/Scheduler均RUNNING。心跳持续至20:26:01.253（后续正式Worker继续更新）。两轮结束新增510complete，总complete46343，原failed142完整hash保留；queued/running/unknown均0，无重复inflight/publication。两删除合同source_deleted/version1/事件2，恢复后新任务0，原数量10000/8000保留。
+
+20:26最终核实：37个policy pins、sourceKey/target/sourceSha/collector/镜像/执行器身份匹配，五服务healthy，原database/objects CID/镜像/挂载、四卷完整inspect相同，无数据库公网映射，原B4故障及20261116失败回执原字节hash不变。23手工/报价表、3用户及角色、630原订单再次完整hash不变；26生产/到货表当前实际0行，与新备份hash一致，不把空表描述为非空历史验收。保留全部原始失败、暂停、恢复事件和两个新备份。20:29仅终止本任务自有只读观察器（精确PID/argv/uid核实），未给Worker或Supervisor发信号，唯一正式Worker继续运行。
+
+### Git、CI及剩余限制
+
+实际部署0752d64f309d68b6e52afbbd712d28e0d9db9c1e全部工程/Actions通过，后续四份文档外无代码增量。远端PR160仍Draft/Open/head dfcd8a174500f60e8f4dbeda9ee21e03b78e5ecf，main636a未合并。dfcd baseline/team-access成功，但Source run44726108836在11:40:59Z取消；首日志11:15:47Z、workflow上限25分钟，推测触及预算，取消原因未独立证明，未观察断言失败，不记PASS。未无意义重跑0752已通过测试，也未扩大CI/UI开发。以后审PR前需补齐最新交付SHA的必要CI。
+
+Git交付仍NETWORK_DEGRADED：0c5/b1a及后续最终证据提交仅本地，正式DryRun未push；没有反复推送或改认证/代理/TLS。提供一条绑定最终完整HEAD的正式交付命令供通道恢复后使用；远端文档未送达不冒称REMOTE PASS。实际0752 Staging验收成功与文档远端交付分别报告。PR160不合并，Issue161保持Open/等待用户验收，Production未操作。
+
+历史selected_source_invalid的具体坏行/字段仍因原raw缺失无法还原；当前同账号/报表全部新鲜完整证据合格，并不等于证明旧错误由某新增行或Price造成。本次未猜测修改来源比对器、身份或Price保护。若未来再出现未知身份/分页/认证/结构异常，严格保护仍会阻断；本轮两次自然周期正常不构成永久无故障保证。
