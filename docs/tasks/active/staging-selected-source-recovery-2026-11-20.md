@@ -1,0 +1,33 @@
+# Staging selected_source_invalid恢复 — Issue161
+
+2026-11-20；用户附件41393477-cc82-4797-b097-6371667022da明确授权Staging排查、必要最小修复、正式恢复及至少两轮自然调度。PR160保持Draft/Open，禁止Production/合并/SQL清pause/改失败回执/人工heartbeat或last_run/补造任务/批量重试142失败。Refs [Issue161](https://github.com/clearisok/zhixu-erp/issues/161)。
+
+## 基线和只读事实
+
+起点feat/ainuoke-source-deleted /7f0d85d034bdefdef634096f3179f60c32025dcf、clean。API再次核实main636a5ad0d2d1acbe6b2705696e782dea12ee9f00，PR160 head7f0d/Draft/Open。为保留已部署c3及未合并0060删除生命周期，此为现有PR候选的必要运维修正，不从main回退覆盖该功能。此前状态完整保存在completed/2026-11-20-before-selected-source-recovery，原任务部署证据不覆盖。
+
+Staging实际app c3e4251fc9f9a7cc6a18aaa7c2dad8fcc192ea90 / sha256:c29fdf707c846e5939233e01469831c93c73d851fcd883c4eca001d199555c10；operator sha256:6169a45962afd82cb27ec591f507af3c4e8241754af271a8fc3337be973557b2，Worker0。Supervisor a0109d4fd68b8ff3fe5556f8e3e1b61312396cc9d3eadc8e861a0e6587441676，gate d06cef2b1988a22554dc4be356fd6f9dc99c2a1d4d7e309a88ab207749eba22e，executor62fb2e7876913158a93b4b7fb178d3d1cc229d71e98d698b4a198cb954a1509e，collectorbf2ff18da1a68fface7e676804c66b24ef2683b5ef94b257d43ecd7264d73d34，policy11b33712d7ae7028e8feccf71480405fbf690cf294b63b364cd21ca358d9444d。运行配置/identity/policy pins和完整镜像revision实际匹配；sourceKey local-empty，account82ef1be86b5f4969a156aeb3e9a7df540a26bbe684c838d8085e90b1ae99f983，targetf3fe09ceadd17c8e74757eff75a3e2a9452c00ef0786dec7364c82d1ba13a7c9。
+
+控制enabled=true/version5/selected_source_invalid，heartbeat2026-11-20T02:49:40.874Z；45833complete/142failed/20queued/0running/unknown。20排队逐项已读：均automatic、attempt1、retry_of空、present/visible，各合同唯一，未改任何状态。五服务健康，原DB/objects及四卷。当前policy450秒/145表。正式--sync-health实际DB健康、完整迁移checksum到0060、noUnknown=true、hasUnknown=false、workerLeaseHeld=false、adminNotPaused=false；不写心跳或来源请求。
+
+## 暂停事件与证据限制
+
+批次/attempt779c8bf5-ff8f-4713-aea5-40abbcc9fb87，2026-11-20T02:49:25.609Z开始、02:49:39.779Z失败；paused事件ea39feae-d250-4614-ad18-ef7333913866实际02:49:39.794Z（北京时间10:49:39）。五合同PI2610-127、PI2607-204、PI2610-062、PI2609-071、PI2608-245；failJob以pauseCapture=!retry写全局暂停，runAutomaticSync随后因暂停退出。旧运行image60a4bf1d180b113d28fc5761a2f45aa67743ca088f937213084ee35242948bd9，revision636a，不是本次c3上线后新故障。
+
+完整请求诊断均HTTP200/isOk=true，无认证/超时；两遍6086103均13页，末页29/30行，即629/630行，期间读取五合同6087105、6087051及6086405/6086408/6086875/6086354。metrics=null，无原始失败bundle/capture，错误只有selected_source_invalid；不能还原具体重复/缺失行、id/BillNo/Price或字段值，不能据629→630直接认定新增是唯一根因。源码包括协议/对象/分组检查和对非SourceError的泛化；目录adapter的身份/分页Error也会被折叠为此码。HTTP成功不代表整个一致性验证成功。该历史信息缺失明确保留，不伪称根因已精确到某合同。
+
+2026-11-20T07:49:56.369Z–07:50:11.030Z，使用实际c3 immutable operator、实际私密collector和同source/account，在同项目owned ingress网执行正式createSessionCollector+validateCatalogDiagnostic同五合同定向只读采集。54报表/1login/无重试/无续期，各相关报表全部验证通过，businessWrites0。raw只存主机private current-five-contracts.private.json/600，不进Git、不输出凭据或原业务行。当前触发条件未复现，但不将新证据冒充旧失败原文。
+
+## 已证实恢复路径缺口与最小修正v1
+
+原Supervisor=RECOVERY_BLOCKED/originalFault=worker_stopped_requires_review，tick evidenceError=backup_terminal_receipt_missing。旧fc875b32备份绑定636a且原cleanup=false不改。正式backup-check（显式review reason）被拒绝：原CLI只允许已知backup fault在暂停状态补取备份，没有当前已停worker故障的受控路径。
+
+新增require_reviewed_worker_backup，仅显式3–300字符reason、STOPPED_FAULT/RECOVERY_BLOCKED且原fault精确worker_stopped_requires_review、配置enabled、旧ownerPAUSED且当前无运行owner时允许准备。复用提取的原recovery_release_policy身份/文件pin/网络/镜像检查和既有只读--sync-health；必须DB/migration/全部running和unknown/lease正向通过、时钟新鲜。允许保留来源pause时取得备份，不清pause、不改变Gate、不自动启动，不接受未知故障/RECOVERY_FAILED。原Supervisor锁覆盖实际backup，原executor .backup.lock不绕过。
+
+备份cleanup原成功回执可能采到恢复后健康检查的短暂Docker exec；新Sampler仅在原commandsCertain/groupsExited/servicesResumed均为true时最多3次、间隔0.5秒重新正向核实每个精确服务Id/image及ExecIDs空。持久/不可访问exec、身份变化、超时或未知子进程仍false，不改旧回执。新增execObservationAttempts/observedAt，原完整快照SQL/450预算/文件哈希/前后比较不改。现阶段仅候选代码，真实runtime尚未换装。
+
+Windows定向Supervisor19/19、paired8通过/1 POSIX跳过、Gate2/2；paired新测试首轮缺subprocess import导致2错误，修正测试import后通过，未放宽断言。Linux/实际Docker PostgreSQL恢复E2E、完整工程/CI与新候选部署待执行，不能提前PASS。
+
+## 后续执行边界
+
+先真实隔离E2E/完整CI，通过后保存当前c3旧组件/策略/故障精确字节，用正式安装机制部署必要匹配资产；只通过正式Supervisor backup获取一次新受控配对备份，原失败包保留。若最终cleanup或任何Gate不通过即阻断。新鲜完整6086103双遍及相关报表合格后，生成正式sync-recovery-preview，确认jobs/captures未知集为空且reviewHash准确，通过sync-recover追加审计，不直接SQL。恢复前再次审查20队列/去重/租约/并发及两删除合同保全。Supervisor独占RECOVERING→真实新heartbeat→RUNNING，后续只观察自然cron/30分钟调度至少两轮，不手动tick伪造自然调度。

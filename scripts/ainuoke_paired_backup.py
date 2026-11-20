@@ -32,18 +32,30 @@ def cleanup_evidence(services, events, services_resumed):
                        (e.get('pid') is None or process_group_exited(e['pid'])) for e in events)
     commands_certain = all(not e.get('timedOut') and e.get('errorCode') not in
                            ('command_killed', 'cleanup_failed') for e in events)
-    execs_clear = bool(services)
-    try:
-        for service in services.values():
-            actual = json.loads(subprocess.run(['docker', 'inspect', service['id']],
-                capture_output=True, text=True, timeout=20, check=True).stdout)[0]
-            if actual.get('Id') != service['id'] or actual.get('Image') != service['image']:
-                execs_clear = False
-            execs_clear = execs_clear and docker_exec_quiescent(service['id'], docker='docker')
-    except (OSError, ValueError, KeyError, IndexError, subprocess.SubprocessError):
-        execs_clear = False
+    execs_clear = False
+    attempts = 0
+    # A Docker HEALTHCHECK may briefly own an exec after service restoration.
+    # Resample positive absence within a fixed bound; never accept an ongoing
+    # or inaccessible exec, change a prior receipt, or forgive a timed-out child.
+    maximum_attempts = 3 if groups_clear and commands_certain and services_resumed is True else 1
+    for attempt in range(maximum_attempts):
+        attempts += 1
+        execs_clear = bool(services)
+        try:
+            for service in services.values():
+                actual = json.loads(subprocess.run(['docker', 'inspect', service['id']],
+                    capture_output=True, text=True, timeout=20, check=True).stdout)[0]
+                if actual.get('Id') != service['id'] or actual.get('Image') != service['image']:
+                    execs_clear = False
+                execs_clear = docker_exec_quiescent(service['id'], docker='docker') is True and execs_clear
+        except (OSError, ValueError, KeyError, IndexError, subprocess.SubprocessError):
+            execs_clear = False
+        if execs_clear or attempt + 1 == maximum_attempts:
+            break
+        time.sleep(0.5)
     return {'schemaVersion': 'weaveops-backup-cleanup.v1', 'commandGroupsExited': groups_clear,
             'commandsCertain': commands_certain, 'dockerExecQuiescent': execs_clear,
+            'execObservationAttempts': attempts, 'observedAt': dt.datetime.now(dt.timezone.utc).isoformat(),
             'verified': groups_clear and commands_certain and execs_clear and services_resumed is True}
 
 

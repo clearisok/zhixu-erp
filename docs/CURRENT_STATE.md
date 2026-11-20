@@ -1,15 +1,9 @@
-# 当前：Issue159候选已部署Staging，等待人工验收
+# 当前：Issue161 Staging来源暂停恢复，工程候选待Linux验收
 
-2026-11-20；branch feat/ainuoke-source-deleted；main基线636a5ad0d2d1acbe6b2705696e782dea12ee9f00；实际部署c3e4251fc9f9a7cc6a18aaa7c2dad8fcc192ea90。Draft PR160保持Open/未合并。用户已授权Staging部署，未授权合并/Production。
+2026-11-20；feat/ainuoke-source-deleted；起点7f0d85d034bdefdef634096f3179f60c32025dcf clean，main API核实636a5ad0d2d1acbe6b2705696e782dea12ee9f00。用户附件明确授权本次Staging最小修复/正式恢复/自然两轮；PR160保持Draft，不合并、不操作Production。旧状态归档completed/2026-11-20-before-selected-source-recovery。
 
-[Staging订单中心](https://staging.weaveops.top/order-center)：真实完整双遍6086103（631行/13页）于14:47:30北京时间正式确认PI2611-142/SO629、PI2611-143/SO630删除；run7f8575ba-9a66-45e2-9ecd-7fbdee09ded8，两个不可变source_deleted事件/version1，真实服务器列表模型返回order_source_deleted。订单数量10000/8000及历史保留，createdOrders0；非合成展示、非SQL伪造。
+真实Staging仍c3，五服务健康、0060/四卷及两source_deleted样本保留；enabled/version5、selected_source_invalid、Worker0、45833complete/142failed/20queued/0running/unknown、原heartbeat02:49:40.874Z。真实暂停batch779c8bf5-ff8f-4713-aea5-40abbcc9fb87，02:49:39.794Z；请求均HTTP200/isOk=true、目录629/630行，原失败raw未保存，具体坏行/字段不能还原。当前同五合同正式SDK54报表+1login、全部相关报表只读验证通过，无业务写入。
 
-正式机制仅重建app/gateway/objects-tls，五服务健康；原database/objects容器、四卷、旧镜像及64项回滚资产保留。0060/145表完成；新app c29fdf70…、Worker镜像6169a459…（未运行）、Supervisor a0109d4f…、executor62fb2e78…与source/target/collector/policy身份匹配，监管cron已安装。21生产表及两订单历史hash、23手工/报价表、3用户角色、630原订单身份、142失败及20待处理回执均保全。
+正式Gate无匹配c3备份终态；原fault=worker_stopped_requires_review，backup-check只支持backup fault而拒绝，已定位代码缺口。最小候选补受审停机备份前置：复用原identity/DB/migration/unknown/lease/单owner验证，只取新备份，不清pause或启动。cleanup最多3次正向采样以处理短暂healthcheck exec，持续/未知exec及超时子进程仍阻断，不改旧回执。Windows19+8+2通过/1POSIX跳过；Linux真实E2E/完整工程/CI尚待完成，未换真实runtime或解除暂停。
 
-必要部署修正：完整只读快照实测313.626秒，policy可选预算默认300、严格整数300–600，本Staging450；SQL/哈希/门禁不变。两次300秒失败保留；旧636a预备份061636Z-fc875b32 BACKUP_VERIFIED/独立完整哈希通过，但原cleanup=false保留，后续真实独立清理复核只用于应用部署，未替换Worker门禁证据。未执行新c3完整配对备份。
-
-已有selected_source_invalid暂停保持，control version5、heartbeat02:49:40.874Z、Worker0、142failed/20queued/0running/0unknown。未恢复30分钟自动同步。只读recovery-check缺匹配终态证据，collectionError=backup_terminal_receipt_missing，安全拒绝；不能将缺省false解释为真实DB不健康。后续恢复需调查原来源暂停并按正式状态转换、新版本真实备份/清理证据、Recovery Gate及真实heartbeat处理，不SQL清除/手动补任务。
-
-精确c3三CI全部SUCCESS；root1026/182基线/目录106/PG生命周期10、四桌面两角色Chromium、quality/build通过；Linux备份/监管器/Gate25/25、SDK211/211及显式guard通过。实际Staging公共TLS/版本/CSS和正式服务读取模型已验证；内置浏览器kernel assets路径错误，真实登录页面像素验收未完成，等待用户查看。后续只提交证据文档，不把c3的CI冒称新文档HEAD或重新部署。
-
-[完整阶段证据](tasks/active/ainuoke-source-deleted-2026-11-20.md)。本机脱敏证据：visualizations/2026/11/18/01a1ec55-eaa3-75f0-a103-83b015d43fb4/source-deleted-staging-20261120/REPORT.md。下一步仅用户人工验收；不得自动合并、恢复Worker或再次采集。
+[当前任务](tasks/active/staging-selected-source-recovery-2026-11-20.md)；[订单删除及c3部署历史](tasks/active/ainuoke-source-deleted-2026-11-20.md)。下一步隔离Linux/Docker PostgreSQL恢复、工程和正式版本绑定；随后按runbook新备份/完整目录/admin reviewHash/Gate/Supervisor新心跳，两轮自然调度。所有必要安全条件不足继续阻断；不能直接SQL清pause或补任务。

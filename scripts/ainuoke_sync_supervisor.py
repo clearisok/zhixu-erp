@@ -260,35 +260,71 @@ def read_recovery_health(cfg):
                 command([DOCKER, 'rm', '--force', name])
 
 
+def recovery_release_policy(cfg):
+    """Existing identity checks shared by recovery and reviewed backup preparation."""
+    identity = private_json(cfg['identityFile'])
+    keys = ['sourceSha', 'image', 'sourceKey', 'expectedTarget', 'backupExecutorSha256']
+    if any(not cfg.get(k) or identity.get(k) != cfg[k] for k in keys):
+        raise RuntimeError('release_identity_changed')
+    if (file_hash(cfg['backupCommand'][1]) != cfg['backupExecutorSha256']
+            or cfg['backupCommand'][2:] != ['backup', cfg['backupPolicyFile']]):
+        raise RuntimeError('backup_executor_identity_changed')
+    private_path(cfg['collectorFile'])
+    private_path(cfg['environmentFile'])
+    policy = private_json(cfg['backupPolicyFile'])
+    if (policy.get('source') != cfg['sourceSha'] or policy.get('project') != cfg['project']
+            or policy.get('files', {}).get(cfg['backupCommand'][1]) != cfg['backupExecutorSha256']
+            or Path(cfg['backupStatusFile']).resolve() == (Path(cfg['stateRoot']) / 'status.json').resolve()
+            or Path(cfg['backupStatusFile']).resolve() != (Path(policy['backupRoot']) / 'status.json').resolve()):
+        raise RuntimeError('backup_policy_identity_changed')
+    network = json.loads(command([DOCKER, 'network', 'inspect', cfg['network']]))[0]
+    if (network.get('Name') != cfg['project'] + '_default' or network.get('Internal') is not True
+            or network.get('Labels', {}).get('com.docker.compose.project') != cfg['project']):
+        raise RuntimeError('recovery_network_identity_changed')
+    image = json.loads(command([DOCKER, 'image', 'inspect', cfg['image']]))[0]
+    if (image.get('Id') != cfg['image'] or image.get('Config', {}).get('Labels', {}).get(
+            'org.opencontainers.image.revision') != cfg['sourceSha']):
+        raise RuntimeError('worker_image_identity_changed')
+    return policy
+
+
+def require_reviewed_worker_backup(cfg, state, worker, reason):
+    """Prepare evidence only; never clear an administrator/source pause or start IO."""
+    if (not isinstance(reason, str) or not 3 <= len(reason.strip()) <= 300
+            or state.get('state') not in ('STOPPED_FAULT', 'RECOVERY_BLOCKED')
+            or state.get('originalFault', state.get('code')) != 'worker_stopped_requires_review'
+            or cfg.get('enabled') is not True or worker and worker['State']['Running']):
+        raise RuntimeError('backup_worker_not_quiet')
+    recovery_release_policy(cfg)
+    if private_json(cfg['oldStatusFile']).get('state') != 'PAUSED':
+        raise RuntimeError('old_worker_not_paused')
+    peers = command([DOCKER, 'ps', '--filter', 'label=io.weaveops.source-key=' + cfg['sourceKey'],
+                     '--format', '{{.ID}}']).splitlines()
+    if peers:
+        raise RuntimeError('worker_identity_unknown')
+    began = datetime.now(timezone.utc)
+    health = read_recovery_health(cfg)
+    checked = datetime.fromisoformat(health['checkedAt'].replace('Z', '+00:00'))
+    db_checked = datetime.fromisoformat(health['databaseCheckedAt'].replace('Z', '+00:00'))
+    if (checked.tzinfo is None or db_checked.tzinfo is None
+            or not began - timedelta(seconds=5) <= checked <= datetime.now(timezone.utc) + timedelta(seconds=5)
+            or abs((checked - db_checked).total_seconds()) > 30):
+        raise RuntimeError('recovery_health_stale')
+    if (health.get('databaseHealthy') is not True or health.get('migrationsCurrent') is not True
+            or health.get('noUnknownResult') is not True or health.get('hasUnknownResult') is not False
+            or health.get('workerLeaseHeld') is not False):
+        raise RuntimeError('backup_recovery_preconditions_failed')
+    # A source pause is deliberately permitted for taking its backup, NOT for
+    # restarting its worker. recovery_evidence still requires adminNotPaused.
+
+
 def recovery_evidence(cfg, state, worker):
     """Collect fresh, identity-bound facts. Every error returns explicit denial."""
     began = datetime.now(timezone.utc)
     evidence = {key: False for key in recovery_gate_result({})['checks']}
     evidence.update({'observedAt': began.isoformat(), 'collectionError': None})
     try:
-        identity = private_json(cfg['identityFile'])
-        keys = ['sourceSha', 'image', 'sourceKey', 'expectedTarget', 'backupExecutorSha256']
-        if any(not cfg.get(k) or identity.get(k) != cfg[k] for k in keys):
-            raise RuntimeError('release_identity_changed')
-        if (file_hash(cfg['backupCommand'][1]) != cfg['backupExecutorSha256']
-                or cfg['backupCommand'][2:] != ['backup', cfg['backupPolicyFile']]):
-            raise RuntimeError('backup_executor_identity_changed')
-        private_path(cfg['collectorFile'])
-        private_path(cfg['environmentFile'])
-        policy = private_json(cfg['backupPolicyFile'])
-        if (policy.get('source') != cfg['sourceSha'] or policy.get('project') != cfg['project']
-                or policy.get('files', {}).get(cfg['backupCommand'][1]) != cfg['backupExecutorSha256']
-                or Path(cfg['backupStatusFile']).resolve() == (Path(cfg['stateRoot']) / 'status.json').resolve()
-                or Path(cfg['backupStatusFile']).resolve() != (Path(policy['backupRoot']) / 'status.json').resolve()):
-            raise RuntimeError('backup_policy_identity_changed')
-        network = json.loads(command([DOCKER, 'network', 'inspect', cfg['network']]))[0]
-        if (network.get('Name') != cfg['project'] + '_default' or network.get('Internal') is not True
-                or network.get('Labels', {}).get('com.docker.compose.project') != cfg['project']):
-            raise RuntimeError('recovery_network_identity_changed')
-        image = json.loads(command([DOCKER, 'image', 'inspect', cfg['image']]))[0]
-        if (image.get('Id') != cfg['image'] or image.get('Config', {}).get('Labels', {}).get(
-                'org.opencontainers.image.revision') != cfg['sourceSha']):
-            raise RuntimeError('worker_image_identity_changed')
+        policy = recovery_release_policy(cfg)
         receipt = private_json(cfg['backupStatusFile'])
         if (receipt.get('source') != cfg['sourceSha'] or receipt.get('project') != cfg['project']
                 or receipt.get('state') not in ('FAILED', 'BACKUP_VERIFIED')):
@@ -520,8 +556,10 @@ def main():
             reviewed_backup_fault = (args.reason and len(args.reason.strip()) >= 3
                 and (state.get('code') == 'backup_failed_requires_review'
                      or state.get('originalFault') == 'backup_failed_requires_review'))
-            if worker and worker['State']['Running'] or (state.get('state') not in ('DISABLED', 'BACKUP_QUIET') and not reviewed_backup_fault):
+            if worker and worker['State']['Running']:
                 raise RuntimeError('backup_worker_not_quiet')
+            if state.get('state') not in ('DISABLED', 'BACKUP_QUIET') and not reviewed_backup_fault:
+                require_reviewed_worker_backup(cfg, state, worker, args.reason)
             if args.action == 'backup':
                 # The minute tick and explicit operation use the same guarded
                 # backup path while holding this exact supervisor lock.

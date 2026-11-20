@@ -1,6 +1,7 @@
 import importlib.util
 import json
 import os
+import subprocess
 from pathlib import Path
 import sys
 import unittest
@@ -69,6 +70,37 @@ class BackupCommandTests(unittest.TestCase):
                 with patch.object(instance, 'sql', side_effect=backup.Stop('command_timeout')):
                     with self.assertRaisesRegex(backup.Stop, 'snapshot_timeout'):
                         instance.snapshot()
+
+    def test_cleanup_waits_boundedly_for_a_transient_healthcheck_exec(self):
+        inspected = subprocess.CompletedProcess([], 0, json.dumps([{'Id': 'db', 'Image': 'image'}]))
+        with patch.object(backup.subprocess, 'run', return_value=inspected), \
+             patch.object(backup, 'docker_exec_quiescent', side_effect=[False, False, True]), \
+             patch.object(backup.time, 'sleep') as sleep:
+            result = backup.cleanup_evidence({'database': {'id': 'db', 'image': 'image'}},
+                [{'processGroupExited': True, 'timedOut': False}], True)
+        self.assertTrue(result['verified']); self.assertTrue(result['dockerExecQuiescent'])
+        self.assertEqual(result['execObservationAttempts'], 3); self.assertEqual(sleep.call_count, 2)
+
+    def test_cleanup_never_accepts_persistent_or_uncertain_exec_or_command(self):
+        inspected = subprocess.CompletedProcess([], 0, json.dumps([{'Id': 'db', 'Image': 'image'}]))
+        for values in [False, None]:
+            with self.subTest(values=values), patch.object(backup.subprocess, 'run', return_value=inspected), \
+                 patch.object(backup, 'docker_exec_quiescent', return_value=values), patch.object(backup.time, 'sleep'):
+                result = backup.cleanup_evidence({'database': {'id': 'db', 'image': 'image'}}, [], True)
+                self.assertFalse(result['verified']); self.assertEqual(result['execObservationAttempts'], 3)
+        for event in [{'processGroupExited': False}, {'processGroupExited': True, 'timedOut': True},
+                      {'processGroupExited': True, 'errorCode': 'command_killed'}]:
+            with self.subTest(event=event), patch.object(backup.subprocess, 'run', return_value=inspected), \
+                 patch.object(backup, 'docker_exec_quiescent', return_value=True), patch.object(backup.time, 'sleep') as sleep:
+                result = backup.cleanup_evidence({'database': {'id': 'db', 'image': 'image'}}, [event], True)
+                self.assertFalse(result['verified']); self.assertEqual(result['execObservationAttempts'], 1)
+                sleep.assert_not_called()
+        for response in [subprocess.CompletedProcess([], 0, json.dumps([{'Id': 'other', 'Image': 'image'}])),
+                         subprocess.CalledProcessError(1, ['docker'])]:
+            with self.subTest(response=response), patch.object(backup.subprocess, 'run',
+                    side_effect=response if isinstance(response, Exception) else None, return_value=response), \
+                 patch.object(backup, 'docker_exec_quiescent', return_value=True), patch.object(backup.time, 'sleep'):
+                self.assertFalse(backup.cleanup_evidence({'database': {'id': 'db', 'image': 'image'}}, [], True)['verified'])
 
     @unittest.skipUnless(os.name == 'posix', 'process groups require POSIX')
     def test_timeout_terminates_local_process_group(self):

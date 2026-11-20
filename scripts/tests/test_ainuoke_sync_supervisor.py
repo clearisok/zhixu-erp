@@ -149,6 +149,56 @@ class SupervisorSafety(unittest.TestCase):
             with self.assertRaisesRegex(RuntimeError,'owned_worker_networks_required'):
                 module.worker_networks(bad)
 
+    def test_reviewed_stopped_worker_backup_never_clears_pause_or_starts_worker(self):
+        now = datetime.now(timezone.utc).isoformat()
+        cfg = {'enabled': True, 'sourceKey': 'source', 'oldStatusFile': 'old'}
+        state = {'state': 'RECOVERY_BLOCKED', 'originalFault': 'worker_stopped_requires_review'}
+        health = {'checkedAt': now, 'databaseCheckedAt': now, 'databaseHealthy': True,
+                  'migrationsCurrent': True, 'noUnknownResult': True, 'hasUnknownResult': False,
+                  'workerLeaseHeld': False, 'adminNotPaused': False}
+        original = json.loads(json.dumps(state))
+        with patch.object(module, 'recovery_release_policy'), patch.object(module, 'private_json', return_value={'state': 'PAUSED'}), \
+             patch.object(module, 'read_recovery_health', return_value=health), patch.object(module, 'command', return_value='') as command:
+            module.require_reviewed_worker_backup(cfg, state, None, 'reviewed source pause')
+        self.assertEqual(state, original)
+        self.assertEqual(command.call_count, 1)
+        self.assertEqual(command.call_args.args[0][1], 'ps')
+        self.assertFalse(module.recovery_gate_result({'admin_not_paused': False})['allowed'])
+
+    def test_reviewed_backup_rejects_every_unverified_health_condition(self):
+        now = datetime.now(timezone.utc).isoformat()
+        good = {'checkedAt': now, 'databaseCheckedAt': now, 'databaseHealthy': True,
+                'migrationsCurrent': True, 'noUnknownResult': True, 'hasUnknownResult': False, 'workerLeaseHeld': False}
+        for key, value in [('databaseHealthy', False), ('migrationsCurrent', False), ('noUnknownResult', False),
+                           ('hasUnknownResult', True), ('workerLeaseHeld', True), ('checkedAt', '2020-01-01T00:00:00Z')]:
+            with self.subTest(key=key), patch.object(module, 'recovery_release_policy'), \
+                 patch.object(module, 'private_json', return_value={'state': 'PAUSED'}), \
+                 patch.object(module, 'command', return_value=''), patch.object(module, 'read_recovery_health', return_value={**good, key: value}):
+                with self.assertRaises(RuntimeError):
+                    module.require_reviewed_worker_backup({'enabled': True, 'sourceKey': 'source', 'oldStatusFile': 'old'},
+                        {'state': 'STOPPED_FAULT', 'code': 'worker_stopped_requires_review'}, None, 'reviewed')
+
+    def test_reviewed_backup_refuses_unreviewed_unknown_or_running_owners_before_health(self):
+        cfg = {'enabled': True, 'sourceKey': 'source', 'oldStatusFile': 'old'}
+        good = {'state': 'RECOVERY_BLOCKED', 'originalFault': 'worker_stopped_requires_review'}
+        for state, worker, reason in [(good, None, None), (good, None, 'x'),
+                ({**good, 'state': 'RECOVERY_FAILED'}, None, 'reviewed'),
+                ({**good, 'originalFault': 'unknown_fault'}, None, 'reviewed'),
+                (good, {'State': {'Running': True}}, 'reviewed')]:
+            with self.subTest(state=state, reason=reason), patch.object(module, 'read_recovery_health') as health:
+                with self.assertRaises(RuntimeError):module.require_reviewed_worker_backup(cfg, state, worker, reason)
+                health.assert_not_called()
+        with patch.object(module, 'recovery_release_policy'), patch.object(module, 'private_json', return_value={'state': 'PAUSED'}), \
+             patch.object(module, 'command', return_value='another-owner'), patch.object(module, 'read_recovery_health') as health:
+            with self.assertRaisesRegex(RuntimeError, 'worker_identity_unknown'):
+                module.require_reviewed_worker_backup(cfg, good, None, 'reviewed')
+            health.assert_not_called()
+        with patch.object(module, 'recovery_release_policy', side_effect=RuntimeError('release_identity_changed')), \
+             patch.object(module, 'read_recovery_health') as health:
+            with self.assertRaisesRegex(RuntimeError, 'release_identity_changed'):
+                module.require_reviewed_worker_backup(cfg, good, None, 'reviewed')
+            health.assert_not_called()
+
     def time(self, local):
         return datetime.fromisoformat('2026-11-05T' + local + ':00+08:00')
 
