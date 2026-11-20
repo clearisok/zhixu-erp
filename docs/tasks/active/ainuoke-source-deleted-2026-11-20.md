@@ -96,3 +96,42 @@ Gate A身份/构建通过：app sha256:d5aa124262d344d259a9cf36b87e4416646c541da
 为了完成本次已获授权的安全Staging部署，必要配套仅增加pinned私密policy.snapshotTimeoutSeconds：默认300秒保持既有目标行为；只允许int 300–600，拒绝bool/string/float/null和越界；本次Staging选择450秒。原SNAPSHOT_SQL逐字不变，表数+序列校验、前后完整哈希、dump/对象验证、finally恢复、超时分类与门禁全部保持，日志明确实际命令timeoutSeconds和本轮snapshotTimeoutSeconds。不是删除历史或用旧备份替代新备份，不新建备份机制，不修改Production。该窄实现选择由Codex在部署必要前置内作出，不冒称用户单独批准过450这个数值。
 
 起始55aaa558 clean；代码只scripts/ainuoke_paired_backup.py和对应测试。Windows新paired测试6通过/1 POSIX跳过、Supervisor16/16、Gate2/2；SDK211/211（首次从仓库根误用CLI工作目录导致5个import子进程异常，改为CI相同tools/ainuoke-bridge cwd后全部通过，未改SDK测试或源站配置）。新测试验证默认/显式完整快照及缺表/超时仍拒绝、非法预算在任何文件IO前拒绝、命令预算审计；Linux POSIX验证与新HEAD CI仍待实际完成。没有因为两个失败直接加无界超时，先取得上述完整实测证据。
+
+
+## Staging部署完成与真实删除确认（Gate C，2026-11-20）
+
+# Staging 订单删除候选验收（2026-11-20）
+
+真实部署版本 c3e4251fc9f9a7cc6a18aaa7c2dad8fcc192ea90；[Draft PR160](https://github.com/clearisok/zhixu-erp/pull/160)，未合并、未操作Production。
+
+[订单中心](https://staging.weaveops.top/order-center)。搜索 PI2611-142 / PI2611-143：正式服务器读取模型分别返回 SO-00000629 数量10000、SO-00000630 数量8000，source_deleted/version1、order_source_deleted；正式组件显示红色“订单删除”。真实浏览器登录后像素/截图未完成：浏览器工具kernel assets路径错误。不能将服务读取模型及公共CSS验证写成真实浏览器验收。
+
+正式目录run 7f8575ba-9a66-45e2-9ecd-7fbdee09ded8，capture 538ca16d-b201-46ff-ac20-f32dbd63badf，2026-11-20 14:47:30北京时间；真实双遍631行/13页、账号/目标/范围匹配、两合同均不存在，使用历史成功证据正式创建2条不可变删除事件；createdOrders0。无直接SQL伪造状态/清零数量/修改源站。
+
+## 部署和保全
+
+五服务健康，公共HTTPS/数据库ready；仅app/gateway/objects-tls重建，原database/objects容器和四命名卷不变，旧镜像及64项回滚资产保留。0060迁移完成（最高60、59个历史迁移文件、145表）；旧app兼容迁移清单回滚镜像已在隔离PG验证，不进行破坏性数据库回滚。
+
+21张生产表及两样本历史逐行hash不变（24张检查表），另23张报价/手工配置表、3用户角色、630原订单身份保全。142失败和20待处理回执hash不变、0running/unknown。详情见同目录JSON证据，不包含秘密配置或数据库dump。
+
+## 测试
+
+部署精确c3的三项Actions全SUCCESS：source44686579952、team-access44686579934、baseline44686579977。工程root1026/1026、release182/182、目录106/106、生命周期/升级PG10/10、Chromium四桌面两角色、typecheck/lint/前后端build通过；额外Linux备份/监管器/Gate25/25，SDK211/211。Windows相应24通过/1 POSIX跳过，未把跳过计通过。显式release guard对main636a通过。后续文档提交不代表重新部署或将旧CI归给新SHA。
+
+## 备份及运行限制
+
+预部署两次300秒snapshot_timeout均保留。相同完整只读快照实测313.626秒，必要配套支持policy.snapshotTimeoutSeconds默认300、严格整数300–600；本Staging450，SQL/哈希/恢复条件不变。正式旧636a预备份20261120T061636Z-fc875b32 BACKUP_VERIFIED（dump3948413143bytes），完整前后哈希/文件校验通过。原终态cleanup.verified=false/dockerExecQuiescent=false仍保留；后续实际进程及ExecIDs全空的独立、绑定同一备份和服务身份的清理证据只用于应用部署前复核，未替换原回执或供Worker Recovery Gate默认放行。未执行新c3全量配对备份。
+
+部署前已存在selected_source_invalid暂停保留，enabled=true/version5，heartbeat仍2026-11-20T02:49:40.874Z，Worker0；监管cronactive不代表业务自动同步恢复。只读recovery-check明确拒绝：collectionError=backup_terminal_receipt_missing、gate.reason=admin_paused_or_unknown；全false是证据采集失败的安全缺省，不是已证实数据库不健康。直接实际迁移及DB健康检查独立通过。
+
+今后恢复Worker须先核实原来源暂停的具体原因，经正式来源核验/允许的状态转换，再取得匹配新source的真实备份终态和清理证明、通过完整Recovery Gate及真实heartbeat。当前未解除暂停、未手工补任务，不宣称30分钟同步已恢复。
+
+等待用户Staging人工验收；不合并PR、不继续恢复或变更Production。
+
+组件完整SHA与容器/卷标识见主机deployment-result.json、final-runtime.json和独立脱敏artifact。公共CSS SHA256 79d79f1b740a2c2ff6bf1eb735e860b9a75aed79509c8ffce7d5f885f5409a27 与容器字节一致。迁移0060 SHA256 0504e20fa47f841802a39be97a9db0f77a416b9cf829999c1be6f84fb9e255e0。
+
+正式发布在06:41:10Z开始；迁移和三个无状态容器已完成后，私有旧保全核验器把Mounts列表传给预期容器dict的lambda，发生TypeError，原错误留存；只修该私有核验参数并续接尚未完成的严格保全/cron核验，未重复发布或迁移。最终06:45:38Z部署完成。不是产品异常或数据损坏，不将失败日志删除。
+
+预备份成功仍绑定旧636a；原cleanup=false与后续独立实时正向清理是两份不同证据，后者仅供应用部署复核，未更改仓库Worker Recovery Gate。新c3全量备份/Worker恢复不在本轮完成事实内。原source暂停在部署前已存在，不未经调查归因本PR。
+
+最终文档Gate起点c3/clean，只更新CURRENT_STATE、AI_HANDOFF、PROJECT_INDEX及本任务四文档；代码/真实部署源仍c3，不把后续文档HEAD的待跑CI与部署候选混淆。独立C盘恢复checkout保留6178，不覆盖。

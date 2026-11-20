@@ -1,13 +1,15 @@
-# 当前：Issue159获批Staging候选部署，备份门禁待完成
+# 当前：Issue159候选已部署Staging，等待人工验收
 
-2026-11-20；feat/ainuoke-source-deleted；main基线636a5ad0d2d1acbe6b2705696e782dea12ee9f00；实际候选6178e666bf45e80cf51cd9962521e264d3a97385，三CI全成功，PR160 Draft/未合并。用户当前聊天已明确批准Staging部署，未授权合并/Production。
+2026-11-20；branch feat/ainuoke-source-deleted；main基线636a5ad0d2d1acbe6b2705696e782dea12ee9f00；实际部署c3e4251fc9f9a7cc6a18aaa7c2dad8fcc192ea90。Draft PR160保持Open/未合并。用户已授权Staging部署，未授权合并/Production。
 
-64份回滚资产及原四卷/DB/objects保全；离线app d5aa1242、operator d40600b3构建和正式Compose/trial check PASS；0060兼容旧app0d5fd0bf在隔离PG完整迁移账本校验通过。新runtime catalog-sync-6178e666已准备但未装cron/未部署。
+[Staging订单中心](https://staging.weaveops.top/order-center)：真实完整双遍6086103（631行/13页）于14:47:30北京时间正式确认PI2611-142/SO629、PI2611-143/SO630删除；run7f8575ba-9a66-45e2-9ecd-7fbdee09ded8，两个不可变source_deleted事件/version1，真实服务器列表模型返回order_source_deleted。订单数量10000/8000及历史保留，createdOrders0；非合成展示、非SQL伪造。
 
-真实旧版636a目前因selected_source_invalid暂停、Worker0、142failed/20queued/0running/0unknown；保留故障，不SQL清暂停/补任务。首次预备份054906Z-7df3bfd9在snapshot300秒超时，旧服务恢复，失败/清理证据保存；只做一次无构建负载复验055650Z-f633997c，尚未通过，不得切版。旧app回滚兼容0060只增加清单，旧Worker不得自动连接。
+正式机制仅重建app/gateway/objects-tls，五服务健康；原database/objects容器、四卷、旧镜像及64项回滚资产保留。0060/145表完成；新app c29fdf70…、Worker镜像6169a459…（未运行）、Supervisor a0109d4f…、executor62fb2e78…与source/target/collector/policy身份匹配，监管cron已安装。21生产表及两订单历史hash、23手工/报价表、3用户角色、630原订单身份、142失败及20待处理回执均保全。
 
-下一步：先读主机/home/jackson/weaveops-staging-preview/releases/source-deleted-20261120与weaveops-trial-backups真实状态，核实复验终态；备份成功且独立hash/cleanup验证后才能正式0060/三个无状态容器发布/匹配policy/cron/版本和卷保全核验。若再次失败，不再盲重试，不绕备份。新完整目录转换与真实页面验收仍未发生。内置浏览器kernel assets启动失败，不冒称UI验收。
+必要部署修正：完整只读快照实测313.626秒，policy可选预算默认300、严格整数300–600，本Staging450；SQL/哈希/门禁不变。两次300秒失败保留；旧636a预备份061636Z-fc875b32 BACKUP_VERIFIED/独立完整哈希通过，但原cleanup=false保留，后续真实独立清理复核只用于应用部署，未替换Worker门禁证据。未执行新c3完整配对备份。
 
-工程1026/182/106、PG10/10、合成Chrome四桌面/两角色及质量/build已通过，不能代替真实Staging部署验收。[完整阶段证据](tasks/active/ainuoke-source-deleted-2026-11-20.md)。NETWORK_DEGRADED的原代理/宁波失败历史保留；本Gate先本地checkpoint，最终用既有已验证进程级正式工具做独立送达核实。
+已有selected_source_invalid暂停保持，control version5、heartbeat02:49:40.874Z、Worker0、142failed/20queued/0running/0unknown。未恢复30分钟自动同步。只读recovery-check缺匹配终态证据，collectionError=backup_terminal_receipt_missing，安全拒绝；不能将缺省false解释为真实DB不健康。后续恢复需调查原来源暂停并按正式状态转换、新版本真实备份/清理证据、Recovery Gate及真实heartbeat处理，不SQL清除/手动补任务。
 
-Gate B：第二次原300秒备份也失败；相同完整只读快照实测313.626秒（不是备份成功）。必要最小修正仅增加policy.snapshotTimeoutSeconds，默认300、严格int 300–600，本次Staging450；SQL/哈希/表数/恢复门禁不变。Windows24通过/1 POSIX跳过、SDK211通过，Linux与新CI待核。此后候选SHA须更新全部组件/Policy身份；原6178镜像尚未部署，不能再冒作最终部署候选。详见任务证据，仍禁止越过正式新备份。
+精确c3三CI全部SUCCESS；root1026/182基线/目录106/PG生命周期10、四桌面两角色Chromium、quality/build通过；Linux备份/监管器/Gate25/25、SDK211/211及显式guard通过。实际Staging公共TLS/版本/CSS和正式服务读取模型已验证；内置浏览器kernel assets路径错误，真实登录页面像素验收未完成，等待用户查看。后续只提交证据文档，不把c3的CI冒称新文档HEAD或重新部署。
+
+[完整阶段证据](tasks/active/ainuoke-source-deleted-2026-11-20.md)。本机脱敏证据：visualizations/2026/11/18/01a1ec55-eaa3-75f0-a103-83b015d43fb4/source-deleted-staging-20261120/REPORT.md。下一步仅用户人工验收；不得自动合并、恢复Worker或再次采集。
