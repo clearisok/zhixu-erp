@@ -38,3 +38,12 @@
 完整root首轮在文档前向冻结尚未登记时失败（worktree/state drift），已在cb9433d9为三个实际修改文档追加Git blob证据并对齐main636a。无改旧ID/图片hash或弱化断言。首次无网络Linux根测试因依赖挂载不叫node_modules造成Node sibling解析失败，已定位并修复隔离环境挂载；这次失败不算产品通过。新一轮完整root/基线及最终显式guard尚待日志收口，不提前PASS。
 
 此前Windows Git代理失败不重推；宁波SSH一度超时，随后Tailscale DERP真实恢复连通，读取到host Node22.22.1/Git2.53.0及原准确636a源码。按用户既有授权仅使用独立Git交付目录/正式git-delivery工具，不改Staging服务、DB、网络或认证。最终远端精确SHA和PR仍待核实。
+
+
+## 检查点三：非空历史保全与演示版本身份
+
+首个生命周期回归增加正式service创建的非零报价劳动成本12.5和绑定该删除订单的生产排单/累计产量10.125；删除前后对全部非目录/同步控制业务表逐表逐行hash比较，不仅断言订单还在。升级仍验证原所有表旧列不变。新非空历史场景已单独通过；首次在并行重负载下合成Python子进程10秒超时，保留失败并原样重跑通过，没有放宽实际源站180秒/认证/业务范围保护。TypeScript保存计划回执按assert.equal实际applied收窄。
+
+演示构建显式Server/snapshot/session且DEV标识，build源码fbd9ec31486c4e77137685537b908911d8aa6e49；不是Staging636a。用此构建重新运行Chromium四分辨率/两角色/刷新/固定列宽通过；之前复用本机构建残留的旧标识截图不作为最终候选身份。demo脚本拒绝错误authority构建，并在两小时后释放自己的临时DB/HTTP，不读取任何真实配置或Source凭据。
+
+无网络Linux根测试已1025/1026，唯一失败确认来自Win esbuild被带入Linux的原生二进制平台不匹配。使用预存Linux镜像同版本0.25.12二进制的进程级ESBUILD_BINARY_PATH，Q5定向3/3通过；没有改锁文件、安装共享依赖、跳过或弱化Q5。完整根/基线须在该正确隔离环境最终收口，不以1025/1026算PASS。

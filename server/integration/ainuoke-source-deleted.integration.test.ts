@@ -8,6 +8,13 @@ import {claimSyncJobs,enqueueAutomaticSync,requestContractSync} from '../ainuoke
 import {runSyncTick} from '../ainuoke-source/sync-worker.js';
 import {hash} from '../ainuoke-source/contract.js';
 import {listSalesOrders,createSalesOrder,createOrUpdateSourceLink} from '../sales-orders/repository.js';
+import {createQuoteDraft} from '../../features/quote-center/model/quote-view-model.js';
+import {quoteSnapshotFromBrowser} from '../quotes/model.js';
+import {createQuoteService} from '../quotes/service.js';
+import {parseProductionResourceCommand,type ProductionResourceType} from '../production-resources/contract.js';
+import {executeProductionResourceCommand} from '../production-resources/service.js';
+import {previewProductionPlan,executeProductionPlan,readOrderProductionPlans,readProductionAssignment} from '../production-scheduling/service.js';
+import {previewProductionExecution,executeProductionExecution} from '../production-scheduling/execution-service.js';
 
 const removeFirst=`if report == 6086103:
         mutate_rows(payload, lambda rows: rows.__setitem__(slice(None), [r for r in rows if r['id']!='1']))
@@ -18,12 +25,37 @@ const read=async(f:Awaited<ReturnType<typeof startCatalogFixture>>)=>{
  assert.equal(response.status,200);return (await response.json()).salesOrders as Array<{salesContractNo:string;alerts:Array<{code:string}>;sourceLifecycle:{state:string}}>;
 };
 async function retained(f:Awaited<ReturnType<typeof startCatalogFixture>>){
- const tables=['sales_orders','sales_order_source_links','ainuoke_sales_order_contract_mirrors','ainuoke_sales_order_color_mirrors',
-  'ainuoke_material_source_snapshots','ainuoke_contract_observations','ainuoke_material_order_heads'];
+ const tables=(await f.pool.query("SELECT tablename FROM pg_tables WHERE schemaname='public' ORDER BY tablename")).rows.map(r=>r.tablename as string)
+  .filter(name=>!name.startsWith('ainuoke_catalog_')&&!name.startsWith('ainuoke_sync_')
+    &&!['ainuoke_source_profiles','ainuoke_contract_lifecycle_events','operation_logs'].includes(name));
  return Promise.all(tables.map(async table=>[table,hash((await f.pool.query(`SELECT to_jsonb(t) AS row FROM ${table} t ORDER BY to_jsonb(t)::text`)).rows)]));
+}
+async function seedHistory(f:Awaited<ReturnType<typeof startCatalogFixture>>){
+ const quote=createQuoteDraft('synthetic-retained-cost','QT-SYN-RETAINED','2026-11-01');
+ quote.revisions[0].priceVersions[0].labor.value=12.5;
+ await createQuoteService(f.pool).createAggregate(quoteSnapshotFromBrowser(quote));
+ const resource=async(kind:ProductionResourceType,data:unknown)=>{
+  const r=await executeProductionResourceCommand(f.pool,f.actor,parseProductionResourceCommand({requestId:randomUUID(),action:'create',kind,resourceId:null,expectedVersion:0,data}));
+  assert.equal(r.status,'applied');if(r.status!=='applied')assert.fail();return r.resource.id;
+ };
+ const calendar=await resource('calendars',{name:'合成历史日历',enabled:true,remark:'',workingWeekdays:[1,2,3,4,5],exceptions:[]});
+ const site=await resource('sites',{name:'合成历史地点',enabled:true,remark:'',countryCode:null,productionCalendarId:calendar,preProductionSampleLeadDays:0});
+ const group=await resource('groups',{name:'合成历史组',enabled:true,remark:'',shortName:'历史',productionSiteId:site,sortOrder:1});
+ const orderId=f.orderIds[0],current=await readOrderProductionPlans(f.pool,f.actor,orderId);
+ const plan=await previewProductionPlan(f.pool,f.actor,{action:'create',orderId,assignmentId:null,expectedVersion:0,expectedPlanVersion:current.order.planVersion,
+  data:{executionType:'internal',executorId:group,colorId:null,plannedQuantity:'30',duration:{mode:'workdays',workdays:2},dates:{mode:'auto_queue',startDate:'2026-11-23'},remark:'合成历史生产'}});
+ const saved=await executeProductionPlan(f.pool,f.actor,{requestId:randomUUID(),intent:plan.intent,previewHash:plan.previewHash});
+ assert.equal(saved.status,'applied');
+ const assignment=await readProductionAssignment(f.pool,f.actor,saved.assignments[0].id),after=await readOrderProductionPlans(f.pool,f.actor,orderId);
+ const execution=await previewProductionExecution(f.pool,f.actor,{action:'record_execution',orderId,assignmentId:assignment.assignment.id,
+  expectedAssignmentVersion:assignment.assignment.version,expectedExecutionVersion:0,expectedPlanVersion:after.order.planVersion,
+  data:{status:'in_progress',completedQuantity:'10.125',actualStartDate:'2026-11-23',actualCompletedDate:null},reason:'合成历史产量',replan:null});
+ await executeProductionExecution(f.pool,f.actor,{requestId:randomUUID(),intent:execution.intent,previewHash:execution.previewHash});
+ assert.equal((await f.pool.query('SELECT completed_quantity::text quantity FROM production_schedule_executions')).rows[0].quantity,'10.125');
 }
 test('complete authenticated pair confirms deletion, keeps business history, isolates queue and restores without duplicate orders/events',{timeout:180000},async()=>{
  const f=await startCatalogFixture();try{
+  await seedHistory(f);
   const before=await retained(f),id=randomUUID();
   const result=await captureCatalogOnce(f.pool,f.actor,selectedConfig,id,async()=>selectedWorkerFixture('catalog-discovery',removeFirst,[]));
   assert.equal(result.status,'complete');assert.equal((await events(f)).length,1);
