@@ -85,3 +85,14 @@ Gate A身份/构建通过：app sha256:d5aa124262d344d259a9cf36b87e4416646c541da
 预部署配对备份20261120T054906Z-7df3bfd9于05:54:23Z snapshot_timeout（300秒），原服务已恢复，失败包不改；独立清理确认executor已退出、快照backend0、Docker ExecIDs全空。当前只在全部构建结束后做一次有上限复验20261120T055650Z-f633997c，无超时/算法/配置改动，尚未通过，不能切版。真实库约7.6GB，planner off；是否负载/规模导致首次超时尚未证明，不编造根因。
 
 内置浏览器工具两次启动报kernel assets路径不存在（含reset后复验）；未绕过浏览器安全限制，不将未完成的真实Staging浏览器核验写PASS。后续验收按实际可用工具与用户页面结果单独记录。
+
+
+## 部署阻塞的最小修正：完整快照预算（Gate B）
+
+第二次原机制备份20261120T055650Z-f633997c也在snapshot/dock­er命令300102ms超时（timedOut=true/command_timeout），06:02:05Z失败、旧服务已恢复，不删除失败包或补成功。独立清理先遇服务健康探针ExecID竞态而安全拒绝；再次正向核实全部ExecIDs空、快照backend0/原进程退出，未强杀Worker或改失败回执。
+
+在相同SQL/算法、READ ONLY/REPEATABLE READ、DB每语句570秒/客户端600秒硬上限、原服务继续运行的独立诊断中，144表+序列完整返回，06:06:29.781–06:11:43.407Z，共313.626秒。该诊断不是备份SUCCESS。观察到ainuoke_source_runs哈希查询（约46640行/5276794880bytes，CPU运行无等待），库7.6GB；证实当前完整快照实际用时超出固定300秒预算，未推断数据损坏/特定业务记录错误，不把之前Price事故混为一谈。
+
+为了完成本次已获授权的安全Staging部署，必要配套仅增加pinned私密policy.snapshotTimeoutSeconds：默认300秒保持既有目标行为；只允许int 300–600，拒绝bool/string/float/null和越界；本次Staging选择450秒。原SNAPSHOT_SQL逐字不变，表数+序列校验、前后完整哈希、dump/对象验证、finally恢复、超时分类与门禁全部保持，日志明确实际命令timeoutSeconds和本轮snapshotTimeoutSeconds。不是删除历史或用旧备份替代新备份，不新建备份机制，不修改Production。该窄实现选择由Codex在部署必要前置内作出，不冒称用户单独批准过450这个数值。
+
+起始55aaa558 clean；代码只scripts/ainuoke_paired_backup.py和对应测试。Windows新paired测试6通过/1 POSIX跳过、Supervisor16/16、Gate2/2；SDK211/211（首次从仓库根误用CLI工作目录导致5个import子进程异常，改为CI相同tools/ainuoke-bridge cwd后全部通过，未改SDK测试或源站配置）。新测试验证默认/显式完整快照及缺表/超时仍拒绝、非法预算在任何文件IO前拒绝、命令预算审计；Linux POSIX验证与新HEAD CI仍待实际完成。没有因为两个失败直接加无界超时，先取得上述完整实测证据。
