@@ -35,3 +35,9 @@ Windows定向Supervisor19/19、paired8通过/1 POSIX跳过、Gate2/2；paired新
 ## 2026-11-20继续执行检查点（真实恢复尚未完成）
 
 18:50北京时间核实同分支/0752完整HEAD/clean和三项CI成功。主机仍c3，142failed/20queued完整行hash与保存点相同，无running/unknown；五服务健康、原DB/objects CID及四卷未改变。64个私有回滚资产逐项SHA验证通过。18:51正式安装新Supervisor980fa09871aa54086ead56d37df8454d68a9797bfc073ce5e4ac5cd4842c361d与executor0e5c3f00667e5855e28a6e8850486a1491138f9525bbaefa5e12f3d78bdee9ba，保留原始字节/权限/配置，c3 source/image身份保持。正式backup-check=BACKUP_WORKER_QUIET。10:51:44Z启动正式Supervisor受控配对备份20261120T105144Z-a4de43bd（不是直接executor）；当前RUNNING，未宣称终态或cleanup通过，pause/version/heartbeat仍原值。
+
+## 正式切版与第二份配对备份
+
+切版前c3备份20261120T105144Z-a4de43bd于11:08:45.357889Z BACKUP_VERIFIED；原始cleanup.verified=true/dockerExecQuiescent=true/commandGroupsExited=true/commandsCertain=true，采样1次。正式发布前独立逐文件size/SHA和manifest/latest核验、真实executor退出/锁/Exec验证；没有修改旧失败或false回执。11:10:58.102158Z通过仓库trial.mjs/Compose正式切版0752，app/gateway/objects-tls新镜像sha256:9d638f7691cff7ba9d6b7b2531373c37e6f9bd1ea7ea430a16e97d1fe3354bd9；Worker候选sha256:d3015e58f4e481ba52a4153038f83b7f7561814223cb0a735f68ea23d7647a9a。部署前后全部四卷完整inspect相同，原database/objects CID/image/mount/config-hash及网络ID相同，五服务健康，业务/报价/用户/生命周期事件hash保全，142failed/20queued/原control精确不变。正式migration applied=[]，59迁移账本/max0060/145表，未做DDL或回滚。新policy/cron实际安装且组件pins/owner600uid1000验证。
+
+11:12:54Z正式新Supervisor备份前置再次通过，启动匹配0752的新备份20261120T111255Z-b640f966；仍RUNNING，来源pause和原heartbeat保持、Worker未恢复。需此份终态正向cleanup后继续来源和Gate，不能用c3备份放行0752。
