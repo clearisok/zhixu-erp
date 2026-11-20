@@ -66,6 +66,7 @@ type ReadModelRow = SalesOrderRow & {
   color_count: string | number;
   zero_color_count: number;
   pending_color_count: number;
+  source_lifecycles?: Array<{state:'present'|'source_deleted';deletedAt:string|null;version:number}>;
 };
 
 export type SalesOrderListOptions = {
@@ -133,6 +134,7 @@ function mapSourceLink(row: SourceLinkRow): SalesOrderSourceLink {
 }
 
 function mapReadModel(row: ReadModelRow): SalesOrderReadModel {
+  const sourceLifecycle=row.source_lifecycles?.length===1?row.source_lifecycles[0]:undefined;
   return {
     id: row.id,
     version: row.version,
@@ -144,6 +146,7 @@ function mapReadModel(row: ReadModelRow): SalesOrderReadModel {
     salesContractNo: row.sales_contract_no,
     insideOrderNo: row.inside_order_no,
     sourceLifecycleStatus: row.lifecycle_status_raw ?? "",
+    ...(sourceLifecycle?{sourceLifecycle}:{}),
     businessType:row.business_type,
     businessSource:row.business_source??null,
     styleNo: row.style_no ?? "",
@@ -152,7 +155,8 @@ function mapReadModel(row: ReadModelRow): SalesOrderReadModel {
     brandName: row.brand_name_snapshot ?? "",
     quantity: row.quantity === null ? null : Number(row.quantity),
     colorCount: Number(row.color_count),
-    alerts: Number(row.zero_color_count) > 0 ? [{ code: "color_quantity_zero", count: Number(row.zero_color_count), pendingCount: Number(row.pending_color_count) }] : [],
+    alerts: [...(sourceLifecycle?.state==='source_deleted'?[{code:'order_source_deleted' as const}]:[]),
+      ...(Number(row.zero_color_count)>0?[{code:'color_quantity_zero' as const,count:Number(row.zero_color_count),pendingCount:Number(row.pending_color_count)}]:[])],
     contractDate: isoDate(row.contract_date),
     contractDeliveryDate: isoDate(row.contract_delivery_date),
     createdAt: row.created_at.toISOString(),
@@ -176,7 +180,7 @@ function readModelFrom(includeIdentity:boolean,attributed:boolean):string {
  ${includeIdentity?PROCESSING_READ_JOINS:''}
  ${includeIdentity?'LEFT JOIN sales_order_identity_profiles profile ON profile.sales_order_id=so.id LEFT JOIN app_users owner_user ON owner_user.id=profile.owner_id':''}`;
 }
-function readModelSelect(includeIdentity:boolean,attributed:boolean,colors=false,businessSource=false):string {
+function readModelSelect(includeIdentity:boolean,attributed:boolean,colors=false,businessSource=false,sourceLifecycle=false):string {
  const trusted="mirror.source_id=sl.external_id AND mirror.sales_contract_no=sl.sales_contract_no";
  const contract=`CASE WHEN (${trusted}) AND (so.creation_source='ainuoke'${attributed?" OR (attribution.attribution_change_id IS NOT NULL AND attribution.effective_order_id=so.id)":''}) THEN 'ainuoke_contract' ELSE 'unclassified' END`;
  const businessType=includeIdentity?`CASE WHEN profile.business_type='processing' AND processing_batch.id IS NOT NULL THEN 'processing' WHEN (${contract})='ainuoke_contract' THEN 'ainuoke_contract' ELSE 'unclassified' END`:contract;
@@ -188,6 +192,12 @@ function readModelSelect(includeIdentity:boolean,attributed:boolean,colors=false
  ${attributed?'attribution.attribution_change_id::text':'NULL::text'} AS attribution_change_id,
  ${attributed?'attribution.attribution_version':'0'} AS attribution_version,${owner}::text AS source_owner_order_id,
  sl.sales_contract_no,sl.inside_order_no,mirror.lifecycle_status_raw,
+ ${sourceLifecycle?`(SELECT jsonb_agg(jsonb_build_object('state',e.source_lifecycle_state,'deletedAt',e.source_deleted_at,'version',e.lifecycle_version))
+   FROM ainuoke_catalog_entries e JOIN ainuoke_source_profiles p ON p.source_key=e.source_key AND p.enabled=true
+   WHERE e.sales_contract_no=sl.sales_contract_no AND e.source_id=sl.external_id AND (${trusted})
+    AND (e.lifecycle_version=0 OR EXISTS(SELECT 1 FROM ainuoke_contract_lifecycle_events event
+      WHERE event.source_key=e.source_key AND event.source_id=e.source_id AND event.version=e.lifecycle_version
+       AND event.account_fingerprint=p.account_fingerprint)))`:'NULL::jsonb'} AS source_lifecycles,
  to_char(${includeIdentity?'COALESCE(processing_batch.order_date,mirror.contract_date)':'mirror.contract_date'},'YYYY-MM-DD') AS contract_date,
  to_char(${includeIdentity?'COALESCE(processing_batch.delivery_date,mirror.contract_delivery_date)':'mirror.contract_delivery_date'},'YYYY-MM-DD') AS contract_delivery_date,
  ${includeIdentity?'COALESCE(processing_batch.business_style_no,mirror.style_no)':'mirror.style_no'} AS style_no,
@@ -339,7 +349,7 @@ export async function getSalesOrderBySalesContractNo(
 ): Promise<SalesOrderReadModel | null> {
   const attributed=await supportsEffectiveAttribution(client);
   const result = await client.query<ReadModelRow>(
-    `${readModelSelect(true,attributed,false,(await client.query("SELECT to_regclass('sales_order_business_source_snapshots') IS NOT NULL ready")).rows[0].ready)}
+    `${readModelSelect(true,attributed,false,(await client.query("SELECT to_regclass('sales_order_business_source_snapshots') IS NOT NULL ready")).rows[0].ready,(await client.query("SELECT to_regclass('ainuoke_contract_lifecycle_events') IS NOT NULL ready")).rows[0].ready)}
      WHERE sl.source_system = 'ainuoke'
        AND sl.source_entity_type = 'sales_contract'
        AND upper(btrim(sl.sales_contract_no)) = $1 ${attributed?'AND attribution.effective_order_id=so.id':''}`,
@@ -482,7 +492,7 @@ export async function listSalesOrders(
   const limit = addValue(options.limit);
   const offset = addValue(options.offset);
   const result = await client.query<ReadModelRow>(
-    `${readModelSelect(true,attributed,false,(await client.query("SELECT to_regclass('sales_order_business_source_snapshots') IS NOT NULL ready")).rows[0].ready)}
+    `${readModelSelect(true,attributed,false,(await client.query("SELECT to_regclass('sales_order_business_source_snapshots') IS NOT NULL ready")).rows[0].ready,(await client.query("SELECT to_regclass('ainuoke_contract_lifecycle_events') IS NOT NULL ready")).rows[0].ready)}
      ${whereSql}
      ORDER BY ${sortColumn} ${sortDirection} NULLS LAST, so.order_no ${tieDirection}, so.id ${tieDirection}
      LIMIT ${limit} OFFSET ${offset}`,
@@ -502,7 +512,7 @@ export function getFoundationSalesOrderById(client: Queryable,id:string):Promise
 async function readSalesOrderDetail(client:Queryable,id:string,includeIdentity:boolean):Promise<SalesOrderDetailReadModel|null>{
   const attributed=await supportsEffectiveAttribution(client);
   try {
-    const result=await client.query<ReadModelRow>(`${readModelSelect(includeIdentity,attributed,true,(await client.query("SELECT to_regclass('sales_order_business_source_snapshots') IS NOT NULL ready")).rows[0].ready)} WHERE so.id=$1::uuid`,[id]);
+    const result=await client.query<ReadModelRow>(`${readModelSelect(includeIdentity,attributed,true,(await client.query("SELECT to_regclass('sales_order_business_source_snapshots') IS NOT NULL ready")).rows[0].ready,(await client.query("SELECT to_regclass('ainuoke_contract_lifecycle_events') IS NOT NULL ready")).rows[0].ready)} WHERE so.id=$1::uuid`,[id]);
     const row=result.rows[0];
     if (!row) return null;
     const context={businessType:row.business_type,trustedSource:row.source_identity_trusted===true,salesContractNo:row.sales_contract_no};

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "1ab40fd39b035e471f5557903c026dd36d3bab8e",
+  "baselineSha": "636a5ad0d2d1acbe6b2705696e782dea12ee9f00",
   "verifiedAt": "2026-11-19T10:01:08.114753+00:00",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
@@ -6288,6 +6288,33 @@
       "sha256": "02e698d014f74f13af718b6d11428769516a893a7654f783fb7de830d40062eb",
       "supersedes": "catalog-mutable-json-number-contract-20261119",
       "changeReason": "Record final user PR158 merge/Staging recovery authorization and pre-publication diagnostic, safe complex-value and recapture identity boundaries. Preserve historical evidence, Production prohibition and all data/Gate restrictions."
+    },
+    {
+      "id": "source-deleted-business-20261120",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "eeafc8965e25a9a965916d29a73adc255981d307",
+      "sha256": "04ee1aa29025e6ffdcaf885796f356557d18e5d96a1d07010cd93c7261e88297",
+      "supersedes": "catalog-final-safety-business-20261119",
+      "changeReason": "User-approved Issue159 forward-only contract deletion/restoration lifecycle and red anomaly chip. Preserve all original business records and identity/scope/Price protections. Candidate only; no merge, Staging deployment or real state conversion authorized."
+    },
+    {
+      "id": "source-deleted-decisions-20261120",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "eeafc8965e25a9a965916d29a73adc255981d307",
+      "sha256": "49bacb365a633bf722c09bd38aabcf7a109cda26bc09744dd00086af909afdb0",
+      "supersedes": "catalog-final-safety-decisions-20261119",
+      "changeReason": "User-approved Issue159 forward-only contract deletion/restoration lifecycle and red anomaly chip. Preserve all original business records and identity/scope/Price protections. Candidate only; no merge, Staging deployment or real state conversion authorized."
+    },
+    {
+      "id": "source-deleted-contract-20261120",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SYNC_AUDIT.md",
+      "recordedAtSha": "eeafc8965e25a9a965916d29a73adc255981d307",
+      "sha256": "24296b46057f976193f715b59ee62d77f648893dbf5d8c604bdbecdd0dc69e4f",
+      "supersedes": "catalog-final-safety-contract-20261119",
+      "changeReason": "User-approved Issue159 forward-only contract deletion/restoration lifecycle and red anomaly chip. Preserve all original business records and identity/scope/Price protections. Candidate only; no merge, Staging deployment or real state conversion authorized."
     }
   ],
   "pages": [

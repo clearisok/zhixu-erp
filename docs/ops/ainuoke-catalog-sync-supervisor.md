@@ -43,3 +43,12 @@
 真实证据 E2E：`pwsh -File scripts/tests/Invoke-AinuokeRecoveryRuntime.ps1 -SourceSha <full candidate SHA>`，使用新 internal Docker network、tmpfs PostgreSQL、正常迁移/权限/绑定、实际 recovery_evidence 与实际 worker持久化路径。测试镜像中的 Source IO 仅替换成已有内存SDK传输；不会向真实艾诺科请求。备份失败命令、清理采样、DB health、lease、Docker启动、PG心跳和后续到期任务均真实执行。Windows Python组中的POSIX项需由Linux运行覆盖。
 
 本轮不执行真实安装。回退先停止新 owner、保留队列/回执和所有卷，再按旧匹配版本恢复配置及镜像；不恢复旧库覆盖期间新增业务。未来仍需用户批准合并/部署，并完成至少两轮自然30分钟及人工业务验收。
+
+
+## 2026-11-20 已停Worker来源故障的受审备份准备（Issue161候选）
+
+本次用户明确授权Staging必要修复、正式恢复及两轮自然验证；不合并PR160、不操作Production。此前11/18“未授权”段落是历史时点，不是本次授权阻塞。真实执行证据见[当前任务](../tasks/active/staging-selected-source-recovery-2026-11-20.md)。
+
+`backup-check` / `backup --reason <review-reference>` 原受锁路径新增窄入口：只在STOPPED_FAULT或RECOVERY_BLOCKED、原fault为worker_stopped_requires_review且显式审核理由3–300字符、旧owner已PAUSED、当前没有Worker owner时，复用原发布身份/policy/executor pins/镜像/隔离网和全新DB-only健康检查，DB/migration/无running或unknown/无worker lease全部正向满足才允许取得新配对备份。源pause可以保留以备份现场；这不是恢复授权、不清DB pause，不放行Recovery Gate。RECOVERY_FAILED、未知fault、管理员停用的监管配置、其他owner或任一未知前置仍拒绝；原backup fault流程保持。
+
+执行器只在原commandsCertain/groupsExited/servicesResumed均true时，为Docker短暂healthcheck exec最多3次、间隔0.5秒取得新的精确服务Id/image/ExecIDs空证明，记录采样次数和时刻。持续/无法确定exec、身份不匹配、超时或未知后代仍cleanup=false。不得改写旧cleanup=false、伪造terminal receipt或将应用部署独立复核证据替代Worker门禁要求。后续仍须匹配版本新备份、完整来源证据、准确previewHash的管理员恢复、全部Gate及真实新heartbeat。

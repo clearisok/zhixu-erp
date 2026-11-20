@@ -1,0 +1,82 @@
+# Staging selected_source_invalid恢复 — Issue161
+
+2026-11-20；用户附件41393477-cc82-4797-b097-6371667022da明确授权Staging排查、必要最小修复、正式恢复及至少两轮自然调度。PR160保持Draft/Open，禁止Production/合并/SQL清pause/改失败回执/人工heartbeat或last_run/补造任务/批量重试142失败。Refs [Issue161](https://github.com/clearisok/zhixu-erp/issues/161)。
+
+## 基线和只读事实
+
+起点feat/ainuoke-source-deleted /7f0d85d034bdefdef634096f3179f60c32025dcf、clean。API再次核实main636a5ad0d2d1acbe6b2705696e782dea12ee9f00，PR160 head7f0d/Draft/Open。为保留已部署c3及未合并0060删除生命周期，此为现有PR候选的必要运维修正，不从main回退覆盖该功能。此前状态完整保存在completed/2026-11-20-before-selected-source-recovery，原任务部署证据不覆盖。
+
+Staging实际app c3e4251fc9f9a7cc6a18aaa7c2dad8fcc192ea90 / sha256:c29fdf707c846e5939233e01469831c93c73d851fcd883c4eca001d199555c10；operator sha256:6169a45962afd82cb27ec591f507af3c4e8241754af271a8fc3337be973557b2，Worker0。Supervisor a0109d4fd68b8ff3fe5556f8e3e1b61312396cc9d3eadc8e861a0e6587441676，gate d06cef2b1988a22554dc4be356fd6f9dc99c2a1d4d7e309a88ab207749eba22e，executor62fb2e7876913158a93b4b7fb178d3d1cc229d71e98d698b4a198cb954a1509e，collectorbf2ff18da1a68fface7e676804c66b24ef2683b5ef94b257d43ecd7264d73d34，policy11b33712d7ae7028e8feccf71480405fbf690cf294b63b364cd21ca358d9444d。运行配置/identity/policy pins和完整镜像revision实际匹配；sourceKey local-empty，account82ef1be86b5f4969a156aeb3e9a7df540a26bbe684c838d8085e90b1ae99f983，targetf3fe09ceadd17c8e74757eff75a3e2a9452c00ef0786dec7364c82d1ba13a7c9。
+
+控制enabled=true/version5/selected_source_invalid，heartbeat2026-11-20T02:49:40.874Z；45833complete/142failed/20queued/0running/unknown。20排队逐项已读：均automatic、attempt1、retry_of空、present/visible，各合同唯一，未改任何状态。五服务健康，原DB/objects及四卷。当前policy450秒/145表。正式--sync-health实际DB健康、完整迁移checksum到0060、noUnknown=true、hasUnknown=false、workerLeaseHeld=false、adminNotPaused=false；不写心跳或来源请求。
+
+## 暂停事件与证据限制
+
+批次/attempt779c8bf5-ff8f-4713-aea5-40abbcc9fb87，2026-11-20T02:49:25.609Z开始、02:49:39.779Z失败；paused事件ea39feae-d250-4614-ad18-ef7333913866实际02:49:39.794Z（北京时间10:49:39）。五合同PI2610-127、PI2607-204、PI2610-062、PI2609-071、PI2608-245；failJob以pauseCapture=!retry写全局暂停，runAutomaticSync随后因暂停退出。旧运行image60a4bf1d180b113d28fc5761a2f45aa67743ca088f937213084ee35242948bd9，revision636a，不是本次c3上线后新故障。
+
+完整请求诊断均HTTP200/isOk=true，无认证/超时；两遍6086103均13页，末页29/30行，即629/630行，期间读取五合同6087105、6087051及6086405/6086408/6086875/6086354。metrics=null，无原始失败bundle/capture，错误只有selected_source_invalid；不能还原具体重复/缺失行、id/BillNo/Price或字段值，不能据629→630直接认定新增是唯一根因。源码包括协议/对象/分组检查和对非SourceError的泛化；目录adapter的身份/分页Error也会被折叠为此码。HTTP成功不代表整个一致性验证成功。该历史信息缺失明确保留，不伪称根因已精确到某合同。
+
+2026-11-20T07:49:56.369Z–07:50:11.030Z，使用实际c3 immutable operator、实际私密collector和同source/account，在同项目owned ingress网执行正式createSessionCollector+validateCatalogDiagnostic同五合同定向只读采集。54报表/1login/无重试/无续期，各相关报表全部验证通过，businessWrites0。raw只存主机private current-five-contracts.private.json/600，不进Git、不输出凭据或原业务行。当前触发条件未复现，但不将新证据冒充旧失败原文。
+
+## 已证实恢复路径缺口与最小修正v1
+
+原Supervisor=RECOVERY_BLOCKED/originalFault=worker_stopped_requires_review，tick evidenceError=backup_terminal_receipt_missing。旧fc875b32备份绑定636a且原cleanup=false不改。正式backup-check（显式review reason）被拒绝：原CLI只允许已知backup fault在暂停状态补取备份，没有当前已停worker故障的受控路径。
+
+新增require_reviewed_worker_backup，仅显式3–300字符reason、STOPPED_FAULT/RECOVERY_BLOCKED且原fault精确worker_stopped_requires_review、配置enabled、旧ownerPAUSED且当前无运行owner时允许准备。复用提取的原recovery_release_policy身份/文件pin/网络/镜像检查和既有只读--sync-health；必须DB/migration/全部running和unknown/lease正向通过、时钟新鲜。允许保留来源pause时取得备份，不清pause、不改变Gate、不自动启动，不接受未知故障/RECOVERY_FAILED。原Supervisor锁覆盖实际backup，原executor .backup.lock不绕过。
+
+备份cleanup原成功回执可能采到恢复后健康检查的短暂Docker exec；新Sampler仅在原commandsCertain/groupsExited/servicesResumed均为true时最多3次、间隔0.5秒重新正向核实每个精确服务Id/image及ExecIDs空。持久/不可访问exec、身份变化、超时或未知子进程仍false，不改旧回执。新增execObservationAttempts/observedAt，原完整快照SQL/450预算/文件哈希/前后比较不改。0752d64f工程通过后已按正式安装适配器换装c3主机组件以取得切版前备份；app/Worker身份仍保持c3，来源pause不清除。
+
+Windows定向Supervisor19/19、paired8通过/1 POSIX跳过、Gate2/2；paired新测试首轮缺subprocess import导致2错误，修正测试import后通过，未放宽断言。精确0752d64f309d68b6e52afbbd712d28e0d9db9c1e已完成Linux30/30、真实Docker/PostgreSQL恢复E2E1/1（36.444s，实际采集函数/实际PG heartbeat），Release Guard对main636a通过；GitHub source/baseline/team-access全部success，根npm test1026/1026、baseline182/182、typecheck/lint/前后端build通过，不重复运行同SHA测试。Source CI：https://github.com/clearisok/zhixu-erp/actions/runs/44699634508/job/136164599518。
+
+## 后续执行边界
+
+先真实隔离E2E/完整CI，通过后保存当前c3旧组件/策略/故障精确字节，用正式安装机制部署必要匹配资产；只通过正式Supervisor backup获取一次新受控配对备份，原失败包保留。若最终cleanup或任何Gate不通过即阻断。新鲜完整6086103双遍及相关报表合格后，生成正式sync-recovery-preview，确认jobs/captures未知集为空且reviewHash准确，通过sync-recover追加审计，不直接SQL。恢复前再次审查20队列/去重/租约/并发及两删除合同保全。Supervisor独占RECOVERING→真实新heartbeat→RUNNING，后续只观察自然cron/30分钟调度至少两轮，不手动tick伪造自然调度。
+
+## 2026-11-20继续执行检查点（真实恢复尚未完成）
+
+18:50北京时间核实同分支/0752完整HEAD/clean和三项CI成功。主机仍c3，142failed/20queued完整行hash与保存点相同，无running/unknown；五服务健康、原DB/objects CID及四卷未改变。64个私有回滚资产逐项SHA验证通过。18:51正式安装新Supervisor980fa09871aa54086ead56d37df8454d68a9797bfc073ce5e4ac5cd4842c361d与executor0e5c3f00667e5855e28a6e8850486a1491138f9525bbaefa5e12f3d78bdee9ba，保留原始字节/权限/配置，c3 source/image身份保持。正式backup-check=BACKUP_WORKER_QUIET。10:51:44Z启动正式Supervisor受控配对备份20261120T105144Z-a4de43bd（不是直接executor）；当前RUNNING，未宣称终态或cleanup通过，pause/version/heartbeat仍原值。
+
+## 正式切版与第二份配对备份
+
+切版前c3备份20261120T105144Z-a4de43bd于11:08:45.357889Z BACKUP_VERIFIED；原始cleanup.verified=true/dockerExecQuiescent=true/commandGroupsExited=true/commandsCertain=true，采样1次。正式发布前独立逐文件size/SHA和manifest/latest核验、真实executor退出/锁/Exec验证；没有修改旧失败或false回执。11:10:58.102158Z通过仓库trial.mjs/Compose正式切版0752，app/gateway/objects-tls新镜像sha256:9d638f7691cff7ba9d6b7b2531373c37e6f9bd1ea7ea430a16e97d1fe3354bd9；Worker候选sha256:d3015e58f4e481ba52a4153038f83b7f7561814223cb0a735f68ea23d7647a9a。部署前后全部四卷完整inspect相同，原database/objects CID/image/mount/config-hash及网络ID相同，五服务健康，业务/报价/用户/生命周期事件hash保全，142failed/20queued/原control精确不变。正式migration applied=[]，59迁移账本/max0060/145表，未做DDL或回滚。新policy/cron实际安装且组件pins/owner600uid1000验证。
+
+11:12:54Z正式新Supervisor备份前置再次通过，启动匹配0752的新备份20261120T111255Z-b640f966；仍RUNNING，来源pause和原heartbeat保持、Worker未恢复。需此份终态正向cleanup后继续来源和Gate，不能用c3备份放行0752。
+
+## 真实恢复门禁及心跳（两轮自然验收尚未完成）
+
+0752备份20261120T111255Z-b640f966：11:12:55.842818Z–11:29:52.828409Z BACKUP_VERIFIED，145表/11对象，dump3948485656bytes，56个文件逐项size/SHA通过；manifest SHA4c8d7e800f6b76a879f402ea7006cc313251e9eb05d13f38868ec54396e96d86。原始cleanup所有项true/采样1次，真实executor/命令组退出、锁已释放。11:32正式recovery-check为8项true，仅admin_not_paused=false；保留来源保护。resume一次curl健康请求exit35、随后既有有限就绪重试通过，原失败commandEvent完整保留，不能改成首次全部命令成功。
+
+11:33:10–11:33:22Z同五合同正式SDK源端只读采集54报表全部业务成功/无重试续期/无DB写入。随即正式--catalog全新request成功，run d426ce49-7919-4a2d-bb25-6e9e13624866，631合同/createdOrders0/deleted0/restored0。当前实际policy核实frequent255、daily122、weekly181、monthly73，255高频due；不是历史259数量。20旧排队申请人/规范合同关联/present-visible/attempt1无retry全部通过。
+
+正式sync-recovery-preview：jobs=[]/captures=[]、enabled/version5/selected_source_invalid、reviewHash5dccf60f86cef467ba9c82a87311fc54e951aba379554ed352d721c506070aa1。只通过正式sync-recover提交同hash和审查原因，resolvedJobs0/resolvedCatalogRequests0/sourceRequests0；未SQL清pause、未unknown转failed。随后自然cron 11:36:01.367609Z九Gate全true，由Supervisor新建/启动唯一Worker90af91577393a37169490255131495a5deeb1222a613e1f5b8527cabf855d439，StartedAt11:36:03.195029143Z、新PG heartbeat11:36:05.329Z，11:37:01.395140Z进入RUNNING/heartbeat_verified；restart=no/count0，原internal/default及owned ingress隔离保持。未手工tick/启动Worker/入队。
+
+11:38:21Z观察已成功35，队列215/running5、历史failed142hash不变、unknown0、owner1/重复inflight0；两source_deleted/version1保持、其新任务0、生命周期事件仍2。只读观察器每30秒保存实际状态，不干预调度；尚须完成255合同首轮及下一个自然1800秒周期，当前不能宣称2/2。
+
+## 首轮自然调度完成（1/2）
+
+第一轮255个真实高频合同任务11:36:05.599Z开始至11:52:09.288Z结束，255complete/0failed/0unknown，255独立observation回执，排队和running均清空。首例PI2604-065/job18d42164-bb6b-4e1b-8ef0-ac31010b28a8，完成11:36:23.038Z，observation bb314aeb-c349-489f-8e89-4394d071bd58；第二轮应由现有策略在各自完成+1800秒自然入队，不人工触发。只读完整清单保存在主机first-natural-round.private.json，公开摘要first-natural-round-summary.json。两删除合同仍无新任务/版本1/事件2，历史142失败完整行SHA4c2c0ae4a25d10296e2be631008f250c144e65c3de3a715f35bcc2b6bbb9b401。
+
+REMOTE DELIVERY区分：0752代码、c915和dfcd部署文档已DELIVERED_VERIFIED；0c5db44e真实心跳文档提交的正式git-delivery DryRun发生Git/API uncertain_transport，pushes0，进入NETWORK_DEGRADED。该本地检查点未推送，不重复撞失败Git通道，不影响已核实0752实际代码部署和继续自然验收。后续仅本地checkpoint并提供一条正式恢复命令；PR不冒称未交付文档已在远端。
+
+## 最终真实验收：两轮自然调度2/2（2026-11-20）
+
+| 周期（北京时间） | 开始 | 完成 | 合同/成功/失败/未知/缺发布 |
+|---|---|---|---|
+| 第一轮自然到期补齐 | 19:36:05.599 | 19:52:09.288 | 255/255/0/0/0 |
+| 第二轮自然1800秒 | 20:06:39.721 | 20:23:21.144 | 255/255/0/0/0 |
+
+严格逐单验证255合同/510唯一任务/510唯一observation/510唯一source+scheduled_slot；全部automatic、attempt1、retry_of空，第二轮每个scheduled_slot精确等于首轮finished_at+1800秒，无提前执行。实际第二轮start延后1.569–153.026秒，来自正常minute/batch/并发节流，不伪称所有启动正好间隔1800秒。原20排队任务使用原ID自然完成，没有补造/批量重试142失败。完整逐单CSV SHA256 aa1b60fe57456daeb983aebdf3752ed28eed99b7b839bd7a56e2de930860feb5；主机two-natural-cycles-contracts.csv和本机脱敏artifact同字节核实。
+
+同合同示例PI2604-065：第一任务18d42164-bb6b-4e1b-8ef0-ac31010b28a8，19:36:05.599–19:36:23.038，observation bb314aeb-c349-489f-8e89-4394d071bd58；第二任务f8f26e87-69b6-46f9-90e8-00338ebf797f，计划20:06:23.038、实际20:06:39.721–20:06:53.390，observation8294df1e-0128-4834-b54d-248311cfdd03。两个周期均实际SDK读取/数据库发布，不是手动tick或mock。自然目录run7b792c97-63e2-40f5-ad41-83dbc3db9602在20:03:38成功/错误空/哈希与恢复时一致，下一次20:33:38。
+
+九Gate均PASS：admin_not_paused、backup_process_exited、backup_children_exited、docker_exec_quiescent、backup_lock_released、database_healthy、migrations_current、no_unknown_result、worker_exclusivity_verified。正常状态机RECOVERING→RUNNING/heartbeat_verified，实际Worker90af9157/image d3015e58未重启，Supervisor/Worker/Scheduler均RUNNING。心跳持续至20:26:01.253（后续正式Worker继续更新）。两轮结束新增510complete，总complete46343，原failed142完整hash保留；queued/running/unknown均0，无重复inflight/publication。两删除合同source_deleted/version1/事件2，恢复后新任务0，原数量10000/8000保留。
+
+20:26最终核实：37个policy pins、sourceKey/target/sourceSha/collector/镜像/执行器身份匹配，五服务healthy，原database/objects CID/镜像/挂载、四卷完整inspect相同，无数据库公网映射，原B4故障及20261116失败回执原字节hash不变。23手工/报价表、3用户及角色、630原订单再次完整hash不变；26生产/到货表当前实际0行，与新备份hash一致，不把空表描述为非空历史验收。保留全部原始失败、暂停、恢复事件和两个新备份。20:29仅终止本任务自有只读观察器（精确PID/argv/uid核实），未给Worker或Supervisor发信号，唯一正式Worker继续运行。
+
+### Git、CI及剩余限制
+
+实际部署0752d64f309d68b6e52afbbd712d28e0d9db9c1e全部工程/Actions通过，后续四份文档外无代码增量。远端PR160仍Draft/Open/head dfcd8a174500f60e8f4dbeda9ee21e03b78e5ecf，main636a未合并。dfcd baseline/team-access成功，但Source run44726108836在11:40:59Z取消；首日志11:15:47Z、workflow上限25分钟，推测触及预算，取消原因未独立证明，未观察断言失败，不记PASS。未无意义重跑0752已通过测试，也未扩大CI/UI开发。以后审PR前需补齐最新交付SHA的必要CI。
+
+Git交付仍NETWORK_DEGRADED：0c5/b1a及后续最终证据提交仅本地，正式DryRun未push；没有反复推送或改认证/代理/TLS。提供一条绑定最终完整HEAD的正式交付命令供通道恢复后使用；远端文档未送达不冒称REMOTE PASS。实际0752 Staging验收成功与文档远端交付分别报告。PR160不合并，Issue161保持Open/等待用户验收，Production未操作。
+
+历史selected_source_invalid的具体坏行/字段仍因原raw缺失无法还原；当前同账号/报表全部新鲜完整证据合格，并不等于证明旧错误由某新增行或Price造成。本次未猜测修改来源比对器、身份或Price保护。若未来再出现未知身份/分页/认证/结构异常，严格保护仍会阻断；本轮两次自然周期正常不构成永久无故障保证。

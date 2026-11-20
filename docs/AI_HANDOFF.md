@@ -1,9 +1,17 @@
-# PR158最终授权执行接力
+# 接力：Issue161 Staging自动同步真实恢复，2/2自然验收完成
 
-2026-11-19，fix/catalog-mutable-recapture，main基线1ab40fd39b035e471f5557903c026dd36d3bab8e，起始faee779b4539625e36d26f7942b53194cfc57517 clean。用户已明确批准必要修复→全套测试/最新CI→正常合并PR158→准确main仅Staging部署→0059→正式来源恢复/Gate/Supervisor新心跳→两轮自然30分钟；Production禁止。授权转录Issue157#issuecomment-7009672967。
+2026-11-20；分支feat/ainuoke-source-deleted。main已核实636a5ad0d2d1acbe6b2705696e782dea12ee9f00；PR160 Draft/Open，未合并。用户明确授权Staging必要最小修复、备份、正式恢复及自然两轮；Production禁止。历史状态保留在tasks/completed/2026-11-20-before-selected-source-recovery。
 
-最后安全收口：发布前decision/审计/采集结束异常纳入已知未提交边界，diagnostic DB异常封闭code/failed，无running/unknown假象；复杂Price原文不入诊断；重采计划同source/account/capture+batch成员/6086103，周期目录同账号。五合同真实PG测试证明共享目录拒绝不部分发布，4单自己的新稳定证据各一次重采完成，异常单三次finite失败不全局暂停。早期测试时效/不可变fixture错误已记录，不放宽保护。新完整套件与最新CI仍须冻结后运行。
+实际部署代码0752d64f309d68b6e52afbbd712d28e0d9db9c1e，五服务健康，0060/145表，原database/objects容器及四卷不变。Supervisor980fa098…/Worker image d3015e58…/executor0e5c3f00…/collector bf2ff18d…/37个policy pins实际匹配。c3预备份a4de43bd和0752新备份20261120T111255Z-b640f966均正式完成且原cleanup=true，后者56文件完整SHA/size验证。旧失败包/原故障字节保留。
 
-Staging只读12:56Z：90de5b0a app三容器healthy，DB58/630目录/112failed/39740complete/0queued-running-unknown；旧来源暂停和心跳未改。尚未执行任何真实变更。本次必须新备份、旧资产/卷保全、0059兼容回滚候选；旧0058镜像被正式迁移清单拒绝，不删账本/表。历史Price具体行已丢失不编造；新授权附件batch拼写806a与原读证807a不同，以实际回执核验。
+新鲜6086103完整双遍631行/13页及相关54报表全部业务验证通过；空unknown集合正式previewHash恢复控制version5→6、保留旧暂停事件，九项Gate全PASS。自然cron/Supervisor19:36:03启动唯一Worker，19:36:05真实PG心跳、19:37 RUNNING/heartbeat_verified。无手动Worker启动/补任务/改时间。
 
-完整实现、各阶段测试/失败/恢复设计见docs/tasks/active/catalog-mutable-recapture-2026-11-19.md；后续按既有正式部署/恢复机制，不能SQL清暂停或人工补跑。最终验收前IssueOpen，不用关闭关键词。
+当前255高频合同：首轮19:36:05.599–19:52:09.288、第二轮20:06:39.721–20:23:21.144，北京时间，各255成功/0失败；510唯一任务/发布，每合同第二次计划精确前次完成+1800秒，实际start延后1.569–153.026秒正常节流。原142failed hash完整保留，旧20queued自然完成，最终queued/running/unknown0。两source_deleted订单version1/事件2/无新任务、数量历史不变；23手工报价表/630原订单/3用户角色完整hash保全。Worker和Scheduler继续RUNNING。
+
+工程0752：root1026/1026、baseline182/182、Linux30/30、真实Docker/PostgreSQL恢复E2E1/1、typecheck/lint/前后端build及三项CI成功，同SHA不重复。后续仅四份证据文档。远端最新dfcd文档HEAD baseline/team通过，Source CI约25分钟后cancelled（疑预算、非已证明断言失败），不写PASS；实际0752完整CI绑定独立保留。
+
+Git：0752/c915/dfcd已精确送达；0c5/b1a及最终证据本地checkpoint，git-delivery DryRun uncertain_transport/pushes0，NETWORK_DEGRADED，禁止继续重复push同通道。PR正文/Issue可通过原GitHub插件记录事实，但不冒称未交付源码已在远端。恢复通道后用正式单条精确HEAD命令送达并补齐相应CI。
+
+[完整恢复证据与限制](tasks/active/staging-selected-source-recovery-2026-11-20.md)。旧失败原raw缺失，具体坏行/字段无法还原；未猜测修改来源比较器或关闭保护。下一步等待用户验收；不合并、不进一步改动Staging或Production。
+
+主机证据/home/jackson/weaveops-staging-preview/releases/source-recovery-20261120；本机脱敏验收artifact在C:/Users/Administrator/.codex/visualizations/2026/11/18/01a1ec55-eaa3-75f0-a103-83b015d43fb4/selected-source-recovery-20261120。两轮已完整完成，不要重复恢复/备份/手工tick来重做已完成验收；正式Worker继续运行，仅本任务只读临时观察器已停止。PR160和Issue159/161保持未合并/未关闭，等待用户确认。

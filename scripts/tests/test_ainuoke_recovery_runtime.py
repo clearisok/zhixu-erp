@@ -71,17 +71,34 @@ class RecoveryRuntime(unittest.TestCase):
                 'files':{executor:digest},'services':{'database':{'id':db_info['Id'],'image':db_info['Image']}}})
             identity=put('identity.json',{'sourceSha':sha,'image':image,'sourceKey':source,
                 'expectedTarget':check['targetFingerprint'],'backupExecutorSha256':digest})
-            cfg={'enabled':True,'sourceSha':sha,'image':image,'sourceKey':source,'expectedTarget':check['targetFingerprint'],
+            cfg={'schemaVersion':'weaveops-catalog-supervisor.v1','enabled':True,'sourceSha':sha,'image':image,'sourceKey':source,'expectedTarget':check['targetFingerprint'],
                  'project':project,'network':network,'containerName':worker,'stateRoot':str(root),
                  'collectorFile':collector,'environmentFile':str(env),'identityFile':identity,
                  'oldStatusFile':put('old.json',{'state':'PAUSED'}),'backupStatusFile':str(backup_root/'status.json'),
                  'backupCommand':['/usr/bin/python3',executor,'backup',policy],
                  'backupPolicyFile':policy,'backupExecutorSha256':digest}
+            # Actual CLI accepts a reviewed stopped-worker backup while DB pause
+            # remains active. It must not start a worker or clear the pause.
+            reviewed={'state':'RECOVERY_BLOCKED','originalFault':'worker_stopped_requires_review'}
+            put('status.json',reviewed);config_path=put('supervisor.json',cfg)
+            action('pause')
+            prepared=subprocess.run(['python3','scripts/ainuoke_sync_supervisor.py','--config',config_path,
+                '--reason','synthetic reviewed source recovery','backup-check'],capture_output=True,text=True,timeout=90)
+            self.assertEqual(prepared.returncode,0,prepared.stdout)
+            self.assertEqual(json.loads(prepared.stdout)['state'],'BACKUP_WORKER_QUIET')
+            self.assertIsNone(supervisor.inspect_owned(cfg))
+            self.assertFalse(supervisor.read_recovery_health(cfg)['adminNotPaused'])
             # Exercise the actual failed command and shared cleanup sampler.
-            with self.assertRaises(RuntimeError):supervisor.perform_backup(cfg,root,root/'status.json',{'state':'BACKUP_QUIET'})
+            with self.assertRaises(RuntimeError):supervisor.perform_backup(cfg,root,root/'status.json',reviewed)
             failed=(backup_root/'status.json').read_bytes();receipt=json.loads(failed)
             self.assertEqual(receipt['state'],'FAILED');self.assertTrue(receipt['cleanup']['verified'])
             state=json.loads((root/'status.json').read_text())
+            self.assertEqual(state['originalFault'],'worker_stopped_requires_review')
+            with supervisor.recovery_backup_lock(cfg):
+                paused_evidence=supervisor.recovery_evidence(cfg,state,None)
+            self.assertFalse(supervisor.recovery_gate_result(paused_evidence)['allowed'])
+            self.assertFalse(paused_evidence['admin_not_paused'])
+            action('unpause')
             # The real collector checks the lock, process, Docker, CLI target,
             # PostgreSQL, migrations, administrator, queue and existing lease.
             with supervisor.recovery_backup_lock(cfg):
@@ -116,6 +133,12 @@ class RecoveryRuntime(unittest.TestCase):
             with (backup_root/'.backup.lock').open('r+') as lock:
                 fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB);self.assertEqual(blocked()['code'],'backup_lock_held_or_unknown')
             docker('exec','-d',db,'sleep','3');self.assertEqual(blocked()['code'],'backup_cleanup_unverified');time.sleep(3)
+            from scripts.ainuoke_paired_backup import cleanup_evidence
+            docker('exec','-d',db,'sleep','5')
+            active_cleanup=cleanup_evidence({'database':{'id':db_info['Id'],'image':db_info['Image']}},[],True)
+            self.assertFalse(active_cleanup['verified']);self.assertEqual(active_cleanup['execObservationAttempts'],3)
+            time.sleep(5)
+            self.assertTrue(cleanup_evidence({'database':{'id':db_info['Id'],'image':db_info['Image']}},[],True)['verified'])
             docker('pause',db);blocked();docker('unpause',db)
             until(lambda: subprocess.run(['docker','exec',db,'pg_isready','-U','quote_trial'],capture_output=True).returncode==0)
             action('unknown');self.assertEqual(blocked()['code'],'unknown_remote_result')

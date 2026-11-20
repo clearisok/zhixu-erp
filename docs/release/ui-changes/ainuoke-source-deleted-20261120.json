@@ -1,0 +1,22 @@
+{
+  "baselineSha": "636a5ad0d2d1acbe6b2705696e782dea12ee9f00",
+  "level": "V2",
+  "paths": [
+    "app/order-center/order-center.css",
+    "features/order-center/server/order-alerts.ts",
+    "features/order-center/server/sales-order-server-model.ts"
+  ],
+  "pages": [
+    "order-list",
+    "order-detail"
+  ],
+  "visibleDifference": "User-requested additive red order-deleted chip in existing exception column, identical size/radius and no column width/layout changes. Deleted source suppresses its ordinary stale/unavailable chip; independent alerts and normal orange stale/purple unit labels remain. Optional trusted lifecycle DTO projection only.",
+  "evidence": [
+    "docs/tasks/active/ainuoke-source-deleted-2026-11-20.md",
+    "server/integration/ainuoke-source-deleted.integration.test.ts"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/ainuoke-source-deleted-2026-11-20.md"
+  }
+}

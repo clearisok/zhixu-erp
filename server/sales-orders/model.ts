@@ -69,6 +69,7 @@ export type SalesOrderReadModel = {
   salesContractNo: string | null;
   insideOrderNo: string | null;
   sourceLifecycleStatus: string;
+  sourceLifecycle?: {state:'present'|'source_deleted';deletedAt:string|null;version:number};
   businessType?: "ainuoke_contract"|"processing"|"unclassified";
   ownerName?:string|null;
   businessSource?:"quote"|"reorder"|null;

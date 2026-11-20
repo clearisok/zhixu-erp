@@ -32,18 +32,30 @@ def cleanup_evidence(services, events, services_resumed):
                        (e.get('pid') is None or process_group_exited(e['pid'])) for e in events)
     commands_certain = all(not e.get('timedOut') and e.get('errorCode') not in
                            ('command_killed', 'cleanup_failed') for e in events)
-    execs_clear = bool(services)
-    try:
-        for service in services.values():
-            actual = json.loads(subprocess.run(['docker', 'inspect', service['id']],
-                capture_output=True, text=True, timeout=20, check=True).stdout)[0]
-            if actual.get('Id') != service['id'] or actual.get('Image') != service['image']:
-                execs_clear = False
-            execs_clear = execs_clear and docker_exec_quiescent(service['id'], docker='docker')
-    except (OSError, ValueError, KeyError, IndexError, subprocess.SubprocessError):
-        execs_clear = False
+    execs_clear = False
+    attempts = 0
+    # A Docker HEALTHCHECK may briefly own an exec after service restoration.
+    # Resample positive absence within a fixed bound; never accept an ongoing
+    # or inaccessible exec, change a prior receipt, or forgive a timed-out child.
+    maximum_attempts = 3 if groups_clear and commands_certain and services_resumed is True else 1
+    for attempt in range(maximum_attempts):
+        attempts += 1
+        execs_clear = bool(services)
+        try:
+            for service in services.values():
+                actual = json.loads(subprocess.run(['docker', 'inspect', service['id']],
+                    capture_output=True, text=True, timeout=20, check=True).stdout)[0]
+                if actual.get('Id') != service['id'] or actual.get('Image') != service['image']:
+                    execs_clear = False
+                execs_clear = docker_exec_quiescent(service['id'], docker='docker') is True and execs_clear
+        except (OSError, ValueError, KeyError, IndexError, subprocess.SubprocessError):
+            execs_clear = False
+        if execs_clear or attempt + 1 == maximum_attempts:
+            break
+        time.sleep(0.5)
     return {'schemaVersion': 'weaveops-backup-cleanup.v1', 'commandGroupsExited': groups_clear,
             'commandsCertain': commands_certain, 'dockerExecQuiescent': execs_clear,
+            'execObservationAttempts': attempts, 'observedAt': dt.datetime.now(dt.timezone.utc).isoformat(),
             'verified': groups_clear and commands_certain and execs_clear and services_resumed is True}
 
 
@@ -84,6 +96,7 @@ def execute(args, *, data=None, input_stream=None, output=None, timeout=120):
     event = {'step': CURRENT_STEP, 'command': Path(args[0]).name,
              'startedAt': started.isoformat(), 'pid': None, 'exitCode': None,
              'signal': None, 'timedOut': False, 'result': 'FAILED',
+             'timeoutSeconds': timeout,
              'stdoutExcerpt': '[suppressed]', 'stderrExcerpt': '[suppressed]'}
     process = None
     try:
@@ -152,8 +165,18 @@ COMMIT;
 """
 
 
+def snapshot_timeout_seconds(policy):
+    # Existing targets retain their reviewed five-minute budget. Larger targets
+    # may opt into a bounded ten-minute budget through the pinned private policy.
+    value = policy.get('snapshotTimeoutSeconds', 300)
+    if type(value) is not int or not 300 <= value <= 600:
+        raise Stop('snapshot_timeout_policy_invalid')
+    return value
+
+
 class Backup:
     def __init__(self, policy):
+        self.snapshot_timeout_seconds = snapshot_timeout_seconds(policy)
         self.p = policy
         self.root = direct(policy["backupRoot"], directory=True)
         self.project = policy["project"]
@@ -173,7 +196,7 @@ class Backup:
 
     def snapshot(self):
         try:
-            rows = self.sql(SNAPSHOT_SQL, timeout=300)
+            rows = self.sql(SNAPSHOT_SQL, timeout=self.snapshot_timeout_seconds)
         except Stop as error:
             raise Stop('snapshot_timeout' if str(error) == 'command_timeout' else 'snapshot_failed') from None
         if len(rows) != self.p["tableCount"] + 1:
@@ -290,6 +313,7 @@ class Backup:
         result = {"contract": "weaveops-paired-backup.v1", "id": name, "project": self.project,
                   "source": self.p["source"], "state": "RUNNING", "startedAt": dt.datetime.now(dt.timezone.utc).isoformat(),
                   "sourceRequests": 0, "businessWrites": 0, "deletedAssets": 0, "snapshotAlgorithm": "row-sha256-multiset-v2"}
+        result['snapshotTimeoutSeconds'] = self.snapshot_timeout_seconds
         result['executorProcess'] = process_identity(os.getpid())
         try:
             CURRENT_STEP = 'validate'
