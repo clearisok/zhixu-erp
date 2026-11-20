@@ -49,3 +49,22 @@
 无网络Linux根测试已1025/1026，唯一失败确认来自Win esbuild被带入Linux的原生二进制平台不匹配。使用预存Linux镜像同版本0.25.12二进制的进程级ESBUILD_BINARY_PATH，Q5定向3/3通过；没有改锁文件、安装共享依赖、跳过或弱化Q5。完整根/基线须在该正确隔离环境最终收口，不以1025/1026算PASS。
 
 最终代码2fb03344：完整npm test在正确无网络Linux环境1026/1026（Node22.23.3、锁文件hash41ee8f28…同当前、esbuild Linux/Win同版0.25.12）；本机typecheck/lint通过；含非空历史的生命周期/升级10/10。新生命周期与四分辨率浏览器回归接入原Source CI两个现有步骤，不改权限/触发/超时，不增加部署自动化。发布基线单独命令遇到Docker共享日志I/O错误，改在自有容器内部文件保留日志后复验；不把异常退出算通过。
+
+
+## 最终工程收口与Docker重建（2026-11-20）
+
+Branch feat/ainuoke-source-deleted；源代码/CI检查点368bfb38783e234684ea0506b58ff97cf37f3c63；Draft PR https://github.com/clearisok/zhixu-erp/pull/160 ，Refs #159，不合并、不部署。该精确HEAD的Actions全部SUCCESS：Release baseline [44673053631](https://github.com/clearisok/zhixu-erp/actions/runs/44673053631)、First team access [44673053605](https://github.com/clearisok/zhixu-erp/actions/runs/44673053605)、Ainuoke server source [44673053836](https://github.com/clearisok/zhixu-erp/actions/runs/44673053836)。Source内实际执行新增test:source-deleted及test:source-deleted-ui；原P6/six roles、迁移/API/Python保护均成功。后续若只有本节/共享状态文档提交，不将旧CI冒称新SHA已完成。
+
+独立Windows npm run test:release-baseline最终182/182，零失败/跳过，Node24.16.0，耗时2703960ms；此前长时间运行不提前计通过。显式guard在368bfb38对main636a通过，3条精确UI路径、13pages/68capabilities。完整root日志1026/1026，代码2fb03344后只增加CI两行和文档，锁文件未改变。宁波静态QA初次Node22无原生TS导致162/163；使用已存在runner Node24后因只复制TypeScript而缺React依赖仍162/163，不算通过；不安装共享依赖/不继续无意义重跑，以完整本机182及GitHub正式CI为准。
+
+D盘满导致Docker metadata/EIO和旧本地demo500，失败记录保留，不伪称服务健康。用户后续明确已释放D盘并彻底清空重新初始化Docker，现D约157GB空闲；本轮没有删除原本地业务卷，也不猜测重建旧业务库。保留原98d6工作树与所有commit；独立C盘完整Git恢复目录source-deleted-final-20261120精确368bfb38、clean，防止D盘common-dir影响提交。其node_modules仅junction共享原C依赖，无锁文件变更。
+
+本机docker pull postgres:16-alpine遇到Docker Hub超时（198.18.0.55），不改daemon/代理；只读导出宁波既有公开标准镜像，不操作任何远端容器/数据卷：Image sha256:721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea、linux/amd64；tar116747776bytes、SHA256896b4b0976ae21f1d6f4095b8c75204bdf83e4cf2b46ba76dd4133a7506ce9da，docker load成功。临时PG继续仅127.0.0.1随机端口和tmpfs，不创建持久业务卷。
+
+重新构建实际DEV Server/snapshot/session前端，sourceSha368bfb38，buildTime2026-11-20T04:44:56.0133506Z。新Docker环境的真实Chromium复验1/1成功，1366×768/1440×900/1920×1080/2560×1440、admin/reader/刷新/详情API、原异常列宽及24px/12px/4px尺寸、橙过期/紫单位空保留。新图片位于本机artifact的reinitialized子目录，旧截图/失败证据不覆盖。新demo由正式测试fixture执行完整双遍生命周期转换，实际API返回PI142/SO629数量10000、PI143/SO630数量8000、source_deleted/version1；均为清楚标识的合成订单，不是实际Staging状态。
+
+Git远端交付：原代理通道失败和宁波90秒预检失败保留；宁波pushes0且host无gh，不冒称通道恢复。进程级清除代理的有界只读对照成功后，同一凭据/TLS验证、无全局配置改动，正式git-delivery.ps1 Dry Run→Execute一次，DELIVERED_VERIFIED，远端exact368bfb38（5936ms/pushes1）。PR创建后未重复创建。工程与远端状态分开，最终文档提交再单次正式交付并独立核SHA。
+
+交付限制：仅本地候选；真实Staging仍未部署0060、两样本未作真实生命周期转换，最终业务验收未发生。同BillNo若源站以不同不可变id重建，现有身份冲突保护仍要求人工核对，不自动改绑。回滚不drop0060/事件/历史业务数据；将来真实部署前需另行授权及完整备份/兼容性检查，不能用本机tmpfs演示代替部署恢复证据。
+
+清空Docker后的生命周期/升级复验最终10/10、零失败/跳过，耗时194725ms（sourceSha368bfb38）；浏览器1/1耗时57279ms。新临时PG验证非空历史逐行hash、队列隔离、重复事件防护和恢复，未改代码/超时/断言。Project #1的Issue159改Review，保持Open与Draft PR，等待用户本地人工验收。
