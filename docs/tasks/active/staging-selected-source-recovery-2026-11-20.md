@@ -41,3 +41,13 @@ Windows定向Supervisor19/19、paired8通过/1 POSIX跳过、Gate2/2；paired新
 切版前c3备份20261120T105144Z-a4de43bd于11:08:45.357889Z BACKUP_VERIFIED；原始cleanup.verified=true/dockerExecQuiescent=true/commandGroupsExited=true/commandsCertain=true，采样1次。正式发布前独立逐文件size/SHA和manifest/latest核验、真实executor退出/锁/Exec验证；没有修改旧失败或false回执。11:10:58.102158Z通过仓库trial.mjs/Compose正式切版0752，app/gateway/objects-tls新镜像sha256:9d638f7691cff7ba9d6b7b2531373c37e6f9bd1ea7ea430a16e97d1fe3354bd9；Worker候选sha256:d3015e58f4e481ba52a4153038f83b7f7561814223cb0a735f68ea23d7647a9a。部署前后全部四卷完整inspect相同，原database/objects CID/image/mount/config-hash及网络ID相同，五服务健康，业务/报价/用户/生命周期事件hash保全，142failed/20queued/原control精确不变。正式migration applied=[]，59迁移账本/max0060/145表，未做DDL或回滚。新policy/cron实际安装且组件pins/owner600uid1000验证。
 
 11:12:54Z正式新Supervisor备份前置再次通过，启动匹配0752的新备份20261120T111255Z-b640f966；仍RUNNING，来源pause和原heartbeat保持、Worker未恢复。需此份终态正向cleanup后继续来源和Gate，不能用c3备份放行0752。
+
+## 真实恢复门禁及心跳（两轮自然验收尚未完成）
+
+0752备份20261120T111255Z-b640f966：11:12:55.842818Z–11:29:52.828409Z BACKUP_VERIFIED，145表/11对象，dump3948485656bytes，56个文件逐项size/SHA通过；manifest SHA4c8d7e800f6b76a879f402ea7006cc313251e9eb05d13f38868ec54396e96d86。原始cleanup所有项true/采样1次，真实executor/命令组退出、锁已释放。11:32正式recovery-check为8项true，仅admin_not_paused=false；保留来源保护。resume一次curl健康请求exit35、随后既有有限就绪重试通过，原失败commandEvent完整保留，不能改成首次全部命令成功。
+
+11:33:10–11:33:22Z同五合同正式SDK源端只读采集54报表全部业务成功/无重试续期/无DB写入。随即正式--catalog全新request成功，run d426ce49-7919-4a2d-bb25-6e9e13624866，631合同/createdOrders0/deleted0/restored0。当前实际policy核实frequent255、daily122、weekly181、monthly73，255高频due；不是历史259数量。20旧排队申请人/规范合同关联/present-visible/attempt1无retry全部通过。
+
+正式sync-recovery-preview：jobs=[]/captures=[]、enabled/version5/selected_source_invalid、reviewHash5dccf60f86cef467ba9c82a87311fc54e951aba379554ed352d721c506070aa1。只通过正式sync-recover提交同hash和审查原因，resolvedJobs0/resolvedCatalogRequests0/sourceRequests0；未SQL清pause、未unknown转failed。随后自然cron 11:36:01.367609Z九Gate全true，由Supervisor新建/启动唯一Worker90af91577393a37169490255131495a5deeb1222a613e1f5b8527cabf855d439，StartedAt11:36:03.195029143Z、新PG heartbeat11:36:05.329Z，11:37:01.395140Z进入RUNNING/heartbeat_verified；restart=no/count0，原internal/default及owned ingress隔离保持。未手工tick/启动Worker/入队。
+
+11:38:21Z观察已成功35，队列215/running5、历史failed142hash不变、unknown0、owner1/重复inflight0；两source_deleted/version1保持、其新任务0、生命周期事件仍2。只读观察器每30秒保存实际状态，不干预调度；尚须完成255合同首轮及下一个自然1800秒周期，当前不能宣称2/2。
