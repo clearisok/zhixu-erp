@@ -1,5 +1,7 @@
 # 决策日志
 
+2026-11-21 D199前向激活记录（Active，原架构边界不变）：已实际签发Let's Encrypt域名证书、完成DNS-01续期演练及独立用户cron；独立LAN入口仅66.69:443、allow83.51/服务器自检。用户批准并执行单客户端UFW和管理员hosts后，真实办公室浏览器登录/订单/报价/物料及独立合成附件上传下载通过，新的HTTPS响应均LAN。两端/32仍按用户批准仅临时，不能自动持久化或扩大办公室范围；公司DNS、当前Access全策略、独立外网和重启持续性未验。原D199下述“未激活”保留为决定时冻结事实，由本条及Phase6现场证据前向补充，不改业务规则。部署代码源92e83343082c1251000944b6e791e8a4a3e68445；证据artifacts/staging-lan-20261121/phase6-acceptance.json、phase6-measurements.json及任务Phase6。旧数据保全，新增合成草稿/附件明确记录，不称DB数据完全不变。
+
 2026-11-21 D199（Active，Issue163用户明确授权Staging LAN范围；候选入口未激活）：保留现有Cloudflare/Tunnel、localhost:3003网关、原DB/对象/Worker与Production；仅新增独立LAN入口，先限单客户端、可信域名证书和同域session/RBAC/Origin，再验证DNS与TUN真实直连。现有localhost私有CA不得作为浏览器证书或替换以影响Tunnel。共享主机路由/公司网络或额外外部权限先报告具体影响；不得删除重叠Docker网桥或改共享代理以绕过问题。没有证书、互达、当前Access策略和真实浏览器证据时保持未部署/未验收，不以loopback/curl --resolve替代。代码证据ops/staging-lan/compose.yml、nginx.conf、preflight.sh、measure.mjs；实际独立loopback探针已通过并停止，真实LAN/证书/续期仍待外部条件。详docs/ops/staging-lan-direct.md及tasks/active/staging-lan-direct-2026-11-21.md。不更改业务规则或自动同步策略。
 
 2026-11-20 D198（Active，用户明确批准实施；候选未部署）：来源合同在历史完整成功目录出现，新的认证完整双遍均缺失、身份/账号/6086103空查询范围/分页一致且BillNo唯一绑定local SO时，记录source_deleted及不可变确认事件；不物理删除订单/生产/报价成本/物料/出运/快照，不改本地业务生命周期与数量。重新完整双遍出现追加source_restored，恢复既有调度，不重复建单。旧invisible不由迁移推断，缺证/单遍/局部/物料/认证/范围异常不判删除。停止该合同新自动任务，其他独立来源和Price隔离/30分钟/未知保护保持。UI仅原异常列新增同尺寸红色订单删除、替代该来源过期而保留独立异常；本轮代码/测试/本地演示/独立PR，不合并、不部署/写真实状态。代码catalog-lifecycle.ts、0060、catalog-capture.ts、catalog.ts、sync-queue.ts、sales-orders/repository.ts/order-alerts.ts及order-center标签。详见Issue159/当前任务。此条窄补充D180/D188/D191的来源不可见性，不授权清数据或取消本地订单。

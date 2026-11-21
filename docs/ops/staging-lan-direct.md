@@ -1,12 +1,30 @@
 # Staging LAN 入口与恢复手册
 
-2026-11-21，Refs [#163](https://github.com/clearisok/zhixu-erp/issues/163)。当前状态：**两端临时/32已落实，可信DNS-01证书和续期演练通过，LAN Nginx192.168.66.69:443已启动；仅服务器health通过，办公室443待获批UFW规则执行/核实及hosts、浏览器验收**。实际证据和阻塞见[任务记录Phase4](../tasks/active/staging-lan-direct-2026-11-21.md)。
+
+## 2026-11-21 Phase6 当前实机状态
+
+当前电脑83.51已可信HTTPS直连66.69，新入口/证书/用户cron实际运行；用户本人已完成单客户端UFW规则与管理员hosts。下面早期调查中的22超时/未见443属于修改前证据，不代表当前443故障。原Tunnel/app/CA不变；公网固定CF入口同机10/10回归。仅单电脑，不是全办公室DNS部署。
+
+**两端/32为临时**：服务器route和Windows ActiveStore重启可能消失，hosts会保留。未授权持久化，重启后不能假设仍可用；需重新核实IP/路由，再由用户决定是否重加或授权持久方案。移动到办公室外时，先用下列UAC单命令撤owned hosts，恢复公网域名解析；不要在外网继续把域名固定到私网。
+
+```powershell
+Start-Process powershell.exe -Verb RunAs -ArgumentList '-NoProfile -NoExit -File "C:/Users/Administrator/.codex/worktrees/0dd2/zhixu-ainuoke-api/ops/staging-lan/Set-ClientHosts.ps1" -Execute -Rollback'
+```
+
+回办公室且确认临时路由/可信443仍可用后，去掉-Rollback即可恢复本任务owned映射。route回滚同一UAC命令把Set-ClientHosts.ps1换为Set-ClientRoute.ps1，仍保留-Execute -Rollback。服务器精确route回滚由用户sudo执行 `ip route del 192.168.83.51/32 via 192.168.66.1 dev enp3s0`，仅核实本任务值后操作。不要更改或删除重叠Docker网桥。
+
+公司统一Split DNS需设备管理员仅为staging.weaveops.top建立192.168.66.69覆盖，公网Cloudflare记录保持。先确定允许客户端和跨VLAN回程、确认Access等效控制，再逐客户端核对可信证书及浏览器remoteIP；当前Nginx/UFW只allow83.51，**仅配置DNS不足以让其他电脑可用**。不给未知品牌路由器猜菜单，不自动扩allow或修改全办公室。
+
+证据：[Phase6测速](../../artifacts/staging-lan-20261121/phase6-measurements.json)、[浏览器及服务](../../artifacts/staging-lan-20261121/phase6-acceptance.json)。合成草稿QT-2026-1121-008及PNG保留；不改旧报价订单。真实业务截图仅本机ignored outputs。历史STAGING-ACCEPTANCE-562缩略图503待另查，不覆盖旧附件。大文件、独立外网、现有Access全策略和未来WS未验，不扩大验收声明。
+
+
+2026-11-21，Refs [#163](https://github.com/clearisok/zhixu-erp/issues/163)。当前状态：**可信DNS-01证书、续期演练、独立cron和LAN Nginx均已实际运行；单电脑hosts与真实浏览器验收通过**。详细历史/限制见[任务Phase6](../tasks/active/staging-lan-direct-2026-11-21.md)。
 
 ## 真实入口与候选结构
 
-现有路径：当前Windows候选客户端 → Bettbox TUN/Fake-IP → Cloudflare SJC → 既有Tunnel（历史路由指向HTTPS localhost:3003）→ Node TLS gateway → app/Web/API → 原PostgreSQL/对象存储。当前控制台路由及Access全策略尚未复读；不将历史控制台观察冒称本轮读取。
+当前LAN路径：办公室Windows83.51 → 单机hosts解析 → WLAN2/83.1 → `192.168.66.69:443` → 独立Nginx → **校验原私有CA及localhost SNI** → `127.0.0.1:3003` → 原gateway/app → 原PostgreSQL/对象存储。静态资源、API和附件同入口。浏览器新HTTPS实际远端均LAN，不通过Clash/Fake-IP或Cloudflare公网入口；未更改VPN全局模式。
 
-已运行的独立入口（办公室DNS/通路仍待验证）：同一域名的单机/内部DNS → `192.168.66.69:443` → 独立Nginx → **校验原私有CA及localhost SNI** → `127.0.0.1:3003` → 原gateway/app。公网DNS、Tunnel、原网关及内部CA均保留。没有复制应用、数据库或开第二个Worker。服务器自身可信HTTPS自检已通过；办公室443仍超时，不把入口运行冒称办公室LAN/browser完成。
+保留公网路径：其他未配置hosts的客户端 → 公网Cloudflare DNS/入口 → 既有Tunnel → HTTPS localhost:3003 → 原gateway/app。没有复制应用、数据库或第二Worker。当前Access/WAF全策略未复读，不将历史控制台观察冒称本轮读取；独立外部网络未验。历史SJC/TW证据保留，新同机固定CF104.21.26.56回归邻近Trace为AMS/CN。
 
 Nginx独立project为 `weaveops-staging-lan`，文件在 `/home/jackson/weaveops-staging-lan/`；仓库源是 `ops/staging-lan/`。使用host network只绑定物理LAN地址443，不创建Docker网段；初始仅允许测试电脑 `192.168.83.51` 和服务器自检 `192.168.66.69`。不发布80、DB、对象控制台、Docker Socket。入口保留同一Host/Origin/Cookie，API、静态资源、上传下载都走同一代理；不用公网URL作upstream。
 
@@ -35,7 +53,7 @@ Nginx独立project为 `weaveops-staging-lan`，文件在 `/home/jackson/weaveops
 
 ## 单机DNS和TUN验证
 
-用户已确认当前Windows电脑就是办公室验收客户端。没有修改路由器、DNS、hosts、Clash模式/订阅或系统代理。本机WinHTTP direct不代表TUN关闭；7888实际进程名XingchenCore.exe，磁盘上Clash Verge/ClashMi配置并存，不能把其中一份当作Bettbox的实时配置。
+用户已确认当前Windows电脑就是办公室验收客户端。本阶段已由用户管理员添加本任务单域名hosts；公司DNS、路由器、Clash模式/订阅及系统代理未修改。本机WinHTTP direct不代表TUN关闭；7888实际进程名XingchenCore.exe，磁盘上Clash Verge/ClashMi配置并存，不能把其中一份当作Bettbox的实时配置。
 
 以下单机路由已在该电脑**管理员PowerShell**执行，不重复添加；重启后确有需要且重新核实地址时才使用（正斜杠避免复制丢分隔符）：
 
@@ -43,17 +61,17 @@ Nginx独立project为 `weaveops-staging-lan`，文件在 `/home/jackson/weaveops
 & "$env:USERPROFILE/.codex/worktrees/0dd2/zhixu-ainuoke-api/ops/staging-lan/Set-ClientRoute.ps1" -Execute
 ```
 
-仅新增192.168.66.69/32→WLAN 2/192.168.83.1 ActiveStore路由，不改DNS/hosts/VPN模式；冲突即停，回执在LOCALAPPDATA/WeaveOps/staging-lan-163/client-route.json。回滚用同一命令加 `-Rollback`，只撤精确匹配的本任务owned路由。首次错误路径和第二次非管理员均未执行；随后通过Start-Process -Verb RunAs弹出UAC启动管理员窗口，11:18:33回执和接口14/metric1路由均已核实。traceroute经83.1两跳到66.69（3–4ms）；默认及绑定83.51的TCP22仍超时，不能称LAN应用验收通过。
+仅新增192.168.66.69/32→WLAN 2/192.168.83.1 ActiveStore路由，不改DNS/hosts/VPN模式；冲突即停，回执在LOCALAPPDATA/WeaveOps/staging-lan-163/client-route.json。回滚用同一命令加 `-Rollback`，只撤精确匹配的本任务owned路由。首次错误路径和第二次非管理员均未执行；随后通过Start-Process -Verb RunAs弹出UAC启动管理员窗口，11:18:33回执和接口14/metric1路由均已核实。traceroute经83.1两跳到66.69（3–4ms）；SSH仍沿Tailscale，不开放LAN22；该早期22超时不影响现已通过的可信443应用验收。
 
-实际服务器UFW active/ENABLED=yes、默认INPUT DROP；只读配置中SSH仅允许tailscale0、未见443规则。25秒限目标IP/22的包头捕获见3个客户端SYN到enp3s0，无回应；不记录载荷。未修改共享防火墙，已请求用户批准并以服务器sudo执行下列唯一规则，**用户已批准、待本人执行回执**：
+实际服务器UFW active/ENABLED=yes、默认INPUT DROP；只读配置中SSH仅允许tailscale0、未见443规则。25秒限目标IP/22的包头捕获见3个客户端SYN到enp3s0，无回应；不记录载荷。未修改共享防火墙，已请求用户批准并以服务器sudo执行下列唯一规则，**用户已本人sudo执行，回执Rule added；办公室可信443现已通过，不重复添加**：
 
 ```sh
 sudo ufw allow in on enp3s0 proto tcp from 192.168.83.51 to 192.168.66.69 port 443 comment 'weaveops-staging-lan-163'
 ```
 
-回滚精确使用 `sudo ufw delete allow in on enp3s0 proto tcp from 192.168.83.51 to 192.168.66.69 port 443 comment 'weaveops-staging-lan-163'`，先核实规则仍为本任务值。不开放SSH、不改默认策略、不使用ufw disable/reset/reload，不扩到整个网段；原Tailscale SSH和公网Tunnel保留。UFW规则文件与active状态是实际观察，但尚未读取完整内核规则，真实443连通仍须签发和入口启动后验证。
+回滚精确使用 `sudo ufw delete allow in on enp3s0 proto tcp from 192.168.83.51 to 192.168.66.69 port 443 comment 'weaveops-staging-lan-163'`，先核实规则仍为本任务值。不开放SSH、不改默认策略、不使用ufw disable/reset/reload，不扩到整个网段；原Tailscale SSH和公网Tunnel保留。UFW规则文件与active状态是实际观察，但尚未读取完整内核规则，可信443连通、浏览器登录和附件已在Phase6实际通过；不据此推断全部内核规则或整个办公室。
 
-获准的测试电脑，在真实LAN互达和证书就绪后先运行：
+获准测试电脑已真实LAN互达/可信证书通过，日常可用下列只读验证：
 
 ```powershell
 curl.exe --noproxy '*' --interface 192.168.83.51 --resolve staging.weaveops.top:443:192.168.66.69 --fail --show-error https://staging.weaveops.top/build-info.json
@@ -61,7 +79,7 @@ curl.exe --noproxy '*' --interface 192.168.83.51 --resolve staging.weaveops.top:
 
 不使用 `-k`。若仍被TUN捕获，要在**实际运行的**代理管理器中为该域名和 `192.168.66.69/32` 配置DIRECT/排除；全局模式不会因添加普通rules就自动按规则分流。具体UI/配置文件归属须现场确认，禁止改错另一个客户端。若用Mihomo，官方[DNS配置](https://wiki.metacubex.one/en/config/dns/)支持hosts与fake-ip-filter；域名真实映射和DIRECT必须同时验证，单独Fake-IP过滤可能仍回到公网解析。
 
-`ops/staging-lan/Set-ClientHosts.ps1`默认Dry Run，实际Parser与Dry Run前后hosts hash一致。等办公室可信443通过后，由用户在管理员PowerShell执行 `& "$env:USERPROFILE/.codex/worktrees/0dd2/zhixu-ainuoke-api/ops/staging-lan/Set-ClientHosts.ps1" -Execute`；回滚同一命令加 `-Rollback`，只撤匹配owned行、保留并发其他变更，LOCALAPPDATA保存原字节备份/receipt。它拒绝冲突域名、未知receipt和不支持编码。当前未实际执行，不改hosts。最小DNS改变是加入唯一带任务标记的一行 `192.168.66.69 staging.weaveops.top # weaveops-staging-lan-163`；需要Windows管理员，先备份并检查冲突/保留原内容，清DNS后在浏览器验证。若TUN自行解析，hosts仍可能无效；以浏览器实际远端IP和服务器收到的连接为准。成功后才讨论路由器/内部DNS单域名Split DNS，保持公网Cloudflare记录不变。不要把curl --resolve当浏览器完成。
+`ops/staging-lan/Set-ClientHosts.ps1`默认Dry Run，实际Parser与Dry Run前后hosts hash一致。办公室可信443和以下管理员执行均已通过；未来如确需重新接入，由用户在管理员PowerShell执行 `& "$env:USERPROFILE/.codex/worktrees/0dd2/zhixu-ainuoke-api/ops/staging-lan/Set-ClientHosts.ps1" -Execute`；回滚同一命令加 `-Rollback`，只撤匹配owned行、保留并发其他变更，LOCALAPPDATA保存原字节备份/receipt。它拒绝冲突域名、未知receipt和不支持编码。2026-11-21 11:58:52+08已由用户管理员执行成功，owned行及备份/receipt核实，不重复执行。最小DNS改变是加入唯一带任务标记的一行 `192.168.66.69 staging.weaveops.top # weaveops-staging-lan-163`；需要Windows管理员，先备份并检查冲突/保留原内容，清DNS后在浏览器验证。若TUN自行解析，hosts仍可能无效；以浏览器实际远端IP和服务器收到的连接为准。当前单机已成功；后续才讨论路由器/内部DNS单域名Split DNS，保持公网Cloudflare记录不变。不要把curl --resolve当浏览器完成。
 
 ## 激活与日常检查
 
@@ -84,7 +102,7 @@ preflight只读验证固定物理IP、回程路由、443空闲、镜像内容ID�
 
 TCP指标为time_connect-time_namelookup；TLS为time_appconnect-time_connect；TTFB/Total是请求开始累计。当前Fake-IP/TUN下TCP只到拦截层，不能冒称办公电脑到Cloudflare真实RTT。保持相同客户端/构建/URL/状态/字节，冷/复用分开。服务器loopback与办公室公网数字只能用来定位，不能计算LAN改善比例。Cloudflare边缘到Tunnel单独耗时本轮无法从curl直接分离，不能拿两个不同时样本相减代替。
 
-浏览器须检查安全证书、登录、订单、报价、物料、资源/API错误、同域Cookie/Origin、实际远端地址；上传下载用用户允许的独立合成记录并核对hash，不污染订单。旧Chrome接口故障且当前未连接；内置浏览器现可用，真实login200/secure但remoteIP为198.18.0.109及Cloudflare公网地址，仍未执行LAN登录后验收或上传写入。LAN响应有X-WeaveOps-Ingress标记和Alt-Svc clear，仍须以实际remote IP为准，不能只看标记。外网回归须来自真正外部网络，本机/服务器自请求公网都不能冒充。
+浏览器须检查安全证书、登录、订单、报价、物料、资源/API错误、同域Cookie/Origin、实际远端地址；上传下载用用户允许的独立合成记录并核对hash，不污染订单。旧Chrome接口故障历史保留；内置浏览器已由用户正式登录，订单/报价/物料、独立合成附件上传下载及刷新持久化通过；最终84个新HTTPS响应全66.69/200/secure（另2本地Blob），无网络加载失败/控制台错误。下载328bytes SHA256一致。详Phase6证据；历史合成缩略图503仍未解决，不称资源零问题。LAN响应有X-WeaveOps-Ingress标记和Alt-Svc clear，仍须以实际remote IP为准，不能只看标记。外网回归须来自真正外部网络，本机/服务器自请求公网都不能冒充。
 
 ## 回滚和故障定位
 
@@ -95,6 +113,6 @@ cd /home/jackson/weaveops-staging-lan
 docker compose --env-file .env -f compose.yml stop ingress
 ```
 
-不运行原项目up/down，不删除任何volume/网络/证书/业务记录，不恢复DB。若添加过上述精确临时/32路由，核对仍为本任务值后按前文del撤销。原Tunnel一直保留，回滚不需重启它。当前新443入口已启动、DNS/hosts未改，原Cloudflare访问仍保留；停止的 `weaveops-staging-lan-probe-20261121` 及私密测试证书保留作证据，该探针18443无监听；新长期443须上述stop后确认关闭。
+不运行原项目up/down，不删除任何volume/网络/证书/业务记录，不恢复DB。若添加过上述精确临时/32路由，核对仍为本任务值后按前文del撤销。原Tunnel一直保留，回滚不需重启它。当前新443入口已启动、测试电脑hosts已添加，原Cloudflare访问仍保留；停止的 `weaveops-staging-lan-probe-20261121` 及私密测试证书保留作证据，该探针18443无监听；新长期443须上述stop后确认关闭。
 
 常见诊断：连接超时先查VLAN/回程路由/TUN，不能只信ConnectAsync；证书失败查SAN/完整链/有效期，不关闭校验；502查原3003及CA/SNI；401按正式登录/RBAC处理；403区分Nginx客户端allow与原Origin/标记；上传413保留100MiB边界；公网异常查原Tunnel，不动Production。续期失败保留最后有效证书并修复DNS凭据/出站网络，不静默切自签。

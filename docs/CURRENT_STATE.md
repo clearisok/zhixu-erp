@@ -1,15 +1,15 @@
-# 当前：可信LAN HTTPS入口已启动，等待客户端443放行和hosts验收
+# 当前：单台办公室电脑 Staging LAN HTTPS 已实机通过
 
-2026-11-21；main基线 **10b9a7d827e1c09f152ead58c21f26712d49a619** 已核实；分支feat/staging-lan-direct，Phase4起点3f56d48d6733b0aaf4f3385262e0ce0d5409434e/clean。Issue163、PR164 Draft；仅Staging LAN范围，不合并/关闭需求。用户已修正Token为DNS Edit，仅weaveops.top，并批准单客户端443 UFW规则、等待本人执行回执。
+2026-11-21；main基线 **10b9a7d827e1c09f152ead58c21f26712d49a619**；feat/staging-lan-direct，Issue163 / PR164 Draft，不合并或关闭。Phase6从8148e64e61ab80de0f972a4bb3f125c208f24dec/clean继续，无继承dirty。[客户端验收前摘要](tasks/completed/2026-11-21-before-lan-client-acceptance/CURRENT_STATE.md)原字节/hash保留。
 
-服务器/home/jackson/weaveops-staging-lan实际运行独立weaveops-staging-lan/ingress，192.168.66.69:443；只允许测试电脑83.51和服务器自检，代理原HTTPS localhost:3003并校验原CA/localhost SNI。没有复制app/DB/Worker，没有改公网DNS/Tunnel或原证书；Staging本体仍0752d64f309d68b6e52afbbd712d28e0d9db9c1e。原10容器身份/镜像/启动时间/重启数在激活后再次精确比对无差异，9个原health均healthy、Worker容器running。
+用户本人sudo添加仅83.51→66.69:443的UFW规则（Rule added），本人管理员执行单域名hosts（11:58:52+08 HOSTS_VERIFIED）。Windows192.168.83.51经WLAN2/83.1直连192.168.66.69:443；普通解析及不带resolve/interface的curl均命中LAN、可信HTTPS。**两端/32路由均临时，重启可能失效**；hosts持久，没有改公司DNS、路由器或VPN模式。只限该电脑，未开放全办公室。
 
-DNS-01已真实签发staging.weaveops.top，Let's Encrypt YE2，2026-11-21至2027-02-19，系统信任/域名/key校验通过；私钥/Token只在主机private目录。首次失败已确认为用户原Token误配Read，改Edit后成功，不误报Token失效。renew-test真实ACME测试CA演练通过，正式证书指纹BA:86:F6:67:87:D1:94:38:00:99:67:92:A4:DA:88:02:B8:7C:20:81:C8:22:1C:1B:F2:19:F3:49:6F:0E:43:44未变。手动renew/check通过；crontab原有内容完整保留并备份，新增每天UTC03:19/15:19续期、每小时:37健康检查。分模式状态/journal/私密日志保留失败，本地监测有据；03:37:01Z cron已自动触发check healthy、日志600；无外部通知接收端。
+独立/home/jackson/weaveops-staging-lan / weaveops-staging-lan ingress实际运行，代理原HTTPS localhost:3003并校验原CA/SNI；app仍0752d64f309d68b6e52afbbd712d28e0d9db9c1e。Let's Encrypt YE2证书2027-02-19到期；DNS-01正式签发、renew --dry-run、手动renew/check、实际cron自动check通过。原用户cron jobs保留，UTC03:19/15:19续期（北京时间11:19/23:19），每小时:37检查；本地状态/journal/600日志监测，无外部通知接收端。Token/私钥不入Git。
 
-两端临时/32已落实；Windows接口14/WLAN2、经83.1到66.69，traceroute两跳3–4ms。SYN到服务器物理网卡，无22回应；UFW active/INPUT DROP，SSH仅tailscale0、未见443规则。单客户端443规则已批准但尚待用户sudo执行/核实；Nginx服务器自身可信HTTPS health/database ready，办公室443仍5秒超时。未改Windows hosts/DNS/VPN/公司网络；新Set-ClientHosts.ps1仅单域名、冲突拒绝/备份/owned回滚，Parser及Dry Run实测不改原文件。
+用户真实IAB登录后，订单列表633/既有详情、物料进度及采购、报价列表实际读取通过。匿名新47响应均LAN且可信HTTPS（46个200、正常未登录401）；最终合成页刷新84个HTTPS均66.69/200/secure，另2本地Blob，0加载失败、0控制台警告/错误。新增并保留独立合成草稿QT-2026-1121-008及328字节PNG，上传201、下载200、SHA256一致、刷新持久化。不改既有报价/订单、客户确认、来源刷新；**数据库新增该验收草稿/附件及正常会话/审计**，不称数据完全未变化。
 
-部署源92e83343082c1251000944b6e791e8a4a3e68445已正式DELIVERED_VERIFIED/exact remote，7个服务器源文件hash一致。该HEAD本机精确源码守卫PASS（13pages/68capabilities/0UI），Release baseline CI44862537961 SUCCESS（完整回归、交付、lint/最终守卫均通过）；其余CI仍待完成。Windows完整套件1523160ms后因同HEAD Linux已成功而中止，仅20 responsive通过/guard因终止失败，不记本地完整PASS。Phase4bash/Python/PS语法、计划安装/原crontab核对、锁冲突退出75、续期演练和服务器真实health通过，不能替代办公室浏览器。新公网冷测9/10（1失败）、TTFB中位1270.592/P952517.399ms；复用10/10、9复用，中位894.216/P951474.878ms，LAN提升仍不可计算。
+同电脑/同app/login/HTTP1.1，各组10/10、200/15946字节/零重定向：固定Cloudflare104.21.26.56冷TTFB中位2004.794/P953483.213ms、Total2025.616；LAN63.011/P9583.498、Total66.526。复用各9次，TTFB911.964→12.365、Total1146.219→17.626ms。CF对照固定IP并绑定同WLAN，邻近Trace AMS/CN/WARP off，不叫历史SJC/TW路径或真正独立外网。旧失败保留，详[测速](../artifacts/staging-lan-20261121/phase6-measurements.json)、[验收](../artifacts/staging-lan-20261121/phase6-acceptance.json)。
 
-下一步：核实获批443规则→办公室真实可信HTTPS→用户管理员执行单机hosts步骤→浏览器实际remoteIP、正式登录/订单报价物料/API附件及公网回归→匹配10次LAN测速。Access全策略、真正独立外网和完整业务验收仍未完成，不扩大办公室allow。详[Phase4现场记录](tasks/active/staging-lan-direct-2026-11-21.md)、[运维/回滚](ops/staging-lan-direct.md)；[证书部署前摘要](tasks/completed/2026-11-21-before-lan-https/CURRENT_STATE.md)。
+最终原10容器ID/Image/StartedAt/RestartCount精确不变，9原health healthy、Worker running、Tunnel active；未查PG心跳，不等同完整同步业务验收。同机公网入口10/10通过。限制：历史STAGING-ACCEPTANCE-562缩略图503原因未定、不改旧附件；早期2缩略图元数据有Fake-IP/h3矛盾，后续禁缓存刷新新HTTPS全部LAN，未证明旧元数据原因。未有现存业务WS/SSE端点，未验大文件、Access/WAF全策略或真正独立外网。办公室统一DNS和重启持续性未完成。
 
-收口：本机gh查询新CI发生一次connect timeout（Fake-IP198.18.0.124），CLI通道记NETWORK_DEGRADED、停止重复同通道查询/推送，不改共享配置；随后GitHub连接器核实92发布CI成功，不据此宣称本机通道恢复。后续仅文档检查收口保存在本地checkpoint，remote代码仍精确92，恢复命令随最终回执提供。
+部署源/已核远端92e83343082c1251000944b6e791e8a4a3e68445、服务器7文件hash一致。该HEAD Release baseline CI44862537961及First team access44862537986成功，Source44862537956取消，不记全绿；Windows完整套件中止、不记PASS。后续仅文档证据本地checkpoint，CLI NETWORK_DEGRADED，远端待人工一次性正式交付。详[任务](tasks/active/staging-lan-direct-2026-11-21.md)、[运维/精确回滚](ops/staging-lan-direct.md)。

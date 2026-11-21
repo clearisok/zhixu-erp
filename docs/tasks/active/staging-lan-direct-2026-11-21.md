@@ -1,6 +1,6 @@
 # Staging 局域网直连：现场调查与实施 v1
 
-最新恢复点见末尾 **Delivery Phase 3**；Phase1/2的未批准/工具故障等状态按原时点保留。
+最新恢复点见末尾 **Delivery Phase 6**；前期未批准/未部署/工具故障状态按原时点保留。
 
 2026-11-21（Asia/Shanghai）；Refs [Issue163](https://github.com/clearisok/zhixu-erp/issues/163)。Codex转录用户决定：本聊天附件《调查并实施局域网高速直连部署》明确授权调查、必要的 Staging LAN 配置、测试电脑验证、真实浏览器验收和独立 PR；禁止 Production、共享组件重启、公司整体网络变更、数据/卷删除及 Worker 干预。此附件原始范围即v1实施授权，不额外要求普通技术选项批准。缺外部权限时完成可安全落地部分，如实保留阻塞。
 
@@ -159,3 +159,45 @@ Phase4激活后再次按原10个完整ID逐个docker inspect，仅输出Id/Image
 本机gh run view44862537961发生一次API connect timeout，目标Fake-IP198.18.0.124；精确92送达是在此前独立核实，不倒改其DELIVERED_VERIFIED。此后CLI记NETWORK_DEGRADED，不再重复查询/推送同失败通道、不自动执行恢复命令或改共享代理/认证。已连接GitHub插件可独立读CI并回填Issue/PR，不据此认定本机通道长期恢复，也不用文件API伪造Git交付。Phase5仅更新三摘要及本任务事实，独立本地checkpoint，远端待人工一次性正式交付。
 
 仍等待用户在服务器本人执行已批准唯一UFW443规则；最新只读配置未见该规则，办公室443超时。未配置hosts，不将不可达入口指给浏览器。可信证书、续期演练、自动cron触发、新Nginx及原服务保全已完成；真实办公室浏览器/业务和可比较LAN性能仍未完成，保持Issue In Progress/PR Draft，不合并或关闭。
+
+## Delivery Phase 6：办公室可信HTTPS、真实浏览器及同机性能闭环
+
+2026-11-21，起点feat/staging-lan-direct / **8148e64e61ab80de0f972a4bb3f125c208f24dec** / clean；baseline在ignored outputs/staging-lan-20261121-phase6/baseline.json。无继承dirty；三摘要原字节归档completed/2026-11-21-before-lan-client-acceptance，archive-sha256.json逐项保全。部署代码仍92，app仍0752，本阶段没有业务代码/SQL/依赖/容器配置变更。
+
+### 用户动作与实际直连
+
+Codex转录用户决定/执行结果：本人ssh -t weaveops sudo执行已批准唯一UFW443规则，第二次认证后返回“Rule added”；不重试添加。用户管理员执行Set-ClientHosts.ps1 -Execute，返回“HOSTS_VERIFIED: exact owned line changed”，时间11:58:52.8197799+08，备份LOCALAPPDATA/WeaveOps/staging-lan-163/hosts-before-20261121T115852687-372e68453ec44cecb3fc4d3934729cd8.bak。owned行192.168.66.69 staging.weaveops.top # weaveops-staging-lan-163。原公司DNS/路由器/Clash模式和系统代理不改。
+
+UFW后首个办公室绑定WLAN/resolve探针200、remote66.69/local83.51、TLS验证0、Total580.880ms；该探针单列，不混入后续10样本。hosts后普通OS解析66.69，**不带resolve/interface**的curl同样200/remote66.69/local83.51/TLS验证0/Total126.314ms。两端原/32依然临时，Windows ActiveStore、服务器内存route；不将其写为重启可用或擅自持久化。Nginx仅单客户端+服务器自检，没有全网段开放。
+
+### 浏览器与合成附件
+
+用户在可见IAB自行输入现有凭据并回复“已登录”，没有账号密码进入聊天。登录/auth/me/permissions/quotes均200、remote66.69。匿名禁缓存刷新47个HTTPS响应全LAN/secure/YE2/ingress标记，46个200、1个正常auth/me401、0loadingFailed；临时cacheDisabled随后恢复false，不清Cookie/Storage。
+
+订单列表633条显示，既有订单详情、物料14需求/1采购及采购tab读取通过，相关sales-orders/order detail/business-source/catalog-sync-status/material-progress/settings/arrivals API均200/LAN。没有点击来源刷新、同步、排程或商业写入。报价列表六张真实图片显示，历史STAGING-ACCEPTANCE-562缩略图503 attachment_thumbnail_unavailable；泛化503不能证明损坏、权限或解码哪一原因，未覆盖/删除旧附件。早期两个缩略图事件曾报Fake-IP/h3，与同事件LAN证书/标记及connection元数据矛盾；原因未明，后续完整禁缓存刷新新HTTPS全部LAN，不隐瞒旧观察。
+
+为原请求上传/下载验收创建**独立合成草稿**QT-2026-1121-008 / LAN-ACCEPTANCE-163-20261121（非业务），只填合成身份/说明，没有金额、客户确认、订单绑定或来源采集。quote6f5dec5e-4d44-4f6d-80a0-8d4159e58f03，revisionb21cdf85-17c6-4576-a143-79ada1c68bc9，attachmentd581e46a-a071-4bdb-90d5-1a44a87d2f1d。真实filechooser上传weaveops-lan-163-20261121.png 328bytes返回201，经页面下载返回200；下载文件D:/Downloads/weaveops-lan-163-20261121.png SHA256 **1cff57aa68666ce35efb1ce9afd33fdadf966f13748af5a6fa327a2922fad3ea**与上传前一致。重新刷新图片（1）及款式图仍在。合成记录/附件保留，不清理；数据库存在此新增及正常会话/审计，不能称DB数据零变化。
+
+最终独立禁缓存刷新合成页：84个HTTPS均remote192.168.66.69/status200/secure，另2个本地Blob，0Network.loadingFailed，0console warn/error、CORS/Mixed Content/Cookie/WebSocket错误；无分页/事件丢失。旧导航窗口有3个ERR_ABORTED，不混为此最终刷新失败。上传201/下载200均LAN。没有现存业务WS/SSE可操作端点，不凭Nginx配置称端到端WS通过。未测100MiB边界。cacheDisabled已恢复false，用户页保留。
+
+原始allowlisted metadata及含业务截图仅ignored outputs/staging-lan-20261121-phase6；不记录Cookie/Authorization/响应正文，不把业务截图入Git。可复核非秘密摘要artifacts/staging-lan-20261121/phase6-acceptance.json。
+
+### 匹配的同机10次测量（ms）
+
+| 路径 | 成功 | TCP中位 | TLS中位 | TTFB中位 | TTFB P95 | Total中位 |
+|---|---:|---:|---:|---:|---:|---:|
+| 固定CF104.21.26.56，冷连接 | 10/10 | 273.568 | 323.100 | 2004.794 | 3483.213 | 2025.616 |
+| LAN66.69，冷连接 | 10/10 | 5.262 | 38.550 | 63.011 | 83.498 | 66.526 |
+| 固定CF，复用含首次/9复用 | 10/10 | 0 | 0 | 911.964 | 1896.843 | 1146.219 |
+| LAN，复用含首次/9复用 | 10/10 | 0 | 0 | 12.365 | 62.595 | 17.626 |
+
+同一办公室83.51、同一app0752/login、HTTP1.1、200/15946bytes/0重定向，两条路径都固定resolve并绑定WLAN。冷为独立curl进程/no-sessionid，OS DNS/证书缓存不清；P95 nearest rank。公网固定CF地址绕过新hosts，邻近Trace AMS/CN/WARP off；这不是历史Fake-IP/SJC/TW样本或真正独立外网，不能说所有公共路径均慢同样倍数。原Phase1/4失败保留，新增原始匿名40样本与方法归档phase6-measurements.json。冷TTFB降低96.857%、复用降低98.644%；无法单独分离edge→Tunnel耗时。
+
+### 服务保全、限制与交付
+
+最终再次按Phase4原10完整ID inspect，Id/Image/StartedAt/RestartCount逐字完全一致；主机evidence/phase6-final-original-identities.txt保留。原9health healthy、唯一Worker容器running、cloudflared active；未读取PG Worker业务心跳，不假称完整自动同步验收。certificate.sh check真实healthy，schedule.py status ownedBlockPresent=true/wouldChange=false，原crontab hash仍3c041d8729b8f3c9cc4660bdd2df8150d52f70c81ad97bb31d291bb2930855d9。Production/原schema/卷/Worker调度/Tunnel配置未修改；新LAN入口和合成测试数据单列。
+
+剩余限制：只有当前单电脑，整体Split DNS需路由器/内部DNS权限及明确客户端范围；两端临时路由重启失效风险；当前Cloudflare Access/WAF全策略未读取，未扩大allow；真正独立外部网络未测，同机固定CF10/10仅公网入口回归。无外部告警接收端，未发生临近到期正式证书替换；不伪称实际续期替换已验。历史缩略图503保留，用户最终业务标准未确认，不关闭Issue/merge PR。
+
+GitHub连接器核实部署源92的Release baseline44862537961 SUCCESS、First team access44862537986 SUCCESS，Ainuoke server source44862537956 CANCELLED（原因未核，不称全绿）。Windows完整suite中止历史不改。本阶段仅文档/证据，不重跑25分钟Windows全套；精确源码守卫另记最终回执。NETWORK_DEGRADED持续，只有本地checkpoint，远端仍92；提供以最终完整HEAD限定的一次性正式交付命令，不自动执行。GitHub事实回链不是本机传输恢复或新commit送达证明。
+Phase6首次最终源码守卫实际FAIL：main10b9/HEAD8148、13pages/68capabilities/0UI，唯一EVIDENCE_WORKTREE_DRIFT=staging-lan-decisions-20261121。原因是本阶段D199前向激活记录改变当前决策文档，旧冻结blob须保留。按既有守卫规则先做本阶段文档checkpoint，再新Phase以前向supersedes绑定确切新blob，不修改旧hash或降低检查。40个匹配样本一致性、摘要原字节归档hash、JSON解析和diff --check均通过；不把此首次守卫写成PASS。
