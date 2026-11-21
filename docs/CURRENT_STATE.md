@@ -1,9 +1,17 @@
-# 当前：Staging LAN 长期稳定化实施中
+# 当前：Staging LAN 第二阶段已实施可执行部分，重启/公司网络待审核
 
-2026-11-21；main基线 **10b9a7d827e1c09f152ead58c21f26712d49a619**。用户认可第一阶段架构并明确授权低风险持久化，继续feat/staging-lan-direct / PR164，不合并。Phase8起点5ad87d91181ed37cec762e4e8aba3539aa486610/clean。窗口原生持久路由已实际双store验证，服务器networkd单/32脚本已上传/Dry Run，待用户sudo执行；两端重启尚未验证。新证书重载/监测代码已测试，尚待真实部署。原11容器（含LAN）before身份已保存，不重建原app。
+2026-11-21；main基线 **10b9a7d827e1c09f152ead58c21f26712d49a619**；feat/staging-lan-direct / PR164，未合并。用户认可双入口架构并授权低风险持久化；Phase8起点5ad87d91181ed37cec762e4e8aba3539aa486610/clean，Phase9证据checkpoint95e0e50eb3ec105956e9411464c6acbaac0355e3。重要旧摘要、hash/结果及限制归档[最终冻结前](tasks/completed/2026-11-21-before-lan-final-freeze/CURRENT_STATE.md)，详[第二阶段任务](tasks/active/staging-lan-stability-2026-11-21.md)。
 
-服务器66.69及客户端83.51均DHCP，尚无地址保留证据；实际服务器DHCP MAC12:ff:e0:00:88:4f。Docker历史演练桥80.0/20覆盖办公室83段，不迁移/删除旧网络。Worker真实PG心跳及15:42新成功已核，非仅container running；不改配置/采集。详细根因、用户授权、测试、精确路径及剩余条件见[第二阶段任务](tasks/active/staging-lan-stability-2026-11-21.md)。
+Windows66.69/32 via83.1/WLAN2/metric1已在ActiveStore+PersistentStore实机读回；服务器networkd同客户端/32 drop-in脚本已测试/上传，因sudo需本人密码仍待用户执行，08:19读回未安装。两端均DHCP；66.69不是已证实静态/保留地址，实际DHCP MAC12:ff:e0:00:88:4f。旧Docker80.0/20覆盖83网段，保留未迁移。公司DNS1.65/1.6、路由器、地址保留和allow未改；Clash/TUN重启及WiFi重连自动执行被审查blocked by policy，未绕过。两端OS未重启。
 
-Git本地仍5ad87起步，远端92e83343082c1251000944b6e791e8a4a3e68445，main10b9；进程限定7888正式Dry Run READY_DRY_RUN，未推送，不称送达或长期网络修复。完整Windows发布套件已重新运行，结果待完成；不借旧CI。公司DNS/路由器/allow及共享服务器重启均未改，告警接收端及设备入口已询问。前一阶段事实/样本/失败保留在[原摘要](tasks/completed/2026-11-21-before-lan-stability/CURRENT_STATE.md)和[原现场任务](tasks/active/staging-lan-direct-2026-11-21.md)。Token/私钥禁止输出；新合成草稿/附件保留，不改正常订单。先做具备权限的安全操作，再汇总具体高风险审批。
+独立LAN Nginx实际优雅重载、served可信证书指纹等于磁盘；新进程退出后同一容器自动拉起（RestartCount0→1），公网入口前/期间/后均可信200。原10容器ID/Image/StartedAt/RestartCount再次精确不变，app仍0752。原Staging五服务/Worker restart policy=no，Worker原分钟cron监管；原五服务完整开机恢复owner未证实，不能盲重启共享服务器或改Worker配置。
 
-Phase8 **908417bef3e0e4e67d5da2263feca68235e1cc38**已正式DELIVERED_VERIFIED，Release baseline/First team access/Source CI全部成功。Phase9新LAN自动恢复、公网隔离、证书实际重载/监测/cron保全、旧图CRC根因和8MiB合成文件双向hash已实测；新增独立公网只读CI待跑。Windows双store持久化已核，服务器sudo及两端重启/重连仍待；客户端TUN/WiFi自动测试被审查blocked by policy，未绕过。维护与公司DNS/设备/回滚方案见[长期维护手册](ops/staging-lan-stability.md)，不能称整个公司部署或重启验收完成。
+DNS-01正式签发和本阶段再次renew --dry-run通过，正式指纹不变；新发布核对实际served指纹、失败恢复旧link并reload旧证书。Python保护/故障共19项（Windows15 PASS/4 POSIX skip，Linux隔离发布4 PASS）；真实TLS/reload独立通过。cron只升级owned block，原其他jobs字节保持；北京11:19/23:19续期、每小时:37check/:41monitor。本地监测failed/stale/21天到期及权限，当前healthy，LAN证书余89.76天、原localhost证书余67.08天；无外部通知接收端，不换原CA。Token/私钥600，private/tls700。
+
+Worker只读PG证据：16:19:49心跳距查询0.327秒、最新合同及审计success16:19:40，enabled/未暂停；complete55957较15:43增加294，历史failed仍182。未采集、写控制/队列或改Worker配置。历史68字节测试PNG原件hash正确但IDAT CRC无效，原app严格解码报libpng read error，503与LAN无关，不改旧附件。独立合成草稿保留PNG及8MiB TXT，上传201/下载200/hash一致；100MiB+1声明发正文前413，无业务写入，未传完整100MiB上限。
+
+新同机各10/10冷连接CF→LAN TTFB1914.782→57.228ms，P953730.423→74.605，Total2143.862→61.081；复用855.658→11.169ms。详[40样本](../artifacts/staging-lan-20261121/stability-measurements.json)、[安全/稳定性快照](../artifacts/staging-lan-20261121/stability-acceptance.json)。办公室对照AMS/CN、默认代理KHH/TW、服务器及4条Tunnel连接LAX/CN，是不同链路；HTTP2、region未设，不存在可强制亚洲参数，未改Tunnel/固定edge IP/付费。独立GitHub外网匿名GET探针已加入，冻结时结果待跑，不能称外部完整浏览器登录验收。
+
+Git已以正式工具安全交付908417bef3e0e4e67d5da2263feca68235e1cc38，Release/Team/**Source三CI均SUCCESS**；旧取消Source补齐。确认全局旧代理17989无监听，任务级7888override及恢复环境wrapper可用，不改全局。新冻结版最终HEAD/远端/CI由Issue163/PR164精确回填，未送达前不冒称PASS。混合工作树Windows长测试165/163PASS/2FAIL（证据在运行中变化），不记固定候选PASS；最终使用独立固定工作树重跑。运维/具体审批值/回滚见[长期维护手册](ops/staging-lan-stability.md)。
+
+Phase10前向冻结源码守卫已PASS（main10b9/13pages/68capabilities/0UI/errors=[]）；最终固定提交的独立工作树完整复验与精确remote/CI结果以Issue163/PR164后继回执为准，冻结时不提前声明。

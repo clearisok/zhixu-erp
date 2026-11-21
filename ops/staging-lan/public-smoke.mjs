@@ -76,7 +76,9 @@ export async function main() {
     report.health = { ...health.result, database: h.database };
     const build = await get('/build-info.json');
     const b = JSON.parse(build.body);
-    report.build = { ...build.result, sourceSha: b.sourceSha ?? b.commitSha ?? b.commit ?? null };
+    const sourceSha = b.gitCommit ?? b.sourceSha ?? b.commitSha ?? b.commit ?? null;
+    if (!/^[0-9a-f]{40}$/u.test(sourceSha ?? '')) throw new Error('build_source_invalid');
+    report.build = { ...build.result, sourceSha };
     const trace = await get('/cdn-cgi/trace');
     const values = Object.fromEntries(trace.body.split('\n').filter(x => x.includes('=')).map(x => x.split('=', 2)));
     report.trace = Object.fromEntries(['colo', 'loc', 'warp', 'http'].map(k => [k, values[k]]));
@@ -86,7 +88,7 @@ export async function main() {
   } catch (error) {
     report.state = 'FAIL';
     report.error = error.observation ? { code: 'public_ingress_assertion', observation: error.observation }
-      : { code: ['request_timeout', 'response_budget', 'health_not_ready'].includes(error.message) ? error.message : error.code ?? 'request_or_format_error' };
+      : { code: ['request_timeout', 'response_budget', 'health_not_ready', 'build_source_invalid'].includes(error.message) ? error.message : error.code ?? 'request_or_format_error' };
     process.exitCode = 1;
   }
   process.stdout.write(JSON.stringify(report) + '\n');

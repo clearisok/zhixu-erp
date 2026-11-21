@@ -6333,6 +6333,15 @@
       "sha256": "c97f2d0c57ff704c5d63f4bde3d28d7ce5b7e5093a8b492834c53f02ed4da648",
       "supersedes": "staging-lan-decisions-20261121",
       "changeReason": "Forward-record actual user-approved single-client UFW and hosts execution, trusted LAN browser and synthetic attachment acceptance, renewal scheduling and preserved original services. Keep prior frozen decision blobs unchanged; temporary routes, company-wide DNS, Access policy and independent external-network limits remain explicit. No business rule, screenshot or capability-status change."
+    },
+    {
+      "id": "staging-lan-stability-decisions-20261121",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "95e0e50eb3ec105956e9411464c6acbaac0355e3",
+      "sha256": "345eae5644107d55f3ff85a48b666cc658fcbc7ce813502b06f3ade993d5b417",
+      "supersedes": "staging-lan-client-decisions-20261121",
+      "changeReason": "Record explicit user phase-two authorization of reversible native route persistence and isolated certificate reliability/public GET verification. Preserve the initial architecture, every old frozen blob, Production/data/Worker boundaries, and explicit pending approval for shared reboot, Docker migration, corporate DNS/router and access expansion. No capability or screenshot status change."
     }
   ],
   "pages": [

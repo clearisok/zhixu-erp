@@ -35,6 +35,9 @@ class MonitorTests(unittest.TestCase):
         states['renew']['at'] = (NOW + datetime.timedelta(hours=1)).isoformat()
         self.assertEqual(monitor.evaluate(NOW, states, 89, True), ['check_invalid', 'renew_stale'])
 
+    def test_origin_expiry_is_not_hidden_by_new_public_certificate(self):
+        self.assertEqual(monitor.evaluate(NOW, self.healthy(), 89, True, 20), ['origin_certificate_under_21_days_or_unavailable'])
+
 
 if __name__ == '__main__':
     unittest.main()

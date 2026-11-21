@@ -41,3 +41,17 @@ Python route9/monitor4共13项通过、PS Parser通过、diff --check通过。�
 - 增加独立Staging public ingress smoke工作流，只在相关PR或人工触发匿名GET/login10次及health/build/trace，GitHub托管runner、固定域名、默认可信TLS、不跟随跳转、不带凭据/不写数据。拒绝私网/Fake-IP/overlay和非CF响应，防止把办公室请求当外网；同job运行route/monitor/隔离发布和public-proof保护测试。不新增自动开发、合并、部署、定时调度或付费服务。新公网探针尚未实际跑，不提前写PASS。
 
 公司Split DNS、地址保留、严格DoH/Mihomo与漫游方案、安全核对/设备值/完整回滚见docs/ops/staging-lan-stability.md。现有公司DNS/路由器/allow均未改；管理员入口和告警渠道尚未答复，服务器sudo执行未回执。D199新用户授权前向补充先独立checkpoint，再按既有守卫冻结确切blob，旧ID/hash不改；此证据checkpoint不单独交付未绑定manifest，下一Phase完成冻结后正常推送一次。
+
+## Delivery Phase10：最终冻结、上游监测和固定快照复验
+
+起点95e0e50eb3ec105956e9411464c6acbaac0355e3/clean，baseline在outputs内；无继承dirty。新D199原文已在该checkpoint，新增staging-lan-stability-decisions-20261121以前向supersedes绑定它，旧全部记录保留。代码续增坏状态/权限及原localhost证书到期监测（当前LAN约89.76天、上游约67.08天），不替换原证书或重启共享网关；当前实际monitor healthy。最终源码守卫及确切交付结果后续追加，不提前称PASS。
+
+Windows完整套件在运行期间跨越文档冻结版本，实际自然完成165测试/163 PASS/2 FAIL/0取消，1874136.457ms；两失败均为使用旧manifest对象读取新版决策文档而报EVIDENCE_WORKTREE_DRIFT=staging-lan-client-decisions-20261121。这是本轮操作顺序错误，不改旧hash消除失败；终止前身份检查发现进程已退出，未终止其他进程。该混合快照不记固定候选PASS。最终提交后建立独立detached测试工作树、依赖只读复用，完整套件只在不再修改的同一提交重跑；实际结果以独立日志/后继Issue回填为准。Linux908的完整Release/Team/Source均成功，但不借为最终新HEAD的全量结果。
+
+08:19:49Z再次只读核验原10容器ID/Image/StartedAt/RestartCount完全一致，Tunnel active；Worker heartbeat08:19:49.141、最新success08:19:40.236/审计08:19:40.545，complete55957（较07:43的55663增加294），failed仍182，enabled/未暂停。这里只读查询，不推进任务。服务器networkd drop-in仍不存在、原临时路线仍在，sudo执行尚未回执；Windows双store配置再次读回一致。共享主机重启发现原Staging五服务/Worker restart policy=no、Linger=no，Worker由既有分钟cron监管；尚未证实原五服务开机恢复owner，不擅改Worker或启动新owner，也不直接请求/执行盲重启。重启前须先审核现有恢复顺序。
+
+新独立外网探针只读固定Staging域名，按实际build-info.json的gitCommit读取部署source；不带凭据/不跟随跳转/不使用固定CF地址，19项Python保护/故障测试及public-proof测试随该workflow执行。证据冻结时最终公网CI/固定Windows套件尚未运行完成，最终结果回链Issue163/PR164；freeze-time pending不伪称已通过。公司设备/告警渠道仍待答复，高风险网络/allow/共享重启未执行。
+
+Phase10当前版本renew-test于08:27:03Z真实再次通过DNS-01测试CA，正式指纹BA:86:F6:67:87:D1:94:38:00:99:67:92:A4:DA:88:02:B8:7C:20:81:C8:22:1C:1B:F2:19:F3:49:6F:0E:43:44前后完全一致。当前19项Python测试Windows15 PASS/4 POSIX SKIP，Linux隔离发布4 PASS；Node public-proof1 PASS、定向eslint和Parser通过。动态global Git proxy只读核实为127.0.0.1:17989/TCP无监听，当前任务7888进程级对照及正式908推送成功；不是证书或认证绕过。新增deliver.ps1只接受无凭据loopback HTTP代理，临时追加/恢复进程环境，全部分支/dirty/祖先/单次push/独立SHA校验仍委托原正式脚本，不修改global/common配置；Parser及非loopback拒绝通过。最终提交后用它执行一次正常交付，不重复失败通道。
+
+Phase10精确源码守卫实际PASS：main10b9a7d827e1c09f152ead58c21f26712d49a619、checkedHead95e0e50eb3ec105956e9411464c6acbaac0355e3加本阶段前向manifest，13pages/68capabilities/0UI/errors=[]。两份PS Parser、19项Python（Windows15/4skip，Linux发布4项独立通过）、Node public-proof1及定向eslint、diff --check通过。后续最终commit将用于独立不变工作树完整重跑和真实Git精确交付；不可在该测试快照中更新文档或manifest。最终SHA、CI/独立公网输出和Windows固定快照结果回链Issue163/PR164，避免为记录自身SHA/后发CI结果制造循环提交。

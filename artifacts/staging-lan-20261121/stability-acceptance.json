@@ -1,0 +1,242 @@
+{
+  "schema": "weaveops-staging-lan-stability-acceptance.v1",
+  "frozenAt": "2026-11-21T08:32:39.315655+00:00",
+  "mainBaseline": "10b9a7d827e1c09f152ead58c21f26712d49a619",
+  "phase8Delivered": "908417bef3e0e4e67d5da2263feca68235e1cc38",
+  "phase9Checkpoint": "95e0e50eb3ec105956e9411464c6acbaac0355e3",
+  "windows": {
+    "persistentRoute": [
+      {
+        "Store": "ActiveStore",
+        "Destination": "192.168.66.69/32",
+        "Gateway": "192.168.83.1",
+        "Interface": "WLAN 2",
+        "Index": 14,
+        "Metric": 1
+      },
+      {
+        "Store": "PersistentStore",
+        "Destination": "192.168.66.69/32",
+        "Gateway": "192.168.83.1",
+        "Interface": "WLAN 2",
+        "Index": 14,
+        "Metric": 1
+      }
+    ],
+    "dhcp": true,
+    "ip": "192.168.83.51",
+    "dhcpServer": "192.168.83.1",
+    "mac": "24:B2:B9:90:A3:7B",
+    "wifiReconnect": "NOT_RUN_AUTO_REVIEW_REJECTED",
+    "activeTunServiceRestart": "NOT_RUN_AUTO_REVIEW_REJECTED",
+    "reviewReason": "blocked by policy",
+    "osReboot": "NOT_TESTED"
+  },
+  "server": {
+    "ip": "192.168.66.69",
+    "dhcp": true,
+    "dhcpServer": "192.168.66.1",
+    "dhcpMac": "12:ff:e0:00:88:4f",
+    "permanentMac": "10:ff:e0:00:88:4f",
+    "addressReservationVerified": false,
+    "nativeRouteDropInInstalledAtLastRead": false,
+    "nativeRouteLastReadAt": "2026-11-21T08:19:49Z",
+    "nativeRouteExecution": "AWAITING_USER_SUDO_EXECUTION",
+    "temporaryRouteStillPresent": true,
+    "osReboot": "NOT_APPROVED_NOT_TESTED",
+    "original10IdentitiesExact": true,
+    "originalStaging5AndWorkerDockerRestartPolicy": "no",
+    "bootOwnerForOriginalStaging": "NOT_VERIFIED",
+    "workerConfigurationChanged": false,
+    "networkMigrationExecuted": false
+  },
+  "ingressRecovery": {
+    "before": {
+      "id": "5d19bd20b4d325bc63c21c0a8cbdba6845a374bd7c4f8d9e24119c85bcc7dae3",
+      "startedAt": "2026-11-21T03:34:04.158056872Z",
+      "restartCount": 0,
+      "policy": "unless-stopped"
+    },
+    "publicBefore": {
+      "exit": 0,
+      "observation": "200 104.21.26.56 0"
+    },
+    "publicDuringRecovery": {
+      "exit": 0,
+      "observation": "200 172.67.135.143 0"
+    },
+    "automaticRestartObserved": true,
+    "after": {
+      "id": "5d19bd20b4d325bc63c21c0a8cbdba6845a374bd7c4f8d9e24119c85bcc7dae3",
+      "startedAt": "2026-11-21T07:58:05.284913332Z",
+      "restartCount": 1
+    },
+    "publicAfter": {
+      "exit": 0,
+      "observation": "200 172.67.135.143 0"
+    }
+  },
+  "certificate": {
+    "dns01Issue": "passed_phase4",
+    "renewDryRun": "passed_phase10_2026-11-21T08:27:03Z; formal fingerprint unchanged",
+    "liveReloadAndServedFingerprint": "passed_phase9",
+    "isolatedPublicationFaultCases": "4/4 passed on Linux",
+    "monitorState": "healthy",
+    "publicDaysRemaining": 89.76,
+    "originDaysRemaining": 67.08,
+    "originRotationPerformed": false,
+    "externalNotificationConfigured": false,
+    "cronBeforeHash": "3c041d8729b8f3c9cc4660bdd2df8150d52f70c81ad97bb31d291bb2930855d9",
+    "cronAfterHash": "44c16da7e8f3cc7fdabf1ce4c7739c3aedd8974f20d3ffece4da4dbd2ff43c76",
+    "otherCronBytesIdentical": true,
+    "newMonitorCronAutomaticTriggerAtFreeze": "not yet observed; manual passed"
+  },
+  "historicalImage": {
+    "bytes": 68,
+    "sha256": "bf3136761ef7d071d9505b8f774dc887ebce09be35b44fd8f18f08b401af7174",
+    "chunks": [
+      {
+        "kind": "IHDR",
+        "length": 13,
+        "crcValid": true
+      },
+      {
+        "kind": "IDAT",
+        "length": 11,
+        "crcValid": false
+      },
+      {
+        "kind": "IEND",
+        "length": 0,
+        "crcValid": true
+      }
+    ],
+    "zlib": "ok",
+    "strictOriginalAppDecoder": "rejected: vipspng: libpng read error",
+    "relationOrObjectChanged": false,
+    "conclusion": "Historical original has invalid IDAT CRC; no LAN corruption observed"
+  },
+  "synthetic": {
+    "quote": "6f5dec5e-4d44-4f6d-80a0-8d4159e58f03",
+    "quoteNumber": "QT-2026-1121-008",
+    "largeAttachment": "bd0c4b19-f09c-46ad-b3c0-612948ec47ac",
+    "largeBytes": 8388608,
+    "largeSha256": "b4c874691ade82276b59d506a8e6d6d7ba69e7e71d52aafd3a21049798fe46e8",
+    "upload": 201,
+    "download": 200,
+    "downloadHashMatches": true,
+    "allObservedAttachmentResponsesLanSecure": true,
+    "loadingFailed": 0,
+    "declared100MiBPlusOne": "413 before payload, no business write",
+    "full100MiBTransferTested": false,
+    "retainedForEvidence": true,
+    "existingBusinessOrdersChanged": false
+  },
+  "workerBefore": {
+    "checkedAt": "2026-11-21T07:43:02.286895+00:00",
+    "controls": [
+      {
+        "enabled": true,
+        "pausedReason": null,
+        "heartbeatAt": "2026-11-21T07:43:02.176+00:00",
+        "ageSeconds": 0.110895
+      }
+    ],
+    "latestContractSuccessAt": "2026-11-21T07:42:15.905+00:00",
+    "latestAuditSuccessAt": "2026-11-21T07:42:16.240985+00:00",
+    "todayAuditSuccessTables": 27344,
+    "jobs": {
+      "failed": 182,
+      "complete": 55663
+    }
+  },
+  "security": {
+    "anonymousForgedCfIdentity": 401,
+    "foreignOrigin": 403,
+    "sameAuthCodeAs0752": true,
+    "tokenPrivateKeyMode": "600 owner1000",
+    "privateAndTlsDirectories": "700 owner1000",
+    "cloudflareWafRead": 403,
+    "cloudflareAccessRead": 403,
+    "dnsTokenPermissionsBroadened": false,
+    "cloudflareDashboard": "browser timeout; error document policy blocked; no bypass",
+    "companyDnsRouterOrAllowChanged": false
+  },
+  "networkPaths": {
+    "clientDefaultAndExplicitProxyTrace": "KHH/TW/WARP off",
+    "officePublicComparisonTrace": "AMS/CN/WARP off",
+    "serverTrace": "LAX/CN/WARP off",
+    "serverTailscaleExitNode": false,
+    "tunnelProtocol": "http2",
+    "tunnelRegionFlag": "not set",
+    "tunnelLocations": [
+      "lax05",
+      "lax13",
+      "lax01",
+      "lax10"
+    ],
+    "tcp7844OfficialNames": "6/6 connects, 197–269ms; no QUIC test",
+    "edgeIpPinnedInProduction": false
+  },
+  "checks": {
+    "pythonOnWindows": "15 PASS, 4 POSIX SKIP",
+    "publicationOnLinux": "4 PASS",
+    "publicProofUnit": "1 PASS",
+    "releaseCi908": "success",
+    "teamCi908": "success",
+    "sourceCi908": "success",
+    "windowsLongSuiteMixedSnapshot": {
+      "tests": 165,
+      "passed": 163,
+      "failed": 2,
+      "durationMs": 1874136.457,
+      "reason": "evidence changed during run; not valid frozen candidate acceptance; immutable worktree rerun pending"
+    },
+    "finalPublicSmoke": "pending at freeze; final Actions result in Issue163/PR164",
+    "deliveryWrapper": "PS Parser passed; non-loopback/credential proxy rejected before network",
+    "phase10SourceGuard": {
+      "status": "PASS",
+      "checkedHead": "95e0e50eb3ec105956e9411464c6acbaac0355e3",
+      "workingForwardManifest": true,
+      "baseline": "10b9a7d827e1c09f152ead58c21f26712d49a619",
+      "pages": 13,
+      "capabilities": 68,
+      "uiChanges": 0,
+      "errors": []
+    }
+  },
+  "remaining": [
+    "user sudo execution for server native route",
+    "DHCP/DNS management access and approved exact changes",
+    "Access/WAF current policy read before access expansion",
+    "manual TUN/WiFi reconnect and both OS reboot acceptance",
+    "existing Staging boot ownership/recovery review before any shared reboot",
+    "explicit external alert destination",
+    "independent public CI and immutable local suite results pending at freeze"
+  ],
+  "workerAfter": {
+    "checkedAt": "2026-11-21T08:19:49.467545+00:00",
+    "controls": [
+      {
+        "enabled": true,
+        "pausedReason": null,
+        "heartbeatAt": "2026-11-21T08:19:49.141+00:00",
+        "ageSeconds": 0.326545
+      }
+    ],
+    "latestContractSuccessAt": "2026-11-21T08:19:40.236+00:00",
+    "latestAuditSuccessAt": "2026-11-21T08:19:40.544686+00:00",
+    "jobs": {
+      "failed": 182,
+      "complete": 55957
+    }
+  },
+  "gitTransport": {
+    "confirmedGlobalProxy": "http://127.0.0.1:17989",
+    "globalProxyTcpReachable": false,
+    "taskProcessProxy": "http://127.0.0.1:7888",
+    "globalConfigChanged": false,
+    "formalPush908": "DELIVERED_VERIFIED exact, one push",
+    "wrapper": "ops/staging-lan/deliver.ps1; restores environment and delegates all checks to scripts/git-delivery.ps1"
+  }
+}

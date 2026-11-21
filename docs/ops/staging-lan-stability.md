@@ -81,11 +81,11 @@ rules:
 
 ## 证书、监测与入口隔离
 
-仅LAN项目unless-stopped，Docker/cron/UFW enabled。已有真实自动拉起演练：新Nginx进程退出后同一容器RestartCount0→1；原公网入口前/期间/后均可信200，原10容器不重启。实际主机开机顺序/地址就绪仍须重启后验证，尤其当前地址为DHCP。
+仅LAN项目unless-stopped，Docker/cron/UFW enabled。已有真实自动拉起演练：新Nginx进程退出后同一容器RestartCount0→1；原公网入口前/期间/后均可信200，原10容器不重启。实际主机开机顺序/地址就绪仍须重启后验证，尤其当前地址为DHCP。原Staging五服务和Worker的Docker restart policy均为no；现有Worker由原分钟cron监管，Linger=no。尚未证实原五服务的完整开机恢复owner，不能因LAN自身可自动恢复就直接重启共享服务器；先由原部署/备份运行手册审核精确启动与恢复顺序，不改Worker策略或另起并行owner。
 
 `certificate.sh renew`只在新证书出现时原子更新版本symlink、nginx -t、优雅reload并最多10次检查**服务端实际可信指纹等于磁盘**。失败恢复旧symlink并重载旧证书。`reload-test`已实际通过，正式DNS-01 dry-run与未到期renew通过；4项隔离POSIX故障测试验证新发布/不重复reload/指纹不匹配回滚/语法失败，不将假证书测试称实际临期续期。
 
-用户cron保留其他job字节，每天UTC03:19/15:19 renew（北京11:19/23:19）、:37 check、:41 monitor。schedule.py识别旧/新owned block，仅升级该块并备份完整crontab；重复install无变化，未知block拒绝。monitor检查独立renew/check失败、36h/2h陈旧、21天到期及私密权限，输出600状态和journal；健康check不会遮蔽旧renew失败。私钥/Token600，private/tls700。外部通知需明确渠道/受控配置路径，目前未配置，不冒称通知已到达。
+用户cron保留其他job字节，每天UTC03:19/15:19 renew（北京11:19/23:19）、:37 check、:41 monitor。schedule.py识别旧/新owned block，仅升级该块并备份完整crontab；重复install无变化，未知block拒绝。monitor检查独立renew/check失败、36h/2h陈旧、LAN及原localhost上游证书21天到期、私密权限，输出600状态和journal；健康check不会遮蔽旧renew失败。私钥/Token600，private/tls700。外部通知需明确渠道/受控配置路径，目前未配置，不冒称通知已到达。
 
 ## 附件与独立公网验证
 
@@ -107,3 +107,15 @@ rules:
 4. 如只退第二阶段服务代码，保留cron当前和源码备份；恢复private/source-backups/phase9中certificate.sh/schedule.py之前，先用当前schedule.py remove撤本任务新block，再恢复旧脚本并按原install重建旧block。monitor.py可保留文件但不再调度。不要直接还原整份crontab覆盖其他job。
 5. 如完全退LAN，先schedule.py remove，再只stop weaveops-staging-lan/ingress；按原手册撤精确UFW规则。原Tunnel/app/DB/Worker不停止，不删任何volume、网络或附件。
 6. 公司DNS/地址保留/扩大allow若未来获批实施，须使用各次owned变更记录精确撤销；不能拿本阶段未实施的计划作为已发生操作回滚。
+
+## Git正式交付与传输维护
+
+本阶段确认全局Git代理仍为127.0.0.1:17989且无监听；已用当前127.0.0.1:7888进程级代理正常单次推送908417be并独立核实精确SHA。全局配置影响其他项目/工作树，未擅改；一次成功也不证明所有网络故障永久消失。
+
+任务内一条命令（默认Dry Run，实际需-Execute）：
+
+```powershell
+pwsh -NoProfile -File ./ops/staging-lan/deliver.ps1 -ExpectedHead <本次完整40位HEAD> -Execute
+```
+
+默认7888，可用-Proxy指定当前无凭据loopback HTTP代理；wrapper只临时追加进程配置、完整恢复原环境，仍调用scripts/git-delivery.ps1，不发明新的推送/认证策略。STOP/NETWORK_DEGRADED按根AGENTS处理，不force/rebase或自动重试。最终提交SHA/远端及CI回执见Issue163/PR164，不能以连接器正文更新冒称Git提交送达。

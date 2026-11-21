@@ -6,11 +6,13 @@ import os
 from pathlib import Path
 import stat
 import subprocess
+import socket
+import ssl
 
 ROOT = Path('/home/jackson/weaveops-staging-lan')
 
 
-def evaluate(now, states, days, safe_permissions):
+def evaluate(now, states, days, safe_permissions, origin_days=None):
     problems = []
     for name, hours in [('check', 2), ('renew', 36)]:
         state = states.get(name)
@@ -30,6 +32,8 @@ def evaluate(now, states, days, safe_permissions):
             problems.append(name + '_invalid')
     if days < 21:
         problems.append('certificate_under_21_days')
+    if origin_days is not None and origin_days < 21:
+        problems.append('origin_certificate_under_21_days_or_unavailable')
     if not safe_permissions:
         problems.append('private_permissions')
     return problems
@@ -59,10 +63,22 @@ def main():
         days = (expires - now).total_seconds() / 86400
     except (OSError, ValueError, subprocess.SubprocessError):
         days = -1
-    problems = evaluate(now, states, days, safe)
+    # Original localhost certificate also expires; monitor without replacing it
+    # or restarting the shared gateway/Tunnel/object services.
+    try:
+        context = ssl.create_default_context(cafile='/home/jackson/weaveops-staging-preview/runtime/tls/cert.pem')
+        with socket.create_connection(('127.0.0.1', 3003), timeout=3) as raw:
+            with context.wrap_socket(raw, server_hostname='localhost') as tls:
+                origin_expires = ssl.cert_time_to_seconds(tls.getpeercert()['notAfter'])
+        origin_days = (origin_expires - now.timestamp()) / 86400
+    except (OSError, ValueError, KeyError, ssl.SSLError):
+        origin_days = -1
+    problems = evaluate(now, states, days, safe, origin_days)
     summary = {'schema': 'weaveops-lan-monitor.v1', 'at': now.isoformat(),
                'state': 'failed' if problems else 'healthy', 'problems': problems,
-               'certificateDaysRemaining': round(days, 2), 'externalNotificationConfigured': False}
+               'certificateDaysRemaining': round(days, 2),
+               'originCertificateDaysRemaining': round(origin_days, 2),
+               'externalNotificationConfigured': False}
     candidate = ROOT / 'private/monitor-status.json.next'
     candidate.write_text(json.dumps(summary) + '\n')
     candidate.chmod(0o600)
