@@ -1,5 +1,7 @@
 # Staging 局域网直连：现场调查与实施 v1
 
+最新恢复点见末尾 **Delivery Phase 3**；Phase1/2的未批准/工具故障等状态按原时点保留。
+
 2026-11-21（Asia/Shanghai）；Refs [Issue163](https://github.com/clearisok/zhixu-erp/issues/163)。Codex转录用户决定：本聊天附件《调查并实施局域网高速直连部署》明确授权调查、必要的 Staging LAN 配置、测试电脑验证、真实浏览器验收和独立 PR；禁止 Production、共享组件重启、公司整体网络变更、数据/卷删除及 Worker 干预。此附件原始范围即v1实施授权，不额外要求普通技术选项批准。缺外部权限时完成可安全落地部分，如实保留阻塞。
 
 ## Delivery Phase 1 baseline
@@ -80,3 +82,45 @@ Phase1 checkpoint **982af5b2792504e2421b796eff4de8a978f30d92**。Phase2开始时
 首轮精确发布检查读到主线继承的旧4e1基线，按预期BASE_SHA_MISMATCH拒绝；已前向对齐10b9并冻结D199，最终结果以后继实际运行回执为准，不降低守卫。
 
 冻结后精确 `npm run check:release-baseline -- --base-sha 10b9a7d827e1c09f152ead58c21f26712d49a619` 已实际PASS：13 pages/68 capabilities/0 UI changed/errors=[]，检查HEAD982af5b2加本阶段前向manifest。新工具3/3、定向eslint、node --check、bash -n、Compose config和Nginx/loopback均通过。首轮test:release-baseline在基线对齐期间运行，被显式终止，结果20 responsive通过/guard文件未完成（保留749395ms回执），不能称完整PASS；已在固定manifest/摘要上重新执行，最终结果在Issue/PR后续回填。
+
+## Delivery Phase 3：用户答复、服务器路由落实及DNS-01准备
+
+2026-11-21（Asia/Shanghai）继续同一任务。起点branch `feat/staging-lan-direct` / HEAD **184f6975b03f11d8076cac97c3ce7e9743fb178f** / clean；本轮再次fetch确认main仍 **10b9a7d827e1c09f152ead58c21f26712d49a619**，无继承dirty。
+
+**Codex转录用户决定**（本聊天异步答复原话）：当前电脑“是，就是当前电脑”；证书“没有，需使用Cloudflare DNS-01签发”；服务器路由“批准，仅此临时 /32 路由”。只落实已批准的 `192.168.83.51/32 via 192.168.66.1 dev enp3s0`，不推广到其他网段、不增加持久配置。
+
+### 已执行
+
+- 服务器路由执行前重新核对地址、原错误回程、原10运行容器，并保存 `evidence/phase3-before-identities.txt`。经用户批准后，使用已有Docker操作权限，在核验过的官方Nginx镜像中运行一次 `/sbin/ip route add`：仅host network、cap-drop ALL再加NET_ADMIN、read-only、no-new-privileges、无host文件/Socket挂载、退出即移除命令容器；没有获取sudo口令、改认证或使用privileged。操作前要求该精确/32不存在，绝不replace。实际读回为 `192.168.83.51 via 192.168.66.1 dev enp3s0 src 192.168.66.69`，证据在主机 `evidence/phase3-office-return-route.txt`。
+- Windows仍由Bettbox接管192.168.66.69，绑定真实WLAN的22端口5秒超时；默认TUN连接也没有取得SSH banner。服务器回程修复不是LAN互通通过，仍需Windows单IP路由及VLAN真实验证。
+- 新 `ops/staging-lan/Set-ClientRoute.ps1` 仅为固定办公IP/网关/适配器添加 `192.168.66.69/32` ActiveStore路由，默认Dry Run，实际需-Execute及管理员。拒绝冲突路由、不改DNS/hosts/VPN模式，保存本用户LOCALAPPDATA内带schema回执，-Rollback只撤匹配owned路由。用户首次粘贴路径丢失Administrator与.codex间分隔符，命令未执行；已提供正斜杠版本，当前未获成功执行回执。
+- 官方Certbot `certbot/dns-cloudflare:v5.10.0` 在Windows下载，版本实际5.10.0。两机精确image ID `sha256:6d5e1e84f687ce81786c97cbeccb9dda94d86bbb29a81dbb85527bd68008d77d` / linux amd64；离线包SHA256 `c48b27b26edd122c4ba2ee158db7507d8a35136ee33e338fc8c1b3e20c2281fb`，服务器load前核对完整包hash，未改失效Docker代理。
+- 新 `certificate.sh` 支持issue/renew/check，仅固定域名和独立cert-name；DNS凭据必须是jackson拥有的600普通文件，内容不进argv/env/模型输出。Certbot用户1000、只读根、drop-all、无host端口；输出留owner-only私密日志。签发/续期后校验系统信任/域名/到期/私钥配对，以版本目录和原子symlink发布；仅reload匹配新LAN project/service，失败保留旧版本，不启动任何服务。默认新ACME账号不登记email（使用Certbot支持的without-email选项）；后续失败监测以本地状态/日志为基础，不假称有外部到达告警。
+- `certificate.sh check` 在尚无证书时实际返回1并写failed状态，未签发/发起DNS写入或启动服务。bash -n通过，Windows脚本Parser通过；真实issue/renew/dry-run尚未执行。`private/cloudflare.ini` 尚不存在，已请求用户按仅weaveops.top的Zone DNS Edit权限安全落文件；不要求聊天粘贴Token。
+- Nginx新增 `Alt-Svc: clear`，首次LAN响应清除旧Cloudflare HTTP/3替代记录；新增只用于验收的 `X-WeaveOps-Ingress: staging-lan`。最新实际nginx -t通过（仍只使用私密测试证书作语法检查，不是浏览器证书）。长期443入口仍未启动。
+
+### 浏览器与CI新事实
+
+重置控制会话后Chrome不在连接清单，不能沿用旧标签。改用同机Codex内置真实浏览器，Staging登录页实际显示用户名/密码表单；Network证据为login200、remoteIP `198.18.0.109`、secure、issuer YE1、h3，资源另见172.67.135.143，证明仍为TUN/公网路径。Trace导航被客户端阻断，未绕过；没有登录、Cookie读取、业务写入或缓存/Storage清理。此新浏览器可用不倒改前两阶段Chrome接口失败历史，也不代表LAN验收。
+
+184f6975的正式交付已DELIVERED_VERIFIED且PR164 Draft。其Linux Release baseline CI44856277170成功：完整发布182/182、解析19/19、交付74PASS/1skip/0fail；First team access44856277261成功。Windows第二次重复发布回归在441243ms尚未结束时，因同SHA官方Linux已完整通过而中止，不算本地PASS。Source44856277266最终 **CANCELLED**，不是此前临时记录的IN_PROGRESS，更不是PASS；取消原因未核实，不擅自重跑原版本。
+
+### 剩余条件
+
+Windows单机路由已经落实（见下面追加现场结果），等待Cloudflare凭据文件就绪。之后验证LAN TCP真实互达、只签该Staging域名、TLS/域名/Origin/登录和附件、安装并验证受锁续期/本地失败监测，再做DNS单机接入及浏览器remote IP闭环。当前无可信域名证书、续期任务/外部告警、hosts/Split DNS改动或完整业务验收；不扩大办公室allow。
+
+### Windows UAC执行与路由读回（同Phase3追加）
+
+用户纠正路径后返回ScriptRequiresElevation，说明其窗口仍非管理员，第二次尝试未修改系统。Codex随后为已授权的同一脚本使用Start-Process -Verb RunAs启动UAC/管理员PowerShell（-NoProfile -NoExit -File固定脚本 -Execute），窗口实际启动。11:18:33+08:00回执schema=weaveops-lan-client-route.v1/state=created读回；Get-NetRoute及Find-NetRoute确认192.168.66.69/32、NextHop192.168.83.1、WLAN 2/interface14、RouteMetric1、ActiveStore。没有修改DNS/hosts/VPN或其他路由，不需重复执行。
+
+同机traceroute实测第一跳192.168.83.1、第二跳192.168.66.69（3–4ms），证实此ICMP路径走真实办公室网关。Python socket分别绑定192.168.83.51和默认源地址访问TCP22并读SSH banner，均约5秒超时；服务器ss仍显示0.0.0.0:22监听。不能仅凭ICMP或路由表宣称TCP可达，也不能据此确定是VLAN ACL、主机防火墙或客户端过滤。普通jackson用户tcpdump被CAP_NET_RAW拒绝，未进行提权抓包/修改共享防火墙。凭据文件元数据检查仍为ABSENT，不读取Token，不进行DNS/CA写入。
+
+后续为定位过滤层，用已核验Certbot镜像一次性执行只读Python包头检查：host network、read-only、cap-drop ALL仅加NET_RAW，无host文件/Socket挂载；25秒仅打印83.51与66.69/22匹配的IP、端口、flags、长度，不输出或保存载荷。实际看到同源端口53384的3个flags=2 SYN到enp3s0，没有匹配回应，随后命令容器自动退出。再以network none、read-only、仅DAC_OVERRIDE的命令容器只读挂载/etc/ufw及/etc/default/ufw，筛选配置；systemctl确认ufw active，ENABLED=yes、DEFAULT_INPUT_POLICY=DROP、22仅tailscale0 ACCEPT，未见443放行。此证据与主机过滤一致，但不是完整内核规则dump，不冒称所有过滤层已排除。
+
+sudo -n ufw/nft只读命令均要求交互认证，无修改。按共享组件边界，已向用户请求批准并本人sudo执行精确规则 `sudo ufw allow in on enp3s0 proto tcp from 192.168.83.51 to 192.168.66.69 port 443 comment 'weaveops-staging-lan-163'`；回滚同值delete allow。不开放SSH/全网段、不改默认策略；尚无答复/执行回执，不使用Docker修改共享防火墙。Cloudflare凭据仍未提供，已重述仅安全文件落盘，不收取聊天Token。
+
+### Phase3 checkpoint前用户补充与元数据核实
+
+Codex转录用户最新答复：Cloudflare Token已创建并保存在指定private/cloudflare.ini，继续DNS-01、续期、Nginx、单机DNS和真实浏览器测速，保持Production/DB/Worker；不得输出Token。服务器metadata实际核实owner=1000/mode=600/regular file且非symlink；certificate.sh本机/服务器SHA256同为82e83763f57e8d0db66afeee436ab90627b39e1a298461f2b731477151ccd1c2。用户对唯一443规则答复“批准，我在服务器执行后回复结果”；已有批准，尚无执行回执。Phase3先独立checkpoint，后续真实签发/部署作为新Phase记录。
+
+本阶段精确发布源码守卫已PASS（main10b9、13pages/68capabilities/0UI/errors=[]），测量工具再次3/3，PS Parser和diff --check通过；完整test:release-baseline已启动，仍运行，暂不称PASS。

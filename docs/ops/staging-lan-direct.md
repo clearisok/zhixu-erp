@@ -1,6 +1,6 @@
 # Staging LAN 入口与恢复手册
 
-2026-11-21，Refs [#163](https://github.com/clearisok/zhixu-erp/issues/163)。本次状态：**配置/镜像已落盘，服务器 loopback 代理探针通过；LAN 入口未启动，办公室浏览器及可信域名证书验收未完成**。实际证据和阻塞见[任务记录](../tasks/active/staging-lan-direct-2026-11-21.md)。
+2026-11-21，Refs [#163](https://github.com/clearisok/zhixu-erp/issues/163)。当前状态：**两端临时/32路由已落实，ICMP两跳到服务器、TCP22仍超时；Nginx/Certbot镜像与配置已落盘，DNS-01凭据元数据已核对，LAN入口未启动**。实际证据和阻塞见[任务记录Phase3](../tasks/active/staging-lan-direct-2026-11-21.md)。
 
 ## 真实入口与候选结构
 
@@ -14,26 +14,44 @@ Nginx独立project为 `weaveops-staging-lan`，文件在 `/home/jackson/weaveops
 
 ## 先解决三项外部前置
 
-1. **网络**：服务器对 `192.168.83.51` 的实际回程路由命中旧无端点Docker网桥 `192.168.80.0/20`。不删除网桥、不改Docker默认地址池。已请求用户批准/执行下面的单客户端临时路由；未获回应前不执行。
+1. **网络**：服务器原回程命中旧无端点Docker网桥 `192.168.80.0/20`。用户已明确批准唯一临时/32，已使用一次性、仅NET_ADMIN的命令容器落实下面的等效route add；读回经192.168.66.1/enp3s0。不删除网桥、不改Docker默认地址池，不再重复add。
 
    ```sh
    sudo ip route add 192.168.83.51/32 via 192.168.66.1 dev enp3s0
    ip route get 192.168.83.51
    ```
 
-   回滚为 `sudo ip route del 192.168.83.51/32 via 192.168.66.1 dev enp3s0`。仅内存路由，重启不保留；不使用replace覆盖未知路由。加路由后仍要验证两个VLAN之间的公司ACL，不能保证它单独解决互达。
+   回滚为 `sudo ip route del 192.168.83.51/32 via 192.168.66.1 dev enp3s0`。仅内存路由，重启不保留；不使用replace覆盖未知路由。Windows单IP路由也已落实，ICMP路径已通但TCP22超时，不能保证两条路由已解决应用互达。
 
 2. **证书**：当前原证书仅localhost自签，不能复用于浏览器。用户可提供已有可信域名fullchain/私钥的受控文件路径；否则使用DNS-01。不要把秘密放聊天、Git、CLI参数或日志。Cloudflare后台为该用途创建 `Zone / DNS / Edit`、仅 `weaveops.top` 的Token；不需Global API Key或账户管理员。Token会具备该zone DNS写能力，不能假称仅可改一个TXT；若组织要求更窄范围，先设计专用挑战子域委派。
 
-   在服务器由本人用编辑器写入 `/home/jackson/weaveops-staging-lan/private/cloudflare.ini`，目录700/文件600，仅一项 `dns_cloudflare_api_token = <本人填入>`，只告知Codex路径。凭据不得提交；当前未创建、读取或使用Token。签发客户端使用官方Certbot及dns-cloudflare插件，先固定版本/镜像和私密目录，再仅签 `staging.weaveops.top`。DNS-01只操作挑战TXT，不改变现有公网A/CNAME/Proxy路由。具体签发尚未执行。依据[Certbot插件官方要求](https://certbot-dns-cloudflare.readthedocs.io/en/stable/)及[Cloudflare Token权限](https://developers.cloudflare.com/fundamentals/api/get-started/create-token/)。
+   在服务器由本人用编辑器写入 `/home/jackson/weaveops-staging-lan/private/cloudflare.ini`，目录700/文件600，仅一项 `dns_cloudflare_api_token = <本人填入>`，只告知Codex路径。凭据不得提交；用户已创建并落盘，元数据已核对，尚未使用Token。签发客户端使用官方Certbot及dns-cloudflare插件，先固定版本/镜像和私密目录，再仅签 `staging.weaveops.top`。DNS-01只操作挑战TXT，不改变现有公网A/CNAME/Proxy路由。具体签发尚未执行。依据[Certbot插件官方要求](https://certbot-dns-cloudflare.readthedocs.io/en/stable/)及[Cloudflare Token权限](https://developers.cloudflare.com/fundamentals/api/get-started/create-token/)。
 
-   证书发布目录约定为 `tls/<新唯一版本>/fullchain.pem,privkey.pem`，`tls/current`原子symlink指向该版本；父目录只读挂载，保留旧版本。先验证系统信任链、域名、key匹配和至少14天有效，再 `nginx -t` 和只reload新LAN服务。失败恢复旧symlink并重新校验，绝不替换原Staging/internal CA。自动续期和失败监测须在真实签发后安装并验证：每天受锁运行 `certbot renew`，仅成功部署hook发布并reload此入口；非零退出保留失败日志，日检域名TLS/到期≤21天告警并接入用户指定接收渠道。**本轮没有安装续期timer或外部告警，不能称已具备运行中的证书生命周期。** Cloudflare Origin CA不能作为浏览器可信替代，见[官方说明](https://developers.cloudflare.com/ssl/origin-configuration/origin-ca/)。
+   已准备官方Certbot5.10.0精确本地镜像及 `certificate.sh issue|renew|check`。凭据就绪后执行 `bash /home/jackson/weaveops-staging-lan/certificate.sh issue`，只签staging.weaveops.top，独立cert-name，不登记ACME email，日志与配置仅存private/acme。它使用flock防重、版本目录和原子symlink；验证系统信任链、域名、key匹配和至少14天有效，且只reload已运行的新LAN服务，不自动启动。失败恢复旧symlink，绝不替换原Staging/internal CA。`check`另验证21天到期门槛与真实LAN健康端点，失败写private/certificate-status.json和本机journal；当前缺证书时实际拒绝，未进行issue/renew。
+
+   自动续期任务须在真实签发后安装并验证：每天受锁运行脚本renew，按小时运行check，保留private日志和failed状态；接外部告警需明确接收目的地。**当前未安装任何cron/timer或外部告警，不能称已有运行中的证书生命周期。** Cloudflare Origin CA不能作为浏览器可信替代，见[官方说明](https://developers.cloudflare.com/ssl/origin-configuration/origin-ca/)。
 
 3. **认证/Access**：实际app为session/RBAC，匿名quotes401、错误Origin403已在独立探针确认。仍须核对Cloudflare当前Access/WAF政策以及公司允许的LAN客户端范围；不能默认为绕开Access已获等效认可。策略未解决前不将allow扩至整个办公室。
 
 ## 单机DNS和TUN验证
 
-先确认当前Windows电脑是否就是目标办公室客户端。没有修改路由器、DNS、hosts、Clash模式/订阅或系统代理。本机WinHTTP direct不代表TUN关闭；磁盘上Clash Verge/ClashMi配置并存，不能把其中一份当作Bettbox的实时配置。
+用户已确认当前Windows电脑就是办公室验收客户端。没有修改路由器、DNS、hosts、Clash模式/订阅或系统代理。本机WinHTTP direct不代表TUN关闭；7888实际进程名XingchenCore.exe，磁盘上Clash Verge/ClashMi配置并存，不能把其中一份当作Bettbox的实时配置。
+
+以下单机路由已在该电脑**管理员PowerShell**执行，不重复添加；重启后确有需要且重新核实地址时才使用（正斜杠避免复制丢分隔符）：
+
+```powershell
+& "$env:USERPROFILE/.codex/worktrees/0dd2/zhixu-ainuoke-api/ops/staging-lan/Set-ClientRoute.ps1" -Execute
+```
+
+仅新增192.168.66.69/32→WLAN 2/192.168.83.1 ActiveStore路由，不改DNS/hosts/VPN模式；冲突即停，回执在LOCALAPPDATA/WeaveOps/staging-lan-163/client-route.json。回滚用同一命令加 `-Rollback`，只撤精确匹配的本任务owned路由。首次错误路径和第二次非管理员均未执行；随后通过Start-Process -Verb RunAs弹出UAC启动管理员窗口，11:18:33回执和接口14/metric1路由均已核实。traceroute经83.1两跳到66.69（3–4ms）；默认及绑定83.51的TCP22仍超时，不能称LAN应用验收通过。
+
+实际服务器UFW active/ENABLED=yes、默认INPUT DROP；只读配置中SSH仅允许tailscale0、未见443规则。25秒限目标IP/22的包头捕获见3个客户端SYN到enp3s0，无回应；不记录载荷。未修改共享防火墙，已请求用户批准并以服务器sudo执行下列唯一规则，**用户已批准、待本人执行回执**：
+
+```sh
+sudo ufw allow in on enp3s0 proto tcp from 192.168.83.51 to 192.168.66.69 port 443 comment 'weaveops-staging-lan-163'
+```
+
+回滚精确使用 `sudo ufw delete allow in on enp3s0 proto tcp from 192.168.83.51 to 192.168.66.69 port 443 comment 'weaveops-staging-lan-163'`，先核实规则仍为本任务值。不开放SSH、不改默认策略、不使用ufw disable/reset/reload，不扩到整个网段；原Tailscale SSH和公网Tunnel保留。UFW规则文件与active状态是实际观察，但尚未读取完整内核规则，真实443连通仍须签发和入口启动后验证。
 
 获准的测试电脑，在真实LAN互达和证书就绪后先运行：
 
@@ -67,7 +85,7 @@ preflight只读验证固定物理IP、回程路由、443空闲、镜像内容ID�
 
 TCP指标为time_connect-time_namelookup；TLS为time_appconnect-time_connect；TTFB/Total是请求开始累计。当前Fake-IP/TUN下TCP只到拦截层，不能冒称办公电脑到Cloudflare真实RTT。保持相同客户端/构建/URL/状态/字节，冷/复用分开。服务器loopback与办公室公网数字只能用来定位，不能计算LAN改善比例。Cloudflare边缘到Tunnel单独耗时本轮无法从curl直接分离，不能拿两个不同时样本相减代替。
 
-浏览器须检查安全证书、登录、订单、报价、物料、资源/API错误、同域Cookie/Origin、实际远端地址；上传下载用用户允许的独立合成记录并核对hash，不污染订单。当前浏览器控制接口故障，未执行登录后验收或上传写入。外网回归须来自真正外部网络，本机/服务器自请求公网都不能冒充。
+浏览器须检查安全证书、登录、订单、报价、物料、资源/API错误、同域Cookie/Origin、实际远端地址；上传下载用用户允许的独立合成记录并核对hash，不污染订单。旧Chrome接口故障且当前未连接；内置浏览器现可用，真实login200/secure但remoteIP为198.18.0.109及Cloudflare公网地址，仍未执行LAN登录后验收或上传写入。LAN响应有X-WeaveOps-Ingress标记和Alt-Svc clear，仍须以实际remote IP为准，不能只看标记。外网回归须来自真正外部网络，本机/服务器自请求公网都不能冒充。
 
 ## 回滚和故障定位
 
