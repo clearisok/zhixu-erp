@@ -1,6 +1,6 @@
 # 接力：Issue163，可信LAN入口已启动，等待443/hosts和浏览器闭环
 
-2026-11-21；main基线 **10b9a7d827e1c09f152ead58c21f26712d49a619**；feat/staging-lan-direct，Phase4起点3f56d48d6733b0aaf4f3385262e0ce0d5409434e/clean（正式DELIVERED_VERIFIED）；当前Phase4自有增量见git status，无继承dirty。Issue163/PR164 Draft，不合并/关闭。用户原LAN部署授权持续有效，最新明确不改Production/DB/Worker；Token已由Read改DNS Edit仅weaveops.top，单客户端443 UFW已批准、用户说本人执行后回复，尚未获回执。
+2026-11-21；main基线 **10b9a7d827e1c09f152ead58c21f26712d49a619**；feat/staging-lan-direct，Phase4起点3f56d48d6733b0aaf4f3385262e0ce0d5409434e/clean（正式DELIVERED_VERIFIED）；Phase4已以92e83343082c1251000944b6e791e8a4a3e68445正式DELIVERED_VERIFIED/exact remote；服务器7文件hash已核，source-commit.txt=92。Phase5从92/clean只做本地文档事实收口，无继承dirty。Issue163/PR164 Draft，不合并/关闭。用户原LAN部署授权持续有效，最新明确不改Production/DB/Worker；Token已由Read改DNS Edit仅weaveops.top，单客户端443 UFW已批准、用户说本人执行后回复，尚未获回执。
 
 /home/jackson/weaveops-staging-lan现已实际运行独立LAN ingress，192.168.66.69:443；限制83.51/66.69，原HTTPS localhost3003上游、原CA/SNI/Cloudflare Tunnel不变。Staging app仍0752。preflight/nginx-t及服务器可信HTTPS health/database ready实际通过。不要重复up原项目或改旧容器。两端临时/32已加，Windowsowned回执已读回，traceroute两跳；UFW active/INPUT DROP/22仅tailscale，客户端443仍超时。只能等待/核实获批精确规则，不开放22或全网段、不改默认策略；规则/rollback在runbook。
 
@@ -8,6 +8,8 @@
 
 Windows hosts/DNS/VPN尚未改。新增Set-ClientHosts.ps1（默认Dry Run）已Parser与真实Dry Run hash保全通过；-Execute需管理员，备份/拒绝冲突/receipt owned回滚。用户最新要求hosts或管理员动作给准确步骤，等实际LAN443成功再给一条UAC启动命令，别提前重定向到不可达入口，不自动清浏览器Storage/Cookie。IAB可用但现有登录仍公网Fake-IP，Chrome未连接；恢复CUA须rewriteDocumentation。
 
-3f56发布CI44861126218 SUCCESS（182/182、交付74PASS/1skip/0fail）；其他两个CI仍需核实。本地Windows完整发布测试session90335仍运行、日志outputs/staging-lan-20261121-phase3/release-tests.log，不冒称PASS；旧184f两轮中止历史保留。Phase4运行代码尚需独立commit/push和最终精确guard，避免把未送达代码称交付。
+92精确本机check:release-baseline --base-sha10b9 PASS，13pages/68capabilities/0UI/errors=[]；Release CI44862537961 SUCCESS，job136718913423的完整回归/交付/语法lint/最终guard各step成功。其他两个CI仍需核实。Windows完整测试在1523160ms仍未完成，因同HEAD官方Linux成功而只终止已核身份的本任务guard子进程6564，结果20responsive通过/guard因终止失败，不称本地PASS；日志outputs/staging-lan-20261121-phase3/release-tests.log。两个检查会话均已结束，不留本任务长测试。旧184f两轮中止历史保留。
 
 当前两组公网新样本已保存outputs/staging-lan-20261121-phase4/office-public-{cold,reuse}.json：冷9/10（1失败）、复用10/10。尚无可计算LAN改善；历史样本不覆盖新路由/证书。下步核实UFW实际执行、LAN443、管理员hosts、浏览器remoteIP及功能、10次同页冷/复用比较、真正外网回归和保全。详[任务](tasks/active/staging-lan-direct-2026-11-21.md)/[runbook](ops/staging-lan-direct.md)/[前摘要](tasks/completed/2026-11-21-before-lan-https/AI_HANDOFF.md)。
+
+NETWORK_DEGRADED：92交付核实之后，本机gh CI查询connect timeout至Fake-IP198.18.0.124。不再撞该CLI通道或自动恢复/改共享代理；GitHub连接器已核实92发布CI成功且可用于Issue/PR事实回填，但不等于本机通道恢复。Phase5仅文档本地checkpoint，未自动push；remote仍92，人工一次性恢复用正式scripts/git-delivery.ps1/ExpectedHead=本地完整HEAD。后续原范围可离线继续，勿将本地文档称已送达。

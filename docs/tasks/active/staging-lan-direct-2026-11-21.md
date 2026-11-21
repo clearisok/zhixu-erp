@@ -149,3 +149,13 @@ Codex转录用户最新答复：Cloudflare Token已创建并保存在指定priva
 3f56精确Release baseline CI44861126218 SUCCESS（182/182、交付74PASS/1skip/0fail、最终guard PASS）。本地完整Windows suite仍运行，不能称PASS；其他两CI及新阶段最终源码守卫独立核实。不因部署基础设施宣称订单/报价/物料/附件、Access全策略或真正外网回归通过。
 
 Phase4激活后再次按原10个完整ID逐个docker inspect，仅输出Id/Image/StartedAt/RestartCount，与before原文完全一致；9个有health的原容器均healthy，唯一Worker容器running，未读取PG心跳。2026-11-21 03:37:01Z用户cron实际自动触发check，分模式状态healthy，scheduler-check.log属主1000/权限600/72bytes；续期演练与手动命令之外，定时调度已有实际触发证据。11:39最新UFW只读配置仍无443规则，等待用户执行获批命令；不重复询问批准。
+
+## Delivery Phase 5：事实与检查结果本地收口
+
+起点92e83343082c1251000944b6e791e8a4a3e68445/feat/staging-lan-direct/clean，无继承dirty。Phase4正式脚本DELIVERED_VERIFIED/EXACT_HEAD_VERIFIED/pushes=1/NORMAL；实际部署7文件与该源SHA256逐项一致，主机evidence/phase4-deployment-source.json及source-commit.txt绑定92。新永久入口真实匿名quotes401、foreign Origin登录403；公网login200/Cloudflare IP104.21.26.56，Tunnel active。这是同机/服务器公网回归，不冒充真正独立外部网络。
+
+92精确本机源码守卫PASS，main10b9、13pages/68capabilities/0UI/errors=[]。Windows完整发布回归1523160.6972ms仍未完成；在同HEAD官方Linux成功后，仅终止核实父PID24232/命令tests\release-baseline-guard.test.mjs的本任务子PID6564。实际结果20responsive PASS/guard文件因显式终止FAIL，不能称本地完整通过；日志保留。最新Release CI44862537961经GitHub连接器核实SUCCESS，job136718913423的Guard negative/current responsive、Delivery evidence、syntax/lint、最终baseline各step成功；其他CI仍运行，不冒称全部绿。
+
+本机gh run view44862537961发生一次API connect timeout，目标Fake-IP198.18.0.124；精确92送达是在此前独立核实，不倒改其DELIVERED_VERIFIED。此后CLI记NETWORK_DEGRADED，不再重复查询/推送同失败通道、不自动执行恢复命令或改共享代理/认证。已连接GitHub插件可独立读CI并回填Issue/PR，不据此认定本机通道长期恢复，也不用文件API伪造Git交付。Phase5仅更新三摘要及本任务事实，独立本地checkpoint，远端待人工一次性正式交付。
+
+仍等待用户在服务器本人执行已批准唯一UFW443规则；最新只读配置未见该规则，办公室443超时。未配置hosts，不将不可达入口指给浏览器。可信证书、续期演练、自动cron触发、新Nginx及原服务保全已完成；真实办公室浏览器/业务和可比较LAN性能仍未完成，保持Issue In Progress/PR Draft，不合并或关闭。
