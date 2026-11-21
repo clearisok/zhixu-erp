@@ -13,3 +13,5 @@ Windows双store持久路线已实际安装，receipt=LOCALAPPDATA/WeaveOps/stagi
 本地长套件跨文档版本，自然完成165/163PASS/2FAIL/0取消（1874136ms），不算固定候选通过，也没终止其他进程。最终在不再修改的独立detached工作树复用锁定依赖重跑，需记录其准确HEAD和日志；不要在测试过程中再改那个快照。原Windows失败及全部历史保留。剩余只有具体权限/执行/审批项及最终测试结果，详[任务](tasks/active/staging-lan-stability-2026-11-21.md)、[验收快照](../artifacts/staging-lan-20261121/stability-acceptance.json)。
 
 Phase10前向冻结源码守卫已PASS（main10b9/13pages/68capabilities/0UI/errors=[]）；最终固定提交的独立工作树完整复验与精确remote/CI结果以Issue163/PR164后继回执为准，冻结时不提前声明。
+
+Phase11从69a765f0fe3aa7783047a0af3f8f4950b2fea639/clean继续（该SHA已正式单次push精确交付）。公网CI44885538332在测试夹具因普通用户tempdir uid不匹配失败，外网步骤未执行；只修fixture和增加非root拒绝反例，生产root检查不变。服务器uid1000隔离完整20/20 PASS；Windows16 PASS/4 POSIX SKIP。新固定候选完整Windows及四CI结果仍须后继回填，旧失败保留。

@@ -55,3 +55,9 @@ Windows完整套件在运行期间跨越文档冻结版本，实际自然完成1
 Phase10当前版本renew-test于08:27:03Z真实再次通过DNS-01测试CA，正式指纹BA:86:F6:67:87:D1:94:38:00:99:67:92:A4:DA:88:02:B8:7C:20:81:C8:22:1C:1B:F2:19:F3:49:6F:0E:43:44前后完全一致。当前19项Python测试Windows15 PASS/4 POSIX SKIP，Linux隔离发布4 PASS；Node public-proof1 PASS、定向eslint和Parser通过。动态global Git proxy只读核实为127.0.0.1:17989/TCP无监听，当前任务7888进程级对照及正式908推送成功；不是证书或认证绕过。新增deliver.ps1只接受无凭据loopback HTTP代理，临时追加/恢复进程环境，全部分支/dirty/祖先/单次push/独立SHA校验仍委托原正式脚本，不修改global/common配置；Parser及非loopback拒绝通过。最终提交后用它执行一次正常交付，不重复失败通道。
 
 Phase10精确源码守卫实际PASS：main10b9a7d827e1c09f152ead58c21f26712d49a619、checkedHead95e0e50eb3ec105956e9411464c6acbaac0355e3加本阶段前向manifest，13pages/68capabilities/0UI/errors=[]。两份PS Parser、19项Python（Windows15/4skip，Linux发布4项独立通过）、Node public-proof1及定向eslint、diff --check通过。后续最终commit将用于独立不变工作树完整重跑和真实Git精确交付；不可在该测试快照中更新文档或manifest。最终SHA、CI/独立公网输出和Windows固定快照结果回链Issue163/PR164，避免为记录自身SHA/后发CI结果制造循环提交。
+
+## Delivery Phase11：Linux非root测试夹具修复
+
+起点69a765f0fe3aa7783047a0af3f8f4950b2fea639 / clean，Phase10正式Git单次push已DELIVERED_VERIFIED/EXACT_HEAD_VERIFIED，远端同SHA。该候选公网CI44885538332在单元测试阶段失败，外网GET尚未执行：fixture仅模拟geteuid=0，但Linux runner实际创建的临时receipt目录属普通用户，正确触发生产脚本Unsafe receipt directory保护。Windows stat默认uid=0未暴露该夹具缺陷。
+
+仅调整test_persistent_route.py：对隔离receipt父目录模拟root uid，其他路径stat仍真实；增加非root目录明确拒绝的反例。生产persistent-route.py及其root所有权/路径保护不变，也不以sudo运行CI掩盖问题。Windows20项16 PASS/4 POSIX SKIP；服务器jackson实际uid1000的独立临时目录完整20/20 PASS，包括4项发布故障测试，不操作真实路由/证书/容器。日志outputs/staging-lan-20261121-phase8/phase11-linux-tests.log。新固定候选将重跑Source/Release/Team/公网CI与不变Windows快照完整套件；69候选未开始完整Windows快照测试，不挪用旧结果。

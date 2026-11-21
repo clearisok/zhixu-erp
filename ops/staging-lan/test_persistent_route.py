@@ -1,6 +1,7 @@
 import contextlib
 import importlib.util
 import io
+import os
 from pathlib import Path
 import sys
 import tempfile
@@ -24,6 +25,20 @@ class PersistentRouteTests(unittest.TestCase):
         self.stack.enter_context(patch.object(route, 'DROP', p / 'network.d/owned.conf'))
         self.stack.enter_context(patch.object(route, 'RECEIPT', p / 'receipt/route.json'))
         self.stack.enter_context(patch.object(route.os, 'geteuid', return_value=0, create=True))
+        # Model root ownership for this isolated fixture only. Linux CI runs as
+        # an ordinary user; mocking geteuid alone does not change tempdir uid.
+        self.receipt_uid = 0
+        actual_stat = Path.stat
+
+        def fixture_stat(path, *args, **kwargs):
+            observed = actual_stat(path, *args, **kwargs)
+            if path == route.RECEIPT.parent:
+                fields = list(observed)
+                fields[4] = self.receipt_uid
+                return os.stat_result(fields)
+            return observed
+
+        self.stack.enter_context(patch.object(Path, 'stat', fixture_stat))
         self.stack.enter_context(contextlib.redirect_stdout(io.StringIO()))
 
     def invoke(self, args, observations):
@@ -40,6 +55,12 @@ class PersistentRouteTests(unittest.TestCase):
     def test_plan_does_not_write(self):
         self.invoke([], [[BOOT]])
         self.assertFalse(route.DROP.exists())
+
+    def test_non_root_receipt_directory_is_rejected(self):
+        self.receipt_uid = 1001
+        with self.assertRaisesRegex(RuntimeError, 'Unsafe receipt directory'):
+            route.write_receipt('created')
+        self.assertFalse(route.RECEIPT.exists())
 
     def test_conflicting_route_fails_before_write(self):
         with self.assertRaisesRegex(RuntimeError, 'Conflicting'):
