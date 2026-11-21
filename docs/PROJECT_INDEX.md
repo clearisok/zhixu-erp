@@ -1,10 +1,11 @@
 # 当前项目入口
 
-2026-11-20；PR160已正式合并，main代码整合基线 **4e1f9a514c8ff6e9cf7289d724df33c32bc05368**。用户已验收订单删除及Staging自动同步。后续仅文档收尾，开始下一任务必须核实最新origin/main。
+2026-11-21；最新main基线 **10b9a7d827e1c09f152ead58c21f26712d49a619** 已fetch核实。Issue163 Staging LAN任务只完成安全准备及服务器loopback探针；真实LAN入口未启动。此前PR160/162和用户验收事实保留。
 
-1. [当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[PR160最终验收与代理方案](tasks/completed/pr160-final-acceptance-2026-11-20.md)。
-2. [Issue161恢复与510任务证据](tasks/active/staging-selected-source-recovery-2026-11-20.md)、[Issue159删除生命周期与部署历史](tasks/active/ainuoke-source-deleted-2026-11-20.md)。两文档保留原日期/阶段限制，最终状态以本次独立收尾记录和当前状态为准。
-3. [订单中心](features/ORDER_CENTER.md)、[同步审计](features/AINUOKE_SYNC_AUDIT.md)、[监管runbook](ops/ainuoke-catalog-sync-supervisor.md)、[业务规则](BUSINESS_RULES.md)、[决策](DECISION_LOG.md)、[发布基线](features/RELEASE_BASELINE_GUARD.md)。
-4. [合并前摘要逐字归档](tasks/completed/2026-11-20-pr160-before-final-acceptance/CURRENT_STATE.md)、[此前c3阶段](tasks/completed/2026-11-20-before-selected-source-recovery/CURRENT_STATE.md)、[产品管理](product-management/WORKFLOW.md)、[既有Git交付协议](tasks/active/git-delivery-resilience.md)。
+1. [当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[Issue163现场证据](tasks/active/staging-lan-direct-2026-11-21.md)、[LAN运维/回滚](ops/staging-lan-direct.md)。
+2. [本轮匿名测速原始样本](../artifacts/staging-lan-20261121/measurements.json)、[发布基线守卫](features/RELEASE_BASELINE_GUARD.md)。服务器loopback不代表办公室LAN改善，可信证书、路由权限、DNS/TUN与真实浏览器仍阻塞。
+3. [PR160最终验收](tasks/completed/pr160-final-acceptance-2026-11-20.md)、[510任务恢复](tasks/active/staging-selected-source-recovery-2026-11-20.md)、[删除生命周期](tasks/active/ainuoke-source-deleted-2026-11-20.md)。实际Staging仍0752，不因main合并重部署。
+4. [订单](features/ORDER_CENTER.md)、[同步](features/AINUOKE_SYNC_AUDIT.md)、[业务规则](BUSINESS_RULES.md)、[决策D199](DECISION_LOG.md)、[产品管理](product-management/WORKFLOW.md)、[Git交付](tasks/active/git-delivery-resilience.md)。
+5. [上阶段摘要原件](tasks/completed/2026-11-21-before-staging-lan/CURRENT_STATE.md)、[上阶段接力](tasks/completed/2026-11-21-before-staging-lan/AI_HANDOFF.md)。历史日期/hash/限制保留，不改写历史。
 
-实际Staging仍为已验收0752，Git合并不等于重新部署；本轮禁止Production、Worker重启和业务DB变更。Issue159/161验收与PR合并分别留痕，旧原始失败raw缺失不补造；未知结果、身份和完整分页保护继续生效。本轮没有新功能开发。
+本轮不操作Production、业务DB/卷、Worker或公司整体网络。先解决Issue163外部条件，再继续既有独立入口；未获回应不等于批准共享主机路由。

@@ -1,13 +1,13 @@
-# 当前：PR160已合并，订单删除与Staging同步恢复已验收
+# 当前：Staging LAN安全准备已落地，直连尚未完成
 
-2026-11-20；代码整合main基线 **4e1f9a514c8ff6e9cf7289d724df33c32bc05368**（PR160 merge commit），受审分支HEAD e833b819f653f27b3448e447795864693a0a6568。用户在本会话明确认可订单删除及自动同步恢复，并授权Ready/正常合并、Issue159与Project收尾；Production及本轮重新部署/Worker重启/业务数据操作仍禁止。本次后续仅文档收尾；未来任务先fetch并核实实际origin/main，不把部署SHA当主线SHA。
+2026-11-21；本轮经进程限定7888代理fetch核实main **10b9a7d827e1c09f152ead58c21f26712d49a619**，clean起点独立分支feat/staging-lan-direct，Refs Issue163。用户已明确授权Staging LAN部署与必要单机验证；Production、共享组件重启、公司整体网络、数据破坏禁止。先前PR160/162收尾与验收见[原摘要](tasks/completed/2026-11-21-before-staging-lan/CURRENT_STATE.md)。
 
-实际Staging仍为已验收代码 **0752d64f309d68b6e52afbbd712d28e0d9db9c1e**，未因Git合并重新部署。0060/145表，原database/objects容器及四卷保留。新备份20261120T111255Z-b640f966、原清理证明、九Gate全PASS，Supervisor自然启动唯一Worker并验证真实PG心跳。两轮255+255=510成功/0失败，每合同下一次计划为完成+1800秒；142原失败及所有暂停/恢复历史保留。两删除合同PI2611-142/143保持source_deleted/version1、无新自动任务，数量10000/8000及历史不变。以上是2026-11-20验收事实，本轮未新查业务数据库或更改运行环境。
+实际Staging仍0752d64f309d68b6e52afbbd712d28e0d9db9c1e，Linux weaveops-server/enp3s0 192.168.66.69，原gateway仅127.0.0.1:3003。新目录/home/jackson/weaveops-staging-lan已有独立Nginx配置/只读preflight/测速工具及核hash离线镜像；仅临时loopback:18443探针通过并停止，长期LAN服务未启动。原10容器ID/镜像/StartedAt/RestartCount、全部卷/网络前后相同，Tunnel active、Supervisor RUNNING；未改原服务/DB/Worker/公网DNS。
 
-用户已验收红色“订单删除”及其他订单不受影响。完整双遍、历史成功出现、账号/身份/报表/范围/分页和唯一BillNo关联仍为删除/恢复门槛；不物理删除、不改Price隔离/未知结果保护/30分钟策略。Issue159和161正式验收完成；GitHub实际Done/关闭结果见[最终收尾记录](tasks/completed/pr160-final-acceptance-2026-11-20.md)。用户验收不倒改此前助手Staging浏览器工具故障的历史记录。
+当前Windows 192.168.83.51、Bettbox TUN/Fake-IP 198.18.0.104→Cloudflare SJC；是否目标办公室客户端待用户确认。服务器对该客户端回程误走旧Docker 192.168.80.0/20网桥；已请求精确临时/32路由批准，未执行。当前进程无Windows管理员，服务器sudo要求交互认证。原证书只有localhost私有CA，不具备浏览器可信域名证书；用户证书路径或DNS-01凭据仍待提供。Chrome接口能枚举标签但读取/创建失败，真实浏览器未验收。未改hosts/代理/TUN/路由器或办公室DNS，Access全策略未复读。
 
-e833最新三项CI全部真实SUCCESS：Source44741932214、Release baseline44741932219、First team access44741932341。0752已有root1026/1026、baseline182/182、目录106、生命周期PG10、Linux30、真实Docker/PG E2E1及typecheck/lint/前后端build，未重跑同SHA完整套件。旧dfcd Source cancelled保留历史，不能代替本轮success。纯文档收尾只新增适用的基线/链接检查，不改业务代码、UI、SQL、脚本或workflow。
+冷连接各10次：当前电脑公网login TTFB中位1401.750ms/P95 4048.025ms；服务器原localhost为3.745/9.736ms，独立Nginx loopback为9.653/21.721ms。它们是不同网络视角，不能计算LAN改善比例；实际绑定WLAN的LAN:443为0/10成功。公网health9/10（1次连接超时）保留。原始匿名样本在artifacts/staging-lan-20261121/measurements.json，详细[调查与测试](tasks/active/staging-lan-direct-2026-11-21.md)。
 
-Git当前已证明星辰VPN7888可用，旧GitHub专用代理17989无监听；正式脚本一次push把e833精确送达。仅子进程覆盖代理，不改全局/共享Git配置、认证或TLS。长期仓库级方案与回退边界见最终收尾记录，尚未执行持久修改。
+已通过测速工具3项真实curl/统计/敏感输出回归、定向lint/JS语法、Nginx语法和真实loopback代理/401/403。发布守卫与最终commit/PR/CI在本轮交付记录追加，不借旧CI。无业务TS/React/UI/SQL/锁文件变化，未重跑无影响业务全套、来源请求或数据库恢复。
 
-保留限制：旧selected_source_invalid原始坏行raw缺失，无法还原具体字段；两轮验收不是永久无故障承诺。备份资产、旧失败、私密配置及证据仍在原受控位置，不上传秘密/原业务导出。[恢复证据](tasks/active/staging-selected-source-recovery-2026-11-20.md)、[删除生命周期证据](tasks/active/ainuoke-source-deleted-2026-11-20.md)、[上阶段摘要原件](tasks/completed/2026-11-20-pr160-before-final-acceptance/CURRENT_STATE.md)。本轮无新功能，下一步以最新origin/main为稳定开发基线。
+下一步只解决外部条件：确认目标客户端；批准/执行临时/32回程路由并验证VLAN互达；安全提供可信证书或Cloudflare最小DNS-01凭据；核对Access与实际TUN配置，完成单机DNS/可信HTTPS/浏览器业务，再谈办公室Split DNS及真实外网回归。证书续期/失败告警尚未安装。Issue保持未完成；不合并PR。维护/逐步回滚见[LAN runbook](ops/staging-lan-direct.md)。

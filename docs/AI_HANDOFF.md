@@ -1,13 +1,13 @@
-# 接力：PR160已合并，Issue159/161验收收尾
+# 接力：Issue163 Staging LAN准备；外部条件未齐
 
-2026-11-20；本轮纯文档收尾分支chore/pr160-acceptance-closeout，起点clean。main代码整合基线 **4e1f9a514c8ff6e9cf7289d724df33c32bc05368**，其父为636a5ad0d2d1acbe6b2705696e782dea12ee9f00和完整受审e833b819f653f27b3448e447795864693a0a6568。本地main另一个工作树可能仍旧，禁止移动/重置其他工作树；新任务先fetch并核实origin/main，再建独立分支。本轮文档交付的最终commit/PR/main SHA见GitHub和最终收尾评论，不能将0752部署SHA当新main。
+2026-11-21；main基线 **10b9a7d827e1c09f152ead58c21f26712d49a619** 已fetch核实，分支feat/staging-lan-direct，起点clean。用户原附件直接授权Staging LAN实现/部署/浏览器及PR，禁止Production、原组件重启、DB/卷破坏或公司整体网络改动。Issue163已登记Project In Progress，未最终验收/关闭；此前PR160用户接受及main收尾[逐字归档](tasks/completed/2026-11-21-before-staging-lan/AI_HANDOFF.md)。
 
-用户明确接受Staging自动同步和订单删除，授权PR160正常合并及Issue159/Project收尾。PR160已Ready→MERGED，e833三CI真实success，无review/未解决thread；生产相关workflow只有workflow_dispatch，无push/workflow_run触发、无活动Webhook。没有启动生产工作流、重新部署Staging、访问业务DB、重启Worker或补任务。
+Staging本体仍0752，未重部署/重启。SSH weaveops严格校验→100.80.138.58，物理192.168.66.69。新目录/home/jackson/weaveops-staging-lan已落独立配置/measure/preflight；官方Nginx离线包hash和两机image ID已核实。loopback探针容器weaveops-staging-lan-probe-20261121已停止，失败run与v2成功证据保留。长期LAN ingress未启动，443/18443无监听，原10容器身份/启动时间和卷/网络均不变，Tunnel active、Supervisor RUNNING。没有真实PG心跳查询，不冒称同步业务验收。
 
-Staging仍0752d64f309d68b6e52afbbd712d28e0d9db9c1e：九Gate、真实heartbeat、两轮510/510、142失败保全、两source_deleted合同及数量历史均已验收。不要重做备份/恢复/自然周期；不要把历史工具无法拍摄Staging登录后UI的记录改成助手验收，最终UI认可来源为用户本会话决定。
+当前Windows192.168.83.51经过Bettbox TUN/Fake-IP，服务器回程被旧Docker192.168.80.0/20误路由。用户异步问题未答：当前电脑是否目标办公室；证书路径/安全DNS-01凭据；是否批准sudo ip route add 192.168.83.51/32 via 192.168.66.1 dev enp3s0。当前没有管理员/sudo非交互权限，不能当作默认批准，不能用Docker特权去绕过共享主机路由审批。不要删除旧网桥、改Docker代理/全局Git配置或重试失败的服务器registry通道。
 
-只复用已通过工程/CI结果；本轮只检查文档、与新main一致的基线锚点和必要的182项基线回归，不运行完整业务套件或真实来源采集。后续文档PR自动检查属于新提交的仓库规则，不冒称e833的旧检查属于新HEAD。
+原源站证书仅localhost，不能浏览器使用；未签发可信域名证书/续期timer/告警。当前Access完整策略仍待核对。Chrome可列标签但getTab/domSnapshot/新建均timeoutMs接口故障，勿声称登录后UI完成；没有业务/附件写入。原Cloudflare入口保留，未改hosts/DNS/TUN/路由器。不要因工具阻塞改浏览器安全检查。
 
-网络：17989失效、星辰VPN实际7888，已用进程限定GitHub代理完成正式一次push/精确远端核验。长期方案仅提出仓库local GitHub专用代理（所有关联worktree共用），须明确批准后才持久更改；不改全局、认证、TLS、VPN节点或Docker代理。详[最终收尾记录](tasks/completed/pr160-final-acceptance-2026-11-20.md)。
+当前电脑公网login冷10/10 TTFB中位1401.750ms/P95 4048.025ms；server localhost 3.745/9.736、Nginx loopback9.653/21.721；LAN0/10。不同网络不可算改善。测速工具初版fresh-connect参数错误的失败原件在ignored outputs保留，修正后的v2是有效冷数据。匿名样本已归档，无Cookie/响应body/秘密。工具3tests、定向lint、JS/Nginx/bash语法及loopback401/403通过；发布基线、commit/PR/CI另按最终交付回执核对。
 
-[当前状态](CURRENT_STATE.md)、[完整恢复证据](tasks/active/staging-selected-source-recovery-2026-11-20.md)、[删除生命周期](tasks/active/ainuoke-source-deleted-2026-11-20.md)。[先前接力逐字归档](tasks/completed/2026-11-20-pr160-before-final-acceptance/AI_HANDOFF.md)。主机及本机私密证据位置沿原报告保留，不提交备份、配置或业务raw。当前无新功能任务。
+[任务全证据](tasks/active/staging-lan-direct-2026-11-21.md)、[运维/回滚](ops/staging-lan-direct.md)、[当前状态](CURRENT_STATE.md)。正常Git通道用子进程限定7888正式脚本push并精确核验；不改共享Git代理17989，失败按NETWORK_DEGRADED。下一步先解决明确外部前置，再激活既有准备，禁止以新文档/标签冒充LAN已成功。

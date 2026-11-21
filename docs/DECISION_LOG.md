@@ -1,5 +1,7 @@
 # 决策日志
 
+2026-11-21 D199（Active，Issue163用户明确授权Staging LAN范围；候选入口未激活）：保留现有Cloudflare/Tunnel、localhost:3003网关、原DB/对象/Worker与Production；仅新增独立LAN入口，先限单客户端、可信域名证书和同域session/RBAC/Origin，再验证DNS与TUN真实直连。现有localhost私有CA不得作为浏览器证书或替换以影响Tunnel。共享主机路由/公司网络或额外外部权限先报告具体影响；不得删除重叠Docker网桥或改共享代理以绕过问题。没有证书、互达、当前Access策略和真实浏览器证据时保持未部署/未验收，不以loopback/curl --resolve替代。代码证据ops/staging-lan/compose.yml、nginx.conf、preflight.sh、measure.mjs；实际独立loopback探针已通过并停止，真实LAN/证书/续期仍待外部条件。详docs/ops/staging-lan-direct.md及tasks/active/staging-lan-direct-2026-11-21.md。不更改业务规则或自动同步策略。
+
 2026-11-20 D198（Active，用户明确批准实施；候选未部署）：来源合同在历史完整成功目录出现，新的认证完整双遍均缺失、身份/账号/6086103空查询范围/分页一致且BillNo唯一绑定local SO时，记录source_deleted及不可变确认事件；不物理删除订单/生产/报价成本/物料/出运/快照，不改本地业务生命周期与数量。重新完整双遍出现追加source_restored，恢复既有调度，不重复建单。旧invisible不由迁移推断，缺证/单遍/局部/物料/认证/范围异常不判删除。停止该合同新自动任务，其他独立来源和Price隔离/30分钟/未知保护保持。UI仅原异常列新增同尺寸红色订单删除、替代该来源过期而保留独立异常；本轮代码/测试/本地演示/独立PR，不合并、不部署/写真实状态。代码catalog-lifecycle.ts、0060、catalog-capture.ts、catalog.ts、sync-queue.ts、sales-orders/repository.ts/order-alerts.ts及order-center标签。详见Issue159/当前任务。此条窄补充D180/D188/D191的来源不可见性，不授权清数据或取消本地订单。
 
 2026-11-19 D197安全收口（Active，用户最终执行授权）：稳定重采decision与发布前审计异常须在业务提交前明确failed并完成任务，不留running或伪报unknown；真正进入业务事务的不确定结果仍沿原保护。复杂Price只记录类型/长度/hash；重采页计划绑定来源账号、原capture/batch任务成员及6086103，页面数据始终本次新读。默认5合同共享目录拒绝后，其他合同仅凭自己的新完整稳定证据继续；不在异常目录上拼页发布。已授权正常合并PR158、仅Staging部署/0059/正式恢复/两轮自然验收，不改变Production限制或数据/备份/回滚/Gate前置，历史限制不删除。证据见catalog-mutable-recapture-2026-11-19任务及Issue157授权评论。
