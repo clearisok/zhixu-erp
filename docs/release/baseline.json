@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "4e1f9a514c8ff6e9cf7289d724df33c32bc05368",
-  "verifiedAt": "2026-11-20T14:51:38.168005+00:00",
+  "baselineSha": "10b9a7d827e1c09f152ead58c21f26712d49a619",
+  "verifiedAt": "2026-11-21T02:22:53.183Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -6315,6 +6315,33 @@
       "sha256": "24296b46057f976193f715b59ee62d77f648893dbf5d8c604bdbecdd0dc69e4f",
       "supersedes": "catalog-final-safety-contract-20261119",
       "changeReason": "User-approved Issue159 forward-only contract deletion/restoration lifecycle and red anomaly chip. Preserve all original business records and identity/scope/Price protections. Candidate only; no merge, Staging deployment or real state conversion authorized."
+    },
+    {
+      "id": "staging-lan-decisions-20261121",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "982af5b2792504e2421b796eff4de8a978f30d92",
+      "sha256": "730a36ece5ff459186eef3aff8fa91ecbad310896698da74e305424089b297fa",
+      "supersedes": "source-deleted-decisions-20261120",
+      "changeReason": "Record user-authorized Issue163 isolated Staging LAN scope, original Tunnel/DB/Worker preservation, trusted certificate/authentication prerequisites and honest incomplete client acceptance. Preserve all previous decision evidence."
+    },
+    {
+      "id": "staging-lan-client-decisions-20261121",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "8c1863c6398e6bb06075bc08826efa1bc194b831",
+      "sha256": "c97f2d0c57ff704c5d63f4bde3d28d7ce5b7e5093a8b492834c53f02ed4da648",
+      "supersedes": "staging-lan-decisions-20261121",
+      "changeReason": "Forward-record actual user-approved single-client UFW and hosts execution, trusted LAN browser and synthetic attachment acceptance, renewal scheduling and preserved original services. Keep prior frozen decision blobs unchanged; temporary routes, company-wide DNS, Access policy and independent external-network limits remain explicit. No business rule, screenshot or capability-status change."
+    },
+    {
+      "id": "staging-lan-stability-decisions-20261121",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "95e0e50eb3ec105956e9411464c6acbaac0355e3",
+      "sha256": "345eae5644107d55f3ff85a48b666cc658fcbc7ce813502b06f3ade993d5b417",
+      "supersedes": "staging-lan-client-decisions-20261121",
+      "changeReason": "Record explicit user phase-two authorization of reversible native route persistence and isolated certificate reliability/public GET verification. Preserve the initial architecture, every old frozen blob, Production/data/Worker boundaries, and explicit pending approval for shared reboot, Docker migration, corporate DNS/router and access expansion. No capability or screenshot status change."
     }
   ],
   "pages": [

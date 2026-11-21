@@ -1,0 +1,73 @@
+{
+  "schema": "weaveops-staging-lan-phase6-acceptance.v1",
+  "baseline_head": "8148e64e61ab80de0f972a4bb3f125c208f24dec",
+  "inherited_dirty": false,
+  "office_client": "192.168.83.51",
+  "server": "192.168.66.69",
+  "client_hosts_owned_line": "192.168.66.69 staging.weaveops.top # weaveops-staging-lan-163",
+  "hosts_applied_at": "2026-11-21T11:58:52.8197799+08:00",
+  "routes_persistent": false,
+  "browser": {
+    "anonymous_fresh_https": 47,
+    "anonymous_statuses": {
+      "200": 46,
+      "401_auth_me": 1
+    },
+    "final_synthetic_fresh_https": 84,
+    "final_local_blobs": 2,
+    "final_all_https_remote_ip": "192.168.66.69",
+    "final_all_https_secure": true,
+    "final_all_https_status": 200,
+    "final_loading_failed": 0,
+    "final_console_errors_and_warnings": 0,
+    "temporary_cache_disabled_restored": true,
+    "login": "user completed existing credential login; auth/me and permissions 200",
+    "orders": "list 633, existing order detail, material progress and purchases read-only",
+    "quotes": "list and independent synthetic draft, existing six real thumbnails displayed",
+    "initial_metadata_caveat": "Two early thumbnail events reported Fake-IP/h3 despite LAN issuer/header and connection IDs; cause unresolved. Later cache-disabled reloads verified all fresh HTTPS remote LAN. Navigation-window ERR_ABORTED events not counted as site failures; final isolated reload zero failures."
+  },
+  "synthetic": {
+    "quote_id": "6f5dec5e-4d44-4f6d-80a0-8d4159e58f03",
+    "quote_number": "QT-2026-1121-008",
+    "style": "LAN-ACCEPTANCE-163-20261121",
+    "revision_id": "b21cdf85-17c6-4576-a143-79ada1c68bc9",
+    "attachment_id": "d581e46a-a071-4bdb-90d5-1a44a87d2f1d",
+    "filename": "weaveops-lan-163-20261121.png",
+    "bytes": 328,
+    "sha256": "1cff57aa68666ce35efb1ce9afd33fdadf966f13748af5a6fa327a2922fad3ea",
+    "upload_status": 201,
+    "download_status": 200,
+    "download_sha256_matches": true,
+    "reload_persistence": true,
+    "retained": true,
+    "existing_business_records_edited": false
+  },
+  "services": {
+    "original_container_count": 10,
+    "identities_image_started_at_restart_count_exact": true,
+    "original_healthy": 9,
+    "worker_container_running": true,
+    "tunnel_active": true,
+    "schema_or_worker_configuration_changed": false,
+    "pg_worker_heartbeat_queried": false
+  },
+  "known_limits": [
+    "Single office client only; company DNS/router not modified.",
+    "Both /32 routes temporary; reboot continuity not accepted.",
+    "Historical STAGING-ACCEPTANCE-562 thumbnail returns 503 attachment_thumbnail_unavailable; original not overwritten or deleted, cause not determined.",
+    "No current business WS/SSE endpoint found; no end-to-end WS acceptance claim.",
+    "No large-upload boundary, current full Cloudflare Access/WAF policy, or truly independent external-network browser acceptance.",
+    "Renewal dry-run/manual check/actual cron check passed; no actual expiring production certificate replacement and no external alert receiver.",
+    "LAN deployment cannot establish Production/data business correctness; original service identity and health observations only."
+  ],
+  "ci_92": {
+    "Release baseline": "success",
+    "First team access": "success",
+    "Ainuoke server source": "cancelled"
+  },
+  "delivery": {
+    "remote_verified_head": "92e83343082c1251000944b6e791e8a4a3e68445",
+    "later_local_checkpoints": "REMOTE_PENDING",
+    "cli_channel": "NETWORK_DEGRADED"
+  }
+}

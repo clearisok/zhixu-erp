@@ -1,0 +1,27 @@
+# Standalone opt-in ingress. Never merge this file into the application's Compose.
+name: weaveops-staging-lan
+services:
+  ingress:
+    image: ${LAN_NGINX_IMAGE:?verified local immutable nginx image id required}
+    pull_policy: never
+    network_mode: host
+    entrypoint: [nginx]
+    command: [-g, 'daemon off;']
+    read_only: true
+    cap_drop: [ALL]
+    # Master reads the owner-only bind-mounted key; workers drop to nginx UID.
+    cap_add: [NET_BIND_SERVICE, CHOWN, SETUID, SETGID, DAC_OVERRIDE]
+    security_opt: [no-new-privileges:true]
+    restart: unless-stopped
+    tmpfs:
+      - /tmp:size=32m,mode=1777,noexec,nosuid
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ${LAN_TLS_DIRECTORY:?absolute directory with current/fullchain.pem and current/privkey.pem}:/run/lan/tls:ro
+      - ${LAN_ORIGIN_CA:?existing Staging gateway certificate path}:/run/lan/origin-ca.pem:ro
+    healthcheck:
+      test: [CMD, nginx, -t]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    # nginx -t is only a config/certificate check, not an end-to-end readiness probe.
