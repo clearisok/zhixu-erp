@@ -124,3 +124,28 @@ sudo -n ufw/nft只读命令均要求交互认证，无修改。按共享组件�
 Codex转录用户最新答复：Cloudflare Token已创建并保存在指定private/cloudflare.ini，继续DNS-01、续期、Nginx、单机DNS和真实浏览器测速，保持Production/DB/Worker；不得输出Token。服务器metadata实际核实owner=1000/mode=600/regular file且非symlink；certificate.sh本机/服务器SHA256同为82e83763f57e8d0db66afeee436ab90627b39e1a298461f2b731477151ccd1c2。用户对唯一443规则答复“批准，我在服务器执行后回复结果”；已有批准，尚无执行回执。Phase3先独立checkpoint，后续真实签发/部署作为新Phase记录。
 
 本阶段精确发布源码守卫已PASS（main10b9、13pages/68capabilities/0UI/errors=[]），测量工具再次3/3，PS Parser和diff --check通过；完整test:release-baseline已启动，仍运行，暂不称PASS。
+
+## Delivery Phase 4：真实可信证书、续期演练与独立LAN入口激活
+
+起点feat/staging-lan-direct / 3f56d48d6733b0aaf4f3385262e0ce0d5409434e / clean，baseline在ignored outputs/staging-lan-20261121-phase4/baseline.json。Phase3正式DELIVERED_VERIFIED/remote exact/pushes=1/NORMAL；[Issue回链](https://github.com/clearisok/zhixu-erp/issues/163#issuecomment-7056658427)。新阶段无继承dirty；证书部署前三摘要原件归档completed/2026-11-21-before-lan-https。
+
+**Codex转录用户决定**：用户确认凭据落指定文件，继续Staging HTTPS/自动续期/Nginx/DNS/浏览器测速，Production/DB/Worker不动，不输出Token；443规则“批准，我在服务器执行后回复结果”。首次issue创建TXT被10000 Authentication error拒绝；只读核验Token active、zone可见、DNS读取成功，未输出内容/头/raw log。用户随后确认“之前...DNS权限实际为Read...现在...DNS→Edit，资源范围仍仅为weaveops.top”，明确重新签发。未盲重试或扩大zone权限。
+
+### 实际完成
+
+- 凭据owner1000/600/regular非symlink；脚本本机/服务器hash核对，日志owner-only。修正权限后issue成功，系统信任链/hostname/key匹配/有效期通过；Let's Encrypt YE2，CN staging.weaveops.top，notBefore2026-11-21 02:34:55Z、notAfter2027-02-19 02:34:54Z，SHA256 fingerprint BA:86:F6:67:87:D1:94:38:00:99:67:92:A4:DA:88:02:B8:7C:20:81:C8:22:1C:1B:F2:19:F3:49:6F:0E:43:44。没有读取私钥/Token到输出或替换原localhost CA。
+- 新增renew-test模式实际执行Certbot renew --dry-run，ACME测试CA完整DNS-01成功；正式证书fingerprint前后完全相同，不发布测试证书。手动renew（尚未到期）及check真实通过，均未重启原服务。
+- 更新certificate.sh：各issue/renew/renew-test/check独立状态与latest摘要，后续健康不擦除旧renew失败状态；flock冲突返回75，避免把SKIPPED当检查成功。实际持锁调用check返回75，释放后check通过；先前缺证书failed状态/journal已实际验证，不注入真实证书故障。
+- 新schedule.py默认plan/status只读；install先验证cron active与真实可信LAN健康，再完整保留既有crontab、备份、并发比对、只追加固定marker块并精确读回，remove仅撤该块。计划实际安装：Etc/UTC每天03:19/15:19 renew、每小时:37 check。旧crontab SHA256 dbd3cc44ac3ee008107692dec569cae7ab2f4e8098b45162fa614c5087407e12，备份private/crontab-before-20261121T033611283050Z；安装后完整hash3c041d8729b8f3c9cc4660bdd2df8150d52f70c81ad97bb31d291bb2930855d9。原其他jobs字节未改；外部通知未配置，实际cron触发另核对。
+- 首次创建仅路径/固定image的.env（600）；preflight实际通过、独立Compose ingress启动，绑定192.168.66.69:443，only83.51/66.69，HTTPS上游原localhost3003+CA/SNI。服务器curl --resolve不关闭TLS校验，health/database ready。原app0752/Tunnel/公网DNS不变，18443探针仍停止。
+- 新Set-ClientHosts.ps1默认Dry Run、管理员Execute、冲突/编码/未知receipt拒绝，保留原字节备份、文件锁内并发核对、失败恢复、仅owned line回滚。Parser及同机实际Dry Run通过，hosts前后hash相同；尚未实际执行，不提前将浏览器指向仍不可达的入口。
+
+### 当前限制与测量
+
+办公室绑定83.51访问新443仍5秒超时（证书校验返回字段0在未握手情况下不能解释为TLS通过）。服务器自身可信HTTPS通过不代表办公室完成。UFW规则已有用户批准，等待本人sudo执行回执；无重复add路由或修改共享防火墙。
+
+同一办公室、同一/login、原app0752，新增公网冷10次9成功/1失败；成功TTFB中位1270.592/P952517.399ms、Total1469.474；复用10/10、9复用，TTFB894.216/P951474.878ms、Total949.334。各原始匿名样本在ignored outputs/staging-lan-20261121-phase4，最终归档保留失败；尚不能计算LAN改善。
+
+3f56精确Release baseline CI44861126218 SUCCESS（182/182、交付74PASS/1skip/0fail、最终guard PASS）。本地完整Windows suite仍运行，不能称PASS；其他两CI及新阶段最终源码守卫独立核实。不因部署基础设施宣称订单/报价/物料/附件、Access全策略或真正外网回归通过。
+
+Phase4激活后再次按原10个完整ID逐个docker inspect，仅输出Id/Image/StartedAt/RestartCount，与before原文完全一致；9个有health的原容器均healthy，唯一Worker容器running，未读取PG心跳。2026-11-21 03:37:01Z用户cron实际自动触发check，分模式状态healthy，scheduler-check.log属主1000/权限600/72bytes；续期演练与手动命令之外，定时调度已有实际触发证据。11:39最新UFW只读配置仍无443规则，等待用户执行获批命令；不重复询问批准。

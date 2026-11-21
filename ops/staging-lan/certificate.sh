@@ -8,16 +8,19 @@ IMAGE=sha256:6d5e1e84f687ce81786c97cbeccb9dda94d86bbb29a81dbb85527bd68008d77d
 NAME=staging-weaveops-lan-163
 DOMAIN=staging.weaveops.top
 mode=${1:-check}
-[[ "$mode" = issue || "$mode" = renew || "$mode" = check ]] || exit 2
+[[ "$mode" = issue || "$mode" = renew || "$mode" = renew-test || "$mode" = check ]] || exit 2
 [[ $(id -u) = 1000 && $(stat -c %u "$ROOT") = 1000 ]] || exit 2
 mkdir -p "$ROOT/private" "$ROOT/private/acme/config" "$ROOT/private/acme/work" "$ROOT/private/acme/logs" "$ROOT/tls"
 chmod 700 "$ROOT/private" "$ROOT/private/acme" "$ROOT/private/acme/config" "$ROOT/private/acme/work" "$ROOT/private/acme/logs" "$ROOT/tls"
 exec 9>"$ROOT/private/certificate.lock"
-flock -n 9 || { echo 'SKIPPED: certificate operation already holds lock'; exit 0; }
+flock -n 9 || { echo 'SKIPPED: certificate operation already holds lock'; exit 75; }
 status() {
   local state=$1 code=${2:-0}
+  local statefile="$ROOT/private/certificate-$mode-status.json"
   printf '{"schema":"weaveops-lan-certificate.v1","at":"%s","mode":"%s","state":"%s","exitCode":%s}\n' \
-    "$(date -u +%FT%TZ)" "$mode" "$state" "$code" > "$ROOT/private/certificate-status.json.next"
+    "$(date -u +%FT%TZ)" "$mode" "$state" "$code" > "$statefile.next"
+  mv -f "$statefile.next" "$statefile"
+  cp "$statefile" "$ROOT/private/certificate-status.json.next"
   mv -f "$ROOT/private/certificate-status.json.next" "$ROOT/private/certificate-status.json"
 }
 on_exit() {
@@ -58,9 +61,10 @@ log="$ROOT/private/acme/$mode-$(date -u +%Y%m%dT%H%M%SZ)-$$.log"
 args=(certonly --dns-cloudflare --dns-cloudflare-credentials /run/cloudflare.ini
   --dns-cloudflare-propagation-seconds 60 --non-interactive --agree-tos
   --register-unsafely-without-email --cert-name "$NAME" -d "$DOMAIN" --keep-until-expiring)
-if [[ "$mode" = renew ]]; then
+if [[ "$mode" = renew || "$mode" = renew-test ]]; then
   test -f "$ROOT/private/acme/config/renewal/$NAME.conf"
   args=(renew --cert-name "$NAME" --non-interactive --no-random-sleep-on-renew)
+  if [[ "$mode" = renew-test ]]; then args+=(--dry-run); fi
 fi
 status running
 # No host ports, Docker socket, proxy overrides, or credential values in argv/env.
@@ -71,6 +75,12 @@ docker run --rm --pull never --network host --user 1000:1000 --read-only --tmpfs
   -v "$ROOT/private/acme/work:/var/lib/letsencrypt" \
   -v "$ROOT/private/acme/logs:/var/log/letsencrypt" \
   "$IMAGE" "${args[@]}" > "$log" 2>&1
+if [[ "$mode" = renew-test ]]; then
+  verify_pair "$ROOT/tls/current/fullchain.pem" "$ROOT/tls/current/privkey.pem"
+  status renewal_tested
+  echo 'RENEWAL_TEST_PASS: ACME staging DNS-01 succeeded; production certificate unchanged'
+  exit 0
+fi
 source="$ROOT/private/acme/config/live/$NAME"
 verify_pair "$source/fullchain.pem" "$source/privkey.pem"
 version="certificate-$(sha256sum "$source/fullchain.pem" | cut -d' ' -f1)"

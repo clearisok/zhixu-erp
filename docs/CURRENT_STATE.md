@@ -1,17 +1,13 @@
-# 当前：两端临时路由已落实，LAN证书及TCP互通仍待完成
+# 当前：可信LAN HTTPS入口已启动，等待客户端443放行和hosts验收
 
-2026-11-21；main基线 **10b9a7d827e1c09f152ead58c21f26712d49a619** 本轮再次fetch确认；分支feat/staging-lan-direct，Phase3起点184f6975b03f11d8076cac97c3ce7e9743fb178f、clean。Refs Issue163，PR164仍Draft。用户已答复当前Windows就是办公室验收机、需Cloudflare DNS-01、批准且仅批准服务器临时192.168.83.51/32路由；不影响Production/数据/Worker/共享组件的边界继续有效。
+2026-11-21；main基线 **10b9a7d827e1c09f152ead58c21f26712d49a619** 已核实；分支feat/staging-lan-direct，Phase4起点3f56d48d6733b0aaf4f3385262e0ce0d5409434e/clean。Issue163、PR164 Draft；仅Staging LAN范围，不合并/关闭需求。用户已修正Token为DNS Edit，仅weaveops.top，并批准单客户端443 UFW规则、等待本人执行回执。
 
-Staging本体仍0752d64f309d68b6e52afbbd712d28e0d9db9c1e，原10运行容器ID/image/StartedAt/RestartCount在本阶段前后再次一致，Tunnel active、443/18443无监听，未改DB/卷/Worker。服务器192.168.66.69现对办公室电脑的回程实际经192.168.66.1/enp3s0；使用既有Docker权限的一次性仅NET_ADMIN命令容器执行用户已批准精确add，无privileged/host文件/Socket挂载，不删除旧网桥或改其他路由。该路由仅内存，重启不保留。
+服务器/home/jackson/weaveops-staging-lan实际运行独立weaveops-staging-lan/ingress，192.168.66.69:443；只允许测试电脑83.51和服务器自检，代理原HTTPS localhost:3003并校验原CA/localhost SNI。没有复制app/DB/Worker，没有改公网DNS/Tunnel或原证书；Staging本体仍0752d64f309d68b6e52afbbd712d28e0d9db9c1e。原10容器身份/镜像/启动时间/重启数在激活后再次精确比对无差异，9个原health均healthy、Worker容器running。
 
-Windows首个错误路径与第二次非管理员执行均未修改路由；随后Codex通过RunAs弹出UAC并启动管理员窗口，11:18:33实际新增192.168.66.69/32→192.168.83.1/WLAN 2/接口14/metric1 ActiveStore，owned回执已读回。traceroute实际经83.1在第二跳到66.69（3–4ms），但源绑定及默认TCP22读取SSH banner仍各5秒超时，原因未定，不能称应用互通。未改DNS/hosts/VPN模式或公司DNS。
+DNS-01已真实签发staging.weaveops.top，Let's Encrypt YE2，2026-11-21至2027-02-19，系统信任/域名/key校验通过；私钥/Token只在主机private目录。首次失败已确认为用户原Token误配Read，改Edit后成功，不误报Token失效。renew-test真实ACME测试CA演练通过，正式证书指纹BA:86:F6:67:87:D1:94:38:00:99:67:92:A4:DA:88:02:B8:7C:20:81:C8:22:1C:1B:F2:19:F3:49:6F:0E:43:44未变。手动renew/check通过；crontab原有内容完整保留并备份，新增每天UTC03:19/15:19续期、每小时:37健康检查。分模式状态/journal/私密日志保留失败，本地监测有据；03:37:01Z cron已自动触发check healthy、日志600；无外部通知接收端。
 
-后续25秒仅NET_RAW只读命令容器限目标IP/22包头观察到3个83.51→66.69 SYN、无回应；无载荷记录。只读UFW文件及systemctl确认active/ENABLED=yes、默认INPUT DROP，user.rules中22仅允许tailscale0、未见443规则，与超时一致；不是完整内核规则转储。用户已批准并将本人sudo执行enp3s0上83.51→66.69 TCP443放行，待执行回执；尚未改共享防火墙，不开放SSH或改默认策略。
+两端临时/32已落实；Windows接口14/WLAN2、经83.1到66.69，traceroute两跳3–4ms。SYN到服务器物理网卡，无22回应；UFW active/INPUT DROP，SSH仅tailscale0、未见443规则。单客户端443规则已批准但尚待用户sudo执行/核实；Nginx服务器自身可信HTTPS health/database ready，办公室443仍5秒超时。未改Windows hosts/DNS/VPN/公司网络；新Set-ClientHosts.ps1仅单域名、冲突拒绝/备份/owned回滚，Parser及Dry Run实测不改原文件。
 
-服务器/home/jackson/weaveops-staging-lan已有官方Certbot5.10.0离线核hash镜像与certificate.sh，仅固定Staging域名、私密凭据/配置/日志、受锁签发/续期/检查、系统信任与key校验、原子发布/仅新LAN入口reload。缺证书check实际拒绝、bash语法/离线插件识别通过，未发起issue/renew或安装自动任务。用户确认Cloudflare仅该zone DNS Edit凭据已保存，元数据核实owner1000/mode600/普通非symlink；尚未发起签发；原localhost私有CA不变。Nginx加Alt-Svc clear和验收header，实际语法通过，长期入口未启动。
+3f56精确发布守卫与LinuxCI完整182/182、交付74PASS/1skip/0fail通过；Windows本地完整套件仍运行，不记PASS；其余CI单独核对。Phase4bash/Python/PS语法、计划安装/原crontab核对、锁冲突退出75、续期演练和服务器真实health通过，不能替代办公室浏览器。新公网冷测9/10（1失败）、TTFB中位1270.592/P952517.399ms；复用10/10、9复用，中位894.216/P951474.878ms，LAN提升仍不可计算。
 
-旧Chrome控制失败历史保留，目前Chrome未连接；同机内置真实浏览器现可用，登录表单显示、login200/secure，但remoteIP198.18.0.109及Cloudflare公网资源，仍非LAN。Trace导航被客户端阻断。未登录、读取Cookie/清Storage或写业务；Access全策略、真实LAN/可信HTTPS/订单报价物料上传和真正外网回归仍未完成。
-
-184f精确发布守卫及Linux发布182/182、解析19/19、交付74PASS/1skip/0fail、团队访问CI通过；Windows两轮重复守卫中止不称本地PASS；该Source CI最终CANCELLED而非PASS。本阶段PS Parser、实际Windows加路由/读回及ICMP路径、bash/Nginx语法和缺证书拒绝通过，签发/续期仍未验证。新提交/交付结果另回填Issue/PR，不借旧CI。
-
-下一步进行DNS-01签发并等待已批准单IP443防火墙规则的执行回执，随后验证真实LAN、签发/续期及失败监测、单机DNS/DIRECT、浏览器remote IP/功能、外网回归；不重复执行已到位的两端路由。完整事实和回滚见[Phase3](tasks/active/staging-lan-direct-2026-11-21.md)/[runbook](ops/staging-lan-direct.md)；[此前摘要原件](tasks/completed/2026-11-21-before-lan-route-approval/CURRENT_STATE.md)。
+下一步：核实获批443规则→办公室真实可信HTTPS→用户管理员执行单机hosts步骤→浏览器实际remoteIP、正式登录/订单报价物料/API附件及公网回归→匹配10次LAN测速。Access全策略、真正独立外网和完整业务验收仍未完成，不扩大办公室allow。详[Phase4现场记录](tasks/active/staging-lan-direct-2026-11-21.md)、[运维/回滚](ops/staging-lan-direct.md)；[证书部署前摘要](tasks/completed/2026-11-21-before-lan-https/CURRENT_STATE.md)。

@@ -1,19 +1,13 @@
-# 接力：Issue163 Phase3，两端/32已加，等待DNS凭据并定位TCP
+# 接力：Issue163，可信LAN入口已启动，等待443/hosts和浏览器闭环
 
-2026-11-21；main基线 **10b9a7d827e1c09f152ead58c21f26712d49a619** 再fetch核实；feat/staging-lan-direct，Phase3起点184f6975b03f11d8076cac97c3ce7e9743fb178f/clean，无继承dirty。用户异步答复已明确：本机192.168.83.51即验收办公室电脑、无现有证书需DNS-01、“批准，仅此临时 /32 路由”。不再询问同一批准。Production/DB/卷/Worker/旧网桥和公司整体网络禁止改动。
+2026-11-21；main基线 **10b9a7d827e1c09f152ead58c21f26712d49a619**；feat/staging-lan-direct，Phase4起点3f56d48d6733b0aaf4f3385262e0ce0d5409434e/clean（正式DELIVERED_VERIFIED）；当前Phase4自有增量见git status，无继承dirty。Issue163/PR164 Draft，不合并/关闭。用户原LAN部署授权持续有效，最新明确不改Production/DB/Worker；Token已由Read改DNS Edit仅weaveops.top，单客户端443 UFW已批准、用户说本人执行后回复，尚未获回执。
 
-实际服务器已加192.168.83.51/32 via192.168.66.1 dev enp3s0，读回源IP192.168.66.69。已有Docker权限+官方固定Nginx镜像，仅NET_ADMIN/host network/只读根/无host文件或Socket/退出删除命令容器执行获批add；先要求精确/32不存在，无replace。回滚只del此精确值。重启不保留。旧10容器ID/image/StartedAt/RestartCount再次一致，Tunnel active，Staging仍0752，443/18443无监听。
+/home/jackson/weaveops-staging-lan现已实际运行独立LAN ingress，192.168.66.69:443；限制83.51/66.69，原HTTPS localhost3003上游、原CA/SNI/Cloudflare Tunnel不变。Staging app仍0752。preflight/nginx-t及服务器可信HTTPS health/database ready实际通过。不要重复up原项目或改旧容器。两端临时/32已加，Windowsowned回执已读回，traceroute两跳；UFW active/INPUT DROP/22仅tailscale，客户端443仍超时。只能等待/核实获批精确规则，不开放22或全网段、不改默认策略；规则/rollback在runbook。
 
-Windows首次错误路径、第二次非管理员均无修改；随后Codex用Start-Process -Verb RunAs弹出UAC并实际启动管理员脚本。11:18:33的owned回执state=created已读回，Get-NetRoute/Find-NetRoute确认192.168.66.69/32 via192.168.83.1/WLAN2/interface14/metric1 ActiveStore。traceroute经83.1第二跳到66.69（3–4ms）；源绑定83.51及默认TCP22仍各5秒超时，不代表应用互通或已定位过滤层。脚本默认Dry Run、冲突拒绝、精确owned回滚；不要再要求重复add，不能全局关VPN或改公司DNS。
+真实DNS-01签发成功，Let's Encrypt YE2，2027-02-19到期，fingerprint BA:86:F6:67:87:D1:94:38:00:99:67:92:A4:DA:88:02:B8:7C:20:81:C8:22:1C:1B:F2:19:F3:49:6F:0E:43:44。renew-test成功、指纹未变；renew/check成功。certificate.sh使用issue/renew/renew-test/check、flock冲突75、分模式failed状态和journal；私密日志不输出。用户级cron已安装核对，旧内容完整保存private/crontab-before-20261121T033611283050Z；服务器Etc/UTC，每天03:19/15:19renew、每小时:37check。schedule.py默认plan，install先真实健康检查，保留其他job，remove仅本任务block；03:37:01Z cron真实触发check healthy，日志600；未配外部通知。
 
-后续仅NET_RAW命令容器25秒捕获限定IP/22包头，3个83.51 SYN到enp3s0、无回应、无载荷日志。只读挂载/etc/ufw及/etc/default/ufw，确认UFW active/ENABLED=yes/INPUT DROP，22仅tailscale0、未见443规则（非完整内核dump）。sudo -n ufw/nft均要求交互认证。已向用户请求批准并本人sudo执行唯一enp3s0/83.51→66.69/TCP443 allow，用户已批准并将本人执行，待执行回执；精确命令/回滚在runbook，不用Docker改共享防火墙，不开放22或全办公室。
+Windows hosts/DNS/VPN尚未改。新增Set-ClientHosts.ps1（默认Dry Run）已Parser与真实Dry Run hash保全通过；-Execute需管理员，备份/拒绝冲突/receipt owned回滚。用户最新要求hosts或管理员动作给准确步骤，等实际LAN443成功再给一条UAC启动命令，别提前重定向到不可达入口，不自动清浏览器Storage/Cookie。IAB可用但现有登录仍公网Fake-IP，Chrome未连接；恢复CUA须rewriteDocumentation。
 
-官方Certbot5.10.0镜像已核hash离线导入，固定ID6d5e1e84f687ce81786c97cbeccb9dda94d86bbb29a81dbb85527bd68008d77d。certificate.sh支持固定域名issue/renew/check，owner-only凭据和日志、flock、系统信任/key/到期校验、版本目录原子发布和仅新LAN服务reload；不启动服务。无证书check实际拒绝，PS/bash/Nginx语法及离线DNS插件/参数识别通过；真实签发/续期/dry-run/自动任务仍未执行。脚本首次ACME账户不登记email，未装外部告警。
+3f56发布CI44861126218 SUCCESS（182/182、交付74PASS/1skip/0fail）；其他两个CI仍需核实。本地Windows完整发布测试session90335仍运行、日志outputs/staging-lan-20261121-phase3/release-tests.log，不冒称PASS；旧184f两轮中止历史保留。Phase4运行代码尚需独立commit/push和最终精确guard，避免把未送达代码称交付。
 
-用户已确认/home/jackson/weaveops-staging-lan/private/cloudflare.ini就绪，元数据核实1000属主/600普通非symlink文件；未输出内容，脚本hash与本机一致。下一阶段开始issue，不读出Token或日志raw。原内部localhost证书绝不替换。Nginx新header和Alt-Svc clear语法通过，但长期LAN入口仍未启动。
-
-Chrome重置后不在连接清单；IAB真实浏览器可用，login表单/200/secure实际看到，Network remoteIP198.18.0.109及172.67.135.143仍TUN/公网。Trace被客户端阻断，不绕过。未登录/读Cookie/清缓存或Storage/写业务。LAN可信HTTPS、Access全策略、单机DNS/TUN、业务功能、真正外网回归均未完成。
-
-184f交付DELIVERED_VERIFIED/PR164 Draft；其Release baseline CI44856277170 SUCCESS（182/182、解析19/19、交付74PASS/1skip），团队44856277261 SUCCESS，Source44856277266最终CANCELLED，原因未核实，不标PASS/不盲重跑。Windows两次长守卫中止不计本地PASS。新阶段提交/检查/CI另核对，不借旧版本结果。
-
-[最新任务Phase3](tasks/active/staging-lan-direct-2026-11-21.md)、[runbook](ops/staging-lan-direct.md)、[批准前接力原件](tasks/completed/2026-11-21-before-lan-route-approval/AI_HANDOFF.md)。下一步签发可信证书，等已批准单IP443规则执行并验证真实LAN TCP；两端路由不要重复add，继续原范围，不重复新建PR/Issue或擅合并。push用正式脚本/进程限定7888、工作树稳定串行执行；共享17989配置保持。
+当前两组公网新样本已保存outputs/staging-lan-20261121-phase4/office-public-{cold,reuse}.json：冷9/10（1失败）、复用10/10。尚无可计算LAN改善；历史样本不覆盖新路由/证书。下步核实UFW实际执行、LAN443、管理员hosts、浏览器remoteIP及功能、10次同页冷/复用比较、真正外网回归和保全。详[任务](tasks/active/staging-lan-direct-2026-11-21.md)/[runbook](ops/staging-lan-direct.md)/[前摘要](tasks/completed/2026-11-21-before-lan-https/AI_HANDOFF.md)。
