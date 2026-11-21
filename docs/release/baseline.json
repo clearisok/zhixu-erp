@@ -6315,6 +6315,15 @@
       "sha256": "24296b46057f976193f715b59ee62d77f648893dbf5d8c604bdbecdd0dc69e4f",
       "supersedes": "catalog-final-safety-contract-20261119",
       "changeReason": "User-approved Issue159 forward-only contract deletion/restoration lifecycle and red anomaly chip. Preserve all original business records and identity/scope/Price protections. Candidate only; no merge, Staging deployment or real state conversion authorized."
+    },
+    {
+      "id": "staging-lan-decisions-20261121",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "982af5b2792504e2421b796eff4de8a978f30d92",
+      "sha256": "730a36ece5ff459186eef3aff8fa91ecbad310896698da74e305424089b297fa",
+      "supersedes": "source-deleted-decisions-20261120",
+      "changeReason": "Record user-authorized Issue163 isolated Staging LAN scope, original Tunnel/DB/Worker preservation, trusted certificate/authentication prerequisites and honest incomplete client acceptance. Preserve all previous decision evidence."
     }
   ],
   "pages": [

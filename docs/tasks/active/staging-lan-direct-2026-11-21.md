@@ -39,7 +39,7 @@
 
 - 新目录 `/home/jackson/weaveops-staging-lan`（700），配置、测速、只读preflight和独立Compose已传送；不是只留在Git的方案。长期LAN ingress未启动，未占用443。
 - 服务器Docker pull因其既有代理127.0.0.1:7890无监听失败。未改共享daemon/代理；从Windows Docker官方registry获取nginx:stable-alpine，离线包SHA256 `75e18e6414297f73a2cee2a29cd5733cb24a35aa3604440cda74dd555f8c0784`，传送后核对完整包hash再load。两机实际image ID同为 `sha256:caf4e1e032a20f9c3c5e28fc7f25ffd768ad8677b4975c54193075997b3a97e3` / linux amd64。Compose只用该不可变local ID，pull_policy=never。离线包保存在主机 `/home/jackson/nginx-staging-lan-20261121.tar`，不入Git。
-- 先使用独立一日自签测试证书，在生产LAN配置上执行nginx -t，再将**测试副本**改为127.0.0.1:18443。首次因cap-drop导致root不能读取jackson700目录失败；保留run-20261121/config-test.txt。增加DAC_OVERRIDE读取只读私钥挂载后，新run-20261121-v2完整通过。没有放宽文件ACL、浏览器信任或TLS验证。
+- 先使用独立一日自签测试证书，在候选LAN配置上执行nginx -t，再将**测试副本**改为127.0.0.1:18443。首次因cap-drop导致root不能读取jackson700目录失败；保留run-20261121/config-test.txt。增加DAC_OVERRIDE读取只读私钥挂载后，新run-20261121-v2完整通过。没有放宽文件ACL、浏览器信任或TLS验证。
 - 临时容器 `weaveops-staging-lan-probe-20261121` 实际接现有3003：health/database ready、登录页200、匿名quotes401、foreign Origin登录403。原请求边界在login调用前拒绝，未提交账号登录或业务写入；没有合成报价/附件写入。测试证书只由curl显式信任用于loopback探针，不是LAN/browser可信证书。
 - 探针正常停止，容器/私密证书/失败回执保留。前后原10容器ID/image/StartedAt/RestartCount完全相同；全部volume/network清单相同；443和18443均无监听；cloudflared仍active，Supervisor状态RUNNING/source0752。未读取真实PG心跳，不把容器运行态冒称完整同步业务验收。
 - 代码路径保留session/RBAC、Origin/x-zhixu-request及100MiB附件技术上限。当前未找到业务WS/SSE端点；Nginx支持Upgrade头，但原Node gateway无upgrade实现，不能承诺未来端到端WS。
@@ -68,3 +68,15 @@
 未完成：可信域名证书签发与续期/失败告警、共享主机/32路由批准和执行、实际LAN互达、单机hosts/DIRECT/浏览器实际remote IP、办公室统一Split DNS、当前Access全策略、登录后订单/报价/物料/上传下载浏览器验收、真正外部网络回归。用户异步问题尚无答复，不把等待当批准。
 
 仓库没有业务TS/React/UI/SQL/依赖锁改动；本阶段不重跑业务全量typecheck/build/真实来源采集。NPM依赖按锁文件仅本工作树安装以执行必要守卫，未升级依赖。完整运维、剩余凭据路径、单机路由与回滚见[runbook](../../ops/staging-lan-direct.md)。长期LAN服务未启动，DNS/hosts/代理和公网记录未改，原Cloudflare路径保持。
+
+## Delivery Phase 2 baseline与版本收口
+
+Phase1 checkpoint **982af5b2792504e2421b796eff4de8a978f30d92**。Phase2开始时本分支同HEAD，唯一已知自有增量是D199的前向冻结清单；不含继承dirty。原摘要三文件的归档与修改前SHA256逐项一致；当前三摘要和manifest统一main基线10b9。
+
+一次正式checkpoint推送已发送982af5b2；我在其结束前提前写了本阶段冻结清单，交付脚本正确返回STOP_LOCAL_CHANGED（pushes=1、remoteSha=982af5b2），没有将结果冒称DELIVERED_VERIFIED。GitHub只读API随后独立确认完整远端982af5b2792504e2421b796eff4de8a978f30d92；自有dirty精确核对仅新增前向evidence，保留现场，不重推旧checkpoint。此为本轮操作排序错误而非网络故障；最终commit后按串行稳定工作树完成新HEAD一次正式交付。
+
+服务器五个配置文件与本机SHA256逐项相同；source-commit.txt记录982af5b2。Compose config --quiet通过，bash -n通过。真实preflight按设计阻断于缺私密.env（尚无证书/权限），未启动长期服务。原Production/runner workflow仍仅workflow_dispatch，本轮没有触发。
+
+首轮精确发布检查读到主线继承的旧4e1基线，按预期BASE_SHA_MISMATCH拒绝；已前向对齐10b9并冻结D199，最终结果以后继实际运行回执为准，不降低守卫。
+
+冻结后精确 `npm run check:release-baseline -- --base-sha 10b9a7d827e1c09f152ead58c21f26712d49a619` 已实际PASS：13 pages/68 capabilities/0 UI changed/errors=[]，检查HEAD982af5b2加本阶段前向manifest。新工具3/3、定向eslint、node --check、bash -n、Compose config和Nginx/loopback均通过。首轮test:release-baseline在基线对齐期间运行，被显式终止，结果20 responsive通过/guard文件未完成（保留749395ms回执），不能称完整PASS；已在固定manifest/摘要上重新执行，最终结果在Issue/PR后续回填。
