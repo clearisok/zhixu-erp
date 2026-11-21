@@ -15,3 +15,5 @@ Windows双store持久路线已实际安装，receipt=LOCALAPPDATA/WeaveOps/stagi
 Phase10前向冻结源码守卫已PASS（main10b9/13pages/68capabilities/0UI/errors=[]）；最终固定提交的独立工作树完整复验与精确remote/CI结果以Issue163/PR164后继回执为准，冻结时不提前声明。
 
 Phase11从69a765f0fe3aa7783047a0af3f8f4950b2fea639/clean继续（该SHA已正式单次push精确交付）。公网CI44885538332在测试夹具因普通用户tempdir uid不匹配失败，外网步骤未执行；只修fixture和增加非root拒绝反例，生产root检查不变。服务器uid1000隔离完整20/20 PASS；Windows16 PASS/4 POSIX SKIP。新固定候选完整Windows及四CI结果仍须后继回填，旧失败保留。
+
+Phase12 baseline f3a9f8b8e79c24890a77e4ec3e202123342c5074/clean/正式Git精确送达：Release/Team/独立公网三CI SUCCESS，US/IAD公网10/10、TTFB635.881ms，monitor16:41实际cron healthy。Source44886055653由平台25m硬限终止（GitHub annotation确认），不是人工取消或已知断言失败；仅延长任务限时35m，保留全部检查重跑。原f3固定Windows完整测试继续自然运行，该快照不编辑；阶段仅workflow/任务/接力变化，不混写测试SHA。最终精确guard/remote/CI和快照结果回填Issue163/PR164。

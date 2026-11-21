@@ -61,3 +61,11 @@ Phase10精确源码守卫实际PASS：main10b9a7d827e1c09f152ead58c21f26712d49a6
 起点69a765f0fe3aa7783047a0af3f8f4950b2fea639 / clean，Phase10正式Git单次push已DELIVERED_VERIFIED/EXACT_HEAD_VERIFIED，远端同SHA。该候选公网CI44885538332在单元测试阶段失败，外网GET尚未执行：fixture仅模拟geteuid=0，但Linux runner实际创建的临时receipt目录属普通用户，正确触发生产脚本Unsafe receipt directory保护。Windows stat默认uid=0未暴露该夹具缺陷。
 
 仅调整test_persistent_route.py：对隔离receipt父目录模拟root uid，其他路径stat仍真实；增加非root目录明确拒绝的反例。生产persistent-route.py及其root所有权/路径保护不变，也不以sudo运行CI掩盖问题。Windows20项16 PASS/4 POSIX SKIP；服务器jackson实际uid1000的独立临时目录完整20/20 PASS，包括4项发布故障测试，不操作真实路由/证书/容器。日志outputs/staging-lan-20261121-phase8/phase11-linux-tests.log。新固定候选将重跑Source/Release/Team/公网CI与不变Windows快照完整套件；69候选未开始完整Windows快照测试，不挪用旧结果。
+
+## Delivery Phase12：保留完整Source检查并修正任务时限
+
+起点f3a9f8b8e79c24890a77e4ec3e202123342c5074 / clean；该HEAD正式Git单次push精确送达。Release44886055618、Team44886055811及独立公网44886055617 SUCCESS；公网US/IAD、10/10可信200、TTFB中位635.881ms/P95768.220ms，health数据库ready、部署app仍0752。16:41:02新monitor cron实际自动触发healthy，非仅手动执行。
+
+Source44886055653/job136791528068最终cancelled；GitHub check注释明确“The job has exceeded the maximum execution time of 25m0s”。编译/SQL/API、边界、候选构建均通过，浏览器用例持续通过至09:07:00Z，09:07:01Z平台终止；后续Python未执行，不能记全套PASS。本阶段只把同一任务上限25→35分钟并更新原因注释，所有测试步骤、断言、权限和并发规则不变，不以重试掩盖断言失败。重新完整Source及最终候选其他CI，结果回填Issue163/PR164。
+
+独立f3a9f8b8 Windows快照完整基线仍自然运行，不修改该工作树或终止进程；本阶段仅workflow时限和阶段说明，不改变其任何被测源代码/manifest/冻结证据。最终新增提交再跑精确源码守卫，Windows结果按实际快照SHA记录，不能混写为另一SHA。无继承dirty，三个本阶段路径单独提交。

@@ -15,9 +15,9 @@ concurrency:
 jobs:
   source:
     runs-on: ubuntu-latest
-    # The full SQL/API plus private Chromium job had spent ~17.5 minutes at the P6 failure.
-    # Keep every acceptance step and bound the complete job with modest headroom.
-    timeout-minutes: 25
+    # Run 44886055653 reached passing Chromium cases but exceeded 25 minutes.
+    # Retain every SQL/API/browser/Python check with bounded runner headroom.
+    timeout-minutes: 35
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
