@@ -13,3 +13,5 @@
 最终原10容器ID/Image/StartedAt/RestartCount精确不变，9原health healthy、Worker running、Tunnel active；未查PG心跳，不等同完整同步业务验收。同机公网入口10/10通过。限制：历史STAGING-ACCEPTANCE-562缩略图503原因未定、不改旧附件；早期2缩略图元数据有Fake-IP/h3矛盾，后续禁缓存刷新新HTTPS全部LAN，未证明旧元数据原因。未有现存业务WS/SSE端点，未验大文件、Access/WAF全策略或真正独立外网。办公室统一DNS和重启持续性未完成。
 
 部署源/已核远端92e83343082c1251000944b6e791e8a4a3e68445、服务器7文件hash一致。该HEAD Release baseline CI44862537961及First team access44862537986成功，Source44862537956取消，不记全绿；Windows完整套件中止、不记PASS。后续仅文档证据本地checkpoint，CLI NETWORK_DEGRADED，远端待人工一次性正式交付。详[任务](tasks/active/staging-lan-direct-2026-11-21.md)、[运维/精确回滚](ops/staging-lan-direct.md)。
+
+Phase6证据checkpoint **8c1863c6398e6bb06075bc08826efa1bc194b831**；Phase7从该HEAD/clean开始，仅按守卫规则以前向supersedes绑定D199新blob，保留旧ID/hash。Phase7最终精确源码守卫PASS（13pages/68capabilities/0UI/errors=[]），原证据完整保留；新本地文档仍REMOTE_PENDING。

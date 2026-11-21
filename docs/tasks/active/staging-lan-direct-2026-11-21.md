@@ -1,6 +1,6 @@
 # Staging 局域网直连：现场调查与实施 v1
 
-最新恢复点见末尾 **Delivery Phase 6**；前期未批准/未部署/工具故障状态按原时点保留。
+最新恢复点见末尾 **Delivery Phase 7**；前期未批准/未部署/工具故障状态按原时点保留。
 
 2026-11-21（Asia/Shanghai）；Refs [Issue163](https://github.com/clearisok/zhixu-erp/issues/163)。Codex转录用户决定：本聊天附件《调查并实施局域网高速直连部署》明确授权调查、必要的 Staging LAN 配置、测试电脑验证、真实浏览器验收和独立 PR；禁止 Production、共享组件重启、公司整体网络变更、数据/卷删除及 Worker 干预。此附件原始范围即v1实施授权，不额外要求普通技术选项批准。缺外部权限时完成可安全落地部分，如实保留阻塞。
 
@@ -201,3 +201,11 @@ UFW后首个办公室绑定WLAN/resolve探针200、remote66.69/local83.51、TLS�
 
 GitHub连接器核实部署源92的Release baseline44862537961 SUCCESS、First team access44862537986 SUCCESS，Ainuoke server source44862537956 CANCELLED（原因未核，不称全绿）。Windows完整suite中止历史不改。本阶段仅文档/证据，不重跑25分钟Windows全套；精确源码守卫另记最终回执。NETWORK_DEGRADED持续，只有本地checkpoint，远端仍92；提供以最终完整HEAD限定的一次性正式交付命令，不自动执行。GitHub事实回链不是本机传输恢复或新commit送达证明。
 Phase6首次最终源码守卫实际FAIL：main10b9/HEAD8148、13pages/68capabilities/0UI，唯一EVIDENCE_WORKTREE_DRIFT=staging-lan-decisions-20261121。原因是本阶段D199前向激活记录改变当前决策文档，旧冻结blob须保留。按既有守卫规则先做本阶段文档checkpoint，再新Phase以前向supersedes绑定确切新blob，不修改旧hash或降低检查。40个匹配样本一致性、摘要原字节归档hash、JSON解析和diff --check均通过；不把此首次守卫写成PASS。
+
+## Delivery Phase 7：前向冻结实机决策证据与最终检查
+
+起点feat/staging-lan-direct / **8c1863c6398e6bb06075bc08826efa1bc194b831** / clean；无继承dirty，baseline保存ignored outputs内。Phase6已独立commit，未push。D199原冻结staging-lan-decisions-20261121完整保留；新增staging-lan-client-decisions-20261121以supersedes绑定Phase6确切DECISION_LOG blob和归一化SHA256。只记录已执行边界与未验限制，不改业务规则、capability标签或截图哈希。守卫此前FAIL明确保留，待本阶段修正后重跑。
+
+Phase7最终 `npm run check:release-baseline -- --base-sha 10b9a7d827e1c09f152ead58c21f26712d49a619` 实际PASS，checkedHead8c1863c6398e6bb06075bc08826efa1bc194b831加本阶段前向manifest，13pages/68capabilities/0UI/errors=[]。旧manifest所有evidence对象及其余字段逐项完全不变；只新增9行前向记录。diff --check通过。未重跑完整Windows测试，保留92 Linux Release baseline/First team access成功、Source取消及本地历史中止，不把其借为新完整suite通过。
+
+用户14:48继续后再次只读核实：普通LAN login200/remote66.69/local83.51/verify0/Total125.791ms；固定CF入口200/remote104.21.26.56/verify0/Total1453.265ms。此两探针单列，不混入40样本。certificate.sh check healthy，schedule ownedBlockPresent=true/wouldChange=false且crontab hash不变，Tunnel active；合成草稿及图片（1）仍在，页面保留。最终只本地checkpoint，无新的push尝试；一次性人工交付命令使用最终完整HEAD，Issue/PR回填明确远端仍92。

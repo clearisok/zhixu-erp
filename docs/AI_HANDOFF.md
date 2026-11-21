@@ -13,3 +13,5 @@ LAN入口、正式证书、续期演练和实际cron check均已运行，不重�
 同机10次对照artifacts/staging-lan-20261121/phase6-{measurements,acceptance}.json：冷TTFB2004.794→63.011ms，复用911.964→12.365ms。CF固定104.21.26.56/同WLAN，邻近Trace AMS/CN，不等于历史SJC或独立外网。各10/10、15946bytes、零跳转，不推造edge→Tunnel分段计时。
 
 92 Release baseline/First team access CI成功、Source cancelled；Windows完整套件1523160ms中止不记PASS。本阶段仅文档/证据，不重跑25分钟Windows套件；最终精确源码守卫结果见任务。剩余：用户最终确认、路由重启持续性、公司统一DNS/设备权限、Access全策略、真正外网、外部告警、大文件/未来业务WS。详[任务](tasks/active/staging-lan-direct-2026-11-21.md)、[runbook](ops/staging-lan-direct.md)、[前摘要](tasks/completed/2026-11-21-before-lan-client-acceptance/AI_HANDOFF.md)。
+
+Phase6证据checkpoint **8c1863c6398e6bb06075bc08826efa1bc194b831**；Phase7从该HEAD/clean开始，仅按守卫规则以前向supersedes绑定D199新blob，保留旧ID/hash。Phase7最终精确源码守卫PASS（13pages/68capabilities/0UI/errors=[]），原证据完整保留；新本地文档仍REMOTE_PENDING。
