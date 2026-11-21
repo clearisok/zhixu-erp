@@ -29,6 +29,12 @@ class MonitorTests(unittest.TestCase):
     def test_missing_renew_and_permissions(self):
         self.assertEqual(monitor.evaluate(NOW, {}, 89, False), ['check_missing', 'renew_missing', 'private_permissions'])
 
+    def test_corrupt_state_and_future_timestamp_are_alerts(self):
+        states = self.healthy()
+        states['check'] = 'corrupt'
+        states['renew']['at'] = (NOW + datetime.timedelta(hours=1)).isoformat()
+        self.assertEqual(monitor.evaluate(NOW, states, 89, True), ['check_invalid', 'renew_stale'])
+
 
 if __name__ == '__main__':
     unittest.main()

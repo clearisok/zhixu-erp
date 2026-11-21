@@ -14,8 +14,11 @@ def evaluate(now, states, days, safe_permissions):
     problems = []
     for name, hours in [('check', 2), ('renew', 36)]:
         state = states.get(name)
-        if not state:
+        if state is None:
             problems.append(name + '_missing')
+            continue
+        if not isinstance(state, dict):
+            problems.append(name + '_invalid')
             continue
         if state.get('state') == 'failed':
             problems.append(name + '_failed')
@@ -23,7 +26,7 @@ def evaluate(now, states, days, safe_permissions):
             age = (now - datetime.datetime.fromisoformat(state['at'].replace('Z', '+00:00'))).total_seconds()
             if age < -300 or age > hours * 3600:
                 problems.append(name + '_stale')
-        except (KeyError, ValueError, TypeError):
+        except (KeyError, ValueError, TypeError, AttributeError):
             problems.append(name + '_invalid')
     if days < 21:
         problems.append('certificate_under_21_days')
@@ -45,7 +48,11 @@ def main():
         except (OSError, ValueError):
             states[name] = None
     paths = [ROOT / 'private/cloudflare.ini', ROOT / 'tls/current/privkey.pem']
-    safe = all(p.is_file() and p.stat().st_uid == 1000 and stat.S_IMODE(p.stat().st_mode) == 0o600 for p in paths)
+    safe = all(p.is_file() and not p.is_symlink() and p.stat().st_uid == 1000
+               and stat.S_IMODE(p.stat().st_mode) == 0o600 for p in paths)
+    safe = safe and all(p.is_dir() and not p.is_symlink() and p.stat().st_uid == 1000
+                        and stat.S_IMODE(p.stat().st_mode) == 0o700
+                        for p in [ROOT / 'private', ROOT / 'tls'])
     try:
         end = subprocess.check_output(['openssl', 'x509', '-in', str(ROOT / 'tls/current/fullchain.pem'), '-noout', '-enddate'], text=True, timeout=5).strip().split('=', 1)[1]
         expires = datetime.datetime.strptime(end, '%b %d %H:%M:%S %Y %Z').replace(tzinfo=datetime.timezone.utc)
