@@ -8,7 +8,7 @@ IMAGE=sha256:6d5e1e84f687ce81786c97cbeccb9dda94d86bbb29a81dbb85527bd68008d77d
 NAME=staging-weaveops-lan-163
 DOMAIN=staging.weaveops.top
 mode=${1:-check}
-[[ "$mode" = issue || "$mode" = renew || "$mode" = renew-test || "$mode" = check ]] || exit 2
+[[ "$mode" = issue || "$mode" = renew || "$mode" = renew-test || "$mode" = reload-test || "$mode" = check ]] || exit 2
 [[ $(id -u) = 1000 && $(stat -c %u "$ROOT") = 1000 ]] || exit 2
 mkdir -p "$ROOT/private" "$ROOT/private/acme/config" "$ROOT/private/acme/work" "$ROOT/private/acme/logs" "$ROOT/tls"
 chmod 700 "$ROOT/private" "$ROOT/private/acme" "$ROOT/private/acme/config" "$ROOT/private/acme/work" "$ROOT/private/acme/logs" "$ROOT/tls"
@@ -41,15 +41,48 @@ verify_pair() {
   b=$(openssl pkey -in "$key" -pubout -outform DER | sha256sum | cut -d' ' -f1)
   test "$a" = "$b"
 }
+endpoint_matches() {
+  python3 - <<'PY'
+import hashlib, socket, ssl
+from pathlib import Path
+text = Path('/home/jackson/weaveops-staging-lan/tls/current/fullchain.pem').read_text()
+leaf = text.split('-----END CERTIFICATE-----', 1)[0] + '-----END CERTIFICATE-----\n'
+expected = hashlib.sha256(ssl.PEM_cert_to_DER_cert(leaf)).digest()
+with socket.create_connection(('192.168.66.69', 443), timeout=3) as raw:
+    with ssl.create_default_context().wrap_socket(raw, server_hostname='staging.weaveops.top') as tls:
+        assert hashlib.sha256(tls.getpeercert(binary_form=True)).digest() == expected
+PY
+}
+reload_ingress() {
+  local container=$1 attempt
+  docker exec "$container" nginx -t >> "$log" 2>&1 || return 1
+  docker exec "$container" nginx -s reload >> "$log" 2>&1 || return 1
+  for attempt in {1..10}; do
+    if endpoint_matches >> "$log" 2>&1; then return 0; fi
+    sleep 1
+  done
+  return 1
+}
 if [[ "$mode" = check ]]; then
   cert="$ROOT/tls/current/fullchain.pem"
   verify_pair "$cert" "$ROOT/tls/current/privkey.pem"
   openssl x509 -in "$cert" -noout -checkend 1814400 >/dev/null
+  endpoint_matches
   curl --noproxy '*' --fail --silent --show-error --connect-timeout 5 --max-time 15 \
     --resolve "$DOMAIN:443:192.168.66.69" "https://$DOMAIN/api/v1/health" | \
     python3 -c 'import json,sys; d=json.load(sys.stdin); assert d.get("status")=="ok" and d.get("database")=="ready"'
   status healthy
   echo 'CERTIFICATE_HEALTHY: trusted hostname, over 21 days, LAN endpoint ready'
+  exit 0
+fi
+if [[ "$mode" = reload-test ]]; then
+  verify_pair "$ROOT/tls/current/fullchain.pem" "$ROOT/tls/current/privkey.pem"
+  ingress=$(docker ps -q --filter label=com.docker.compose.project=weaveops-staging-lan --filter label=com.docker.compose.service=ingress)
+  [[ $(printf '%s\n' "$ingress" | grep -c . || true) = 1 ]]
+  log="$ROOT/private/acme/reload-test-$(date -u +%Y%m%dT%H%M%SZ)-$$.log"
+  reload_ingress "$ingress"
+  status reload_tested
+  echo 'RELOAD_TEST_PASS: isolated ingress gracefully reloaded; served trusted fingerprint matches disk'
   exit 0
 fi
 credential="$ROOT/private/cloudflare.ini"
@@ -107,9 +140,10 @@ if [[ "$old" != "$version" ]]; then
   ln -s "$version" "$ROOT/tls/.next-$$"
   mv -Tf "$ROOT/tls/.next-$$" "$current"
   if [[ -n "$ingress" ]]; then
-    if ! docker exec "$ingress" nginx -t >> "$log" 2>&1 || ! docker exec "$ingress" nginx -s reload >> "$log" 2>&1; then
+    if ! reload_ingress "$ingress"; then
       ln -s "$old" "$ROOT/tls/.restore-$$"
       mv -Tf "$ROOT/tls/.restore-$$" "$current"
+      reload_ingress "$ingress" || true
       exit 1
     fi
   fi

@@ -12,12 +12,16 @@ import tempfile
 ROOT = Path('/home/jackson/weaveops-staging-lan')
 BEGIN = '# BEGIN weaveops-staging-lan-163 certificate schedules\n'
 END = '# END weaveops-staging-lan-163 certificate schedules\n'
-BLOCK = (BEGIN
+LEGACY_BLOCK = (BEGIN
          + '19 3,15 * * * umask 077; /usr/bin/bash ' + str(ROOT)
          + '/certificate.sh renew >> ' + str(ROOT) + '/private/acme/scheduler-renew.log 2>&1\n'
          + '37 * * * * umask 077; /usr/bin/bash ' + str(ROOT)
          + '/certificate.sh check >> ' + str(ROOT) + '/private/acme/scheduler-check.log 2>&1\n'
          + END).encode()
+BLOCK = LEGACY_BLOCK.replace(END.encode(),
+    ('41 * * * * umask 077; /usr/bin/python3 ' + str(ROOT)
+     + '/monitor.py >> ' + str(ROOT) + '/private/acme/scheduler-monitor.log 2>&1\n'
+     + END).encode())
 mode = sys.argv[1] if len(sys.argv) == 2 else 'plan'
 if mode not in ('plan', 'install', 'remove', 'status') or os.getuid() != 1000:
     raise SystemExit('Expected jackson and plan/install/remove/status')
@@ -38,9 +42,10 @@ before = read_cron()
 start, end = BEGIN.encode(), END.encode()
 has_block = start in before or end in before
 if has_block:
-    if before.count(start) != 1 or before.count(end) != 1 or BLOCK not in before:
+    existing_block = BLOCK if BLOCK in before else LEGACY_BLOCK if LEGACY_BLOCK in before else None
+    if before.count(start) != 1 or before.count(end) != 1 or existing_block is None:
         raise SystemExit('Unexpected managed block; no replacement')
-    after = before.replace(BLOCK, b'', 1) if mode == 'remove' else before
+    after = before.replace(existing_block, b'' if mode == 'remove' else BLOCK, 1)
 else:
     after = before + (b'\n' if before and not before.endswith(b'\n') else b'') + BLOCK
     if mode == 'remove':
@@ -53,6 +58,7 @@ if mode in ('plan', 'status') or before == after:
 if mode == 'install':
     subprocess.run(['/usr/bin/systemctl', 'is-active', '--quiet', 'cron'], check=True, env=env)
     subprocess.run(['/usr/bin/bash', str(ROOT / 'certificate.sh'), 'check'], check=True, env=env)
+    subprocess.run(['/usr/bin/python3', str(ROOT / 'monitor.py')], check=True, env=env)
 private = ROOT / 'private'
 if private.is_symlink() or private.stat().st_uid != 1000 or private.stat().st_mode & 0o077:
     raise SystemExit('Private directory ownership/mode mismatch')
