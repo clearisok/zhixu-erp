@@ -8,7 +8,7 @@ export function materialReadFeedback(error: unknown): string {
   if (status) return '物料来源读取失败（HTTP ' + status + '），请重新读取或联系管理员核对。';
   if (message === 'invalid_order_uuid') return '订单标识无效，请返回订单列表重新打开。';
   if (message === '物料响应关联无效') return '物料响应与当前订单不符，已停止展示；请联系管理员核对。';
-  if (error instanceof TypeError) return '网络连接失败，未取得物料来源；请检查网络后重新读取。';
+  if (error instanceof TypeError && ['Failed to fetch', 'NetworkError when attempting to fetch resource.', 'Load failed'].includes(message)) return '网络连接失败，未取得物料来源；请检查网络后重新读取。';
   return '物料读取失败，原因尚未核实；请重新读取或联系管理员。';
 }
 export function materialReadTime(value: string | null | undefined): string {
