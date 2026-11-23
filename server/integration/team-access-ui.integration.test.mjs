@@ -24,9 +24,10 @@ test("First team production-built UI uses trusted session, existing layout and s
  try{
   const profile=join(temp,"profile");
   let launchError,chromiumEndpoint;let diagnostics="";
-  browser=spawn(process.env.CHROME_PATH??(process.platform==="win32"?"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe":"google-chrome"),["--headless=new","--no-first-run","--no-default-browser-check","--remote-debugging-port=0","--user-data-dir="+profile,"about:blank"],{stdio:["ignore","ignore","pipe"],windowsHide:true});
+  // Match the compact fixture: no inherited stderr pipe can delay owned-child close on Windows.
+  browser=spawn(process.env.CHROME_PATH??(process.platform==="win32"?"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe":"google-chrome"),["--headless=new","--no-first-run","--no-default-browser-check","--remote-debugging-port=0","--user-data-dir="+profile,"about:blank"],{stdio:"ignore",windowsHide:true});
   browser.on("error",error=>{launchError=error;});
-  browser.stderr.on("data",chunk=>{diagnostics=(diagnostics+String(chunk)).slice(-4096);});
+  browser.stderr?.on("data",chunk=>{diagnostics=(diagnostics+String(chunk)).slice(-4096);});
   try {
     // Only browser readiness gets a longer budget; page/business assertions keep 15s.
     // This fresh temporary profile has no credentials or business data at startup.
@@ -52,10 +53,10 @@ test("First team production-built UI uses trusted session, existing layout and s
   const navigate=async path=>{const epoch=Date.now()+Math.random();await evalJs("window.navigationEpoch="+epoch);await command("Page.navigate",{url:x.base+path});await until(()=>evalJs("window.navigationEpoch!=="+epoch+" && document.readyState==='complete'"),"navigation");};
   const input=(selector,value)=>evalJs("(()=>{const n=document.querySelector("+JSON.stringify(selector)+");if(!n)throw Error('missing input');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(n,"+JSON.stringify(value)+");n.dispatchEvent(new Event('input',{bubbles:true}));})()");
   const select=(selector,value)=>evalJs("(()=>{const n=document.querySelector("+JSON.stringify(selector)+");if(!n)throw Error('missing select');n.value="+JSON.stringify(value)+";n.dispatchEvent(new Event('change',{bubbles:true}));})()");
-  const click=label=>evalJs("(()=>{const n=[...document.querySelectorAll('button')].find(n=>(n.getAttribute('aria-label')??n.textContent.trim())==="+JSON.stringify(label)+"&&!n.disabled&&n.getClientRects().length);if(!n)throw Error('missing button '+ "+JSON.stringify(label)+");n.click()})()");
+  const click=async label=>{await until(()=>evalJs("[...document.querySelectorAll('button')].some(n=>(n.getAttribute('aria-label')??n.textContent.trim())==="+JSON.stringify(label)+"&&!n.disabled&&n.getClientRects().length)"),"enabled "+label);return evalJs("(()=>{const n=[...document.querySelectorAll('button')].find(n=>(n.getAttribute('aria-label')??n.textContent.trim())==="+JSON.stringify(label)+"&&!n.disabled&&n.getClientRects().length);if(!n)throw Error('missing button '+ "+JSON.stringify(label)+");n.click()})()");};
   const shot=async name=>{if(process.env.TEAM_ACCESS_EVIDENCE!=="1")return;const dir=resolve(process.env.TEAM_ACCESS_EVIDENCE_DIR??"outputs/system-settings-browser");await mkdir(dir,{recursive:true});const r=await command("Page.captureScreenshot",{format:"png",captureBeyondViewport:false});await writeFile(join(dir,name+".png"),Buffer.from(r.data,"base64"));};
   await navigate("/basic-settings/user-permissions");await has("忘记密码？请联系系统管理员");
-  await input("input[name=username]","synthetic.ui.root");await input("input[name=password]",password);await click("登录织序");await has("新建用户");
+  await input("input[name=username]","synthetic.ui.root");await input("input[name=password]",password);await click("登录织序");await has("新建用户");await until(()=>evalJs("document.querySelector('.qc-data-table')!==null"),"loaded user table");
   await t.test("existing layout, loaded CSS and no browser authority/write on mount",async()=>{
    assert.equal(await evalJs("teamWrites"),0);
    assert.ok(await evalJs("document.querySelector('.qc-data-table')!==null"));
@@ -136,7 +137,7 @@ test("First team production-built UI uses trusted session, existing layout and s
    for(let i=0;i<105;i++)await appendOperationLog(x.pool,actor,{operationId:"operation-ui-history",module:"权限管理",entityType:"User",entityId:"test-history-"+i,action:"修改账号",beforeData:{objectName:"Jackson",values:{name:"Jackson",status:"inactive"}},afterData:{objectName:"Jackson",values:{name:"Jackson",status:"active"}}});
    await command("Emulation.setDeviceMetricsOverride",{width:1280,height:900,deviceScaleFactor:1,mobile:false});
    await command("Page.addScriptToEvaluateOnNewDocument",{source: `(()=>{const read=window.fetch.bind(window);let first=true;window.fetch=async(...args)=>{const u=new URL(String(args[0]),location.href);if(first&&location.pathname==='/system-settings/operation-logs'&&u.pathname==='/api/v1/operation-logs'){first=false;window.auditInitialStarted=true;await new Promise(resolve=>{window.releaseAuditInitial=resolve;});const response=await read(...args);window.auditInitialCompleted=true;return response;}return read(...args);};})()`});
-   await navigate("/system-settings/operation-logs");await has("查看团队操作与修改前后的记录");
+   await navigate("/system-settings/operation-logs");await has("日志关键词");
    await until(()=>evalJs("window.auditInitialStarted===true&&[...document.querySelectorAll('button')].some(n=>n.textContent.trim()==='查询'&&n.disabled&&n.getClientRects().length)"),"initial audit query is disabled while its actual read waits");
    await evalJs("window.releaseAuditInitial()");
    await until(()=>evalJs("window.auditInitialCompleted===true&&[...document.querySelectorAll('button')].some(n=>n.textContent.trim()==='查询'&&n.isConnected&&!n.disabled&&n.getClientRects().length)"),"initial audit read completes and releases query");
@@ -168,7 +169,7 @@ test("First team production-built UI uses trusted session, existing layout and s
   });
   assert.deepEqual(errors,[]);assert.deepEqual(x.errors,[]);
  }finally{
-  try{await stopOwnedChromium(browser,{gracefulClose:closeBrowser});}
+  try{await stopOwnedChromium(browser,{gracefulClose:closeBrowser,graceMs:10000,exitMs:10000});}
   finally{ws?.close();for(const p of pending.values())p.reject(Error("Owned browser fixture closed"));pending.clear();}
   const distance=relative(resolve(tmpdir()),resolve(temp));
   assert.ok(distance.startsWith("zhixu-team-ui-")&&!distance.includes("/")&&!distance.includes("\\")&&!isAbsolute(distance));

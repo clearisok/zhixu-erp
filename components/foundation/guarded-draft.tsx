@@ -54,5 +54,5 @@ export function UnsavedDraftDialog({ open, entityLabel, onKeepEditing, onDiscard
     description="关闭后，本次尚未保存的输入会丢失。"
     onClose={onKeepEditing}
     footer={<><Button variant="secondary" onClick={onKeepEditing}>继续编辑</Button><Button variant="danger" onClick={onDiscard}>放弃修改</Button></>}
-  ><p className="qc-unsaved-message">只有真实修改才会出现此提示；打开记录或加载默认值不会自动产生 dirty 状态。</p></Modal>;
+  >{null}</Modal>;
 }
