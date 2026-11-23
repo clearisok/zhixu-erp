@@ -111,6 +111,22 @@ test('compact business pages: actual headers, prices, routes, permissions and de
    await login('demo.material');await navigate('/quote-center');await has('报价中心');
    assert.equal(await evaluate('document.querySelectorAll("[data-column-key=garmentPrice],[data-column-key=confirmedGarment]").length'),0);assert.equal(await evaluate('document.body.innerText.includes("91.25")||document.body.innerText.includes("108.75")'),false);await screenshot('restricted-material-role');
   });
+  await t.test('Issue165 C3: material GET retry stays separate, source time and settings destinations are explicit, empty groups appear once',async()=>{
+   await login('demo.admin');
+   const intercept=await command('Page.addScriptToEvaluateOnNewDocument',{source:`(()=>{const original=window.fetch.bind(window);window.ui165MaterialMode='forbidden';window.ui165ReadRequests=[];window.ui165OriginalFetch=original;window.fetch=async(input,init)=>{const path=new URL(String(input),location.href).pathname,method=init?.method??'GET';if(path.startsWith('/api/'))window.ui165ReadRequests.push({path,method});if(path.endsWith('/material-progress')){if(window.ui165MaterialMode==='forbidden')return new Response('{}',{status:403});if(window.ui165MaterialMode==='network')throw new TypeError('synthetic disconnected');}return original(input,init);};})();`});
+   try{
+    await navigate('/order-center/server-detail?id='+x.orderId);await has('没有物料查看权限，请联系管理员。');
+    assert.equal(await evaluate('document.querySelectorAll(".oc-server-detail-material-summary [role=alert]").length'),1);
+    await evaluate('window.ui165MaterialMode="network"');await click('重新读取物料');await has('网络连接失败，未取得物料来源');
+    await evaluate('window.ui165MaterialMode="allow"');await click('重新读取物料');await until(()=>evaluate('Boolean(document.querySelector(".oc-server-detail-material-summary time[datetime]"))'),'source read time');
+    const read=await evaluate(`(()=>{const box=document.querySelector('.oc-server-detail-material-summary'),time=box.querySelector('time[datetime]');return {label:box.innerText,time:time.textContent,raw:time.dateTime,technical:box.querySelector('details time')?.textContent,requests:window.ui165ReadRequests};})()`);
+    assert.ok(read.label.includes('北京时间'));assert.equal(read.time,new Date(read.raw).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false}));assert.equal(read.technical,read.raw);
+    assert.equal(read.requests.filter(r=>r.method!=='GET').length,0,'reading never launches source capture');assert.ok(read.requests.filter(r=>r.path.endsWith('/material-progress')).length>=3);
+    await screenshot('material-read-retry-and-shanghai-time');
+   }finally{await command('Page.removeScriptToEvaluateOnNewDocument',{identifier:intercept.identifier});await evaluate('if(window.ui165OriginalFetch)window.fetch=window.ui165OriginalFetch');}
+   for(const contextual of [false,true]){await navigate('/system-settings/progress-settings'+(contextual?'?orderId='+x.orderId:''));await has('辅料关键词优先级');assert.equal(await evaluate('document.querySelector(".sp-settings-actions button:last-child")?.textContent'),contextual?'返回物料跟进':'返回订单列表');assert.equal(await evaluate('document.querySelectorAll(".sp-trim-settings [role=tablist]").length'),0);assert.equal(await evaluate('document.querySelectorAll(".sp-trim-settings h2").length'),1);}
+   for(const width of [1440,390]){await command('Emulation.setDeviceMetricsOverride',{width,height:900,deviceScaleFactor:1,mobile:false});await navigate('/production-scheduling');await has('暂无生产组');assert.equal(await evaluate('document.querySelectorAll(".qc-empty-state").length'),1);assert.equal(await evaluate('[...document.querySelectorAll("button")].filter(n=>n.textContent==="维护生产组"&&n.getClientRects().length).length'),1);assert.equal(await evaluate('document.documentElement.scrollWidth>innerWidth+1'),false);await screenshot('single-empty-groups-'+width);}
+  });
   assert.deepEqual(x.errors,[]);assert.deepEqual(errors,[]);await writeFile(join(dir,'results.json'),JSON.stringify(evidence,null,2)+'\n');
  }finally{
   try { await stopOwnedChromium(chrome,{gracefulClose:()=>ws?.send(JSON.stringify({id:++id,method:'Browser.close'})),graceMs:10000,exitMs:10000}); }
