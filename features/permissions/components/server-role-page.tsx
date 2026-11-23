@@ -23,7 +23,7 @@ function RolePage(){
  function remember(value:{requestId:string}|null){setPending(value);try{if(value)sessionStorage.setItem(receiptKey,value.requestId);else sessionStorage.removeItem(receiptKey);}catch{/* No secrets or form values are persisted. */}}
  const permitted=session.hasPermission("user_permissions.manage"),role=roles.find(r=>r.id===selected);
  const dirty=Boolean(draft&&(newRole||role&&(draft.name!==role.name||draft.description!==role.description||JSON.stringify([...draft.permissions].sort())!==JSON.stringify([...role.permissions].sort()))));
- useServerNavigationProtection({dirty,blocked:busy||Boolean(pending),message:'权限操作尚未确认，请先核对提交结果。'});
+ const confirmedNavigation=useServerNavigationProtection({dirty,blocked:busy||Boolean(pending),message:'权限操作尚未确认，请先核对提交结果。'});
  async function refresh(){const result=await roleRequest();if(alive.current){setRoles(result.roles??[]);setLoading(false);}}
  useEffect(()=>{alive.current=true;if(permitted)void refresh().catch(()=>{if(alive.current){setFeedback("角色读取失败，请重试。");setLoading(false);}});return()=>{alive.current=false;};},[permitted]);
  useEffect(()=>{if(!dirty&&!pending)return;const fn=(e:BeforeUnloadEvent)=>e.preventDefault();window.addEventListener("beforeunload",fn);return()=>window.removeEventListener("beforeunload",fn);},[dirty,pending]);
@@ -45,7 +45,8 @@ function RolePage(){
    remember(null);setConfirm(null);await refresh();
   }catch{if(alive.current)setFeedback("暂时无法核对，请稍后再试。");}finally{lock.current=false;if(alive.current)setBusy(false);}
  }
- const navigate=async(to:string)=>{if(await leave())router.push(to);};
+ // Confirmation must commit outside the Shell transition before routing can continue.
+ const navigate=(to:string)=>{void leave().then(accepted=>{if(accepted)confirmedNavigation(()=>router.push(to));});};
  const groups=Map.groupBy(PERMISSION_DEFINITIONS,p=>p.module);
  const filtered=roles.filter(r=>(r.name+" "+r.description).toLowerCase().includes(query.trim().toLowerCase()));
  const added=draft?.permissions.filter(p=>!role?.permissions.includes(p)).length??0,removed=role?.permissions.filter(p=>!draft?.permissions.includes(p)).length??0;

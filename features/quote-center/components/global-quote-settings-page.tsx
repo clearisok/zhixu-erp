@@ -27,7 +27,7 @@ export function GlobalQuoteSettingsPage({ serverController, serverProduction = f
   const [baseline,setBaseline]=useState<GlobalQuoteSettings|null>(null);
   const [saving,setSaving]=useState(false); const savingRef=useRef(false);
   const dirty=baseline!==null&&JSON.stringify(settings)!==JSON.stringify(baseline);
-  useServerNavigationProtection({dirty,blocked:Boolean(serverController)&&saving,message:"报价设置正在保存，请等待本次操作完成。"});
+  const confirmedNavigation=useServerNavigationProtection({dirty,blocked:Boolean(serverController)&&saving,message:"报价设置正在保存，请等待本次操作完成。"});
   useEffect(()=>{const guard=(event:BeforeUnloadEvent)=>{if(dirty){event.preventDefault();event.returnValue="";}};window.addEventListener("beforeunload",guard);return()=>window.removeEventListener("beforeunload",guard);},[dirty]);
   const [toast, setToast] = useState("");
   const [error, setError] = useState("");
@@ -96,7 +96,7 @@ export function GlobalQuoteSettingsPage({ serverController, serverProduction = f
   };
   const selectedPreset = settings.manufacturingPresets.find((preset) => preset.id === selectedPresetId) ?? settings.manufacturingPresets[0];
 
-  return <AppShell title="报价设置" identityMode={serverController?"server":"browser"} onRequestNavigation={serverController ? async target => {if(!dirty || await confirmAction({kind:"discard",entityLabel:"报价设置",description:"报价设置尚未保存，是否放弃当前修改并离开？",confirmLabel:"放弃修改"}))router.push(target);} : undefined}><PageContainer className={serverController?"qc-global-settings-server":undefined}>
+  return <AppShell title="报价设置" identityMode={serverController?"server":"browser"} onRequestNavigation={serverController ? target => {void (async()=>{if(!dirty || await confirmAction({kind:"discard",entityLabel:"报价设置",description:"报价设置尚未保存，是否放弃当前修改并离开？",confirmLabel:"放弃修改"}))confirmedNavigation(()=>router.push(target));})();} : undefined}><PageContainer className={serverController?"qc-global-settings-server":undefined}>
     <PageHeader eyebrow="SYSTEM SETTINGS" title="报价设置" />
     {serverController&&<AlertBanner tone="info" title={serverProduction ? "报价默认值来源：PostgreSQL" : "Server candidate · source = PostgreSQL"} actions={onServerLogout?<Button variant="text" onClick={onServerLogout}>退出 Server 会话</Button>:undefined}>{serverProduction ? "报价默认值与制作预设由 Server 管理；保存时在单一 transaction 提交，不回退到 Browser 设置。" : "本页复用正式报价设置 UI，保存通过一个 Server transaction 原子提交全局设置与制作预设；不会读写 Browser 设置。"}</AlertBanner>}
     {error&&<AlertBanner tone="danger" title={serverProduction ? "Server 设置未保存" : "Server candidate 未保存"} actions={serverController&&error.includes("其他用户")?<Button variant="secondary" onClick={()=>void reloadServer()}>重新载入 Server 版本</Button>:undefined}>{error}</AlertBanner>}
