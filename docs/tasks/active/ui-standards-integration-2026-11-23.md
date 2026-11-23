@@ -5,3 +5,5 @@
 比较基线10b9a7d827e1c09f152ead58c21f26712d49a619，五份精确影响记录，原manifest冻结字段不改。本地组合不替代独立PR人工审查或部署门禁，Staging恢复保护仍阻塞。
 
 7710684d1d98ea90281790ada12f0d803a3265e5组合：typecheck/lint/Server frontend build、release182/182（158870ms）、root1028/1028（149448ms）、exact guard38 UI路径全部PASS；真实compact/团队/关账串行38/38（181435ms），含A/B/C3全部交互用例，不将测试数量与问题数混同。产品代码没有组合新修；后续仅接入B远端发现的过期native-confirm导航验收脚本修正，导航/数据处理器不改。
+
+最新产品13fd757ea95e7cc82571978ab488ba9e274a356b：typecheck/lint/Server frontend build、release182/182（125496ms）、root1028/1028（156721ms）、exact guard38 UI路径PASS。实际built UI配测试b1ca2c7d，导航+紧凑页面38/38 PASS（76675ms），包含修正后role外部历史共享确认、设置取消/接受/无二次原生确认，以及A/B/C3各新增用例。首轮组合新增设置测试继承前序390宽度导致隐藏菜单超时，测试显式设1440后通过，产品代码不变，失败未覆盖。最新组合仅既有main报价套件三类失败与Staging恢复门禁仍为已知限制，未声称可部署。
