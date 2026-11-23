@@ -21,3 +21,12 @@ D01–D10不实施，原12项必要设计保留。不改业务逻辑/数据/权�
 
 ## 验证
 实现后待最终检查，不预写PASS。Staging仍0752，原RECOVERY_BLOCKED / backup_cleanup_unverified，originalFault backup_failed_requires_review；未恢复/切版/重启Worker。Production禁止，不自动合并PR。
+
+## 工程收口
+产品UI源码8dc296b28a7b408c52278c30ebf7bcb0344e1e2f；后续仅测试等待/过期文案/owned Chrome生命周期。typecheck、完整lint、Server frontend build PASS；release182/182 PASS（119464ms）。纠正后33aa01bc root1026/1026 PASS（138094ms）；原root一项仍期待正式PostgreSQL横幅，更新为正式隐藏/候选保留断言，所有适配器/保存/authority限制断言保持。
+
+真实built Server+临时PG/Chrome：compact9、production-resources23、team-access8，共40项分别PASS。覆盖六宽度、库/资源编辑、CAS保留输入、明确选项/稳定ID、撤权与会话、全部账号角色、权限修改/删除及审计。初次team把页头出现当数据就绪导致空表/保存未启用并连带账号未创建，新增正向等表与启用控件；L02旧subtitle等待改实际日志筛选，原初始延迟读禁用断言仍保留。
+
+两次team全部七子项通过但owned Chrome close超时，私有profile按原规则保留，未忽略失败。沿既有compact fixture改stdio=ignore避免继承stderr管道，仍用原stopOwnedChromium并要求专有child关闭才删除profile；8/8（51448ms）通过。stderr继承为基于对照的原因推断，未输出或清理未知浏览器进程。该测试修复不进入产品。
+
+没有API/SQL/schema/角色判定或请求数据变化；10争议与关键权限解释保持。Staging原RECOVERY_BLOCKED/backup_cleanup_unverified阻塞，未部署/合并/Production。
