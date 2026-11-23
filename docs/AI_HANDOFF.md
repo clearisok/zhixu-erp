@@ -7,3 +7,5 @@
 恢复分支fix/ui-standards-a，起始HEAD为上述main，起点clean。仅实施既有批次A七项；先完成测试、门禁和checkpoint再交付，结果写执行记录。原审查报告固定454675fb，勿覆写为已整改；原chore/juntao-migration-plan/ecceb144与chore/ui-standards-audit/454675fb保持。
 
 后续沿原B四项及C二十七项自动分批，不扩大到D01–D10。所有PR保持不合并，只在既有门禁满足后部署Staging；Production禁止。当前无本批实机/部署PASS。旧摘要及0752验收历史见归档与原记录，禁止用历史通过替代新候选。
+
+批次A工程收口：5707cd333fbae563b5f3f8f98af94b395ed399bf，root1026/1026、baseline182/182、精确main守卫（9 UI路径）、紧凑页面10/10、排单/物料48/48及类型/lint/前后端build通过。独立PR交付待最终文档commit精确送达。当前Staging已在切版前RECOVERY_BLOCKED/backup_cleanup_unverified，保留原故障与0752，不部署或自行恢复。批次B在另一clean main工作树独立实施，不带入本批产品增量；用户已批准自动推进。

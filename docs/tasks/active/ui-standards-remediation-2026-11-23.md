@@ -31,4 +31,14 @@ G04为共享组件V3，其余局部V2；精确路径见本PR ui-changes记录。
 
 2026-11-23部署前只读核实：当前app/gateway仍0752镜像9d638f76…，实际有效配置在runtime/catalog-sync-0752d64f/trial.conf，根runtime/trial.conf是旧562fbf配置，不能误用。Supervisor当前RECOVERY_BLOCKED/backup_cleanup_unverified、originalFault=backup_failed_requires_review，发生于本批切版前；未解除保护、改回执、重启Worker或清pause。此项为Staging发布阻塞，UI代码及PR独立推进；没有门禁PASS不部署。原DB/对象/卷与LAN入口保持。
 
-后续每批记录精确HEAD/测试/PR/部署/限制，工程与远端送达分开；不自动合并。
+## 批次A工程收口
+
+产品及最终测试输入为5707cd333fbae563b5f3f8f98af94b395ed399bf；后续只追加本段及当前接力，无产品/测试/manifest变化。
+
+- 完整root：Linux隔离、network=none，1026/1026通过，0失败/取消/跳过，204620.899134ms。精确main门禁PASS，检查HEAD=5707cd33、base=10b9、9个UI路径、13页/68能力。
+- 发布回归：182/182通过，142306.183849ms；独立root亦包含这些用例。typecheck、完整lint、最终改动文件lint、Server前端build及server:build通过。
+- 真实Server构建＋独有PG/Chrome：紧凑页面含新增键盘/触屏场景10/10；排单与物料合并48/48，177398.6447ms。物料六宽度、抽屉/未知单位/来源事实/七角色，排单精确小数、原请求/未知结果/并发/撤权/历史与桌面移动几何均通过。未访问真实ERP或写Staging业务数据。
+- 初始Linux root因错误依赖挂载找不到jszip等而953/961，不计PASS；Linux在线依赖安装ECONNRESET也不计PASS。最终修正node_modules真实路径，并仅提供现有锁文件0.25.12精确SHA512匹配的Linux esbuild二进制；未改锁文件、测试断言、冻结证据或降低检查。最终完整1026成功属于正确隔离环境，不覆盖原失败。
+- 截图来自合成隔离记录；已目视核对权限弹窗，原真实业务截图不提交。原Staging备份清理保护仍为发布阻塞，未部署本批，不宣称Staging PASS。
+
+后续每批记录精确HEAD/测试/PR/部署/限制，工程与远端送达分开；不自动合并。部署受既有保护阻断时，继续彼此隔离的已批准代码批次，不跳过发布条件。
