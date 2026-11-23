@@ -30,16 +30,16 @@ function SettingsBody(){
  const reload=()=>{if(saving||pending)return;const latest=read.settings;if(latest){setBase(latest);setDraft([...latest.trimPriorityKeywords]);setKeyword('');setMessage('已读取团队最新设置。');}read.reload();};
  return <AppShell title="进度设置" identityMode="server" backTarget={{href:back,label:route?'返回物料跟进':'返回订单列表'}} onRequestNavigation={navigate} onRequestLogout={logout}><PageContainer className="sp-progress-settings">
   <PageHeader title="进度设置" description="团队统一的物料展示顺序"/>
-  <Card className="sp-trim-settings"><div className="sp-settings-tab" role="tablist" aria-label="进度设置分类"><button type="button" role="tab" aria-selected="true">辅料排列</button></div>
+  <Card className="sp-trim-settings"><h2>辅料关键词优先级</h2>
    {read.loading&&!base?<p>读取团队设置…</p>:!base?<p role="alert">团队设置暂不可用，请稍后重试。<Button variant="text" onClick={read.reload}>重新读取</Button></p>:<>
-    <h2>辅料关键词优先级</h2><p>从上到下优先匹配物料名称；同一物料包含多个关键词时，以第一个匹配为准。未匹配的辅料保持来源顺序。</p>
+    <p>从上到下优先匹配物料名称；同一物料包含多个关键词时，以第一个匹配为准。未匹配的辅料保持来源顺序。</p>
     <p className="sp-settings-meta">{base.configured?'团队版本 '+base.version:'尚未配置，保持来源顺序'}{base.updatedBy?' · '+base.updatedBy:''}{!canEdit?' · 当前只读':''}</p>
     {read.error&&<p role="alert">最新设置暂不可读取，已暂停修改；不会回退到浏览器设置。</p>}
     {read.settings&&read.settings.version>base.version&&<p role="status">其他人已更新团队设置；你的输入已保留。<Button variant="text" disabled={saving||Boolean(pending)} onClick={reload}>放弃本次修改并读取最新</Button></p>}
     {canEdit&&<div className="sp-keyword-add"><label htmlFor="trim-priority-keyword">包含关键词</label><input id="trim-priority-keyword" className="qc-control" value={keyword} maxLength={80} disabled={saving||Boolean(pending)} placeholder="例如：线、拉链" onChange={event=>setKeyword(event.target.value)} onKeyDown={event=>{if(event.key==='Enter'){event.preventDefault();add();}}}/><Button variant="secondary" onClick={add} disabled={saving||Boolean(pending)||!keyword.trim()}>添加</Button></div>}
     <ol className="sp-keyword-list" aria-label="辅料关键词优先级">{draft.map((value,index)=><li key={value}><span className="sp-keyword-rank">{index+1}</span><strong>{value}</strong>{canEdit&&<div><Button variant="text" size="compact" aria-label={'上移 '+value} disabled={saving||Boolean(pending)||index===0} onClick={()=>move(index,-1)}>上移</Button><Button variant="text" size="compact" aria-label={'下移 '+value} disabled={saving||Boolean(pending)||index===draft.length-1} onClick={()=>move(index,1)}>下移</Button><Button variant="text" size="compact" aria-label={'删除 '+value} disabled={saving||Boolean(pending)} onClick={()=>setDraft(items=>items.filter((_,i)=>i!==index))}>删除</Button></div>}</li>)}</ol>
     {!draft.length&&<p>暂无优先级关键词。</p>}
-    <div className="sp-settings-actions">{canEdit&&<Button onClick={()=>void save()} disabled={saving||Boolean(keyword.trim())||!dirty&&!pending}>{saving?'保存中…':pending?'用原请求重试':'保存排列'}</Button>}<Button variant="secondary" onClick={()=>navigate(back)}>返回物料</Button></div>
+    <div className="sp-settings-actions">{canEdit&&<Button onClick={()=>void save()} disabled={saving||Boolean(keyword.trim())||!dirty&&!pending}>{saving?'保存中…':pending?'用原请求重试':'保存排列'}</Button>}<Button variant="secondary" onClick={()=>navigate(back)}>{route?'返回物料跟进':'返回订单列表'}</Button></div>
    </>}
    {message&&<p role="status">{message}</p>}{pending&&!saving&&<p role="alert">保存结果待确认，输入已锁定。请用原请求重试，避免覆盖他人的新设置。</p>}
   </Card>
