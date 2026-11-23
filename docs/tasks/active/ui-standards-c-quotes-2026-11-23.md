@@ -22,3 +22,5 @@
 - actual compact9/9 PASS。扩展完整Quote套件78项中71 PASS、7 FAIL（包括父级），实质三类：旧币种夹具PUT被拒、旧默认列遗漏confirmedGarment、1280旧严格列宽断言。未改动的main10b9以相同构建参数/原脚本在独立临时PG/Chromium逐项复现相同三类和相同1280 table1104/container1021，计数同为71/78；不能将该套件写为全PASS。
 - 完整Quote套件实际上传、快照/版本、计算同步、权限、客户XLSX/ZIP及审计多项通过；三类既有失败未按本轮文案需求修改业务逻辑、冻结列宽或用户待定D03。保留既有阻塞，不以compact或root替代完整验收。对照worktree无源码改动，main未移动。
 - Staging原备份恢复门禁仍不PASS，未部署、未合并、未操作Production或真实业务数据。等待用户集中验收/另行决定既有阻塞范围。
+
+远端team-access正确阻止旧Q09副标题等待。779cb3a7仅将该等待改为实际操作记录标题，继续验证合成报价事件/修改前后/关联详情，不删审计断言；owned Chrome沿已验证compact采用stdio=ignore，仍需实际关闭并清理专有profile。最新team8/8 PASS（24796ms），产品构建未改；旧CI失败保留，更新PR169再核实CI。
