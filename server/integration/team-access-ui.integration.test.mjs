@@ -24,9 +24,10 @@ test("First team production-built UI uses trusted session, existing layout and s
  try{
   const profile=join(temp,"profile");
   let launchError,chromiumEndpoint;let diagnostics="";
-  browser=spawn(process.env.CHROME_PATH??(process.platform==="win32"?"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe":"google-chrome"),["--headless=new","--no-first-run","--no-default-browser-check","--remote-debugging-port=0","--user-data-dir="+profile,"about:blank"],{stdio:["ignore","ignore","pipe"],windowsHide:true});
+  // Match the compact fixture: no inherited stderr pipe can delay owned-child close on Windows.
+  browser=spawn(process.env.CHROME_PATH??(process.platform==="win32"?"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe":"google-chrome"),["--headless=new","--no-first-run","--no-default-browser-check","--remote-debugging-port=0","--user-data-dir="+profile,"about:blank"],{stdio:"ignore",windowsHide:true});
   browser.on("error",error=>{launchError=error;});
-  browser.stderr.on("data",chunk=>{diagnostics=(diagnostics+String(chunk)).slice(-4096);});
+  browser.stderr?.on("data",chunk=>{diagnostics=(diagnostics+String(chunk)).slice(-4096);});
   try {
     // Only browser readiness gets a longer budget; page/business assertions keep 15s.
     // This fresh temporary profile has no credentials or business data at startup.
