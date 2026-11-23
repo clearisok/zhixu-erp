@@ -22,3 +22,12 @@ D01–D10不实施，原12项必要设计保留。不改业务逻辑/数据/权�
 
 ## 验证
 实现后待最终检查，不预写PASS。Staging仍0752，原RECOVERY_BLOCKED / backup_cleanup_unverified，originalFault backup_failed_requires_review；未恢复/切版/重启Worker。Production禁止，不自动合并PR。
+
+## 工程收口
+产品首次b52a7314505b1fd22b90708f7c01f4782f946f77；55175716将唯一关键词标题保留在已加载字段分支（首轮标题提前出现，五个依赖就绪的物料用例连带失败，已真实修正，未放宽断言）。后续bba12e54仅将旧订单权限文案断言更新为单一ErrorState，401/403和无Browser回退断言保持。
+
+typecheck、完整lint、最新Server frontend build通过；release182/182 PASS（141982ms）；纠正后root1028/1028 PASS（158192ms），含新增脱敏错误映射及上海跨日两项。原root1027/1028旧“没有订单查看权限”文案断言失败保留，不计PASS。
+
+实际built Server+合成PG/专有Chrome：最新55175716 compact+物料21/21 PASS（99825ms），含GET重读不触发采集、401/403/网络分工、上海时间/原dateTime、有/无orderId返回名称、单一标题、1440/390零生产组空态。关账18/18及排单37/37在前一b52产品构建通过，后续唯一UI变化只在进度设置标题加载位置；全年度/筛选/金额、丢回执、原请求、并发/撤权/历史/精确小数/响应宽度均保留。
+
+10个产品路径（含显示反馈TS helper）按V3精确登记，无API/SQL/schema/业务公式/数据/权限变化。原source capture保持单独ServerContractRefresh，GET重读只state.reload。Staging原恢复门禁阻塞，不部署/合并/Production。
