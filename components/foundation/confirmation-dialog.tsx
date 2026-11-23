@@ -6,7 +6,7 @@ import { Modal } from "./modal";
 import { UnsavedDraftDialog } from "./guarded-draft";
 
 type Confirmation = { kind: "discard"; entityLabel: string; description: string; confirmLabel?: string }
-  | { kind: "danger" | "confirm"; title: string; description: string; confirmLabel: string; cancelLabel?: string };
+  | { kind: "confirm"; title: string; description: string; confirmLabel: string; cancelLabel?: string };
 
 /** Presentation only: the feature retains its guards, request and command callback. */
 export function useConfirmationDialog() {
@@ -28,6 +28,6 @@ export function useConfirmationDialog() {
   };
   const confirmationDialog = request?.kind === "discard"
     ? <UnsavedDraftDialog open entityLabel={request.entityLabel} description={request.description} discardLabel={request.confirmLabel} onKeepEditing={() => respond(false)} onDiscard={() => respond(true)} />
-    : <Modal open={Boolean(request)} title={request?.title ?? "确认操作"} description={request?.description} onClose={() => respond(false)} footer={<><Button variant="secondary" onClick={() => respond(false)}>{request?.cancelLabel ?? "取消"}</Button><Button variant={request?.kind === "danger" ? "danger" : "primary"} onClick={() => respond(true)}>{request?.confirmLabel ?? "确认"}</Button></>}><></></Modal>;
+    : <Modal open={Boolean(request)} title={request?.title ?? "确认操作"} description={request?.description} onClose={() => respond(false)} footer={<><Button variant="secondary" onClick={() => respond(false)}>{request?.cancelLabel ?? "取消"}</Button><Button onClick={() => respond(true)}>{request?.confirmLabel ?? "确认"}</Button></>}><></></Modal>;
   return { confirmAction, confirmationDialog };
 }

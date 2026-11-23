@@ -154,9 +154,9 @@ export function BrandSettingsPage({serverCandidate=false,serverProduction=false,
     const item = { ...quickTrimDraft, name: quickTrimDraft.name.trim(), unit: quickTrimDraft.unit.trim() };
     try{const saved=await persist(upsertTrimLibraryItem(state, item));setDraft({ ...draft, defaults: appendDefaultTrim(draft.defaults, saved.createdId??item.id) });setQuickTrimDraft(null);notify(`辅料“${item.name}”已保存到辅料库并选用`);}catch(nextError){setQuickTrimError(mutationMessage(nextError));}
   };
-  const remove = async (brand: BrandRecord) => {
+  const remove = (brand: BrandRecord) => {
     if (!canManage) return;
-    if (!await confirmAction({kind:"danger",title:"删除品牌",description:`确定删除品牌“${brand.name}”吗？归属该品牌的客户业务员也会删除。`,confirmLabel:"确认删除"})) return;
+    if (!window.confirm(`确定删除品牌“${brand.name}”吗？归属该品牌的客户业务员也会删除。`)) return;
     persist(deleteBrand(state, brand.id));
     notify(`已删除 ${brand.name}`);
   };
@@ -250,9 +250,9 @@ export function CustomerSalespeopleSettingsPage({serverCandidate=false,serverPro
     try{const saved=await persist(upsertTrimLibraryItem(state,item));setDraft({ ...draft, defaults: appendDefaultTrim(draft.defaults, saved.createdId??item.id) });setQuickTrimDraft(null);notify(`辅料“${item.name}”已保存到辅料库并选用`);}catch(nextError){setQuickTrimError(mutationMessage(nextError));}
   };
   const copy = async (item: CustomerSalespersonRecord) => { if (!canManage) return;try{await persist(copyCustomerSalesperson(state,item.id,createMasterDataId("sales-copy")));notify(`已复制 ${item.name}`);}catch(nextError){setError(mutationMessage(nextError));} };
-  const remove = async (item: CustomerSalespersonRecord) => {
+  const remove = (item: CustomerSalespersonRecord) => {
     if (!canManage) return;
-    if (!await confirmAction({kind:"danger",title:"删除客户业务员",description:`确定删除客户业务员“${item.name}”吗？`,confirmLabel:"确认删除"})) return;
+    if (!window.confirm(`确定删除客户业务员“${item.name}”吗？`)) return;
     persist(deleteCustomerSalesperson(state, item.id));
     notify(`已删除 ${item.name}`);
   };
@@ -301,9 +301,9 @@ export function FabricLibraryPage({serverCandidate=false,serverProduction=false,
       notify("面料资料已保存");
     } catch (nextError) { setError(mutationMessage(nextError)); }
   };
-  const remove = async (item: FabricLibraryItem) => {
+  const remove = (item: FabricLibraryItem) => {
     if (!canManage) return;
-    if (!await confirmAction({kind:"danger",title:"删除面料",description:`确定删除面料“${item.name}”吗？历史报价快照不会受影响。`,confirmLabel:"确认删除"})) return;
+    if (!window.confirm(`确定删除面料“${item.name}”吗？历史报价快照不会受影响。`)) return;
     persist(deleteFabricLibraryItem(state, item.id));
     notify(`已删除 ${item.name}`);
   };
@@ -348,9 +348,9 @@ export function TrimLibraryPage({serverCandidate=false,serverProduction=false,on
       notify("辅料资料已保存");
     } catch (nextError) { setError(mutationMessage(nextError)); }
   };
-  const remove = async (item: TrimLibraryItem) => {
+  const remove = (item: TrimLibraryItem) => {
     if (!canManage) return;
-    if (!await confirmAction({kind:"danger",title:"删除辅料",description:`确定删除辅料“${item.name}”吗？默认配置中的引用会同步移除。`,confirmLabel:"确认删除"})) return;
+    if (!window.confirm(`确定删除辅料“${item.name}”吗？默认配置中的引用会同步移除。`)) return;
     persist(deleteTrimLibraryItem(state, item.id));
     notify(`已删除 ${item.name}`);
   };

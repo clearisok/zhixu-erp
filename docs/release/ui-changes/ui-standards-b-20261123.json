@@ -25,7 +25,7 @@
     "user-permissions",
     "closing-adjustment"
   ],
-  "visibleDifference": "G05搜索上下文及实际listbox关联；G06稳定反馈ID和显式接口；G07五模块八处Foundation Checkbox；G08十四处既有确认统一Modal/UnsavedDraftDialog，原请求确认单独保留。",
+  "visibleDifference": "G05搜索上下文及实际listbox关联；G06稳定反馈ID和显式接口；G07五模块八处Foundation Checkbox；G08十处既有确认统一Modal/UnsavedDraftDialog，原请求确认单独保留。",
   "evidence": [
     "docs/tasks/active/ui-standards-b-2026-11-23.md"
   ],
