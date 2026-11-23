@@ -1,10 +1,9 @@
-# 当前项目入口
+# Issue165 UI规范整改：批次B共享控件
 
-2026-11-20；PR160已正式合并，main代码整合基线 **4e1f9a514c8ff6e9cf7289d724df33c32bc05368**。用户已验收订单删除及Staging自动同步。后续仅文档收尾，开始下一任务必须核实最新origin/main。
+2026-11-23；当前main与PR比较基线 **10b9a7d827e1c09f152ead58c21f26712d49a619**，已由GitHub核实。用户明确批准原报告v1全部38项自动分批、测试、独立PR及满足原发布条件后仅Staging；不实施10项争议，不自动合并，不改业务/数据/权限。
 
-1. [当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[PR160最终验收与代理方案](tasks/completed/pr160-final-acceptance-2026-11-20.md)。
-2. [Issue161恢复与510任务证据](tasks/active/staging-selected-source-recovery-2026-11-20.md)、[Issue159删除生命周期与部署历史](tasks/active/ainuoke-source-deleted-2026-11-20.md)。两文档保留原日期/阶段限制，最终状态以本次独立收尾记录和当前状态为准。
-3. [订单中心](features/ORDER_CENTER.md)、[同步审计](features/AINUOKE_SYNC_AUDIT.md)、[监管runbook](ops/ainuoke-catalog-sync-supervisor.md)、[业务规则](BUSINESS_RULES.md)、[决策](DECISION_LOG.md)、[发布基线](features/RELEASE_BASELINE_GUARD.md)。
-4. [合并前摘要逐字归档](tasks/completed/2026-11-20-pr160-before-final-acceptance/CURRENT_STATE.md)、[此前c3阶段](tasks/completed/2026-11-20-before-selected-source-recovery/CURRENT_STATE.md)、[产品管理](product-management/WORKFLOW.md)、[既有Git交付协议](tasks/active/git-delivery-resilience.md)。
+[用户批准](tasks/active/ui-standards-approval-2026-11-23.md)、[本批恢复点与验证](tasks/active/ui-standards-b-2026-11-23.md)、[报告PR166](https://github.com/clearisok/zhixu-erp/pull/166)、[原摘要归档](tasks/completed/2026-11-23-before-ui-standards/CURRENT_STATE.md)。
 
-实际Staging仍为已验收0752，Git合并不等于重新部署；本轮禁止Production、Worker重启和业务DB变更。Issue159/161验收与PR合并分别留痕，旧原始失败raw缺失不补造；未知结果、身份和完整分页保护继续生效。本轮没有新功能开发。
+1. [当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[本批执行](tasks/active/ui-standards-b-2026-11-23.md)。
+2. [Foundation](features/UI_FOUNDATION.md)、[发布基线](features/RELEASE_BASELINE_GUARD.md)、[业务规则](BUSINESS_RULES.md)、[决策](DECISION_LOG.md)。
+3. [产品管理](product-management/WORKFLOW.md)、[原索引](tasks/completed/2026-11-23-before-ui-standards/PROJECT_INDEX.md)、[PR160既有验收](tasks/completed/pr160-final-acceptance-2026-11-20.md)。

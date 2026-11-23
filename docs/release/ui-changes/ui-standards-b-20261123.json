@@ -1,0 +1,36 @@
+{
+  "baselineSha": "10b9a7d827e1c09f152ead58c21f26712d49a619",
+  "level": "V3",
+  "paths": [
+    "components/foundation/form-item.tsx",
+    "components/foundation/guarded-draft.tsx",
+    "components/foundation/index.ts",
+    "components/foundation/searchable-select.tsx",
+    "features/basic-settings/components/basic-settings-pages.tsx",
+    "features/closing-center/components/server-closing-source-dialog.tsx",
+    "features/order-center/components/processing-batch-dialog.tsx",
+    "features/permissions/components/server-role-page.tsx",
+    "features/quote-center/components/global-quote-settings-page.tsx",
+    "features/quote-center/components/production-quote-list-page.tsx",
+    "features/quote-center/components/quote-base-info.tsx",
+    "features/quote-center/components/quote-settings-modals.tsx",
+    "features/quote-center/components/server-summary-modal.tsx",
+    "components/foundation/confirmation-dialog.tsx"
+  ],
+  "pages": [
+    "navigation",
+    "quote-list",
+    "quote-detail",
+    "quote-settings",
+    "user-permissions",
+    "closing-adjustment"
+  ],
+  "visibleDifference": "G05搜索上下文及实际listbox关联；G06稳定反馈ID和显式接口；G07五模块八处Foundation Checkbox；G08十四处既有确认统一Modal/UnsavedDraftDialog，原请求确认单独保留。",
+  "evidence": [
+    "docs/tasks/active/ui-standards-b-2026-11-23.md"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/ui-standards-approval-2026-11-23.md"
+  }
+}

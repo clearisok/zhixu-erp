@@ -2,6 +2,7 @@ export * from "./app-shell";
 export * from "./button";
 export * from "./card";
 export * from "./checkbox";
+export * from "./confirmation-dialog";
 export * from "./creatable-combobox";
 export * from "./data-table";
 export * from "./drawer";

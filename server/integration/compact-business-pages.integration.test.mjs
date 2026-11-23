@@ -78,9 +78,19 @@ test('compact business pages: actual headers, prices, routes, permissions and de
    assert.ok(rows.every(r=>!r.calculated?.includes('确认')&&!r.calculated?.includes('91.25')&&!r.calculated?.includes('108.75')));await screenshot('confirmation-three-states-synthetic');evidence.checks.push('three real persisted synthetic confirmation states and multi-price range');
   });
   await t.test('topbar more menu and settings dialog, original column modes, direct creation and route cleanup',async()=>{
-   await click('更多报价操作');await click('列表页面设置');await has('列表页面设置');await screenshot('quote-list-settings');await click('取消');
+   await click('更多报价操作');await click('列表页面设置');await has('列表页面设置');
+   assert.equal(await evaluate("[...document.querySelectorAll('[role=dialog] input[type=checkbox]')].every(n=>n.classList.contains('qc-checkbox'))"),true);
+   await evaluate("const n=document.querySelector('.qc-column-width-settings input');n.focus();n.select()");await command('Input.dispatchKeyEvent',{type:'keyDown',key:'Backspace',windowsVirtualKeyCode:8});await command('Input.dispatchKeyEvent',{type:'keyUp',key:'Backspace',windowsVirtualKeyCode:8});await command('Input.insertText',{text:'9999'});
+   await until(()=>evaluate("document.querySelector('.qc-column-width-settings input')?.getAttribute('aria-invalid')==='true'"),'width error');
+   assert.equal(await evaluate("(()=>{const n=document.querySelector('.qc-column-width-settings input'),message=document.getElementById(n.getAttribute('aria-describedby')),label=document.getElementById(n.getAttribute('aria-labelledby'));return !!message?.textContent.trim()&&!!label?.textContent.trim()})()"),true);
+   assert.equal(await evaluate("document.querySelector('[role=dialog] button[type=submit]').disabled"),true);await screenshot('quote-list-settings');await click('取消');
    await click('更多报价操作');await click('独立字段视图');await has('客户确认价格');await click('更多报价操作');await click('原版组合视图');await has('客户确认');
    await click('＋ 新建报价');await until(()=>evaluate('location.pathname==="/quote-center/detail"'),'actual quote creation');await has('保存');
+   await until(()=>evaluate("!!document.querySelector('.qc-base-card .qc-select-trigger:not([disabled])')"),'brand select ready');
+   await evaluate("document.querySelector('.qc-base-card .qc-select-trigger').click()");await until(()=>evaluate("!!document.querySelector('input[role=combobox][aria-label=搜索品牌]')"),'context named search');
+   assert.equal(await evaluate("(()=>{const n=document.querySelector('input[role=combobox][aria-label=搜索品牌]');return document.getElementById(n.getAttribute('aria-controls'))?.getAttribute('role')})()"),'listbox');
+   await evaluate("document.querySelector('input[role=combobox][aria-label=搜索品牌]').dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',isComposing:true,bubbles:true}))");assert.equal(await evaluate("!!document.querySelector('input[role=combobox][aria-label=搜索品牌]')"),true);
+   await command('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});await command('Input.dispatchKeyEvent',{type:'keyUp',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
    assert.equal(await evaluate('Boolean(document.querySelector(".ops-page-actions")?.innerText.includes("新建报价"))'),false);
   });
   await t.test('quote pagination and filters and actual order query/sort/pagination controls remain',async()=>{
@@ -110,6 +120,18 @@ test('compact business pages: actual headers, prices, routes, permissions and de
   await t.test('restricted real session cannot receive or render protected calculated or confirmed amount fields',async()=>{
    await login('demo.material');await navigate('/quote-center');await has('报价中心');
    assert.equal(await evaluate('document.querySelectorAll("[data-column-key=garmentPrice],[data-column-key=confirmedGarment]").length'),0);assert.equal(await evaluate('document.body.innerText.includes("91.25")||document.body.innerText.includes("108.75")'),false);await screenshot('restricted-material-role');
+  });
+  await t.test('Issue165 B: role discard uses shared confirmation, keeps cancelled input and never writes permissions',async()=>{
+   await login('demo.admin');await navigate('/system-settings/roles');await has('角色列表');
+   await until(()=>evaluate("[...document.querySelectorAll('.qc-permission-user-records button')].some(n=>!n.innerText.includes('系统保护'))"),'editable role');
+   await evaluate("[...document.querySelectorAll('.qc-permission-user-records button')].find(n=>!n.innerText.includes('系统保护')).click()");await has('角色名称');
+   assert.equal(await evaluate("[...document.querySelectorAll('.qc-permission-groups input[type=checkbox]')].every(n=>n.classList.contains('qc-checkbox'))"),true);
+   await evaluate("window.dialogWrites=0;const prior=window.fetch;window.fetch=(...a)=>{if(!['GET','HEAD'].includes((a[1]?.method??'GET').toUpperCase()))window.dialogWrites++;return prior(...a);};const n=document.querySelector('.qc-permission-account-fields input');n.focus();n.select()");
+   await command('Input.dispatchKeyEvent',{type:'keyDown',key:'Backspace',windowsVirtualKeyCode:8});await command('Input.dispatchKeyEvent',{type:'keyUp',key:'Backspace',windowsVirtualKeyCode:8});await command('Input.insertText',{text:'合成未保存角色草稿'});
+   await click('返回角色列表');await has('角色权限有未保存修改');await click('继续编辑');
+   await until(()=>evaluate("!document.querySelector('[role=dialog]')"),'keep draft');assert.equal(await evaluate("document.querySelector('.qc-permission-account-fields input').value"),'合成未保存角色草稿');
+   await click('返回角色列表');await has('角色权限有未保存修改');await click('放弃修改');await has('选择一个角色');
+   assert.equal(await evaluate('window.dialogWrites'),0);await screenshot('ui165-b-role-discard');
   });
   assert.deepEqual(x.errors,[]);assert.deepEqual(errors,[]);await writeFile(join(dir,'results.json'),JSON.stringify(evidence,null,2)+'\n');
  }finally{
