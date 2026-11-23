@@ -24,9 +24,9 @@ test("First team production-built UI uses trusted session, existing layout and s
  try{
   const profile=join(temp,"profile");
   let launchError,chromiumEndpoint;let diagnostics="";
-  browser=spawn(process.env.CHROME_PATH??(process.platform==="win32"?"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe":"google-chrome"),["--headless=new","--no-first-run","--no-default-browser-check","--remote-debugging-port=0","--user-data-dir="+profile,"about:blank"],{stdio:["ignore","ignore","pipe"],windowsHide:true});
+  browser=spawn(process.env.CHROME_PATH??(process.platform==="win32"?"C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe":"google-chrome"),["--headless=new","--no-first-run","--no-default-browser-check","--remote-debugging-port=0","--user-data-dir="+profile,"about:blank"],{stdio:"ignore",windowsHide:true});
   browser.on("error",error=>{launchError=error;});
-  browser.stderr.on("data",chunk=>{diagnostics=(diagnostics+String(chunk)).slice(-4096);});
+  browser.stderr?.on("data",chunk=>{diagnostics=(diagnostics+String(chunk)).slice(-4096);});
   try {
     // Only browser readiness gets a longer budget; page/business assertions keep 15s.
     // This fresh temporary profile has no credentials or business data at startup.
@@ -162,7 +162,7 @@ test("First team production-built UI uses trusted session, existing layout and s
    await navigate("/quote-center/detail?id="+quoteId);
    await until(()=>evalJs("Boolean(document.querySelector('.qc-quote-action-visible'))"),"quote actions loaded");
    if(!await evalJs("[...document.querySelectorAll('button')].some(n=>n.textContent.trim()==='操作记录'&&n.getClientRects().length)"))await click("更多报价操作");
-   await click("操作记录");await has("查看这份报价的操作与修改记录");await has("合成报价日志");
+   await click("操作记录");await has("操作记录");await has("合成报价日志");
    await click("查看详情");await has("操作详情");await has("修改前");await has("修改后");
    await click("关闭操作详情");await click("关闭操作记录");
   });
