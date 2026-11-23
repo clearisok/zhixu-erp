@@ -26,3 +26,8 @@
 - 保留失败/中断：71fdc552 Linux全检查因实现收窄后源码被替代而取消（未计PASS）；首轮closing未传EXPECTED_SOURCE被正确拒绝，team所有子项通过但Chromium清理超时。未改产品或放宽清理，补源码标识并串行26/26通过。
 - 原四个Browser-only删除函数逐字恢复main；本批正式路径确认共10处。不以外部分支A测试代替本批结果。
 - 本批无Server/API/SQL/schema/业务数据修改。Staging因原备份恢复门禁不部署，Production未操作。
+
+## 远端CI发现后的G08收口
+初次远端source在外部未索引历史场景要求原生confirm计数1；改为实际共享确认操作后，进一步复现本批新交互问题：Shell异步transition等待确认Promise，导致确认弹窗等待自身确认才显示。没有删除该用例。74b175edbfc609b1c60de57ad668c1437cd0c4f7修正角色页/报价设置页的展示调用：不向Shell返回等待弹窗的Promise，接受后通过已有useServerNavigationProtection返回的scope/owner绑定permit再路由。pending/busy、mounted、身份、dirty规则不变，未修改共享Shell/路由/数据或权限判断。
+
+最新真实built Server+临时PG/专有Chrome：closing、compact（含新增报价设置导航取消/接受/0原生二次确认/0写入）、导航连续性、team-access串行62/62 PASS，134137ms。外部历史原条目/草稿保留、一次新文档导航及迟到创建回执跨会话隔离均通过。测试57b3ebc9显式恢复1440 viewport，避免组合前序窄屏条件影响菜单可见性，不改产品/断言。74b175ed typecheck/lint/build、release182/182（135808ms）、root1026/1026（139560ms）、14路径guard PASS；后续只有测试/证据文档。旧CI和复现失败保留，最终CI以更新PR168为准。

@@ -1,9 +1,5 @@
-# Issue165 UI规范整改：批次B共享控件
+# Issue165批次B工程交付
 
-2026-11-23；当前main与PR比较基线 **10b9a7d827e1c09f152ead58c21f26712d49a619**，已由GitHub核实。用户明确批准原报告v1全部38项自动分批、测试、独立PR及满足原发布条件后仅Staging；不实施10项争议，不自动合并，不改业务/数据/权限。
+2026-11-23；当前main/PR基线 **10b9a7d827e1c09f152ead58c21f26712d49a619**。G05–G08四项已实现并完成CI发现的异步确认事务修正；[PR168](https://github.com/clearisok/zhixu-erp/pull/168)、[本批验证](tasks/active/ui-standards-b-2026-11-23.md)、[用户批准](tasks/active/ui-standards-approval-2026-11-23.md)、[原索引](tasks/completed/2026-11-23-before-ui-standards/PROJECT_INDEX.md)。
 
-[用户批准](tasks/active/ui-standards-approval-2026-11-23.md)、[本批恢复点与验证](tasks/active/ui-standards-b-2026-11-23.md)、[报告PR166](https://github.com/clearisok/zhixu-erp/pull/166)、[原摘要归档](tasks/completed/2026-11-23-before-ui-standards/CURRENT_STATE.md)。
-
-恢复分支fix/ui-standards-b，起点clean/main同上。G05控件命名、G06显式反馈关联、G07八处Checkbox、G08十处确认已实现；pending/busy/dirty及原请求语义保留。先完成测试/精确影响门禁/checkpoint/PR，不预写PASS。A分支只含其自身七项，Staging原阻塞与0752保持。每批工程/远端/部署分开记录；剩余沿原C按模块独立PR，10争议不动。
-
-本批最终工程：typecheck/lint/build、root1026、baseline182、exact guard14路径、真实compact10与team/closing26均PASS；详细限制/失败与恢复见本批记录。远端最终checkpoint/PR待核实；Staging原恢复门禁阻塞，未部署。
+最新产品74b175ed：typecheck/lint/build、release182、root1026、guard14路径、真实四套串行62均PASS；最终提交/远端CI以Issue165最终回执和PR168为准，不以早期结果代替新CI。其他批次独立PR167/169/170/171，10争议不实施。Staging0752原RECOVERY_BLOCKED/backup_cleanup_unverified阻塞，未部署/合并/Production，未改业务/数据/权限。
