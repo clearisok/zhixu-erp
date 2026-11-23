@@ -15,3 +15,10 @@
 
 ## 验证
 代码修改后待检查，不预写PASS。Staging既有RECOVERY_BLOCKED / backup_cleanup_unverified（originalFault backup_failed_requires_review）仍阻断，未切版/恢复/重启；Production禁止。
+
+## 工程收口
+- 产品源码37379356851a56c3cc19844d66b10c68830b5e57，后续6e29bc82仅更新粘贴区既有测试的过期文案断言；仍检查区域限定监听、无document全局粘贴、预览contain等原约束，未跳过用例。
+- typecheck、完整lint、Server frontend build PASS；显式release182/182 PASS；纠正后完整root1026/1026 PASS。初轮root1025/1026因旧“直接Ctrl+V”断言失败如实保留，不是业务逻辑失败。精确源码门禁待最终checkpoint核实。
+- actual compact9/9 PASS。扩展完整Quote套件78项中71 PASS、7 FAIL（包括父级），实质三类：旧币种夹具PUT被拒、旧默认列遗漏confirmedGarment、1280旧严格列宽断言。未改动的main10b9以相同构建参数/原脚本在独立临时PG/Chromium逐项复现相同三类和相同1280 table1104/container1021，计数同为71/78；不能将该套件写为全PASS。
+- 完整Quote套件实际上传、快照/版本、计算同步、权限、客户XLSX/ZIP及审计多项通过；三类既有失败未按本轮文案需求修改业务逻辑、冻结列宽或用户待定D03。保留既有阻塞，不以compact或root替代完整验收。对照worktree无源码改动，main未移动。
+- Staging原备份恢复门禁仍不PASS，未部署、未合并、未操作Production或真实业务数据。等待用户集中验收/另行决定既有阻塞范围。
