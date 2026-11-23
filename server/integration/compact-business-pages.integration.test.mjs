@@ -133,6 +133,12 @@ test('compact business pages: actual headers, prices, routes, permissions and de
    await click('返回角色列表');await has('角色权限有未保存修改');await click('放弃修改');await has('选择一个角色');
    assert.equal(await evaluate('window.dialogWrites'),0);await screenshot('ui165-b-role-discard');
   });
+  await t.test('Issue165 B: settings navigation commits its discard dialog and never falls back to a second native prompt',async()=>{
+   await login('demo.admin');await navigate('/system-settings/quote-settings');await has('新建报价默认值');await until(()=>evaluate("![...document.querySelectorAll('button')].find(n=>n.textContent.trim()==='保存报价设置')?.disabled"),'loaded settings');
+   const next=await evaluate("[...document.querySelectorAll('button')].find(n=>n.textContent.trim()==='加工报价').classList.contains('selected')?'经销报价':'加工报价'");await click(next);
+   await evaluate("window.navigationWrites=0;const previous=window.fetch;window.fetch=(...a)=>{if(!['GET','HEAD'].includes((a[1]?.method??'GET').toUpperCase()))window.navigationWrites++;return previous(...a);};window.nativeConfirmCount=0;window.originalConfirm=window.confirm;window.confirm=()=>{window.nativeConfirmCount++;return false;}");
+   try{await click('报价中心');await has('报价设置有未保存修改');await screenshot('ui165-b-settings-navigation-discard');await click('继续编辑');await until(()=>evaluate("!document.querySelector('[role=dialog]')"),'settings draft kept');assert.equal(await evaluate('location.pathname'),'/system-settings/quote-settings');assert.equal(await evaluate("[...document.querySelectorAll('button')].find(n=>n.textContent.trim()==="+JSON.stringify(next)+").classList.contains('selected')"),true);await click('报价中心');await has('报价设置有未保存修改');await click('放弃修改');await until(()=>evaluate('location.pathname==="/quote-center"'),'confirmed settings departure');await has('＋ 新建报价');assert.equal(await evaluate('window.nativeConfirmCount'),0);assert.equal(await evaluate('window.navigationWrites'),0);}finally{await evaluate('if(window.originalConfirm)window.confirm=window.originalConfirm');}
+  });
   assert.deepEqual(x.errors,[]);assert.deepEqual(errors,[]);await writeFile(join(dir,'results.json'),JSON.stringify(evidence,null,2)+'\n');
  }finally{
   try { await stopOwnedChromium(chrome,{gracefulClose:()=>ws?.send(JSON.stringify({id:++id,method:'Browser.close'})),graceMs:10000,exitMs:10000}); }
