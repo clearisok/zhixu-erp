@@ -1,9 +1,7 @@
-# Issue165 批次C3订单、物料、排单与关账10项
+# Issue165 UI规范整改交付
 
-2026-11-23；当前main与PR基线 **10b9a7d827e1c09f152ead58c21f26712d49a619**，本轮GitHub核实。已批准38项自动分批，10争议不实施。
+2026-11-23；main/PR基线 **10b9a7d827e1c09f152ead58c21f26712d49a619**。用户批准的38项已按原方案分五批实现：PR167（7）、168（4）、169（6）、170（11）、171（10）。10争议不实施，未自动合并。
 
-[用户批准](tasks/active/ui-standards-approval-2026-11-23.md)、[本批范围/验证](tasks/active/ui-standards-c-operations-2026-11-23.md)、[报告PR166](https://github.com/clearisok/zhixu-erp/pull/166)、[原索引](tasks/completed/2026-11-23-before-ui-standards/PROJECT_INDEX.md)。
+[逐项清单、测试与发布阻塞](tasks/active/ui-standards-delivery-2026-11-23.md)、[本批记录](tasks/active/ui-standards-c-operations-2026-11-23.md)、[用户批准](tasks/active/ui-standards-approval-2026-11-23.md)、[规范/原报告PR166](https://github.com/clearisok/zhixu-erp/pull/166)、[历史状态](tasks/completed/2026-11-23-before-ui-standards/CURRENT_STATE.md)。
 
-O01–O04、M02–M05、P02、C01已实现，fix/ui-standards-c-operations独立分支，仅本批。最终测试与PR待收口，其他批次不混入。Staging0752原备份恢复门禁阻塞，未切版；Production禁止、不自动合并。
-
-本批typecheck/lint/build、root1028、release182通过；最新compact/物料21通过，关账18/排单37在对应产品构建通过。先修正标题加载位置再重测，原失败保留；Staging原恢复门禁阻塞，未部署。
+各批工程与远端/CI分别核实；B导航确认修复和最终组合结果以Issue165最终回执为准。扩展Quote套件三类失败已在无修改main复现，未掩盖。Staging仍0752，原RECOVERY_BLOCKED/backup_cleanup_unverified保护阻塞，未部署；当前线上不能验收本轮38项。Production未操作。
