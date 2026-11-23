@@ -78,9 +78,19 @@ test('compact business pages: actual headers, prices, routes, permissions and de
    assert.ok(rows.every(r=>!r.calculated?.includes('确认')&&!r.calculated?.includes('91.25')&&!r.calculated?.includes('108.75')));await screenshot('confirmation-three-states-synthetic');evidence.checks.push('three real persisted synthetic confirmation states and multi-price range');
   });
   await t.test('topbar more menu and settings dialog, original column modes, direct creation and route cleanup',async()=>{
-   await click('更多报价操作');await click('列表页面设置');await has('列表页面设置');await screenshot('quote-list-settings');await click('取消');
+   await click('更多报价操作');await click('列表页面设置');await has('列表页面设置');
+   assert.equal(await evaluate("[...document.querySelectorAll('[role=dialog] input[type=checkbox]')].every(n=>n.classList.contains('qc-checkbox'))"),true);
+   await evaluate("const n=document.querySelector('.qc-column-width-settings input');n.focus();n.select()");await command('Input.dispatchKeyEvent',{type:'keyDown',key:'Backspace',windowsVirtualKeyCode:8});await command('Input.dispatchKeyEvent',{type:'keyUp',key:'Backspace',windowsVirtualKeyCode:8});await command('Input.insertText',{text:'9999'});
+   await until(()=>evaluate("document.querySelector('.qc-column-width-settings input')?.getAttribute('aria-invalid')==='true'"),'width error');
+   assert.equal(await evaluate("(()=>{const n=document.querySelector('.qc-column-width-settings input'),message=document.getElementById(n.getAttribute('aria-describedby')),label=document.getElementById(n.getAttribute('aria-labelledby'));return !!message?.textContent.trim()&&!!label?.textContent.trim()})()"),true);
+   assert.equal(await evaluate("document.querySelector('[role=dialog] button[type=submit]').disabled"),true);await screenshot('quote-list-settings');await click('取消');
    await click('更多报价操作');await click('独立字段视图');await has('客户确认价格');await click('更多报价操作');await click('原版组合视图');await has('客户确认');
    await click('＋ 新建报价');await until(()=>evaluate('location.pathname==="/quote-center/detail"'),'actual quote creation');await has('保存');
+   await until(()=>evaluate("!!document.querySelector('.qc-base-card .qc-select-trigger:not([disabled])')"),'brand select ready');
+   await evaluate("document.querySelector('.qc-base-card .qc-select-trigger').click()");await until(()=>evaluate("!!document.querySelector('input[role=combobox][aria-label=搜索品牌]')"),'context named search');
+   assert.equal(await evaluate("(()=>{const n=document.querySelector('input[role=combobox][aria-label=搜索品牌]');return document.getElementById(n.getAttribute('aria-controls'))?.getAttribute('role')})()"),'listbox');
+   await evaluate("document.querySelector('input[role=combobox][aria-label=搜索品牌]').dispatchEvent(new KeyboardEvent('keydown',{key:'Enter',isComposing:true,bubbles:true}))");assert.equal(await evaluate("!!document.querySelector('input[role=combobox][aria-label=搜索品牌]')"),true);
+   await command('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});await command('Input.dispatchKeyEvent',{type:'keyUp',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
    assert.equal(await evaluate('Boolean(document.querySelector(".ops-page-actions")?.innerText.includes("新建报价"))'),false);
   });
   await t.test('quote pagination and filters and actual order query/sort/pagination controls remain',async()=>{
@@ -140,6 +150,34 @@ test('compact business pages: actual headers, prices, routes, permissions and de
    await command('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[point]});await command('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await has('暂无权限，请联系管理员');
    assert.equal(await evaluate("document.querySelector('[role=dialog] h2')?.textContent"),'操作权限');await screenshot('ui165-a-touch-permission');
    await press('Escape','Escape',27);await command('Emulation.setTouchEmulationEnabled',{enabled:false});
+  });
+  await t.test('Issue165 B: role discard uses shared confirmation, keeps cancelled input and never writes permissions',async()=>{
+   await login('demo.admin');await navigate('/system-settings/roles');await has('角色列表');
+   await until(()=>evaluate("[...document.querySelectorAll('.qc-permission-user-records button')].some(n=>!n.innerText.includes('系统保护'))"),'editable role');
+   await evaluate("[...document.querySelectorAll('.qc-permission-user-records button')].find(n=>!n.innerText.includes('系统保护')).click()");await has('角色名称');
+   assert.equal(await evaluate("[...document.querySelectorAll('.qc-permission-groups input[type=checkbox]')].every(n=>n.classList.contains('qc-checkbox'))"),true);
+   await evaluate("window.dialogWrites=0;const prior=window.fetch;window.fetch=(...a)=>{if(!['GET','HEAD'].includes((a[1]?.method??'GET').toUpperCase()))window.dialogWrites++;return prior(...a);};const n=document.querySelector('.qc-permission-account-fields input');n.focus();n.select()");
+   await command('Input.dispatchKeyEvent',{type:'keyDown',key:'Backspace',windowsVirtualKeyCode:8});await command('Input.dispatchKeyEvent',{type:'keyUp',key:'Backspace',windowsVirtualKeyCode:8});await command('Input.insertText',{text:'合成未保存角色草稿'});
+   await click('返回角色列表');await has('角色权限有未保存修改');await click('继续编辑');
+   await until(()=>evaluate("!document.querySelector('[role=dialog]')"),'keep draft');assert.equal(await evaluate("document.querySelector('.qc-permission-account-fields input').value"),'合成未保存角色草稿');
+   await click('返回角色列表');await has('角色权限有未保存修改');await click('放弃修改');await has('选择一个角色');
+   assert.equal(await evaluate('window.dialogWrites'),0);await screenshot('ui165-b-role-discard');
+  });
+  await t.test('Issue165 C3: material GET retry stays separate, source time and settings destinations are explicit, empty groups appear once',async()=>{
+   await login('demo.admin');
+   const intercept=await command('Page.addScriptToEvaluateOnNewDocument',{source:`(()=>{const original=window.fetch.bind(window);window.ui165MaterialMode='forbidden';window.ui165ReadRequests=[];window.ui165OriginalFetch=original;window.fetch=async(input,init)=>{const path=new URL(String(input),location.href).pathname,method=init?.method??'GET';if(path.startsWith('/api/'))window.ui165ReadRequests.push({path,method});if(path.endsWith('/material-progress')){if(window.ui165MaterialMode==='forbidden')return new Response('{}',{status:403});if(window.ui165MaterialMode==='network')throw new TypeError('synthetic disconnected');}return original(input,init);};})();`});
+   try{
+    await navigate('/order-center/server-detail?id='+x.orderId);await has('没有物料查看权限，请联系管理员。');
+    assert.equal(await evaluate('document.querySelectorAll(".oc-server-detail-material-summary [role=alert]").length'),1);
+    await evaluate('window.ui165MaterialMode="network"');await click('重新读取物料');await has('网络连接失败，未取得物料来源');
+    await evaluate('window.ui165MaterialMode="allow"');await click('重新读取物料');await until(()=>evaluate('Boolean(document.querySelector(".oc-server-detail-material-summary time[datetime]"))'),'source read time');
+    const read=await evaluate(`(()=>{const box=document.querySelector('.oc-server-detail-material-summary'),time=box.querySelector('time[datetime]');return {label:box.innerText,time:time.textContent,raw:time.dateTime,technical:box.querySelector('details time')?.textContent,requests:window.ui165ReadRequests};})()`);
+    assert.ok(read.label.includes('北京时间'));assert.equal(read.time,new Date(read.raw).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false}));assert.equal(read.technical,read.raw);
+    assert.equal(read.requests.filter(r=>r.method!=='GET').length,0,'reading never launches source capture');assert.ok(read.requests.filter(r=>r.path.endsWith('/material-progress')).length>=3);
+    await screenshot('material-read-retry-and-shanghai-time');
+   }finally{await command('Page.removeScriptToEvaluateOnNewDocument',{identifier:intercept.identifier});await evaluate('if(window.ui165OriginalFetch)window.fetch=window.ui165OriginalFetch');}
+   for(const contextual of [false,true]){await navigate('/system-settings/progress-settings'+(contextual?'?orderId='+x.orderId:''));await has('辅料关键词优先级');assert.equal(await evaluate('document.querySelector(".sp-settings-actions button:last-child")?.textContent'),contextual?'返回物料跟进':'返回订单列表');assert.equal(await evaluate('document.querySelectorAll(".sp-trim-settings [role=tablist]").length'),0);assert.equal(await evaluate('document.querySelectorAll(".sp-trim-settings h2").length'),1);}
+   for(const width of [1440,390]){await command('Emulation.setDeviceMetricsOverride',{width,height:900,deviceScaleFactor:1,mobile:false});await navigate('/production-scheduling');await has('暂无生产组');assert.equal(await evaluate('document.querySelectorAll(".qc-empty-state").length'),1);assert.equal(await evaluate('[...document.querySelectorAll("button")].filter(n=>n.textContent==="维护生产组"&&n.getClientRects().length).length'),1);assert.equal(await evaluate('document.documentElement.scrollWidth>innerWidth+1'),false);await screenshot('single-empty-groups-'+width);}
   });
   assert.deepEqual(x.errors,[]);assert.deepEqual(errors,[]);await writeFile(join(dir,'results.json'),JSON.stringify(evidence,null,2)+'\n');
  }finally{

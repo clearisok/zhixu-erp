@@ -1,6 +1,7 @@
 "use client";
 import { useState } from 'react';
 import { Button, FormItem, Modal } from '@/components/foundation';
+import { useConfirmationDialog } from '@/components/foundation/confirmation-dialog';
 import { useServerNavigationProtection } from '@/components/foundation/server-navigation-protection';
 import { closingSourceChanges, closingSourceDraft, closingSourceDraftError } from '../server/closing-source-draft';
 import type { ClosingYear } from '../server/closing-year-projection';
@@ -11,6 +12,7 @@ export function ServerClosingSourceDialog({ row, context, onClose, onChanged }: 
   row: ClosingYear['items'][number]; context: string; onClose: () => void; onChanged: () => void;
 }) {
   const editor = useClosingMonthEditor(row.order.id, context + ':source:' + row.order.id, onChanged);
+  const { confirmAction, confirmationDialog } = useConfirmationDialog();
   const { data, state, blocked, done, controller } = editor;
   const [quantities, setQuantities] = useState<Record<string, string>>({}), [reason, setReason] = useState(''), [error, setError] = useState('');
   const dirty = !done && Boolean(reason || Object.values(quantities).some(Boolean) || state?.preview);
@@ -29,18 +31,18 @@ export function ServerClosingSourceDialog({ row, context, onClose, onChanged }: 
   };
   const frozen = (month: string | null) => month !== null && data?.display.periods.some(item => item.month === month && (item.status === 'confirmed' || item.status === 'locked'));
   const edit = (run: () => void) => { if (blocked || done) return; controller.current?.discardPreview(); setError(''); run(); };
-  const close = () => { if (blocked || dirty && !window.confirm('放弃本次未保存的来源复核输入？')) return; controller.current?.discardPreview(); onClose(); };
+  const close = async () => { if (blocked || dirty && !await confirmAction({ kind: 'discard', entityLabel: '来源复核', description: '关闭后，本次未保存的来源复核输入会丢失。' }) || !editor.owns()) return; controller.current?.discardPreview(); onClose(); };
   const preview = async () => {
     if (!data || !editor.owns() || blocked || done) return;
     try { const intent = closingSourceDraft(data, quantities, reason); setError(''); await controller.current?.preview(intent); }
     catch (value) { if (editor.owns()) setError(closingSourceDraftError(value)); }
   };
-  return <Modal open title="复核来源数量" description={row.order.factoryStyleNo || row.order.styleNo || row.order.orderNo}
+  return <><Modal open title="复核来源数量" description={row.order.factoryStyleNo || row.order.styleNo || row.order.orderNo}
     className="sc-adjustment-dialog" onClose={close} closeDisabled={blocked} footer={<>
       <div className="sc-command-status" aria-live="polite">{(error || editor.readError) && <p role="alert">{error || editor.readError}</p>}
         {state?.error && <p role="alert">{state.error}</p>}{state?.message && <p>{state.message}</p>}
         {(state?.pending || state?.pendingUnavailable) && <Button variant="secondary" size="compact" disabled={state.busy} onClick={() => void controller.current?.check()}>核对原请求</Button>}
-        {state?.retryAllowed && <Button variant="secondary" size="compact" disabled={state.busy} onClick={() => { if (window.confirm('仅重试完全相同的原请求？')) void controller.current?.retry(true); }}>重试原请求</Button>}
+        {state?.retryAllowed && <Button variant="secondary" size="compact" disabled={state.busy} onClick={async () => { if (await confirmAction({ kind: 'confirm', title: '重发原请求', description: '仅重发完全相同的原请求，保留原编号和输入，不创建新的请求。', confirmLabel: '重发原请求', cancelLabel: '继续核对' }) && editor.owns()) void controller.current?.retry(true); }}>重试原请求</Button>}
       </div><div className="sc-footer-actions"><Button variant="secondary" disabled={blocked} onClick={close}>{done ? '完成' : '取消'}</Button>
         {!done && (state?.preview ? <Button disabled={blocked} onClick={() => void controller.current?.apply()}>确认复核</Button>
           : <Button disabled={blocked || !plan || !changes || !data?.sourceChanged || !editor.session.hasPermission('closing.edit')} onClick={() => void preview()}>预览复核</Button>)}
@@ -65,5 +67,5 @@ export function ServerClosingSourceDialog({ row, context, onClose, onChanged }: 
           <div className="sc-table-scroll"><table><thead><tr><th>颜色</th><th>月份</th><th>执行方</th><th>数量</th></tr></thead><tbody>{state.preview.after.map(line => <tr key={line.id}><td>{color(line.colorId)}</td><td>{line.month ?? '待分月'}</td><td>{executor(line.assignmentId)}</td><td>{closingNumber(line.quantity)}</td></tr>)}</tbody></table></div>
         </section>}
       </>}
-  </Modal>;
+  </Modal>{confirmationDialog}</>;
 }
