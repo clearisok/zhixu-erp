@@ -27,7 +27,7 @@
 - 独立工作树：C:/Users/Administrator/.codex/worktrees/ui-standard-audit/zhixu-ainuoke-api；分支 chore/ui-standards-audit。
 - 本轮通过 GitHub connector 核实实际 main：**10b9a7d827e1c09f152ead58c21f26712d49a619**，本地对象存在，独立分支从该完整 SHA 创建。
 - 仅提取 ecceb144 的 AGENTS.md 24 行 UI 规则，不 cherry-pick 含旧接力的整个提交，不携带 39d78181 的均涛迁移方案。AGENTS.md 最终内容与 ecceb144 完全一致。
-- 初始 checkpoint：13d5f0c74fc2efc938466baad86d1f5259f15e9e。最终提交只更新本报告；交付 SHA 以 Git 及最终交付回执为准，不在文件内伪造自引用 hash。
+- 本地 checkpoint：13d5f0c74fc2efc938466baad86d1f5259f15e9e（隔离规范/审查范围）、dd81ff6264193c3a0a2f808a5d7751da5fa22fa0（完整v1）、6784bb79733bccc629806ae015615e376b7a08e1（键盘实证）。最终提交只更新本报告；交付 SHA 以 Git 及最终交付回执为准，不在文件内伪造自引用 hash。
 - 差异仅 **AGENTS.md 和本报告**。用户本轮只允许规范及报告，因此 baseline、验证和接力恢复点集中在此，不改 CURRENT_STATE、AI_HANDOFF、PROJECT_INDEX 或 release manifest，不扩大到其他共享摘要。
 - 源码证据以该 main 为准。本轮实际浏览器显示运行版本 **0752d64f309d68b6e52afbbd712d28e0d9db9c1e**，构建 staging-material-0752d64f；main 与部署版本分别记录；另以 git diff 核对两者的 app/、components/、features/，没有源码差异，故这些UI证据可以对应。未重查运行镜像完整字节，亦未把其他后端/运维差异宣称为已部署。
 
@@ -203,7 +203,7 @@ P1：关键语义或一类用户无法获取必要信息，优先给出整改样
 
 - 页面与位置：[features/quote-center/components/quote-base-info.tsx:35](../features/quote-center/components/quote-base-info.tsx#L35)；证据：源码＋Staging AX。
 - 当前问题／规则：基础信息、成本区、辅料区反复解释“整张快照”“独立报价快照”“不会修改基础库”；底部还有 QuoteRevision/价格方案的概念说明。 R1：去重并避免教学段落。
-- 具体整改：删除基础信息标题下的快照解释、quote-editor.tsx:1307 成本标题区的独立快照教学句、cost-table.tsx 内重复引用说明，以及 quote-editor.tsx:1322 底部纯概念句；只在历史版本状态及实际修改影响处保留必要的一次说明。
+- 具体整改：删除基础信息标题下的快照解释、quote-editor.tsx:1306 成本标题区的独立快照教学句、cost-table.tsx 内重复引用说明，以及 quote-editor.tsx:1322 底部纯概念句；只在历史版本状态及实际修改影响处保留必要的一次说明。
 - 预期效果：业务字段更靠前，版本与只读状态仍可识别。
 - 既有交互与验收基线：报价详情既有 PR64/D-099 基线，可见删文案须按 V2 审批，不改快照逻辑。
 
@@ -351,7 +351,7 @@ P1：关键语义或一类用户无法获取必要信息，优先给出整改样
 
 #### M02 · 货款申请明细入口（P2，改动风险低）
 
-- 页面与位置：[features/style-progress/components/material-control-tower-read-only.tsx:18](../features/style-progress/components/material-control-tower-read-only.tsx#L18)；证据：源码；未逐行打开货款明细。
+- 页面与位置：[features/style-progress/components/material-control-tower-read-only.tsx:20](../features/style-progress/components/material-control-tower-read-only.tsx#L20)；证据：源码；未逐行打开货款明细。
 - 当前问题／规则：页签称“对账”，实际 PaymentRequestsReadPanel 展示未经逐行物料关联的合同申请来源，未形成对账结论。 R3/R5：名称不能暗示未具备的业务能力。
 - 具体整改：将该页签命名为“货款申请”或“申请记录”；保留“申请不等于实付、不能重复合计采购量”的可见限制。
 - 预期效果：用户能预期打开的是来源明细。
@@ -375,7 +375,7 @@ P1：关键语义或一类用户无法获取必要信息，优先给出整改样
 
 #### M05 · 订单物料来源时间（P2，改动风险低）
 
-- 页面与位置：[features/ainuoke-material-progress/order-material-summary.tsx:35](../features/ainuoke-material-progress/order-material-summary.tsx#L35)；证据：源码＋Staging AX。
+- 页面与位置：[features/ainuoke-material-progress/order-material-summary.tsx:36](../features/ainuoke-material-progress/order-material-summary.tsx#L36)；证据：源码＋Staging AX。
 - 当前问题／规则：来源读取时间直接输出 ISO/UTC 字符串，而物料详情及同步记录以北京时间展示，普通阅读需自行换算。 R3/R7：必要时间语义和格式一致。
 - 具体整改：采用显式 Asia/Shanghai 的展示格式，保留原 dateTime/来源时间；在一处写明北京时间，不改 fetchedAt 值、陈旧判断或来源时效。
 - 预期效果：跨页面核对来源时间更直接。
@@ -533,13 +533,13 @@ P1：关键语义或一类用户无法获取必要信息，优先给出整改样
 | --- | --- | --- |
 | K01 | 报价主操作与已精简列表 · [features/quote-center/components/production-quote-list-page.tsx:126](../features/quote-center/components/production-quote-list-page.tsx#L126) | 保留顶栏新建/更多及列表筛选，不重新加hero、统计卡或装饰标题；服从已批准紧凑报价基线。 |
 | K02 | 订单P6与后继紧凑布局 · [features/order-center/components/server-sales-order-detail-page.tsx:224](../features/order-center/components/server-sales-order-detail-page.tsx#L224) | 保留概况、颜色、商业历史、物料及默认折叠技术详情；不恢复已退役款式进度/风险列表导航。 |
-| K03 | 订单删除与独立异常 · [features/order-center/components/order-alert-tags.tsx:1](../features/order-center/components/order-alert-tags.tsx#L1) | 来源删除标签及数量/单位/来源时效异常不能当冗余状态删掉；来源删除不等于本地业务取消。 |
+| K03 | 订单删除与独立异常 · [features/order-center/components/order-alert-tags.tsx:4](../features/order-center/components/order-alert-tags.tsx#L4) | 来源删除标签及数量/单位/来源时效异常不能当冗余状态删掉；来源删除不等于本地业务取消。 |
 | K04 | 物料未知、空记录和计量单位 · [features/style-progress/components/material-control-tower-read-only.tsx:59](../features/style-progress/components/material-control-tower-read-only.tsx#L59) | 保留“单位待核实”、缺来源、完整空结果及各交易自身单位；不把未知改0，不跨单位合计。 |
 | K05 | 货款申请限制 · [features/style-progress/components/payment-requests-read-panel.tsx:67](../features/style-progress/components/payment-requests-read-panel.tsx#L67) | 保留未逐行关联物料、重复采购量不可合计及申请不等于银行实付；属于必要业务边界。 |
 | K06 | 关账币种、待完善与冻结 · [features/closing-center/components/server-closing-adjustment-page.tsx:22](../features/closing-center/components/server-closing-adjustment-page.tsx#L22) | 保留CNY与USD分别汇总、已知小计、待确认项、开放/确认/锁定区别；不能为了简洁掩盖缺证。 |
 | K07 | 原请求与未知结果 · [features/order-center/components/server-delivery-plan-maintenance.tsx:64](../features/order-center/components/server-delivery-plan-maintenance.tsx#L64) | 保留核对原请求、忙碌/待确认、冲突和禁止重复提交提示；移除工程话术不能改原请求保护。 |
 | K08 | Foundation弹层基础能力 · [components/foundation/overlay.ts:80](../components/foundation/overlay.ts#L80) | 保留焦点约束、Escape、关闭后焦点恢复、嵌套弹层及滚动锁；没有必要另造一套弹窗。 |
-| K09 | 表单标签与单位 · [features/quote-center/components/cost-table.tsx:1](../features/quote-center/components/cost-table.tsx#L1) | 保留成本表单价/单耗/金额单位、输入名称、错误和权限状态；视觉隐藏的可访问标签不能当冗余文案删。 |
+| K09 | 表单标签与单位 · [features/quote-center/components/cost-table.tsx:248](../features/quote-center/components/cost-table.tsx#L248) | 保留成本表单价/单耗/金额单位、输入名称、错误和权限状态；视觉隐藏的可访问标签不能当冗余文案删。 |
 | K10 | 账号危险操作后果 · [features/permissions/components/server-user-permission-page.tsx:82](../features/permissions/components/server-user-permission-page.tsx#L82) | 保留删除用户后禁止登录、可恢复、重置密码使原会话失效等后果；不得仅放tooltip。 |
 | K11 | 审计计数与时间口径 · [features/ainuoke-sync-audit/page.tsx:37](../features/ainuoke-sync-audit/page.tsx#L37) | 保留读取/提交区分、历史非实时、未知计数/时点、完整分页和来源证据；不将其当教学说明批量删除。 |
 | K12 | 角色/路由/数据权威边界 · [features/quote-center/components/quote-server-boundary.tsx:21](../features/quote-center/components/quote-server-boundary.tsx#L21) | 未开放页面继续阻断，不恢复Browser旧业务数据；保留必要未配置、只读、权限不足、历史和合成验收标识。 |
@@ -593,7 +593,7 @@ P1：关键语义或一类用户无法获取必要信息，优先给出整改样
 
 ### 批次C：确定的文案与重复区域清理
 
-范围建议 G01–G03、Q01/Q04/Q05/Q07–Q09、B01–B03、O01/O02/O04、M03–M05、P02、C01、U01–U03、L01/L02。按模块小PR，先删除报告点名内容，再判断是否需要微调原布局；不要批量扫描删除所有description或small。
+范围建议 G01–G03、Q01/Q04/Q05/Q07–Q09、B01–B03、O01–O04、M02–M05、P02、C01、U01–U03、L01/L02。按模块小PR，先删除报告点名内容，再判断是否需要微调原布局；不要批量扫描删除所有description或small。O03 单独核对安全错误分类、只读重读与真实采集的按钮分工，不借文案清理修改重试协议。
 
 验收：必要标签、单位、错误和危险后果仍可见，主操作不丢；既有用户偏好和组件回调保持。桌面/紧凑/触屏对照，长名称、空态、只读、无权限及历史状态各有代表性检查。每个UI路径按精确基线申报，不能冒用V0。
 
@@ -612,16 +612,19 @@ D01–D10 分别决定，不整体捆绑实施。先明确物料统计/页签保
 - 锁文件离线安装648个本地依赖，使用 --ignore-scripts，未改依赖清单或锁文件。依赖不提交，不擅自修改共享环境。
 - 正式交付脚本DryRun绑定13d5f0c74fc2efc938466baad86d1f5259f15e9e：pushes=0，Git uncertain_transport，独立API可读，NETWORK_DEGRADED。没有实际push；没有使用文件API重建提交或创建空PR。
 - 精确main门禁已执行：`npm run check:release-baseline -- --base-sha 10b9a7d827e1c09f152ead58c21f26712d49a619`，结果 **FAIL**，唯一错误 **BASE_SHA_MISMATCH**。仓库继承的manifest仍指向4e1f9a514c8ff6e9cf7289d724df33c32bc05368，13页/68能力/0 UI文件变化。该错误与本轮UI业务变更无关，也不能写成发布PASS。
-- 不为消除失败修改release manifest、冻结证据或共享状态。用户只批准规范和报告；真正PR交付前需要单独获准并按协议协调基线，或明确接受文档PR暂保留这个既有门禁失败。本报告不自行批准例外。
+- 不为消除失败修改release manifest、冻结证据或共享状态。用户只批准规范和报告，基线协调属于另行范围；后续PR须原样披露这个继承的门禁失败，不能写成Gate PASS或发布就绪。用户已授权本任务文档PR，不因该失败另加一次PR许可流程。
 
-### 待最终记录
+### 本轮最终验证
 
-发布回归 `npm run test:release-baseline` 已启动，最终结果将在本报告收口时更新。报告链接/行号、计数、diff范围及原分支保全检查将在最终commit前完成。未运行无关业务构建、真实PG/Source/备份/部署测试。
+- `npm run test:release-baseline`：**PASS，182/182，0失败、取消、跳过；3085286.5246ms**。2026-11-23 本机14:26启动、15:17取得退出码0及完整日志。日志保存在仓库外的本次审查artifact目录，不提交业务原始材料。运行期间只改规范和报告，被测源码/UI/manifest/冻结证据保持；该回归不代替真实数据库或业务验收。
+- `git diff --check`：PASS。107处源码相对链接及行号界限：PASS。44条路由、38个唯一问题编号、P1/P2/P3为2/19/17、10个争议项和12个保留项：计数校验PASS。
+- 精确main至当前差异仅AGENTS.md及本报告；AGENTS与ecceb144批准内容一致；原工作树仍为ecceb144且clean，均涛迁移内容未带入。
+- 精确main门禁FAIL及原因见上，不因182项回归通过而改写为PASS。未运行无关业务构建、真实PG/Source/备份/部署测试。
 
 ### 远端状态与恢复
 
 **REMOTE DELIVERY PENDING：尚未创建本任务PR，不能提供虚构链接。** GitHub connector/API可用不等于Git通道长期恢复；按协议不反复尝试同一失败通道，不自动执行恢复命令或切换认证。开放PR查重为#164和#136，均非本任务。待精确Git交付成功后创建唯一PR到main，标题/正文围绕规范和本报告，使用 Refs #165，不使用关闭关键词，不合并。
 
-正常网络与检查条件满足后，仅使用正式脚本，完整ExpectedHead由最终本地提交提供；原工作树和迁移方案不参与交付。一次性人工恢复命令在最终回执中给出，不由本轮自动重试。最终commit/测试/dirty记录以实际工具结果补充。
+后续恢复仅使用正式脚本，完整ExpectedHead由最终本地提交提供；原工作树和迁移方案不参与交付。一次性人工恢复命令随最终回执提供，不由本轮自动重试；门禁失败继续如实披露，不通过改锚点掩盖。当前已完成本地工程文档与回归，未完成远端Git送达或PR创建，不能写成REMOTE DELIVERY PASS。
 
 本轮不改变运行环境，不更新能力标签或旧验收事实。部署不适用。等待用户批准具体UI整改编号、方案版本和范围。
