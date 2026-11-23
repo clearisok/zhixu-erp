@@ -1,5 +1,7 @@
 # Issue165 UI规范整改交付清单
 
+> 2026-11-24恢复点：38项本地实现及检查已完成，五个独立PR存在。C3最后一项错误分类补正只在本地，远端2913e333未包含它；NETWORK_DEGRADED下停止后续自动push，需安全补送后才算完整远端交付。Staging仍受原恢复门禁阻塞，当前不能集中验收整改版本。
+
 2026-11-23；仅原审查v1明确38项，10项设计争议D01–D10不实施，原12项保留设计不自动重做。原[规范及报告PR166](https://github.com/clearisok/zhixu-erp/pull/166)已正常交付并通过三项CI；报告v1 Git blob保持454675fb53444208bc066de271791cb114b105f9。
 
 ## 独立交付
@@ -69,3 +71,8 @@
 
 ## 人工验收
 未将工程检查、候选构建、远端送达、真实部署或用户认可混同。现有业务逻辑/数据/权限/公式不变；单位、错误、提交/只读/权限状态和危险后果保留。10争议继续等用户单独决定。完成本轮可安全工程后，将真实剩余阻塞统一报告；不反复请求逐批批准。
+
+## 2026-11-24最后状态
+B最新修复产品74b175ed的四套真实62项、root1026、release182、typecheck/lint/build/guard均PASS；B最终83ed26fd已精确送达。C1最终8ab2ef04含审计等待修正，真实team8通过且精确送达；C2最终07fc0dc7的三项CI全成功。C3原远端2913e333与本地末次O03补正分别记录，不能混为远端PASS；最新本地产品616cee91的root1028、release182和真实compact10通过。五PR最新CI见Issue165最终回执；原Quote套件三类main失败保留。
+
+Git通道再次uncertain_transport预检后虽API证明既有checkpoint送达，仍NETWORK_DEGRADED；没有反复push。仓库AGENTS明确要求后续只保留本地checkpoint、恢复命令不自动执行。安全命令绑定精确SHA，先校验dirty/祖先/远端，最多一次普通push并独立核实；没有force/reset/clean或共享配置更改。该限制与Staging备份清理保护是两个独立阻塞。

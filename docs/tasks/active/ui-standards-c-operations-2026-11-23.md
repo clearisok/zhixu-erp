@@ -31,3 +31,10 @@ typecheck、完整lint、最新Server frontend build通过；release182/182 PASS
 实际built Server+合成PG/专有Chrome：最新55175716 compact+物料21/21 PASS（99825ms），含GET重读不触发采集、401/403/网络分工、上海时间/原dateTime、有/无orderId返回名称、单一标题、1440/390零生产组空态。关账18/18及排单37/37在前一b52产品构建通过，后续唯一UI变化只在进度设置标题加载位置；全年度/筛选/金额、丢回执、原请求、并发/撤权/历史/精确小数/响应宽度均保留。
 
 10个产品路径（含显示反馈TS helper）按V3精确登记，无API/SQL/schema/业务公式/数据/权限变化。原source capture保持单独ServerContractRefresh，GET重读只state.reload。Staging原恢复门禁阻塞，不部署/合并/Production。
+
+## 2026-11-24 LOCAL PASS / REMOTE PENDING
+最终自查补正O03：普通TypeError也可能由响应结构访问异常产生，不能全部归为网络。产品616cee914a2e0f9d87eaeedffddb5634850b4aa1仅识别三种明确浏览器fetch错误文本；其他TypeError、解析/未知异常统一如实显示原因尚未核实，不反射raw error。新增未知TypeError与三个明确网络文案断言，真实浏览器故障注入采用明确Failed to fetch。原HTTP/权限/归属与GET重读逻辑不变。
+
+该产品typecheck/lint/Server frontend build、release182/182（141200ms）、root1028/1028（146569ms）、真实compact10/10（37584ms）通过；本次不以先前2913远端CI代替新代码。
+
+83ed26fd官方交付预检Git uncertain_transport，虽API精确核实B已送达，networkMode仍NETWORK_DEGRADED。依AGENTS网络协议不在后续Gate再push同通道，不自动执行恢复命令。此前C3远端2913e333f2607dd0c5e59dbdb77a55b1f92a8927已核实，**不包含本段616cee91补正及接力文档**；当前分支本地checkpoint保护，REMOTE PENDING。最终安全恢复命令由scripts/git-delivery.mjs的recoveryCommand纯函数绑定本地精确HEAD生成，保存在本任务外部交付文件，未执行。没有更改认证/共享代理/TLS，也未使用文件API替代Git。Staging原恢复门禁仍阻塞，未部署。
