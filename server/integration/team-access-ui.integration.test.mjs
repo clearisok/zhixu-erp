@@ -168,7 +168,7 @@ test("First team production-built UI uses trusted session, existing layout and s
   });
   assert.deepEqual(errors,[]);assert.deepEqual(x.errors,[]);
  }finally{
-  try{await stopOwnedChromium(browser,{gracefulClose:closeBrowser});}
+  try{await stopOwnedChromium(browser,{gracefulClose:closeBrowser,graceMs:10000,exitMs:10000});}
   finally{ws?.close();for(const p of pending.values())p.reject(Error("Owned browser fixture closed"));pending.clear();}
   const distance=relative(resolve(tmpdir()),resolve(temp));
   assert.ok(distance.startsWith("zhixu-team-ui-")&&!distance.includes("/")&&!distance.includes("\\")&&!isAbsolute(distance));
