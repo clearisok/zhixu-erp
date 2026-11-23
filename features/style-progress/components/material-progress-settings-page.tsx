@@ -30,9 +30,9 @@ function SettingsBody(){
  const reload=()=>{if(saving||pending)return;const latest=read.settings;if(latest){setBase(latest);setDraft([...latest.trimPriorityKeywords]);setKeyword('');setMessage('已读取团队最新设置。');}read.reload();};
  return <AppShell title="进度设置" identityMode="server" backTarget={{href:back,label:route?'返回物料跟进':'返回订单列表'}} onRequestNavigation={navigate} onRequestLogout={logout}><PageContainer className="sp-progress-settings">
   <PageHeader title="进度设置" description="团队统一的物料展示顺序"/>
-  <Card className="sp-trim-settings"><h2>辅料关键词优先级</h2>
+  <Card className="sp-trim-settings">
    {read.loading&&!base?<p>读取团队设置…</p>:!base?<p role="alert">团队设置暂不可用，请稍后重试。<Button variant="text" onClick={read.reload}>重新读取</Button></p>:<>
-    <p>从上到下优先匹配物料名称；同一物料包含多个关键词时，以第一个匹配为准。未匹配的辅料保持来源顺序。</p>
+    <h2>辅料关键词优先级</h2><p>从上到下优先匹配物料名称；同一物料包含多个关键词时，以第一个匹配为准。未匹配的辅料保持来源顺序。</p>
     <p className="sp-settings-meta">{base.configured?'团队版本 '+base.version:'尚未配置，保持来源顺序'}{base.updatedBy?' · '+base.updatedBy:''}{!canEdit?' · 当前只读':''}</p>
     {read.error&&<p role="alert">最新设置暂不可读取，已暂停修改；不会回退到浏览器设置。</p>}
     {read.settings&&read.settings.version>base.version&&<p role="status">其他人已更新团队设置；你的输入已保留。<Button variant="text" disabled={saving||Boolean(pending)} onClick={reload}>放弃本次修改并读取最新</Button></p>}
