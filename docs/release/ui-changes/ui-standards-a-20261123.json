@@ -1,0 +1,28 @@
+{
+  "baselineSha": "10b9a7d827e1c09f152ead58c21f26712d49a619",
+  "level": "V3",
+  "paths": [
+    "app/globals.css",
+    "components/foundation/button.tsx",
+    "features/production-scheduling/components/server-production-plan-fields.tsx",
+    "features/production-scheduling/components/server-production-scheduling-page.tsx",
+    "features/quote-center/components/attachment-panel.tsx",
+    "features/quote-center/components/price-version-selector.tsx",
+    "features/quote-center/components/quote-editor.tsx",
+    "features/quote-center/components/revision-manager-modal.tsx",
+    "features/style-progress/components/material-control-tower-read-only.tsx"
+  ],
+  "pages": [
+    "navigation",
+    "quote-detail",
+    "material"
+  ],
+  "visibleDifference": "M01关联采购单位及原始单位标识；G04无权限信息可达；Q10嵌套编辑按键修复；Q03隐藏文件输入；Q02具名路径；Q06删除后果；P01数量单位。其余结构不变。",
+  "evidence": [
+    "docs/tasks/active/ui-standards-remediation-2026-11-23.md"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/ui-standards-approval-2026-11-23.md"
+  }
+}
