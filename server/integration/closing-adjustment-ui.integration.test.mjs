@@ -112,6 +112,9 @@ test('approved closing UI uses real built Server, owned synthetic PostgreSQL and
       assert.equal(posts(), count + 1); const after = (await x.request('/orders/' + seeded.first.id + '/month-plan')).body;
       assert.equal(after.plan.version, before.version); assert.deepEqual(after.plan.lines, before.lines); assert.equal(after.sourceChanged, true);
       await click('取消', '[role=dialog] button');
+      await has('来源复核有未保存修改'); await click('放弃修改', '[role=dialog] button');
+      await until(() => evaluate("!document.querySelector('[role=dialog]')"), 'source discard closed');
+      assert.equal(posts(), count + 1, 'discard is presentation only and does not repeat the rejected command');
       await x.pool.query('UPDATE ainuoke_sales_order_contract_mirrors SET quantity=120 WHERE sales_order_id=$1', [seeded.first.id]);
       await x.pool.query("UPDATE ainuoke_sales_order_color_mirrors SET quantity=CASE color_name WHEN 'Blue' THEN 70 ELSE 50 END WHERE sales_order_id=$1", [seeded.first.id]);
       await field('select[aria-label="关账显示范围"]', 'all', 'HTMLSelectElement'); await has('制作完成');
