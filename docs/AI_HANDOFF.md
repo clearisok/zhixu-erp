@@ -5,3 +5,5 @@
 [用户批准](tasks/active/ui-standards-approval-2026-11-23.md)、[本批恢复点与验证](tasks/active/ui-standards-b-2026-11-23.md)、[报告PR166](https://github.com/clearisok/zhixu-erp/pull/166)、[原摘要归档](tasks/completed/2026-11-23-before-ui-standards/CURRENT_STATE.md)。
 
 恢复分支fix/ui-standards-b，起点clean/main同上。G05控件命名、G06显式反馈关联、G07八处Checkbox、G08十处确认已实现；pending/busy/dirty及原请求语义保留。先完成测试/精确影响门禁/checkpoint/PR，不预写PASS。A分支只含其自身七项，Staging原阻塞与0752保持。每批工程/远端/部署分开记录；剩余沿原C按模块独立PR，10争议不动。
+
+本批最终工程：typecheck/lint/build、root1026、baseline182、exact guard14路径、真实compact10与team/closing26均PASS；详细限制/失败与恢复见本批记录。远端最终checkpoint/PR待核实；Staging原恢复门禁阻塞，未部署。

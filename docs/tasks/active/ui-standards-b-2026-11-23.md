@@ -18,3 +18,11 @@
 
 ## 验证与恢复点
 实现后首轮typecheck通过；其他检查待真实收口，不预写PASS或PR/部署。A/B独立分支，合并均由用户决定；后续必要组合验收与Staging发布仍须现有门禁。当前只记录本批工程，不以旧回归替代新结果。
+
+## 最终工程验证（e11c95179457199cb2cbc55d14597ad2f2f5ee26）
+- Windows最终typecheck、全仓lint、Server模式frontend build PASS。
+- Linux隔离network=none、固定Node24.22.3、原锁定依赖与校验Linux esbuild：release182/182 PASS（181761ms）、root1026/1026 PASS（292522ms）、精确guard PASS，14个UI路径、13页面/68能力。没有改冻结证据/截图/能力字段。
+- 实际built Server、专有临时PG/Chromium：compact 10/10 PASS；team-access+closing串行26/26 PASS（109194ms），覆盖字段错误阻止保存、选择器上下文/IME、取消/放弃角色草稿、关账冲突/未知回执及原请求。测试只使用合成账号与数据。
+- 保留失败/中断：71fdc552 Linux全检查因实现收窄后源码被替代而取消（未计PASS）；首轮closing未传EXPECTED_SOURCE被正确拒绝，team所有子项通过但Chromium清理超时。未改产品或放宽清理，补源码标识并串行26/26通过。
+- 原四个Browser-only删除函数逐字恢复main；本批正式路径确认共10处。不以外部分支A测试代替本批结果。
+- 本批无Server/API/SQL/schema/业务数据修改。Staging因原备份恢复门禁不部署，Production未操作。
