@@ -67,7 +67,7 @@ function UserManagement(){
   else void execute({...t,action:dialog.kind});
  }
  return <AppShell title="用户管理" onRequestNavigation={to=>{if(leave())router.push(to);}} onRequestLogout={async()=>{if(leave())await session.logout();}}><PageContainer>
- <PageHeader title="用户管理" description="管理登录账号、角色和启用状态。" actions={permitted?<Button disabled={busy||Boolean(pending)} onClick={()=>open("create")}>新建用户</Button>:undefined}/>
+ <PageHeader title="用户管理" actions={permitted?<Button disabled={busy||Boolean(pending)} onClick={()=>open("create")}>新建用户</Button>:undefined}/>
  {!permitted?<ErrorState title="暂无权限" description="仅服务器管理员可管理用户。"/>:<>
  <Card className="qc-admin-filters"><SearchField value={search} onChange={setSearch} placeholder="搜索姓名、账号或角色"/><label>角色<select aria-label="筛选角色" className="qc-control" value={query.roleId} onChange={e=>setQuery({...query,roleId:e.target.value,offset:0})}><option value="">全部角色</option>{directory?.roles.map(r=><option key={r.id} value={r.id}>{r.name}{r.archived?"（已删除）":""}</option>)}</select></label><label>状态<select aria-label="筛选状态" className="qc-control" value={query.status} onChange={e=>setQuery({...query,status:e.target.value,offset:0})}><option value="">正常用户</option><option value="active">启用</option><option value="inactive">停用</option><option value="archived">已删除用户</option></select></label><Button variant="secondary" onClick={()=>setQuery({...query,q:search,offset:0})}>查询</Button><Button variant="text" onClick={()=>setRefreshId(n=>n+1)}>重新读取</Button></Card>
  {feedback&&<p role="status">{feedback}</p>}{pending&&<Button disabled={busy} onClick={()=>void reconcile()}>核对提交结果</Button>}
