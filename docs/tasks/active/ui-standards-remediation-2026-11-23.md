@@ -25,4 +25,10 @@ G04为共享组件V3，其余局部V2；精确路径见本PR ui-changes记录。
 旧manifest锚点4e1f9a51对应上次整合；本轮已核实实际PR base为10b9。只对齐当次snapshot baselineSha/verifiedAt及三份当前摘要，不改任何旧evidence对象、PNG/hash、能力/批准/运行状态。旧摘要逐字归档在completed/2026-11-23-before-ui-standards。此为规定的实际main元数据登记，不将测试失败改为通过，也不修改冻结证据掩盖错误。
 
 ## 验证与交付恢复点
-本批实现完成，验证尚待实际执行收口；不预写PASS或部署。原报告182/182属于454675fb，不冒作本批结果。当前Staging历史记录仍为0752，未切版。后续每批记录精确HEAD/测试/PR/部署/限制，工程与远端送达分开；不自动合并。
+本批产品源码checkpoint为ba269e340be0529a565024fe9a001dac1ff6eb7a，已通过正式脚本单次push及独立API核实送达。67项定向回归、typecheck/lint、Server前后端构建通过；精确main门禁PASS（13页/68能力/9 UI路径）。本批Linux隔离容器的发布回归182/182通过，142306.183849ms；root全量仍运行，不预写结果。原报告454675fb的旧182结果不冒作本批结果。
+
+真实构建＋独有临时PG/Chrome的紧凑页面回归10/10通过（73233.4333ms），包括新增Enter/Space编辑、父卡片切换、三隐藏file input、0命令提交、权限原因关联/键盘/触屏/Escape/焦点恢复。首轮键盘事件未带原生Enter字符而超时、次轮未等待现有rAF恢复焦点的失败均不计PASS；仅修正私有合成回归事件与等待，不改产品行为来迎合断言。排单前27个子项通过后，旧测试未等异步仓库选项即读取disabled而失败，保留原断言并补正向等待；物料回归因默认构建只有短SHA而在40位身份前置阻断，下一构建显式绑定完整SHA，不放宽身份断言。
+
+2026-11-23部署前只读核实：当前app/gateway仍0752镜像9d638f76…，实际有效配置在runtime/catalog-sync-0752d64f/trial.conf，根runtime/trial.conf是旧562fbf配置，不能误用。Supervisor当前RECOVERY_BLOCKED/backup_cleanup_unverified、originalFault=backup_failed_requires_review，发生于本批切版前；未解除保护、改回执、重启Worker或清pause。此项为Staging发布阻塞，UI代码及PR独立推进；没有门禁PASS不部署。原DB/对象/卷与LAN入口保持。
+
+后续每批记录精确HEAD/测试/PR/部署/限制，工程与远端送达分开；不自动合并。

@@ -115,9 +115,10 @@ test('compact business pages: actual headers, prices, routes, permissions and de
    await login('demo.admin');
    await navigate('/quote-center/detail?id='+evidence.quotes.find(q=>q.state===1).id);await has('第二合成方案');
    await evaluate("window.auditWrites=0;const oldFetch=window.fetch;window.fetch=(...args)=>{if(!['GET','HEAD'].includes((args[1]?.method??'GET').toUpperCase()))window.auditWrites++;return oldFetch(...args);}");
-   const press=async(key,code,virtual)=>{await command('Input.dispatchKeyEvent',{type:'keyDown',key,code,windowsVirtualKeyCode:virtual});await command('Input.dispatchKeyEvent',{type:'keyUp',key,code,windowsVirtualKeyCode:virtual});};
+   const press=async(key,code,virtual)=>{await command('Input.dispatchKeyEvent',{type:'keyDown',key,code,windowsVirtualKeyCode:virtual,...(key==='Enter'?{text:'\r',unmodifiedText:'\r'}:key===' '?{text:' ',unmodifiedText:' '}:{})});await command('Input.dispatchKeyEvent',{type:'keyUp',key,code,windowsVirtualKeyCode:virtual});};
+   await command('Page.bringToFront');
    for(const [key,code,virtual] of [['Enter','Enter',13],[' ','Space',32]]){
-    await evaluate("[...document.querySelectorAll('.qc-version-card button')].find(n=>n.textContent.trim()==='编辑').focus()");
+    assert.equal(await evaluate("(()=>{const n=[...document.querySelectorAll('.qc-version-card button')].find(n=>n.textContent.trim()==='编辑'&&!n.disabled);if(!n)return false;n.focus();return document.activeElement===n})()"),true,'enabled edit button has native focus');
     await press(key,code,virtual);await has('编辑价格版本');
     assert.equal(await evaluate("document.querySelector('[role=dialog] h2')?.textContent"),'编辑价格版本');
     await press('Escape','Escape',27);await until(()=>evaluate("!document.querySelector('[role=dialog]')"),'edit cancelled');
@@ -133,7 +134,7 @@ test('compact business pages: actual headers, prices, routes, permissions and de
    await evaluate("document.querySelector('button[aria-label=查看操作权限说明]').focus()");await press('Enter','Enter',13);await has('暂无权限，请联系管理员');
    assert.equal(await evaluate("document.querySelector('[role=dialog] h2')?.textContent"),'操作权限');
    await press('Escape','Escape',27);await until(()=>evaluate("!document.querySelector('[role=dialog]')"),'permission dialog closed');
-   assert.equal(await evaluate("document.activeElement?.getAttribute('aria-label')"),'查看操作权限说明');
+   await until(()=>evaluate("document.activeElement?.getAttribute('aria-label')==='查看操作权限说明'"),'permission trigger focus restored');
    await command('Emulation.setTouchEmulationEnabled',{enabled:true});
    const point=await evaluate("(()=>{const r=document.querySelector('button[aria-label=查看操作权限说明]').getBoundingClientRect();return {x:r.x+r.width/2,y:r.y+r.height/2}})()");
    await command('Input.dispatchTouchEvent',{type:'touchStart',touchPoints:[point]});await command('Input.dispatchTouchEvent',{type:'touchEnd',touchPoints:[]});await has('暂无权限，请联系管理员');

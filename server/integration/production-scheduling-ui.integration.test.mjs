@@ -109,7 +109,7 @@ test('Gate6B/C/D built scheduling preserves plans, actual execution, tracking, r
     const count = async table => (await x.pool.query('SELECT count(*)::int n FROM ' + table)).rows[0].n;
     const shot = async name => { const image = await command('Page.captureScreenshot', { format: 'png', captureBeyondViewport: false }); await writeFile(join(evidence, name + '.png'), Buffer.from(image.data, 'base64')); };
     const poolSearch = async name => { await click('未排订单'); await field('input[aria-label=搜索排单]', name); await has(name.split(' ')[0]); await until(() => evaluate("document.querySelectorAll('.ps-pool-row:not(.head)').length===1"), 'one order'); };
-    const startPlan = async (name, group, quantity = '30') => { await poolSearch(name); await click('排单', '.ps-pool-row button'); await has('直接排单'); await field('select[aria-label=生产组选择]', group, 'HTMLSelectElement'); await field('input[aria-label=排单数量]', quantity); await field('input[aria-label=所需工作日]', '2'); await field('input[aria-label=计划开始]', '2027-01-04'); };
+    const startPlan = async (name, group, quantity = '30') => { await poolSearch(name); await click('排单', '.ps-pool-row button'); await has('直接排单'); await has('排单数量（件）'); await has('平均日产（件/工作日）'); await field('select[aria-label=生产组选择]', group, 'HTMLSelectElement'); await field('input[aria-label^=排单数量]', quantity); await field('input[aria-label=所需工作日]', '2'); await field('input[aria-label=计划开始]', '2027-01-04'); };
     const savePreview = async () => { await click('预览排单'); await has('确认排单变更'); await click('确认保存'); await has('排单已保存'); };
     const closeClean = () => click('取消', '[role=dialog] button');
     const pendingCommand = () => evaluate("JSON.parse(sessionStorage.getItem(Object.keys(sessionStorage).find(k=>k.startsWith('zhixu.server.production-plan.pending.v1.')))).command");
@@ -183,8 +183,8 @@ test('Gate6B/C/D built scheduling preserves plans, actual execution, tracking, r
       await poolSearch('SYN-PLAN-01 合成客户'); await click('排单', '.ps-pool-row button'); await has('直接排单');
       assert.equal(await evaluate("document.querySelector('select[aria-label=生产组选择]').value"), ''); assert.equal(await evaluate("document.querySelector('input[aria-label=计划开始]').value"), '');
       await has('23 条'); await click('下页生产组'); await has('第 2 页'); await field('input[aria-label=搜索生产组]', 'A合成一组'); await has('1 条'); await field('select[aria-label=生产组选择]', group.id, 'HTMLSelectElement');
-      await field('input[aria-label=排单数量]', '40.125'); await field('input[aria-label=所需工作日]', '2'); await field('input[aria-label=计划开始]', '2027-01-04');
-      await until(() => evaluate("document.querySelector('input[aria-label=平均日产]').value==='21'"), 'exact ceil daily output');
+      await field('input[aria-label^=排单数量]', '40.125'); await field('input[aria-label=所需工作日]', '2'); await field('input[aria-label=计划开始]', '2027-01-04');
+      await until(() => evaluate("document.querySelector('input[aria-label^=平均日产]').value==='21'"), 'exact ceil daily output');
       await click('预览排单'); await has('确认排单变更'); assert.equal(await count('production_schedule_assignments'), 0); const before = posts();
       await evaluate("(()=>{const b=[...document.querySelectorAll('[role=dialog] button')].find(n=>n.textContent==='确认保存');b.click();b.click()})()"); await has('排单已保存'); assert.equal(posts(), before + 1); assert.equal(await count('production_schedule_assignments'), 1);
       const saved = (await x.pool.query('SELECT planned_quantity::text,daily_output_snapshot::text FROM production_schedule_assignments')).rows[0]; assert.equal(saved.planned_quantity, '40.125'); assert.equal(saved.daily_output_snapshot, '21'); await shot('first-plan');
@@ -196,11 +196,11 @@ test('Gate6B/C/D built scheduling preserves plans, actual execution, tracking, r
     await phase('a competing plan rejects stale confirmation without losing input or creating a duplicate', async () => {
       await startPlan('SYN-PLAN-02', group.id, '30'); await click('预览排单'); await has('确认排单变更'); await x.plan(orders[1], data({ executorId: second.id })); const n = await count('production_schedule_assignments');
       await click('确认保存'); await has('这张订单的排单已更新'); assert.equal(await count('production_schedule_assignments'), n); assert.equal(await evaluate("Object.keys(sessionStorage).some(k=>k.startsWith('zhixu.server.production-plan.pending.v1.'))"), false);
-      await click('重新读取订单'); await has('输入已保留'); assert.equal(await evaluate("document.querySelector('input[aria-label=排单数量]').value"), '30'); await savePreview();
+      await click('重新读取订单'); await has('输入已保留'); assert.equal(await evaluate("document.querySelector('input[aria-label^=排单数量]').value"), '30'); await savePreview();
     });
     let externalId;
     await phase('external plans keep fixed dates and adopted resource facts through master rename and disabling', async () => {
-      await poolSearch('SYN-PLAN-03'); await click('排单', '.ps-pool-row button'); await field('select[aria-label=生产组织]', 'outsource', 'HTMLSelectElement'); await field('select[aria-label=外发厂选择]', factory.id, 'HTMLSelectElement'); await field('input[aria-label=所需工作日]', '3'); await field('input[aria-label=计划开始]', '2027-01-10'); await field('input[aria-label=计划结束]', '2027-01-14'); await field('input[aria-label=排单数量]', '15'); await savePreview();
+      await poolSearch('SYN-PLAN-03'); await click('排单', '.ps-pool-row button'); await field('select[aria-label=生产组织]', 'outsource', 'HTMLSelectElement'); await field('select[aria-label=外发厂选择]', factory.id, 'HTMLSelectElement'); await field('input[aria-label=所需工作日]', '3'); await field('input[aria-label=计划开始]', '2027-01-10'); await field('input[aria-label=计划结束]', '2027-01-14'); await field('input[aria-label^=排单数量]', '15'); await savePreview();
       const row = (await x.pool.query('SELECT id::text,resource_snapshot_hash,first_production_date,non_working_day_count FROM production_schedule_assignments WHERE sales_order_id=$1', [orders[2]])).rows[0]; externalId = row.id; assert.equal(row.first_production_date, null); assert.equal(row.non_working_day_count, null);
       factory = await x.changeResource(factory, { name: '主资料新厂名', enabled: false }); await click('查看排单', '.ps-pool-row button'); await has('合成原外发厂'); await click('编辑排单', '[role=dialog] button'); await has('本条已采用：合成原外发厂'); await field('textarea[aria-label=排单备注]', '只改备注', 'HTMLTextAreaElement'); await savePreview();
       assert.equal((await x.pool.query('SELECT resource_snapshot_hash FROM production_schedule_assignments WHERE id=$1', [externalId])).rows[0].resource_snapshot_hash, row.resource_snapshot_hash);
@@ -281,7 +281,7 @@ test('Gate6B/C/D built scheduling preserves plans, actual execution, tracking, r
       await x.pool.query("INSERT INTO app_role_permissions(role_id,permission_key) VALUES('plan.revoked','schedule.create')"); await click('核对原请求', '[role=dialog] button'); await has('暂未找到原操作回执'); await click('重试原请求', '[role=dialog] button'); await has('排单已保存'); assert.equal((await x.pool.query('SELECT count(*)::int n FROM production_schedule_commands WHERE request_id=$1', [original.requestId])).rows[0].n, 1); await loginCookie('plan.editor'); await navigate('/production-scheduling'); await has('A合成一组');
     });
     await phase('zero remaining quantity does not offer an accidental one-click zero edit', async () => {
-      await x.plan(orders[11], data({ executorId: second.id, plannedQuantity: '100.125' })); await click('未排订单'); await click('全部订单'); await field('input[aria-label=搜索排单]', 'SYN-PLAN-12'); await has('SYN-PLAN-12'); await click('查看排单', '.ps-pool-row button'); await click('编辑排单', '[role=dialog] button'); await has('可排 0'); assert.equal(await evaluate("[...document.querySelectorAll('[role=dialog] button')].find(n=>n.textContent==='全部可排数量').disabled"), true); assert.equal(await evaluate("document.querySelector('input[aria-label=排单数量]').value"), '100.125'); await closeClean();
+      await x.plan(orders[11], data({ executorId: second.id, plannedQuantity: '100.125' })); await click('未排订单'); await click('全部订单'); await field('input[aria-label=搜索排单]', 'SYN-PLAN-12'); await has('SYN-PLAN-12'); await click('查看排单', '.ps-pool-row button'); await click('编辑排单', '[role=dialog] button'); await has('可排 0'); assert.equal(await evaluate("[...document.querySelectorAll('[role=dialog] button')].find(n=>n.textContent==='全部可排数量').disabled"), true); assert.equal(await evaluate("document.querySelector('input[aria-label^=排单数量]').value"), '100.125'); await closeClean();
     });
     const executionGroup = await x.resource('groups', { name: 'X实际执行组', enabled: true, remark: '', shortName: 'X', productionSiteId: site.id, sortOrder: 35 });
     const executionOrders = [await x.order(26), await x.order(27), await x.order(28)];
@@ -418,6 +418,7 @@ test('Gate6B/C/D built scheduling preserves plans, actual execution, tracking, r
       trackingHub = await x.changeResource(trackingHub, { name: 'A合成仓当前名称', enabled: false });
       await openTracking(30); await has('上次保存时：A合成集货仓'); await has('当前名称：A合成仓当前名称');
       assert.equal(await evaluate("document.querySelector('select[aria-label=集货仓选择]').value"), trackingHub.id);
+      await until(() => evaluate(`[...document.querySelector('select[aria-label=集货仓选择]').options].some(n=>n.value===${JSON.stringify(disabledTrackingHub.id)})`), 'disabled hub option loaded');
       assert.equal(await evaluate(`[...document.querySelector('select[aria-label=集货仓选择]').options].find(n=>n.value===${JSON.stringify(disabledTrackingHub.id)}).disabled`), true);
       await field('textarea[aria-label=物料与运输备注]', '保留原停用仓，更新备注', 'HTMLTextAreaElement'); await trackingSave();
       assert.equal((await trackingHead(trackingOrder)).hubSnapshot.name, 'A合成仓当前名称');
