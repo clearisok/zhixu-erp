@@ -42,17 +42,19 @@ export function useGuardedDraft<T>() {
   };
 }
 
-export function UnsavedDraftDialog({ open, entityLabel, onKeepEditing, onDiscard }: {
+export function UnsavedDraftDialog({ open, entityLabel, description = "关闭后，本次尚未保存的输入会丢失。", discardLabel = "放弃修改", onKeepEditing, onDiscard }: {
   open: boolean;
   entityLabel: string;
+  description?: string;
+  discardLabel?: string;
   onKeepEditing: () => void;
   onDiscard: () => void;
 }) {
   return <Modal
     open={open}
     title={`${entityLabel}有未保存修改`}
-    description="关闭后，本次尚未保存的输入会丢失。"
+    description={description}
     onClose={onKeepEditing}
-    footer={<><Button variant="secondary" onClick={onKeepEditing}>继续编辑</Button><Button variant="danger" onClick={onDiscard}>放弃修改</Button></>}
-  ><p className="qc-unsaved-message">只有真实修改才会出现此提示；打开记录或加载默认值不会自动产生 dirty 状态。</p></Modal>;
+    footer={<><Button variant="secondary" onClick={onKeepEditing}>继续编辑</Button><Button variant="danger" onClick={onDiscard}>{discardLabel}</Button></>}
+  >{null}</Modal>;
 }

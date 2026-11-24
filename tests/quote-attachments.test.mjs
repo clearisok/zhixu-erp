@@ -277,7 +277,9 @@ test("粘贴监听仅绑定 Paste Area，预览使用 contain 且 Footer 文案�
   const panel = await readFile(new URL("../features/quote-center/components/attachment-panel.tsx", import.meta.url), "utf8");
   const css = await readFile(new URL("../app/quote-center/quote-center.css", import.meta.url), "utf8");
   const previewCss = css.slice(css.indexOf(".qc-attachment-preview-modal"), css.indexOf("@media (max-width: 620px)", css.indexOf(".qc-attachment-preview-modal")));
-  assert.match(panel, /直接 Ctrl \+ V/);
+  assert.match(panel, /粘贴或拖入图片/);
+  assert.match(panel, /Ctrl \+ V 粘贴图片/);
+  assert.doesNotMatch(panel, /聚焦粘贴区/);
   assert.match(panel, /onPaste=\{\(event\) => void pasteImage\(event\)\}/);
   assert.doesNotMatch(panel, /document\.addEventListener\(["']paste/);
   assert.match(panel, />上一张<\/Button>/);

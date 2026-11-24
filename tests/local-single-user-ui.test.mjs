@@ -66,8 +66,9 @@ test("formal Q3 pages stay on Server adapters while Quote aggregates stay in Bro
   assert.match(server, /createServerBasicSettingsAdapter/u);
   assert.match(server, /const next = await adapter\.load\(\)/u);
   assert.match(server, /await adapter\.persist\(state, next\)/u);
-  assert.match(basicPages, /production \? "基础资料来源：PostgreSQL" : "Server candidate/u);
-  assert.match(quoteSettings, /serverProduction \? "报价默认值来源：PostgreSQL" : "Server candidate/u);
+  assert.match(basicPages, /if \(production\) return null;/u);
+  assert.match(basicPages, /title="Server candidate · source = PostgreSQL"/u);
+  assert.match(quoteSettings, /serverController&&!serverProduction&&<AlertBanner/u);
   assert.match(editor, /mockQuoteRepository\.createDraft\(today, settings\)/u);
   assert.match(editor, /serverMasters\.persist\(scope, masterData, next\)/u);
 });

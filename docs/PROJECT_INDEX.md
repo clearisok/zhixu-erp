@@ -1,10 +1,13 @@
-# 当前项目入口
+# Issue165：全38项组合验收交付进行中
 
-2026-11-20；PR160已正式合并，main代码整合基线 **4e1f9a514c8ff6e9cf7289d724df33c32bc05368**。用户已验收订单删除及Staging自动同步。后续仅文档收尾，开始下一任务必须核实最新origin/main。
+2026-11-24；main基线10b9a7d827e1c09f152ead58c21f26712d49a619。用户已明确授权末次Git补送、六PR必要CI核实、独立备份门禁恢复及全部38项组合后仅Staging部署；不合并main/正式PR，不部署Production，不改业务规则/数据/权限，十争议未实施。
 
-1. [当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[PR160最终验收与代理方案](tasks/completed/pr160-final-acceptance-2026-11-20.md)。
-2. [Issue161恢复与510任务证据](tasks/active/staging-selected-source-recovery-2026-11-20.md)、[Issue159删除生命周期与部署历史](tasks/active/ainuoke-source-deleted-2026-11-20.md)。两文档保留原日期/阶段限制，最终状态以本次独立收尾记录和当前状态为准。
-3. [订单中心](features/ORDER_CENTER.md)、[同步审计](features/AINUOKE_SYNC_AUDIT.md)、[监管runbook](ops/ainuoke-catalog-sync-supervisor.md)、[业务规则](BUSINESS_RULES.md)、[决策](DECISION_LOG.md)、[发布基线](features/RELEASE_BASELINE_GUARD.md)。
-4. [合并前摘要逐字归档](tasks/completed/2026-11-20-pr160-before-final-acceptance/CURRENT_STATE.md)、[此前c3阶段](tasks/completed/2026-11-20-before-selected-source-recovery/CURRENT_STATE.md)、[产品管理](product-management/WORKFLOW.md)、[既有Git交付协议](tasks/active/git-delivery-resilience.md)。
+[组合输入、路径和验收](tasks/active/ui165-staging-acceptance-2026-11-24.md)、[38项清单](tasks/active/ui-standards-delivery-2026-11-23.md)、[逐文件组合证据](tasks/active/ui165-combination-paths-2026-11-24.json)、[前阶段摘要原件](tasks/completed/2026-11-24-before-ui165-staging/CURRENT_STATE.md)。
 
-实际Staging仍为已验收0752，Git合并不等于重新部署；本轮禁止Production、Worker重启和业务DB变更。Issue159/161验收与PR合并分别留痕，旧原始失败raw缺失不补造；未知结果、身份和完整分页保护继续生效。本轮没有新功能开发。
+PR171已精确补送2775aae86584f7a3db634dad658aa3ae46e767c9；PR166—170同HEAD三CI全成功，171新CI运行中。此前NETWORK_DEGRADED历史保留，本次一次性恢复DELIVERED_VERIFIED/NORMAL。
+
+独立候选codex/ui165-staging-acceptance从9802e738既有组合clean建立，38个产品路径，27独占blob精确、11共享整合保留双方变更，未重做38项。必要组合检查、集成PR和真实部署结果待追加，尚未宣称Staging完成。备份故障专项另记codex/ui165-staging-recovery；原失败保留，通过正向安全门禁前不切版。
+
+组合7bf36465 typecheck/lint/build、root1028、release182、38路径guard通过；关账/compact/payment/排单/导航/团队通过。资源测试定位重绘竞态已仅在测试中修正，完整资源23/23重跑通过，原失败保留；正式物料display补跑与远端CI/部署另记，不预写成功。候选无新产品改动。
+
+交付路径更正：正式订单详情为/order-center/server-detail?id=…，不是未开放的旧/detail。material-display11已通过，八套实际回归分别通过合计144项；本次只更正文档，产品文件不变。六原PR166—171三CI均全成功。完整备份在新17774e94仍发生600秒归档超时，专项PR将保持独立，原失败与门禁保留。

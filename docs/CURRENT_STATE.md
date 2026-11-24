@@ -1,13 +1,13 @@
-# 当前：PR160已合并，订单删除与Staging同步恢复已验收
+# Issue165：全38项组合验收交付进行中
 
-2026-11-20；代码整合main基线 **4e1f9a514c8ff6e9cf7289d724df33c32bc05368**（PR160 merge commit），受审分支HEAD e833b819f653f27b3448e447795864693a0a6568。用户在本会话明确认可订单删除及自动同步恢复，并授权Ready/正常合并、Issue159与Project收尾；Production及本轮重新部署/Worker重启/业务数据操作仍禁止。本次后续仅文档收尾；未来任务先fetch并核实实际origin/main，不把部署SHA当主线SHA。
+2026-11-24；main基线10b9a7d827e1c09f152ead58c21f26712d49a619。用户已明确授权末次Git补送、六PR必要CI核实、独立备份门禁恢复及全部38项组合后仅Staging部署；不合并main/正式PR，不部署Production，不改业务规则/数据/权限，十争议未实施。
 
-实际Staging仍为已验收代码 **0752d64f309d68b6e52afbbd712d28e0d9db9c1e**，未因Git合并重新部署。0060/145表，原database/objects容器及四卷保留。新备份20261120T111255Z-b640f966、原清理证明、九Gate全PASS，Supervisor自然启动唯一Worker并验证真实PG心跳。两轮255+255=510成功/0失败，每合同下一次计划为完成+1800秒；142原失败及所有暂停/恢复历史保留。两删除合同PI2611-142/143保持source_deleted/version1、无新自动任务，数量10000/8000及历史不变。以上是2026-11-20验收事实，本轮未新查业务数据库或更改运行环境。
+[组合输入、路径和验收](tasks/active/ui165-staging-acceptance-2026-11-24.md)、[38项清单](tasks/active/ui-standards-delivery-2026-11-23.md)、[逐文件组合证据](tasks/active/ui165-combination-paths-2026-11-24.json)、[前阶段摘要原件](tasks/completed/2026-11-24-before-ui165-staging/CURRENT_STATE.md)。
 
-用户已验收红色“订单删除”及其他订单不受影响。完整双遍、历史成功出现、账号/身份/报表/范围/分页和唯一BillNo关联仍为删除/恢复门槛；不物理删除、不改Price隔离/未知结果保护/30分钟策略。Issue159和161正式验收完成；GitHub实际Done/关闭结果见[最终收尾记录](tasks/completed/pr160-final-acceptance-2026-11-20.md)。用户验收不倒改此前助手Staging浏览器工具故障的历史记录。
+PR171已精确补送2775aae86584f7a3db634dad658aa3ae46e767c9；PR166—170同HEAD三CI全成功，171新CI运行中。此前NETWORK_DEGRADED历史保留，本次一次性恢复DELIVERED_VERIFIED/NORMAL。
 
-e833最新三项CI全部真实SUCCESS：Source44741932214、Release baseline44741932219、First team access44741932341。0752已有root1026/1026、baseline182/182、目录106、生命周期PG10、Linux30、真实Docker/PG E2E1及typecheck/lint/前后端build，未重跑同SHA完整套件。旧dfcd Source cancelled保留历史，不能代替本轮success。纯文档收尾只新增适用的基线/链接检查，不改业务代码、UI、SQL、脚本或workflow。
+独立候选codex/ui165-staging-acceptance从9802e738既有组合clean建立，38个产品路径，27独占blob精确、11共享整合保留双方变更，未重做38项。必要组合检查、集成PR和真实部署结果待追加，尚未宣称Staging完成。备份故障专项另记codex/ui165-staging-recovery；原失败保留，通过正向安全门禁前不切版。
 
-Git当前已证明星辰VPN7888可用，旧GitHub专用代理17989无监听；正式脚本一次push把e833精确送达。仅子进程覆盖代理，不改全局/共享Git配置、认证或TLS。长期仓库级方案与回退边界见最终收尾记录，尚未执行持久修改。
+组合7bf36465 typecheck/lint/build、root1028、release182、38路径guard通过；关账/compact/payment/排单/导航/团队通过。资源测试定位重绘竞态已仅在测试中修正，完整资源23/23重跑通过，原失败保留；正式物料display补跑与远端CI/部署另记，不预写成功。候选无新产品改动。
 
-保留限制：旧selected_source_invalid原始坏行raw缺失，无法还原具体字段；两轮验收不是永久无故障承诺。备份资产、旧失败、私密配置及证据仍在原受控位置，不上传秘密/原业务导出。[恢复证据](tasks/active/staging-selected-source-recovery-2026-11-20.md)、[删除生命周期证据](tasks/active/ainuoke-source-deleted-2026-11-20.md)、[上阶段摘要原件](tasks/completed/2026-11-20-pr160-before-final-acceptance/CURRENT_STATE.md)。本轮无新功能，下一步以最新origin/main为稳定开发基线。
+交付路径更正：正式订单详情为/order-center/server-detail?id=…，不是未开放的旧/detail。material-display11已通过，八套实际回归分别通过合计144项；本次只更正文档，产品文件不变。六原PR166—171三CI均全成功。完整备份在新17774e94仍发生600秒归档超时，专项PR将保持独立，原失败与门禁保留。

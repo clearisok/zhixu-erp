@@ -396,7 +396,10 @@ test('built Server navigation keeps the workspace continuous without changing au
         acceptNativeDeparture = true;
         try {
           const confirmations = await evaluate("(()=>{window.foreignConfirmCount=0;window.confirm=()=>{window.foreignConfirmCount++;return true;};[...document.querySelectorAll('button')].find(n=>n.getAttribute('aria-label')==='报价中心').click();return window.foreignConfirmCount;})()");
-          assert.equal(confirmations, 1); await until(() => evaluate(`window.continuityDocument!==${JSON.stringify(oldDocument)}&&document.readyState==='complete'`), 'explicit foreign-history recovery'); await quoteReady();
+          assert.equal(confirmations, 0, 'role departure uses the approved shared confirmation');
+          await has('角色权限有未保存修改');
+          assert.equal(await evaluate("document.querySelector('.qc-permission-account-fields input').value"), '外部历史仍保留草稿');
+          await click('放弃修改'); await until(() => evaluate(`window.continuityDocument!==${JSON.stringify(oldDocument)}&&document.readyState==='complete'`), 'explicit foreign-history recovery'); await quoteReady();
         } finally { acceptNativeDeparture = false; }
         assert.deepEqual(documents.slice(start), ['/quote-center']);
         const after = await command('Page.getNavigationHistory'); assert.equal(after.entries.find(entry => entry.id === foreign.id)?.url, foreign.url);

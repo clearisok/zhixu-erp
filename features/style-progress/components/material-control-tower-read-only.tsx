@@ -17,7 +17,7 @@ const tabs = [
   { key: 'material', label: '物料 / 需求' }, { key: 'arrivals', label: '到料计划' },
   { key: 'purchase', label: '采购明细' }, { key: 'inbound', label: '入库明细' },
   { key: 'shipment', label: '出运明细' }, { key: 'outbound', label: '出库明细' },
-  { key: 'verification', label: '数据核实' }, { key: 'reconciliation', label: '对账' },
+  { key: 'verification', label: '数据核实' }, { key: 'reconciliation', label: '货款申请' },
 ] as const;
 type EventTab = typeof tabs[number]['key'];
 type Selection = { kind: 'all' } | { kind: 'group'; key: string; scope: 'self' | 'factory' | 'unknown' } | { kind: 'row'; id: string };
@@ -167,7 +167,7 @@ const views = [{key:'self',label:'物料总览 / 自购需求'},{key:'factory',l
 type MainView = typeof views[number]['key'];
 export type MaterialSourceHandle={open:()=>void};
 const selfColumns = [
-  ['color','颜色'],['spec','规格'],['width','门幅'],['gsm','克重'],['demand','需求数量'],['unit','单位'],
+  ['color','颜色'],['spec','规格'],['width','门幅'],['gsm','克重'],['demand','需求数量'],['unit','关联采购单位'],
   ['purchase','已采购'],['inbound','已入库'],['pending','待入库'],['excess','多余仓'],['shipment','物料出运'],['state','状态'],['action','操作'],
 ] as const;
 const factoryColumns = ([['name','物料名称'],...selfColumns] as const).filter(([key])=>!['width','gsm','pending','excess','shipment'].includes(key)).map(([key,label])=>[key,key==='demand'?'厂供数量':key==='purchase'?'已落实数量':key==='inbound'?'到货数量':label] as const);
@@ -242,7 +242,7 @@ export function ReadOnlyMaterialControlTower({ view, trimPriorityKeywords = [], 
     const cells:Record<string,ReactNode>={
       name:row.demand.materialName.normalize('NFKC').trim()===groupName.normalize('NFKC').trim()?<span className="sp-dense-visually-hidden">{row.demand.materialName}</span>:<strong>{row.demand.materialName}</strong>,color:row.demand.materialColor||'未提供',spec:row.demand.specification||'未提供',width:row.demand.width||'—',gsm:row.demand.gsm||'—',
       demand:<button type="button" className="sp-business-demand" title="查看需求来源" onClick={onVerify}>{number(row.demand.requiredQuantity)}</button>,
-      unit:displayUnit.unit?<button type="button" className="sp-business-demand" title={displayUnit.reason} onClick={onFlow('purchase')}>{displayUnit.unit}</button>:<button type="button" className="sp-business-pending" title={displayUnit.reason} onClick={onVerify}>待核实</button>,
+      unit:displayUnit.unit?<button type="button" className="sp-business-demand" title={displayUnit.reason} onClick={onFlow('purchase')}>{displayUnit.unit}{!row.purchases.length && row.unit && <small>（需求原始单位）</small>}</button>:<button type="button" className="sp-business-pending" title={displayUnit.reason} onClick={onVerify}>待核实</button>,
       purchase:<FlowValue fact={facts.flows.purchase} label="采购" onClick={onFlow('purchase')}/>,
       inbound:<FlowValue fact={facts.flows.inbound} label="入库" onClick={onFlow('inbound')}/>,pending:<GapValue fact={facts.pendingInbound} onClick={onVerify}/>,excess:<ExcessWarehouseValue row={row} onClick={onFlow('inbound')}/>,
       shipment:<FlowValue fact={facts.flows.shipment} label="出运" onClick={onFlow('shipment')}/>,
