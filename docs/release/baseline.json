@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "10b9a7d827e1c09f152ead58c21f26712d49a619",
-  "verifiedAt": "2026-11-24T07:53:05Z",
+  "verifiedAt": "2026-11-24T09:18:40Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -6349,6 +6349,31 @@
       "sha256": "fb6dc024b013cf6a8bb183ba3bf74f864088e6f9923612378d0d4aafed5f6a18",
       "supersedes": "issue174-storage-design-v1-20261124",
       "changeReason": "Issue174 design v1.1 clarifies the existing verify-only migration startup compatibility matrix; no retention, business, implementation or deployment scope changes. Preserve the frozen v1 document and all historical evidence."
+    },
+    {
+      "id": "issue174-simplified-business-20261124",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "84f422dea12bdd3016d39beed16e8a063b85b2c3",
+      "sha256": "31910483dad7e2a573933de974d6177d2e6fdb7c15d0a373a183bd9c0746135c",
+      "supersedes": "issue174-storage-business-input-20261124",
+      "changeReason": "D200 records the user supplied pre-cutover unreferenced source-history exception. All protected business data, future real changes and safety/execution boundaries remain. The v2 selective-migration architecture is proposed, not implemented."
+    },
+    {
+      "id": "issue174-simplified-decisions-20261124",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "84f422dea12bdd3016d39beed16e8a063b85b2c3",
+      "sha256": "465f774a18dab5bfd9fb529d01c99e1e9b5f6e21defa4c816fe8b33b2fbd7ddd",
+      "supersedes": "issue174-storage-decisions-20261124",
+      "changeReason": "D200 records the user supplied pre-cutover unreferenced source-history exception. All protected business data, future real changes and safety/execution boundaries remain. The v2 selective-migration architecture is proposed, not implemented."
+    },
+    {
+      "id": "issue174-simplified-v2-20261124",
+      "kind": "document",
+      "path": "docs/features/Issue174-精简整改决策方案-v2.md",
+      "recordedAtSha": "84f422dea12bdd3016d39beed16e8a063b85b2c3",
+      "sha256": "150fbb1320df9ecacb732fabe407f400ce86bca4defdfd9ea1031e808ea4730f"
     }
   ],
   "pages": [
