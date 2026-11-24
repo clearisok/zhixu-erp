@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 import type { Pool, PoolClient } from 'pg';
 import type { AdditionBundle, AdditionDiscoveryBundle } from './additions.js';
 import { hash, SourceError, type SourceBundle } from './contract.js';
+import { hydrateSharedPages } from './shared-content.js';
 
 type Database = Pick<Pool | PoolClient, 'query'>;
 type PackedPage = { metadata: Record<string, unknown>; rowsHash: string };
@@ -52,7 +53,22 @@ export async function hydrateContractEvidence(c: Database, row: {
 }) {
  if (hash(row.evidence) !== row.content_hash) throw new SourceError('catalog_evidence_invalid');
  if (!row.capture_evidence_id) return row.evidence as unknown as { addition: AdditionBundle; materials: SourceBundle['materials'][string] };
- if (row.evidence.schemaVersion !== 'ainuoke-contract-observation.v2' || row.evidence.captureId !== row.capture_evidence_id) throw new SourceError('catalog_evidence_invalid');
+ if (!['ainuoke-contract-observation.v2','ainuoke-contract-observation.v3'].includes(String(row.evidence.schemaVersion)) || row.evidence.captureId !== row.capture_evidence_id) throw new SourceError('catalog_evidence_invalid');
  const directory = await loadCatalogEvidence(c,row.source_key,row.capture_evidence_id,row.account_fingerprint);
+ if(row.evidence.schemaVersion==='ainuoke-contract-observation.v3') {
+  const contract=String(row.evidence.contract),sourceId=String(row.evidence.sourceId);
+  const colors=await hydrateSharedPages(c,row.source_key,[row.evidence.colors],{accountFingerprint:row.account_fingerprint,sourceId,contract,kind:'colors'});
+  const materials=await hydrateSharedPages(c,row.source_key,[row.evidence.materials],{accountFingerprint:row.account_fingerprint,sourceId,contract,kind:'materials'});
+  return {addition:{...directory,schemaVersion:'ainuoke-order-addition.v1',colors:{[contract]:colors}} as unknown as AdditionBundle,materials};
+ }
  return { addition:{ ...directory,schemaVersion:'ainuoke-order-addition.v1',colors:row.evidence.colors } as AdditionBundle, materials:row.evidence.materials as SourceBundle['materials'][string] };
+}
+
+export async function hydrateSourceDirectory(c:Database,sourceKey:string,pages:unknown[]):Promise<SourceBundle['discoveryAfter']>{
+ const marker=pages[0] as {schemaVersion?:string;captureId?:string};
+ if(marker?.schemaVersion!=='ainuoke-shared-directory.v1')return pages as SourceBundle['discoveryAfter'];
+ if(pages.length!==1||!marker.captureId)throw new SourceError('catalog_evidence_invalid');
+ const p=(await c.query('SELECT account_fingerprint FROM ainuoke_source_profiles WHERE source_key=$1',[sourceKey])).rows[0];
+ if(!p)throw new SourceError('catalog_evidence_invalid');
+ return (await loadCatalogEvidence(c,sourceKey,marker.captureId,p.account_fingerprint)).discoveryAfter;
 }

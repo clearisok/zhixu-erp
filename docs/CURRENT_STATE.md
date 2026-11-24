@@ -1,13 +1,13 @@
-# 当前：Issue174精简方案v2，仅评估待审批
+# 当前：Issue174 v2第一、第二阶段实施中
 
-2026-11-24；main基线 **10b9a7d827e1c09f152ead58c21f26712d49a619**，本轮GitHub connector只读复核仍一致。继续原文档分支`chore/issue174-storage-design`，起点`97074255880e8e422793e2ea4bdbc10667b79126`且clean；沿用NETWORK_DEGRADED，不重复Git失败通道。
+2026-11-24；main基线 **10b9a7d827e1c09f152ead58c21f26712d49a619**。独立分支`feat/issue174-storage-v2`，起点`dee3d6800d718d67ac91494ec56c76b89ef11caf` clean。用户已批准v2第一/二阶段，见[D201](DECISION_LOG.md)及[Issue授权转录](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7127626591)。Project按实际字段进入In Progress，未改其他配置。
 
-[精简v2](features/Issue174-精简整改决策方案-v2.md)窄替代[v1.1](features/Issue174-同步存储架构整改与数据库容量治理实施方案.md)全量旧历史转换/长期混读路线。D200记录用户新输入：允许不迁入整改前无业务引用/无其他保留义务的旧来源变化及重复过程正文；新起点T后真实变化长期保留。正式业务/人工计划/员工权限/附件、当前来源绑定及业务引用闭包、删除恢复、异常/unknown/在途/幂等和法律保留不变。7/30/90天、专项备份自验收成功起90天及同步频率不变。
+范围：共享目录/正文、真实变化版本与确认分离、差异写、引用保护、受控TTL和汇总；现有配对备份隔离恢复和选择性迁移演练。原则仅两张新表，统一工程PR；v2优先于v1.1的全历史迁移/长期兼容/新增平台。全部正式业务、当前来源/绑定、业务引用闭包、删除恢复、异常/unknown/在途/幂等/附件保全，保留期限和调度不变。
 
-建议选择性迁移到独立紧凑库，原则两张新表（正文/每日汇总容量），复用现有目录/任务/FK并固定枚举JSON引用，三阶段一组候选/一次计划Staging切换。不开发通用旧历史重建、pins平台、独立incident系统或通用反向转换；不能取消引用闭包、备份实际恢复、并发/幂等/未知保护。开放新写后不承诺旧程序一键回退，必须保全新写。
+未批准实际Staging切换/历史删除/自动清理启用/Worker恢复/旧库或备份退役；不得自动合并、部署Production或覆盖其他Staging整改。catalog_diagnostic_write_failed仍暂停。PR172实际版本与PR173备份修复须在未来组合切换时整合，工程与部署验收分开。
 
-沿用旧调查12.336GB/145表/636单；本轮未连接数据库、未重查体积、未做全量去重或新源站请求。1–2GB/95%仍待实测；v2资源示例44.3GB新增＋对象，非容量保证。实际Staging旧调查a0a9c78c（PR172）及未合并PR173等须实施前重新核对。既存catalog_diagnostic_write_failed不在本轮恢复范围。
+原文档提交完整发布基线182/182通过；工程候选server:build与目录followup PG集成16/16通过，新的存储/保留/迁移检查进行中。不得提前声称第一/二阶段完成。D盘私有隔离恢复进行中，原备份58文件hash匹配、13附件对象；60GB预算，Docker PG16.15独立network none，未连接艾诺科。
 
-Issue174保持Open/Design/P0的设计目标；不自批Ready。本轮只做文档与Issue登记，没有代码/SQL、数据删除/迁移、配置/部署、Worker或Production操作。最新提交、文档检查及REMOTE/PR状态见Issue最终评论与AI_HANDOFF；实际PR交付前仍需最新HEAD的完整发布门禁。上轮182项通过不冒称本轮重跑。
+一次明确获批Git交付失败，NETWORK_DEGRADED；API独立核对原文档远端分支不存在。继续可靠本地checkpoint，不重复失败通道，不冒称PR送达。待阶段一代码/测试及阶段二实际容量、增长性能、业务/附件等价、恢复资源全部验证后提交简明阶段三审批材料。
 
-[上轮摘要原件](tasks/completed/2026-11-24-before-issue174-simplification/README.md)保留旧日期/hash/结果；[原始调查和v1.1交付](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7126632505)不覆盖。下一步集中评审精简路线；实际放弃清单、资源、窗口/恢复时限和所有不可逆操作另行形成操作单授权。
+[实施恢复点](tasks/active/issue174-storage-implementation.md)、[接力](AI_HANDOFF.md)、[实施前摘要原件](tasks/completed/2026-11-24-before-issue174-implementation/CURRENT_STATE.md)。历史调查12.336GB/145表/636单是11-24调查时点，不冒充演练实测。

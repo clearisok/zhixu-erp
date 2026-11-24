@@ -275,8 +275,11 @@ async function addOrdersImplementation(pool: Pool, identity: Pick<TrustedIdentit
     await appendOperationLog(client,currentActor,{module:'艾诺科同步',action:'受控接纳新增合同',entityType:'AinuokeSourceAddition',
       entityId:options.sourceKey,metadata:{sourceKey:options.sourceKey,reviewHash:current.reviewHash,
         orderCount:ids.length,scope:'current_account_visible',salesContractNos:current.candidates.map(c=>c.source.salesContractNo)}});
-    if(options.receipt)await client.query('INSERT INTO ainuoke_catalog_intake_receipts(actor_id,request_id,payload_hash,result) VALUES($1,$2,$3,$4::jsonb)',
-      [actor.internalUserId,options.receipt.requestId,receiptHash,JSON.stringify({created:ids.length,replayed:false,orderIds:ids,reviewHash:current.reviewHash})]);
+    if(options.receipt){
+      const shared=(await client.query("SELECT to_regclass('ainuoke_contract_contents') IS NOT NULL AS ready")).rows[0].ready;
+      await client.query(`INSERT INTO ainuoke_catalog_intake_receipts(actor_id,request_id,payload_hash,result${shared?',observation_id':''}) VALUES($1,$2,$3,$4::jsonb${shared?',$5':''})`,
+       [actor.internalUserId,options.receipt.requestId,receiptHash,JSON.stringify({created:ids.length,replayed:false,orderIds:ids,reviewHash:current.reviewHash}),...(shared?[options.receipt.observationId]:[])]);
+    }
     await auditPublished(client,options.sourceKey,ids,data,'',['sales_orders','sales_order_source_links','ainuoke_sales_order_contract_mirrors','ainuoke_sales_order_color_mirrors'],false,false);
     await auditMappedOrderCounts(client,{created:ids.length,unchanged:0,createdColors:current.candidates.reduce((n,c)=>n+c.colors.length,0),unchangedColors:0,orderIds:ids});
     await commitWithSyncAudit(client);

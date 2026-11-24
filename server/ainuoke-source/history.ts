@@ -9,6 +9,8 @@ import {adaptAinuokeOrderDiscoverySnapshots} from '../../features/ainuoke-api/so
 import type {AinuokeOrderDiscoveryQuery,AinuokeReportSnapshot} from '../../features/ainuoke-api/model/ainuoke-api.js';
 import {normalizeAinuokeInsideOrderNo,normalizeAinuokeSalesContractNo} from '../../features/ainuoke-sync/source/ainuoke-garment-color-size-adapter.js';
 import {projectMaterialProgress,type MaterialProgressView} from '../../features/ainuoke-material-progress/projection.js';
+import {hydrateSharedPages} from './shared-content.js';
+import {hydrateSourceDirectory} from './catalog-evidence.js';
 
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const maxBytes=32*1024*1024;
@@ -66,6 +68,8 @@ export function createPersistedMaterialHistoryReader(pool:Pool,config:SourceRead
    return scope(identity,id,async(client,context)=>{
     const metadata=(await client.query<StoredMeta>(sql(context)+' AND r.id=$3::uuid',[config.sourceKey,id.toLowerCase(),runId])).rows[0];if(!metadata)fail(404,'material_history_not_found');if(metadata.bytes>maxBytes)fail(413,'material_history_limit');
     const payload=(await client.query<{discovery:AinuokeReportSnapshot<AinuokeOrderDiscoveryQuery>[];snapshots:AinuokeReportSnapshot[];discovery_hash:string;content_hash:string;order_scope:unknown[]|null;order_scope_hash:string|null}>(`SELECT r.discovery,r.discovery_hash,s.snapshots,s.content_hash,${context.recorded?'r.order_scope':'NULL::jsonb'} AS order_scope,${context.attributed?'r.order_scope_hash':'NULL::text'} AS order_scope_hash FROM ainuoke_source_runs r JOIN ainuoke_material_source_snapshots s ON s.run_id=r.id WHERE r.id=$1 AND s.sales_order_id=$2`,[runId,id.toLowerCase()])).rows[0];
+    payload.discovery=await hydrateSourceDirectory(client,config.sourceKey,payload.discovery);
+    payload.snapshots=await hydrateSharedPages(client,config.sourceKey,payload.snapshots,{contract:metadata.sales_contract_no,kind:'materials'});
     if(hash(payload.discovery)!==payload.discovery_hash||hash(payload.snapshots)!==payload.content_hash)fail(503,'material_history_integrity_failed');
     inspect(payload.discovery);inspect(payload.snapshots);
     const captured=metadata.captured_at.getTime(),clock=now();if(!Number.isFinite(clock)||captured>clock||!payload.discovery.length||!payload.snapshots.length)fail(503,'material_history_integrity_failed');

@@ -9,6 +9,8 @@ import { permissionsForUser, requirePermission } from "../auth/permissions.js";
 import { appendOperationLog } from "../operation-logs/repository.js";
 import type { VisibleMaterialOrder } from "../../features/ainuoke-material-progress/read-service.js";
 import { SourceError, sourceKeyValid, validateBundle, hash } from "./contract.js";
+import { supportsSharedContent } from './shared-content.js';
+import { publishSharedMaterialSnapshots } from './shared-publication.js';
 export type Collector = (contracts: string[]) => Promise<unknown>;
 export async function sourceActor(client: Pool | PoolClient, identity: Pick<TrustedIdentity, "internalUserId" | "userId">, write: boolean, lock = true): Promise<TrustedIdentity> {
     const row = (await client.query<{
@@ -158,6 +160,7 @@ async function captureSourceImplementation(pool: Pool, identity: Pick<TrustedIde
 /** Caller holds the source profile and trusted order locks; no IO or transaction ownership. */
 export async function publishMaterialSnapshotsInTransaction(client:PoolClient,actor:TrustedIdentity,sourceKey:string,
  validated:Awaited<ReturnType<typeof validateBundle>>,current:BoundSourceOrder[],historical?:{historicalObservationId:string;replaceOlder?:boolean}) {
+ if(await supportsSharedContent(client))return publishSharedMaterialSnapshots(client,actor,sourceKey,validated,current,historical);
  const attributionSupported=await supportsSourceAttribution(client),contextSupported=await supportsMaterialCaptureContext(client);
  const perOrder=await supportsOrderHeads(client),scopeHash=hash(current);
         const runId = randomUUID();

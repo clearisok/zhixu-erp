@@ -5,7 +5,8 @@ import {hash,sourceKeyValid,SourceError} from './contract.js';
 import {SYNC_AUDIT_SOURCES} from './audit-sources.js';
 import type {RequestDiagnostic} from './sync-diagnostics.js';
 import {validateSyncPolicy} from './sync-schedule.js';
-import {loadCatalogEvidence} from './catalog-evidence.js';
+import {loadCatalogEvidence,hydrateContractEvidence} from './catalog-evidence.js';
+import {hydrateSharedPages} from './shared-content.js';
 
 type DB=Pick<Pool|PoolClient,'query'>;
 type Page={reportId:string;fetchedAt:string;page:number;total:number;queryContext:Record<string,unknown>;rows:{values:Record<string,unknown>}[]};
@@ -234,7 +235,7 @@ export async function auditPublished(db:DB,sourceKey:string,publication:string|s
   if(!old.size&&definition?.targets.includes('ainuoke_material_source_snapshots')){
    const prior=(await db.query(`SELECT s.snapshots FROM ainuoke_material_source_snapshots s JOIN ainuoke_source_runs r ON r.id=s.run_id
     WHERE r.source_key=$1 AND s.sales_contract_no=$2 AND s.run_id::text<>$3 ORDER BY r.captured_at DESC LIMIT 1`,[sourceKey,contract,publicationId])).rows[0];
-   if(prior){const baseline=auditRecordSet(auditPages(prior.snapshots).filter(p=>String(p.reportId)===reportId));if(!baseline.ambiguous)old=baseline.records;}
+   if(prior){const baseline=auditRecordSet(auditPages(await hydrateSharedPages(db,sourceKey,prior.snapshots,{contract,kind:'materials'})).filter(p=>String(p.reportId)===reportId));if(!baseline.ambiguous)old=baseline.records;}
   }
   if(!old.size&&reportId==='6086103'){
    const prior=(await db.query(`SELECT r.capture_evidence_id,r.account_fingerprint,r.discovery
@@ -244,10 +245,10 @@ export async function auditPublished(db:DB,sourceKey:string,publication:string|s
    catch(error){if(error instanceof SourceError){ambiguous=true;metricsError='comparison_baseline_unavailable';}else throw error;}
   }
   if(!old.size&&['6086997','6087105'].includes(reportId)&&contract){
-   const prior=(await db.query(`SELECT o.evidence->'colors'->$2 AS pages FROM ainuoke_contract_observations o
-    JOIN ainuoke_catalog_entries e USING(source_key,source_id) WHERE o.source_key=$1 AND e.sales_contract_no=$2 AND o.id::text<>$3
+   const prior=(await db.query(`SELECT o.*,p.account_fingerprint FROM ainuoke_contract_observations o
+    JOIN ainuoke_catalog_entries e USING(source_key,source_id) JOIN ainuoke_source_profiles p USING(source_key) WHERE o.source_key=$1 AND e.sales_contract_no=$2 AND o.id::text<>$3
     ORDER BY o.captured_at DESC LIMIT 1`,[sourceKey,contract,publicationId])).rows[0];
-   if(prior){const baseline=auditRecordSet(auditPages(prior.pages));if(!baseline.ambiguous)old=baseline.records;}
+   if(prior){const baseline=auditRecordSet(auditPages((await hydrateContractEvidence(db,prior)).addition.colors[contract]));if(!baseline.ambiguous)old=baseline.records;}
   }
   let inserted=0,updated=0,unchanged=0;
   if(!ambiguous)for(const [key,content]of records){if(replayed)unchanged++;else if(!old.has(key))inserted++;else if(old.get(key)===content)unchanged++;else updated++;}
@@ -265,7 +266,8 @@ export async function auditPublished(db:DB,sourceKey:string,publication:string|s
      ...(creation.length?{sourceCreationEvidence:{field:definition!.createdField,examples:creation.slice(0,5),moreValues:creation.length>5,timezone:'not_inferred'}}:{})})]);
   if(!ambiguous&&records.size)await db.query(`INSERT INTO ainuoke_sync_audit_record_state(source_key,report_id,scope_key,record_key,content_hash,batch_id)
    SELECT $1,$2,$3,r.key,r.content,$4 FROM jsonb_to_recordset($5::jsonb) AS r(key text,content text)
-   ON CONFLICT(source_key,report_id,scope_key,record_key) DO UPDATE SET content_hash=excluded.content_hash,batch_id=excluded.batch_id`,
+   ON CONFLICT(source_key,report_id,scope_key,record_key) DO UPDATE SET content_hash=excluded.content_hash,batch_id=excluded.batch_id
+   WHERE ainuoke_sync_audit_record_state.content_hash IS DISTINCT FROM excluded.content_hash`,
    [sourceKey,reportId,scope,ctx.id,JSON.stringify([...records].map(([key,content])=>({key,content})))]);
  }
 }
