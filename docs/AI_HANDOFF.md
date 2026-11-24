@@ -7,3 +7,5 @@
 PR171已精确补送2775aae86584f7a3db634dad658aa3ae46e767c9；PR166—170同HEAD三CI全成功，171新CI运行中。此前NETWORK_DEGRADED历史保留，本次一次性恢复DELIVERED_VERIFIED/NORMAL。
 
 独立候选codex/ui165-staging-acceptance从9802e738既有组合clean建立，38个产品路径，27独占blob精确、11共享整合保留双方变更，未重做38项。必要组合检查、集成PR和真实部署结果待追加，尚未宣称Staging完成。备份故障专项另记codex/ui165-staging-recovery；原失败保留，通过正向安全门禁前不切版。
+
+组合7bf36465 typecheck/lint/build、root1028、release182、38路径guard通过；关账/compact/payment/排单/导航/团队通过。资源测试定位重绘竞态已仅在测试中修正，完整资源23/23重跑通过，原失败保留；正式物料display补跑与远端CI/部署另记，不预写成功。候选无新产品改动。
