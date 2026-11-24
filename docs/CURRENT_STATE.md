@@ -1,13 +1,13 @@
-# 当前：Issue174同步存储治理v1.1，仅设计待审批
+# 当前：Issue174精简方案v2，仅评估待审批
 
-2026-11-24；设计main基线 **10b9a7d827e1c09f152ead58c21f26712d49a619**。GitHub API与本地对象/HEAD一致；起始fetch经进程代理连接失败，本轮NETWORK_DEGRADED、未刷新ref。独立文档分支chore/issue174-storage-design起点clean。用户本轮只批准技术设计及必要有界只读核对，不批准实施、迁移、历史删除、配置、部署、调频或恢复Worker。
+2026-11-24；main基线 **10b9a7d827e1c09f152ead58c21f26712d49a619**，本轮GitHub connector只读复核仍一致。继续原文档分支`chore/issue174-storage-design`，起点`97074255880e8e422793e2ea4bdbc10667b79126`且clean；沿用NETWORK_DEGRADED，不重复Git失败通道。
 
-[Issue174](https://github.com/clearisok/zhixu-erp/issues/174)为Open/Design/P0；[完整方案v1.1](features/Issue174-同步存储架构整改与数据库容量治理实施方案.md)和[用户原文](tasks/active/issue174-design-request-2026-11-24.md)固化已批准7/30/90天保留规则、长期业务/真实变化/必要证据及全部例外。失败30天从解决起算；迁移专项备份90天从正式验收成功起算，不修改日常备份策略。技术结构/执行参数/监控期限及全部A–F实际执行仍待批准，不进入Ready。
+[精简v2](features/Issue174-精简整改决策方案-v2.md)窄替代[v1.1](features/Issue174-同步存储架构整改与数据库容量治理实施方案.md)全量旧历史转换/长期混读路线。D200记录用户新输入：允许不迁入整改前无业务引用/无其他保留义务的旧来源变化及重复过程正文；新起点T后真实变化长期保留。正式业务/人工计划/员工权限/附件、当前来源绑定及业务引用闭包、删除恢复、异常/unknown/在途/幂等和法律保留不变。7/30/90天、专项备份自验收成功起90天及同步频率不变。
 
-沿用11-24 12:06:35调查：12.336GB、145表、636订单；前三表92.11%，run.discovery已压缩7.964GB。过去7天42,398次6087051发布中99.38%逻辑计数未变，不等于整个合同所有报表都未变。本轮不重跑全库体积或正文去重，只核对外键/代码逻辑引用、近5条故障记录及运维DB连接角色。新方案复用目录chunks/capture、共享物料/颜色正文、双hash、无变化轻量确认、引用保护TTL和隔离紧凑库迁移；1–2GB/95%只是待实测目标，无实施收益宣称。
+建议选择性迁移到独立紧凑库，原则两张新表（正文/每日汇总容量），复用现有目录/任务/FK并固定枚举JSON引用，三阶段一组候选/一次计划Staging切换。不开发通用旧历史重建、pins平台、独立incident系统或通用反向转换；不能取消引用闭包、备份实际恢复、并发/幂等/未知保护。开放新写后不承诺旧程序一键回退，必须保全新写。
 
-实际Staging调查标签revision a0a9c78c6cccbadf5e635dbb60169f7f87944644（未合并PR172组合UI）；PR173备份候选head da1c2653ae6c53a1527bcee60dbdec734cc36553也未合并，后续必须核对实际app/operator/backup版本，不能被main文档覆盖。既有控制enabled=true、paused_reason=catalog_diagnostic_write_failed，最后heartbeat 11-24 11:16:20.855北京；回执不足以确定根因，不推定容量导致，不解除安全门禁。运维连接quote_trial为superuser，不能据此假定应用角色已隔离；TTL机制启用前须核实实际身份。
+沿用旧调查12.336GB/145表/636单；本轮未连接数据库、未重查体积、未做全量去重或新源站请求。1–2GB/95%仍待实测；v2资源示例44.3GB新增＋对象，非容量保证。实际Staging旧调查a0a9c78c（PR172）及未合并PR173等须实施前重新核对。既存catalog_diagnostic_write_failed不在本轮恢复范围。
 
-本轮质量检查仅文档/相对链接、Git范围与实际main锚点release guard/基线回归；无业务代码或UI变化，不用旧0752/e833测试充当本次结果，设计测试矩阵均为未来待执行。最终本地commit、检查结果及远端/PR交付状态见AI_HANDOFF/Issue最终评论；精确送达前不记REMOTE PASS。保留旧日期/hash/结果的[设计前摘要](tasks/completed/2026-11-24-before-issue174-storage-design/README.md)及[PR160历史验收](tasks/completed/pr160-final-acceptance-2026-11-20.md)。
+Issue174保持Open/Design/P0的设计目标；不自批Ready。本轮只做文档与Issue登记，没有代码/SQL、数据删除/迁移、配置/部署、Worker或Production操作。最新提交、文档检查及REMOTE/PR状态见Issue最终评论与AI_HANDOFF；实际PR交付前仍需最新HEAD的完整发布门禁。上轮182项通过不冒称本轮重跑。
 
-下一步：用户集中审批v1.1；实施前补全量隔离去重/引用/峰值/回滚测量和具体执行授权。Production、旧库/卷/备份资产删除不在授权内。
+[上轮摘要原件](tasks/completed/2026-11-24-before-issue174-simplification/README.md)保留旧日期/hash/结果；[原始调查和v1.1交付](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7126632505)不覆盖。下一步集中评审精简路线；实际放弃清单、资源、窗口/恢复时限和所有不可逆操作另行形成操作单授权。

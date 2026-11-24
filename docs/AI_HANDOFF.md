@@ -1,17 +1,13 @@
-# 接力：Issue174技术方案v1.1，禁止直接实施
+# 接力：Issue174精简决策v2，仅评估
 
-2026-11-24；main设计基线 **10b9a7d827e1c09f152ead58c21f26712d49a619**。用户附件只批准设计及必要只读核对；[原文](tasks/active/issue174-design-request-2026-11-24.md)、[完整方案](features/Issue174-同步存储架构整改与数据库容量治理实施方案.md)、[Issue174](https://github.com/clearisok/zhixu-erp/issues/174)。Open/Design/P0，保留规则已批准但任何A–F代码/SQL/迁移/清理/配置/部署/暂停恢复都未批准；不重复询问保留期限，也不自行进入Ready。
+2026-11-24；main基线 **10b9a7d827e1c09f152ead58c21f26712d49a619**，本轮connector复核一致；branch `chore/issue174-storage-design`，本轮起点`97074255880e8e422793e2ea4bdbc10667b79126` clean。NETWORK_DEGRADED延续，不重复push/自动恢复命令，不用文件API伪造交付。最终HEAD/命令在Issue交付评论，未精确送达前PR pending。
 
-branch chore/issue174-storage-design，起点游离10b9a7d8且clean，GitHub API读main精确一致。起始fetch连接失败→NETWORK_DEGRADED，不能重试同通道或自动执行恢复命令，不用文件API伪造commit送达。完成本地设计checkpoint与Issue回填；精确远端HEAD未核实前PR为pending。最终commit/恢复命令在最终Issue评论与工具回执，避免文件自引用hash循环。下一执行者先读最新Issue/用户决定，不把当前设计当实施授权。
+先读[精简方案v2](features/Issue174-精简整改决策方案-v2.md)与最新[Issue174](https://github.com/clearisok/zhixu-erp/issues/174)决定。v1.1原文件/hash保持；D200窄替代D199对整改前无引用旧来源变化一律长期保留的输入。用户只授权评估，没有授权删除/迁移/配置/部署/调频/Worker恢复，不能把新起点理解成清库重采。正式业务、当前来源、业务引用闭包、删除恢复、异常/unknown/在途/幂等/法律hold全保，7/30/90天及专项备份自验收成功起90天不变。
 
-沿用原调查12.336GB/145表/636订单；本轮仅补引用、角色和故障有界只读核查，没有重跑体积调查/全量去重。方案四种新增职责（共享正文、逻辑引用pins、incident、90天汇总/容量），目录复用0055；无变化不建业务版本、freshness与版本创建分离；E1无损compact与E2期限主动放弃分开；独立资源演练，原盘39.7GB不可假定足够。95%和1–2GB待实测。
+推荐两新表（共享正文/每日汇总容量）、现有目录与任务/FK＋固定JSON保护、只转换当前/受保护集合、三阶段统一候选/一次计划Staging切换；不做通用pins/incident/旧历史重建/反向转换。新写开放后不得冻结旧库覆盖新写。1–2GB/95%和44.3GB资源示例均非实测承诺。本轮没有DB连接/体积重查或源站请求。
 
-现场既存catalog_diagnostic_write_failed，heartbeat 11-24 11:16:20.855北京；原码可能归并DB或回调错误，不能据此吞错/恢复。Staging调查app标签a0a9c78c（PR172）、未合并备份PR173 da1c2653，未来候选需整合已批准有效整改而非直接覆盖。引用保护必须包含material_arrival_plans FK、历史JSON、生命周期run、幂等/未知/在途及目录chunks JSON边。运维PG连接为superuser，应用身份隔离尚未验证，TTL apply保持禁用。
+源码核对0039 snapshot复合FK、0053 jobs/observations/state、0055目录chunks、0060生命周期run与worker/历史补发。未知引用必须hold；取消pins不取消事务内保护与闭包。现行不可变/verify-only/恢复/权限门禁照旧；运维quote_trial旧调查为superuser，不假定app权限隔离；catalog_diagnostic_write_failed未恢复；PR172/173等实际候选未来另核对。
 
-本轮仅文档及release manifest基线/新版本证据：旧冻结ID/hash逐项保留，业务输入/决策新blob前向supersedes；无截图hash/能力状态/UI变动。共享依赖目录只读使用，当前工作树node_modules junction指向锁文件SHA256一致的ui165-staging-acceptance依赖，没有安装或修改共享包。最终检查须为精确10b9a7d8的release guard＋基线回归、文档链接/diff；不运行或声称通过未来迁移/业务测试。
+本轮仅文档/链接/归档原字节/冻结证据前向版本及release guard检查；不把上轮182项通过算成本轮执行。未改守卫/测试或UI，不无理由重跑大套件；在真实PR交付前仍须对届时最新HEAD执行check:release-baseline与test:release-baseline，完整PR门禁未提前记PASS。
 
-[上轮摘要原件](tasks/completed/2026-11-24-before-issue174-storage-design/README.md)、[Git协议](tasks/active/git-delivery-resilience.md)。原库、对象、备份、受控配置未改，无新源站请求，不合并任何PR或部署Production。
-
-本地设计内容checkpoint：`a1e87ad43e344a49539c596ebe4741c75586c050`。完整v1已发布并读回核实：[Issue全文](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7124646434)。前向证据的旧ID/hash/截图/能力字段逐项保持核对PASS；精确main的release guard已PASS（13页面、68能力、0 UI变更）。本轮必需基线回归已启动，最终退出码/通过数以Issue最终交付评论为准，不提前记通过；未执行任何未来业务/TTL/迁移验收。最终交付仍受NETWORK_DEGRADED约束，PR未创建前保持REMOTE PENDING。
-
-最终稿v1.1仅澄清§15 migration verify-only兼容矩阵，保留原v1评论/提交/hash。首次基线回归182项断言通过，但本地诊断注入的动态import异步错误导致进程退出1，不能记PASS；干净重跑及最终guard结果以Issue最终评论为准。仅诊断本地自有测试进程，未操作Staging。
+[上轮摘要原件](tasks/completed/2026-11-24-before-issue174-simplification/README.md)、[上轮最终182项记录](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7126632505)。本轮最终本地commit/checks/Issue版本链接见新交付评论；下一步集中评审，不进入Ready或执行。
