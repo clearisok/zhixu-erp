@@ -7,3 +7,5 @@
 7710684d1d98ea90281790ada12f0d803a3265e5组合：typecheck/lint/Server frontend build、release182/182（158870ms）、root1028/1028（149448ms）、exact guard38 UI路径全部PASS；真实compact/团队/关账串行38/38（181435ms），含A/B/C3全部交互用例，不将测试数量与问题数混同。产品代码没有组合新修；后续仅接入B远端发现的过期native-confirm导航验收脚本修正，导航/数据处理器不改。
 
 最新产品13fd757ea95e7cc82571978ab488ba9e274a356b：typecheck/lint/Server frontend build、release182/182（125496ms）、root1028/1028（156721ms）、exact guard38 UI路径PASS。实际built UI配测试b1ca2c7d，导航+紧凑页面38/38 PASS（76675ms），包含修正后role外部历史共享确认、设置取消/接受/无二次原生确认，以及A/B/C3各新增用例。首轮组合新增设置测试继承前序390宽度导致隐藏菜单超时，测试显式设1440后通过，产品代码不变，失败未覆盖。最新组合仅既有main报价套件三类失败与Staging恢复门禁仍为已知限制，未声称可部署。
+
+2026-11-24：组合产品4ca6409808e717aa7b987f7a28fd8d8d7f634a46纳入最终O03明确fetch错误识别，完整Server frontend build成功，实际compact13/13（48651ms）通过，A/B/C3全部新增交互仍在。payment测试定位同步M02货款申请，三处名称和标题改变；金额/七角色/权限/只读断言不变，该项真实9/9在独立C3同产品代码构建616cee91通过（36101ms），未冒充在组合构建重复运行。完整root1028/release182/typecheck/lint仍各自绑定先前13fd组合，O03末次helper完整root1028/release182/typecheck/lint在独立616cee91通过。组合本地checkpoint，不推送、不创建额外PR。
