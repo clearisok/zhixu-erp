@@ -39,3 +39,13 @@ PostgreSQL16官方pg_dump文档支持custom归档的zstd压缩：https://www.pos
 02:34:29Z建立受控切版意图；Supervisor与原备份锁内让唯一旧Worker正常TERM完成当前批次、确认无running/unknown及lease，再用既有trial维护/启动路径仅替换app/gateway/objects-tls。未执行migration、init或DB恢复。02:35:08Z候选a0a9c78c6cccbadf5e635dbb60169f7f87944644/app镜像a0339f6b74e88a4df7a270d9f4573014e024f2abbf0c07eb082d3e399c32ce9c切版成功；database/objects容器ID/image/mount/configHash及四卷inspect全部相同，145表/migration ledger/角色和权限计数相同；23受保护表、3原用户/角色关系及本次基线635订单身份hash全部相同。635是本次切版基线，不把11月20日历史630倒写；既有正常自动同步与UI切版保全分开。
 
 新Runtime catalog-sync-a0a9c78c，operator镜像d6ddbaf687b72ba22a8a0f4de06f76c26818e40166db3efecca799caf1af0937，独立host backupTool仍精确2ce/856。匹配policy/pins与原两个owned cron块安装，其他crontab原字节保留。继承保护未直接清除，没有启动新Worker。正式新source配对备份20261124T023509Z-089bb129于02:35:09Z开始；当前RUNNING，必须其完整校验/cleanup和新源九Gate、新heartbeat通过后才能宣称Staging验收就绪。旧75配对备份不能冒充新a0配对证明。
+
+## 新source正式门禁收口（2026-11-24 03:02Z）
+
+20261124T023509Z-089bb129于02:58:50Z BACKUP_VERIFIED（145表/13对象）；第一遍全快照506805ms、归档374096ms，完整数据解码及第二遍全量快照相等。02:58:51Z commandsCertain/commandGroupsExited/dockerExecQuiescent/verified全true、原服务恢复。独立重新读取58文件大小及完整SHA、manifest0a2f9c372571ef3e81a1df681fa7b28d5752fb491a1ce4ac193f6466361bb796；所有policy/executor pin吻合，旧两次failure原字节相同。
+
+Supervisor正常分钟流程恢复RUNNING/heartbeat_verified，PG新heartbeat03:01:43.148Z；新source九Gate全true，唯一Worker镜像d6ddbaf6…。所有五原服务健康、DB/objects及四卷仍原值；未清除历史code=new_release_backup_required，不把历史code改写成成功。实际a0app及独立2ce工具证据分别绑定，恢复条件已正常恢复。
+
+首次完整只读检查的服务器公网build-info探测403，因此失败回执保留，没有改HTTP断言或网络安全配置来掩盖。当前电脑独立TLS校验的既有staging-lan入口HTTP200，build-info完整a0与源站逐项相同、quote-center HTML200、health ok/database ready；将该独立观察文件带入只读检查，其余所有原断言不变，最终final-live-runtime.json通过。观察位置与公网403明确分开，不能宣称所有公网用户可访问。
+
+实站业务浏览器复验另受Codex桌面network policy错误阻塞，0页DOM/无截图；不以HTTP200代替业务验收。全部38项清单、各PR最终SHA/CI、隔离浏览器结果与实站边界见[最终报告](ui165-final-delivery-2026-11-24.md)。当前允许用户集中验收，未用户认可/未Done/未合并/未Production。
