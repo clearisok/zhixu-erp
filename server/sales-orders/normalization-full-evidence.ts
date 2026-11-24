@@ -14,6 +14,9 @@ export async function normalizationTargetFingerprint(client:PoolClient){
 /** Every bounded matching row contributes all its bytes. No first-100 ID approximation. */
 export async function collectFullNormalizationEvidence(client:PoolClient,caseId:string,proposal:AttributionProposal,external:CoverageSnapshot,limits=FULL_INVENTORY_LIMITS,freezeRows=false){
  if(!Number.isSafeInteger(limits.maxRows)||limits.maxRows<1||limits.maxRows>100000||!Number.isSafeInteger(limits.maxBytes)||limits.maxBytes<1||limits.maxBytes>33554432)fail('normalization_full_inventory_limit');
+ // Same fence as the later permanent-evidence hold, before locking source rows.
+ // The fence is harmless on older schemas and prevents an inverse prune lock order.
+ if(freezeRows)await client.query("SELECT pg_advisory_xact_lock(hashtextextended('ainuoke-storage-maintenance',0))");
  const targetFingerprint=await normalizationTargetFingerprint(client);
  const memberIds=proposal.assignments.map(row=>row.originalOrderId);
  const record=(await client.query('SELECT id::text,first_order_id::text,second_order_id::text FROM sales_order_normalization_cases WHERE id=$1',[caseId])).rows[0];

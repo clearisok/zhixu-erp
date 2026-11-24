@@ -417,11 +417,11 @@ export async function replaceCurrentAinuokeColorSlice(
   client: Queryable,
   salesOrderId: string,
   colors: readonly AinuokeColorMirrorInput[],
-): Promise<void> {
+): Promise<boolean> {
  return writeSourceObservation(client,salesOrderId,async client=>{
-  await client.query("DELETE FROM ainuoke_sales_order_color_mirrors WHERE sales_order_id = $1::uuid AND NOT(source_line_identity=ANY($2::text[]))", [salesOrderId,colors.map(c=>requiredText(c.sourceLineIdentity,'sourceLineIdentity'))]);
+  let changed=Boolean((await client.query("DELETE FROM ainuoke_sales_order_color_mirrors WHERE sales_order_id = $1::uuid AND NOT(source_line_identity=ANY($2::text[]))", [salesOrderId,colors.map(c=>requiredText(c.sourceLineIdentity,'sourceLineIdentity'))])).rowCount);
   for (const color of colors) {
-    await client.query(
+    const written=await client.query(
       `INSERT INTO ainuoke_sales_order_color_mirrors(
          sales_order_id, source_line_identity, color_name, quantity,
          delivery_date, source_hash, source_metadata
@@ -441,7 +441,9 @@ export async function replaceCurrentAinuokeColorSlice(
         JSON.stringify(color.sourceMetadata ?? {}),
       ],
     );
+    changed ||= Boolean(written.rowCount);
   }
+  return changed;
  });
 }
 

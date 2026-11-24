@@ -13,6 +13,7 @@ import type { AinuokeOrderDiscoveryQuery, AinuokeSalesContractQuery, AinuokeRepo
 import { SourceError, hash, sourceKeyValid, inspect, pagesValid, discoveryContentHash } from "./contract.js";
 import { boundOrders, sourceActor } from "./service.js";
 import { previewAdditions, selectContracts, assertStoredAdditionMatches } from "./additions.js";
+import {saveManualColorEvidence} from './manual-source-evidence.js';
 
 export type BindingBundle = {
   schemaVersion: "ainuoke-order-binding.v1";
@@ -88,7 +89,7 @@ async function bindOrdersImplementation(pool: Pool, identity: Pick<TrustedIdenti
     ? previewBindings(data, (options.now ?? Date.now)())
     : previewSelectedBindings(data, selected, (options.now ?? Date.now)());
   const actor = await sourceActor(pool, identity, true); requirePermission(actor.permissions, "ainuoke.bind");
-  const data=await options.collect();
+  const data=structuredClone(await options.collect());
   const {preview, reviewHash} = await review(data);
   await auditAcquired(pool,data);
   if (reviewHash !== options.expectedPreview) throw new SourceError("binding_preview_changed");
@@ -127,11 +128,12 @@ async function bindOrdersImplementation(pool: Pool, identity: Pick<TrustedIdenti
         sourceId: row.external_id, salesContractNo: normalizeAinuokeSalesContractNo(row.sales_contract_no)})));
     }
     const ids: string[] = []; let created = 0;
+    await client.query("INSERT INTO ainuoke_source_profiles(source_key,account_fingerprint) VALUES($1,$2) ON CONFLICT DO NOTHING", [options.sourceKey,options.accountFingerprint]);
     for (const candidate of candidates) {
-      const result = await createAinuokeSalesOrderInTransaction(client, currentActor, candidate);
+      const result = await createAinuokeSalesOrderInTransaction(client, currentActor, candidate,{sourceEvidence:()=>saveManualColorEvidence(client,
+       {sourceKey:options.sourceKey,accountFingerprint:options.accountFingerprint,sourceId:candidate.source.sourceId,contract:candidate.source.salesContractNo},data as BindingBundle)});
       ids.push(result.salesOrder.id); if (result.created) created++;
     }
-    await client.query("INSERT INTO ainuoke_source_profiles(source_key,account_fingerprint) VALUES($1,$2) ON CONFLICT DO NOTHING", [options.sourceKey,options.accountFingerprint]);
     if (created) await appendOperationLog(client,currentActor,{module:"艾诺科同步",action:"首次绑定艾诺科订单",entityType:"AinuokeSourceBinding",entityId:options.sourceKey,metadata:{sourceKey:options.sourceKey,reviewHash,orderCount:created,scope:selected === undefined ? "current_account_visible" : "explicit_selected_first_binding",...(selected === undefined ? {} : {selectedContracts: preview.candidates.map(c => c.source.salesContractNo)})}});
     await auditPublished(client,options.sourceKey,ids,data,'',['sales_orders','sales_order_source_links','ainuoke_sales_order_contract_mirrors','ainuoke_sales_order_color_mirrors'],created===0,false);
     await auditMappedOrderCounts(client,{created,unchanged:ids.length-created,createdColors:created?candidates.reduce((n,c)=>n+c.colors.length,0):0,unchangedColors:created?0:candidates.reduce((n,c)=>n+c.colors.length,0),orderIds:ids});

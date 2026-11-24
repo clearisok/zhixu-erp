@@ -1,0 +1,11 @@
+{
+  "baselineSha": "10b9a7d827e1c09f152ead58c21f26712d49a619",
+  "level": "V1",
+  "paths": [
+    "features/order-center/components/material-history-dialog.tsx",
+    "features/order-center/server/material-history-client.ts"
+  ],
+  "pages": ["order-center", "order-material-history"],
+  "visibleDifference": "Restore the approved v2 history semantics in the existing modal: disclose the actual new history start and incomplete earlier timeline when the server supplies an epoch; use source-change wording instead of implying that every old collection remains online. No navigation, density, table, column or interaction redesign.",
+  "evidence": ["docs/tasks/active/issue174-storage-implementation.md"]
+}

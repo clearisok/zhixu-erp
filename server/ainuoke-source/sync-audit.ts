@@ -5,7 +5,7 @@ import {hash,sourceKeyValid,SourceError} from './contract.js';
 import {SYNC_AUDIT_SOURCES} from './audit-sources.js';
 import type {RequestDiagnostic} from './sync-diagnostics.js';
 import {validateSyncPolicy} from './sync-schedule.js';
-import {loadCatalogEvidence,hydrateContractEvidence} from './catalog-evidence.js';
+import {loadCatalogEvidence,hydrateContractEvidence,hydrateSourceDirectory} from './catalog-evidence.js';
 import {hydrateSharedPages} from './shared-content.js';
 
 type DB=Pick<Pool|PoolClient,'query'>;
@@ -70,10 +70,16 @@ export function auditRecordSet(pages:readonly Page[]){
  * Absence of a readable prior baseline is not evidence that every row is new. */
 export async function catalogAuditRecordSet(db:DB,sourceKey:string,run:{capture_evidence_id:string|null;account_fingerprint:string;discovery:unknown}){
  if(!/^[a-f0-9]{64}$/.test(run.account_fingerprint??''))throw new SourceError('catalog_audit_baseline_unavailable');
- const input=run.capture_evidence_id?await loadCatalogEvidence(db,sourceKey,run.capture_evidence_id,run.account_fingerprint):run.discovery;
+ const marker=Array.isArray(run.discovery)?run.discovery[0]:null;
+ const input=marker?.schemaVersion==='ainuoke-shared-directory.v1'?await hydrateSourceDirectory(db,sourceKey,run.discovery as unknown[]):run.capture_evidence_id?await loadCatalogEvidence(db,sourceKey,run.capture_evidence_id,run.account_fingerprint):run.discovery;
  const pages=auditPages(input);
  if(!pages.length||pages.some(p=>p.reportId!=='6086103'))throw new SourceError('catalog_audit_baseline_unavailable');
  return auditRecordSet(pages);
+}
+/** Capture evidence and upstream attempt IDs remain distinct ledger namespaces. */
+export async function auditDirectoryEvidence(db:DB,captureId:string){
+ const owner=context.getStore();if(!owner)return;
+ await db.query('UPDATE ainuoke_sync_audit_batches SET directory_evidence_ids=array_append(directory_evidence_ids,$2::uuid) WHERE id=$1 AND NOT $2::uuid=ANY(directory_evidence_ids)',[owner.id,captureId]);
 }
 export async function withSyncAudit<T>(pool:Pool,scope:{id?:string;sourceKey:string;type:string;contracts?:string[];jobIds?:string[];retries?:number;historical?:boolean;frequencies?:string[];reports?:string[]},fn:()=>Promise<T>):Promise<T>{
  if(!sourceKeyValid(scope.sourceKey))throw new SourceError('invalid_source_configuration');

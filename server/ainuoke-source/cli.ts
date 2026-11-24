@@ -9,6 +9,7 @@ import { captureCatalogOnce, readCatalogCaptureReceipt } from './catalog-capture
 import { configureSync } from './sync-queue.js';
 import { DEFAULT_SYNC_POLICY } from './sync-schedule.js';
 import { runSyncTick } from './sync-worker.js';
+import { maintainSourceStorage } from './storage-maintenance.js';
 import { createSessionCollector } from './session-collector.js';
 import {runAutomaticSync} from './sync-runner.js';
 import {readSyncHealth} from './sync-health.js';
@@ -157,6 +158,8 @@ export async function main(args: string[] = process.argv.slice(2)): Promise<void
         await verifyMigrationsCurrent(pool,server.migrationsDirectory);
         const automatic=!sourceIds&&Date.now()>=automaticAt;
         const result=await runSyncTick(pool,actor,current,{batchSize,automatic,sourceIds,collect:sessionCollector.collect});
+        const maintenance=await maintainSourceStorage(pool,current.sourceKey);
+        process.stdout.write(JSON.stringify({result:'SOURCE_STORAGE_MAINTENANCE',...maintenance})+'\n');
         if(automatic)automaticAt=Date.now()+60000;
         if(result.status!=='idle')process.stdout.write(JSON.stringify({event:'SYNC_TICK',...result})+'\n');
         if(action==='sync-once'||result.status==='paused'||result.status==='failed'&&!result.retryScheduled)break;

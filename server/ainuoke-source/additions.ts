@@ -12,6 +12,7 @@ import { mapSelectedFinalSalesOrderCandidates } from '../../features/ainuoke-syn
 import type { AinuokeOrderDiscoveryQuery, AinuokeSalesContractQuery, AinuokeReportSnapshot } from '../../features/ainuoke-api/model/ainuoke-api.js';
 import { SourceError, hash, sourceKeyValid, inspect, pagesValid, discoveryContentHash } from './contract.js';
 import { boundOrders, sourceActor } from './service.js';
+import {saveManualColorEvidence} from './manual-source-evidence.js';
 
 export type BoundIdentity = { id: string; sourceId: string; salesContractNo: string };
 export type AdditionDiscoveryBundle = {
@@ -235,7 +236,7 @@ async function addOrdersImplementation(pool: Pool, identity: Pick<TrustedIdentit
   }
   await requireAdditionProfile(pool, options.sourceKey, options.accountFingerprint);
   const before = await readBoundIdentities(pool);
-  const data = await options.collect();
+  const data = structuredClone(await options.collect());
   const reviewed = await previewAdditions(data, options.selected, before, (options.now ?? Date.now)());
   if (reviewed.reviewHash !== options.expectedPreview) throw new SourceError('addition_preview_changed');
   const client = await pool.connect();
@@ -268,7 +269,8 @@ async function addOrdersImplementation(pool: Pool, identity: Pick<TrustedIdentit
     }
     const ids: string[] = [];
     for (const candidate of current.candidates) {
-      const result = await createAinuokeSalesOrderInTransaction(client, currentActor, candidate);
+      const result = await createAinuokeSalesOrderInTransaction(client, currentActor, candidate,{sourceEvidence:()=>saveManualColorEvidence(client,
+       {sourceKey:options.sourceKey,accountFingerprint:options.accountFingerprint,sourceId:candidate.source.sourceId,contract:candidate.source.salesContractNo},data as AdditionBundle)});
       if (!result.created) throw new SourceError('addition_existing_identity');
       ids.push(result.salesOrder.id);
     }

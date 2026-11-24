@@ -13,3 +13,7 @@ D盘新建私有任务目录和Docker PG16.15独立network none容器；原配�
 Git一次批准交付结果LOCAL_PASS_REMOTE_UNVERIFIED/NETWORK_DEGRADED，API独立核对目标分支为空；不重复push、不改认证、不用文件API伪造提交。最终PR须先精确远端验证。最终本地候选发布门禁须重新绑定其HEAD，旧文档182通过不替代工程最终检查。
 
 [实施前摘要原件](tasks/completed/2026-11-24-before-issue174-implementation/AI_HANDOFF.md)保留日期/hash/结果；阶段一/二完成后交简明实际容量、同负载增长/性能、保留放弃清单、业务附件完整性、磁盘/停机估算与恢复、PR/测试和阶段三一次性授权清单，不再扩写方案。
+
+2026-11-25恢复点：原配对备份145表逐行SHA多重集合、原序列与13附件校验全部通过；恢复2963.09秒，完整行hash1699.29秒。隔离网络已改为专属internal，无网关/端口/源站凭据。选择2复制145表219.883秒，source_runs2076/73934、observations1458/73127；post-data FK恢复通过。外部archive UUID使用原配对操作证明，不伪造observation FK。普通queued/已知failed不保留该合同全部旧成功历史，精确任务/重试/引用仍保留；running/unknown整合同hold。全部新增和dirty均为本阶段自建，无继承dirty。
+
+当前源代码包含0062–0067、受限NOLOGIN维护权限、默认清理关闭、可信失败解决CAS、真实业务颜色证据FK、历史epoch/事件类别和隔离选择/转换/核验工具。5个核心场景及新增选择条件单测通过；server:build/typecheck/lint通过一次，本候选最终全量门禁待收口。选择2目标尚未转换，先建旧格式负载基线副本；转换/compact/业务等价/增长性能/恢复仍未完成，禁止提前声明可切换。

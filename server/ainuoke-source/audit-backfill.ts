@@ -32,9 +32,9 @@ export async function backfillExistingSyncAudit(pool:Pool,identity:Identity,sour
     SELECT 1 FROM ainuoke_material_source_snapshots s WHERE s.run_id::text=j.result->>'publicationRunId' AND s.sales_order_id::text=j.result->>'orderId' AND s.sales_contract_no=j.sales_contract_no)))) AS published,
    NULL::text AS publication_id,
    coalesce((SELECT jsonb_agg(jsonb_build_object('report_id',r.report_id,'rows',r.n,'read_at',r.at)) FROM (
-    SELECT p->>'reportId' AS report_id,sum(jsonb_array_length(p->'rows')) AS n,max(p->>'fetchedAt') AS at
+    SELECT coalesce(p->>'reportId',p#>>'{metadata,reportId}') AS report_id,sum(jsonb_array_length(coalesce(p->'rows',p->'ordinals'))) AS n,max(coalesce(p->>'fetchedAt',p#>>'{metadata,fetchedAt}')) AS at
     FROM ainuoke_sync_jobs j JOIN ainuoke_material_source_snapshots s ON s.run_id::text=j.result->>'publicationRunId' AND s.sales_order_id::text=j.result->>'orderId'
-    CROSS JOIN LATERAL jsonb_array_elements(s.snapshots) p WHERE j.id=ANY(a.job_ids) GROUP BY p->>'reportId')r),'[]') AS reports
+    CROSS JOIN LATERAL jsonb_array_elements(CASE WHEN s.snapshots#>>'{0,schemaVersion}'='ainuoke-shared-pages.v1' THEN s.snapshots#>'{0,manifest}' ELSE s.snapshots END) p WHERE j.id=ANY(a.job_ids) GROUP BY coalesce(p->>'reportId',p#>>'{metadata,reportId}'))r),'[]') AS reports
   FROM ainuoke_sync_capture_attempts a JOIN candidates k ON k.id=a.id AND k.kind='capture' WHERE a.source_key=$1 AND a.mode='catalog-contracts' AND a.status<>'running'
   UNION ALL
   SELECT q.request_id,'catalog',q.source_key,q.created_at,q.finished_at,q.created_at,q.status,q.result->>'code','{}'::uuid[],NULL::jsonb,NULL::jsonb,'{}'::text[],
