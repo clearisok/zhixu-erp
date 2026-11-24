@@ -1,13 +1,13 @@
-# 接力：PR160已合并，Issue159/161验收收尾
+# 接力：Issue174技术方案v1，禁止直接实施
 
-2026-11-20；本轮纯文档收尾分支chore/pr160-acceptance-closeout，起点clean。main代码整合基线 **4e1f9a514c8ff6e9cf7289d724df33c32bc05368**，其父为636a5ad0d2d1acbe6b2705696e782dea12ee9f00和完整受审e833b819f653f27b3448e447795864693a0a6568。本地main另一个工作树可能仍旧，禁止移动/重置其他工作树；新任务先fetch并核实origin/main，再建独立分支。本轮文档交付的最终commit/PR/main SHA见GitHub和最终收尾评论，不能将0752部署SHA当新main。
+2026-11-24；main设计基线 **10b9a7d827e1c09f152ead58c21f26712d49a619**。用户附件只批准设计及必要只读核对；[原文](tasks/active/issue174-design-request-2026-11-24.md)、[完整方案](features/Issue174-同步存储架构整改与数据库容量治理实施方案.md)、[Issue174](https://github.com/clearisok/zhixu-erp/issues/174)。Open/Design/P0，保留规则已批准但任何A–F代码/SQL/迁移/清理/配置/部署/暂停恢复都未批准；不重复询问保留期限，也不自行进入Ready。
 
-用户明确接受Staging自动同步和订单删除，授权PR160正常合并及Issue159/Project收尾。PR160已Ready→MERGED，e833三CI真实success，无review/未解决thread；生产相关workflow只有workflow_dispatch，无push/workflow_run触发、无活动Webhook。没有启动生产工作流、重新部署Staging、访问业务DB、重启Worker或补任务。
+branch chore/issue174-storage-design，起点游离10b9a7d8且clean，GitHub API读main精确一致。起始fetch连接失败→NETWORK_DEGRADED，不能重试同通道或自动执行恢复命令，不用文件API伪造commit送达。完成本地设计checkpoint与Issue回填；精确远端HEAD未核实前PR为pending。最终commit/恢复命令在最终Issue评论与工具回执，避免文件自引用hash循环。下一执行者先读最新Issue/用户决定，不把当前设计当实施授权。
 
-Staging仍0752d64f309d68b6e52afbbd712d28e0d9db9c1e：九Gate、真实heartbeat、两轮510/510、142失败保全、两source_deleted合同及数量历史均已验收。不要重做备份/恢复/自然周期；不要把历史工具无法拍摄Staging登录后UI的记录改成助手验收，最终UI认可来源为用户本会话决定。
+沿用原调查12.336GB/145表/636订单；本轮仅补引用、角色和故障有界只读核查，没有重跑体积调查/全量去重。方案四种新增职责（共享正文、逻辑引用pins、incident、90天汇总/容量），目录复用0055；无变化不建业务版本、freshness与版本创建分离；E1无损compact与E2期限主动放弃分开；独立资源演练，原盘39.7GB不可假定足够。95%和1–2GB待实测。
 
-只复用已通过工程/CI结果；本轮只检查文档、与新main一致的基线锚点和必要的182项基线回归，不运行完整业务套件或真实来源采集。后续文档PR自动检查属于新提交的仓库规则，不冒称e833的旧检查属于新HEAD。
+现场既存catalog_diagnostic_write_failed，heartbeat 11-24 11:16:20.855北京；原码可能归并DB或回调错误，不能据此吞错/恢复。Staging调查app标签a0a9c78c（PR172）、未合并备份PR173 da1c2653，未来候选需整合已批准有效整改而非直接覆盖。引用保护必须包含material_arrival_plans FK、历史JSON、生命周期run、幂等/未知/在途及目录chunks JSON边。运维PG连接为superuser，应用身份隔离尚未验证，TTL apply保持禁用。
 
-网络：17989失效、星辰VPN实际7888，已用进程限定GitHub代理完成正式一次push/精确远端核验。长期方案仅提出仓库local GitHub专用代理（所有关联worktree共用），须明确批准后才持久更改；不改全局、认证、TLS、VPN节点或Docker代理。详[最终收尾记录](tasks/completed/pr160-final-acceptance-2026-11-20.md)。
+本轮仅文档及release manifest基线/新版本证据：旧冻结ID/hash逐项保留，业务输入/决策新blob前向supersedes；无截图hash/能力状态/UI变动。共享依赖目录只读使用，当前工作树node_modules junction指向锁文件SHA256一致的ui165-staging-acceptance依赖，没有安装或修改共享包。最终检查须为精确10b9a7d8的release guard＋基线回归、文档链接/diff；不运行或声称通过未来迁移/业务测试。
 
-[当前状态](CURRENT_STATE.md)、[完整恢复证据](tasks/active/staging-selected-source-recovery-2026-11-20.md)、[删除生命周期](tasks/active/ainuoke-source-deleted-2026-11-20.md)。[先前接力逐字归档](tasks/completed/2026-11-20-pr160-before-final-acceptance/AI_HANDOFF.md)。主机及本机私密证据位置沿原报告保留，不提交备份、配置或业务raw。当前无新功能任务。
+[上轮摘要原件](tasks/completed/2026-11-24-before-issue174-storage-design/README.md)、[Git协议](tasks/active/git-delivery-resilience.md)。原库、对象、备份、受控配置未改，无新源站请求，不合并任何PR或部署Production。
