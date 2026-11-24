@@ -38,3 +38,8 @@ typecheck、完整lint、最新Server frontend build通过；release182/182 PASS
 该产品typecheck/lint/Server frontend build、release182/182（141200ms）、root1028/1028（146569ms）、真实compact10/10（37584ms）通过；本次不以先前2913远端CI代替新代码。
 
 83ed26fd官方交付预检Git uncertain_transport，虽API精确核实B已送达，networkMode仍NETWORK_DEGRADED。依AGENTS网络协议不在后续Gate再push同通道，不自动执行恢复命令。此前C3远端2913e333f2607dd0c5e59dbdb77a55b1f92a8927已核实，**不包含本段616cee91补正及接力文档**；当前分支本地checkpoint保护，REMOTE PENDING。最终安全恢复命令由scripts/git-delivery.mjs的recoveryCommand纯函数绑定本地精确HEAD生成，保存在本任务外部交付文件，未执行。没有更改认证/共享代理/TLS，也未使用文件API替代Git。Staging原恢复门禁仍阻塞，未部署。
+
+## 2026-11-24远端CI差异与末次验收
+远端2913的Source运行45209445631失败于旧测试仍点击“对账”；M02已批准页签为“货款申请”。950388d2只更新三处点击名称和用例标题，不删金额、七角色、GET只读、过期隐藏、撤权、精确小数、分页及六宽度断言。产品构建仍616cee914a2e0f9d87eaeedffddb5634850b4aa1，更新后的真实payment9/9通过（36101ms）；初次远端失败保留。此测试修正及O03末次补正都仅本地，不能声称远端CI通过。
+
+同次远端核实：C1的8ab2ef04三项CI全SUCCESS；B83ed26fd的baseline/team成功，Source45210578035约25分钟被取消，日志未发现断言失败，已请求一次原配置job重试，不增加超时、不改workflow或跳过测试。具体取消根因未验证，重试结果尚待核实。
