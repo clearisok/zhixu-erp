@@ -324,13 +324,7 @@ export function ServerOrderCenterPage() {
   if (permissionDenied || !serverSession.hasPermission("order.view")) {
     return (
       <OrderCenterFrame count="—">
-        <AlertBanner
-          tone="warning"
-          title="当前 Server 账号没有订单查看权限"
-        >
-          已登录为 {trustedIdentity}；需要 order.view 权限。
-        </AlertBanner>
-        <ErrorState permission title="Server 权限不足（403）" description="请联系管理员分配 order.view 权限。" />
+        <ErrorState permission title="暂无订单查看权限" description={`已登录为 ${trustedIdentity}；请联系管理员开通订单查看权限。`} />
       </OrderCenterFrame>
     );
   }

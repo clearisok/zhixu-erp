@@ -1,10 +1,13 @@
-# 当前项目入口
+# Issue165：LOCAL ENGINEERING PASS，末次远端补送与Staging阻塞
 
-2026-11-20；PR160已正式合并，main代码整合基线 **4e1f9a514c8ff6e9cf7289d724df33c32bc05368**。用户已验收订单删除及Staging自动同步。后续仅文档收尾，开始下一任务必须核实最新origin/main。
+2026-11-24；main/PR基线 **10b9a7d827e1c09f152ead58c21f26712d49a619**。38项已按原方案分五批实现，10争议不实施；不自动合并、Production禁止。
 
-1. [当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[PR160最终验收与代理方案](tasks/completed/pr160-final-acceptance-2026-11-20.md)。
-2. [Issue161恢复与510任务证据](tasks/active/staging-selected-source-recovery-2026-11-20.md)、[Issue159删除生命周期与部署历史](tasks/active/ainuoke-source-deleted-2026-11-20.md)。两文档保留原日期/阶段限制，最终状态以本次独立收尾记录和当前状态为准。
-3. [订单中心](features/ORDER_CENTER.md)、[同步审计](features/AINUOKE_SYNC_AUDIT.md)、[监管runbook](ops/ainuoke-catalog-sync-supervisor.md)、[业务规则](BUSINESS_RULES.md)、[决策](DECISION_LOG.md)、[发布基线](features/RELEASE_BASELINE_GUARD.md)。
-4. [合并前摘要逐字归档](tasks/completed/2026-11-20-pr160-before-final-acceptance/CURRENT_STATE.md)、[此前c3阶段](tasks/completed/2026-11-20-before-selected-source-recovery/CURRENT_STATE.md)、[产品管理](product-management/WORKFLOW.md)、[既有Git交付协议](tasks/active/git-delivery-resilience.md)。
+[逐项清单和阻塞](tasks/active/ui-standards-delivery-2026-11-23.md)、[本批精确验证](tasks/active/ui-standards-c-operations-2026-11-23.md)、[用户批准](tasks/active/ui-standards-approval-2026-11-23.md)、[原索引](tasks/completed/2026-11-23-before-ui-standards/PROJECT_INDEX.md)。
 
-实际Staging仍为已验收0752，Git合并不等于重新部署；本轮禁止Production、Worker重启和业务DB变更。Issue159/161验收与PR合并分别留痕，旧原始失败raw缺失不补造；未知结果、身份和完整分页保护继续生效。本轮没有新功能开发。
+LOCAL：末次O03产品616cee91只识别明确网络错误，未知TypeError保持未知。typecheck/lint/build、root1028、release182、实际compact10通过；其余批次及组合见清单，已知Quote主干三类失败不隐瞒。
+
+REMOTE：规范/报告PR166、实施PR167/168/169/170/171均存在；A19e090bd、B83ed26fd、C18ab2ef04、C207fc0dc7、原C32913e333均精确送达。C3末次补正和本接力尚未送达；networkMode=NETWORK_DEGRADED，不再自动push或运行恢复命令。最终HEAD与安全一次性补送命令见本地交付文件，绑定SHA，不force/reset/clean、不改共享配置。Issue165保留In Progress，尚未最终验收。
+
+STAGING：原0752/RECOVERY_BLOCKED/backup_cleanup_unverified，originalFault=backup_failed_requires_review；未清保护/改回执/重启Worker/恢复/切版。现有https://staging.weaveops.top不能验收本轮38项；UI部署授权不能替代恢复门禁。
+
+2026-11-24补充：C3远端Source因旧“对账”测试定位失败，本地950388d2仅同步M02获批货款申请名称，真实payment9/9通过；组合4ca64098真实compact13/13通过。C1三CI成功；B Source取消后原配置重试一次，尚待核实。上述C3末次增量仍REMOTE PENDING，禁止将本地通过写作远端PASS。

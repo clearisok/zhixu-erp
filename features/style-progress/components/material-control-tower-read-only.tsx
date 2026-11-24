@@ -17,7 +17,7 @@ const tabs = [
   { key: 'material', label: '物料 / 需求' }, { key: 'arrivals', label: '到料计划' },
   { key: 'purchase', label: '采购明细' }, { key: 'inbound', label: '入库明细' },
   { key: 'shipment', label: '出运明细' }, { key: 'outbound', label: '出库明细' },
-  { key: 'verification', label: '数据核实' }, { key: 'reconciliation', label: '对账' },
+  { key: 'verification', label: '数据核实' }, { key: 'reconciliation', label: '货款申请' },
 ] as const;
 type EventTab = typeof tabs[number]['key'];
 type Selection = { kind: 'all' } | { kind: 'group'; key: string; scope: 'self' | 'factory' | 'unknown' } | { kind: 'row'; id: string };

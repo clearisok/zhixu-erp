@@ -1,13 +1,13 @@
-# 当前：PR160已合并，订单删除与Staging同步恢复已验收
+# Issue165：LOCAL ENGINEERING PASS，末次远端补送与Staging阻塞
 
-2026-11-20；代码整合main基线 **4e1f9a514c8ff6e9cf7289d724df33c32bc05368**（PR160 merge commit），受审分支HEAD e833b819f653f27b3448e447795864693a0a6568。用户在本会话明确认可订单删除及自动同步恢复，并授权Ready/正常合并、Issue159与Project收尾；Production及本轮重新部署/Worker重启/业务数据操作仍禁止。本次后续仅文档收尾；未来任务先fetch并核实实际origin/main，不把部署SHA当主线SHA。
+2026-11-24；main/PR基线 **10b9a7d827e1c09f152ead58c21f26712d49a619**。38项已按原方案分五批实现，10争议不实施；不自动合并、Production禁止。
 
-实际Staging仍为已验收代码 **0752d64f309d68b6e52afbbd712d28e0d9db9c1e**，未因Git合并重新部署。0060/145表，原database/objects容器及四卷保留。新备份20261120T111255Z-b640f966、原清理证明、九Gate全PASS，Supervisor自然启动唯一Worker并验证真实PG心跳。两轮255+255=510成功/0失败，每合同下一次计划为完成+1800秒；142原失败及所有暂停/恢复历史保留。两删除合同PI2611-142/143保持source_deleted/version1、无新自动任务，数量10000/8000及历史不变。以上是2026-11-20验收事实，本轮未新查业务数据库或更改运行环境。
+[逐项清单和阻塞](tasks/active/ui-standards-delivery-2026-11-23.md)、[本批精确验证](tasks/active/ui-standards-c-operations-2026-11-23.md)、[用户批准](tasks/active/ui-standards-approval-2026-11-23.md)、[原索引](tasks/completed/2026-11-23-before-ui-standards/PROJECT_INDEX.md)。
 
-用户已验收红色“订单删除”及其他订单不受影响。完整双遍、历史成功出现、账号/身份/报表/范围/分页和唯一BillNo关联仍为删除/恢复门槛；不物理删除、不改Price隔离/未知结果保护/30分钟策略。Issue159和161正式验收完成；GitHub实际Done/关闭结果见[最终收尾记录](tasks/completed/pr160-final-acceptance-2026-11-20.md)。用户验收不倒改此前助手Staging浏览器工具故障的历史记录。
+LOCAL：末次O03产品616cee91只识别明确网络错误，未知TypeError保持未知。typecheck/lint/build、root1028、release182、实际compact10通过；其余批次及组合见清单，已知Quote主干三类失败不隐瞒。
 
-e833最新三项CI全部真实SUCCESS：Source44741932214、Release baseline44741932219、First team access44741932341。0752已有root1026/1026、baseline182/182、目录106、生命周期PG10、Linux30、真实Docker/PG E2E1及typecheck/lint/前后端build，未重跑同SHA完整套件。旧dfcd Source cancelled保留历史，不能代替本轮success。纯文档收尾只新增适用的基线/链接检查，不改业务代码、UI、SQL、脚本或workflow。
+REMOTE：规范/报告PR166、实施PR167/168/169/170/171均存在；A19e090bd、B83ed26fd、C18ab2ef04、C207fc0dc7、原C32913e333均精确送达。C3末次补正和本接力尚未送达；networkMode=NETWORK_DEGRADED，不再自动push或运行恢复命令。最终HEAD与安全一次性补送命令见本地交付文件，绑定SHA，不force/reset/clean、不改共享配置。Issue165保留In Progress，尚未最终验收。
 
-Git当前已证明星辰VPN7888可用，旧GitHub专用代理17989无监听；正式脚本一次push把e833精确送达。仅子进程覆盖代理，不改全局/共享Git配置、认证或TLS。长期仓库级方案与回退边界见最终收尾记录，尚未执行持久修改。
+STAGING：原0752/RECOVERY_BLOCKED/backup_cleanup_unverified，originalFault=backup_failed_requires_review；未清保护/改回执/重启Worker/恢复/切版。现有https://staging.weaveops.top不能验收本轮38项；UI部署授权不能替代恢复门禁。
 
-保留限制：旧selected_source_invalid原始坏行raw缺失，无法还原具体字段；两轮验收不是永久无故障承诺。备份资产、旧失败、私密配置及证据仍在原受控位置，不上传秘密/原业务导出。[恢复证据](tasks/active/staging-selected-source-recovery-2026-11-20.md)、[删除生命周期证据](tasks/active/ainuoke-source-deleted-2026-11-20.md)、[上阶段摘要原件](tasks/completed/2026-11-20-pr160-before-final-acceptance/CURRENT_STATE.md)。本轮无新功能，下一步以最新origin/main为稳定开发基线。
+2026-11-24补充：C3远端Source因旧“对账”测试定位失败，本地950388d2仅同步M02获批货款申请名称，真实payment9/9通过；组合4ca64098真实compact13/13通过。C1三CI成功；B Source取消后原配置重试一次，尚待核实。上述C3末次增量仍REMOTE PENDING，禁止将本地通过写作远端PASS。
