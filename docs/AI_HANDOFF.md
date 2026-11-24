@@ -11,3 +11,5 @@ branch chore/issue174-storage-design，起点游离10b9a7d8且clean，GitHub API
 本轮仅文档及release manifest基线/新版本证据：旧冻结ID/hash逐项保留，业务输入/决策新blob前向supersedes；无截图hash/能力状态/UI变动。共享依赖目录只读使用，当前工作树node_modules junction指向锁文件SHA256一致的ui165-staging-acceptance依赖，没有安装或修改共享包。最终检查须为精确10b9a7d8的release guard＋基线回归、文档链接/diff；不运行或声称通过未来迁移/业务测试。
 
 [上轮摘要原件](tasks/completed/2026-11-24-before-issue174-storage-design/README.md)、[Git协议](tasks/active/git-delivery-resilience.md)。原库、对象、备份、受控配置未改，无新源站请求，不合并任何PR或部署Production。
+
+本地设计内容checkpoint：`a1e87ad43e344a49539c596ebe4741c75586c050`。完整v1已发布并读回核实：[Issue全文](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7124646434)。前向证据的旧ID/hash/截图/能力字段逐项保持核对PASS；精确main的release guard已PASS（13页面、68能力、0 UI变更）。本轮必需基线回归已启动，最终退出码/通过数以Issue最终交付评论为准，不提前记通过；未执行任何未来业务/TTL/迁移验收。最终交付仍受NETWORK_DEGRADED约束，PR未创建前保持REMOTE PENDING。

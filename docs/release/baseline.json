@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "4e1f9a514c8ff6e9cf7289d724df33c32bc05368",
-  "verifiedAt": "2026-11-20T14:51:38.168005+00:00",
+  "baselineSha": "10b9a7d827e1c09f152ead58c21f26712d49a619",
+  "verifiedAt": "2026-11-24T07:05:21Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -6315,6 +6315,31 @@
       "sha256": "24296b46057f976193f715b59ee62d77f648893dbf5d8c604bdbecdd0dc69e4f",
       "supersedes": "catalog-final-safety-contract-20261119",
       "changeReason": "User-approved Issue159 forward-only contract deletion/restoration lifecycle and red anomaly chip. Preserve all original business records and identity/scope/Price protections. Candidate only; no merge, Staging deployment or real state conversion authorized."
+    },
+    {
+      "id": "issue174-storage-business-input-20261124",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "a1e87ad43e344a49539c596ebe4741c75586c050",
+      "sha256": "12089cf7681cb8c877695ff7d9f01d6bf280adbcaa4e8d52003bb369f8e4e0b0",
+      "supersedes": "source-deleted-business-20261120",
+      "changeReason": "2026-11-24 Issue174用户批准分级保留业务输入及仅设计授权；旧业务/不可变证据、日期、hash和实际实施状态保留；非UI/能力变更。"
+    },
+    {
+      "id": "issue174-storage-decisions-20261124",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "a1e87ad43e344a49539c596ebe4741c75586c050",
+      "sha256": "35ac9cce6bef7b65aa73aa3f84bb3632e60222e6f7c4c4d4150377dcf94f10bf",
+      "supersedes": "source-deleted-decisions-20261120",
+      "changeReason": "2026-11-24 Issue174用户批准分级保留业务输入及仅设计授权；旧业务/不可变证据、日期、hash和实际实施状态保留；非UI/能力变更。"
+    },
+    {
+      "id": "issue174-storage-design-v1-20261124",
+      "kind": "document",
+      "path": "docs/features/Issue174-同步存储架构整改与数据库容量治理实施方案.md",
+      "recordedAtSha": "a1e87ad43e344a49539c596ebe4741c75586c050",
+      "sha256": "747693440c038e116b4c3f1806e622516bda1953e1e456fbc5fcbfa43714faa3"
     }
   ],
   "pages": [
