@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "10b9a7d827e1c09f152ead58c21f26712d49a619",
-  "verifiedAt": "2026-11-24T07:05:21Z",
+  "verifiedAt": "2026-11-24T07:53:05Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -6340,6 +6340,15 @@
       "path": "docs/features/Issue174-同步存储架构整改与数据库容量治理实施方案.md",
       "recordedAtSha": "a1e87ad43e344a49539c596ebe4741c75586c050",
       "sha256": "747693440c038e116b4c3f1806e622516bda1953e1e456fbc5fcbfa43714faa3"
+    },
+    {
+      "id": "issue174-storage-design-v1-1-20261124",
+      "kind": "document",
+      "path": "docs/features/Issue174-同步存储架构整改与数据库容量治理实施方案.md",
+      "recordedAtSha": "09ba6c4b47fdda7368d7c7f523bc6f9d3c07b566",
+      "sha256": "fb6dc024b013cf6a8bb183ba3bf74f864088e6f9923612378d0d4aafed5f6a18",
+      "supersedes": "issue174-storage-design-v1-20261124",
+      "changeReason": "Issue174 design v1.1 clarifies the existing verify-only migration startup compatibility matrix; no retention, business, implementation or deployment scope changes. Preserve the frozen v1 document and all historical evidence."
     }
   ],
   "pages": [
