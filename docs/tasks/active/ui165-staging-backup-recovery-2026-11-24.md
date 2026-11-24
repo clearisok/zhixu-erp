@@ -25,3 +25,10 @@ PostgreSQL16官方pg_dump文档支持custom归档的zstd压缩：https://www.pos
 验证：Windows11项中10通过/1POSIX跳过，实际Linux32项全通过。真实归档恢复夹具首轮使用SQL保留字binary为字段名失败（非产品问题），修正为binary_payload，保留初次失败；fixture改正向TCP就绪检查避免临时初始化socket误报，未放宽任何恢复比较。默认与zstd完整合成恢复、截断拒绝的最终结果见本阶段真实运行回执；未触及实际业务DB。
 
 真实隔离PostgreSQL镜像721873c3（与Staging相同）最终PASS：3表/1111合成行，默认归档与zstd归档分别完整恢复到独立新数据库，与源全表行hash及序列逐项精确相等，含重复行、NULL/空字符串、超JS精度小数、JSON、bytea和外键；源快照仍相同；截断zstd归档被完整解码拒绝。两格式51339/35296字节，0.547/0.517秒。该小夹具不推断12GB真实耗时，实际完整新备份必须单独通过。专有network none/tmpfs容器按随机label/镜像/挂载正向核实后清理。
+
+## 2026-11-24真实配对备份 Gate PASS
+正式Supervisor新run20261124T020727Z-70c0a21e于02:07:27Z开始、02:31:10Z完成（北京时间10:31:10），source0752。BACKUP_VERIFIED，145表、13对象；第一遍完整快照509846ms，完整zstd归档370913ms，TOC71ms、全数据解码14180ms；第二遍完整快照与原值一致，原服务恢复，commandsCertain/commandGroupsExited/dockerExecQuiescent/verified全true，未发生超时。13对象是本次真实配对数量，不沿用11月20日旧9对象。两次旧失败文件与保存字节完全相同，没有修写旧cleanup=false。
+
+02:32Z正式只读recovery-check九项全部true，gate allowed/all_recovery_checks_passed，sourceRequests0/businessWrites0。此时旧heartbeat仍11月22日，必须等正常分钟tick新心跳，不能把Gate通过冒称Worker恢复完成。manifest逐文件独立复核和受控切版下一阶段执行，当前仍未UI切版。
+
+全部六原PR166—171及最终UI候选a0(PR172)、ops源码2ce(PR173)的三项CI均已通过；主线再次核实10b9。实际部署的备份执行器来自精确Git2ce，SHA256856c5f3c1cfc60b3bd0f3ff7bdd993a5ca71cb693c1159238b748d0c683d062b；Windows工作文件CRLF09f与GitLF856仅换行不同，实际安装/精确测试均使用GitLF字节，不能混用hash。
