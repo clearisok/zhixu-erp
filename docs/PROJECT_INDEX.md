@@ -3,7 +3,7 @@
 2026-11-24；本轮设计main基线 **10b9a7d827e1c09f152ead58c21f26712d49a619**，GitHub API与本地对象独立核实一致；起始fetch连接失败，本轮NETWORK_DEGRADED，未刷新远端ref。独立文档分支chore/issue174-storage-design，不修改业务实现或真实环境。
 
 1. [当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)。
-2. [Issue174完整技术方案v1](features/Issue174-同步存储架构整改与数据库容量治理实施方案.md)、[用户设计授权及保留规则原文](tasks/active/issue174-design-request-2026-11-24.md)、[Issue174调查与设计](https://github.com/clearisok/zhixu-erp/issues/174)。当前Open/Design/P0，仅设计，待用户集中批准。
+2. [Issue174完整技术方案v1.1](features/Issue174-同步存储架构整改与数据库容量治理实施方案.md)、[用户设计授权及保留规则原文](tasks/active/issue174-design-request-2026-11-24.md)、[Issue174调查与设计](https://github.com/clearisok/zhixu-erp/issues/174)。当前Open/Design/P0，仅设计，待用户集中批准。
 3. [同步审计](features/AINUOKE_SYNC_AUDIT.md)、[订单中心](features/ORDER_CENTER.md)、[业务规则](BUSINESS_RULES.md)、[决策](DECISION_LOG.md)、[监管契约](ops/ainuoke-catalog-sync-supervisor.md)、[发布守卫](features/RELEASE_BASELINE_GUARD.md)、[产品管理](product-management/WORKFLOW.md)。
 4. [设计前摘要原件](tasks/completed/2026-11-24-before-issue174-storage-design/README.md)、[PR160最终验收与代理历史](tasks/completed/pr160-final-acceptance-2026-11-20.md)、[Git交付协议](tasks/active/git-delivery-resilience.md)。
 

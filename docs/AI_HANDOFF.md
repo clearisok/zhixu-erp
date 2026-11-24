@@ -1,4 +1,4 @@
-# 接力：Issue174技术方案v1，禁止直接实施
+# 接力：Issue174技术方案v1.1，禁止直接实施
 
 2026-11-24；main设计基线 **10b9a7d827e1c09f152ead58c21f26712d49a619**。用户附件只批准设计及必要只读核对；[原文](tasks/active/issue174-design-request-2026-11-24.md)、[完整方案](features/Issue174-同步存储架构整改与数据库容量治理实施方案.md)、[Issue174](https://github.com/clearisok/zhixu-erp/issues/174)。Open/Design/P0，保留规则已批准但任何A–F代码/SQL/迁移/清理/配置/部署/暂停恢复都未批准；不重复询问保留期限，也不自行进入Ready。
 
@@ -13,3 +13,5 @@ branch chore/issue174-storage-design，起点游离10b9a7d8且clean，GitHub API
 [上轮摘要原件](tasks/completed/2026-11-24-before-issue174-storage-design/README.md)、[Git协议](tasks/active/git-delivery-resilience.md)。原库、对象、备份、受控配置未改，无新源站请求，不合并任何PR或部署Production。
 
 本地设计内容checkpoint：`a1e87ad43e344a49539c596ebe4741c75586c050`。完整v1已发布并读回核实：[Issue全文](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7124646434)。前向证据的旧ID/hash/截图/能力字段逐项保持核对PASS；精确main的release guard已PASS（13页面、68能力、0 UI变更）。本轮必需基线回归已启动，最终退出码/通过数以Issue最终交付评论为准，不提前记通过；未执行任何未来业务/TTL/迁移验收。最终交付仍受NETWORK_DEGRADED约束，PR未创建前保持REMOTE PENDING。
+
+最终稿v1.1仅澄清§15 migration verify-only兼容矩阵，保留原v1评论/提交/hash。首次基线回归182项断言通过，但本地诊断注入的动态import异步错误导致进程退出1，不能记PASS；干净重跑及最终guard结果以Issue最终评论为准。仅诊断本地自有测试进程，未操作Staging。
