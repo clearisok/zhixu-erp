@@ -16,3 +16,12 @@
 
 ## 当前交付边界
 本阶段只记录专项证据；UI组合在codex/ui165-staging-acceptance，五原PR不合并。不将本地工程通过、CI、备份成功、门禁恢复、部署及人工验收混同；未知结果继续阻断。
+
+## 归档瓶颈与独立最小修复
+新17774e94的第一遍完整快照502618ms通过，默认压缩pg_dump在600103ms超时；原服务已恢复，cleanup=false必须继续阻断。只读pg_stat_activity核实没有残留pg_dump/COPY或快照；不凭此更改旧回执。
+
+PostgreSQL16官方pg_dump文档支持custom归档的zstd压缩：https://www.postgresql.org/docs/16/app-pgdump.html 。实际同镜像16客户端zstd:1的schema-only兼容性探测成功。本批将archiveCompression做严格可选zstd:1白名单，原未配置调用不变；不接受任意参数，不排除任何表/列/数据，不改SQL或row-sha256-multiset-v2，不增加dump600秒或snapshot600秒上限。增加必需完整归档数据解码，保留原TOC检查，pg_restore --file=/dev/null不连接真实数据库，损坏数据即verify_failed。运行时host executor按既有独立hash pin绑定，不更改UI候选或来源Worker代码。
+
+验证：Windows11项中10通过/1POSIX跳过，实际Linux32项全通过。真实归档恢复夹具首轮使用SQL保留字binary为字段名失败（非产品问题），修正为binary_payload，保留初次失败；fixture改正向TCP就绪检查避免临时初始化socket误报，未放宽任何恢复比较。默认与zstd完整合成恢复、截断拒绝的最终结果见本阶段真实运行回执；未触及实际业务DB。
+
+真实隔离PostgreSQL镜像721873c3（与Staging相同）最终PASS：3表/1111合成行，默认归档与zstd归档分别完整恢复到独立新数据库，与源全表行hash及序列逐项精确相等，含重复行、NULL/空字符串、超JS精度小数、JSON、bytea和外键；源快照仍相同；截断zstd归档被完整解码拒绝。两格式51339/35296字节，0.547/0.517秒。该小夹具不推断12GB真实耗时，实际完整新备份必须单独通过。专有network none/tmpfs容器按随机label/镜像/挂载正向核实后清理。

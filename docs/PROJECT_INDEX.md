@@ -1,10 +1,9 @@
-# 当前项目入口
+# Issue165：独立备份归档恢复修复
 
-2026-11-20；PR160已正式合并，main代码整合基线 **4e1f9a514c8ff6e9cf7289d724df33c32bc05368**。用户已验收订单删除及Staging自动同步。后续仅文档收尾，开始下一任务必须核实最新origin/main。
+2026-11-24；main基线10b9a7d827e1c09f152ead58c21f26712d49a619。用户明确授权专项排查Staging backup_cleanup_unverified，证据充分时按既有流程恢复发布条件，禁止清保护/改业务数据/扩大UI PR。独立codex/ui165-staging-recovery，UI候选89f72452和PR172不混入此修复。
 
-1. [当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[PR160最终验收与代理方案](tasks/completed/pr160-final-acceptance-2026-11-20.md)。
-2. [Issue161恢复与510任务证据](tasks/active/staging-selected-source-recovery-2026-11-20.md)、[Issue159删除生命周期与部署历史](tasks/active/ainuoke-source-deleted-2026-11-20.md)。两文档保留原日期/阶段限制，最终状态以本次独立收尾记录和当前状态为准。
-3. [订单中心](features/ORDER_CENTER.md)、[同步审计](features/AINUOKE_SYNC_AUDIT.md)、[监管runbook](ops/ainuoke-catalog-sync-supervisor.md)、[业务规则](BUSINESS_RULES.md)、[决策](DECISION_LOG.md)、[发布基线](features/RELEASE_BASELINE_GUARD.md)。
-4. [合并前摘要逐字归档](tasks/completed/2026-11-20-pr160-before-final-acceptance/CURRENT_STATE.md)、[此前c3阶段](tasks/completed/2026-11-20-before-selected-source-recovery/CURRENT_STATE.md)、[产品管理](product-management/WORKFLOW.md)、[既有Git交付协议](tasks/active/git-delivery-resilience.md)。
+[专项证据与流程](tasks/active/ui165-staging-backup-recovery-2026-11-24.md)、[之前摘要](tasks/completed/2026-11-24-before-ui165-backup-recovery/CURRENT_STATE.md)。
 
-实际Staging仍为已验收0752，Git合并不等于重新部署；本轮禁止Production、Worker重启和业务DB变更。Issue159/161验收与PR合并分别留痕，旧原始失败raw缺失不补造；未知结果、身份和完整分页保护继续生效。本轮没有新功能开发。
+实际数据库12.29GB。原450秒快照超时；在原300–600允许范围选择600后全量快照502.618秒通过，但默认压缩的完整pg_dump又超原600秒限，新失败17774e94保留，原22日失败也未改。没有强清恢复门禁或切版。
+
+本批只给备份执行器加入严格可选zstd:1压缩，默认调用保持；完整归档增加pg_restore --file=/dev/null无DB连接解码，不降低时间/哈希/行数/清理/前后比较断言。原dump600秒、snapshot上限600秒不变。未知压缩参数在IO前拒绝。不改数据库/接口/业务/权限/Worker逻辑或UI。精确源码与Linux32/真实同镜像合成PG完整恢复结果见专项记录，CI和真实新备份另行核实，不预写部署成功。
