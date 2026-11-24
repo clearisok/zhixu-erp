@@ -1,13 +1,13 @@
-# 接力：PR160已合并，Issue159/161验收收尾
+# Issue165：38项组合已部署Staging，等待集中验收
 
-2026-11-20；本轮纯文档收尾分支chore/pr160-acceptance-closeout，起点clean。main代码整合基线 **4e1f9a514c8ff6e9cf7289d724df33c32bc05368**，其父为636a5ad0d2d1acbe6b2705696e782dea12ee9f00和完整受审e833b819f653f27b3448e447795864693a0a6568。本地main另一个工作树可能仍旧，禁止移动/重置其他工作树；新任务先fetch并核实origin/main，再建独立分支。本轮文档交付的最终commit/PR/main SHA见GitHub和最终收尾评论，不能将0752部署SHA当新main。
+2026-11-24 03:02Z；main基线10b9a7d827e1c09f152ead58c21f26712d49a619。六原PR166—171最新精确提交三项CI全部成功；组合PR172/codex/ui165-staging-acceptance/a0a9c78c6cccbadf5e635dbb60169f7f87944644三项CI成功且实际部署。十项设计争议未实施，PR不合并/Issue不关闭/Production不操作。
 
-用户明确接受Staging自动同步和订单删除，授权PR160正常合并及Issue159/Project收尾。PR160已Ready→MERGED，e833三CI真实success，无review/未解决thread；生产相关workflow只有workflow_dispatch，无push/workflow_run触发、无活动Webhook。没有启动生产工作流、重新部署Staging、访问业务DB、重启Worker或补任务。
+[完整38项清单、实际入口、六SHA/CI、限制及十争议](tasks/active/ui165-final-delivery-2026-11-24.md)；[独立备份恢复PR173证据](tasks/active/ui165-staging-backup-recovery-2026-11-24.md)；[组合输入与工程验证](https://github.com/clearisok/zhixu-erp/blob/a0a9c78c6cccbadf5e635dbb60169f7f87944644/docs/tasks/active/ui165-staging-acceptance-2026-11-24.md)；[切版中摘要原件](tasks/completed/2026-11-24-before-ui165-final-runtime/CURRENT_STATE.md)。前阶段文档索引和历史证据在同目录PROJECT_INDEX.md保留。
 
-Staging仍0752d64f309d68b6e52afbbd712d28e0d9db9c1e：九Gate、真实heartbeat、两轮510/510、142失败保全、两source_deleted合同及数量历史均已验收。不要重做备份/恢复/自然周期；不要把历史工具无法拍摄Staging登录后UI的记录改成助手验收，最终UI认可来源为用户本会话决定。
+Staging https://staging.weaveops.top，build staging-material-a0a9c78c/app image a0339f6b…；Worker d6ddbaf6…。独立备份工具代码2ce1154e8d64370f513f566f9e15235f56dc7509（三CI成功）、精确executor SHA256856c5f3c…；后续运维提交仅证据文档，与部署代码版本区分。
 
-只复用已通过工程/CI结果；本轮只检查文档、与新main一致的基线锚点和必要的182项基线回归，不运行完整业务套件或真实来源采集。后续文档PR自动检查属于新提交的仓库规则，不冒称e833的旧检查属于新HEAD。
+新source正式配对20261124T023509Z-089bb129于02:58:50Z BACKUP_VERIFIED，145表/13对象/58文件逐项完整SHA，前后快照相等/完整归档解码/清理全通过；九恢复Gate全true，Supervisor RUNNING/heartbeat_verified，唯一Worker新PG心跳03:01:43Z。旧两次失败原字节保留，原保护未直接清除。切版DB/objects及四卷/schema/权限/23保护表/3用户/635当前订单身份hash不变，无migration/init/DB恢复。
 
-网络：17989失效、星辰VPN实际7888，已用进程限定GitHub代理完成正式一次push/精确远端核验。长期方案仅提出仓库local GitHub专用代理（所有关联worktree共用），须明确批准后才持久更改；不改全局、认证、TLS、VPN节点或Docker代理。详[最终收尾记录](tasks/completed/pr160-final-acceptance-2026-11-20.md)。
+当前电脑既有staging-lan入口TLS校验正常，quote-center HTML、build-info、健康接口200，完整SHA与源站相同。服务器自身Cloudflare公网探测403仍在，不把内网200宣称全公网可达。Codex桌面浏览器报network policy错误，实站业务DOM/截图成功读取0；隔离真实Chromium八套144项及25路由验证不冒称实站逐页验收。浏览器复验/用户集中验收待进行，状态不Done。
 
-[当前状态](CURRENT_STATE.md)、[完整恢复证据](tasks/active/staging-selected-source-recovery-2026-11-20.md)、[删除生命周期](tasks/active/ainuoke-source-deleted-2026-11-20.md)。[先前接力逐字归档](tasks/completed/2026-11-20-pr160-before-final-acceptance/AI_HANDOFF.md)。主机及本机私密证据位置沿原报告保留，不提交备份、配置或业务raw。当前无新功能任务。
+工程：组合相同产品blob typecheck/lint/build、root1028、release182、guard38路径通过；备份Linux32/精确Git11及同PG镜像真实合成恢复通过。扩展Quote三类失败已在未改main同参数复现；不跳过/弱化/改冻结基线。全快照约507秒距600秒上限余量有限，数据增长风险保留。
