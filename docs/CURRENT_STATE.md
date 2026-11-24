@@ -9,3 +9,5 @@ PR171已精确补送2775aae86584f7a3db634dad658aa3ae46e767c9；PR166—170同HEA
 独立候选codex/ui165-staging-acceptance从9802e738既有组合clean建立，38个产品路径，27独占blob精确、11共享整合保留双方变更，未重做38项。必要组合检查、集成PR和真实部署结果待追加，尚未宣称Staging完成。备份故障专项另记codex/ui165-staging-recovery；原失败保留，通过正向安全门禁前不切版。
 
 组合7bf36465 typecheck/lint/build、root1028、release182、38路径guard通过；关账/compact/payment/排单/导航/团队通过。资源测试定位重绘竞态已仅在测试中修正，完整资源23/23重跑通过，原失败保留；正式物料display补跑与远端CI/部署另记，不预写成功。候选无新产品改动。
+
+交付路径更正：正式订单详情为/order-center/server-detail?id=…，不是未开放的旧/detail。material-display11已通过，八套实际回归分别通过合计144项；本次只更正文档，产品文件不变。六原PR166—171三CI均全成功。完整备份在新17774e94仍发生600秒归档超时，专项PR将保持独立，原失败与门禁保留。

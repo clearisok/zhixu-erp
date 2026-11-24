@@ -32,7 +32,7 @@ Git恢复命令本轮获用户明确批准后执行一次：DELIVERED_VERIFIED�
 |/basic-settings/fabrics、/basic-settings/trims|G05、G08、B01–B02|
 |/basic-settings/production-groups、/basic-settings/outsource-factories|B03|
 |/system-settings/quote-settings|G07–G08、B01|
-|/order-center、/order-center/detail?id=现有订单UUID|O01–O02、O04、G07|
+|/order-center、/order-center/server-detail?id=现有订单UUID|O01–O02、O04、G07|
 |/order-center/style-progress/detail?orderId=现有订单UUID|O03、M01–M02、M04–M05|
 |/system-settings/progress-settings，以及物料页已有进度设置入口|M03–M04|
 |/production-scheduling|P01–P02|
@@ -53,3 +53,5 @@ D01登录动画/Slogan；D02物料概览与六页签；D03报价组合列宽/截
 产品7bf364658cffcba9ddd2886dbd83a51445ba4a44：typecheck/lint/Server frontend build、root1028/1028（187540ms）、显式release182/182（150132ms）、guard38产品路径全部PASS。真实串行七个实际套件119项中117通过/2失败（同一资源子项及父项），其他关账/compact/payment/排单/导航/团队完整通过；失败为运输方案测试先验证按钮、第二次CDP才点击，两次调用之间父资料重读触发重绘，读取undefined.click。只把测试editPlan查找/点击合为一次浏览器求值，原具名/未禁用条件和所有后续身份/金额/权限/回执/六宽度断言保持。资源完整23/23定向重跑通过（76487ms），没有产品代码修改，也没有重跑不受此测试定位影响的已通过套件。原失败日志保留。
 
 第一轮命令额外给了不存在的material-progress-settings-ui路径，Node未执行该文件；不计其覆盖。正式material-display-ui另行补跑，结果另记，compact本已覆盖M03/M04/GET读取交互。各测试使用owned合成PG/Chrome，不写真实Staging数据。
+
+路径最终核对：正式订单详情从现有列表进入/order-center/server-detail?id=…；旧/order-center/detail不作为当前Server验收入口。正式material-display11/11已补跑通过（53364ms）。八套独立实际浏览器验收结果分别为关账18、compact13、payment9、排单37、导航25、team8、资源23、material-display11，共144项（含父套件计数），不是一轮144项执行的伪造汇总。产品文件与7bf/89f完全相同，不重跑已通过且不受本次文档更正影响的用例。
