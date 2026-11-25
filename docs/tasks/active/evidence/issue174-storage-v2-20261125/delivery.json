@@ -268,5 +268,210 @@
       "rootCause": "unresolved; no permanent recovery claim"
     },
     "readiness": "Latest PR/CI indexing inconsistent. Not authorized or ready for actual Staging cutover; no close/reopen/duplicate PR/force push to work around it."
+  },
+  "remainingBackendGate": {
+    "baseline": "343f6ef360145e466d4c51fe520bf2cfecfec88d",
+    "reason": "Source CI45650554572 found another old upgrade fixture comparing newly added columns as if they existed before. Local remainder also found old duplicate-version expectations and one raw snapshot parser.",
+    "productionChanges": false,
+    "sqlChanges": false,
+    "testFiles": [
+      "server/integration/effective-attribution-write-guards.integration.test.ts",
+      "server/integration/ainuoke-selected-binding.integration.test.ts",
+      "server/integration/material-confirmations.integration.test.ts"
+    ],
+    "assertions": "Every old field retained; new v2 defaults independently asserted NULL/legacy; two unchanged captures now assert one run/snapshot/body; unrelated absence adds no material version; real shared-page hydration precedes old confirmation checks. Original RBAC/corruption/order-isolation/readonly/stale-confirmation checks retained.",
+    "checks": [
+      {
+        "name": "test-order-effective-attribution",
+        "file": "remaining-ci-test-order-effective-attribution.log",
+        "sha256": "8341c2658ecd668d66c4b662518fecd2a9f2f20e01ce4303acb378055b400703",
+        "tests": 45,
+        "pass": 45,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "name": "test-order-normalization-execution",
+        "file": "remaining-ci-test-order-normalization-execution.log",
+        "sha256": "64cd19c3ffbf0491833a21d21ed56e0ba7660bacd802cf857f50d8163806bf4d",
+        "tests": 34,
+        "pass": 34,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "name": "test-order-command-control",
+        "file": "remaining-ci-test-order-command-control.log",
+        "sha256": "a71aaa67f7b435886aed64972589f8400fcbd7dc1d890c788fe29a4c4110f529",
+        "tests": 18,
+        "pass": 18,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "name": "test-material-history",
+        "file": "remaining-ci-test-material-history.log",
+        "sha256": "b8493c26bd7eb6ad6fc0954e7eb719a2a866bea36cc07141b802ee2738861170",
+        "tests": 17,
+        "pass": 17,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "name": "test-material-history-client",
+        "file": "remaining-ci-test-material-history-client.log",
+        "sha256": "f43651b02fdff62b921d61994b3b706a6c5b62411a21d249e005ab895f70808c",
+        "tests": 6,
+        "pass": 6,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "name": "test-normalization-review-workspace",
+        "file": "remaining-ci-test-normalization-review-workspace.log",
+        "sha256": "5013444d127aa1adb565aa1a33c0b64fc1655f5a9d7d4ad761fe431f2b06895d",
+        "tests": 21,
+        "pass": 21,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "name": "test-normalization-review-client",
+        "file": "remaining-ci-test-normalization-review-client.log",
+        "sha256": "0a45dd5571b241480d890a7efd28ee32a8dc9a50905664689143abd63ec5a823",
+        "tests": 4,
+        "pass": 4,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "name": "test-order-preparation-adoption",
+        "file": "remaining-ci-test-order-preparation-adoption.log",
+        "sha256": "079310531f9bc31637b43c365475f40c326f05d41f10c0c6ef6ff6cee095da12",
+        "tests": 23,
+        "pass": 23,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "name": "test-order-preparation-client",
+        "file": "remaining-ci-test-order-preparation-client.log",
+        "sha256": "ea272d325967103e6e1bbff0397740402ace331bb578efd6c6f7e5e5bcbdb04c",
+        "tests": 10,
+        "pass": 10,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "name": "test-postgres",
+        "file": "remaining-ci-test-postgres.log",
+        "sha256": "b70d1f8d6cc456765cb16d873f97124910fc740b191071b8816eb1fde1f4358b",
+        "tests": 270,
+        "pass": 270,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "name": "test-ainuoke-continuous-corrected",
+        "file": "remaining-ci-test-ainuoke-continuous-corrected.log",
+        "sha256": "7dd95bc09d7c0c9d85d29cb7e9eb6c30730ae1b199e996537ff30075299b0d64",
+        "tests": 81,
+        "pass": 80,
+        "fail": 0,
+        "skipped": 1,
+        "state": "PASS"
+      },
+      {
+        "name": "test-ainuoke-catalog",
+        "file": "remaining-ci-test-ainuoke-catalog.log",
+        "sha256": "76182b9a406cde9ddee4030a1e77dd40241f4b82d8b62188f8754d3afb99f7a0",
+        "tests": 106,
+        "pass": 106,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "name": "test-source-deleted",
+        "file": "remaining-ci-test-source-deleted.log",
+        "sha256": "f5919a657e2ca9fc5bc5de015454c380d71cbc1964d4741877b690d55119af7e",
+        "tests": 10,
+        "pass": 10,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "name": "test-ainuoke-readiness",
+        "file": "remaining-ci-test-ainuoke-readiness.log",
+        "sha256": "27d4e3d350e3a3fcc40b2a3afea6110b0637f35cd41fdc7f8acc9b4411e20ad7",
+        "tests": 10,
+        "pass": 9,
+        "fail": 0,
+        "skipped": 1,
+        "state": "PASS"
+      },
+      {
+        "name": "test-ainuoke-readonly-audit",
+        "file": "remaining-ci-test-ainuoke-readonly-audit.log",
+        "sha256": "114c6a3c0f9d7dd1379afa98c2d4d423f63e09f27539f7917294a31bcf28c19f",
+        "tests": 8,
+        "pass": 8,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "name": "test-ainuoke-targeted-diagnostic",
+        "file": "remaining-ci-test-ainuoke-targeted-diagnostic.log",
+        "sha256": "6a99da7b46b37a2f214ff9edcec8e57f3fd75eb0954b138a4dded693180d7259",
+        "tests": 5,
+        "pass": 5,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "name": "test-ainuoke-live-preflight",
+        "file": "remaining-ci-test-ainuoke-live-preflight.log",
+        "sha256": "ecc69bb5c21dea0588bdd9bf0bd26d3fa0580e9fdc9ca27eb91a5763d2c3a32a",
+        "tests": 24,
+        "pass": 24,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "name": "explicit-source-groups",
+        "file": "remaining-ci-explicit-source-groups.log",
+        "sha256": "09e6aaf612f82d28c487f32a46e37f90c940cae1d0d6c3bf29c0a821c3f47fa4",
+        "tests": 49,
+        "pass": 49,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      }
+    ],
+    "typecheck": "ci-final-fixtures-typecheck.log PASS",
+    "lint": "ci-final-fixtures-lint.log and ci-legacy-fixtures-lint.log PASS",
+    "protectedHeadsRechecked": {
+      "main": "10b9a7d827e1c09f152ead58c21f26712d49a619",
+      "pr172": "a0a9c78c6cccbadf5e635dbb60169f7f87944644",
+      "pr173": "da1c2653ae6c53a1527bcee60dbdec734cc36553"
+    },
+    "oldFailedLogsRetained": [
+      "remaining-ci-test-ainuoke-continuous.log"
+    ],
+    "latestCandidate": "PR176 exact HEAD, frozen by this checkpoint; final delivery/CI receipt in Issue174"
   }
 }

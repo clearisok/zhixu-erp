@@ -42,13 +42,15 @@ test('SQL fences preserve historical facts and reject unaware writers on synthet
  const legacyRun=await run(null),otherLegacy=await run(null);await snapshot(legacyRun,a,null);
  await pool.query("UPDATE ainuoke_source_profiles SET latest_run_id=$1 WHERE source_key='sql-guard'",[legacyRun]);
  const historyTables=['sales_orders','sales_order_source_links','sales_order_delivery_plan_sets','sales_order_delivery_plans','sales_order_identity_profiles','sales_order_commercial_versions','sales_order_commercial_heads','confirmed_commercial_terms_sales_orders','ainuoke_source_runs','ainuoke_material_source_snapshots'];
- const historical=async()=>Promise.all(historyTables.map(async table=>(await pool.query("SELECT (to_jsonb(x)-ARRAY['order_scope','source_link_id','captured_order_version','preparation_id']) AS row FROM "+table+' x ORDER BY to_jsonb(x)::text')).rows));
+ const historical=async()=>Promise.all(historyTables.map(async table=>(await pool.query("SELECT (to_jsonb(x)-ARRAY['order_scope','source_link_id','captured_order_version','preparation_id','directory_capture_id','business_hash','origin_observation_id','record_kind','material_content_id']) AS row FROM "+table+' x ORDER BY to_jsonb(x)::text')).rows));
  const before=await historical();
  await t.test('forward upgrade preserves all existing rows including nullable old Source history',async()=>{
   assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,migrationFilesAfter(19));
   // 0028 adds explicit legacy defaults; every pre-existing field must remain exact.
   const expected=before.map((rows,index)=>historyTables[index]==='sales_order_commercial_versions'?rows.map(({row})=>({row:{...row,pricing_scope:'legacy_uniform',change_kind:'source_adoption',previous_version_id:null}})):rows);
   assert.deepEqual(await historical(),expected);assert.equal((await pool.query('SELECT count(*)::int n FROM sales_order_identity_profiles WHERE preparation_id IS NOT NULL')).rows[0].n,0);assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,[]);
+  assert.equal((await pool.query("SELECT count(*)::int n FROM ainuoke_source_runs WHERE directory_capture_id IS NOT NULL OR business_hash IS NOT NULL OR origin_observation_id IS NOT NULL OR record_kind<>'legacy'")).rows[0].n,0,'Upgrade must not invent v2 source content or changes for legacy runs');
+  assert.equal((await pool.query('SELECT count(*)::int n FROM ainuoke_material_source_snapshots WHERE material_content_id IS NOT NULL OR business_hash IS NOT NULL')).rows[0].n,0,'Upgrade must not invent shared material bodies for old snapshots');
  });
  const makeCase=async(ids:string[])=>{const pair=[...ids].sort();const existing=(await pool.query('SELECT id FROM sales_order_normalization_cases WHERE first_order_id=$1 AND second_order_id=$2',pair)).rows[0];if(existing)return existing.id as string;
   const id=(await pool.query('INSERT INTO sales_order_normalization_cases(first_order_id,second_order_id,created_by,request_id,payload_hash) VALUES($1,$2,$3,$4,$5) RETURNING id',[...pair,actor,randomUUID(),'b'.repeat(64)])).rows[0].id;
