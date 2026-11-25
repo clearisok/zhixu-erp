@@ -21,3 +21,6 @@ PR172精确a0a9c78c6cccbadf5e635dbb60169f7f87944644、PR173精确da1c2653ae6c53a
 
 
 2026-11-25 后续CI门禁：cfe09fdd已送达，Release/Team成功；Source CI45646483744的来源兼容已通过，随后关账升级夹具把0066新增两个NULL证据列纳入旧行JSON摘要而失败。仅原closing-commands测试沿用既有“比较全部旧列”的方式排除两个新字段，并新增老操作的两个新引用必须全NULL断言；关账14/14及定向lint通过。不改关账逻辑、SQL、迁移工具或PR172/173。当前最终候选仍以PR176精确HEAD及Issue送达/CI回执为准，禁止据旧cfe失败或旧基线宣称最终成功。
+
+
+2026-11-26 00:00交付核验：代码/测试候选3ef5d004e76cd850b453439c376b8246f8e976b8已由OpenSSL进程级安全交付及Git/REST ref分别核实远端完全相同；Schannel前一次不确定失败保留，未重复该路径或修改共享配置/认证/TLS校验。但GitHub PR176仍返回旧head cfe09fdd，最新3ef没有workflow runs，手动触发既有来源回归一次HTTP500、未观察到新run。最终3ef本地40路径守卫PASS，来源20pass/1Windows skip、存储19/19、关账升级14/14、类型/lint/build已通过，Release/Team旧cfe成功不能冒充最新head全CI成功。当前外部PR/CI同步未闭环，**尚不具备Staging切换批准条件**。不通过close/reopen/重复PR/force push绕过；先只读核对新head/CI，再处理必要门禁。三阶段执行单已备好，预计约3h/预约3.5h，但本轮未切库/启用清理/恢复Worker/操作Production。此后若有纯交付文档checkpoint，以PR/Issue精确回执区分源码候选和交付HEAD。

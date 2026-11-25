@@ -239,5 +239,34 @@
     ],
     "guardInputsUnchanged": true,
     "pr172And173ProductBlobsUnchanged": true
+  },
+  "finalDeliveryObservation": {
+    "at": "2026-11-26T00:00:45+08:00",
+    "candidate": "3ef5d004e76cd850b453439c376b8246f8e976b8",
+    "branchRemoteExact": true,
+    "gitReadAndRestRefAgree": true,
+    "pr": "https://github.com/clearisok/zhixu-erp/pull/176",
+    "prReportedHead": "cfe09fddaa25bad80f36ad9cf544cdc8f38a2b96",
+    "workflowRunsFor3ef": 0,
+    "manualExistingSourceDispatch": {
+      "attempts": 1,
+      "httpStatus": 500,
+      "createdRunNotObserved": true
+    },
+    "localGuard": {
+      "state": "PASS",
+      "sha": "3ef5d004e76cd850b453439c376b8246f8e976b8",
+      "uiPaths": 40,
+      "logSha256": "f688d8bfa4773fce2ab57706e93ea60d1bf19202ad1dea95022cf3b84e3657bc"
+    },
+    "network": {
+      "schannelDirect3ef": "one uncertain_transport; independently still cfe, not repeated",
+      "opensslDirectHTTP11": "read contrast passed, one safety-tool push DELIVERED_VERIFIED, independently git-read and REST-ref exact3ef",
+      "persistentConfigurationChanged": false,
+      "credentialsChanged": false,
+      "tlsVerificationDisabled": false,
+      "rootCause": "unresolved; no permanent recovery claim"
+    },
+    "readiness": "Latest PR/CI indexing inconsistent. Not authorized or ready for actual Staging cutover; no close/reopen/duplicate PR/force push to work around it."
   }
 }
