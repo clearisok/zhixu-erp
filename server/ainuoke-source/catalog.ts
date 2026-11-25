@@ -1,4 +1,4 @@
-import {withSyncAudit,auditPublished,commitWithSyncAudit,pinSyncCall} from './sync-audit.js';
+import {withSyncAudit,auditPublished,commitWithSyncAudit,pinSyncCall,currentSyncAudit} from './sync-audit.js';
 import {effectiveSyncDeliverySql} from './sync-dates.js';
 import { DEFAULT_SYNC_POLICY, syncSchedule, syncScheduleLabel } from './sync-schedule.js';
 import { randomUUID } from 'node:crypto';
@@ -133,7 +133,7 @@ async function publishCatalogImplementation(pool:Pool,identity:Pick<TrustedIdent
     await c.query("UPDATE ainuoke_sync_jobs SET kind='automatic' WHERE source_key=$1 AND source_id=$2 AND status='queued' AND requested_by=$3",[options.sourceKey,row.sourceId,actor.internalUserId]);
    }
   }
-  await appendOperationLog(c,actor,{module:'艾诺科同步',action:'更新合同目录',entityType:'AinuokeCatalogRun',entityId:id,metadata:{sourceOnly:true,contractCount:checked.rows.length,requestId:options.requestId,lifecycle,
+  await appendOperationLog(c,actor,{module:'艾诺科同步',action:'更新合同目录',entityType:'AinuokeCatalogRun',entityId:id,metadata:{sourceOnly:true,sourceKey:options.sourceKey,automatic:currentSyncAudit()?.automatic===true,contractCount:checked.rows.length,requestId:options.requestId,lifecycle,
    ...(historical?{historicalPublication:true,sourceRequests:0,originalCapturedAt:historical.capturedAt}:{})}});
   await auditPublished(c,options.sourceKey,id,checked.bundle,'',['ainuoke_catalog_runs','ainuoke_catalog_entries','ainuoke_source_profiles','ainuoke_catalog_capture_evidence',...(createdOrders?['sales_orders','sales_order_source_links','ainuoke_sales_order_contract_mirrors']:[])]);
   await commitWithSyncAudit(c);return {runId:id,replayed:false,contracts:checked.rows.length,createdOrders,pendingOrders,lifecycle};

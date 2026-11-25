@@ -10,7 +10,7 @@ import {hydrateSharedPages} from './shared-content.js';
 
 type DB=Pick<Pool|PoolClient,'query'>;
 type Page={reportId:string;fetchedAt:string;page:number;total:number;queryContext:Record<string,unknown>;rows:{values:Record<string,unknown>}[]};
-type Context={id:string;sourceKey:string};
+type Context={id:string;sourceKey:string;automatic?:boolean};
 const context=new AsyncLocalStorage<Context>();
 export const currentSyncAudit=()=>context.getStore();
 /** Public operations must pin caller-owned input BEFORE the audit's first
@@ -81,7 +81,7 @@ export async function auditDirectoryEvidence(db:DB,captureId:string){
  const owner=context.getStore();if(!owner)return;
  await db.query('UPDATE ainuoke_sync_audit_batches SET directory_evidence_ids=array_append(directory_evidence_ids,$2::uuid) WHERE id=$1 AND NOT $2::uuid=ANY(directory_evidence_ids)',[owner.id,captureId]);
 }
-export async function withSyncAudit<T>(pool:Pool,scope:{id?:string;sourceKey:string;type:string;contracts?:string[];jobIds?:string[];retries?:number;historical?:boolean;frequencies?:string[];reports?:string[]},fn:()=>Promise<T>):Promise<T>{
+export async function withSyncAudit<T>(pool:Pool,scope:{id?:string;sourceKey:string;type:string;automatic?:boolean;contracts?:string[];jobIds?:string[];retries?:number;historical?:boolean;frequencies?:string[];reports?:string[]},fn:()=>Promise<T>):Promise<T>{
  if(!sourceKeyValid(scope.sourceKey))throw new SourceError('invalid_source_configuration');
  if(context.getStore()?.sourceKey===scope.sourceKey)return fn();
  // Never spend a source request when its durable ledger is unavailable.
@@ -100,7 +100,7 @@ export async function withSyncAudit<T>(pool:Pool,scope:{id?:string;sourceKey:str
   await pool.query(`INSERT INTO ainuoke_sync_audit_tables(batch_id,report_id,source_name,target_tables,api_requests,page_count,cursor_info)
    VALUES($1,$2,$3,$4,0,0,'{"planned":true,"complete":false}')`,[id,report,definition?.name??'未登记报表 '+report,definition?.targets??[]]);
  }
- return context.run({id,sourceKey:scope.sourceKey},async()=>{
+ return context.run({id,sourceKey:scope.sourceKey,automatic:scope.automatic===true},async()=>{
   try{const result=await fn();const replay=result&&typeof result==='object'&&(('replayed' in result&&result.replayed===true)||('status' in result&&result.status==='existing_head_preserved'));await finishBatch(pool,id,undefined,Boolean(replay));return result;}
   catch(e){await pool.query(`UPDATE ainuoke_sync_audit_tables SET status='failed',error_code=coalesce(error_code,$2),failed_count=fetched_count
    WHERE batch_id=$1 AND status IN ('reading','acquired')`,[id,safeCode(e)]);

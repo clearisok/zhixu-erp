@@ -32,7 +32,7 @@ export async function captureCatalogOnce(pool:Pool,identity:Identity,raw:Collect
   // share this lease so recovery cannot race an upstream call still in flight.
   locked=(await lease.query('SELECT pg_try_advisory_lock(hashtextextended($1,0)) AS locked',['ainuoke-sync-worker:'+config.sourceKey])).rows[0].locked;
   if(!locked)throw new SourceError('sync_worker_busy');
-  return await withSyncAudit(pool,{sourceKey:config.sourceKey,type:'catalog',id:requestId,reports:['6086103'],frequencies:['catalog']},()=>captureUnderLease(pool,identity,config,requestId,collect,adoptNewOrders));
+  return await withSyncAudit(pool,{sourceKey:config.sourceKey,type:'catalog',automatic:Boolean(workerLease),id:requestId,reports:['6086103'],frequencies:['catalog']},()=>captureUnderLease(pool,identity,config,requestId,collect,adoptNewOrders));
  }finally{
   if(locked)await lease.query('SELECT pg_advisory_unlock(hashtextextended($1,0))',['ainuoke-sync-worker:'+config.sourceKey]).catch(()=>undefined);
   if(!workerLease)lease.release();
