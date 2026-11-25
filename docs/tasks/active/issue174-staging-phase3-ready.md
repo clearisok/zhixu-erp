@@ -4,11 +4,11 @@
 
 ## 候选与其他整改保全
 
-组合代码候选 **6d7dbc9c089f9dfa6c0ac72aa3edbd37aa13da85**，branch `feat/issue174-storage-v2`；其后收口仅限文档/脱敏证据，执行时以工程 PR 最终精确 HEAD 和镜像 digest 双重冻结。main 本轮由 connector 与 fetch 核实为 **10b9a7d827e1c09f152ead58c21f26712d49a619**。
+初次组合基线 **6d7dbc9c089f9dfa6c0ac72aa3edbd37aa13da85**，branch `feat/issue174-storage-v2`；其后仅补齐CI发现的完整空目录兼容及必要测试/文档，执行时以[工程PR176](https://github.com/clearisok/zhixu-erp/pull/176)最终精确HEAD和镜像digest双重冻结。main 本轮由 connector 与 fetch 核实为 **10b9a7d827e1c09f152ead58c21f26712d49a619**。
 
 | 必含输入 | 精确提交 | 保全结果 |
 | --- | --- | --- |
-| Issue174 已接受工程 | 747fda5620eb805a64a1cdb7f2f6be6be96718d1 | 祖先；56 个非文档文件 blob 全相同 |
+| Issue174 已接受工程 | 747fda5620eb805a64a1cdb7f2f6be6be96718d1 | 祖先；初次组合56个文件全同；随后仅publisher一处CI兼容修复 |
 | PR172 已部署 UI 整改 | a0a9c78c6cccbadf5e635dbb60169f7f87944644 | 祖先；51 个非文档文件 blob 全相同 |
 | PR173 完整归档/压缩修复 | da1c2653ae6c53a1527bcee60dbdec734cc36553 | 祖先；备份工具及两份测试 blob 全相同 |
 
@@ -53,3 +53,6 @@
 ## 待一次性批准的执行边界
 
 批准时冻结最终工程 PR HEAD/镜像、上述新旧 Staging 目标与实际磁盘清单、预计约3小时、预约3.5小时的维护停写窗口；允许最新完整配对备份、隔离选择/转换、向新 Staging PG/对象卷恢复、普通运行角色受管凭据及私密 pins 配置、仅 Staging 路由切换与正式业务恢复写入，并接受开放新写后的恢复边界。未通过门禁可取消，不得放宽断言。**本次批准不自动包含清理启用、Worker恢复、旧库/备份退役、合并PR或Production**；这些仍按用户后续明确决定执行。
+
+
+CI收口补充：04e74cfb 的本地最终守卫PASS、Release/Team CI成功，Source CI45644446792揭示完整目录中绑定合同全部缺失时原v2发布器回滚。只补必要可见性context，重复缺失不新增事件/正文/快照，原权限、完整性、业务删除判定和原SQL不可变断言不放宽；来源20pass/1Windows skip、存储/目录/删除恢复19pass。迁移格式、选择/转换算法及前两阶段已接受的容量/性能实测不变，未重复调查或演练。最终CI以PR176 HEAD回执为准。

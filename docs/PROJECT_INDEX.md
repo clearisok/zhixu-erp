@@ -1,6 +1,6 @@
 # 当前项目入口
 
-2026-11-25；main基线 **10b9a7d827e1c09f152ead58c21f26712d49a619**；branch **feat/issue174-storage-v2**；保全PR172/173的组合代码 **6d7dbc9c089f9dfa6c0ac72aa3edbd37aa13da85**。用户已接受第一、二阶段；本轮只交付和准备第三阶段，真实执行等待批准。
+2026-11-25；main基线 **10b9a7d827e1c09f152ead58c21f26712d49a619**；branch **feat/issue174-storage-v2**；保全PR172/173的初次组合基线 **6d7dbc9c089f9dfa6c0ac72aa3edbd37aa13da85**。用户已接受第一、二阶段；本轮只交付和准备第三阶段，真实执行等待批准。
 
 1. [当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[第三阶段Staging执行单](tasks/active/issue174-staging-phase3-ready.md)。
 2. [Issue174及最新工程送达/PR/CI回执](https://github.com/clearisok/zhixu-erp/issues/174)、[本轮用户决定](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7157916062)、[原文档PR175](https://github.com/clearisok/zhixu-erp/pull/175)、[阶段一/二实测](tasks/active/issue174-v2-phase12-results.md)、[实施恢复点](tasks/active/issue174-storage-implementation.md)。
@@ -10,3 +10,6 @@
 6. [PR172 Staging历史](tasks/active/ui165-final-delivery-2026-11-24.md)、[PR173备份修复历史](tasks/active/ui165-staging-backup-recovery-2026-11-24.md)、[三分支原状态归档](tasks/completed/2026-11-25-before-issue174-delivery/README.md)、[原工程checkpoint](tasks/completed/2026-11-25-issue174-engineering-checkpoints/README.md)、[Git交付协议](tasks/active/git-delivery-resilience.md)。
 
 不实际切库、启用清理、恢复Worker或操作Production；不自动合并PR。最新完整配对备份、磁盘/目标/窗口、普通运行角色和完整业务/附件门禁仍须先满足；开放新写后的恢复不允许丢弃新业务。执行单预计约3小时、预约3.5小时，原始备份90天从未来正式迁移验收成功起算。
+
+
+2026-11-25 CI收口：统一工程 [PR176](https://github.com/clearisok/zhixu-erp/pull/176) 已建立，初次HEAD04e74cfbbaf54fa29b0843bfd8525f007fc44312已精确送达且最终守卫PASS（40UI路径）。Source CI 45644446792发现完整目录不含任何绑定合同的旧路径会回滚，后续SQL证据读取测试连带404；仅修 shared-publication.ts，记录必要缺失context而不造物料快照，重复缺失复用事件，重新出现正常恢复。原断言保留并增加零快照/无重复/恢复读取断言。来源20pass/1Windows skip、存储/目录/删除恢复19pass、server build/typecheck通过；lint已通过；最终CI结果以Issue最新回执为准。PR172/173全部产品blob仍原样；仅Issue174一处publisher和原来源测试发生必要兼容修复，不扩展功能、schema或迁移工具。最终候选取PR176精确HEAD，6d和04是保留的历史检查点。文档PR175三项CI均SUCCESS。Staging、Worker、清理和Production仍未操作。

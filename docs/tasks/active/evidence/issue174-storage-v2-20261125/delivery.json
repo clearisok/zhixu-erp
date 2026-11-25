@@ -122,7 +122,8 @@
       "sha": "dee3d6800d718d67ac91494ec56c76b89ef11caf",
       "state": "DELIVERED_VERIFIED",
       "pushes": 1,
-      "pr": "https://github.com/clearisok/zhixu-erp/pull/175"
+      "pr": "https://github.com/clearisok/zhixu-erp/pull/175",
+      "ci": "Release baseline / First team access / Ainuoke server source all SUCCESS"
     }
   },
   "runtimeActions": {
@@ -149,5 +150,70 @@
     ],
     "reason": "This delivery phase appended an update to two frozen documents. Own additions removed; exact frozen blobs and manifest hashes unchanged. New phase3 content lives in a separate runbook.",
     "correctedResult": "PASS"
+  },
+  "finalInitialHead": {
+    "sha": "04e74cfbbaf54fa29b0843bfd8525f007fc44312",
+    "remote": "DELIVERED_VERIFIED",
+    "pr": "https://github.com/clearisok/zhixu-erp/pull/176",
+    "guard": {
+      "status": "PASS",
+      "log": "delivery-final-head-guard.log",
+      "sha256": "754770474570b3c87f97e75831664a6b35e279a4d9641cad999c99aa4e96b245",
+      "changedUiFiles": 40
+    }
+  },
+  "compatibilityGate": {
+    "baseline": "04e74cfbbaf54fa29b0843bfd8525f007fc44312",
+    "baselineClean": true,
+    "trigger": {
+      "run": "https://github.com/clearisok/zhixu-erp/actions/runs/45644446792",
+      "state": "failure",
+      "cause": "Complete no-bound-contract discovery rolled back; subsequent immutable-read assertion received 404"
+    },
+    "scope": [
+      "server/ainuoke-source/shared-publication.ts",
+      "server/integration/ainuoke-server-source.integration.test.ts"
+    ],
+    "behavior": "Retain one fully validated absent context with no material snapshot. Reuse exact scoped absent state across new capture timestamps. Restore material reads on reappearance. Original immutable/permissions/rollback assertions retained.",
+    "schemaChanges": false,
+    "tests": [
+      {
+        "name": "source",
+        "state": "PASS",
+        "file": "ci-compat-source-verified.log",
+        "sha256": "375f90098f2e07cb1d647e1b6c26cd6e0afbdccaaf56dfbd8324be17df3ebd78",
+        "passed": 20,
+        "skipped": 1
+      },
+      {
+        "name": "storageCatalogDeleted",
+        "state": "PASS",
+        "file": "ci-compat-storage-context.log",
+        "sha256": "7b5d7556ef6ac51d520428a8bdbbcafbfee9622c1c4cf78580af00ac5715c1e1",
+        "passed": 19,
+        "skipped": 0
+      },
+      {
+        "name": "serverBuild",
+        "state": "PASS",
+        "file": "ci-compat-server-build-corrected.log",
+        "sha256": "4324ba56164805a6cbd3c41d72a1220800e818f501a6eda045e3ab1cd638c0d0"
+      },
+      {
+        "name": "typecheck",
+        "state": "PASS",
+        "file": "ci-compat-typecheck.log",
+        "sha256": "302304dae6dfa71f31211837c732c0510177504fe6b5063786b269c5e1fef2ec"
+      },
+      {
+        "name": "lint",
+        "state": "PASS",
+        "file": "ci-compat-lint.log",
+        "sha256": "f7b7d1c6adf3a6f68f34e7de6f6d3a6678f9c082be02e899f1277813cdad64e1"
+      }
+    ],
+    "pr172And173Preserved": true,
+    "latestCandidate": "PR176 exact HEAD; see Issue174 delivery receipt after this checkpoint",
+    "unchangedEvidence": "All migration, selection, conversion, UI, guard and lockfile inputs unchanged; reuse accepted rehearsal/performance and full release regression, final CI reruns its own guards."
   }
 }

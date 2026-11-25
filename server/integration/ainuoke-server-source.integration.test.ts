@@ -186,6 +186,7 @@ test("server source: isolated PostgreSQL, real session HTTP and Python fixed-cat
             await capture();
         });
         await t.test("complete missing-contract discovery removes visibility without deleting orders or old snapshots", async () => {
+            const beforeSnapshots=(await pool.query("SELECT count(*)::int n FROM ainuoke_material_source_snapshots")).rows[0].n;
             const b = bundle();
             for (const pages of [b.discoveryBefore, b.discoveryAfter]) {
                 pages[0].rows = [];
@@ -196,7 +197,18 @@ test("server source: isolated PostgreSQL, real session HTTP and Python fixed-cat
             assert.equal((await read(cookies[0])).status, 404);
             assert.equal((await pool.query("SELECT count(*)::int AS n FROM sales_orders")).rows[0].n, 1);
             assert.ok((await pool.query("SELECT count(*)::int AS n FROM ainuoke_source_runs")).rows[0].n > 1);
+            const missingRun=await latest(),missingCount=(await pool.query("SELECT count(*)::int n FROM ainuoke_source_runs")).rows[0].n;
+            assert.equal((await pool.query("SELECT record_kind FROM ainuoke_source_runs WHERE id=$1",[missingRun])).rows[0].record_kind,'context');
+            assert.equal((await pool.query("SELECT count(*)::int n FROM ainuoke_material_source_snapshots")).rows[0].n,beforeSnapshots);
+            // A new capture time alone must not create another absent context.
+            clock+=1;
+            for(const pages of [b.discoveryBefore,b.discoveryAfter])for(const page of pages)page.fetchedAt=new Date(clock).toISOString();
+            await capture(b);
+            assert.equal(await latest(),missingRun);
+            assert.equal((await pool.query("SELECT count(*)::int n FROM ainuoke_source_runs")).rows[0].n,missingCount);
+            assert.equal((await read(cookies[0])).status,404);
             await capture();
+            assert.equal((await read(cookies[0])).status,200);
         });
         await t.test("SQL evidence is immutable and independently corrupted read bytes still fail closed", async () => {
             const id = await latest();

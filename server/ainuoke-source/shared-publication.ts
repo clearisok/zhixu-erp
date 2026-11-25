@@ -7,6 +7,7 @@ import { businessCanonical,businessDigest, saveSharedPages, type ContentScope } 
 import { saveCatalogEvidence,hydrateSourceDirectory,loadContractDirectoryRows } from './catalog-evidence.js';
 import { auditPublished,auditDirectoryEvidence } from './sync-audit.js';
 import { appendOperationLog } from '../operation-logs/repository.js';
+import { normalizeAinuokeSalesContractNo } from '../../features/ainuoke-sync/source/ainuoke-garment-color-size-adapter.js';
 
 /** Caller owns source/profile/order locks and transaction. Hash comparison never skips source validation. */
 export async function publishSharedMaterialSnapshots(c:PoolClient,actor:TrustedIdentity,sourceKey:string,validated:Awaited<ReturnType<typeof validateBundle>>,current:BoundSourceOrder[],historical?:{historicalObservationId:string;replaceOlder?:boolean;externalArchive?:boolean}) {
@@ -64,7 +65,31 @@ export async function publishSharedMaterialSnapshots(c:PoolClient,actor:TrustedI
  }
  for(const target of current.filter(o=>!validated.rows.some(r=>r.order.id===o.id)))await c.query(`INSERT INTO ainuoke_material_order_heads(source_key,sales_order_id,run_id,last_error_code,last_attempt_at)
   VALUES($1,$2,NULL,'source_visibility_changed',now()) ON CONFLICT(source_key,sales_order_id) DO UPDATE SET last_error_code='source_visibility_changed',last_attempt_at=now()`,[sourceKey,target.id]);
- if(!result)throw new SourceError('source_visibility_changed');
- await auditPublished(c,sourceKey,result,{discoveryBefore:validated.bundle.discoveryBefore,discoveryAfter:validated.bundle.discoveryAfter},'',['ainuoke_source_runs']);
+ let directoryUnchanged=false;
+ if(!result){
+  if(historical)throw new SourceError('source_missing');
+  // A complete directory may contain none of the bound contracts. Retain the
+  // visibility transition without inventing a material snapshot or rolling back
+  // the absent heads. Repeated absent confirmations reuse this context event.
+  const stateHash=businessDigest({schemaVersion:'ainuoke-absent-context.v1',orders:current});
+  const previous=(await c.query(`SELECT r.* FROM ainuoke_source_profiles p JOIN ainuoke_source_runs r ON r.id=p.latest_run_id
+   WHERE p.source_key=$1 AND r.source_key=$1 AND r.record_kind='context' AND r.business_hash=$2`,[sourceKey,stateHash])).rows[0];
+  if(previous){
+   const directory=await hydrateSourceDirectory(c,sourceKey,previous.discovery);
+   if(hash(directory)!==previous.discovery_hash||businessCanonical(previous.order_scope)!==businessCanonical(current)
+    ||directory.some(p=>p.rows.some(r=>current.some(o=>normalizeAinuokeSalesContractNo(o.salesContractNo)===normalizeAinuokeSalesContractNo(r.values.BillNo))))
+    ||(await c.query('SELECT 1 FROM ainuoke_material_source_snapshots WHERE run_id=$1 LIMIT 1',[previous.id])).rowCount)
+    throw new SourceError('content_hash_collision');
+   result=previous.id as string;directoryUnchanged=true;
+  }else{
+   result=randomUUID();
+   await c.query(`INSERT INTO ainuoke_source_runs(id,source_key,actor_user_id,captured_at,discovery,discovery_hash,content_hash,order_scope_hash,order_scope,directory_capture_id,business_hash,record_kind)
+    VALUES($1,$2,$3,$4,$5::jsonb,$6,$7,$8,$9::jsonb,$10,$11,'context')`,[result,sourceKey,actor.internalUserId,validated.capturedAt,
+    JSON.stringify([{schemaVersion:'ainuoke-shared-directory.v1',captureId}]),hash(validated.bundle.discoveryAfter),validated.contentHash,hash(current),JSON.stringify(current),captureId,stateHash]);
+   await appendOperationLog(c,actor,{module:'艾诺科同步',action:'采集艾诺科来源',entityType:'AinuokeSourceRun',entityId:result,
+    metadata:{sourceKey,sourceRunId:result,orderCount:0,sourceOnly:true,storageVersion:2,visibilityContext:true}});
+  }
+ }
+ await auditPublished(c,sourceKey,result,{discoveryBefore:validated.bundle.discoveryBefore,discoveryAfter:validated.bundle.discoveryAfter},'',['ainuoke_source_runs'],directoryUnchanged);
  return result;
 }

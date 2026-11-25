@@ -1,6 +1,6 @@
 # 接力：Issue174 组合候选交付，第三阶段等待批准
 
-2026-11-25；branch **feat/issue174-storage-v2**；组合代码 **6d7dbc9c089f9dfa6c0ac72aa3edbd37aa13da85**；main **10b9a7d827e1c09f152ead58c21f26712d49a619**。最终文档收口HEAD、工程PR和远端核验看[Issue174](https://github.com/clearisok/zhixu-erp/issues/174)本轮交付评论，不从本文件猜最新SHA。用户已接受一/二阶段，本轮授权只含Git/PR交付、保全PR172/173和第三阶段准备。[决定转录](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7157916062)。
+2026-11-25；branch **feat/issue174-storage-v2**；初次组合基线 **6d7dbc9c089f9dfa6c0ac72aa3edbd37aa13da85**；main **10b9a7d827e1c09f152ead58c21f26712d49a619**。最终文档收口HEAD、工程PR和远端核验看[Issue174](https://github.com/clearisok/zhixu-erp/issues/174)本轮交付评论，不从本文件猜最新SHA。用户已接受一/二阶段，本轮授权只含Git/PR交付、保全PR172/173和第三阶段准备。[决定转录](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7157916062)。
 
 先读[当前状态](CURRENT_STATE.md)、[第三阶段执行单](tasks/active/issue174-staging-phase3-ready.md)、[阶段一/二结果](tasks/active/issue174-v2-phase12-results.md)及[交付证据](tasks/active/evidence/issue174-storage-v2-20261125/delivery.json)。旧文档/feature冻结输入保持原blob；其早期未完成文字由新结果前向补充，不重写ID/截图/哈希。
 
@@ -15,3 +15,6 @@ PR172精确a0a9c78c6cccbadf5e635dbb60169f7f87944644、PR173精确da1c2653ae6c53a
 下一步只等用户第三阶段执行批准。预计约3小时、预约3.5小时；需将新旧Staging精确指纹、空闲端口、磁盘/60GB工作预算及镜像digest填实，再按执行单维护、最新备份、副本选择/转换、独立新PG/对象恢复、普通quote_trial角色、完整验证、切入口。隔离CLI固定host白名单不放宽，新manifest/证明不能复用旧文件；原线上超级用户连接不照搬。新source policy表数147，旧145；backupTool/pins保持PR173完整解码安全约束。
 
 未经明确批准：不切换、删真实历史、启用清理、恢复Worker、退役旧库或备份，不操作Production。Supervisor owned调度保持维护hold，其他cron/整改不覆盖。开放新写前可取消；开放后先保全新写/附件，以v2兼容恢复或前向修复。90天从正式迁移验收成功起算。两轮自然同步/24h容量验收须另有Worker恢复授权，不能靠离线重放冒充。
+
+
+2026-11-25 CI收口：统一工程 [PR176](https://github.com/clearisok/zhixu-erp/pull/176) 已建立，初次HEAD04e74cfbbaf54fa29b0843bfd8525f007fc44312已精确送达且最终守卫PASS（40UI路径）。Source CI 45644446792发现完整目录不含任何绑定合同的旧路径会回滚，后续SQL证据读取测试连带404；仅修 shared-publication.ts，记录必要缺失context而不造物料快照，重复缺失复用事件，重新出现正常恢复。原断言保留并增加零快照/无重复/恢复读取断言。来源20pass/1Windows skip、存储/目录/删除恢复19pass、server build/typecheck通过；lint已通过；最终CI结果以Issue最新回执为准。PR172/173全部产品blob仍原样；仅Issue174一处publisher和原来源测试发生必要兼容修复，不扩展功能、schema或迁移工具。最终候选取PR176精确HEAD，6d和04是保留的历史检查点。文档PR175三项CI均SUCCESS。Staging、Worker、清理和Production仍未操作。
