@@ -20,7 +20,7 @@ export function PriceVersionSelector({ revision, activeId, readOnly = false, can
   onEdit: (version: PriceVersion) => void;
 }) {
   const keySelect = (event: KeyboardEvent<HTMLElement>, id: string) => {
-    if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onSelect(id); }
+    if (event.target === event.currentTarget && (event.key === "Enter" || event.key === " ")) { event.preventDefault(); onSelect(id); }
   };
   return <section id={sectionId} className={`qc-version-section ${sectionId ? "qc-page-section-anchor" : ""}`.trim()} data-validation-anchor="price-versions"><header><div><span className="eyebrow">PRICE VERSION</span><h2>价格版本</h2><p>素色、彩条等并列价格口径；整张卡片用于切换当前查看内容。</p></div></header><div className="qc-version-scroll">{revision.priceVersions.map((version) => {
     const active = version.id === activeId;

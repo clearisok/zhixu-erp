@@ -48,8 +48,8 @@ test("版本入口、删除确认、更新前复制确认与折叠校验条均�
   assert.match(editor, /删除价格版本/);
   assert.match(editor, /priceVersionDeleteTargetId/);
   assert.match(manager, /是否复制当前报价版本后再进行更新/);
-  assert.match(manager, />否<\/Button>/);
-  assert.match(manager, />是<\/Button>/);
+  assert.match(manager, />直接更新<\/Button>/);
+  assert.match(manager, />复制后更新<\/Button>/);
   assert.match(validation, /initiallyExpanded = false/);
   assert.match(validation, /useState\(initiallyExpanded\)/);
   assert.match(validation, /expanded \? "收起" : "展开"/);

@@ -155,7 +155,7 @@ function AppShellFrame({ title, children, headerActions, actionsTargetRef, onReq
   const showSettingsNavigation = freshServer || localSingleUser || !serverIdentityMode || serverSettingsMode;
   const visibleUserName = localSingleUser ? "本地开发用户" : serverIdentityMode ? serverSession.user?.name ?? "Server 会话" : currentUser.name;
   const visibleUserDetail = localSingleUser ? "Local Development · Single User" : serverIdentityMode
-    ? serverSession.user ? `${serverSession.user.username} · Server identity` : "Trusted Server identity"
+    ? serverSession.user ? serverSession.user.username : "会话核对中"
     : `${currentRole.name} · 我的设置`;
   const preferenceUserId = localSingleUser ? "local-single-user" : serverIdentityMode ? serverSession.user?.id ?? "server-session" : currentUser.id;
   const userInitial = visibleUserName.trim().slice(0, 1) || "用";
@@ -227,7 +227,7 @@ function AppShellFrame({ title, children, headerActions, actionsTargetRef, onReq
     <aside className="ops-sidebar">
       <WeaveOpsBrand />
       {desktopSidebar && <button type="button" className="ops-sidebar-toggle" aria-label={sidebarCollapsed ? "展开侧边栏" : "收起侧边栏"} title={sidebarCollapsed ? "展开侧边栏" : "收起侧边栏"} onClick={toggleSidebar}><span aria-hidden="true">{sidebarCollapsed ? "›" : "‹"}</span><b>{sidebarCollapsed ? "展开" : "收起"}</b></button>}
-      <div className="organization"><span>织</span><div><small>当前组织</small><strong>{quoteAuthority() === "server" ? "尚未配置组织" : "苏州织序服饰"}</strong></div><i>报价 UI V1</i></div>
+      <div className="organization"><span>织</span><div><small>当前组织</small><strong>{quoteAuthority() === "server" ? "尚未配置组织" : "苏州织序服饰"}</strong></div></div>
       <nav aria-label="主导航">
         {!serverSettingsMode && nav.slice(0, 2).map((item) => <button key={item.label} type="button" title={item.label} aria-label={item.label} className={item.active ? "active" : ""} onPointerEnter={() => prefetchRoute(item.href)} onFocus={() => prefetchRoute(item.href)} onClick={() => navigate(item.href)}><span>{item.symbol}</span><b>{item.label}</b></button>)}
         {showSettingsNavigation && <div className="ops-nav-item">

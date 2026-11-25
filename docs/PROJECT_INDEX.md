@@ -9,3 +9,6 @@
 5. [实施前摘要](tasks/completed/2026-11-24-before-issue174-implementation/CURRENT_STATE.md)、[PR160验收历史](tasks/completed/pr160-final-acceptance-2026-11-20.md)、[Git交付协议](tasks/active/git-delivery-resilience.md)。
 
 只在任务隔离副本完成恢复/选择/转换与录制重放；实际Staging数据、清理开关、Worker、旧库备份退役、Production及自动合并仍未授权。源码/实测/预测/远端/部署/人工接受分别记录。
+
+
+2026-11-25 交付准备：用户已接受 Issue174 第一、二阶段，授权 Git 交付、保全 PR172/173 及第三阶段准备；运行操作仍未批准。PR172 精确 a0a9c78c6cccbadf5e635dbb60169f7f87944644 已纳入本组合，产品文件无冲突；状态摘要原件见 [归档](tasks/completed/2026-11-25-before-issue174-delivery/pr172-PROJECT_INDEX.md)。本行仅为组合 checkpoint，最终准备结论另行收口。

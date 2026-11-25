@@ -17,3 +17,6 @@
 旧6087051历史详情解析限制仍在；当前7051物料/原页重建通过。没有真实Staging浏览器人工接受、两轮自然调度或24小时稳态观察；这些属阶段三。开放新写后不支持旧程序一键退回冻结旧库，须保全新写/附件并前向修复或兼容恢复。
 
 [本轮脱敏证据](tasks/active/evidence/issue174-storage-v2-20261125/measurements.json) · [历史逐Gate原件](tasks/completed/2026-11-25-issue174-engineering-checkpoints/README.md) · [实施前原件](tasks/completed/2026-11-24-before-issue174-implementation/AI_HANDOFF.md)。完整日期/hash/失败及限制保留，不把旧pending描述覆盖成当时已通过。
+
+
+2026-11-25 交付准备：用户已接受 Issue174 第一、二阶段，授权 Git 交付、保全 PR172/173 及第三阶段准备；运行操作仍未批准。PR172 精确 a0a9c78c6cccbadf5e635dbb60169f7f87944644 已纳入本组合，产品文件无冲突；状态摘要原件见 [归档](tasks/completed/2026-11-25-before-issue174-delivery/pr172-AI_HANDOFF.md)。本行仅为组合 checkpoint，最终准备结论另行收口。

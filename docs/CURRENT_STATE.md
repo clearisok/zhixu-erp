@@ -15,3 +15,6 @@
 **边界**：本轮未执行Staging切换/历史删除/清理启用/Worker恢复/旧库或备份退役、自动合并或Production。原备份90天从未来正式迁移验收成功起算。本地原备份和各隔离副本继续保留。下一步是可靠远端交付与审查，其后才申请阶段三；不能因本地PASS自行切换。
 
 [接力](AI_HANDOFF.md) · [实施恢复点](tasks/active/issue174-storage-implementation.md) · [脱敏证据](tasks/active/evidence/issue174-storage-v2-20261125/measurements.json) · [历史checkpoint](tasks/completed/2026-11-25-issue174-engineering-checkpoints/README.md) · [实施前摘要](tasks/completed/2026-11-24-before-issue174-implementation/CURRENT_STATE.md)。
+
+
+2026-11-25 交付准备：用户已接受 Issue174 第一、二阶段，授权 Git 交付、保全 PR172/173 及第三阶段准备；运行操作仍未批准。PR172 精确 a0a9c78c6cccbadf5e635dbb60169f7f87944644 已纳入本组合，产品文件无冲突；状态摘要原件见 [归档](tasks/completed/2026-11-25-before-issue174-delivery/pr172-CURRENT_STATE.md)。本行仅为组合 checkpoint，最终准备结论另行收口。

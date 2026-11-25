@@ -30,11 +30,11 @@ export function ServerProductionPlanFields({ form, order, update, isCurrent }: {
       {form.colorId && !colors.some(row => row.id === form.colorId) && <option value={form.colorId}>{saved?.colorNameSnapshot || "历史颜色"}（待核对）</option>}
       {colors.map(color => <option key={color.id} value={color.id} disabled={color.ambiguous && color.id !== saved?.colorId}>{color.colorName}{color.ambiguous ? "（数量待核对）" : ` · ${color.quantity}`}</option>)}
     </select></FormItem>
-    <FormItem label="排单数量" required><div className="ps-quantity-control">
-      <input className="qc-control" aria-label="排单数量" inputMode="decimal" value={form.plannedQuantity} onChange={event => update({ plannedQuantity: event.target.value })} />
+    <FormItem label="排单数量（件）" required><div className="ps-quantity-control">
+      <input className="qc-control" aria-label="排单数量（件）" inputMode="decimal" value={form.plannedQuantity} onChange={event => update({ plannedQuantity: event.target.value })} />
       <Button type="button" variant="secondary" disabled={info.remainingQuantity === null || info.remainingQuantity === "0"} onClick={() => { if (info.remainingQuantity !== null && info.remainingQuantity !== "0") update({ plannedQuantity: info.remainingQuantity }); }}>全部可排数量</Button>
     </div></FormItem>
-    <FormItem label="平均日产"><input className="qc-control" aria-label="平均日产" inputMode="decimal"
+    <FormItem label="平均日产（件/工作日）"><input className="qc-control" aria-label="平均日产（件/工作日）" inputMode="decimal"
       value={form.durationMode === "workdays" && derived ? derived.dailyOutputSnapshot : form.dailyOutput}
       onChange={event => update({ durationMode: "average_daily_output", dailyOutput: event.target.value })} /></FormItem>
     <FormItem label="所需工作日"><input className="qc-control" aria-label="所需工作日" inputMode="numeric"
