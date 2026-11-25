@@ -1,35 +1,19 @@
-# 接力：Issue174 v2第一、第二阶段实施中
+# 接力：Issue174 v2 本地工程与隔离演练收口，Git交付待恢复
 
-2026-11-24；main基线 **10b9a7d827e1c09f152ead58c21f26712d49a619**。branch `feat/issue174-storage-v2`，工程起点`dee3d6800d718d67ac91494ec56c76b89ef11caf` clean。[D201](DECISION_LOG.md)与[用户批准转录](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7127626591)授权统一工程＋隔离选择性迁移演练，无需再逐阶段问许可。
+2026-11-25；branch `feat/issue174-storage-v2`；代码checkpoint **8dfe2fcf051ca0d22ef33204564ea189c9c8df45**。main再次由GitHub connector核实为 **10b9a7d827e1c09f152ead58c21f26712d49a619**。原文档worktree d3f5冻结在 `dee3d6800d718d67ac91494ec56c76b89ef11caf`；工程分支含其祖先，不覆盖它或其他worktree。
 
-先读[实施恢复点](tasks/active/issue174-storage-implementation.md)、[v2](features/Issue174-精简整改决策方案-v2.md)与实际代码。仅两新表：正文、每日汇总/容量；复用目录/任务/FK，业务变化历史长期、无变化仅确认。原始页时间/hash与业务引用必须无损证明，未知hold；不清空FK/换UUID或重建正式业务绕过保护。
+先读[报告](tasks/active/issue174-v2-phase12-results.md)与[实施恢复点](tasks/active/issue174-storage-implementation.md)。用户[D201批准](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7127626591)允许阶段一代码、阶段二真实备份隔离恢复与选择性迁移；不再重复规划或问阶段一/二许可。原则两张新表已遵守；正式业务/当前来源/绑定/引用/恢复/未解决/unknown/在途/幂等/附件保全。
 
-未批准实际Staging切换/删除/自动清理启用/Worker恢复/旧库或备份退役，禁止自动合并/Production；旧catalog_diagnostic_write_failed不自动恢复。仅允许新建隔离演练目标的数据筛选/迁移/清理，原备份只读。
+本地事实：原样12.169GB→紧凑恢复406.18MB，635订单/13附件；145旧表、5序列、保留原hash、1731目录及另一新PG恢复通过。100次无变化旧/新增长31.88/1.85MB，业务run100/0，P95 2.332/2.101秒；降低94.19%而非95%，不冒称自然日稳态。完整源码1026、发布回归182、目录106、最终目录/删除恢复26、存储4、合成浏览器9全部通过；typecheck/lint/构建与main源码守卫通过。最新代码8d对新恢复库只读重核145表/全部来源/1731目录/5序列再次PASS，282.233秒；首次410.892秒证明分时保存。
 
-原文档dee3的完整发布基线182/182通过，工程server:build及目录followup PG测试16/16通过；其他新存储/TTL/迁移/业务等价验证仍待完成。每个重要Gate独立commit与接力，不能把全部工程留在dirty。
+敏感原件仅在 `D:\CodexPrivate\issue174-20261124-v2`，ACL私有，不进Git。两个专属internal网络PG容器/卷 `issue174-v2-pg-20261124`、`issue174-v2-recovery-20261125`，label task=issue174-v2，无外部网关/宿主端口。原配对备份20261124T023509Z-089bb129只读；原样库 `issue174_original`；选择目标work2、紧凑库、全新恢复库及bench克隆均保留。60GB预算，采样主集群/文件峰值25.11GB；不是Staging磁盘。只用合成密码运行离线重放，未启动真实源站Worker。
 
-D盘新建私有任务目录和Docker PG16.15独立network none容器；原配对备份58文件hash全部匹配、13对象；恢复进行中。60GB预算/约133GB初始可用。真实备份/原始业务不进Git；只提交脱敏测量和工具。原文档工作树d3f5不编辑，保护精确提交和历史证据。
+旧SQL本机checkout为CRLF，与原部署Git LF账本不同；演练用私有 `migration-runtime` 的精确Git blob，59个旧ledger checksum全部匹配、66个SQL文件（max67）。不允许改旧checksum/ledger或关闭校验；61–67显式LF。复制正式业务用PG原始JSON文本，避免JS decimal精度损失；转换选中证据保留原ID/时点/hash，临时NOLOGIN表示转换角色已撤销。完整原行核验用物化64字节SHA，禁止恢复旧宽行排序。
 
-Git一次批准交付结果LOCAL_PASS_REMOTE_UNVERIFIED/NETWORK_DEGRADED，API独立核对目标分支为空；不重复push、不改认证、不用文件API伪造提交。最终PR须先精确远端验证。最终本地候选发布门禁须重新绑定其HEAD，旧文档182通过不替代工程最终检查。
+**REMOTE PENDING / NETWORK_DEGRADED**：一次已授权精确dee3 push不确定传输，独立核验文档远端分支不存在；本轮不自动重复同失败通道、不换认证/改共享Git配置、不用文件API伪造提交。依AGENTS提供现有 `scripts/git-delivery.ps1` 的精确一次性交付命令；只有DELIVERED_VERIFIED之后才创建文档/统一工程PR。PR暂不存在，Issue Open/In Progress；不能声称含PR完整交付或可直接执行切换。主代码/门禁结果已可靠本地commit，文档收口commit以最终 `git rev-parse HEAD` 为准。
 
-[实施前摘要原件](tasks/completed/2026-11-24-before-issue174-implementation/AI_HANDOFF.md)保留日期/hash/结果；阶段一/二完成后交简明实际容量、同负载增长/性能、保留放弃清单、业务附件完整性、磁盘/停机估算与恢复、PR/测试和阶段三一次性授权清单，不再扩写方案。
+**未授权且未执行**：真实Staging切换/删除/清理启用/Worker恢复/旧库及备份退役、Production、自动merge。原catalog_diagnostic_write_failed暂停不由本轮解除；普通维护局部退避不等于放宽身份/提交未知保护。未来切换必须组合保留PR172实际整改与PR173备份修复，停写后新一致备份，禁止用635单的旧演练库覆盖新写。新非owner应用角色/受管凭据DSN、维护窗口/资源、清理启用及Worker恢复需阶段三一次性明确授权。备份90天从未来正式迁移验收成功起算。
 
-2026-11-25恢复点：原配对备份145表逐行SHA多重集合、原序列与13附件校验全部通过；恢复2963.09秒，完整行hash1699.29秒。隔离网络已改为专属internal，无网关/端口/源站凭据。选择2复制145表219.883秒，source_runs2076/73934、observations1458/73127；post-data FK恢复通过。外部archive UUID使用原配对操作证明，不伪造observation FK。普通queued/已知failed不保留该合同全部旧成功历史，精确任务/重试/引用仍保留；running/unknown整合同hold。全部新增和dirty均为本阶段自建，无继承dirty。
+旧6087051历史详情解析限制仍在；当前7051物料/原页重建通过。没有真实Staging浏览器人工接受、两轮自然调度或24小时稳态观察；这些属阶段三。开放新写后不支持旧程序一键退回冻结旧库，须保全新写/附件并前向修复或兼容恢复。
 
-当前源代码包含0062–0067、受限NOLOGIN维护权限、默认清理关闭、可信失败解决CAS、真实业务颜色证据FK、历史epoch/事件类别和隔离选择/转换/核验工具。5个核心场景及新增选择条件单测通过；server:build/typecheck/lint通过一次，本候选最终全量门禁待收口。选择2目标尚未转换，先建旧格式负载基线副本；转换/compact/业务等价/增长性能/恢复仍未完成，禁止提前声明可切换。
-
-2026-11-25 Gate恢复：选择2业务验证PASS（145旧表全部正式行及选中行原列SHA一致、原hash重建2076runs/2078snapshots/1458observations、5序列、原FK、清理关闭）；规范化dump/restore成功8.64秒+21.04秒，62,976,740-byte dump，维护函数owner保留。紧凑库406,182,935 bytes，原样库12,168,731,671；紧凑库再次145表/5序列/全部来源与1731目录proof验证PASS（326.918秒），13对象/58备份文件配对PASS。只操作自有隔离库。
-
-Chromium桌面与390px合成会话9/9，状态起点/历史缺口/权限撤销/取消请求通过，截图在私有ui-evidence，不覆盖旧证据。针对v2旧格式断言/新列/提前失败保护校准后的41场景通过；完整catalog106中104通过，其余两项旧“无业务变化也换run”断言已按批准语义修正并单独通过，完整最终汇总待收口。typecheck/lint及Browser/Server两种build均通过；当前main基线guard前向追加D201与存储契约新Git证据后PASS。先前npm test使用旧证据清单失败，不能写为最终PASS；本checkpoint后重跑npm test和test:release-baseline。
-
-同负载正在两个隔离bench克隆执行：旧精确dee3编译后端与新后端，5个较大真实备份合同、合成密码/离线录制响应，无网络，测量包含任务/校验/发布，源站延迟不包含；强制到期与排队仅fixture，不改真实频率。结果尚未完成，不宣称增长/性能改善。NETWORK_DEGRADED不重复push，远端PR仍未交付。
-
-Gate 2026-11-25：首轮全路径100次录制重放证明旧100个业务版本/43.65MB，新0版本/3.61MB，但新CPU耗时退化，未按PASS掩盖。已减少重复同事务保存/规范化、只读取本合同原始目录chunk、在PG内做完整JSONB值相等检查（非只比hash），保持双hash/原hash语义；canonical缓存限本次调用并经独立businessDigest及A-B-A/迁移复核。最新body/chunk假同hash异正文均拒绝，核心4/4通过；仍待最终相同负载复测。
-
-另已只读确认真实应用连接quote_trial具有superuser/createRole/bypassRls且owns145；未改线上角色。新增database/operations/issue174_runtime_role.sql为显式目标、全事务、默认NOLOGIN的最小运行角色准备；保留员工RBAC，另待阶段三管理凭据/DSN切换。自动维护在cleanup=true时拒绝superuser/owner/member角色，普通辅助失败不影响同步。隔离实际普通LOGIN角色完整Worker成功运行；另从新PG容器按无密码NOLOGIN角色清单恢复紧凑dump，维护owner/ACL保留，普通角色635订单/13附件可读，DELETE/禁触发器/复制绕过/SET ROLE维护均拒绝。新容器再次145原表/所有保留来源hash/1731目录/5序列等价通过。原库和Staging0写入。
-
-Gate 2026-11-25性能收口：完整npm test 1026/1026、发布基线182/182、typecheck/lint/Server+前端build通过；真实新容器恢复145原表/5序列/1731目录及保留来源/13附件等价PASS。9003离线100次无变化版本0但p95仍较旧高，未冒充性能PASS。此checkpoint合并双遍目录的同内容完整比较与查询，保留原hash/manifest；UTF-8排序快路径保持代理字符Buffer语义，读取正文只规范化一次；最新核心4/4、server:build、精确路径lint通过。最新完整catalog与最终同负载复测待完成，不重复已失败Git通道。
-
-Gate 2026-11-25最终配对：精确旧dee3与新f439同输入hash/100次录制Worker确认，旧新增100业务run、新0；分配增长31,876,600→1,851,392 bytes（94.19%降低，未写成95%）；WAL66,124,456→30,215,096；p50 1.858→1.710s、p95 2.332→2.101s、p99 2.564→2.298s。新runtime非owner/非superuser。补全可信周期目录automatic/sourceKey日志标记复用原7天规则，手动操作保留；目录followup16/16含新增断言、server:build/typecheck通过，lint收尾中。完整catalog此前106/106通过；周期目录独立容量计量与最终报告继续收口。
-
-Gate 2026-11-25：88ddff31后仅catalog.ts隐藏语句改为完整已校验目录中真正缺席且仍visible的行，避免稳定目录每次先隐藏全部再写回；无schema/保留/频率变化，原SQL最终可见集合不变。server:build、精确路径lint、followup+删除恢复/旧版升级26/26通过；全lint与typecheck已通过。周期目录旧/新20次各完整检查点同输入，首测5.52/5.51MB；本次减写后另复测，合同100次测量f439路径未变。实际Staging仍0写入；Git仍NETWORK_DEGRADED，无PR或自动部署。
+[本轮脱敏证据](tasks/active/evidence/issue174-storage-v2-20261125/measurements.json) · [历史逐Gate原件](tasks/completed/2026-11-25-issue174-engineering-checkpoints/README.md) · [实施前原件](tasks/completed/2026-11-24-before-issue174-implementation/AI_HANDOFF.md)。完整日期/hash/失败及限制保留，不把旧pending描述覆盖成当时已通过。

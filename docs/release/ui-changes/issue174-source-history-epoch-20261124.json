@@ -10,6 +10,7 @@
   ],
   "visibleDifference": "Disclose the approved v2 source-history epoch and incomplete prior timeline in the existing modal. Distinguish initial facts, source changes, necessary context events and retained legacy captures. Existing navigation, table columns and controls remain.",
   "evidence": [
-    "docs/tasks/active/issue174-storage-implementation.md"
+    "docs/tasks/active/issue174-storage-implementation.md",
+    "docs/tasks/active/evidence/issue174-storage-v2-20261125/README.md"
   ]
 }

@@ -1,0 +1,742 @@
+{
+  "date": "2026-11-25",
+  "issue": 174,
+  "scope": "LOCAL_ENGINEERING_AND_OWNED_ISOLATED_REHEARSAL_ONLY",
+  "sourceWrites": 0,
+  "sourceRequests": 0,
+  "mainBaseline": "10b9a7d827e1c09f152ead58c21f26712d49a619",
+  "codeCheckpoint": "8dfe2fcf051ca0d22ef33204564ea189c9c8df45",
+  "backup": {
+    "bundle": "20261124T023509Z-089bb129",
+    "manifestSha256": "0a2f9c372571ef3e81a1df681fa7b28d5752fb491a1ce4ac193f6466361bb796",
+    "bytes": 3829641400,
+    "orders": 635,
+    "filesVerified": 58,
+    "objects": 13,
+    "objectBytes": 18292567,
+    "retirementClockStarted": false
+  },
+  "databaseCapacity": {
+    "originalRestoreBytes": 12168731671,
+    "convertedWorkBytes": 484244503,
+    "compactPostRestoreBytes": 406182935,
+    "freshClusterPostRestoreBytes": 406125591,
+    "laterCompactComposition": {
+      "publicTables": 147,
+      "databaseBytes": 405077015,
+      "publicRelationsBytes": 392454144,
+      "sharedBodiesTotalBytes": 35037184,
+      "operationLogsTotalBytes": 295018496
+    }
+  },
+  "selection": {
+    "originalTables": 145,
+    "targetTables": 147,
+    "allBusinessRowsExactTables": 132,
+    "selectedRowsExactTables": 13,
+    "omittedRunClassification": {
+      "unselectedRuns": 71858,
+      "provenAutomatic": 71669,
+      "notAssignedToAutomaticJob": 189,
+      "allUnselectedExplicitSourceOnly": true,
+      "unselectedArchiveImports": 0,
+      "sourceOnlyLogRowsPreserved": 71858,
+      "formalReferenceClosure": "all unselected rows outside selected FK/fixed JSON/current/manual receipt/unknown/hold roots"
+    }
+  },
+  "verification": {
+    "state": "SELECTED_BUSINESS_AND_PROVENANCE_VERIFIED",
+    "originalTablesChecked": 145,
+    "sequencesExact": 5,
+    "originalCaptureHashes": {
+      "runs": 2076,
+      "snapshots": 2078,
+      "observations": 1458,
+      "catalogs": 1731
+    },
+    "constraintsValidated": true,
+    "cleanupEnabled": false,
+    "seconds": 282.233
+  },
+  "freshRecovery": {
+    "state": "FRESH_CLUSTER_COMPACT_RESTORE_SUCCEEDED",
+    "container": "issue174-v2-recovery-20261125",
+    "database": "issue174_compact_recovered_20261125",
+    "dumpBytes": 63019722,
+    "dumpSha256": "469d6ef102329b201cff08b82a2b48e9f1d1fb7d4760ebc79bedbb78ded6639e",
+    "dumpSeconds": 10.123288300004788,
+    "restoreSeconds": 26.491526199999498,
+    "databaseBytes": 406125591,
+    "credentialPolicy": "only synthetic local activation; no source credentials copied",
+    "runtimeRole": {
+      "role": "issue174_compact_runtime",
+      "superuser": false,
+      "createRole": false,
+      "bypassRls": false,
+      "ownsTables": 0,
+      "canMaintain": true,
+      "canResolveFailure": false
+    },
+    "sourceWrites": 0,
+    "sourceRequests": 0,
+    "businessVerification": "SELECTED_BUSINESS_AND_PROVENANCE_VERIFIED",
+    "verificationSeconds": 282.233,
+    "initialBusinessVerificationSeconds": 410.892,
+    "verificationCodeCheckpoint": "8dfe2fcf051ca0d22ef33204564ea189c9c8df45"
+  },
+  "runtimePrivileges": {
+    "state": "FRESH_RECOVERY_RUNTIME_PRIVILEGES_VERIFIED",
+    "role": {
+      "name": "issue174_compact_runtime",
+      "session_user": "issue174_compact_runtime",
+      "rolsuper": false,
+      "rolcreaterole": false,
+      "rolbypassrls": false,
+      "owns_tables": 0
+    },
+    "business": {
+      "orders": 635,
+      "attachments": 13
+    },
+    "denials": [
+      "body_delete",
+      "disable_trigger",
+      "maintenance_role",
+      "replication_bypass"
+    ],
+    "sourceWrites": 0,
+    "businessWritesCommitted": 0
+  },
+  "contractReplay": {
+    "legacy": {
+      "state": "OFFLINE_RECORDED_REPLAY_MEASURED",
+      "mode": "contract_worker",
+      "database": "issue174_bench_legacy_20261124",
+      "contracts": 5,
+      "rounds": 20,
+      "publications": 100,
+      "runtimeSourceSha": "dee3d6800d718d67ac91494ec56c76b89ef11caf",
+      "databaseRole": {
+        "name": "postgres",
+        "rolsuper": true,
+        "rolcreaterole": true,
+        "rolbypassrls": true,
+        "owned_tables": 145
+      },
+      "dml": [
+        {
+          "table": "ainuoke_catalog_capture_evidence",
+          "inserts": 40,
+          "updates": 0,
+          "deletes": 0,
+          "hotUpdates": 0
+        },
+        {
+          "table": "ainuoke_catalog_entries",
+          "inserts": 0,
+          "updates": 100,
+          "deletes": 0,
+          "hotUpdates": 100
+        },
+        {
+          "table": "ainuoke_catalog_runs",
+          "inserts": 100,
+          "updates": 0,
+          "deletes": 0,
+          "hotUpdates": 0
+        },
+        {
+          "table": "ainuoke_contract_observations",
+          "inserts": 100,
+          "updates": 0,
+          "deletes": 0,
+          "hotUpdates": 0
+        },
+        {
+          "table": "ainuoke_contract_sync_state",
+          "inserts": 0,
+          "updates": 300,
+          "deletes": 0,
+          "hotUpdates": 300
+        },
+        {
+          "table": "ainuoke_material_order_heads",
+          "inserts": 0,
+          "updates": 100,
+          "deletes": 0,
+          "hotUpdates": 100
+        },
+        {
+          "table": "ainuoke_material_source_snapshots",
+          "inserts": 100,
+          "updates": 0,
+          "deletes": 0,
+          "hotUpdates": 0
+        },
+        {
+          "table": "ainuoke_sales_order_color_mirrors",
+          "inserts": 1020,
+          "updates": 0,
+          "deletes": 1020,
+          "hotUpdates": 0
+        },
+        {
+          "table": "ainuoke_sales_order_contract_mirrors",
+          "inserts": 0,
+          "updates": 100,
+          "deletes": 0,
+          "hotUpdates": 100
+        },
+        {
+          "table": "ainuoke_source_runs",
+          "inserts": 100,
+          "updates": 0,
+          "deletes": 0,
+          "hotUpdates": 0
+        },
+        {
+          "table": "ainuoke_sync_audit_batches",
+          "inserts": 100,
+          "updates": 600,
+          "deletes": 0,
+          "hotUpdates": 493
+        },
+        {
+          "table": "ainuoke_sync_audit_record_state",
+          "inserts": 0,
+          "updates": 113400,
+          "deletes": 0,
+          "hotUpdates": 113400
+        },
+        {
+          "table": "ainuoke_sync_audit_tables",
+          "inserts": 1300,
+          "updates": 2000,
+          "deletes": 0,
+          "hotUpdates": 43
+        },
+        {
+          "table": "ainuoke_sync_capture_attempts",
+          "inserts": 100,
+          "updates": 100,
+          "deletes": 0,
+          "hotUpdates": 100
+        },
+        {
+          "table": "ainuoke_sync_controls",
+          "inserts": 0,
+          "updates": 100,
+          "deletes": 0,
+          "hotUpdates": 100
+        },
+        {
+          "table": "ainuoke_sync_jobs",
+          "inserts": 100,
+          "updates": 300,
+          "deletes": 0,
+          "hotUpdates": 95
+        },
+        {
+          "table": "operation_logs",
+          "inserts": 300,
+          "updates": 0,
+          "deletes": 0,
+          "hotUpdates": 0
+        }
+      ],
+      "backgroundAutovacuums": 2,
+      "inputBusinessHash": "4ba669b17e91f769686b81598a0dc577af028723931736e531216123f8537677",
+      "scheduleModel": {
+        "basis": "fixed backup-visible present contracts; current effective manual/source delivery dates; complete future Beijing days; no new contracts, pauses, failures or manual tasks",
+        "contracts": 633,
+        "policy": {
+          "dailyTime": "02:00",
+          "weeklyDay": 1,
+          "monthlyDay": 1,
+          "weeklyTime": "03:00",
+          "missingDate": "frequent",
+          "monthlyTime": "04:00",
+          "catalogMinutes": 30,
+          "frequentMinutes": 30
+        },
+        "tierCounts": {
+          "frequent": 255,
+          "monthly": 83,
+          "weekly": 175,
+          "daily": 120
+        },
+        "horizons": [
+          {
+            "days": 30,
+            "automaticContractAttempts": 360440,
+            "lastSevenDaysAttempts": 81648,
+            "peakSevenDaysAttempts": 86602,
+            "catalogCaptures": 1440
+          },
+          {
+            "days": 90,
+            "automaticContractAttempts": 973162,
+            "lastSevenDaysAttempts": 60069,
+            "peakSevenDaysAttempts": 86602,
+            "catalogCaptures": 4320
+          },
+          {
+            "days": 365,
+            "automaticContractAttempts": 1457469,
+            "lastSevenDaysAttempts": 180,
+            "peakSevenDaysAttempts": 86602,
+            "catalogCaptures": 17520
+          }
+        ],
+        "catalogCapturesPerDay": 48
+      },
+      "simulatedClock": 1795594954531,
+      "sourceRequests": 0,
+      "upstreamLatencyIncluded": false,
+      "maintenanceEnabled": false,
+      "warmupPublications": 5,
+      "fixtureWritesPerPublication": 2,
+      "fixtureNote": "Only owned clones: force a due state and enqueue one attempt; both variants include the same fixture writes. No real scheduler interval was changed.",
+      "databaseBeforeBytes": 782646295,
+      "databaseAfterBytes": 814522895,
+      "databaseGrowthBytes": 31876600,
+      "relationGrowthBytes": 31989760,
+      "walBytes": 66124456,
+      "businessVersionsAdded": 100,
+      "medianMs": 1857.694159000006,
+      "p95Ms": 2332.1324470000036,
+      "p99Ms": 2564.241667999988,
+      "totalPublisherMs": 188254.87548100002,
+      "inputBusinessValuesChanged": false
+    },
+    "v2": {
+      "state": "OFFLINE_RECORDED_REPLAY_MEASURED",
+      "mode": "contract_worker",
+      "database": "issue174_bench_v2_20261124",
+      "contracts": 5,
+      "rounds": 20,
+      "publications": 100,
+      "runtimeSourceSha": "f43942db55968a3a7b0c55c75d418f55192b5488",
+      "databaseRole": {
+        "name": "issue174_runtime_v2",
+        "rolsuper": false,
+        "rolcreaterole": false,
+        "rolbypassrls": false,
+        "owned_tables": 0
+      },
+      "dml": [
+        {
+          "table": "ainuoke_catalog_capture_evidence",
+          "inserts": 40,
+          "updates": 0,
+          "deletes": 0,
+          "hotUpdates": 0
+        },
+        {
+          "table": "ainuoke_catalog_entries",
+          "inserts": 0,
+          "updates": 100,
+          "deletes": 0,
+          "hotUpdates": 100
+        },
+        {
+          "table": "ainuoke_catalog_runs",
+          "inserts": 100,
+          "updates": 0,
+          "deletes": 0,
+          "hotUpdates": 0
+        },
+        {
+          "table": "ainuoke_contract_observations",
+          "inserts": 100,
+          "updates": 0,
+          "deletes": 0,
+          "hotUpdates": 0
+        },
+        {
+          "table": "ainuoke_contract_sync_state",
+          "inserts": 0,
+          "updates": 300,
+          "deletes": 0,
+          "hotUpdates": 300
+        },
+        {
+          "table": "ainuoke_material_order_heads",
+          "inserts": 0,
+          "updates": 200,
+          "deletes": 0,
+          "hotUpdates": 200
+        },
+        {
+          "table": "ainuoke_sales_order_contract_mirrors",
+          "inserts": 0,
+          "updates": 100,
+          "deletes": 0,
+          "hotUpdates": 100
+        },
+        {
+          "table": "ainuoke_sync_audit_batches",
+          "inserts": 100,
+          "updates": 700,
+          "deletes": 0,
+          "hotUpdates": 381
+        },
+        {
+          "table": "ainuoke_sync_audit_tables",
+          "inserts": 1300,
+          "updates": 2000,
+          "deletes": 0,
+          "hotUpdates": 0
+        },
+        {
+          "table": "ainuoke_sync_capture_attempts",
+          "inserts": 100,
+          "updates": 100,
+          "deletes": 0,
+          "hotUpdates": 100
+        },
+        {
+          "table": "ainuoke_sync_controls",
+          "inserts": 0,
+          "updates": 100,
+          "deletes": 0,
+          "hotUpdates": 100
+        },
+        {
+          "table": "ainuoke_sync_jobs",
+          "inserts": 100,
+          "updates": 300,
+          "deletes": 0,
+          "hotUpdates": 96
+        },
+        {
+          "table": "operation_logs",
+          "inserts": 100,
+          "updates": 0,
+          "deletes": 0,
+          "hotUpdates": 0
+        }
+      ],
+      "backgroundAutovacuums": 3,
+      "inputBusinessHash": "4ba669b17e91f769686b81598a0dc577af028723931736e531216123f8537677",
+      "scheduleModel": {
+        "basis": "fixed backup-visible present contracts; current effective manual/source delivery dates; complete future Beijing days; no new contracts, pauses, failures or manual tasks",
+        "contracts": 633,
+        "policy": {
+          "dailyTime": "02:00",
+          "weeklyDay": 1,
+          "monthlyDay": 1,
+          "weeklyTime": "03:00",
+          "missingDate": "frequent",
+          "monthlyTime": "04:00",
+          "catalogMinutes": 30,
+          "frequentMinutes": 30
+        },
+        "tierCounts": {
+          "frequent": 255,
+          "monthly": 83,
+          "weekly": 175,
+          "daily": 120
+        },
+        "horizons": [
+          {
+            "days": 30,
+            "automaticContractAttempts": 360440,
+            "lastSevenDaysAttempts": 81648,
+            "peakSevenDaysAttempts": 86602,
+            "catalogCaptures": 1440
+          },
+          {
+            "days": 90,
+            "automaticContractAttempts": 973162,
+            "lastSevenDaysAttempts": 60069,
+            "peakSevenDaysAttempts": 86602,
+            "catalogCaptures": 4320
+          },
+          {
+            "days": 365,
+            "automaticContractAttempts": 1457469,
+            "lastSevenDaysAttempts": 180,
+            "peakSevenDaysAttempts": 86602,
+            "catalogCaptures": 17520
+          }
+        ],
+        "catalogCapturesPerDay": 48
+      },
+      "simulatedClock": 1795594954531,
+      "sourceRequests": 0,
+      "upstreamLatencyIncluded": false,
+      "maintenanceEnabled": false,
+      "warmupPublications": 5,
+      "fixtureWritesPerPublication": 2,
+      "fixtureNote": "Only owned clones: force a due state and enqueue one attempt; both variants include the same fixture writes. No real scheduler interval was changed.",
+      "databaseBeforeBytes": 412113943,
+      "databaseAfterBytes": 413965335,
+      "databaseGrowthBytes": 1851392,
+      "relationGrowthBytes": 1851392,
+      "walBytes": 30215096,
+      "businessVersionsAdded": 0,
+      "medianMs": 1710.0434879999957,
+      "p95Ms": 2101.2122910000035,
+      "p99Ms": 2298.3206710000086,
+      "totalPublisherMs": 172731.262377,
+      "inputBusinessValuesChanged": false
+    },
+    "databaseGrowthReductionPercent": 94.19200291122641,
+    "performanceRegressionGate": "PASS_ON_RECORDED_SAMPLE",
+    "daily95PercentGoal": "NOT_CLAIMED_94.19_PERCENT_SHORT_REPLAY"
+  },
+  "periodicDirectoryReplay": {
+    "legacy": {
+      "state": "OFFLINE_PERIODIC_DIRECTORY_REPLAY_MEASURED",
+      "sourceSha": "dee3d6800d718d67ac91494ec56c76b89ef11caf",
+      "database": "issue174_bench_legacy_20261124",
+      "publications": 20,
+      "warmups": 1,
+      "inputBusinessHash": "246c1bcae54c5efe3003f7659d933316a12a968fc26fda3b31701c5f660ea41a",
+      "sourceRequests": 0,
+      "sourceWrites": 0,
+      "checkpointPagesEmitted": true,
+      "maintenanceEnabled": false,
+      "upstreamLatencyIncluded": false,
+      "databaseGrowthBytes": 5521408,
+      "walBytes": 19615976,
+      "medianMs": 1437.1112310000008,
+      "p95Ms": 1780.4078509999963,
+      "inserts": 660,
+      "updates": 38120,
+      "deletes": 0
+    },
+    "v2Final": {
+      "state": "OFFLINE_PERIODIC_DIRECTORY_REPLAY_MEASURED",
+      "sourceSha": "8dfe2fcf051ca0d22ef33204564ea189c9c8df45",
+      "database": "issue174_bench_v2_20261124",
+      "publications": 20,
+      "warmups": 1,
+      "inputBusinessHash": "246c1bcae54c5efe3003f7659d933316a12a968fc26fda3b31701c5f660ea41a",
+      "sourceRequests": 0,
+      "sourceWrites": 0,
+      "checkpointPagesEmitted": true,
+      "maintenanceEnabled": false,
+      "upstreamLatencyIncluded": false,
+      "databaseGrowthBytes": 557056,
+      "walBytes": 10004792,
+      "medianMs": 1055.021885000002,
+      "p95Ms": 1729.9402609999997,
+      "inserts": 660,
+      "updates": 13081,
+      "deletes": 0
+    },
+    "v2PriorRound": {
+      "state": "OFFLINE_PERIODIC_DIRECTORY_REPLAY_MEASURED",
+      "sourceSha": "88ddff311123955e1bef7cf1ca3bc85e215e98e7",
+      "database": "issue174_bench_v2_20261124",
+      "publications": 20,
+      "warmups": 1,
+      "inputBusinessHash": "246c1bcae54c5efe3003f7659d933316a12a968fc26fda3b31701c5f660ea41a",
+      "sourceRequests": 0,
+      "sourceWrites": 0,
+      "checkpointPagesEmitted": true,
+      "maintenanceEnabled": false,
+      "upstreamLatencyIncluded": false,
+      "databaseGrowthBytes": 5513216,
+      "walBytes": 18317024,
+      "medianMs": 1335.8519919999999,
+      "p95Ms": 1463.9561570000005,
+      "inserts": 660,
+      "updates": 25780,
+      "deletes": 0
+    },
+    "allocationNote": "two rounds have different free-page/autovacuum state and one avoids redundant visibility writes; do not infer a causal 90-percent reduction or a confidence interval"
+  },
+  "projection": {
+    "kind": "SCENARIO_MODEL_NOT_OBSERVED_GROWTH_OR_BOUND",
+    "baseBytes": 406182935,
+    "contractBytesPerAttempt": 18513.92,
+    "directoryBytesPerCaptureScenarios": [
+      27852.8,
+      275660.8
+    ],
+    "horizons": [
+      {
+        "days": 30,
+        "automaticContractAttempts": 360440,
+        "lastSevenDaysAttempts": 81648,
+        "peakSevenDaysAttempts": 86602,
+        "catalogCaptures": 1440,
+        "cleanupDisabledScenarioBytes": [
+          7119448292,
+          7476291812
+        ],
+        "sevenDayContractDetailsAllCatalogGrowthHeldScenarioBytes": [
+          1957915507,
+          2314759027
+        ]
+      },
+      {
+        "days": 90,
+        "automaticContractAttempts": 973162,
+        "lastSevenDaysAttempts": 60069,
+        "peakSevenDaysAttempts": 86602,
+        "catalogCaptures": 4320,
+        "cleanupDisabledScenarioBytes": [
+          18543550446,
+          19614081006
+        ],
+        "sevenDayContractDetailsAllCatalogGrowthHeldScenarioBytes": [
+          1638619691,
+          2709150251
+        ]
+      },
+      {
+        "days": 365,
+        "automaticContractAttempts": 1457469,
+        "lastSevenDaysAttempts": 180,
+        "peakSevenDaysAttempts": 86602,
+        "catalogCaptures": 17520,
+        "cleanupDisabledScenarioBytes": [
+          27877628459,
+          32219224619
+        ],
+        "sevenDayContractDetailsAllCatalogGrowthHeldScenarioBytes": [
+          897496497,
+          5239092657
+        ]
+      }
+    ],
+    "assumptions": [
+      "same 633 visible present backup contracts and effective manual/source delivery dates, aging through the unchanged policy",
+      "5 relatively large recorded contracts are not a fleet-wide average",
+      "no new contracts, true business/source changes, failures, holds or manual activity",
+      "cleanup column assumes every eligible contract detail expires and conservatively holds all measured catalog growth",
+      "daily rollups and future retained true changes require additional space",
+      "no measured 24-hour or seven-day steady state; Staging two natural cycles and 24-hour observation remain phase 3",
+      "database size excludes object files, WAL and backups; allocation rates are noisy and are not rigorous bounds"
+    ]
+  },
+  "tests": [
+    {
+      "log": "npm-test-final.log",
+      "passed": 1026,
+      "failed": 0,
+      "sha256": "ff4903270124ed3967b5ba925b8170599d47d14235d03d09094c85602fc995a0"
+    },
+    {
+      "log": "release-baseline-final.log",
+      "passed": 182,
+      "failed": 0,
+      "sha256": "b8e3810089c6b1fe99b73c50e139cf14fe4caff75f1a45f3f64b735b8b7571cd"
+    },
+    {
+      "log": "catalog-final.log",
+      "passed": 106,
+      "failed": 0,
+      "sha256": "35d4006e77f35a253559e9213c7cdcc60284d5bd1e58b9de41f512858d88dde3"
+    },
+    {
+      "log": "storage-integrity-gate-22.log",
+      "passed": 4,
+      "failed": 0,
+      "sha256": "928978ecd8466dc2cb64f5e8576acc8853991920e893fb624409631cfc842e3f"
+    },
+    {
+      "log": "catalog-origin-gate-23.log",
+      "passed": 16,
+      "failed": 0,
+      "sha256": "597bcdb0564a2aed33b44026e1669881214d624f869a4ab39666c18653586d50"
+    },
+    {
+      "log": "catalog-visibility-gate-24.log",
+      "passed": 26,
+      "failed": 0,
+      "sha256": "755f65a81e34dac3492c1fdb91eccb6f069714505428c96be5e359a0091f5547"
+    },
+    {
+      "log": "history-ui-gate-9.log",
+      "passed": 9,
+      "failed": 0,
+      "sha256": "979769dfd97b3d80358738f5ce676229d3650cb6b74c93ee19937ccad222fc72"
+    },
+    {
+      "log": "corrected-regression-gate-9.log",
+      "passed": 41,
+      "failed": 0,
+      "sha256": "2895a58d9748dc671f318d42a429519da9046ef36995c9dd89330307a9ab4806"
+    },
+    {
+      "log": "changed-semantics-gate-11.log",
+      "passed": 31,
+      "failed": 0,
+      "sha256": "3901ea4d2b7fee5920b6b8cc1d9038b55c253394d49be656e5d187f2a9b208e7"
+    }
+  ],
+  "fullReleaseRegressionReuse": {
+    "startedAtCheckpoint": "9a1f7506ffb6114dc15c117713b2bd36385c83a9",
+    "unchangedGuardInputs": [
+      "scripts/check-release-baseline.mjs",
+      "docs/release/baseline.json",
+      "tests/release-baseline-guard.test.mjs",
+      "tests/responsive-mobile-batch1.test.mjs"
+    ],
+    "backendDeltasCoveredByListedTargetedPostChangeTests": true
+  },
+  "resources": {
+    "state": "ISOLATED_RESOURCE_USAGE_MEASURED",
+    "atUnix": 1795595999.3066633,
+    "containers": [
+      {
+        "container": "issue174-v2-pg-20261124",
+        "apparentBytes": 15083154264,
+        "allocatedBytes": 15083667456
+      },
+      {
+        "container": "issue174-v2-recovery-20261125",
+        "apparentBytes": 814739173,
+        "allocatedBytes": 814829568
+      }
+    ],
+    "privateFilesBytes": 3980414828,
+    "combinedApparentBytes": 19878308265,
+    "volumeAllocatedBytes": 15898497024,
+    "hostDFreeBytes": 123069636608,
+    "initialHostDFreeBytes": 133499641856,
+    "budgetBytes": 60000000000,
+    "sampledMainClusterAndPrivatePeakBytes": 25113784977,
+    "limitations": [
+      "20-second sampled main-cluster/private peak; recovery cluster measured separately",
+      "container filesystem allocation and private-file length are distinct from host VHD growth; existing preallocation may be reused",
+      "not a Staging disk measurement"
+    ]
+  },
+  "finalBuildAndGuardLogs": {
+    "build-gate-25.log": "83c87244b28f34872cbe3e553e50689353294bfb0622f42a017e930c9a9a81dc",
+    "server-build-gate-25.log": "4324ba56164805a6cbd3c41d72a1220800e818f501a6eda045e3ab1cd638c0d0",
+    "typecheck-gate-23.log": "302304dae6dfa71f31211837c732c0510177504fe6b5063786b269c5e1fef2ec",
+    "lint-gate-23.log": "f7b7d1c6adf3a6f68f34e7de6f6d3a6678f9c082be02e899f1277813cdad64e1",
+    "lint-gate-24.log": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "baseline-gate-24.log": "ea7a365d5b582f3b2faa98a1ba8dd6d43c6ebc84f92ada8f679e81fbeb4a15c7"
+  },
+  "evidenceSha256": {
+    "original-verification.json": "316490d676b7b14a78af474b2fe9a44ccd98ba2f0c2752660958768c24bcdce5",
+    "selection-summary.json": "18ca4cb3f73916eb985b6f09550195717df6ce18ef4f7331e7da16f754dc0d4f",
+    "conversion-summary.json": "05dcbedbc70b23e36ad2eccba10f30c2abd2b72b46477b1445122d306bbcb04a",
+    "business-verification.json": "58937d568cec20bad63a53166bfdf84313f4c989d0f7e765cc9284d9da8d6b23",
+    "business-verification-issue174_compact_20261125.json": "2818d20010f51a0fafbda7e965be1672ee402aa077b575f95892643d37364872",
+    "business-verification-issue174_compact_recovered_20261125.json": "c4c69b3a54b28d77216db9deac30da35f72f0b5a333cb5b9c8b0d9b1376c14af",
+    "attachment-verification.json": "1ff8a3e94a7c31fc6f33c96cd43a8144560c6a927ae5003ce701185386b546ff",
+    "fresh-recovery-summary.json": "d0c155c298e0c293c2f2103d6e9b22bd9a43005e7d54abf3abad494b31050959",
+    "fresh-runtime-proof.json": "e98604cbd64d25de2fff25d3e224d3454110c4eb63a18e98bfcb0070cbc970f8",
+    "omitted-source-only-proof.json": "d21b4bbb1a3dc28e035a5fe3449aeb70e0040720bf1f887ea072803b2b15586f",
+    "replay-legacy.json": "7b94aa134d15e3fbb007919973d94aa5a29df9f715c3af0ab14c20dcb7c81b69",
+    "replay-v2.json": "402478c644cf7fa52ab80afd548e3a7264c6beb0566349e74e80eb6040d1d089",
+    "catalog-legacy.json": "530211525fa8377fbd13857a5e60206bc69feed926e4cd9bc2b4b8274e28d6c4",
+    "catalog-v2.json": "c6dc7403a4596a67eaae446f6b28a4a934b83cb8fdd9462a6ffea56fb41da9fe",
+    "catalog-v2-before-visibility-optimization.json": "4eda63062e99d2fea58865c20d9363b121b6556f39e19958d74e1492f88b5e65"
+  },
+  "knownLimits": [
+    "inherited 6087051 history detail projection remains 7050-only; current material reads and original raw reconstruction verified",
+    "ordinary runtime cannot resolve failure reviews or bypass immutable maintenance guards",
+    "real Staging untouched; actual switch/cleanup/Worker recovery/retirement not authorized",
+    "NETWORK_DEGRADED; no remote commit delivery or PR claimed"
+  ]
+}

@@ -1,13 +1,17 @@
-# 当前：Issue174 v2第一、第二阶段实施中
+# 当前：Issue174 v2 工程及隔离演练，远端交付待恢复
 
-2026-11-24；main基线 **10b9a7d827e1c09f152ead58c21f26712d49a619**。独立分支`feat/issue174-storage-v2`，起点`dee3d6800d718d67ac91494ec56c76b89ef11caf` clean。用户已批准v2第一/二阶段，见[D201](DECISION_LOG.md)及[Issue授权转录](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7127626591)。Project按实际字段进入In Progress，未改其他配置。
+2026-11-25；GitHub main再次复核为 **10b9a7d827e1c09f152ead58c21f26712d49a619**。用户已批准v2第一、二阶段，见[D201](DECISION_LOG.md)及[授权转录](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7127626591)。branch `feat/issue174-storage-v2`；最终代码checkpoint `8dfe2fcf051ca0d22ef33204564ea189c9c8df45`，从clean的dee3开始，旧文档工作树保持冻结。Project Open/In Progress，其他字段/视图/自动化未改。
 
-范围：共享目录/正文、真实变化版本与确认分离、差异写、引用保护、受控TTL和汇总；现有配对备份隔离恢复和选择性迁移演练。原则仅两张新表，统一工程PR；v2优先于v1.1的全历史迁移/长期兼容/新增平台。全部正式业务、当前来源/绑定、业务引用闭包、删除恢复、异常/unknown/在途/幂等/附件保全，保留期限和调度不变。
+**本地工程与隔离证据**：仅两新表；共享目录/正文、无变化确认与业务版本分离、颜色/审计差异写、固定引用保护、可信解决和限量TTL/汇总、辅助维护退避。清理默认关闭、原频率不变。原备份145表原样恢复/全行hash通过；选择目标132表全量原列、13表选中原列、原来源hash、1731目录、5序列、FK及13附件配对通过；另一新PG容器再次恢复/普通角色保护通过。635订单是备份时点，不冒充稍后636订单或实时Staging。
 
-未批准实际Staging切换/历史删除/自动清理启用/Worker恢复/旧库或备份退役；不得自动合并、部署Production或覆盖其他Staging整改。catalog_diagnostic_write_failed仍暂停。PR172实际版本与PR173备份修复须在未来组合切换时整合，工程与部署验收分开。
+同备份原样12,168,731,671 bytes，紧凑恢复406,182,935 bytes（约96.66%减少）；后续系统统计405.08MB。100次无变化录制Worker重放旧/新业务run为100/0，净增长31.88/1.85MB，P95为2.332/2.101秒；94.19%下降不冒充95%或24小时稳态。周期目录/检查点另测；保留/放弃清单、30/90/365天情景、恢复资源和第三阶段一次性授权见[简明决策报告](tasks/active/issue174-v2-phase12-results.md)。
 
-原文档提交完整发布基线182/182通过；工程候选server:build与目录followup PG集成16/16通过，新的存储/保留/迁移检查进行中。不得提前声称第一/二阶段完成。D盘私有隔离恢复进行中，原备份58文件hash匹配、13附件对象；60GB预算，Docker PG16.15独立network none，未连接艾诺科。
+**验证**：完整源码1026/1026、发布基线回归182/182、完整目录106/106、最后目录/删除恢复26/26、强hash/存储保护4/4、合成Chromium9/9；typecheck/lint、Server authority前端构建、后端编译通过，源码发布守卫按上述main通过。后续后端小改有对应测试；未变的守卫及冻结输入复用完整回归。没有部署、真实浏览器人工接受或自然运行容量验收宣称。
 
-一次明确获批Git交付失败，NETWORK_DEGRADED；API独立核对原文档远端分支不存在。继续可靠本地checkpoint，不重复失败通道，不冒称PR送达。待阶段一代码/测试及阶段二实际容量、增长性能、业务/附件等价、恢复资源全部验证后提交简明阶段三审批材料。
+**风险/下一步**：PR尚未创建。一次获批Git push不确定传输，独立核验文档分支未送达；NETWORK_DEGRADED，按协议不重复失败通道。工程与文档均有本地commit，不冒称REMOTE DELIVERY PASS；精确远端验证后补文档/统一工程PR。完整含PR交付标准尚未满足。实际切换须组合保留PR172现有整改和PR173备份修复，重新取得最新停写一致配对备份，不使用此旧演练库覆盖新写。
 
-[实施恢复点](tasks/active/issue174-storage-implementation.md)、[接力](AI_HANDOFF.md)、[实施前摘要原件](tasks/completed/2026-11-24-before-issue174-implementation/CURRENT_STATE.md)。历史调查12.336GB/145表/636单是11-24调查时点，不冒充演练实测。
+线上应用角色只读核验为superuser/createRole/bypassRls且owns145表，未修改；隔离普通非owner角色与受限维护ACL已实测。阶段三须另批受管凭据/DSN与非owner身份，再决定清理启用及原暂停原因处理后的Worker恢复。既有6087051历史详情投影限制未扩大修复，当前物料读取与原证据重建通过。
+
+**边界**：本轮未执行Staging切换/历史删除/清理启用/Worker恢复/旧库或备份退役、自动合并或Production。原备份90天从未来正式迁移验收成功起算。本地原备份和各隔离副本继续保留。下一步是可靠远端交付与审查，其后才申请阶段三；不能因本地PASS自行切换。
+
+[接力](AI_HANDOFF.md) · [实施恢复点](tasks/active/issue174-storage-implementation.md) · [脱敏证据](tasks/active/evidence/issue174-storage-v2-20261125/measurements.json) · [历史checkpoint](tasks/completed/2026-11-25-issue174-engineering-checkpoints/README.md) · [实施前摘要](tasks/completed/2026-11-24-before-issue174-implementation/CURRENT_STATE.md)。
