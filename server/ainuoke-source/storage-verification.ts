@@ -1,6 +1,6 @@
 import type {PoolClient,QueryResultRow} from 'pg';
 import {hash} from './contract.js';
-import {hydrateContractEvidence,hydrateSourceDirectory} from './catalog-evidence.js';
+import {hydrateContractEvidence,hydrateSourceDirectory,loadCatalogEvidence} from './catalog-evidence.js';
 import {hydrateSharedPages} from './shared-content.js';
 import {selectionFilter,sqlName,type SelectionTable} from './storage-selection.js';
 
@@ -43,10 +43,13 @@ export async function verifySelectedStorage(source:PoolClient,target:PoolClient,
   const original=(await source.query('SELECT content_hash,capture_evidence_id FROM public.ainuoke_contract_observations WHERE id=$1',[r.id])).rows[0];
   if(!original||r.evidence.legacyProof?.contentHash!==original.content_hash||original.capture_evidence_id&&r.capture_evidence_id!==original.capture_evidence_id)throw new Error('observation original provenance mismatch');observations++;
  });
- await scan('SELECT * FROM public.ainuoke_catalog_runs WHERE capture_evidence_id IS NULL ORDER BY id',async r=>{
-  const pages=await hydrateSourceDirectory(target,r.source_key,r.discovery);
+ await scan('SELECT * FROM public.ainuoke_catalog_runs ORDER BY id',async r=>{
   const original=(await source.query('SELECT discovery FROM public.ainuoke_catalog_runs WHERE id=$1',[r.id])).rows[0];
-  if(hash(pages)!==hash(original.discovery))throw new Error('catalog original capture mismatch');catalogs++;
+  if(r.capture_evidence_id){
+   if(hash(r.discovery)!==hash(original.discovery))throw new Error('catalog stored representation changed');
+   await loadCatalogEvidence(target,r.source_key,r.capture_evidence_id,r.account_fingerprint);
+  }else if(hash(await hydrateSourceDirectory(target,r.source_key,r.discovery))!==hash(original.discovery))throw new Error('catalog original capture mismatch');
+  catalogs++;
  });
  const sequences=(await source.query("SELECT c.relname FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='S' ORDER BY c.relname")).rows;
  for(const row of sequences){const q=`SELECT last_value::text,is_called FROM public.${sqlName(row.relname)}`;if(JSON.stringify((await source.query(q)).rows)!==JSON.stringify((await target.query(q)).rows))throw new Error('sequence value mismatch: '+row.relname);}

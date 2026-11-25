@@ -35,7 +35,8 @@ test('request-local material batch preserves generation and scope across source 
   const value=Reflect.get(target,property);return typeof value==='function'?value.bind(target):value;
  }});
  const damagedPorts=createPersistedMaterialPorts(damaged,{sourceKey:'synthetic-demo',maxAgeMs:1800000});
- for(const mode of [damagedPorts,await damagedPorts.prepareBatch!(actor,[x.orderId])])assert.equal((await createOrderMaterialReader(mode)(actor,{salesOrderId:x.orderId})).status,503);
+ assert.equal((await createOrderMaterialReader(damagedPorts)(actor,{salesOrderId:x.orderId})).status,503);
+ await assert.rejects(damagedPorts.prepareBatch!(actor,[x.orderId]),/source_snapshot_changed/,'shared captures reject damaged hashes before exposing a prepared batch');
  const detail=await getSalesOrderById(x.pool,x.orderId);assert.ok(detail);
  const effectiveAlert=await attachOrderAlerts([{...detail,creationSource:'quote'}],actor,ports);
  assert.ok(effectiveAlert[0].alerts!.some(a=>a.code==='material_unit_missing'),'contract business type governs effective Source access, not original creation entry');

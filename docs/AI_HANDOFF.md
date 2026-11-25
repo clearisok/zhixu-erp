@@ -17,3 +17,9 @@ Git一次批准交付结果LOCAL_PASS_REMOTE_UNVERIFIED/NETWORK_DEGRADED，API�
 2026-11-25恢复点：原配对备份145表逐行SHA多重集合、原序列与13附件校验全部通过；恢复2963.09秒，完整行hash1699.29秒。隔离网络已改为专属internal，无网关/端口/源站凭据。选择2复制145表219.883秒，source_runs2076/73934、observations1458/73127；post-data FK恢复通过。外部archive UUID使用原配对操作证明，不伪造observation FK。普通queued/已知failed不保留该合同全部旧成功历史，精确任务/重试/引用仍保留；running/unknown整合同hold。全部新增和dirty均为本阶段自建，无继承dirty。
 
 当前源代码包含0062–0067、受限NOLOGIN维护权限、默认清理关闭、可信失败解决CAS、真实业务颜色证据FK、历史epoch/事件类别和隔离选择/转换/核验工具。5个核心场景及新增选择条件单测通过；server:build/typecheck/lint通过一次，本候选最终全量门禁待收口。选择2目标尚未转换，先建旧格式负载基线副本；转换/compact/业务等价/增长性能/恢复仍未完成，禁止提前声明可切换。
+
+2026-11-25 Gate恢复：选择2业务验证PASS（145旧表全部正式行及选中行原列SHA一致、原hash重建2076runs/2078snapshots/1458observations、5序列、原FK、清理关闭）；规范化dump/restore成功8.64秒+21.04秒，62,976,740-byte dump，维护函数owner保留。紧凑库406,182,935 bytes，原样库12,168,731,671；紧凑库再次145表/5序列/全部来源与1731目录proof验证PASS（326.918秒），13对象/58备份文件配对PASS。只操作自有隔离库。
+
+Chromium桌面与390px合成会话9/9，状态起点/历史缺口/权限撤销/取消请求通过，截图在私有ui-evidence，不覆盖旧证据。针对v2旧格式断言/新列/提前失败保护校准后的41场景通过；完整catalog106中104通过，其余两项旧“无业务变化也换run”断言已按批准语义修正并单独通过，完整最终汇总待收口。typecheck/lint及Browser/Server两种build均通过；当前main基线guard前向追加D201与存储契约新Git证据后PASS。先前npm test使用旧证据清单失败，不能写为最终PASS；本checkpoint后重跑npm test和test:release-baseline。
+
+同负载正在两个隔离bench克隆执行：旧精确dee3编译后端与新后端，5个较大真实备份合同、合成密码/离线录制响应，无网络，测量包含任务/校验/发布，源站延迟不包含；强制到期与排队仅fixture，不改真实频率。结果尚未完成，不宣称增长/性能改善。NETWORK_DEGRADED不重复push，远端PR仍未交付。

@@ -61,7 +61,8 @@ test('a new contract appearing during detail capture retains the old head and re
   assert.equal((await pool.query("SELECT last_diagnostic FROM ainuoke_contract_sync_state WHERE source_id='1'")).rows[0].last_diagnostic.catalogChange.afterRows,4);
   const recovered=await runSyncTick(pool,actor,cfg,{automatic:false,sourceIds:['1'],batchSize:1,now:()=>Date.now()+61000,collect:async()=>collect(4)});
   assert.equal(recovered.status,'processed');assert.equal(recovered.jobs[0].status,'complete');
-  assert.notEqual(await head(),old);
+  assert.equal(await head(),old,'a new unrelated contract does not change this contract business generation');
+  assert.ok((await pool.query("SELECT observation_id FROM ainuoke_contract_sync_state WHERE source_id='1'")).rows[0].observation_id,'the new complete capture remains confirmed');
   assert.equal((await pool.query("SELECT count(*)::int n FROM ainuoke_sync_jobs WHERE source_id='1' AND status IN('queued','running','unknown')")).rows[0].n,0);
  }finally{await f.close();}
 });

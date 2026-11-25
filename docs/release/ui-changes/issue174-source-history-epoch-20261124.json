@@ -5,7 +5,11 @@
     "features/order-center/components/material-history-dialog.tsx",
     "features/order-center/server/material-history-client.ts"
   ],
-  "pages": ["order-center", "order-material-history"],
-  "visibleDifference": "Restore the approved v2 history semantics in the existing modal: disclose the actual new history start and incomplete earlier timeline when the server supplies an epoch; use source-change wording instead of implying that every old collection remains online. No navigation, density, table, column or interaction redesign.",
-  "evidence": ["docs/tasks/active/issue174-storage-implementation.md"]
+  "pages": [
+    "order-detail"
+  ],
+  "visibleDifference": "Disclose the approved v2 source-history epoch and incomplete prior timeline in the existing modal. Distinguish initial facts, source changes, necessary context events and retained legacy captures. Existing navigation, table columns and controls remain.",
+  "evidence": [
+    "docs/tasks/active/issue174-storage-implementation.md"
+  ]
 }

@@ -68,7 +68,8 @@ test('Price absence drift retains old data; independent fresh capture succeeds; 
   assert.equal(proof.length,1);assert.equal(proof[0].retry_count,1);assert.equal(proof[0].evidence.rows[0].values.Price,'12.000');
   assert.equal('CustomerName' in proof[0].evidence.rows[0].values,false);
   assert.equal((await f.pool.query("SELECT count(*)::int n FROM ainuoke_catalog_diagnostics WHERE final_decision='full_stable_capture_validated'")).rows[0].n,1);
-  assert.notDeepEqual(await heads(f),initial);
+  assert.deepEqual(await heads(f),initial,'an unrelated directory Price change and unchanged target facts advance confirmations, not target business versions');
+  assert.ok(new Date((await f.pool.query("SELECT last_success_at FROM ainuoke_contract_sync_state WHERE source_id='1'")).rows[0].last_success_at).getTime()>=start+60000);
   await assert.rejects(f.pool.query('DELETE FROM ainuoke_catalog_diagnostics'),/cannot be deleted/);
   await assert.rejects(f.pool.query("UPDATE ainuoke_catalog_diagnostics SET final_decision='fake'"),/cannot be deleted/);
  }finally{await f.close();}

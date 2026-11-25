@@ -6374,6 +6374,24 @@
       "path": "docs/features/Issue174-精简整改决策方案-v2.md",
       "recordedAtSha": "84f422dea12bdd3016d39beed16e8a063b85b2c3",
       "sha256": "150fbb1320df9ecacb732fabe407f400ce86bca4defdfd9ea1031e808ea4730f"
+    },
+    {
+      "id": "issue174-v2-implementation-decisions-20261125",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "26d82759c909112c1af1ca660a8fa7543d171388",
+      "sha256": "d60de03ea1f35d5a23e8ee8edbf4978c08ce5150ce9873b7eb28029e85d51c37",
+      "supersedes": "issue174-simplified-decisions-20261124",
+      "changeReason": "D201 transcribes explicit v2 phase one/two implementation and isolated rehearsal approval; preserve the no-switch/no-cleanup/no-worker/no-production boundaries and all earlier decisions."
+    },
+    {
+      "id": "issue174-v2-storage-contract-20261125",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SYNC_AUDIT.md",
+      "recordedAtSha": "26d82759c909112c1af1ca660a8fa7543d171388",
+      "sha256": "f827f5948ae6df99ca2d2d462bd2fc4d22ebe4a3e5e6e9efe9997d52b9a65709",
+      "supersedes": "source-deleted-contract-20261120",
+      "changeReason": "Approved v2 shared bodies, change-only versions, confirmation retention and isolated selective migration candidate; preserve existing deletion/restoration and source safety contracts. No deployed capability is asserted."
     }
   ],
   "pages": [

@@ -134,10 +134,11 @@ async function captureSourceImplementation(pool: Pool, identity: Pick<TrustedIde
             return { runId: currentProfile.latest_run_id!, replayed: true, orders: validated.rows.length };
         }
         const runId=await publishMaterialSnapshotsInTransaction(client,actor,options.sourceKey,validated,current);
+        const runIds=perOrder?[...new Set((await client.query('SELECT run_id::text FROM ainuoke_material_order_heads WHERE source_key=$1 AND sales_order_id=ANY($2::uuid[]) ORDER BY sales_order_id',[options.sourceKey,validated.rows.map(row=>row.order.id)])).rows.map(row=>row.run_id as string))]:[runId];
         if(!options.selectedOrderIds)await client.query("UPDATE ainuoke_source_profiles SET latest_run_id=$2,last_error_code=NULL,last_attempt_at=now() WHERE source_key=$1", [options.sourceKey, runId]);
         await commitWithSyncAudit(client);
         transaction = false;
-        return { runId, replayed: false, orders: validated.rows.length };
+        return { runId, runIds, replayed: false, orders: validated.rows.length };
     }
     catch (error) {
         if (transaction)
