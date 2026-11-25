@@ -14,6 +14,10 @@ test('typed canonical golden vector is deterministic UTF-8, with exact JSON type
  assert.equal(businessCanonical({b:1,a:'1'}),encoded);
  assert.equal(businessDigest({b:1,a:'1'}),createHash('sha256').update(encoded).digest('hex'));
  assert.equal(businessCanonical({'😀':1,'\ue000':2}),'o2{s3:\ue000n2;s4:😀n1;}');
+ const keys=['a','aa','中','\ue000','😀','\ud800','\udfff','\ufffd'];
+ const expectedKeys=[...keys].sort((a,b)=>Buffer.compare(Buffer.from(a),Buffer.from(b)));
+ const original=Object.fromEntries(keys.map(key=>[key,1]));
+ assert.equal(businessCanonical(original),'o8{'+expectedKeys.map(key=>`s${Buffer.byteLength(key)}:${key}n1;`).join('')+'}');
  const different=[null,'',0,false,'0','1',1,'1.0',{},[],{a:null},{a:''}].map(businessDigest);
  assert.equal(new Set(different).size,different.length);
  for(const number of [NaN,Infinity,Number.MAX_SAFE_INTEGER+1])assert.throws(()=>businessDigest(number),/content_number_unsafe/);

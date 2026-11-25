@@ -9,7 +9,24 @@ import {runSyncTick} from './sync-worker.js';
 import {hydrateContractEvidence} from './catalog-evidence.js';
 import {CATALOG_CONTRACT_LIMITS} from './selected-source-once.js';
 import {accountFingerprint,type CollectorConfig} from './collector.js';
-import {syncTier,type SyncPolicy} from './sync-schedule.js';
+import {syncTier,validateSyncPolicy} from './sync-schedule.js';
+import {effectiveSyncDeliverySql} from './sync-dates.js';
+
+/** Read-only planning model, using the actual scheduler's effective manual/source dates. */
+export async function readStorageScheduleModel(input:Pick<pg.Pool,'query'>,clock:number){
+ const dated=(await input.query(`SELECT e.contract_date::text,${effectiveSyncDeliverySql()} AS delivery_date FROM ainuoke_catalog_entries e WHERE e.visible AND e.source_lifecycle_state='present'`)).rows;
+ const policy=validateSyncPolicy((await input.query('SELECT policy FROM ainuoke_sync_controls LIMIT 1')).rows[0].policy);
+ const tierCounts:Record<string,number>={};for(const row of dated){const tier=syncTier(row.delivery_date,clock,row.contract_date);tierCounts[tier]=(tierCounts[tier]??0)+1;}
+ const firstDay=Date.parse(new Date(clock+8*3600000).toISOString().slice(0,10)+'T00:00:00+08:00')+86400000;
+ const daily:number[]=[];
+ for(let day=0;day<365;day++){
+  let count=0;const instant=firstDay+day*86400000+12*3600000,date=new Date(instant+8*3600000),weekday=date.getUTCDay()||7;
+  for(const row of dated){const tier=syncTier(row.delivery_date,instant,row.contract_date);count+=tier==='frequent'||tier==='date-review'?1440/policy.frequentMinutes:tier==='daily'?1:tier==='weekly'?(weekday===policy.weeklyDay?1:0):date.getUTCDate()===policy.monthlyDay?1:0;}
+  daily.push(count);
+ }
+ const horizons=[30,90,365].map(days=>({days,automaticContractAttempts:daily.slice(0,days).reduce((a,b)=>a+b,0),lastSevenDaysAttempts:daily.slice(days-7,days).reduce((a,b)=>a+b,0),peakSevenDaysAttempts:Math.max(...daily.slice(0,days-6).map((_,i)=>daily.slice(i,i+7).reduce((a,b)=>a+b,0))),catalogCaptures:days*1440/policy.catalogMinutes}));
+ return {basis:'fixed backup-visible present contracts; current effective manual/source delivery dates; complete future Beijing days; no new contracts, pauses, failures or manual tasks',contracts:dated.length,policy,tierCounts,horizons,catalogCapturesPerDay:1440/policy.catalogMinutes};
+}
 
 /** One-off offline publisher benchmark on owned clones. No collector, credentials,
  * upstream request, scheduling, real-source freshness claim or maintenance switch. */
@@ -88,19 +105,7 @@ async function main(){
   for(let i=1;i<=rounds;i++)times.push(...await publish(i));
   const after=await measure();times.sort((a,b)=>a-b);
   const wal=Number((await target.query('SELECT pg_wal_lsn_diff($1::pg_lsn,$2::pg_lsn)::text n',[after.lsn,before.lsn])).rows[0].n);
-  const dated=(await input.query('SELECT delivery_date::text,contract_date::text FROM ainuoke_catalog_entries WHERE visible')).rows;
-  const policy=(await input.query('SELECT policy FROM ainuoke_sync_controls LIMIT 1')).rows[0].policy as SyncPolicy;
-  const tierCounts:Record<string,number>={};for(const row of dated){const tier=syncTier(row.delivery_date,clock,row.contract_date);tierCounts[tier]=(tierCounts[tier]??0)+1;}
-  const futureCounts:Record<string,number>={};
-  const firstDay=Date.parse(new Date(clock+8*3600000).toISOString().slice(0,10)+'T00:00:00+08:00')+86400000;
-  for(const days of [30,90,365]){
-   let count=0;
-   for(let day=0;day<days;day++){
-    const instant=firstDay+day*86400000+12*3600000,date=new Date(instant+8*3600000),weekday=date.getUTCDay()||7;
-    for(const row of dated){const tier=syncTier(row.delivery_date,instant,row.contract_date);count+=tier==='frequent'||tier==='date-review'?1440/policy.frequentMinutes:tier==='daily'?1:tier==='weekly'?(weekday===policy.weeklyDay?1:0):date.getUTCDate()===policy.monthlyDay?1:0;}
-   }
-   futureCounts[String(days)]=count;
-  }
+  const scheduleModel=await readStorageScheduleModel(input,clock);
   const databaseRole=(await target.query(`SELECT current_user AS name,p.rolsuper,p.rolcreaterole,p.rolbypassrls,
    (SELECT count(*)::int FROM pg_class c WHERE c.relnamespace='public'::regnamespace AND c.relkind='r' AND c.relowner=p.oid) owned_tables
    FROM pg_roles p WHERE p.rolname=current_user`)).rows[0];
@@ -111,7 +116,7 @@ async function main(){
   const result={state:'OFFLINE_RECORDED_REPLAY_MEASURED',mode:worker?'contract_worker':'material_publisher',database:targetUrl.pathname.slice(1),contracts:samples.length,rounds,publications:times.length,
    runtimeSourceSha:process.env.ISSUE174_RUNTIME_SOURCE_SHA??'not-supplied',databaseRole,dml,backgroundAutovacuums:Number(after.background.autovacuums)-Number(before.background.autovacuums),
    inputBusinessHash:hash(samples.map(r=>({contract:r.sales_contract_no,directory:r.discovery.flatMap((p:{rows:unknown[]})=>p.rows),materials:r.snapshots.flatMap((p:{rows:unknown[]})=>p.rows),colors:(r.colors??[]).flatMap((p:{rows:unknown[]})=>p.rows)}))),
-   scheduleModel:{basis:'fixed backup-visible contracts, complete future Beijing days; no new contracts, pauses, failures or manual tasks',contracts:dated.length,policy,tierCounts,automaticContractAttempts:futureCounts,catalogCapturesPerDay:1440/policy.catalogMinutes},
+   scheduleModel,
    simulatedClock:clock,sourceRequests:0,upstreamLatencyIncluded:false,maintenanceEnabled:false,warmupPublications:samples.length,
    fixtureWritesPerPublication:worker?2:0,fixtureNote:'Only owned clones: force a due state and enqueue one attempt; both variants include the same fixture writes. No real scheduler interval was changed.',
    databaseBeforeBytes:Number(before.database_bytes),databaseAfterBytes:Number(after.database_bytes),databaseGrowthBytes:Number(after.database_bytes)-Number(before.database_bytes),

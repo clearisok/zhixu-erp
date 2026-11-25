@@ -27,3 +27,5 @@ Chromium桌面与390px合成会话9/9，状态起点/历史缺口/权限撤销/�
 Gate 2026-11-25：首轮全路径100次录制重放证明旧100个业务版本/43.65MB，新0版本/3.61MB，但新CPU耗时退化，未按PASS掩盖。已减少重复同事务保存/规范化、只读取本合同原始目录chunk、在PG内做完整JSONB值相等检查（非只比hash），保持双hash/原hash语义；canonical缓存限本次调用并经独立businessDigest及A-B-A/迁移复核。最新body/chunk假同hash异正文均拒绝，核心4/4通过；仍待最终相同负载复测。
 
 另已只读确认真实应用连接quote_trial具有superuser/createRole/bypassRls且owns145；未改线上角色。新增database/operations/issue174_runtime_role.sql为显式目标、全事务、默认NOLOGIN的最小运行角色准备；保留员工RBAC，另待阶段三管理凭据/DSN切换。自动维护在cleanup=true时拒绝superuser/owner/member角色，普通辅助失败不影响同步。隔离实际普通LOGIN角色完整Worker成功运行；另从新PG容器按无密码NOLOGIN角色清单恢复紧凑dump，维护owner/ACL保留，普通角色635订单/13附件可读，DELETE/禁触发器/复制绕过/SET ROLE维护均拒绝。新容器再次145原表/所有保留来源hash/1731目录/5序列等价通过。原库和Staging0写入。
+
+Gate 2026-11-25性能收口：完整npm test 1026/1026、发布基线182/182、typecheck/lint/Server+前端build通过；真实新容器恢复145原表/5序列/1731目录及保留来源/13附件等价PASS。9003离线100次无变化版本0但p95仍较旧高，未冒充性能PASS。此checkpoint合并双遍目录的同内容完整比较与查询，保留原hash/manifest；UTF-8排序快路径保持代理字符Buffer语义，读取正文只规范化一次；最新核心4/4、server:build、精确路径lint通过。最新完整catalog与最终同负载复测待完成，不重复已失败Git通道。

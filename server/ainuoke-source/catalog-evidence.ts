@@ -1,4 +1,4 @@
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import type { Pool, PoolClient } from 'pg';
 import type { AdditionBundle, AdditionDiscoveryBundle } from './additions.js';
 import { canonical, hash, sourceIdText,SourceError, type SourceBundle } from './contract.js';
@@ -10,14 +10,14 @@ type PackedDirectory = { schemaVersion: 'ainuoke-packed-directory.v1'; discovery
 
 /** One bounded set per capture; hash hits still compare the complete canonical body. */
 async function persistDirectoryRows(c:Database,sourceKey:string,pages:AdditionDiscoveryBundle['discoveryAfter']){
- const unique=new Map<string,unknown[]>(),packed:PackedPage[]=[];
+ const unique=new Map<string,{rows:unknown[];encoded:string}>(),packed:PackedPage[]=[];
  for(const page of pages){
-  const {rows,...metadata}=page,rowsHash=hash(rows),prior=unique.get(rowsHash);
-  if(prior&&canonical(prior)!==canonical(rows))throw new SourceError('catalog_evidence_hash_collision');
-  unique.set(rowsHash,rows);packed.push({metadata,rowsHash});
+  const {rows,...metadata}=page,encoded=canonical(rows),rowsHash=createHash('sha256').update(encoded).digest('hex'),prior=unique.get(rowsHash);
+  if(prior&&prior.encoded!==encoded)throw new SourceError('catalog_evidence_hash_collision');
+  unique.set(rowsHash,{rows,encoded});packed.push({metadata,rowsHash});
  }
  if(unique.size){
-  const expected=[...unique].map(([content_hash,rows])=>({content_hash,rows})),serialized=JSON.stringify(expected);
+  const expected=[...unique].map(([content_hash,{rows}])=>({content_hash,rows})),serialized=JSON.stringify(expected);
   const read=()=>c.query(`SELECT e.content_hash,(q.rows=e.rows) AS body_equal
    FROM jsonb_to_recordset($2::jsonb) AS e(content_hash text,rows jsonb)
    JOIN ainuoke_catalog_evidence_chunks q ON q.source_key=$1 AND q.content_hash=e.content_hash`,[sourceKey,serialized]);
@@ -36,9 +36,9 @@ async function persistDirectoryRows(c:Database,sourceKey:string,pages:AdditionDi
 
 /** Called inside the publication transaction. No old rows are rewritten. */
 export async function saveCatalogEvidence(c: Database, sourceKey: string, fingerprint: string, bundle: AdditionDiscoveryBundle) {
- const pack = (pages: AdditionDiscoveryBundle['discoveryAfter']) => persistDirectoryRows(c,sourceKey,pages);
+ const packed=await persistDirectoryRows(c,sourceKey,[...bundle.discoveryBefore,...bundle.discoveryAfter]);
  const directory: PackedDirectory = { schemaVersion: 'ainuoke-packed-directory.v1',
-  discoveryBefore: await pack(bundle.discoveryBefore), discoveryAfter: await pack(bundle.discoveryAfter) };
+  discoveryBefore: packed.slice(0,bundle.discoveryBefore.length), discoveryAfter: packed.slice(bundle.discoveryBefore.length) };
  const digest = hash(directory), id = randomUUID();
  const row = (await c.query(`INSERT INTO ainuoke_catalog_capture_evidence(id,source_key,account_fingerprint,content_hash,directory)
   VALUES($1,$2,$3,$4,$5::jsonb) ON CONFLICT DO NOTHING RETURNING id::text`, [id,sourceKey,fingerprint,digest,JSON.stringify(directory)])).rows[0]

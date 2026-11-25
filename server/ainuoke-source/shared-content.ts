@@ -7,7 +7,11 @@ type Database = Pick<Pool | PoolClient, 'query'>;
 type AnyPage = AinuokeReportSnapshot<Record<string, unknown>>;
 export type ContentScope = { sourceKey: string; accountFingerprint: string; sourceId: string; contract: string; kind: 'materials' | 'colors' };
 type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
-const compare = (a: string, b: string) => Buffer.compare(Buffer.from(a), Buffer.from(b));
+const surrogate = /[\uD800-\uDFFF]/;
+// UTF-8 and UTF-16 have identical ordering outside surrogate code units.
+// Keep Buffer's exact replacement/astral semantics for the uncommon case.
+const compare = (a: string, b: string) => !surrogate.test(a)&&!surrogate.test(b)
+ ? a<b?-1:a>b?1:0 : Buffer.compare(Buffer.from(a), Buffer.from(b));
 /** Versioned typed JSON encoding. No locale, coercion, rounding or removal of business dates. */
 export function businessCanonical(value: unknown): string { return canonicalInner(value); }
 function canonicalInner(value:unknown,rows?:WeakMap<object,string>):string {
@@ -91,9 +95,10 @@ export async function hydrateSharedPages(db: Database, sourceKey: string, pages:
  if (!stored || stored.account_fingerprint !== stored.current_account) throw new SourceError('content_scope_invalid');
  const body = stored.body as Content;
  const scope: ContentScope = { sourceKey, accountFingerprint: stored.account_fingerprint, sourceId: stored.source_id, contract: stored.sales_contract_no, kind: stored.kind };
+ const canonicalBody=businessCanonical(body);
  if (body.schemaVersion !== 'ainuoke-business-content.v1' || businessCanonical(body.scope) !== businessCanonical(scope)
   || Object.entries(expected ?? {}).some(([k, v]) => scope[k as keyof ContentScope] !== v)
-  || businessDigest(body) !== stored.business_hash || Buffer.byteLength(businessCanonical(body)) !== Number(stored.canonical_size)) throw new SourceError('content_integrity_failure');
+  || createHash('sha256').update(canonicalBody).digest('hex') !== stored.business_hash || Buffer.byteLength(canonicalBody) !== Number(stored.canonical_size)) throw new SourceError('content_integrity_failure');
  const hydrated = marker.manifest.map(page => {
   const group = body.groups[page.group];
   if (!group || !Array.isArray(page.ordinals) || page.identities&&page.ordinals.length !== page.identities.length || group.reportId !== page.metadata.reportId || businessCanonical(group.queryContext) !== businessCanonical(page.metadata.queryContext)) throw new SourceError('content_manifest_invalid');
