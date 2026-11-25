@@ -1,13 +1,13 @@
-# 当前：PR160已合并，订单删除与Staging同步恢复已验收
+# 当前：Issue174精简方案v2，仅评估待审批
 
-2026-11-20；代码整合main基线 **4e1f9a514c8ff6e9cf7289d724df33c32bc05368**（PR160 merge commit），受审分支HEAD e833b819f653f27b3448e447795864693a0a6568。用户在本会话明确认可订单删除及自动同步恢复，并授权Ready/正常合并、Issue159与Project收尾；Production及本轮重新部署/Worker重启/业务数据操作仍禁止。本次后续仅文档收尾；未来任务先fetch并核实实际origin/main，不把部署SHA当主线SHA。
+2026-11-24；main基线 **10b9a7d827e1c09f152ead58c21f26712d49a619**，本轮GitHub connector只读复核仍一致。继续原文档分支`chore/issue174-storage-design`，起点`97074255880e8e422793e2ea4bdbc10667b79126`且clean；沿用NETWORK_DEGRADED，不重复Git失败通道。
 
-实际Staging仍为已验收代码 **0752d64f309d68b6e52afbbd712d28e0d9db9c1e**，未因Git合并重新部署。0060/145表，原database/objects容器及四卷保留。新备份20261120T111255Z-b640f966、原清理证明、九Gate全PASS，Supervisor自然启动唯一Worker并验证真实PG心跳。两轮255+255=510成功/0失败，每合同下一次计划为完成+1800秒；142原失败及所有暂停/恢复历史保留。两删除合同PI2611-142/143保持source_deleted/version1、无新自动任务，数量10000/8000及历史不变。以上是2026-11-20验收事实，本轮未新查业务数据库或更改运行环境。
+[精简v2](features/Issue174-精简整改决策方案-v2.md)窄替代[v1.1](features/Issue174-同步存储架构整改与数据库容量治理实施方案.md)全量旧历史转换/长期混读路线。D200记录用户新输入：允许不迁入整改前无业务引用/无其他保留义务的旧来源变化及重复过程正文；新起点T后真实变化长期保留。正式业务/人工计划/员工权限/附件、当前来源绑定及业务引用闭包、删除恢复、异常/unknown/在途/幂等和法律保留不变。7/30/90天、专项备份自验收成功起90天及同步频率不变。
 
-用户已验收红色“订单删除”及其他订单不受影响。完整双遍、历史成功出现、账号/身份/报表/范围/分页和唯一BillNo关联仍为删除/恢复门槛；不物理删除、不改Price隔离/未知结果保护/30分钟策略。Issue159和161正式验收完成；GitHub实际Done/关闭结果见[最终收尾记录](tasks/completed/pr160-final-acceptance-2026-11-20.md)。用户验收不倒改此前助手Staging浏览器工具故障的历史记录。
+建议选择性迁移到独立紧凑库，原则两张新表（正文/每日汇总容量），复用现有目录/任务/FK并固定枚举JSON引用，三阶段一组候选/一次计划Staging切换。不开发通用旧历史重建、pins平台、独立incident系统或通用反向转换；不能取消引用闭包、备份实际恢复、并发/幂等/未知保护。开放新写后不承诺旧程序一键回退，必须保全新写。
 
-e833最新三项CI全部真实SUCCESS：Source44741932214、Release baseline44741932219、First team access44741932341。0752已有root1026/1026、baseline182/182、目录106、生命周期PG10、Linux30、真实Docker/PG E2E1及typecheck/lint/前后端build，未重跑同SHA完整套件。旧dfcd Source cancelled保留历史，不能代替本轮success。纯文档收尾只新增适用的基线/链接检查，不改业务代码、UI、SQL、脚本或workflow。
+沿用旧调查12.336GB/145表/636单；本轮未连接数据库、未重查体积、未做全量去重或新源站请求。1–2GB/95%仍待实测；v2资源示例44.3GB新增＋对象，非容量保证。实际Staging旧调查a0a9c78c（PR172）及未合并PR173等须实施前重新核对。既存catalog_diagnostic_write_failed不在本轮恢复范围。
 
-Git当前已证明星辰VPN7888可用，旧GitHub专用代理17989无监听；正式脚本一次push把e833精确送达。仅子进程覆盖代理，不改全局/共享Git配置、认证或TLS。长期仓库级方案与回退边界见最终收尾记录，尚未执行持久修改。
+Issue174保持Open/Design/P0的设计目标；不自批Ready。本轮只做文档与Issue登记，没有代码/SQL、数据删除/迁移、配置/部署、Worker或Production操作。最新提交、文档检查及REMOTE/PR状态见Issue最终评论与AI_HANDOFF；实际PR交付前仍需最新HEAD的完整发布门禁。上轮182项通过不冒称本轮重跑。
 
-保留限制：旧selected_source_invalid原始坏行raw缺失，无法还原具体字段；两轮验收不是永久无故障承诺。备份资产、旧失败、私密配置及证据仍在原受控位置，不上传秘密/原业务导出。[恢复证据](tasks/active/staging-selected-source-recovery-2026-11-20.md)、[删除生命周期证据](tasks/active/ainuoke-source-deleted-2026-11-20.md)、[上阶段摘要原件](tasks/completed/2026-11-20-pr160-before-final-acceptance/CURRENT_STATE.md)。本轮无新功能，下一步以最新origin/main为稳定开发基线。
+[上轮摘要原件](tasks/completed/2026-11-24-before-issue174-simplification/README.md)保留旧日期/hash/结果；[原始调查和v1.1交付](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7126632505)不覆盖。下一步集中评审精简路线；实际放弃清单、资源、窗口/恢复时限和所有不可逆操作另行形成操作单授权。

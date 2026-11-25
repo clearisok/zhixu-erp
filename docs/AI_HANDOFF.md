@@ -1,13 +1,13 @@
-# 接力：PR160已合并，Issue159/161验收收尾
+# 接力：Issue174精简决策v2，仅评估
 
-2026-11-20；本轮纯文档收尾分支chore/pr160-acceptance-closeout，起点clean。main代码整合基线 **4e1f9a514c8ff6e9cf7289d724df33c32bc05368**，其父为636a5ad0d2d1acbe6b2705696e782dea12ee9f00和完整受审e833b819f653f27b3448e447795864693a0a6568。本地main另一个工作树可能仍旧，禁止移动/重置其他工作树；新任务先fetch并核实origin/main，再建独立分支。本轮文档交付的最终commit/PR/main SHA见GitHub和最终收尾评论，不能将0752部署SHA当新main。
+2026-11-24；main基线 **10b9a7d827e1c09f152ead58c21f26712d49a619**，本轮connector复核一致；branch `chore/issue174-storage-design`，本轮起点`97074255880e8e422793e2ea4bdbc10667b79126` clean。NETWORK_DEGRADED延续，不重复push/自动恢复命令，不用文件API伪造交付。最终HEAD/命令在Issue交付评论，未精确送达前PR pending。
 
-用户明确接受Staging自动同步和订单删除，授权PR160正常合并及Issue159/Project收尾。PR160已Ready→MERGED，e833三CI真实success，无review/未解决thread；生产相关workflow只有workflow_dispatch，无push/workflow_run触发、无活动Webhook。没有启动生产工作流、重新部署Staging、访问业务DB、重启Worker或补任务。
+先读[精简方案v2](features/Issue174-精简整改决策方案-v2.md)与最新[Issue174](https://github.com/clearisok/zhixu-erp/issues/174)决定。v1.1原文件/hash保持；D200窄替代D199对整改前无引用旧来源变化一律长期保留的输入。用户只授权评估，没有授权删除/迁移/配置/部署/调频/Worker恢复，不能把新起点理解成清库重采。正式业务、当前来源、业务引用闭包、删除恢复、异常/unknown/在途/幂等/法律hold全保，7/30/90天及专项备份自验收成功起90天不变。
 
-Staging仍0752d64f309d68b6e52afbbd712d28e0d9db9c1e：九Gate、真实heartbeat、两轮510/510、142失败保全、两source_deleted合同及数量历史均已验收。不要重做备份/恢复/自然周期；不要把历史工具无法拍摄Staging登录后UI的记录改成助手验收，最终UI认可来源为用户本会话决定。
+推荐两新表（共享正文/每日汇总容量）、现有目录与任务/FK＋固定JSON保护、只转换当前/受保护集合、三阶段统一候选/一次计划Staging切换；不做通用pins/incident/旧历史重建/反向转换。新写开放后不得冻结旧库覆盖新写。1–2GB/95%和44.3GB资源示例均非实测承诺。本轮没有DB连接/体积重查或源站请求。
 
-只复用已通过工程/CI结果；本轮只检查文档、与新main一致的基线锚点和必要的182项基线回归，不运行完整业务套件或真实来源采集。后续文档PR自动检查属于新提交的仓库规则，不冒称e833的旧检查属于新HEAD。
+源码核对0039 snapshot复合FK、0053 jobs/observations/state、0055目录chunks、0060生命周期run与worker/历史补发。未知引用必须hold；取消pins不取消事务内保护与闭包。现行不可变/verify-only/恢复/权限门禁照旧；运维quote_trial旧调查为superuser，不假定app权限隔离；catalog_diagnostic_write_failed未恢复；PR172/173等实际候选未来另核对。
 
-网络：17989失效、星辰VPN实际7888，已用进程限定GitHub代理完成正式一次push/精确远端核验。长期方案仅提出仓库local GitHub专用代理（所有关联worktree共用），须明确批准后才持久更改；不改全局、认证、TLS、VPN节点或Docker代理。详[最终收尾记录](tasks/completed/pr160-final-acceptance-2026-11-20.md)。
+本轮仅文档/链接/归档原字节/冻结证据前向版本及release guard检查；不把上轮182项通过算成本轮执行。未改守卫/测试或UI，不无理由重跑大套件；在真实PR交付前仍须对届时最新HEAD执行check:release-baseline与test:release-baseline，完整PR门禁未提前记PASS。
 
-[当前状态](CURRENT_STATE.md)、[完整恢复证据](tasks/active/staging-selected-source-recovery-2026-11-20.md)、[删除生命周期](tasks/active/ainuoke-source-deleted-2026-11-20.md)。[先前接力逐字归档](tasks/completed/2026-11-20-pr160-before-final-acceptance/AI_HANDOFF.md)。主机及本机私密证据位置沿原报告保留，不提交备份、配置或业务raw。当前无新功能任务。
+[上轮摘要原件](tasks/completed/2026-11-24-before-issue174-simplification/README.md)、[上轮最终182项记录](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7126632505)。本轮最终本地commit/checks/Issue版本链接见新交付评论；下一步集中评审，不进入Ready或执行。
