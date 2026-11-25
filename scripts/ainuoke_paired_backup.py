@@ -174,9 +174,20 @@ def snapshot_timeout_seconds(policy):
     return value
 
 
+def archive_compression_args(policy):
+    # Opt in only after the pinned PostgreSQL 16 client/restore compatibility
+    # check. Keep the original default and never accept arbitrary dump options.
+    if 'archiveCompression' not in policy:
+        return []
+    if policy['archiveCompression'] != 'zstd:1':
+        raise Stop('archive_compression_policy_invalid')
+    return ['--compress=zstd:1']
+
+
 class Backup:
     def __init__(self, policy):
         self.snapshot_timeout_seconds = snapshot_timeout_seconds(policy)
+        self.archive_compression_args = archive_compression_args(policy)
         self.p = policy
         self.root = direct(policy["backupRoot"], directory=True)
         self.project = policy["project"]
@@ -202,6 +213,18 @@ class Backup:
         if len(rows) != self.p["tableCount"] + 1:
             raise Stop("schema_changed_review_required")
         return {r["table"]: r for r in rows}
+
+    def verify_archive(self, dump):
+        try:
+            execute(["docker", "exec", "-i", self.db, "pg_restore", "--list"],
+                    input_stream=dump, output=subprocess.DEVNULL, timeout=60)
+            # Decode all data as SQL without a database connection. A readable
+            # TOC alone does not prove the compressed data segments are intact.
+            dump.seek(0)
+            execute(["docker", "exec", "-i", self.db, "pg_restore", "--file=/dev/null"],
+                    input_stream=dump, output=subprocess.DEVNULL, timeout=600)
+        except Stop:
+            raise Stop("verify_failed") from None
 
     def inspect(self):
         ids = execute(["docker", "ps", "-aq", "--filter", "label=com.docker.compose.project=" + self.project]).split()
@@ -314,6 +337,7 @@ class Backup:
                   "source": self.p["source"], "state": "RUNNING", "startedAt": dt.datetime.now(dt.timezone.utc).isoformat(),
                   "sourceRequests": 0, "businessWrites": 0, "deletedAssets": 0, "snapshotAlgorithm": "row-sha256-multiset-v2"}
         result['snapshotTimeoutSeconds'] = self.snapshot_timeout_seconds
+        result['archiveCompression'] = self.p.get('archiveCompression', 'default')
         result['executorProcess'] = process_identity(os.getpid())
         try:
             CURRENT_STEP = 'validate'
@@ -335,18 +359,14 @@ class Backup:
                 try:
                     CURRENT_STEP = 'archive'
                     execute(["docker", "exec", self.db, "pg_dump", "-w", "-U", "quote_trial", "-d", "quote_trial",
-                             "--format=custom", "--no-owner"], output=out, timeout=600)
+                             "--format=custom", "--no-owner", *self.archive_compression_args], output=out, timeout=600)
                 except Stop as error:
                     raise Stop("database_dump_" + str(error)) from None
                 out.flush()
                 os.fsync(out.fileno())
             with open(bundle / "database.dump", "rb") as dump:
                 CURRENT_STEP = 'verify_archive'
-                try:
-                    execute(["docker", "exec", "-i", self.db, "pg_restore", "--list"],
-                            input_stream=dump, output=subprocess.DEVNULL, timeout=60)
-                except Stop:
-                    raise Stop("verify_failed") from None
+                self.verify_archive(dump)
             objects = bundle / "object-bundle"
             CURRENT_STEP = 'objects_export'
             objects.mkdir(mode=0o700)

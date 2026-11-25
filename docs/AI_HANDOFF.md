@@ -20,3 +20,5 @@
 
 
 2026-11-25 交付准备：用户已接受 Issue174 第一、二阶段，授权 Git 交付、保全 PR172/173 及第三阶段准备；运行操作仍未批准。PR172 精确 a0a9c78c6cccbadf5e635dbb60169f7f87944644 已纳入本组合，产品文件无冲突；状态摘要原件见 [归档](tasks/completed/2026-11-25-before-issue174-delivery/pr172-AI_HANDOFF.md)。本行仅为组合 checkpoint，最终准备结论另行收口。
+
+PR173 精确 da1c2653ae6c53a1527bcee60dbdec734cc36553 同时纳入组合；备份工具及两份测试文件保持原 blob，不更改压缩/完整解码安全约束。原状态见 [归档](tasks/completed/2026-11-25-before-issue174-delivery/pr173-AI_HANDOFF.md)。
