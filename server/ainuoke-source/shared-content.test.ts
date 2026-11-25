@@ -21,6 +21,8 @@ test('typed canonical golden vector is deterministic UTF-8, with exact JSON type
 test('validated page order, row order, pagination and capture times do not invent a business change',()=>{
  const rows=[{id:'1',quantity:'115.50',date:'2026-11-24',nested:['M','L']},{id:'2',quantity:0}];
  const a=packContent(scope,[page(rows)]),bPage=page([...rows].reverse(),'2026-11-25T00:00:00Z');
+ assert.equal(a.businessHash,businessDigest(a.body));
+ assert.equal(a.canonicalSize,Buffer.byteLength(businessCanonical(a.body)));
  bPage.snapshotHash='different-proof';bPage.rows.forEach((r,i)=>r.sourceRowIdentity='new-derived-'+i);
  const b=packContent(scope,[bPage]);assert.equal(a.businessHash,b.businessHash);assert.notEqual(a.captureHash,b.captureHash);
  const pages=rows.map((row,i)=>({...page([row]),page:i+1,pageSize:1,total:2}));

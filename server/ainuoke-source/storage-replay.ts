@@ -75,9 +75,14 @@ async function main(){
    return elapsed;
   };
   const measure=async()=>{
+   await new Promise(done=>setTimeout(done,1100));
+   await target.query('SELECT pg_stat_clear_snapshot()');
    const row=(await target.query(`SELECT pg_database_size(current_database())::text AS database_bytes,pg_current_wal_insert_lsn()::text AS lsn,
     (SELECT count(*)::text FROM ainuoke_source_runs) AS business_runs,
-    (SELECT sum(pg_total_relation_size(c.oid))::text FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r') AS relation_bytes`)).rows[0];return row;
+    (SELECT sum(pg_total_relation_size(c.oid))::text FROM pg_class c JOIN pg_namespace n ON n.oid=c.relnamespace WHERE n.nspname='public' AND c.relkind='r') AS relation_bytes`)).rows[0];
+   row.dml=(await target.query('SELECT relname,n_tup_ins::text ins,n_tup_upd::text upd,n_tup_del::text del,n_tup_hot_upd::text hot FROM pg_stat_user_tables ORDER BY relname')).rows;
+   row.background=(await target.query('SELECT sum(autovacuum_count)::text autovacuums FROM pg_stat_user_tables')).rows[0];
+   return row;
   };
   await publish(0);const before=await measure(),times=[];
   for(let i=1;i<=rounds;i++)times.push(...await publish(i));
@@ -96,14 +101,22 @@ async function main(){
    }
    futureCounts[String(days)]=count;
   }
+  const databaseRole=(await target.query(`SELECT current_user AS name,p.rolsuper,p.rolcreaterole,p.rolbypassrls,
+   (SELECT count(*)::int FROM pg_class c WHERE c.relnamespace='public'::regnamespace AND c.relkind='r' AND c.relowner=p.oid) owned_tables
+   FROM pg_roles p WHERE p.rolname=current_user`)).rows[0];
+  const dml=(after.dml as Array<{relname:string;ins:string;upd:string;del:string;hot:string}>).map(row=>{
+   const old=before.dml.find((r:{relname:string})=>r.relname===row.relname)??{ins:'0',upd:'0',del:'0',hot:'0'};
+   return {table:row.relname,inserts:Number(row.ins)-Number(old.ins),updates:Number(row.upd)-Number(old.upd),deletes:Number(row.del)-Number(old.del),hotUpdates:Number(row.hot)-Number(old.hot)};
+  }).filter(r=>r.inserts||r.updates||r.deletes);
   const result={state:'OFFLINE_RECORDED_REPLAY_MEASURED',mode:worker?'contract_worker':'material_publisher',database:targetUrl.pathname.slice(1),contracts:samples.length,rounds,publications:times.length,
+   runtimeSourceSha:process.env.ISSUE174_RUNTIME_SOURCE_SHA??'not-supplied',databaseRole,dml,backgroundAutovacuums:Number(after.background.autovacuums)-Number(before.background.autovacuums),
    inputBusinessHash:hash(samples.map(r=>({contract:r.sales_contract_no,directory:r.discovery.flatMap((p:{rows:unknown[]})=>p.rows),materials:r.snapshots.flatMap((p:{rows:unknown[]})=>p.rows),colors:(r.colors??[]).flatMap((p:{rows:unknown[]})=>p.rows)}))),
    scheduleModel:{basis:'fixed backup-visible contracts, complete future Beijing days; no new contracts, pauses, failures or manual tasks',contracts:dated.length,policy,tierCounts,automaticContractAttempts:futureCounts,catalogCapturesPerDay:1440/policy.catalogMinutes},
    simulatedClock:clock,sourceRequests:0,upstreamLatencyIncluded:false,maintenanceEnabled:false,warmupPublications:samples.length,
    fixtureWritesPerPublication:worker?2:0,fixtureNote:'Only owned clones: force a due state and enqueue one attempt; both variants include the same fixture writes. No real scheduler interval was changed.',
    databaseBeforeBytes:Number(before.database_bytes),databaseAfterBytes:Number(after.database_bytes),databaseGrowthBytes:Number(after.database_bytes)-Number(before.database_bytes),
    relationGrowthBytes:Number(after.relation_bytes)-Number(before.relation_bytes),walBytes:wal,businessVersionsAdded:Number(after.business_runs)-Number(before.business_runs),
-   medianMs:times[Math.floor(times.length*.5)],p95Ms:times[Math.ceil(times.length*.95)-1],totalPublisherMs:times.reduce((a,b)=>a+b,0),inputBusinessValuesChanged:false};
+   medianMs:times[Math.floor(times.length*.5)],p95Ms:times[Math.ceil(times.length*.95)-1],p99Ms:times[Math.ceil(times.length*.99)-1],totalPublisherMs:times.reduce((a,b)=>a+b,0),inputBusinessValuesChanged:false};
   await writeFile(process.env.ISSUE174_REPLAY_RESULT??'/evidence/replay.json',JSON.stringify(result,null,2));process.stdout.write(JSON.stringify(result)+'\n');
  }finally{await input.end();await target.end();}
 }

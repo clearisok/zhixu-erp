@@ -16,7 +16,8 @@ import {planFollowupGroups} from '../ainuoke-source/followup.js';
 import {selectedConfig,selectedContracts,selectedWorkerFixture} from './selected-source-fixture.js';
 import {createPersistedMaterialPorts} from '../ainuoke-source/reader.js';
 import {createOrderMaterialReader} from '../../features/ainuoke-material-progress/read-service.js';
-import {hydrateSharedPages} from '../ainuoke-source/shared-content.js';
+import {hydrateSharedPages,packContent,saveSharedPages} from '../ainuoke-source/shared-content.js';
+import {saveCatalogEvidence} from '../ainuoke-source/catalog-evidence.js';
 import {hash} from '../ainuoke-source/contract.js';
 import {maintainSourceStorage} from '../ainuoke-source/storage-maintenance.js';
 import {configureSync,enqueueAutomaticSync,requestContractSync} from '../ainuoke-source/sync-queue.js';
@@ -56,6 +57,21 @@ test('storage v2 retains A-B-A events, shares bodies, confirms unchanged generat
   await assert.rejects(hydrateSharedPages(pool,sourceKey,damaged),/content_manifest_invalid/);
   await assert.rejects(hydrateSharedPages(pool,sourceKey,snapshots[0].snapshots,{contract:'OTHER-CONTRACT'}),/content_integrity_failure/);
   await assert.rejects(pool.query('UPDATE ainuoke_contract_contents SET body=body WHERE id=$1',[snapshots[0].material_content_id]),/immutable/);
+  const existing=(await pool.query('SELECT * FROM ainuoke_contract_contents WHERE id=$1',[snapshots[0].material_content_id])).rows[0];
+  const collisionScope={sourceKey,accountFingerprint:existing.account_fingerprint,sourceId:existing.source_id,contract:existing.sales_contract_no,kind:'materials' as const};
+  const collisionPages=await hydrateSharedPages(pool,sourceKey,snapshots[0].snapshots);
+  collisionPages[0].rows[0].values.storageCollisionSentinel='synthetic';
+  const candidate=packContent(collisionScope,collisionPages),collision=await pool.connect();
+  try{
+   await collision.query('BEGIN');
+   await collision.query(`INSERT INTO ainuoke_contract_contents(id,source_key,account_fingerprint,source_id,sales_contract_no,kind,business_hash,body,canonical_size)
+    VALUES($1,$2,$3,$4,$5,'materials',$6,$8::jsonb,$7)`,[randomUUID(),sourceKey,existing.account_fingerprint,existing.source_id,existing.sales_contract_no,candidate.businessHash,candidate.canonicalSize,JSON.stringify({...candidate.body,groups:[]})]);
+   await assert.rejects(saveSharedPages(collision,collisionScope,collisionPages),/content_integrity_failure/);
+   const directory=structuredClone({schemaVersion:'ainuoke-order-addition-discovery.v1' as const,discoveryBefore:selected.bundle.discoveryBefore,discoveryAfter:selected.bundle.discoveryAfter});
+   directory.discoveryBefore[0].rows[0].values.storageCollisionSentinel='synthetic';
+   await collision.query("INSERT INTO ainuoke_catalog_evidence_chunks(source_key,content_hash,rows) VALUES($1,$2,'[]')",[sourceKey,hash(directory.discoveryBefore[0].rows)]);
+   await assert.rejects(saveCatalogEvidence(collision,sourceKey,existing.account_fingerprint,directory),/catalog_evidence_hash_collision/);
+  }finally{await collision.query('ROLLBACK');collision.release();}
   const allTables=(await pool.query("SELECT count(*)::int n FROM pg_tables WHERE schemaname='public'")).rows[0].n;
   assert.equal(allTables,147);
   await configureSync(pool,actor,{sourceKey,enabled:false,expectedVersion:0,policy:{...DEFAULT_SYNC_POLICY}});
@@ -101,6 +117,7 @@ test('storage v2 retains A-B-A events, shares bodies, confirms unchanged generat
    await assert.rejects(restricted.query('SELECT public.ainuoke_storage_resolve_failure($1,$2,$3)',[sourceKey,'job',jobs[2]]),/permission/);
   }finally{restricted.release();await restrictedPool.end();}
   await pool.query('UPDATE ainuoke_sync_controls SET storage_cleanup_enabled=true WHERE source_key=$1',[sourceKey]);
+  assert.deepEqual(await maintainSourceStorage(pool,sourceKey),{status:'failed',code:'storage_runtime_role_unsafe'},'automatic cleanup refuses an unsafe application role without stopping source work');
   const applied=(await pool.query('SELECT ainuoke_storage_prune($1,true,10) result',[sourceKey])).rows[0].result;
   assert.equal(applied.apply,true);assert.deepEqual(await counts(),{runs:3,bodies:2});
   assert.equal((await pool.query('SELECT count(*)::int n FROM ainuoke_sync_jobs WHERE id=$1',[jobs[0]])).rows[0].n,0);

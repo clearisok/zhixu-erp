@@ -9,7 +9,9 @@ export type ContentScope = { sourceKey: string; accountFingerprint: string; sour
 type Json = null | boolean | number | string | Json[] | { [key: string]: Json };
 const compare = (a: string, b: string) => Buffer.compare(Buffer.from(a), Buffer.from(b));
 /** Versioned typed JSON encoding. No locale, coercion, rounding or removal of business dates. */
-export function businessCanonical(value: unknown): string {
+export function businessCanonical(value: unknown): string { return canonicalInner(value); }
+function canonicalInner(value:unknown,rows?:WeakMap<object,string>):string {
+ if(value&&typeof value==='object'&&rows?.has(value))return rows.get(value)!;
  if (value === null) return 'z';
  if (typeof value === 'string') return `s${Buffer.byteLength(value)}:${value}`;
  if (typeof value === 'boolean') return value ? 't' : 'f';
@@ -17,10 +19,10 @@ export function businessCanonical(value: unknown): string {
   if (!Number.isFinite(value) || Math.abs(value) > Number.MAX_SAFE_INTEGER) throw new SourceError('content_number_unsafe');
   return `n${JSON.stringify(value)};`;
  }
- if (Array.isArray(value)) return `a${value.length}[${value.map(businessCanonical).join('')}]`;
+ if (Array.isArray(value)) return `a${value.length}[${value.map(v=>canonicalInner(v,rows)).join('')}]`;
  if (value && typeof value === 'object' && Object.getPrototypeOf(value) === Object.prototype) {
   const entries = Object.entries(value).sort(([a], [b]) => compare(a, b));
-  return `o${entries.length}{${entries.map(([k, v]) => businessCanonical(k) + businessCanonical(v)).join('')}}`;
+  return `o${entries.length}{${entries.map(([k, v]) => canonicalInner(k,rows) + canonicalInner(v,rows)).join('')}}`;
  }
  throw new SourceError('content_json_invalid');
 }
@@ -34,26 +36,28 @@ const unorderedReports = new Set(['6087050', '6087051', '6086997', '6087105', '6
 export function packContent(scope: ContentScope, pages: AnyPage[]) {
  if (!pages.length || pages.length > 200) throw new SourceError('content_pages_invalid');
  const groups = new Map<string, Group>();
+ const rowKeys=new WeakMap<object,string>(),originalKeys=new WeakMap<object,string>();
  for (const page of pages) {
   if (!unorderedReports.has(page.reportId)||(['6086997','6087105'].includes(page.reportId)!==(scope.kind==='colors'))) throw new SourceError('content_report_unsupported');
   if(page.schemaVersion!=='ainuoke-direct-read.v2'||Object.keys(page).sort().join(',')!=='fetchedAt,page,pageSize,queryContext,reportId,rows,schemaVersion,snapshotHash,total')throw new SourceError('content_page_schema_unknown');
   const key = businessCanonical([page.reportId, page.queryContext]);
   const group = groups.get(key) ?? { reportId: page.reportId, queryContext: structuredClone(page.queryContext) as Json, rows: [] };
-  group.rows.push(...page.rows.map(({ sourceRowIdentity, ...row }) => { void sourceRowIdentity; return structuredClone(row) as Json; }));
+  group.rows.push(...page.rows.map(original => {const {sourceRowIdentity,...row}=original;void sourceRowIdentity;const copy=structuredClone(row) as Json,key=businessCanonical(copy);rowKeys.set(copy as object,key);originalKeys.set(original,key);return copy;}));
   groups.set(key, group);
  }
  const entries = [...groups].sort(([a], [b]) => compare(a, b));
- const body: Content = { schemaVersion: 'ainuoke-business-content.v1', scope: { ...scope }, groups: entries.map(([, group]) => ({ ...group, rows: group.rows.sort((a, b) => compare(businessCanonical(a), businessCanonical(b))) })) };
+ const sorted=entries.map(([,group])=>group.rows.map(row=>({row,key:rowKeys.get(row as object)!})).map(item=>({...item,bytes:Buffer.from(item.key)})).sort((a,b)=>Buffer.compare(a.bytes,b.bytes)));
+ const body: Content = { schemaVersion: 'ainuoke-business-content.v1', scope: { ...scope }, groups: entries.map(([, group],i) => ({ ...group, rows: sorted[i].map(item=>item.row) })) };
+ const locations=sorted.map(rows=>{const result=new Map<string,number[]>();rows.forEach((item,i)=>{const indices=result.get(item.key)??[];indices.push(i);result.set(item.key,indices);});return result;});
  const identityMap:string[][]=body.groups.map(group=>group.rows.map(()=>''));
  const manifest = pages.map(page => {
   const { rows, ...metadata } = page;
   const group = entries.findIndex(([key]) => key === businessCanonical([page.reportId, page.queryContext]));
   // Repeated rows retain multiplicity in the body and repeated mappings in the capture.
-  const available = new Map<string, number[]>();
-  body.groups[group].rows.forEach((row, i) => { const key = businessCanonical(row); available.set(key, [...(available.get(key) ?? []), i]); });
-  const ordinals = rows.map(({ sourceRowIdentity, ...row }) => {
-   void sourceRowIdentity;
-   const index = available.get(businessCanonical(row))?.shift();
+  const used=new Map<string,number>();
+  const ordinals = rows.map(row => {
+   const key=originalKeys.get(row);if(key===undefined)throw new SourceError('content_manifest_invalid');
+   const position=used.get(key)??0,index=locations[group].get(key)?.[position];used.set(key,position+1);
    if (index === undefined) throw new SourceError('content_manifest_invalid');
    return index;
   });
@@ -61,17 +65,19 @@ export function packContent(scope: ContentScope, pages: AnyPage[]) {
   ordinals.forEach((ordinal,i)=>{identityMap[group][ordinal]||=identities[i];});
   return { metadata: structuredClone(metadata), group, ordinals, identities };
  });
- return { body, identityMap, businessHash: businessDigest(body), canonicalSize: Buffer.byteLength(businessCanonical(body)), manifest, captureHash: hash(pages) };
+ const canonicalBody=canonicalInner(body,rowKeys);
+ return { body, identityMap, businessHash: createHash('sha256').update(canonicalBody).digest('hex'), canonicalSize: Buffer.byteLength(canonicalBody), manifest, captureHash: hash(pages) };
 }
 
 export async function saveSharedPages(db: Database, scope: ContentScope, pages: AnyPage[]): Promise<PackedPages> {
  const packed = packContent(scope, pages), id = randomUUID();
- const stored = (await db.query(`INSERT INTO ainuoke_contract_contents(id,source_key,account_fingerprint,source_id,sales_contract_no,kind,business_hash,body,canonical_size,identity_map)
- VALUES($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9,$10::jsonb) ON CONFLICT(source_key,account_fingerprint,source_id,sales_contract_no,kind,business_hash) DO NOTHING RETURNING id::text,body,canonical_size,identity_map`,
- [id,scope.sourceKey,scope.accountFingerprint,scope.sourceId,scope.contract,scope.kind,packed.businessHash,JSON.stringify(packed.body),packed.canonicalSize,JSON.stringify(packed.identityMap)])).rows[0]
- ?? (await db.query(`SELECT id::text,body,canonical_size,identity_map FROM ainuoke_contract_contents WHERE source_key=$1 AND account_fingerprint=$2 AND source_id=$3 AND sales_contract_no=$4 AND kind=$5 AND business_hash=$6`,
- [scope.sourceKey,scope.accountFingerprint,scope.sourceId,scope.contract,scope.kind,packed.businessHash])).rows[0];
- if (!stored || Number(stored.canonical_size) !== packed.canonicalSize || businessCanonical(stored.body) !== businessCanonical(packed.body)) throw new SourceError('content_integrity_failure');
+ const serializedBody=JSON.stringify(packed.body);
+ const find=()=>db.query(`SELECT id::text,(body=$7::jsonb) AS body_equal,canonical_size,identity_map FROM ainuoke_contract_contents WHERE source_key=$1 AND account_fingerprint=$2 AND source_id=$3 AND sales_contract_no=$4 AND kind=$5 AND business_hash=$6`,[scope.sourceKey,scope.accountFingerprint,scope.sourceId,scope.contract,scope.kind,packed.businessHash,serializedBody]);
+ const stored = (await find()).rows[0] ?? (await db.query(`INSERT INTO ainuoke_contract_contents(id,source_key,account_fingerprint,source_id,sales_contract_no,kind,business_hash,body,canonical_size,identity_map)
+ VALUES($1,$2,$3,$4,$5,$6,$7,$8::jsonb,$9,$10::jsonb) ON CONFLICT(source_key,account_fingerprint,source_id,sales_contract_no,kind,business_hash) DO NOTHING RETURNING id::text,(body=$8::jsonb) AS body_equal,canonical_size,identity_map`,
+ [id,scope.sourceKey,scope.accountFingerprint,scope.sourceId,scope.contract,scope.kind,packed.businessHash,serializedBody,packed.canonicalSize,JSON.stringify(packed.identityMap)])).rows[0]
+ ?? (await find()).rows[0];
+ if (!stored || stored.body_equal!==true || Number(stored.canonical_size) !== packed.canonicalSize) throw new SourceError('content_integrity_failure');
  const manifest:ManifestPage[]=packed.manifest.map(page=>({metadata:page.metadata,group:page.group,ordinals:page.ordinals,
   identityOverrides:page.identities.flatMap((identity,i)=>stored.identity_map[page.group]?.[page.ordinals[i]]===identity?[]:[[i,identity] as [number,string]])}));
  return { schemaVersion: 'ainuoke-shared-pages.v1', contentId: stored.id, captureHash: packed.captureHash, manifest };

@@ -12,6 +12,12 @@ export async function maintainSourceStorage(pool:Pool,sourceKey:string,now=Date.
   await c.query('BEGIN');await c.query("SET LOCAL lock_timeout='250ms'");await c.query("SET LOCAL statement_timeout='2s'");
   if(!(await c.query("SELECT to_regprocedure('ainuoke_storage_rollup(text,integer)') IS NOT NULL AS ready")).rows[0].ready){await c.query('ROLLBACK');return {status:'unavailable' as const};}
   const setting=(await c.query('SELECT storage_cleanup_enabled FROM ainuoke_sync_controls WHERE source_key=$1',[sourceKey])).rows[0];
+  if(setting?.storage_cleanup_enabled===true){
+   const unsafe=(await c.query(`SELECT p.rolsuper OR p.rolcreaterole OR p.rolbypassrls OR pg_has_role(current_user,'ainuoke_storage_maintenance','MEMBER')
+    OR EXISTS(SELECT 1 FROM pg_class r WHERE r.relnamespace='public'::regnamespace AND r.relkind='r' AND r.relowner=p.oid) AS unsafe
+    FROM pg_roles p WHERE p.rolname=current_user`)).rows[0]?.unsafe;
+   if(unsafe!==false){await c.query('ROLLBACK');recent.set(sourceKey,now);return {status:'failed' as const,code:'storage_runtime_role_unsafe'};}
+  }
   const rollup=(await c.query('SELECT ainuoke_storage_rollup($1,100) AS result',[sourceKey])).rows[0].result;
   const retention=(await c.query('SELECT ainuoke_storage_prune($1,$2,100) AS result',[sourceKey,setting?.storage_cleanup_enabled===true])).rows[0].result;
   await c.query('COMMIT');recent.delete(sourceKey);

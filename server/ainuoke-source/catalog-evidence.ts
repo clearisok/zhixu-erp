@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import type { Pool, PoolClient } from 'pg';
 import type { AdditionBundle, AdditionDiscoveryBundle } from './additions.js';
-import { canonical, hash, SourceError, type SourceBundle } from './contract.js';
+import { canonical, hash, sourceIdText,SourceError, type SourceBundle } from './contract.js';
 import { hydrateSharedPages } from './shared-content.js';
 
 type Database = Pick<Pool | PoolClient, 'query'>;
@@ -17,10 +17,19 @@ async function persistDirectoryRows(c:Database,sourceKey:string,pages:AdditionDi
   unique.set(rowsHash,rows);packed.push({metadata,rowsHash});
  }
  if(unique.size){
-  await c.query(`INSERT INTO ainuoke_catalog_evidence_chunks(source_key,content_hash,rows)
-   SELECT $1,r.content_hash,r.rows FROM jsonb_to_recordset($2::jsonb) AS r(content_hash text,rows jsonb) ON CONFLICT DO NOTHING`,[sourceKey,JSON.stringify([...unique].map(([content_hash,rows])=>({content_hash,rows})))]);
-  const stored=(await c.query('SELECT content_hash,rows FROM ainuoke_catalog_evidence_chunks WHERE source_key=$1 AND content_hash=ANY($2::text[])',[sourceKey,[...unique.keys()]])).rows;
-  if(stored.length!==unique.size||stored.some(r=>canonical(r.rows)!==canonical(unique.get(r.content_hash))))throw new SourceError('catalog_evidence_hash_collision');
+  const expected=[...unique].map(([content_hash,rows])=>({content_hash,rows})),serialized=JSON.stringify(expected);
+  const read=()=>c.query(`SELECT e.content_hash,(q.rows=e.rows) AS body_equal
+   FROM jsonb_to_recordset($2::jsonb) AS e(content_hash text,rows jsonb)
+   JOIN ainuoke_catalog_evidence_chunks q ON q.source_key=$1 AND q.content_hash=e.content_hash`,[sourceKey,serialized]);
+  let stored=(await read()).rows;
+  if(stored.some(r=>r.body_equal!==true))throw new SourceError('catalog_evidence_hash_collision');
+  if(stored.length!==unique.size){
+   const found=new Set(stored.map(r=>r.content_hash)),missing=expected.filter(r=>!found.has(r.content_hash));
+   await c.query(`INSERT INTO ainuoke_catalog_evidence_chunks(source_key,content_hash,rows)
+    SELECT $1,r.content_hash,r.rows FROM jsonb_to_recordset($2::jsonb) AS r(content_hash text,rows jsonb) ON CONFLICT DO NOTHING`,[sourceKey,JSON.stringify(missing)]);
+   stored=(await read()).rows;
+   if(stored.length!==unique.size||stored.some(r=>r.body_equal!==true))throw new SourceError('catalog_evidence_hash_collision');
+  }
  }
  return packed;
 }
@@ -100,6 +109,29 @@ export async function hydrateSourceDirectory(c:Database,sourceKey:string,pages:u
   return result as SourceBundle['discoveryAfter'];
  }
  return (await loadCatalogEvidence(c,sourceKey,marker.captureId,p.account_fingerprint)).discoveryAfter;
+}
+
+/** A contract-state comparison needs its own original row, not every other
+ * contract's old rows. Verify the capture/account and complete owning chunk;
+ * full history readers continue to validate the whole original capture. */
+export async function loadContractDirectoryRows(c:Database,sourceKey:string,captureId:string,fingerprint:string,sourceId:string){
+ const row=(await c.query('SELECT account_fingerprint,directory,content_hash FROM ainuoke_catalog_capture_evidence WHERE source_key=$1 AND id=$2',[sourceKey,captureId])).rows[0];
+ if(!row||row.account_fingerprint!==fingerprint||hash(row.directory)!==row.content_hash||!['ainuoke-packed-directory.v1','ainuoke-packed-after-only.v1'].includes(row.directory.schemaVersion)||!Array.isArray(row.directory.discoveryAfter))throw new SourceError('catalog_evidence_invalid');
+ const hashes=[...new Set((row.directory.discoveryAfter as PackedPage[]).map(p=>p.rowsHash))];
+ if(hashes.some(h=>!/^[a-f0-9]{64}$/.test(h)))throw new SourceError('catalog_evidence_invalid');
+ let chunks=(await c.query(`SELECT q.content_hash,q.rows FROM ainuoke_catalog_evidence_chunks q WHERE q.source_key=$1 AND q.content_hash=ANY($2::text[])
+  AND EXISTS(SELECT 1 FROM jsonb_array_elements(q.rows) r WHERE btrim(normalize(r#>>'{values,id}',NFKC))=$3)`,[sourceKey,hashes,sourceId])).rows;
+ // Preserve the exact JS identity rule for unusual Unicode whitespace as well.
+ if(!chunks.length)chunks=(await c.query('SELECT content_hash,rows FROM ainuoke_catalog_evidence_chunks WHERE source_key=$1 AND content_hash=ANY($2::text[])',[sourceKey,hashes])).rows;
+ const facts:SourceBundle['discoveryAfter'][number]['rows']=[];
+ for(const chunk of chunks){
+  if(!Array.isArray(chunk.rows))throw new SourceError('catalog_evidence_invalid');
+  const own=(chunk.rows as SourceBundle['discoveryAfter'][number]['rows']).filter(r=>sourceIdText(r.values?.id)===sourceId);
+  if(own.length&&hash(chunk.rows)!==chunk.content_hash)throw new SourceError('catalog_evidence_invalid');
+  facts.push(...own);
+ }
+ if(facts.length!==1)throw new SourceError('source_identity_mismatch');
+ return facts;
 }
 
 /** Offline selected legacy runs only: their missing before pass is never fabricated. */

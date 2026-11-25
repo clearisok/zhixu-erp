@@ -18,7 +18,7 @@ import {requirePermission} from '../auth/permissions.js';
 import {createAinuokeSalesOrderInTransaction} from '../sales-orders/service.js';
 import {lockEffectiveAttribution} from '../sales-orders/effective-attribution.js';
 import { saveCatalogEvidence } from './catalog-evidence.js';
-import { saveSharedPages, supportsSharedContent, businessDigest } from './shared-content.js';
+import { saveSharedPages, supportsSharedContent, businessDigest,type PackedPages } from './shared-content.js';
 import {saveManualColorEvidence} from './manual-source-evidence.js';
 import {CatalogConsistencyError,type CatalogChangeDiagnostic} from './catalog-consistency.js';
 import {retainCatalogDifferences,recapturePagesFor,loadRecapturePages,recapturePageHandler,appendCatalogDiagnostic} from './catalog-diagnostics.js';
@@ -59,6 +59,8 @@ async function publishContract(pool:Pool,identity:Identity,config:CollectorConfi
     const singleAddition={...captured.addition,colors:{[job.sales_contract_no]:captured.addition.colors[job.sales_contract_no]}};
     let orderId:string|null=null;
     let publicationRunId:string|null=null;
+    let publicationCaptureId:string|null=null;
+    let publicationMaterial:PackedPages|null=null;
     if(target) {
       // Only an existing trusted binding can update business Source mirrors.
       const result=await refreshCollectedBoundOrderInTransaction(pool,c,actor,
@@ -68,19 +70,21 @@ async function publishContract(pool:Pool,identity:Identity,config:CollectorConfi
       const materialBundle={...captured.materials.bundle,materials:{[job.sales_contract_no]:captured.materials.bundle.materials[job.sales_contract_no]}};
       const materials=await validateBundle(materialBundle,refreshed,now,600000);
       publicationRunId=await publishMaterialSnapshotsInTransaction(c,actor,config.sourceKey,materials,refreshed);
-      const published=await c.query(`SELECT 1 FROM ainuoke_material_order_heads h
+      const published=await c.query(`SELECT to_jsonb(h)->>'verified_capture_id' AS verified_capture_id,to_jsonb(h)->'verified_material_manifest' AS verified_material_manifest FROM ainuoke_material_order_heads h
         JOIN ainuoke_material_source_snapshots s ON s.run_id=h.run_id AND s.sales_order_id=h.sales_order_id
         WHERE h.source_key=$1 AND h.sales_order_id=$2 AND h.run_id=$3 AND h.last_error_code IS NULL
         AND s.sales_contract_no=$4 AND s.source_link_id=$5 AND s.captured_order_version=$6`,
         [config.sourceKey,target.id,publicationRunId,job.sales_contract_no,refreshed[0].sourceLinkId,refreshed[0].version]);
       if(published.rowCount!==1)throw new SourceError('material_publication_not_readable');
+      publicationCaptureId=published.rows[0].verified_capture_id;
+      publicationMaterial=published.rows[0].verified_material_manifest;
     }
     const observationId=randomUUID(),directoryId=randomUUID();
-    const captureId=await saveCatalogEvidence(c,config.sourceKey,accountFingerprint(config),captured.directory.bundle);
+    const captureId=publicationCaptureId??await saveCatalogEvidence(c,config.sourceKey,accountFingerprint(config),captured.directory.bundle);
     const shared=await supportsSharedContent(c);
     const scope={sourceKey:config.sourceKey,accountFingerprint:accountFingerprint(config),sourceId:job.source_id,contract:job.sales_contract_no};
     const colorContent=shared?await saveSharedPages(c,{...scope,kind:'colors'},singleAddition.colors[job.sales_contract_no]):null;
-    const materialContent=shared?await saveSharedPages(c,{...scope,kind:'materials'},captured.materials.bundle.materials[job.sales_contract_no]):null;
+    const materialContent=shared?(publicationMaterial??await saveSharedPages(c,{...scope,kind:'materials'},captured.materials.bundle.materials[job.sales_contract_no])):null;
     const evidence=shared?{schemaVersion:'ainuoke-contract-observation.v3',captureId,contract:job.sales_contract_no,sourceId:job.source_id,colors:colorContent,materials:materialContent}
      :{schemaVersion:'ainuoke-contract-observation.v2',captureId,colors:singleAddition.colors,materials:captured.materials.bundle.materials[job.sales_contract_no]};
     await c.query(`INSERT INTO ainuoke_catalog_runs(id,source_key,account_fingerprint,request_id,actor_user_id,captured_at,discovery,content_hash,capture_evidence_id)

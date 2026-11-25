@@ -13,7 +13,8 @@ async function main(){
  if(process.env.ISSUE174_ISOLATED_REHEARSAL!=='true'||!['select-copy','convert','verify'].includes(phase))throw new Error('isolated selection command required');
  const sourceUrl=new URL(process.env.ISSUE174_SOURCE_URL??''),targetUrl=new URL(process.env.ISSUE174_TARGET_URL??'');
  const targetValid=phase==='verify'?/^\/issue174_(selected|compact)_[a-z0-9_]+$/.test(targetUrl.pathname):/^\/issue174_selected_[a-z0-9_]+$/.test(targetUrl.pathname);
- if(sourceUrl.hostname!=='issue174-v2-pg-20261124'||targetUrl.hostname!==sourceUrl.hostname||sourceUrl.pathname!=='/issue174_original'||!targetValid)throw new Error('target identity is outside the authorized isolated rehearsal');
+ const targetHostValid=targetUrl.hostname===sourceUrl.hostname||phase==='verify'&&targetUrl.hostname==='issue174-v2-recovery-20261125';
+ if(sourceUrl.hostname!=='issue174-v2-pg-20261124'||!targetHostValid||sourceUrl.pathname!=='/issue174_original'||!targetValid)throw new Error('target identity is outside the authorized isolated rehearsal');
  const directory=process.env.ISSUE174_EVIDENCE_DIR??'/evidence';
  const original=JSON.parse(await readFile(join(directory,'original-verification.json'),'utf8'));
  if(original.state!=='ORIGINAL_RESTORE_VERIFIED'||original.tableCount!==145||!original.sequenceMetadataExact)throw new Error('original paired restore gate has not passed');

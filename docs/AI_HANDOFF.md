@@ -23,3 +23,7 @@ Git一次批准交付结果LOCAL_PASS_REMOTE_UNVERIFIED/NETWORK_DEGRADED，API�
 Chromium桌面与390px合成会话9/9，状态起点/历史缺口/权限撤销/取消请求通过，截图在私有ui-evidence，不覆盖旧证据。针对v2旧格式断言/新列/提前失败保护校准后的41场景通过；完整catalog106中104通过，其余两项旧“无业务变化也换run”断言已按批准语义修正并单独通过，完整最终汇总待收口。typecheck/lint及Browser/Server两种build均通过；当前main基线guard前向追加D201与存储契约新Git证据后PASS。先前npm test使用旧证据清单失败，不能写为最终PASS；本checkpoint后重跑npm test和test:release-baseline。
 
 同负载正在两个隔离bench克隆执行：旧精确dee3编译后端与新后端，5个较大真实备份合同、合成密码/离线录制响应，无网络，测量包含任务/校验/发布，源站延迟不包含；强制到期与排队仅fixture，不改真实频率。结果尚未完成，不宣称增长/性能改善。NETWORK_DEGRADED不重复push，远端PR仍未交付。
+
+Gate 2026-11-25：首轮全路径100次录制重放证明旧100个业务版本/43.65MB，新0版本/3.61MB，但新CPU耗时退化，未按PASS掩盖。已减少重复同事务保存/规范化、只读取本合同原始目录chunk、在PG内做完整JSONB值相等检查（非只比hash），保持双hash/原hash语义；canonical缓存限本次调用并经独立businessDigest及A-B-A/迁移复核。最新body/chunk假同hash异正文均拒绝，核心4/4通过；仍待最终相同负载复测。
+
+另已只读确认真实应用连接quote_trial具有superuser/createRole/bypassRls且owns145；未改线上角色。新增database/operations/issue174_runtime_role.sql为显式目标、全事务、默认NOLOGIN的最小运行角色准备；保留员工RBAC，另待阶段三管理凭据/DSN切换。自动维护在cleanup=true时拒绝superuser/owner/member角色，普通辅助失败不影响同步。隔离实际普通LOGIN角色完整Worker成功运行；另从新PG容器按无密码NOLOGIN角色清单恢复紧凑dump，维护owner/ACL保留，普通角色635订单/13附件可读，DELETE/禁触发器/复制绕过/SET ROLE维护均拒绝。新容器再次145原表/所有保留来源hash/1731目录/5序列等价通过。原库和Staging0写入。

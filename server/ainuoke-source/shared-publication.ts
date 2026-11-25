@@ -3,8 +3,8 @@ import type { PoolClient } from 'pg';
 import type { TrustedIdentity } from '../auth/session.js';
 import type { BoundSourceOrder } from './service.js';
 import { hash, SourceError, sourceIdText,type validateBundle } from './contract.js';
-import { businessCanonical,businessDigest, packContent, saveSharedPages, type ContentScope } from './shared-content.js';
-import { saveCatalogEvidence,hydrateSourceDirectory } from './catalog-evidence.js';
+import { businessCanonical,businessDigest, saveSharedPages, type ContentScope } from './shared-content.js';
+import { saveCatalogEvidence,hydrateSourceDirectory,loadContractDirectoryRows } from './catalog-evidence.js';
 import { auditPublished,auditDirectoryEvidence } from './sync-audit.js';
 import { appendOperationLog } from '../operation-logs/repository.js';
 
@@ -25,14 +25,17 @@ export async function publishSharedMaterialSnapshots(c:PoolClient,actor:TrustedI
   // Only this contract's complete approved directory values belong to its state.
   const directoryFacts=validated.bundle.discoveryAfter.flatMap(p=>p.rows).filter(r=>sourceIdText(r.values.id)===link.external_id).map(({sourceRowIdentity,...r})=>{void sourceRowIdentity;return r;});
   if(directoryFacts.length!==1)throw new SourceError('source_identity_mismatch');
-  const stateHash=businessDigest({schemaVersion:'ainuoke-material-state.v1',target,bodyHash:packContent(scope,row.pages).businessHash,directoryFacts});
-  const previous=(await c.query(`SELECT h.run_id::text,h.last_error_code,s.material_content_id,r.order_scope,r.discovery,coalesce(s.business_hash,r.business_hash) AS business_hash FROM ainuoke_material_order_heads h JOIN ainuoke_source_runs r ON r.id=h.run_id
+  const bodyHash=(await c.query('SELECT business_hash FROM ainuoke_contract_contents WHERE id=$1',[packed.contentId])).rows[0]?.business_hash;
+  if(!bodyHash)throw new SourceError('content_integrity_failure');
+  const stateHash=businessDigest({schemaVersion:'ainuoke-material-state.v1',target,bodyHash,directoryFacts});
+  const previous=(await c.query(`SELECT h.run_id::text,h.last_error_code,s.material_content_id,r.order_scope,r.discovery,r.directory_capture_id,coalesce(s.business_hash,r.business_hash) AS business_hash FROM ainuoke_material_order_heads h JOIN ainuoke_source_runs r ON r.id=h.run_id
    JOIN ainuoke_material_source_snapshots s ON s.run_id=h.run_id AND s.sales_order_id=h.sales_order_id
    WHERE h.source_key=$1 AND h.sales_order_id=$2 FOR UPDATE OF h`,[sourceKey,target.id])).rows[0];
   let sameFacts=false;
   if(previous){
-   const oldDirectory=await hydrateSourceDirectory(c,sourceKey,previous.discovery);
-   const oldFacts=oldDirectory.flatMap(p=>p.rows).filter(r=>sourceIdText(r.values.id)===link.external_id).map(({sourceRowIdentity,...r})=>{void sourceRowIdentity;return r;});
+   const oldRows=previous.directory_capture_id?await loadContractDirectoryRows(c,sourceKey,previous.directory_capture_id,profile.account_fingerprint,link.external_id)
+    :(await hydrateSourceDirectory(c,sourceKey,previous.discovery)).flatMap(p=>p.rows).filter(r=>sourceIdText(r.values.id)===link.external_id);
+   const oldFacts=oldRows.map(({sourceRowIdentity,...r})=>{void sourceRowIdentity;return r;});
    sameFacts=businessCanonical(oldFacts)===businessCanonical(directoryFacts);
    if(previous.business_hash===stateHash&&(!sameFacts||previous.material_content_id!==packed.contentId||businessCanonical(previous.order_scope.find((r:{id:string})=>r.id===target.id))!==businessCanonical(target)))throw new SourceError('content_hash_collision');
   }
