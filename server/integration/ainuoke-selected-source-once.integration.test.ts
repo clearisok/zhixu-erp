@@ -46,7 +46,7 @@ test('bounded synthetic worker feeds existing atomic binding and persisted four-
       assert.equal(await count('ainuoke_source_runs'),0);
       const captured=await captureSource(pool,actor,{sourceKey:options.sourceKey,accountFingerprint:options.accountFingerprint,maxAgeMs:600000,
         collect:async contracts=>{assert.deepEqual([...contracts].sort(),selectedContracts);return material.bundle;}});
-      assert.equal(captured.orders,2);assert.equal(await count('ainuoke_material_source_snapshots'),2);
+      assert.equal(captured.orders,2);assert.equal(await count('ainuoke_material_source_snapshots'),2);assert.equal(await count('ainuoke_source_runs'),2,'Each contract owns its version; a shared capture is not one cross-contract version');
       const reader=createOrderMaterialReader(createPersistedMaterialPorts(pool,{sourceKey:options.sourceKey,maxAgeMs:600000}));
       for(const target of targets){
         const view=await reader(actor,{salesOrderId:target.id});assert.equal(view.status,200);
@@ -78,7 +78,7 @@ test('bounded synthetic worker feeds existing atomic binding and persisted four-
       await assert.rejects(refreshBoundMaterialsOnce(pool,actor,{...selectedConfig,sourceKey:'profile-without-binding'},contracts,collect),/addition_requires_first_binding/);
       assert.equal(calls,0);assert.equal(await count('ainuoke_source_profiles'),profilesBefore+1);
       await assert.rejects(refreshBoundMaterialsOnce(pool,actor,selectedConfig,selectedContracts,collect),/bounded_material_scope_changed/);
-      assert.equal(calls,0);assert.equal(await count('ainuoke_source_runs'),1);
+      assert.equal(calls,0);assert.equal(await count('ainuoke_source_runs'),2,'Rejected scope must retain exactly the two accepted contract versions');
       const result=await refreshBoundMaterialsOnce(pool,actor,selectedConfig,contracts,collect);
       assert.equal(result.orders,3);assert.equal(calls,1);assert.equal(result.metrics?.reportRequests,5);
       const latest=(await pool.query('SELECT latest_run_id::text id FROM ainuoke_source_profiles WHERE source_key=$1',[options.sourceKey])).rows[0].id;

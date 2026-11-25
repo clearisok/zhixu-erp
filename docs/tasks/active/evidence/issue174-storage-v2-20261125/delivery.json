@@ -473,5 +473,49 @@
       "remaining-ci-test-ainuoke-continuous.log"
     ],
     "latestCandidate": "PR176 exact HEAD, frozen by this checkpoint; final delivery/CI receipt in Issue174"
+  },
+  "selectedContractVersionFixtureGate": {
+    "baseline": "600c4d0289c0530e4129a4c9ea04c2e64db8cc2d",
+    "trigger": "https://github.com/clearisok/zhixu-erp/actions/runs/45657556080",
+    "change": "Only two assertions in existing selected-source-once test: two contracts have two accepted versions; rejected scope must retain those exact two. Keep snapshot count2, scope/malformed/order-version/reader and unrelated-domain assertions. No production, SQL or workflow changes.",
+    "checks": [
+      {
+        "file": "ci-selected-once-verified.log",
+        "sha256": "add9b943c8684624396873e0ca9d894edca7871bd2f345672e89c336423ab6bc",
+        "tests": 17,
+        "pass": 17,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "file": "ci-remainder-fresh-start.log",
+        "sha256": "8c45ed713ceade9b7a2bd624f6b622c0cd30b21f9866c17fa02c7e2620a9c100",
+        "tests": 7,
+        "pass": 7,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "file": "ci-remainder-quality-boundaries.log",
+        "sha256": "fd4041c806ce84ab9fd76b6c6589f7a511a2e0348c363f25fcabb38d2ea01fd1",
+        "tests": 84,
+        "pass": 84,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "file": "ci-remainder-quality-facts.log",
+        "sha256": "8f7e5dce03fa69f0b5ec2f1c24357f0743356fc65fda4d93d61838323b849d87",
+        "tests": 33,
+        "pass": 33,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      }
+    ],
+    "lint": "ci-selected-once-lint.log PASS"
   }
 }

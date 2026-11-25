@@ -15,3 +15,6 @@ Git：配置代理/Schannel路径不稳定，仅子进程清代理+OpenSSL/HTTP1
 阶段三计划约3h、预约3.5h，审批前填实新旧Staging目标指纹/端口/实际磁盘、60GB工作预算和候选镜像digest；隔离CLI固定host白名单不放宽，用新manifest/证明在副本选转，再恢复到新PG/对象卷。普通quote_trial运行角色非owner/非superuser，维护owner分开；新source policy.tableCount147/旧145，保全PR173完整解码/pins。owned调度维护hold不得自动启动Worker，其他cron不覆盖。
 
 未经明确批准不切库/删真实历史/启用清理/恢复Worker/退役旧库备份/操作Production/merge。开放新写前可取消，之后先保全新写/附件再v2兼容恢复或前向修复；90天从正式迁移验收成功起算。两轮自然同步/24h观察仍需后续Worker授权，7051旧历史详情不扩大修复。最终CI完成后交用户批准，不重做前两阶段调查或演练。
+
+
+2026-11-26 01:04 最后计数夹具：600c4d02的Release/Team成功，Source通过先前门禁后发现selected-source-once仍假设两个合同共享一个run。仅两行断言改为验证两个合同各有一个版本、拒绝范围时精确保留这两个；17/17通过，fresh-start/隔离边界/质量事实及定向lint也通过。无生产/SQL/工作流变化；原失败保留在Source45657556080。最终候选/CI仍以PR176及Issue最新回执为准。

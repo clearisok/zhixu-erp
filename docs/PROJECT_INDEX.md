@@ -10,3 +10,6 @@
 6. [PR172历史](tasks/active/ui165-final-delivery-2026-11-24.md)、[PR173备份门禁](tasks/active/ui165-staging-backup-recovery-2026-11-24.md)、[本轮旧检查点](tasks/completed/2026-11-26-issue174-delivery-checkpoints/README.md)、[三分支原摘要](tasks/completed/2026-11-25-before-issue174-delivery/README.md)、[原工程检查点](tasks/completed/2026-11-25-issue174-engineering-checkpoints/README.md)、[Git交付协议](tasks/active/git-delivery-resilience.md)。
 
 预计停写约3h、预约3.5h，最新备份/目标/磁盘/普通角色/完整业务附件门禁必须通过；旧库/备份保留，开放新写后不得退冻库丢业务。实际Staging切换、清理启用、Worker恢复、Production、退役和自动合并均未执行，等待用户第三阶段批准。
+
+
+2026-11-26 01:04 最后计数夹具：600c4d02的Release/Team成功，Source通过先前门禁后发现selected-source-once仍假设两个合同共享一个run。仅两行断言改为验证两个合同各有一个版本、拒绝范围时精确保留这两个；17/17通过，fresh-start/隔离边界/质量事实及定向lint也通过。无生产/SQL/工作流变化；原失败保留在Source45657556080。最终候选/CI仍以PR176及Issue最新回执为准。
