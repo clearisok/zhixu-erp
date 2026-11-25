@@ -1,0 +1,153 @@
+{
+  "date": "2026-11-25",
+  "phaseBaseline": {
+    "branch": "feat/issue174-storage-v2",
+    "head": "747fda5620eb805a64a1cdb7f2f6be6be96718d1",
+    "trackedAndUntrackedClean": true
+  },
+  "codeCandidate": "6d7dbc9c089f9dfa6c0ac72aa3edbd37aa13da85",
+  "main": "10b9a7d827e1c09f152ead58c21f26712d49a619",
+  "preservation": [
+    {
+      "label": "PR172",
+      "sha": "a0a9c78c6cccbadf5e635dbb60169f7f87944644",
+      "ancestor": true,
+      "exactProductPaths": 51,
+      "mismatches": []
+    },
+    {
+      "label": "PR173",
+      "sha": "da1c2653ae6c53a1527bcee60dbdec734cc36553",
+      "ancestor": true,
+      "exactProductPaths": 3,
+      "mismatches": []
+    },
+    {
+      "label": "Issue174",
+      "sha": "747fda5620eb805a64a1cdb7f2f6be6be96718d1",
+      "ancestor": true,
+      "exactProductPaths": 56,
+      "mismatches": []
+    }
+  ],
+  "agentsExactToPR172": true,
+  "tests": [
+    {
+      "name": "releaseBaseline",
+      "commandLog": "delivery-release-baseline.log",
+      "sha256": "c718e8d36597d2bddbbf35e8b8ec552717b0b748a738b4c13ba13c911527685f",
+      "state": "PASS",
+      "tests": 182
+    },
+    {
+      "name": "typecheck",
+      "commandLog": "delivery-typecheck.log",
+      "sha256": "302304dae6dfa71f31211837c732c0510177504fe6b5063786b269c5e1fef2ec",
+      "state": "PASS"
+    },
+    {
+      "name": "lint",
+      "commandLog": "delivery-lint.log",
+      "sha256": "f7b7d1c6adf3a6f68f34e7de6f6d3a6678f9c082be02e899f1277813cdad64e1",
+      "state": "PASS"
+    },
+    {
+      "name": "serverBuild",
+      "commandLog": "delivery-server-build.log",
+      "sha256": "4324ba56164805a6cbd3c41d72a1220800e818f501a6eda045e3ab1cd638c0d0",
+      "state": "PASS"
+    },
+    {
+      "name": "frontendServerBuild",
+      "commandLog": "delivery-build-corrected.log",
+      "sha256": "430d5b6dd24627381f954ef6f8f2807511babe99deaa3814b69ffb4be9873227",
+      "state": "PASS"
+    },
+    {
+      "name": "preservedUISourceTests",
+      "commandLog": "delivery-ui-source-tests.log",
+      "sha256": "8a67fb1229f6018c3facfa9405604ad47e7f3e0d900e03287e6fc8dd165f6d32",
+      "state": "PASS",
+      "tests": 44
+    },
+    {
+      "name": "pairedBackup",
+      "commandLog": "delivery-backup-tests.log",
+      "sha256": "4a640aec56b1f4aa60518fd7e1bed97ff0729f899b4ec0ee331391b3ac1930d9",
+      "state": "PASS",
+      "tests": 11,
+      "passed": 10,
+      "skipped": 1,
+      "limitation": "Windows POSIX test skipped; exact PR173 Linux proof retained, not rerun here"
+    },
+    {
+      "name": "historyAndCanonicalContent",
+      "commandLog": "delivery-history-storage-tests.log",
+      "sha256": "3d989d83853eca0993cb43ce9f4a54434bf91c330dd488ecafc491ac6e6874e2",
+      "state": "PASS",
+      "tests": 11
+    },
+    {
+      "name": "releaseBaselineGuard",
+      "commandLog": "delivery-guard-corrected.log",
+      "sha256": "7e549b7beb7919476a00e8c0c3570b473072077129a95cfc162d351065f24194",
+      "state": "PASS",
+      "checkedHead": "6d7dbc9c089f9dfa6c0ac72aa3edbd37aa13da85",
+      "changedUiFiles": 40,
+      "errors": []
+    }
+  ],
+  "knownFailedAttempt": {
+    "command": "node node_modules/vinext/dist/cli/index.js build",
+    "result": "MODULE_NOT_FOUND; incorrect tool path, no product code executed",
+    "correctedCommand": "node node_modules/vinext/dist/cli.js build",
+    "log": "delivery-build.log"
+  },
+  "network": {
+    "configuredProxyPath": [
+      "default uncertain_transport",
+      "HTTP/1.1 uncertain_transport",
+      "OpenSSL HTTP/1.1 uncertain_transport"
+    ],
+    "processOnlyBlankProxy": {
+      "systemGit": "ls-remote PASS",
+      "bundledGit": "ls-remote PASS",
+      "fetch": "PASS"
+    },
+    "persistentConfigurationChanged": false,
+    "tlsVerificationDisabled": false,
+    "credentialsChanged": false,
+    "rootCause": "Configured proxy path fails while direct process-only path works; proxy internal cause unresolved",
+    "documentBranch": {
+      "sha": "dee3d6800d718d67ac91494ec56c76b89ef11caf",
+      "state": "DELIVERED_VERIFIED",
+      "pushes": 1,
+      "pr": "https://github.com/clearisok/zhixu-erp/pull/175"
+    }
+  },
+  "runtimeActions": {
+    "stagingCutover": false,
+    "cleanupEnabled": false,
+    "workerResumed": false,
+    "productionAccess": false,
+    "originalRehearsalContainersRestarted": false,
+    "automaticPRMerge": false
+  },
+  "phase3": {
+    "estimatedDowntime": "about 3 hours; reserve 3.5 hours including new-source backup/buffer",
+    "exactLiveTargetsAndDisk": "must be filled by bounded read-only preflight before execution approval",
+    "plan": "docs/tasks/active/issue174-staging-phase3-ready.md"
+  },
+  "knownGuardFailure": {
+    "log": "delivery-guard.log",
+    "codes": [
+      "EVIDENCE_WORKTREE_DRIFT"
+    ],
+    "evidence": [
+      "issue174-v2-implementation-decisions-20261125",
+      "issue174-v2-storage-contract-20261125"
+    ],
+    "reason": "This delivery phase appended an update to two frozen documents. Own additions removed; exact frozen blobs and manifest hashes unchanged. New phase3 content lives in a separate runbook.",
+    "correctedResult": "PASS"
+  }
+}
