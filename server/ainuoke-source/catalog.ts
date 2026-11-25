@@ -100,7 +100,9 @@ async function publishCatalogImplementation(pool:Pool,identity:Pick<TrustedIdent
   await c.query("INSERT INTO ainuoke_catalog_runs(id,source_key,account_fingerprint,request_id,actor_user_id,captured_at,discovery,content_hash,capture_evidence_id) VALUES($1,$2,$3,$4,$5,$6,'[]'::jsonb,$7,$8)",
    [id,options.sourceKey,options.accountFingerprint,options.requestId,actor.internalUserId,checked.capturedAt,checked.contentHash,captureId]);
   const lifecycle=options.confirmLifecycle&&!historical?await reconcileCatalogLifecycle(c,options.sourceKey,options.accountFingerprint,id,checked):{deleted:0,restored:0};
-  await c.query('UPDATE ainuoke_catalog_entries SET visible=false WHERE source_key=$1',[options.sourceKey]);
+  // The complete validated directory determines absence. Do not hide and then
+  // rewrite every still-present row within the same transaction.
+  await c.query('UPDATE ainuoke_catalog_entries SET visible=false WHERE source_key=$1 AND visible AND source_id<>ALL($2::text[])',[options.sourceKey,checked.rows.map(row=>row.sourceId)]);
   for(const r of checked.rows)await c.query(`INSERT INTO ainuoke_catalog_entries(source_key,source_id,sales_contract_no,inside_order_no,style_no,customer_name,brand_name,quantity,contract_date,delivery_date,lifecycle_status_raw,observed_run_id)
    VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12) ON CONFLICT(source_key,source_id) DO UPDATE SET
    inside_order_no=excluded.inside_order_no,style_no=excluded.style_no,customer_name=excluded.customer_name,brand_name=excluded.brand_name,

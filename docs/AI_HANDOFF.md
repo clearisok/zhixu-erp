@@ -31,3 +31,5 @@ Gate 2026-11-25：首轮全路径100次录制重放证明旧100个业务版本/4
 Gate 2026-11-25性能收口：完整npm test 1026/1026、发布基线182/182、typecheck/lint/Server+前端build通过；真实新容器恢复145原表/5序列/1731目录及保留来源/13附件等价PASS。9003离线100次无变化版本0但p95仍较旧高，未冒充性能PASS。此checkpoint合并双遍目录的同内容完整比较与查询，保留原hash/manifest；UTF-8排序快路径保持代理字符Buffer语义，读取正文只规范化一次；最新核心4/4、server:build、精确路径lint通过。最新完整catalog与最终同负载复测待完成，不重复已失败Git通道。
 
 Gate 2026-11-25最终配对：精确旧dee3与新f439同输入hash/100次录制Worker确认，旧新增100业务run、新0；分配增长31,876,600→1,851,392 bytes（94.19%降低，未写成95%）；WAL66,124,456→30,215,096；p50 1.858→1.710s、p95 2.332→2.101s、p99 2.564→2.298s。新runtime非owner/非superuser。补全可信周期目录automatic/sourceKey日志标记复用原7天规则，手动操作保留；目录followup16/16含新增断言、server:build/typecheck通过，lint收尾中。完整catalog此前106/106通过；周期目录独立容量计量与最终报告继续收口。
+
+Gate 2026-11-25：88ddff31后仅catalog.ts隐藏语句改为完整已校验目录中真正缺席且仍visible的行，避免稳定目录每次先隐藏全部再写回；无schema/保留/频率变化，原SQL最终可见集合不变。server:build、精确路径lint、followup+删除恢复/旧版升级26/26通过；全lint与typecheck已通过。周期目录旧/新20次各完整检查点同输入，首测5.52/5.51MB；本次减写后另复测，合同100次测量f439路径未变。实际Staging仍0写入；Git仍NETWORK_DEGRADED，无PR或自动部署。
