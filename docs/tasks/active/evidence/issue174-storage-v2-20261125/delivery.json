@@ -215,5 +215,29 @@
     "pr172And173Preserved": true,
     "latestCandidate": "PR176 exact HEAD; see Issue174 delivery receipt after this checkpoint",
     "unchangedEvidence": "All migration, selection, conversion, UI, guard and lockfile inputs unchanged; reuse accepted rehearsal/performance and full release regression, final CI reruns its own guards."
+  },
+  "closingFixtureGate": {
+    "baseline": "cfe09fddaa25bad80f36ad9cf544cdc8f38a2b96",
+    "baselineClean": true,
+    "trigger": "https://github.com/clearisok/zhixu-erp/actions/runs/45646483744",
+    "observed": "Closing backend 212 pass / 1 failure before nested closing-command assertions could start. Only operation_logs JSON row digests differed because 0066 adds two null fields.",
+    "change": "Original columns all compared exactly as before, excluding only the two newly added nullable evidence fields; added explicit assertion that every old operation has both new fields NULL. No production or SQL changes.",
+    "tests": [
+      {
+        "name": "closingUpgrade",
+        "state": "PASS",
+        "file": "ci-closing-upgrade-verified.log",
+        "sha256": "f05a75d001b080610cc8a8f177ab741930f2db4d1f0272fc1e58fbc2ad8ab9d5",
+        "passed": 14
+      },
+      {
+        "name": "focusedLint",
+        "state": "PASS",
+        "file": "ci-closing-fixture-lint.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "guardInputsUnchanged": true,
+    "pr172And173ProductBlobsUnchanged": true
   }
 }

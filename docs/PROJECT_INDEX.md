@@ -13,3 +13,6 @@
 
 
 2026-11-25 CI收口：统一工程 [PR176](https://github.com/clearisok/zhixu-erp/pull/176) 已建立，初次HEAD04e74cfbbaf54fa29b0843bfd8525f007fc44312已精确送达且最终守卫PASS（40UI路径）。Source CI 45644446792发现完整目录不含任何绑定合同的旧路径会回滚，后续SQL证据读取测试连带404；仅修 shared-publication.ts，记录必要缺失context而不造物料快照，重复缺失复用事件，重新出现正常恢复。原断言保留并增加零快照/无重复/恢复读取断言。来源20pass/1Windows skip、存储/目录/删除恢复19pass、server build/typecheck通过；lint已通过；最终CI结果以Issue最新回执为准。PR172/173全部产品blob仍原样；仅Issue174一处publisher和原来源测试发生必要兼容修复，不扩展功能、schema或迁移工具。最终候选取PR176精确HEAD，6d和04是保留的历史检查点。文档PR175三项CI均SUCCESS。Staging、Worker、清理和Production仍未操作。
+
+
+2026-11-25 后续CI门禁：cfe09fdd已送达，Release/Team成功；Source CI45646483744的来源兼容已通过，随后关账升级夹具把0066新增两个NULL证据列纳入旧行JSON摘要而失败。仅原closing-commands测试沿用既有“比较全部旧列”的方式排除两个新字段，并新增老操作的两个新引用必须全NULL断言；关账14/14及定向lint通过。不改关账逻辑、SQL、迁移工具或PR172/173。当前最终候选仍以PR176精确HEAD及Issue送达/CI回执为准，禁止据旧cfe失败或旧基线宣称最终成功。
