@@ -1,5 +1,7 @@
 # Issue174：第三阶段执行检查点
 
+> 最新状态（2026-11-26 13:43）：固定窗口已安全取消，原Staging恢复开放，未完成切库。下文早期权限阻塞/进行中状态均为当时记录；以最后“窗口取消”及[证据](evidence/issue174-phase3-20261126/cancelled-window.json)为准。
+
 2026-11-26 08:59 Asia/Shanghai；Refs [#174](https://github.com/clearisok/zhixu-erp/issues/174)。[Codex 转录用户原话“执行第三阶段”](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7179037950)，对应[已准备执行单](issue174-staging-phase3-ready.md)。这次授权持续有效，无需再次批准方案。**执行停在维护入口权限门禁，尚未停写、取得新迁移备份或切库。**
 
 ## 已完成的实际检查
@@ -62,3 +64,16 @@ Gate baseline **1033308e55fed50efa67a111c97337d73ef98b69 clean**。选择复制2
 紧凑归档6.250秒、63,878,715bytes，完整SQL解码通过，SHA **00f22f8a1a034b7ae16ef5d7642ddb41f5044bb65e803aa0a8ae42fff9cce1c5**。四maintenance函数owner在归档中明确，后续原Restore-Zhixu剥离owner/ACL后仍须恢复与拒绝绕过实测，不能略过。新来源历史epoch **2026-11-26T03:51:33.162Z**；实际入口T和后续首次真实同步分别记录，当前无Source请求/Worker启动。
 
 最终恢复前系统盘34,606,243,840bytes，/data累计消耗上界17,600,933,888bytes，额外5GB预算涵盖最终PG/WAL/临时紧凑包/对象和新备份缓冲，仍满足root15GB低水位及任务60GB预算；不算旧资源可回收。紧凑包正传输到本机私密冻结恢复工具目录，正式目标仍空。1033308e发布守卫PASS（13页/68能力/40UI路径/errors[]），旧AI_HANDOFF缩写基线失败已前向修复保留原日志；182全回归不重复。原样Gate已[回链Issue](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7182147066)。
+
+
+## 2026-11-26 13:43：未完成全部门禁，按固定窗口取消，原Staging恢复
+
+本Gate baseline **84c1e08df8760e6c1bb6ce997951b6b1faecdc3d clean**。原Restore-Zhixu完成于 **04:09:48.585326Z**，包装工具执行346.781秒（04:04:01.810405Z开始，含SSH转运/门禁，不含前置精确空目标检查），全SHA及写入冻结证明PASS。新候选实际 **408,263,703bytes、147表、636单**，普通quote_trial角色仍缺；owner/ACL、实际全147表等价/权限、对象恢复、真实API/UI、完整新source备份尚未执行，不能宣称第三阶段PASS。
+
+下一次时钟核实为 **05:41:21Z（北京时间13:41）**，已经超过原窗口13:37取消点。恢复回执至再次核时之间没有后续门禁或切换动作，原因未验证，不能把约91分钟间隔当成数据库执行时间。用户“继续”按原授权边界处理，不自动解释为延长固定窗口。依据已批准执行单“超时不擅自延长”、不能按时完成则开放新写前取消，执行原保全路径；没有压缩、跳过门禁或开启新写。
+
+**05:42:11.210569Z（13:42:11）取消完成**，本次维护 **11,103.555338秒＝3小时5分3.56秒**。恢复原a0a9 app/原库/原对象、原LAN配置和专项sudo启动cloudflared。公网build-info=a0a9、LANhealth数据库ready独立验证，原五服务ID/image及policy全部精确匹配；原Supervisor再次BACKUP_WORKER_QUIET，原pause/fault保持。线上仍12,335,701,015bytes。每日备份保持原30 19 UTC，只走既有明确reviewed-paused-Worker备份路径；分钟Worker继续hold，其他cron块逐字节相同。
+
+新正式PG及隔离PG按已冻结完整ID停止，全部数据库/卷/备份/原始副本/选择结果/秘密/失败均保留，未删除/退役。临时回环nginx预览随原配置还原移除；本机owned SSH仅在精确PID/start/forward匹配后停止，未知其他进程未碰。28个离散资源样本含末次人工点，最大观察文件系统净变化上界22,286,835,712bytes，root最低33,799,770,112bytes；04:03:55至05:42人工点之间存在采样缺口，**不声明连续峰值或独占任务计费**。
+
+本次 **未完成切库，未取得新source配对备份，未进行新库真实应用验收**。新epoch03:51:33.162Z仅为保留候选内的转换时间，不是入口T或同步成功。Worker/清理继续关闭，PR不合并，Production/其他Staging不动。已请求用户确认另一个固定维护时间，原因仅是原批准窗口不能自行延长，v2范围不重审。原库已开放接受业务，下一窗口不得复用旧636单数据覆盖新写，必须重新取得最新一致配对/证明，并保全已有副本/候选；不盲重跑旧intent。

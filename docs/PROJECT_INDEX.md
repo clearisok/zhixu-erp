@@ -1,6 +1,6 @@
 # 当前项目入口
 
-2026-11-26；Issue174 第三阶段已获[用户执行授权](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7179037950)。专项服务权限已核实，维护窗口10:37:07–14:07:07北京时间已开始；公网/LAN与owned调度hold，最新配对备份14573686及第二物理磁盘副本已完整核实，隔离原样145表/5序列/13附件全量核验已PASS，副本选择转换/完整业务证据验证及紧凑归档均PASS，新目标待恢复，未切库。工程候选仍 fd84815dee273c0c65b4565961c8d4ffe3bfb764，main10b9a7d827e1c09f152ead58c21f26712d49a619。
+2026-11-26；Issue174第三阶段已获执行授权，但本次固定窗口在未完成全部门禁前触及取消边界，**13:42:11已恢复原Staging a0a9/12.336GB，尚未切库**。最新原样/选择转换全量门禁PASS，新候选408.26MB/147表已恢复但角色/附件/实际验收/新备份未完成；新任务PG已停止保留，等新的维护时间。工程候选仍 **fd84815dee273c0c65b4565961c8d4ffe3bfb764**，main **10b9a7d827e1c09f152ead58c21f26712d49a619**。Worker/清理保持关闭，旧库及备份不删。
 
 1. [当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[第三阶段实际执行检查点](tasks/active/issue174-staging-phase3-execution-20261126.md)、[获批执行单](tasks/active/issue174-staging-phase3-ready.md)、[脱敏预检](tasks/active/evidence/issue174-phase3-20261126/preflight.json)。
 2. [统一工程PR176](https://github.com/clearisok/zhixu-erp/pull/176)、[最终fd三CI回执](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7169586629)、[Issue174最新进展](https://github.com/clearisok/zhixu-erp/issues/174)、[原文档PR175](https://github.com/clearisok/zhixu-erp/pull/175)。PR172/173保全、不合并。

@@ -1,21 +1,13 @@
-# 当前状态：Issue174第三阶段维护中，选择转换全量核验PASS，待新目标恢复
+# 当前状态：Issue174窗口取消，原Staging已恢复，尚未切库
 
-2026-11-26；branch feat/issue174-storage-v2，起点7863d0aa3e53ccdca52f80a0c9a01f195d984816，应用候选 **fd84815dee273c0c65b4565961c8d4ffe3bfb764**，main10b9a7d827e1c09f152ead58c21f26712d49a619。产品代码未变化，PR172/173均保全，PR176保持Draft/未合并。
+2026-11-26；branch feat/issue174-storage-v2；本Gate baseline84c1e08df8760e6c1bb6ce997951b6b1faecdc3d，应用候选 **fd84815dee273c0c65b4565961c8d4ffe3bfb764**，main **10b9a7d827e1c09f152ead58c21f26712d49a619**。PR176保持Draft/未合并，PR172/173代码保全。[执行日志](tasks/active/issue174-staging-phase3-execution-20261126.md)、[当前恢复点](AI_HANDOFF.md)、[取消证据](tasks/active/evidence/issue174-phase3-20261126/cancelled-window.json)。
 
-[用户补齐专项服务权限并要求直接续做](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7180928896)，此前阻塞已解决。root控制的unit/drop-in/executable/token及父路径、精确三项sudo、Staging-only Tunnel、独立SSH22均核实；停Tunnel后新SSH连接成功。无宿主权限绕过或共享网络/安全配置更改。
+**第三阶段尚未完成。** 原工具12:09:48完成目标恢复，下一次时钟核对已13:41，超过已批准13:37取消点，后续必要门禁未完成。依原执行单“不擅自延长窗口”取消；13:42:11原Staging恢复开放，维护3小时5分3.56秒。未开放新候选写入，不能把用户“继续”自动当作延长窗口；正在等新的维护时间，v2范围授权不重审。期间时钟核对间隔原因未验证，不冒称数据库执行耗时。
 
-**维护窗口已开始**：北京时间10:37:07至14:07:07，13:37前保留30分钟取消余量，不重置窗口。公网Tunnel inactive，LAN独立新请求503，两owned cron块hold，其余字节保留，Worker停止。原配置/暂停/失败/cron与LAN原件保全。最新原始配对备份 **20261126T023837Z-14573686** 于10:38:37由原Supervisor/原executor/原锁启动，11:02:43完整PASS：145表/13对象/58文件，全量前后摘要、完整decode、文件hash、退出清理和服务恢复证明通过。随后旧app及objects重新冻结，只有旧PG运行；原始配对副本在/data第二物理磁盘逐文件核实，仍是同机副本。11:04:55开始隔离原样恢复；原样恢复与全量145表/5序列/13附件门禁已PASS，11:47开始隔离副本选择转换，现已全量PASS，紧凑包传输中，未切库。
+当前线上仍 **a0a9c78c6cccbadf5e635dbb60169f7f87944644** /旧库 **12,335,701,015bytes**。原五服务ID/image、policy/pins及受审暂停Worker备份check通过，公网build与LAN健康确认，Tunnel与原LAN配置恢复；每日备份同频率，Worker分钟入口继续hold，其余cron字节相同。Worker停止、清理关闭；旧库/卷/全部备份和失败回执保留，Production未操作。
 
-旧库维护前12,335,701,015 bytes、145表/max60/636单/13附件；schema inventory/工具/policy/quiet门禁通过。未改旧业务、尚未取得已验证紧凑迁移包、选择转换仅在隔离副本进行，未实际切库。旧服务正常恢复证明已完成，随即在外部hold下重新冻结。
+本次最新配对145表/13附件/58文件、3.843GB完整验证并保存同机第二物理磁盘副本；原样145表/5序列和附件全量核实PASS。选择转换及全部业务/必要证据验证660.936秒PASS，636单/8报价与8修订/13附件/3账号/223,220操作日志完整保留，获批未迁入技术行仍在旧库和原始备份。epoch03:51:33.162Z不等于入口T/真实同步。
 
-候选app776effff…/operator6e0f4b2c…、build staging-i174-fd84815d已构建并验证；新空PG与internal隔离PG已按原ID正向启动。隔离重型工作/data约933GB/60GB预算；最终目标遵守标准卷门禁，root约38GB/15GB低水位，按本次最新选择结果重新预算。新TLS字节保留，普通非owner角色/实际目标指纹/业务引用/附件及新source备份仍待执行。
+紧凑包63,878,715bytes、完整解码/fullSHA通过，原Restore-Zhixu在精确新目标恢复完成：**408,263,703bytes、147表、636单**，但尚无普通应用角色、owner/ACL/附件恢复/实际UI与新source备份门禁，**不是已上线容量**。新目标和隔离PG已停止并保留。所有有intent旧步骤不可盲重跑；原库开放后旧备份不能覆盖新业务，下一窗口要新一致备份与证明。
 
-[实际执行日志](tasks/active/issue174-staging-phase3-execution-20261126.md)、[当前恢复点](AI_HANDOFF.md)、[维护入口证据](tasks/active/evidence/issue174-phase3-20261126/maintenance-entry.json)；私密根/data/issue174-phase3-20261126，所有真实dump/秘密/临时脚本不进Git。原始备份PASS后，当前原样隔离恢复/全量核实→选择转换/全部业务proof→compact→新PG/对象/普通角色→真实业务/权限/附件/UI→开写及新source备份，门禁不放宽。实际新库体积/停机总时长尚未形成。
-
-182回归已182pass/0fail/0skip（约24.6分钟），不重跑；786文档Release/Team成功、Source cancelled，不能当三CI成功。应用fd完整三CI成功独立有效。[已接受前两阶段](tasks/active/issue174-v2-phase12-results.md)仍是旧635单演练，不冒充本次结果。
-
-Worker恢复、清理启用、旧库/卷/备份退役、PR合并及Production仍禁止。开放新写前可取消，之后保全新增业务再v2恢复/前向修复，不退冻结旧库。90天从未来正式迁移验收成功起算；两轮自然同步/24h观察仍未执行。旧时点和原失败由Git/历史归档/执行日志保留，当前动态结果以Issue174最新回执为准。
-
-原样恢复1191.213秒（含副本保存/校验）、12,208,897,047bytes。初次完整核验仅两个独立序列owner不同，数值及145表行摘要相同；只修复隔离副本owner至安全NOLOGIN角色，原断言/工具不改，旧失败保留。随后498.972秒原verifier重新全量PASS。原样证明与当前選转job分别记录，不以此冒称最终目标通过。当前系统盘约34.61GB、工作盘消耗约17.1GB，取消边界不变。
-
-选择复制218.077秒/转换263.742秒，总660.936秒（含完整验证）；145旧表及全部必要来源证据/5序列通过，工作库491,674,647bytes。紧凑包63,878,715bytes、完整decode通过，正传输至私密冻结恢复工具目录；最终正式新库仍空，不能用工作库大小代替整改后容量。636订单、8报价/8修订、13附件、3账号、223,220员工操作日志全保留；仅12张技术表有获批未迁入行，旧库完整保留。epoch03:51:33.162Z，非入口T/真实同步。1033308e发布守卫PASS；已送达，不改应用fd。
+182发布回归PASS、fd三CI成功；1033308e源码守卫PASS，84c1e08d送达验证PASS；本轮最终文档守卫待收口。离散磁盘净变化上界约22.29GB、root最低33.80GB，采样有间隔，非连续峰值。自然两轮/24h观察未执行。Worker恢复、清理启用、旧资源退役、PR合并及Production仍须维持禁止；90天从未来正式迁移验收成功起算。
