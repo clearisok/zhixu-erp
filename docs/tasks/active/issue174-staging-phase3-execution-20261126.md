@@ -33,3 +33,14 @@
 新两个任务PG按原ID/挂载正向核实后已启动；仍无正式数据导入/新app启动。新TLS及runtime输入在任务私密根准备，TLS字节全同，维护角色与普通quote_trial角色分离仍待恢复后的实际门禁。原运行角色的既有 `enable_presorted_aggregate=off` 将在新普通角色创建后按相同role/database作用域保留；不改旧库。新CLI target fingerprint包含实际DB地址，必须在新精确目标的正常普通角色上用原只读check重新绑定identity/policy，不可沿用旧物理地址的指纹。
 
 上一检查点发布回归实际完成182/182、0fail/0skip（1474813ms）；不重跑。786文档Release45733618665/Team45733618659成功，Source45733618658 cancelled，不能写三CI成功；已构建应用fd完整三CI成功独立有效，本轮没有代码变化。后续切换、业务/附件/普通角色与新source备份结果在本日志前向追加，旧时点记录保留。
+
+
+## 2026-11-26 11:03：最新配对备份与第二磁盘副本PASS
+
+本Gate baseline branch feat/issue174-storage-v2，HEAD519df143340aa10f4f5a4983de8765dac5dcd983，clean；仅前向更新运维文档。最新配对 **20261126T023837Z-14573686** 于02:38:37.601112Z至03:02:43.254008Z完成（24分5.65秒）。manifest **85bc4166743272cbbbcdca71379ef2c9ebeeab9e782aec1113bb4a95fae9dd25**，145表、13对象、58文件、总3,843,034,120bytes，数据库归档3,824,483,710bytes。首末全量行/序列摘要一致，全部文件hash、TOC与完整SQL解码、originalServicesResumed、cleanup.verified/commandsCertain/commandGroupsExited/dockerExecQuiescent均通过，历史failure.json的hash不变。工具、旧policy/pins不改，原暂停保持。
+
+正常服务恢复证明后，控制程序立即用原trial maintenance-db重新冻结旧app/gateway/objects/objects-tls；公网Tunnel/LAN503/owned调度hold持续保持。原库和原对象未筛选/删除，只有旧PG继续运行。
+
+原始完整配对副本在/data第二物理磁盘逐文件校验（58文件、3,843,034,120bytes、相同manifest）；同一主机，**不是异地或offhost备份**。90天仍从未来正式迁移验收成功起算，不启动退役。03:04:55Z开始任务internal/no-port隔离原样恢复，尚未完成原样核验、选择转换或最终恢复。原样job已有intent，失败先对账，不能盲目重复。
+
+系统盘当时可用34,616,209,408bytes、/data924,540,665,856bytes，保留60GB工作预算与系统盘15GB低水位；采样记录实际PGDATA分配，不将其冒称连续峰值。窗口截止及30分钟取消余量不变。

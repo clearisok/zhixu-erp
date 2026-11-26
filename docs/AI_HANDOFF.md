@@ -1,16 +1,18 @@
-# 接力：Issue174 Staging维护已开始，最新原始备份进行中
+# 接力：Issue174 Staging维护已开始，最新原始备份已验证，隔离原样恢复中
 
 2026-11-26；branch feat/issue174-storage-v2，起点7863d0aa3e53ccdca52f80a0c9a01f195d984816 clean；应用候选仍fd84815dee273c0c65b4565961c8d4ffe3bfb764，main10b9未变。[当前执行日志](tasks/active/issue174-staging-phase3-execution-20261126.md)、[用户专项sudo及直接续做决定](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7180928896)、[原批准执行单](tasks/active/issue174-staging-phase3-ready.md)。此前权限阻塞已经解决，不再求批。
 
 **维护已经生效，不可当作旧Staging仍开放。** 10:37:07北京时间开始，14:07:07绝对截止，13:37前保留30分钟取消余量，窗口不得重置。LAN nginx原配置保全后添加return503并由独立新请求确认，公网Staging-only cloudflared已用专项sudo停，停后新Tailscale SSH22连接成功；两个owned cron块有逐行hold、其余字节保留，Worker保持停止。服务unit/drop-in/executable/token及父路径root控制，未发现用户可写执行/Env/hook入口，不改系统安全配置。
 
-原Supervisor持原锁、原executor于02:38:37Z正常取得最新原始配对备份 **20261126T023837Z-14573686**，**进行中而非PASS**。02:50Z首遍摘要已完成、archive约1.90GB，后续仍需完整decode/第二遍摘要/全部cleanup证明。原始备份root /home/jackson/weaveops-trial-backups；不要重跑已开始的backup、不改policy/pins/失败回执，也不要恢复Worker。旧app/gateway目前由正常备份暂停，成功恢复证明后continue-backup.py会立即按原trial maintenance-db再次冻结旧app及objects；外部入口全程保持hold。
+原Supervisor持原锁、原executor于02:38:37Z正常取得最新原始配对备份 **20261126T023837Z-14573686**，03:02:43Z完整PASS，manifest SHA **85bc4166743272cbbbcdca71379ef2c9ebeeab9e782aec1113bb4a95fae9dd25**。145表/13对象/58文件/3,843,034,120bytes，全量前后摘要/完整归档decode/文件hash/cleanup与服务恢复证明均通过，历史failure未改。随后旧app/gateway/objects立即按原trial maintenance-db再次冻结，只有旧PG运行，外部入口始终hold。fresh-backup.json为当前权威；旧window-failure是历史已保留事件。
 
-服务器私密根 **/data/issue174-phase3-20261126**；状态 `evidence/window-status.json`、原备份status.json及 `evidence/continue-backup-result.log`；`maintenance/window.json`有绝对deadline/newWritesOpened=false。最初nginx reload后的即时观察尚未激活而正确停止，原window-failure.private.txt是已保留旧事件；当前作业是continue-backup.py，不能把旧文件存在当成本次备份失败。所有配置/历史failure/cron/LAN原字节在maintenance私密保存。当前数据源仍旧库12.336GB/145表/max60/636单/13对象（这些是维护前计数），未改旧数据。
+第二物理磁盘/data副本逐文件核实完成，仍是同机，不冒充offhost；原样恢复job从03:04:55Z进行中。只启动过isolated.py restore-original，有intent，**禁止重复执行**。等待isolated-restore-original-result.json state LATEST_ORIGINAL_RESTORED，之后verify-original→select-convert→compact。当前无选择、转换或最终库正式数据。
+
+服务器私密根 **/data/issue174-phase3-20261126**；状态 `evidence/window-status.json`、原备份status.json及 `evidence/continue-backup-result.log`；`maintenance/window.json`有绝对deadline/newWritesOpened=false。最初nginx reload后的即时观察尚未激活而正确停止，原window-failure.private.txt是已保留旧事件；当前作业是isolated.py restore-original，不能把旧文件存在当成本次备份失败。所有配置/历史failure/cron/LAN原字节在maintenance私密保存。当前数据源仍旧库12.336GB/145表/max60/636单/13对象（这些是维护前计数），未改旧数据。
 
 候选app776effff…/operator6e0f4b2c…/build staging-i174-fd84815d已冻结；新空PG project zhixu-quote-trial-i174-v2、container8b8bb05a…、Docker target fingerprint a326d8d6f36e69cafa57318f88c73b947ae8404b6fe4d42174be623991d9f79c；同机隔离issue174-v2-pg-20261124/container69e63582…已按原ID/挂载启动，internal/no ports。/data约933GB、60GB隔离预算，root约38GB/15GB低水位，旧资源不算可回收；最终PG仍标准独立卷，不放宽driver_opts门禁。
 
-下一步 **等fresh-backup.json中LATEST_PAIRED_BACKUP_VERIFIED_SOURCE_FROZEN后**，执行私密 `python3 isolated.py restore-original`：先将本次完整原始配对包复制到/data第二物理磁盘并全hash核实（不冒充offhost），再原样恢复；之后逐步 `verify-original`→`select-convert`→`compact`。每个phase有不可重复intent，失败先核实，不盲跑。isolated.py复用现有restore verifier/固定CLI白名单，用本次fresh manifest/证明、严格145表inventory和原LF SQL；原样库issue174_original，选择库issue174_selected_phase3_20261126。副本以外不筛选/删数据。所有private日志/proof在evidence/migration及isolated-*-result.json。
+下一步 **等待已启动restore-original结果，禁止重复执行**；该作业执行私密 `python3 isolated.py restore-original`：先将本次完整原始配对包复制到/data第二物理磁盘并全hash核实（不冒充offhost），再原样恢复；之后逐步 `verify-original`→`select-convert`→`compact`。每个phase有不可重复intent，失败先核实，不盲跑。isolated.py复用现有restore verifier/固定CLI白名单，用本次fresh manifest/证明、严格145表inventory和原LF SQL；原样库issue174_original，选择库issue174_selected_phase3_20261126。副本以外不筛选/删数据。所有private日志/proof在evidence/migration及isolated-*-result.json。
 
 新TLS/受管输入在runtime/tls/backups目录准备，证书字节相同，原pause/fault保留；不创建或启动Worker。新source CLI fingerprint包含实际DB地址，必须在最终新精确目标/普通quote_trial角色上以原 `--check`只读重算，再绑定runtime/identity/policy，不能沿旧物理地址指纹。新role用已批准runtime-role.sql创建NOLOGIN，受管密码单独启用、非owner/superuser/createrole/bypassRls/维护成员；按原role/database作用域保留enable_presorted_aggregate=off，旧库不改。
 
