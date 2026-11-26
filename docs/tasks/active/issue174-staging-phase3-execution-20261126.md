@@ -53,3 +53,12 @@ Gate baseline branch feat/issue174-storage-v2，HEAD **8b326c871cd1396998579db55
 03:47Z开始隔离select-convert，仍用本次manifest与原样证明，未改固定CLI白名单、实际业务库或放宽断言。尚未宣称选择转换、最终147表、普通角色、对象恢复、真实验收或新source备份通过。公网Tunnel inactive/LAN503/调度hold持续，Worker与清理关闭。仅新增临时127.0.0.1私密TLS验收入口，除登录外拒绝所有写方法，独立请求LAN503/普通业务POST405已核实；最终还原原LAN配置移除此入口。
 
 03:13Z附近SSH短暂timeout，Tailscale控制面在线、LAN仍503，03:17Z新SSH恢复；原因未确认，没有改共享网络/认证/安全配置，也没有重启原样作业。最新配对Gate已[回链Issue](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7181669651)。main10b9/PR172a0a9/PR173da1c再次核实精确未变、均未合并。窗口、取消余量和原保全约束不变。
+
+
+## 2026-11-26 12:00：选择转换及紧凑归档完整门禁PASS
+
+Gate baseline **1033308e55fed50efa67a111c97337d73ef98b69 clean**。选择复制218.077秒；转换263.742秒，处理2165runs/2167snapshots/1547observations；完整选择、转换、全部正式业务与保留来源proof验证共660.936秒，145旧表全部旧列及5序列通过，所有FK验证、临时converter角色移除和cleanup=false维持。选择工作库491,674,647bytes，仍非最终新库体积。636订单、8报价/8修订、13附件/13引用、3账号、223,220员工操作日志全部保留。12张旧技术表有获批未迁入行，详见[脱敏选择结果](evidence/issue174-phase3-20261126/selected-migration.json)；未对旧库删除任何数据。
+
+紧凑归档6.250秒、63,878,715bytes，完整SQL解码通过，SHA **00f22f8a1a034b7ae16ef5d7642ddb41f5044bb65e803aa0a8ae42fff9cce1c5**。四maintenance函数owner在归档中明确，后续原Restore-Zhixu剥离owner/ACL后仍须恢复与拒绝绕过实测，不能略过。新来源历史epoch **2026-11-26T03:51:33.162Z**；实际入口T和后续首次真实同步分别记录，当前无Source请求/Worker启动。
+
+最终恢复前系统盘34,606,243,840bytes，/data累计消耗上界17,600,933,888bytes，额外5GB预算涵盖最终PG/WAL/临时紧凑包/对象和新备份缓冲，仍满足root15GB低水位及任务60GB预算；不算旧资源可回收。紧凑包正传输到本机私密冻结恢复工具目录，正式目标仍空。1033308e发布守卫PASS（13页/68能力/40UI路径/errors[]），旧AI_HANDOFF缩写基线失败已前向修复保留原日志；182全回归不重复。原样Gate已[回链Issue](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7182147066)。
