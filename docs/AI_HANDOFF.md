@@ -1,20 +1,19 @@
-# 接力：Issue174 同一PR收口必要门禁，第三阶段未执行
+# 接力：Issue174 第三阶段已授权，维护入口权限阻塞
 
-2026-11-26；branch **feat/issue174-storage-v2**，main **10b9a7d827e1c09f152ead58c21f26712d49a619**。先读[当前状态](CURRENT_STATE.md)、[阶段三执行单](tasks/active/issue174-staging-phase3-ready.md)、[已接受前两阶段结果](tasks/active/issue174-v2-phase12-results.md)及[Issue174最新交付/CI评论](https://github.com/clearisok/zhixu-erp/issues/174)。精确最终HEAD以Git/PR176最新核验为准；不把本文件检查点的CI进度当永远的状态。
+2026-11-26。先读[当前状态](CURRENT_STATE.md)、[阶段三执行检查点](tasks/active/issue174-staging-phase3-execution-20261126.md)、[执行单](tasks/active/issue174-staging-phase3-ready.md)及[用户“执行第三阶段”转录](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7179037950)。已有明确执行授权，不再次求批；维护权限解决前不得开始停写/迁移。
 
-用户已接受一/二阶段，本轮仅Git交付、保全PR172/173及准备，不扩展业务。文档[PR175](https://github.com/clearisok/zhixu-erp/pull/175)/dee3三CI成功；统一工程[PR176](https://github.com/clearisok/zhixu-erp/pull/176)保留所有旧提交。PR172精确a0a9c78c6cccbadf5e635dbb60169f7f87944644、PR173精确da1c2653ae6c53a1527bcee60dbdec734cc36553仍是最新head，52/3非文档路径全同；无自动合并/真实覆盖。
+branch feat/issue174-storage-v2，起始clean HEAD fd84815dee273c0c65b4565961c8d4ffe3bfb764，main10b9a7d827e1c09f152ead58c21f26712d49a619；PR176精确fd三CI成功，PR172/a0a9与PR173/da1c未变/未合并且在祖先。之后本轮只记执行证据，**应用候选仍fd**，不能把运维文档新commit写成已构建/已部署应用。
 
-生产代码只在cfe09fdd检查点补完整缺失目录上下文：无物料行也要提交可见性变化，重复缺失复用context且不造物料快照，重现恢复。后续仅修旧测试夹具，保留原业务/权限/损坏/只读断言：关账旧列全比+新引用NULL（14pass）；归属旧列全比+新引用NULL/legacy（45pass）；无变化两次只一run/快照/正文；确认测试先hydrate共享原页。原CI失败04/cfe/343均保留，不弱化SQL或改旧migration checksum消除失败。
+原 Staging 五服务原ID/image正常，app a0a9/a033…；Worker已停，来源原pause保留，unknown/lease无。145表/max60/ledger59、636单/13对象、12,335,701,015 bytes，inventory28c6…和executor856c…/policy、backup-check均PASS。无新迁移备份，无旧库写入/清理/切换；不可用11/24旧635单恢复覆盖新写。
 
-本检查点后续工作流本地全部通过：数据库270、归属45、目录106、删除恢复10、来源专项49；连续同步80pass/1Windows skip，另历史读取/规范化/准备/就绪/只读/定向诊断/preflight等分项PASS，类型/lint通过。源门禁182/40路径、组合UI44/历史11及前后端build等保留其原版本结果。[delivery.json](tasks/active/evidence/issue174-storage-v2-20261125/delivery.json)含每份日志hash与范围，不相加作唯一总数。冻结feature/decision文档、manifest ID/截图hash未改；新结果由入口/Issue前向补充。
+服务器私密新根 /data/issue174-phase3-20261126：candidate.json、prepared-target.json、preflight.json、paused-checkpoint.json及全部准备失败日志在 evidence；trial.conf/isolated.env/secrets等禁止输出/进Git。本机副本 D:\CodexPrivate\issue174-20261124-v2\phase3-*.json。精确app776effff…、operator6e0f4b2c…、build staging-i174-fd84815d已离线构建；未部署。新空PG project zhixu-quote-trial-i174-v2，container8b8bb05a…、target fingerprint a326d8d6f36e69cafa57318f88c73b947ae8404b6fe4d42174be623991d9f79c；同机隔离PG issue174-v2-pg-20261124/container69e63582…，internal/no ports，仅挂新/data目录。两新PG已停止，保留全部卷/身份，不能盲目重跑会拒绝现有资源的 prepare 脚本。
 
-Git：配置代理/Schannel路径不稳定，仅子进程清代理+OpenSSL/HTTP1.1路径已用现有git-delivery.ps1送达并独立核实，不改共享配置/认证或关闭证书验证。明确Worktree/Branch/ExpectedHead；一个可靠Gate一次push，失败路径不重复。343时索引延迟后已同步、三自动CI触发；最新测试提交还须看最新CI，不用旧Release/Team成功冒充全成功。Issue评论connector曾500，必要时先只读确认未创建，再用同一授权的gh body-file单次回链，避免重复。旧证据[归档](tasks/completed/2026-11-26-issue174-delivery-checkpoints/README.md)。
+现有trial禁止 volume.driver_opts，已经保留门禁，最终目标用标准独立卷；/data仅承载重型隔离工作。/data约933GB，60GB隔离预算；root约38.49GB，低水位15GB，实际最新紧凑容量/新备份/WAL预算必须恢复前重新检查。默认Docker地址池已耗尽，新独立网络用现有subnet-policy分配经过Docker+host真实路由排除的/28，不修改daemon/旧网络。准备时一次仅本任务新建、空且未挂载的秘密卷失败后经正向证明重建；任何旧卷未删除。
 
-私密原件 D:\CodexPrivate\issue174-20261124-v2 不进Git；两原PG容器issue174-v2-pg-20261124/issue174-v2-recovery-20261125继续停止、卷/备份保留。原样12.169GB→406.18MB，635订单/13对象只是11/24备份；新切换须停写最新完整配对备份，不能覆新写。旧SQL本机CRLF与原部署GitLF ledger不同，继续精确Git blob migration-runtime，不改59旧checksum。
+**阻塞**：root systemd cloudflared.service 的 /config只路由Staging至3003/其他404；LAN也转3003。jackson无非交互sudo/Polkit，用户现有管理入口待回复。不借Docker提升宿主权限、不绕过服务恢复/未知结果门禁。正常备份自动恢复app/gateway，所以必须取得持续阻止公网写入的维护控制后才能进入窗口；目前未改入口/cron/旧policy，Staging无本次停机。
 
-阶段三计划约3h、预约3.5h，审批前填实新旧Staging目标指纹/端口/实际磁盘、60GB工作预算和候选镜像digest；隔离CLI固定host白名单不放宽，用新manifest/证明在副本选转，再恢复到新PG/对象卷。普通quote_trial运行角色非owner/非superuser，维护owner分开；新source policy.tableCount147/旧145，保全PR173完整解码/pins。owned调度维护hold不得自动启动Worker，其他cron不覆盖。
+取得管理能力后重新核实目标/旧运行版本/未知结果/磁盘/空库，按检查点恢复两个新PG，保全原pause/failure；进入3.5h维护预算并持续owned调度hold、LAN维护及仅Staging公网hold，执行最新原始完整配对备份/新manifest和隔离原样验证，再现有CLI固定host/最新证据选择转换，最终PG/对象恢复及普通quote_trial非owner角色和全部业务/来源/附件/RBAC门禁。不要调用trial init；不要把POSTGRES_USER postgres用作app。新source policy147/旧145、精确工具/worker pins一致，Worker始终不启动。
 
-未经明确批准不切库/删真实历史/启用清理/恢复Worker/退役旧库备份/操作Production/merge。开放新写前可取消，之后先保全新写/附件再v2兼容恢复或前向修复；90天从正式迁移验收成功起算。两轮自然同步/24h观察仍需后续Worker授权，7051旧历史详情不扩大修复。最终CI完成后交用户批准，不重做前两阶段调查或演练。
+现有Restore-Zhixu.ps1使用--no-owner --no-privileges，不能把其单独完成当维护SECURITY DEFINER owner/ACL恢复PASS；必须按精确紧凑包恢复并核对已验收maintenance owner/ACL、普通身份拒绝绕过，再开写。Linux执行身份与本机PowerShell DOCKER_HOST目标必须分别正向验证，禁止用默认桌面Docker误恢复。原迁移LF字节与全部旧ledger checksum继续严格匹配，不改账本。
 
-
-2026-11-26 01:04 最后计数夹具：600c4d02的Release/Team成功，Source通过先前门禁后发现selected-source-once仍假设两个合同共享一个run。仅两行断言改为验证两个合同各有一个版本、拒绝范围时精确保留这两个；17/17通过，fresh-start/隔离边界/质量事实及定向lint也通过。无生产/SQL/工作流变化；原失败保留在Source45657556080。最终候选/CI仍以PR176及Issue最新回执为准。
+所有断言PASS后才切入口/开写，记录实际T/来源epoch/首次真实同步分别；新source完整备份后保留恢复门禁。开放新写后禁止退冻结旧库丢数据。90天从正式迁移验收成功起算。Worker、清理、旧库备份退役、PR合并及Production继续禁止；不冒称新业务完整性/24h自然观察已通过。已有完整CI/前两阶段不重跑；本轮文档检查和精确Git回执写Issue。旧三摘要[完整归档](tasks/completed/2026-11-26-before-issue174-phase3/README.md)。

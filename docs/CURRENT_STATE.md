@@ -1,20 +1,17 @@
-# 当前状态：Issue174 切换准备，等待最终门禁和执行批准
+# 当前状态：Issue174 第三阶段已授权，停在维护入口权限门禁
 
-2026-11-26；main基线 **10b9a7d827e1c09f152ead58c21f26712d49a619** 本轮再次核实；branch **feat/issue174-storage-v2**。最终交付HEAD和本HEAD CI以 [PR176](https://github.com/clearisok/zhixu-erp/pull/176) / [Issue174最新回执](https://github.com/clearisok/zhixu-erp/issues/174)为准，本检查点不预写尚未完成的CI成功。
+2026-11-26；branch **feat/issue174-storage-v2**，工程候选 **fd84815dee273c0c65b4565961c8d4ffe3bfb764**，main **10b9a7d827e1c09f152ead58c21f26712d49a619** 本轮 GitHub 再核实。[PR176](https://github.com/clearisok/zhixu-erp/pull/176) 候选三 CI 全 success；[文档PR175](https://github.com/clearisok/zhixu-erp/pull/175)保留。PR172/a0a9、PR173/da1c head未变且均为候选祖先，本轮产品代码零改动。
 
-用户已[接受第一、二阶段](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7157916062)，本轮仅既有工程交付、保全PR172/173和[第三阶段执行单](tasks/active/issue174-staging-phase3-ready.md)，不增加功能。原文档dee3已送达[PR175](https://github.com/clearisok/zhixu-erp/pull/175)，三项CI成功；原文档工作树保持冻结。
+用户在当前聊天明确“执行第三阶段”，已[转录到Issue174](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7179037950)。沿用[执行单](tasks/active/issue174-staging-phase3-ready.md)，不再等待方案批准。**仍未进入停写窗口或切库**；[实际检查点与恢复步骤](tasks/active/issue174-staging-phase3-execution-20261126.md)是本轮恢复入口。
 
-**保护其他整改**：再次核实PR172/a0a9c78c6cccbadf5e635dbb60169f7f87944644、PR173/da1c2653ae6c53a1527bcee60dbdec734cc36553仍是最新未合并head，均作为本分支祖先；52/3个非文档路径全blob一致。未覆盖现有Staging或合并原PR。
+实际旧 Staging 仍 a0a9 / a0339f6b…，原五服务 ID/image 均未变、正常运行；Worker停止/来源暂停，无 unknown/lease。原库12,335,701,015 bytes、145表/max0060、636订单/13附件/无未完成上传；schema inventory、原PR173执行器和policy pins、受审 backup-check 全通过。没有重做容量调查、改pause/fault或取得新的迁移备份。
 
-**必要门禁收口**：仅一个既有publisher补全“完整目录里绑定合同全部缺失”上下文，重复缺失不新增事件/物料快照，重现可读；来源20pass/1Windows skip、存储/目录19pass、类型/lint/build通过。旧升级夹具按全部旧列比较并额外验证新列NULL/legacy，旧重复版本预期改为验证共享一个版本/正文，物料确认先用现有hydrator还原原页；原权限/串单/损坏/只读/陈旧确认断言保留，没有改SQL或关账逻辑。后续本地数据库270、归属45、目录106、删除恢复10、来源专项49、连续同步80pass/1Windows skip均通过，其他后续工作流测试也全部通过。[分项日志hash](tasks/active/evidence/issue174-storage-v2-20261125/delivery.json)保留不同运行版本和失败，不相加冒充一次独立全套。
+候选 app **sha256:776effff8f66c652f4ed7694440535f060dbb58d0bb8ea3c63ad0241d95e50de**，operator **sha256:6e0f4b2c033e769cd95ab1b3ade99f544477eda5c81df9821f5337702ed2db9c**，build staging-i174-fd84815d；精确来源/build-info及原依赖锁核实，离线构建成功，未部署。新project zhixu-quote-trial-i174-v2 独立 PG空库0表/0客户连接，维护owner postgres、无app LOGIN；同机internal隔离PG只挂新 /data 目录。两个新PG已正常停止，卷/私密输入保留。
 
-**原演练不重做**：11/24备份635单/13附件，原样12.169GB→紧凑406.18MB；145原表原列/选中引用闭包、5序列/FK/来源/附件证明及另一新PG恢复通过。100次无变化增长31.88→1.85MB，业务版本100→0。是已接受旧样本，不是实时Staging缩容/全年保证。两原演练容器仍停着。[结果](tasks/active/issue174-v2-phase12-results.md)。
+资源：隔离选转放 /data（约933GB可用，60GB预算），最终目标按原trial门禁保留标准命名卷，不采用被拒绝的driver_opts。准备后系统盘约38.49GB可用，15GB低水位；恢复前须按最新选择结果复算目标/WAL/新备份预算，旧资源不能回收。没有移动Docker根目录或删除旧卷。
 
-**交付事实**：Schannel/配置代理间歇失败；仅子进程OpenSSL+HTTP1.1直连已多次安全送达并独立核实，未改共享配置/认证/TLS验证，不宣称网络永久恢复。343f6ef3时PR索引曾停cfe，后已同步并自动触发CI；该轮Release/Team成功、Source发现上述旧夹具问题。当前再补必要测试后只更新同一PR；最新成功必须绑定最新精确HEAD。[历史原件](tasks/completed/2026-11-26-issue174-delivery-checkpoints/README.md)。
+**当前阻塞**：仅供Staging的公网 cloudflared.service 属root，现有SSH账号没有非交互sudo/Polkit服务管理权限。正常备份会恢复服务，必须另有完整窗口的入口停写控制，不能利用短暂停服冒充持续维护。已询问既有管理入口，不借Docker提升宿主权限或绕过门禁；在解决前不开始最新备份/迁移。原Staging可继续正常使用，尚无本次停机。
 
-**下一步/风险**：预计停写约3小时、预约3.5小时；最新停写完整配对备份→隔离选择/转换→独立新Staging PG/对象卷→普通非owner运行角色→全业务/附件门禁→切入口。新旧目标指纹、端口和实际磁盘/60GB计划工作预算须执行批准前只读填实。开放新写前可取消回旧版本，开放后保全新增业务/附件并v2兼容恢复或前向修复，不能退冻库丢业务。原始备份90天从未来正式迁移验收成功起算。
+恢复后沿原单完成最新配对备份、隔离选转、新PG/对象及普通非owner身份、完整业务/引用/附件/权限门禁，再切入口并取得新source备份。预计约3h、维护预算3.5h，从真正维护开始计；开放新写前可取消，之后保全新写并v2兼容恢复/前向修复。90天从正式迁移验收成功起算。
 
-**仍未执行/未授权**：真实切换、历史删除、清理启用、Worker恢复、旧库/备份退役、自动合并及Production。两轮自然调度/≥24h增长观察与7051旧历史详情限制没有被本轮冒称解决。完成最终CI后只等用户批准第三阶段。
-
-
-2026-11-26 01:04 最后计数夹具：600c4d02的Release/Team成功，Source通过先前门禁后发现selected-source-once仍假设两个合同共享一个run。仅两行断言改为验证两个合同各有一个版本、拒绝范围时精确保留这两个；17/17通过，fresh-start/隔离边界/质量事实及定向lint也通过。无生产/SQL/工作流变化；原失败保留在Source45657556080。最终候选/CI仍以PR176及Issue最新回执为准。
+Worker恢复、清理启用、退役旧库/备份、PR合并及Production仍不授权。新库实际业务容量/完整性/停机时间尚未形成，两轮自然调度/24h观察和7051旧历史限制未冒称解决。[前两阶段已接受结果](tasks/active/issue174-v2-phase12-results.md)及[本轮前摘要原件](tasks/completed/2026-11-26-before-issue174-phase3/README.md)保留历史日期/版本/限制；最新动态交付回执仍见Issue174。

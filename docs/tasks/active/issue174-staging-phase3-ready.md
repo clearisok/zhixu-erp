@@ -1,5 +1,7 @@
 # Issue174：第三阶段 Staging 切换准备
 
+> 2026-11-26 前向状态：用户已明确[授权执行第三阶段](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7179037950)。[实际执行检查点](issue174-staging-phase3-execution-20261126.md)记录已完成的预检、精确镜像和新空库，以及当前仅 Staging Tunnel 维护权限阻塞；尚未停写/迁移/切库。下文保留当时待审批的执行单，不覆盖新授权，所有安全门禁和排除范围继续有效。
+
 2026-11-25；Refs [#174](https://github.com/clearisok/zhixu-erp/issues/174)。用户已接受第一、二阶段；[本轮决定转录](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7157916062)只授权交付及准备。本页是待批准执行单，不是运行授权；不重做容量调查、不增加业务功能。
 
 ## 候选与其他整改保全
