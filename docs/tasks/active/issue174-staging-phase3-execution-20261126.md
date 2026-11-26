@@ -99,3 +99,12 @@ Gate baseline **1033308e55fed50efa67a111c97337d73ef98b69 clean**。选择复制2
 准备Gate **6edfe429aa585c82e653b37f504f6bb321771c63** DELIVERED_VERIFIED，PR176自动跟踪精确HEAD；[预验收Issue回执](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7184657908)。新执行Phase baseline同hash clean，应用仍fd。原冻结Restore检查新目标0表/0clients/普通role absent通过。
 
 [窗口入口](evidence/issue174-phase3-20261126/second-window-entry.json)：**14:40:56.938636–18:10:56.938636**，取消余量从17:40:56.938636开始；新窗口不是原窗口延时。14:40:58公网Tunnel停止、LAN503、两owned cron块hold，现有Worker继续停止，原Supervisor正常最新一致性备份正在运行。Windows独立driver PID6444、服务器独立监控/每15秒时钟空间采样已运行，所有远端阶段有独立状态/锁/预算边界。此处仅入口确认，未把备份或切库写成PASS；所有旧资源保留。
+
+
+### 第二次最新配对备份PASS，自动接续隔离恢复（15:04:45）
+
+本Gate baseline c5cbe40a40c9c0ae505cbededf825c9ee14780ee clean/DELIVERED_VERIFIED。[新最新配对](evidence/issue174-phase3-20261126/second-fresh-backup.json) **20261126T064059Z-9fd043bd**，manifest **63a1901c6dfbfb7bcb9cf5b5eda475cbe69a0383f0fc30942b8d76d4ff053e6e**，06:40:59.774549–07:04:28.571259Z（23m28.797秒）；145表/13对象/58文件/3,843,034,087bytes。原Supervisor/原执行器正向完成、完整文件SHA/TOC+解码/首末全行快照、cleanup verified/commandsCertain/commandGroupsExited/dockerExecQuiescent/服务恢复门禁通过；保留全部历史failure。随后原lifecycle再冻结old writer，未开放候选写入。
+
+07:06:55Z原冻结库实际 **12,335,701,015bytes/145表/0其他client**，用于本轮前后容量对比。新完整配对在/data第二物理磁盘复制全58文件SHA一致，16.470秒；仍同机不冒称offhost。90天尚未起算，必须等本次正式迁移验收成功，不退役任何旧库或备份。
+
+独立driver07:04:45后自动进入新独立PG原样恢复，未因文档/交付暂停执行。07:06监控剩约185分钟、root29.87GB、含保留旧尝试的双文件系统净变化约31.17GB/60GB，未触发预算停止。后续原样/选择性/实际目标及应用全门禁仍待完成，不写切库PASS。

@@ -1,0 +1,31 @@
+{
+  "state": "LATEST_PAIRED_BACKUP_VERIFIED_SOURCE_FROZEN",
+  "id": "20261126T064059Z-9fd043bd",
+  "manifestSha256": "63a1901c6dfbfb7bcb9cf5b5eda475cbe69a0383f0fc30942b8d76d4ff053e6e",
+  "bundle": "protected server original backup root; id shown",
+  "files": 58,
+  "tables": 145,
+  "objects": 13,
+  "totalBytes": 3843034087,
+  "startedAt": "2026-11-26T06:40:59.774549+00:00",
+  "finishedAt": "2026-11-26T07:04:28.571259+00:00",
+  "cleanupVerified": true,
+  "historicalFailuresPreserved": true,
+  "oldWritersStopped": true,
+  "externalEntriesHeld": true,
+  "workerStarted": false,
+  "cleanupEnabled": false,
+  "secondPhysicalDiskVerified": true,
+  "secondCopySeconds": 16.46953771263361,
+  "offHostCopyClaimed": false,
+  "oldSourceCapacity": {
+    "databaseBytes": 12335701015,
+    "tables": 145,
+    "otherClients": 0,
+    "state": "OLD_SOURCE_FROZEN_ACTUAL_CAPACITY_MEASURED",
+    "at": "2026-11-26T07:06:55.367606+00:00",
+    "backupId": "20261126T064059Z-9fd043bd",
+    "manifestSha256": "63a1901c6dfbfb7bcb9cf5b5eda475cbe69a0383f0fc30942b8d76d4ff053e6e"
+  },
+  "gateBaseline": "c5cbe40a40c9c0ae505cbededf825c9ee14780ee"
+}
