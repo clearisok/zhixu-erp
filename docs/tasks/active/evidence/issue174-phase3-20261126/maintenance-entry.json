@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "issue174-phase3-entry-gate.v1",
+  "authorization": "https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7180928896",
+  "applicationSourceSha": "fd84815dee273c0c65b4565961c8d4ffe3bfb764",
+  "security": {
+    "state": "STAGING_TUNNEL_SERVICE_SECURITY_VERIFIED",
+    "at": "2026-11-26T02:31:35.567485+00:00",
+    "exactNoPasswordActions": [
+      "stop",
+      "start",
+      "restart"
+    ],
+    "effectiveArgumentsIncludeHttp2": true,
+    "rootControlledUnitBinaryTokenAndAncestors": true,
+    "dropIns": [
+      {
+        "path": "/etc/systemd/system/cloudflared.service.d/override.conf",
+        "sha256": "b9edc648f140dee6bf9eb8947c6264025701f3448ca4d1da80de2a52dc73b005",
+        "rootOnlyWritable": true
+      }
+    ],
+    "noWritableExecEnvironmentOrHooks": true,
+    "stagingOnlyIngress": true,
+    "sshDirectTailscalePort22": true,
+    "sshNoTunnelUnitDependency": true,
+    "startNoopSucceeded": true,
+    "caFileScope": "existing user-owned Staging TLS trust input, not an executable/environment/service directive; no TLS verification disabled",
+    "additionalEscalationViaReviewedServicePathsFound": false
+  },
+  "window": {
+    "state": "WINDOW_STARTED",
+    "startedAt": "2026-11-26T02:37:07.655231+00:00",
+    "deadline": "2026-11-26T06:07:07.655231+00:00",
+    "cancelReserveMinutes": 30,
+    "candidate": "fd84815dee273c0c65b4565961c8d4ffe3bfb764",
+    "newWritesOpened": false,
+    "workerAllowed": false,
+    "cleanupAllowed": false
+  },
+  "entryHoldProof": {
+    "state": "ALL_EXTERNAL_WRITERS_HELD",
+    "at": "2026-11-26T02:38:36.343898+00:00",
+    "startedAt": "2026-11-26T02:37:07.655231+00:00",
+    "deadline": "2026-11-26T06:07:07.655231+00:00",
+    "lanStatus": 503,
+    "tunnelInactive": true,
+    "cronOwnedBlocksHeld": 2
+  },
+  "latestBackup": {
+    "id": "20261126T023837Z-14573686",
+    "state": "RUNNING",
+    "startedAt": "2026-11-26T02:38:37.601112+00:00"
+  },
+  "releaseRegression": {
+    "tests": 182,
+    "pass": 182,
+    "fail": 0,
+    "skip": 0,
+    "durationMs": 1474813.4371
+  },
+  "limits": {
+    "noProduction": true,
+    "noPrMerge": true,
+    "noWorkerRecovery": true,
+    "cleanupDisabled": true,
+    "oldDataAndBackupsPreserved": true
+  }
+}

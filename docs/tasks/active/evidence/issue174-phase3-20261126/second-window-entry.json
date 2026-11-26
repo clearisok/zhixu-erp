@@ -1,0 +1,17 @@
+{
+  "state": "SECOND_WINDOW_EXTERNAL_WRITERS_HELD_LATEST_BACKUP_RUNNING",
+  "startedAt": "2026-11-26T06:40:56.938636Z",
+  "deadline": "2026-11-26T10:10:56.938636Z",
+  "cancelReserveStartsAt": "2026-11-26T09:40:56.938636Z",
+  "baseline": "6edfe429aa585c82e653b37f504f6bb321771c63",
+  "candidate": "fd84815dee273c0c65b4565961c8d4ffe3bfb764",
+  "lanHttp": 503,
+  "tunnelInactive": true,
+  "ownedCronBlocksHeld": 2,
+  "independentDriver": true,
+  "independentClockAndResourceSamplingSeconds": 15,
+  "newWritesOpened": false,
+  "workerStarted": false,
+  "cleanupEnabled": false,
+  "oldResourcesRetained": true
+}

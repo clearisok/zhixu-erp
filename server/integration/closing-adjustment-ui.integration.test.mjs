@@ -58,7 +58,7 @@ test('approved closing UI uses real built Server, owned synthetic PostgreSQL and
       assert.equal(await evaluate('document.documentElement.scrollWidth<=innerWidth+1'), true);
     });
     await phase('outsource scope changes both total and detail; whole preview still includes hidden portions', async () => {
-      await field('select[aria-label="关账显示范围"]', 'outsource', 'HTMLSelectElement'); await until(() => evaluate("document.querySelectorAll('.sc-order-table tbody tr').length===1"), 'one outsource'); await has('¥2,000');
+      await field('select[aria-label="汇总及明细范围"]', 'outsource', 'HTMLSelectElement'); await until(() => evaluate("document.querySelectorAll('.sc-order-table tbody tr').length===1"), 'one outsource'); await has('¥2,000');
       await click('调整月份'); await has('可调数量'); await field('select[aria-label="调整范围"]', 'whole', 'HTMLSelectElement'); await field('input[aria-label="目标月份"]', '2027-11'); await field('input[aria-label="调整原因"]', '整单包含当前隐藏的内制与未分配'); await click('预览调整'); await has('调整后完整月份分配');
       assert.equal(await evaluate("document.querySelectorAll('.sc-preview > .sc-table-scroll:first-of-type tbody tr').length"), 3); await has('两项产值参考'); await until(() => evaluate("document.querySelectorAll('.sc-value-difference tbody tr').length===2"), 'two changed months'); await shot('whole-preview'); const before = posts(); await click('取消', '[role=dialog] button'); assert.equal(posts(), before);
     });
@@ -69,7 +69,7 @@ test('approved closing UI uses real built Server, owned synthetic PostgreSQL and
       await field('input[aria-label=搜索关账订单]', ''); await until(() => evaluate("document.querySelectorAll('.sc-order-table tbody tr').length===1"), 'scope restored');
     });
     await phase('partial quantity save recovers a committed but lost acknowledgement without a second POST', async () => {
-      await field('select[aria-label="关账显示范围"]', 'all', 'HTMLSelectElement'); await has('制作完成'); await click('调整月份'); await has('可调数量');
+      await field('select[aria-label="汇总及明细范围"]', 'all', 'HTMLSelectElement'); await has('制作完成'); await click('调整月份'); await has('可调数量');
       await field('input[aria-label="目标月份"]', '2027-03'); await field('input[aria-label="调整原因"]', '合成实机部分调月'); await field('.sc-adjustment-fields tbody input', '10'); await click('预览调整'); await has('调整后完整月份分配');
       const dropped = await evaluate('window.droppedClosingMonthAcks'); await evaluate('window.dropNextClosingMonthAck=true');
       const before = posts(); await click('确认调整'); await has('原请求已核实'); assert.equal(posts(), before + 1); assert.equal(await evaluate('window.droppedClosingMonthAcks'), dropped + 1); await click('完成', '[role=dialog] button');
@@ -82,7 +82,7 @@ test('approved closing UI uses real built Server, owned synthetic PostgreSQL and
       // The existing persistent fixture separately tests actual Source refresh.
       await x.pool.query('UPDATE ainuoke_sales_order_contract_mirrors SET quantity=120 WHERE sales_order_id=$1', [seeded.first.id]);
       await x.pool.query("UPDATE ainuoke_sales_order_color_mirrors SET quantity=CASE color_name WHEN 'Blue' THEN 70 ELSE 50 END WHERE sales_order_id=$1", [seeded.first.id]);
-      await field('select[aria-label="关账显示范围"]', 'outsource', 'HTMLSelectElement'); await has('来源待复核');
+      await field('select[aria-label="汇总及明细范围"]', 'outsource', 'HTMLSelectElement'); await has('来源待复核');
       const menu = await evaluate("document.querySelector('.sc-order-table tbody tr .qc-floating-menu-trigger').getAttribute('aria-label')");
       await click(menu); await click('复核来源数量'); await has('当前来源量 120');
       assert.equal(await evaluate("document.querySelectorAll('table[aria-label=来源复核原片段] tbody tr').length"), before.lines.length);
@@ -112,15 +112,18 @@ test('approved closing UI uses real built Server, owned synthetic PostgreSQL and
       assert.equal(posts(), count + 1); const after = (await x.request('/orders/' + seeded.first.id + '/month-plan')).body;
       assert.equal(after.plan.version, before.version); assert.deepEqual(after.plan.lines, before.lines); assert.equal(after.sourceChanged, true);
       await click('取消', '[role=dialog] button');
+      await has('来源复核有未保存修改'); await click('放弃修改', '[role=dialog] button');
+      await until(() => evaluate("!document.querySelector('[role=dialog]')"), 'source discard closed');
+      assert.equal(posts(), count + 1, 'discard is presentation only and does not repeat the rejected command');
       await x.pool.query('UPDATE ainuoke_sales_order_contract_mirrors SET quantity=120 WHERE sales_order_id=$1', [seeded.first.id]);
       await x.pool.query("UPDATE ainuoke_sales_order_color_mirrors SET quantity=CASE color_name WHEN 'Blue' THEN 70 ELSE 50 END WHERE sales_order_id=$1", [seeded.first.id]);
-      await field('select[aria-label="关账显示范围"]', 'all', 'HTMLSelectElement'); await has('制作完成');
+      await field('select[aria-label="汇总及明细范围"]', 'all', 'HTMLSelectElement'); await has('制作完成');
     });
     await phase('executor matching assigns only the selected unassigned quantity and keeps its exact remainder', async () => {
       const before = (await x.request('/orders/' + seeded.first.id + '/month-plan')).body.plan;
       const pending = before.lines.find(line => line.assignmentId === null && line.month === null && line.quantity === '20'); assert.ok(pending);
       const facts = (await x.pool.query('SELECT * FROM production_schedule_executions ORDER BY assignment_id')).rows;
-      await field('select[aria-label="关账显示范围"]', 'outsource', 'HTMLSelectElement');
+      await field('select[aria-label="汇总及明细范围"]', 'outsource', 'HTMLSelectElement');
       await until(() => evaluate("document.querySelectorAll('.sc-order-table tbody tr .qc-floating-menu-trigger').length>=1"), 'source-order fragment menu after filter');
       const menu = await evaluate("document.querySelector('.sc-order-table tbody tr .qc-floating-menu-trigger').getAttribute('aria-label')");
       await click(menu); await click('匹配执行方'); await has('未分配片段'); await field('select[aria-label=待匹配月份片段]', pending.id, 'HTMLSelectElement');
@@ -136,7 +139,7 @@ test('approved closing UI uses real built Server, owned synthetic PostgreSQL and
       const added = after.lines.filter(line => !before.lines.some(old => old.id === line.id));
       assert.deepEqual(added.map(line => [line.assignmentId, line.quantity]).sort(), [[seeded.internal, '5'], [seeded.outsourced, '10']].sort()); assert(added.every(line => line.colorId === pending.colorId && line.month === pending.month));
       assert.deepEqual((await x.pool.query('SELECT * FROM production_schedule_executions ORDER BY assignment_id')).rows, facts); await click('完成', '[role=dialog] button');
-      await field('select[aria-label="关账显示范围"]', 'all', 'HTMLSelectElement'); await has('制作完成');
+      await field('select[aria-label="汇总及明细范围"]', 'all', 'HTMLSelectElement'); await has('制作完成');
     });
     await phase('locked month has no ordinary close/edit and an explicit new period has a blank tax', async () => {
       await click('管理 2027-12'); await has('重开月份'); assert.equal(await evaluate("document.querySelector('select[aria-label=月份操作]').options.length"), 1); await click('关闭', '[role=dialog] button');

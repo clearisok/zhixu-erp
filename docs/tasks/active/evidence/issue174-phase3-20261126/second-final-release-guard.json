@@ -1,0 +1,23 @@
+{
+  "state": "FINAL_SOURCE_EVIDENCE_RELEASE_GUARD_PASS",
+  "result": {
+    "status": "PASS",
+    "baselineSha": "10b9a7d827e1c09f152ead58c21f26712d49a619",
+    "checkedHead": "1cccaeb31f7c79b96125030c9f5326426563a75f",
+    "historySha": "10b9a7d827e1c09f152ead58c21f26712d49a619",
+    "pages": 13,
+    "capabilities": 68,
+    "changedUiFiles": 40,
+    "scope": "source/evidence guard only; no browser, runtime, database or user acceptance claim",
+    "errors": []
+  },
+  "releaseRegression": {
+    "tests": 182,
+    "fail": 0,
+    "skip": 0,
+    "scope": "previously completed full release-baseline suite; immutable product code unchanged this attempt",
+    "evidence": "phase3-release-tests.log retained privately; previous delivery receipts linked in execution docs"
+  },
+  "runtimeSource": "fd84815dee273c0c65b4565961c8d4ffe3bfb764",
+  "newDocumentHeadCiNotClaimed": true
+}

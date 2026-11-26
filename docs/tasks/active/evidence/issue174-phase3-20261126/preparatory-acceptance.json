@@ -1,0 +1,219 @@
+{
+  "state": "PREPARATORY_ISOLATED_ACCEPTANCE_PASS_WITH_INHERITED_ATTACHMENT_LIMITATION",
+  "at": "2026-11-26T06:27:07.102Z",
+  "baseline": "a1b36ce85e64ac1bc40d166344f456f1e755c4b5",
+  "candidate": "fd84815dee273c0c65b4565961c8d4ffe3bfb764",
+  "roleAndRows": {
+    "state": "ISOLATED_PREPARATORY_ROWS_REFERENCES_ROLES_SOURCE_VERIFIED",
+    "at": "2026-11-26T06:14:40.341348+00:00",
+    "tablesExact": 147,
+    "sequencesExact": 5,
+    "allOldBusinessAndRetainedProvenanceTransitiveFromSelected": true,
+    "allConstraintsTriggersFunctionsOwnersExact": true,
+    "role": {
+      "role": "quote_trial",
+      "superuser": false,
+      "createRole": false,
+      "bypassRls": false,
+      "ownsTables": 0,
+      "maintenanceMember": false,
+      "schemaCreate": false,
+      "canMaintain": true,
+      "canResolveFailure": false
+    },
+    "negativePermissionChecks": {
+      "bodyDelete": {
+        "rejected": true,
+        "sqlState": "23514"
+      },
+      "disableTrigger": {
+        "rejected": true,
+        "sqlState": "42501"
+      },
+      "replicationBypass": {
+        "rejected": true,
+        "sqlState": "42501"
+      },
+      "maintenanceSetRole": {
+        "rejected": true,
+        "sqlState": "42501"
+      }
+    },
+    "ordinarySourceCheck": {
+      "result": "CHECKED_NO_SOURCE_READ",
+      "targetFingerprint": "1362e687809ebba6336b477c49bfb3a9dbf626773d612a939760d86fff7ccc02",
+      "sourceKey": "local-empty",
+      "boundOrders": 636
+    },
+    "previousPhysicalSourceFingerprint": "f3fe09ceadd17c8e74757eff75a3e2a9452c00ef0786dec7364c82d1ba13a7c9",
+    "newPhysicalSourceFingerprint": "1362e687809ebba6336b477c49bfb3a9dbf626773d612a939760d86fff7ccc02",
+    "plannerSetting": "off; same existing role/database scope",
+    "cleanupEnabled": false,
+    "databaseBytes": 408345623,
+    "dumpSha256": "00f22f8a1a034b7ae16ef5d7642ddb41f5044bb65e803aa0a8ae42fff9cce1c5",
+    "snapshotSeconds": 13.844663344323635,
+    "workerStarted": false,
+    "publicWritesOpened": false
+  },
+  "postStartup": {
+    "state": "POST_STARTUP_ALL_BUSINESS_AND_IDENTITIES_PRESERVED",
+    "at": "2026-11-26T06:24:24.619113+00:00",
+    "exactTableHashes": 143,
+    "changedOnlyExistingStartupAndLoginState": [
+      "app_roles",
+      "app_sessions",
+      "app_users",
+      "login_attempts",
+      "sequences"
+    ],
+    "identityChecks": {
+      "app_users": {
+        "businessFieldsExact": true,
+        "ignoredExistingRuntimeFields": [
+          "last_login_at",
+          "updated_at"
+        ],
+        "count": 3
+      },
+      "app_roles": {
+        "businessFieldsExact": true,
+        "ignoredExistingRuntimeFields": [
+          "updated_at"
+        ],
+        "count": 2
+      },
+      "app_permissions": {
+        "businessFieldsExact": true,
+        "ignoredExistingRuntimeFields": [
+          "updated_at"
+        ],
+        "count": 67
+      }
+    },
+    "businessDataAndReferenceChanges": 0,
+    "operationLogRowsExact": true,
+    "roleAssignmentsExact": true,
+    "permissionAssignmentsExact": true,
+    "workerRunning": false,
+    "cleanupEnabled": false
+  },
+  "browser": {
+    "state": "ISOLATED_PREPARATORY_REAL_BROWSER_READS_VERIFIED",
+    "at": "2026-11-26T06:27:07.102Z",
+    "source": "fd84815dee273c0c65b4565961c8d4ffe3bfb764",
+    "normalTls": true,
+    "secureHttpOnlySession": true,
+    "unauth": 401,
+    "login": 200,
+    "reads": [
+      {
+        "path": "/api/v1/auth/me",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/auth/permissions",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/sales-orders",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/quotes",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/ainuoke/catalog",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/operation-logs",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/production-scheduling/orders",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/production-scheduling/groups",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/closing/periods",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/quote-settings",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/quote-masters/brands",
+        "status": 200
+      }
+    ],
+    "orders": 636,
+    "authenticatedAttachments": 13,
+    "attachmentHashesExact": true,
+    "historyEpochAndGapNoticeVisible": true,
+    "screenshots": [
+      {
+        "name": "orders",
+        "path": "/order-center"
+      },
+      {
+        "name": "quotes",
+        "path": "/quote-center"
+      },
+      {
+        "name": "production",
+        "path": "/production-scheduling"
+      },
+      {
+        "name": "closing",
+        "path": "/closing-center"
+      },
+      {
+        "name": "operations",
+        "path": "/system-settings/operation-logs"
+      },
+      {
+        "name": "sync",
+        "path": "/system-settings/ainuoke-sync-records"
+      },
+      {
+        "name": "catalog",
+        "path": "/order-center"
+      },
+      {
+        "name": "history-gap",
+        "path": "/order-center/server-detail"
+      }
+    ],
+    "blockedMutations": 0,
+    "exceptions": [],
+    "apiFailures": [
+      {
+        "path": "one existing style-image thumbnail",
+        "status": 503
+      },
+      {
+        "path": "one existing style-image thumbnail",
+        "status": 503
+      }
+    ],
+    "inheritedKnownLimitation": "one original 68-byte PNG cannot decode; same 503 on live a0a9; all original bytes/hash preserved; not changed by migration",
+    "otherRoleLogins": "not performed; existing role data and SQL integrity separately verified",
+    "businessMutationsPerformed": false
+  },
+  "previousGap": {
+    "failedTurn": "01a215ae-9762-72a2-a11c-dc962fca0066",
+    "failureAt": "2026-11-26T04:10:14Z",
+    "cause": "Codex desktop usage limit",
+    "resumeUserTurnAt": "2026-11-26T05:40:55Z",
+    "restoreActuallyFinished": "2026-11-26T04:09:48.585326Z",
+    "notDatabaseRuntime": true
+  },
+  "liveStagingUnaffected": true,
+  "newWindowNotStarted": true,
+  "noProductCodeChanges": true
+}

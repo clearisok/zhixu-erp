@@ -53,7 +53,7 @@ export async function createAinuokeSalesOrder(
 
 /** Caller owns transaction and trusted authorization; shared domain creation path. */
 export async function createAinuokeSalesOrderInTransaction(client: PoolClient, actor: TrustedIdentity, input: CreateAinuokeSalesOrderInput,
-    context?: {materialPublication: 'same_transaction'}): Promise<CreateAinuokeSalesOrderResult> {
+    context?: {materialPublication?: 'same_transaction';sourceEvidence?:(orderId:string)=>Promise<{colorContentId:string;captureId:string}|null>}): Promise<CreateAinuokeSalesOrderResult> {
     await lockEffectiveAttribution(client);
     await lockOrderClosingMonthCreation(client);
     const normalizedSourceId = input.source.sourceId.normalize("NFKC").trim();
@@ -73,7 +73,7 @@ export async function createAinuokeSalesOrderInTransaction(client: PoolClient, a
       if ((detail.salesContractNo ?? '').normalize('NFKC').trim().toUpperCase() !== input.source.salesContractNo.normalize('NFKC').trim().toUpperCase()) {
         throw new HttpError(409, 'source_contract_identity_conflict', 'Existing source identity belongs to another sales contract');
       }
-      if(!context) await requestMissingMaterialPublication(client,actor,{id:detail.id,sourceId:normalizedSourceId,salesContractNo:detail.salesContractNo!});
+      if(context?.materialPublication!=='same_transaction') await requestMissingMaterialPublication(client,actor,{id:detail.id,sourceId:normalizedSourceId,salesContractNo:detail.salesContractNo!});
       return { created: false, salesOrder: detail };
     }
 
@@ -98,6 +98,7 @@ export async function createAinuokeSalesOrderInTransaction(client: PoolClient, a
     await replaceCurrentAinuokeColorSlice(client, salesOrder.id, input.colors);
     await initializeOrderClosingMonth(client, actor, salesOrder.id);
     await appendOperationLog(client, actor, {
+      sourceEvidence:await context?.sourceEvidence?.(salesOrder.id),
       module: "艾诺科同步",
       action: "艾诺科新增订单",
       entityType: "SalesOrder",
@@ -127,6 +128,6 @@ export async function createAinuokeSalesOrderInTransaction(client: PoolClient, a
 
     const detail = await getFoundationSalesOrderById(client, salesOrder.id);
     if (!detail) throw new Error("Created SalesOrder could not be read inside its transaction");
-    if(!context) await requestMissingMaterialPublication(client,actor,{id:detail.id,sourceId:normalizedSourceId,salesContractNo:detail.salesContractNo!});
+    if(context?.materialPublication!=='same_transaction') await requestMissingMaterialPublication(client,actor,{id:detail.id,sourceId:normalizedSourceId,salesContractNo:detail.salesContractNo!});
     return { created: true, salesOrder: detail };
 }

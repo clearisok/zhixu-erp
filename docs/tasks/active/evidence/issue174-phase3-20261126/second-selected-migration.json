@@ -1,0 +1,940 @@
+{
+  "state": "FRESH_SELECTED_BUSINESS_AND_PROVENANCE_FULLY_VERIFIED",
+  "selected": {
+    "state": "SELECTED_AND_CONVERTED_FULLY_VERIFIED",
+    "seconds": 656.7550917593762,
+    "database": "issue174_selected_phase3_20261126",
+    "databaseBytes": 491691031,
+    "tablesVerified": 145,
+    "sequences": 5,
+    "manifestSha256": "63a1901c6dfbfb7bcb9cf5b5eda475cbe69a0383f0fc30942b8d76d4ff053e6e"
+  },
+  "conversion": {
+    "state": "SELECTED_STORAGE_CONVERTED",
+    "runs": 2165,
+    "snapshots": 2167,
+    "observations": 1547,
+    "catalogDirectories": 0,
+    "sourceWrites": 0,
+    "sourceRequests": 0,
+    "seconds": 264.667
+  },
+  "compact": {
+    "state": "VERIFIED_COMPACT_ARCHIVE_READY",
+    "seconds": 6.093280854634941,
+    "dumpBytes": 63996440,
+    "dumpSha256": "51cb91a2e3bf6cace820719114a325c5e22d81327bf2c718860854161c8bc69a",
+    "sourceDatabase": "issue174_selected_phase3_20261126",
+    "requiredFunctionOwners": [
+      {
+        "proname": "ainuoke_storage_prune",
+        "args": "p_source text, p_apply boolean, p_limit integer",
+        "owner": "ainuoke_storage_maintenance"
+      },
+      {
+        "proname": "ainuoke_storage_resolve_failure",
+        "args": "p_source text, p_kind text, p_id uuid, p_apply boolean, p_expected text, p_proof jsonb",
+        "owner": "ainuoke_storage_maintenance"
+      },
+      {
+        "proname": "ainuoke_storage_rollup",
+        "args": "p_source text, p_limit integer",
+        "owner": "ainuoke_storage_maintenance"
+      },
+      {
+        "proname": "hold_ainuoke_attribution_evidence",
+        "args": "",
+        "owner": "ainuoke_storage_maintenance"
+      }
+    ],
+    "manifestSha256": "63a1901c6dfbfb7bcb9cf5b5eda475cbe69a0383f0fc30942b8d76d4ff053e6e"
+  },
+  "historyEpoch": "2026-11-26 07:37:44.97+00",
+  "historyEpochIsNotCutoverOrRealSync": true,
+  "allOldColumnsAndNecessaryProvenanceExact": true,
+  "validatedForeignKeys": true,
+  "temporaryConverterRoleRemoved": true,
+  "cleanupEnabled": false,
+  "sequencesExact": 5,
+  "originalCaptureHashes": {
+    "runs": 2165,
+    "snapshots": 2167,
+    "observations": 1547,
+    "catalogs": 1820
+  },
+  "tables": [
+    {
+      "table": "ainuoke_catalog_capture_evidence",
+      "source": 16008,
+      "selected": 624,
+      "omitted": 15384
+    },
+    {
+      "table": "ainuoke_catalog_diagnostics",
+      "source": 6,
+      "selected": 6,
+      "omitted": 0
+    },
+    {
+      "table": "ainuoke_catalog_entries",
+      "source": 636,
+      "selected": 636,
+      "omitted": 0
+    },
+    {
+      "table": "ainuoke_catalog_evidence_chunks",
+      "source": 150,
+      "selected": 137,
+      "omitted": 13
+    },
+    {
+      "table": "ainuoke_catalog_intake_receipts",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "ainuoke_catalog_requests",
+      "source": 292,
+      "selected": 292,
+      "omitted": 0
+    },
+    {
+      "table": "ainuoke_catalog_runs",
+      "source": 73666,
+      "selected": 1820,
+      "omitted": 71846
+    },
+    {
+      "table": "ainuoke_catalog_scan_pages",
+      "source": 6162,
+      "selected": 26,
+      "omitted": 6136
+    },
+    {
+      "table": "ainuoke_catalog_scan_state",
+      "source": 1,
+      "selected": 1,
+      "omitted": 0
+    },
+    {
+      "table": "ainuoke_contract_lifecycle_events",
+      "source": 2,
+      "selected": 2,
+      "omitted": 0
+    },
+    {
+      "table": "ainuoke_contract_observations",
+      "source": 73373,
+      "selected": 1547,
+      "omitted": 71826
+    },
+    {
+      "table": "ainuoke_contract_sync_state",
+      "source": 636,
+      "selected": 636,
+      "omitted": 0
+    },
+    {
+      "table": "ainuoke_followup_receipts",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "ainuoke_garment_collection_commands",
+      "source": 2,
+      "selected": 2,
+      "omitted": 0
+    },
+    {
+      "table": "ainuoke_garment_shipment_color_matches",
+      "source": 32,
+      "selected": 32,
+      "omitted": 0
+    },
+    {
+      "table": "ainuoke_garment_shipment_heads",
+      "source": 1,
+      "selected": 1,
+      "omitted": 0
+    },
+    {
+      "table": "ainuoke_garment_shipment_snapshots",
+      "source": 2,
+      "selected": 2,
+      "omitted": 0
+    },
+    {
+      "table": "ainuoke_garment_shipment_targets",
+      "source": 1,
+      "selected": 1,
+      "omitted": 0
+    },
+    {
+      "table": "ainuoke_garment_target_commands",
+      "source": 1,
+      "selected": 1,
+      "omitted": 0
+    },
+    {
+      "table": "ainuoke_material_group_requests",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "ainuoke_material_order_heads",
+      "source": 636,
+      "selected": 636,
+      "omitted": 0
+    },
+    {
+      "table": "ainuoke_material_source_snapshots",
+      "source": 74557,
+      "selected": 2167,
+      "omitted": 72390
+    },
+    {
+      "table": "ainuoke_order_followups",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "ainuoke_order_source_refresh_receipts",
+      "source": 3,
+      "selected": 3,
+      "omitted": 0
+    },
+    {
+      "table": "ainuoke_payment_heads",
+      "source": 2,
+      "selected": 2,
+      "omitted": 0
+    },
+    {
+      "table": "ainuoke_payment_operator_commands",
+      "source": 3,
+      "selected": 3,
+      "omitted": 0
+    },
+    {
+      "table": "ainuoke_payment_snapshots",
+      "source": 4,
+      "selected": 4,
+      "omitted": 0
+    },
+    {
+      "table": "ainuoke_payment_source_targets",
+      "source": 2,
+      "selected": 2,
+      "omitted": 0
+    },
+    {
+      "table": "ainuoke_sales_order_color_mirrors",
+      "source": 1733,
+      "selected": 1733,
+      "omitted": 0
+    },
+    {
+      "table": "ainuoke_sales_order_contract_mirrors",
+      "source": 636,
+      "selected": 636,
+      "omitted": 0
+    },
+    {
+      "table": "ainuoke_source_profiles",
+      "source": 1,
+      "selected": 1,
+      "omitted": 0
+    },
+    {
+      "table": "ainuoke_source_runs",
+      "source": 74180,
+      "selected": 2165,
+      "omitted": 72015
+    },
+    {
+      "table": "ainuoke_sync_audit_batches",
+      "source": 10151,
+      "selected": 337,
+      "omitted": 9814
+    },
+    {
+      "table": "ainuoke_sync_audit_events",
+      "source": 223,
+      "selected": 202,
+      "omitted": 21
+    },
+    {
+      "table": "ainuoke_sync_audit_record_state",
+      "source": 53146,
+      "selected": 53146,
+      "omitted": 0
+    },
+    {
+      "table": "ainuoke_sync_audit_tables",
+      "source": 330017,
+      "selected": 11019,
+      "omitted": 318998
+    },
+    {
+      "table": "ainuoke_sync_capture_attempts",
+      "source": 16050,
+      "selected": 375,
+      "omitted": 15675
+    },
+    {
+      "table": "ainuoke_sync_controls",
+      "source": 1,
+      "selected": 1,
+      "omitted": 0
+    },
+    {
+      "table": "ainuoke_sync_jobs",
+      "source": 73777,
+      "selected": 1951,
+      "omitted": 71826
+    },
+    {
+      "table": "ainuoke_sync_requests",
+      "source": 4,
+      "selected": 4,
+      "omitted": 0
+    },
+    {
+      "table": "app_permissions",
+      "source": 67,
+      "selected": 67,
+      "omitted": 0
+    },
+    {
+      "table": "app_role_permissions",
+      "source": 73,
+      "selected": 73,
+      "omitted": 0
+    },
+    {
+      "table": "app_roles",
+      "source": 2,
+      "selected": 2,
+      "omitted": 0
+    },
+    {
+      "table": "app_sessions",
+      "source": 69,
+      "selected": 69,
+      "omitted": 0
+    },
+    {
+      "table": "app_user_roles",
+      "source": 3,
+      "selected": 3,
+      "omitted": 0
+    },
+    {
+      "table": "app_users",
+      "source": 3,
+      "selected": 3,
+      "omitted": 0
+    },
+    {
+      "table": "confirmed_commercial_terms",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "confirmed_commercial_terms_sales_orders",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "login_attempts",
+      "source": 3,
+      "selected": 3,
+      "omitted": 0
+    },
+    {
+      "table": "material_arrival_command_orders",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "material_arrival_commands",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "material_arrival_demands",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "material_arrival_plan_versions",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "material_arrival_plans",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "material_progress_setting_commands",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "material_progress_settings",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "operation_logs",
+      "source": 223220,
+      "selected": 223220,
+      "omitted": 0
+    },
+    {
+      "table": "order_labor_adoption_commands",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "order_sale_adjustment_operations",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "order_sale_adjustment_receipts",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "processing_order_batch_confirmations",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "processing_order_batch_consumptions",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "processing_order_batch_requests",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "processing_order_batches",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "processing_quote_push_receipts",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "production_calendar_exceptions",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "production_calendars",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "production_group_plan_heads",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "production_groups",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "production_order_execution_tracking_versions",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "production_order_execution_trackings",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "production_order_plan_heads",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "production_outsource_factories",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "production_resource_commands",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "production_schedule_assignments",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "production_schedule_command_orders",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "production_schedule_commands",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "production_schedule_execution_epochs",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "production_schedule_execution_versions",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "production_schedule_executions",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "production_schedule_plan_versions",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "production_schedule_resource_snapshots",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "production_sites",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "production_supply_hubs",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "production_supply_routes",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "production_transport_modes",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "quote_attachments",
+      "source": 13,
+      "selected": 13,
+      "omitted": 0
+    },
+    {
+      "table": "quote_center_cost_snapshots",
+      "source": 9,
+      "selected": 9,
+      "omitted": 0
+    },
+    {
+      "table": "quote_center_estimates",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "quote_center_fabric_lines",
+      "source": 7,
+      "selected": 7,
+      "omitted": 0
+    },
+    {
+      "table": "quote_center_other_cost_lines",
+      "source": 4,
+      "selected": 4,
+      "omitted": 0
+    },
+    {
+      "table": "quote_center_price_versions",
+      "source": 9,
+      "selected": 9,
+      "omitted": 0
+    },
+    {
+      "table": "quote_center_quotes",
+      "source": 8,
+      "selected": 8,
+      "omitted": 0
+    },
+    {
+      "table": "quote_center_revisions",
+      "source": 8,
+      "selected": 8,
+      "omitted": 0
+    },
+    {
+      "table": "quote_center_trim_lines",
+      "source": 21,
+      "selected": 21,
+      "omitted": 0
+    },
+    {
+      "table": "quote_creation_order_contexts",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "quote_creation_previews",
+      "source": 8,
+      "selected": 8,
+      "omitted": 0
+    },
+    {
+      "table": "quote_creation_receipts",
+      "source": 8,
+      "selected": 8,
+      "omitted": 0
+    },
+    {
+      "table": "quote_global_settings",
+      "source": 1,
+      "selected": 1,
+      "omitted": 0
+    },
+    {
+      "table": "quote_manufacturing_presets",
+      "source": 1,
+      "selected": 1,
+      "omitted": 0
+    },
+    {
+      "table": "quote_master_brands",
+      "source": 3,
+      "selected": 3,
+      "omitted": 0
+    },
+    {
+      "table": "quote_master_customer_salespeople",
+      "source": 3,
+      "selected": 3,
+      "omitted": 0
+    },
+    {
+      "table": "quote_master_default_trim_configs",
+      "source": 8,
+      "selected": 8,
+      "omitted": 0
+    },
+    {
+      "table": "quote_master_fabrics",
+      "source": 2,
+      "selected": 2,
+      "omitted": 0
+    },
+    {
+      "table": "quote_master_trims",
+      "source": 5,
+      "selected": 5,
+      "omitted": 0
+    },
+    {
+      "table": "quote_revision_attachments",
+      "source": 13,
+      "selected": 13,
+      "omitted": 0
+    },
+    {
+      "table": "sales_order_attribution_changes",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "sales_order_attribution_heads",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "sales_order_attribution_members",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "sales_order_attribution_write_epoch",
+      "source": 1,
+      "selected": 1,
+      "omitted": 0
+    },
+    {
+      "table": "sales_order_business_source_snapshots",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "sales_order_color_identities",
+      "source": 1078,
+      "selected": 1078,
+      "omitted": 0
+    },
+    {
+      "table": "sales_order_command_control",
+      "source": 1,
+      "selected": 1,
+      "omitted": 0
+    },
+    {
+      "table": "sales_order_command_control_events",
+      "source": 1,
+      "selected": 1,
+      "omitted": 0
+    },
+    {
+      "table": "sales_order_commercial_heads",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "sales_order_commercial_lines",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "sales_order_commercial_versions",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "sales_order_delivery_plan_requests",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "sales_order_delivery_plan_sets",
+      "source": 636,
+      "selected": 636,
+      "omitted": 0
+    },
+    {
+      "table": "sales_order_delivery_plans",
+      "source": 636,
+      "selected": 636,
+      "omitted": 0
+    },
+    {
+      "table": "sales_order_identity_profiles",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "sales_order_normalization_case_events",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "sales_order_normalization_cases",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "sales_order_normalization_proofs",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "sales_order_normalization_reviews",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "sales_order_normalization_target",
+      "source": 1,
+      "selected": 1,
+      "omitted": 0
+    },
+    {
+      "table": "sales_order_preparation_adoptions",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "sales_order_preparation_commercial_refs",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "sales_order_preparations",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "sales_order_source_links",
+      "source": 636,
+      "selected": 636,
+      "omitted": 0
+    },
+    {
+      "table": "sales_orders",
+      "source": 636,
+      "selected": 636,
+      "omitted": 0
+    },
+    {
+      "table": "schema_migrations",
+      "source": 59,
+      "selected": 59,
+      "omitted": 0
+    },
+    {
+      "table": "server_closing_allocation_heads",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "server_closing_allocation_versions",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "server_closing_allocations",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "server_closing_commands",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "server_closing_month_commands",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "server_closing_month_financial_links",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "server_closing_month_plan_heads",
+      "source": 636,
+      "selected": 636,
+      "omitted": 0
+    },
+    {
+      "table": "server_closing_month_plan_versions",
+      "source": 636,
+      "selected": 636,
+      "omitted": 0
+    },
+    {
+      "table": "server_closing_month_plans",
+      "source": 636,
+      "selected": 636,
+      "omitted": 0
+    },
+    {
+      "table": "server_closing_period_heads",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "server_closing_period_versions",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "server_closing_periods",
+      "source": 0,
+      "selected": 0,
+      "omitted": 0
+    },
+    {
+      "table": "team_admin_receipts",
+      "source": 5,
+      "selected": 5,
+      "omitted": 0
+    }
+  ],
+  "oldSourceUnmodified": true,
+  "oldResourcesRetained": true,
+  "gateBaseline": "fe921971a9ee796054746634953ef9e2e541c134"
+}

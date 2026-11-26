@@ -33,14 +33,14 @@ test('contract payment observations use the existing drawer without false materi
     const route='/order-center/style-progress/detail?orderId='+x.orderId;
     const navigate=async()=>{const marker=Date.now()+Math.random();await evaluate('window.oldPaymentDocument='+marker);await command('Page.navigate',{url:x.base+route});await until(()=>evaluate("window.oldPaymentDocument!=="+marker+"&&document.readyState==='complete'&&Boolean(document.querySelector('.sp-business-material'))"),'material page');await evaluate('document.fonts.ready');};
     const openEvents=async()=>{assert.equal(await evaluate("(()=>{const b=document.querySelector('.sp-business-material-actions button[aria-label^=\"查看 \" ][aria-label$=\" 明细\"]');if(!b||b.disabled)return false;b.focus();b.click();return true;})()"),true,'open the named material event action');await until(()=>evaluate("Boolean(document.querySelector('.sp-business-events'))"),'existing drawer');};
-    const openPayments=async()=>{await openEvents();await click('对账');await has('127 条合同来源明细');};
+    const openPayments=async()=>{await openEvents();await click('货款申请');await has('127 条合同来源明细');};
     const close=async()=>{await command('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});await command('Input.dispatchKeyEvent',{type:'keyUp',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});await until(()=>evaluate("!document.querySelector('.sp-business-events')"),'drawer closed');};
     const screenshot=async name=>{if(!evidence)return;await mkdir(evidence,{recursive:true});const data=await command('Page.captureScreenshot',{format:'png'});await writeFile(join(evidence,name+'.png'),Buffer.from(data.data,'base64'));};
     const money='87654321.1234567890123456';
     await login('demo.material');await navigate();const materialGeneration=x.generation();
     const phase=async(name,work)=>{let passed=false;await t.test(name,async()=>{await work();passed=true;});assert.ok(passed,'Stop dependent payment UI phases after the first failure');};
-    await phase('only opening the existing reconciliation tab reads contract observations',async()=>{
-      assert.equal(x.payments.reads(),0);await openEvents();assert.equal(x.payments.reads(),0);await click('对账');await has('127 条合同来源明细');
+    await phase('only opening the payment request tab reads contract observations',async()=>{
+      assert.equal(x.payments.reads(),0);await openEvents();assert.equal(x.payments.reads(),0);await click('货款申请');await has('127 条合同来源明细');
       await has('尚未逐行关联当前物料');await has('申请金额不代表银行实付');
       assert.equal(await evaluate("document.querySelector('.sp-payment-requests tbody tr:first-child td:nth-child(6)').textContent"),'115.50（个）');
       assert.equal(await evaluate("document.querySelector('.sp-payment-requests tbody tr:first-child td:nth-child(7)').textContent"),'118（单位待核）');
@@ -97,7 +97,7 @@ test('contract payment observations use the existing drawer without false materi
     await phase('closing or switching tabs ignores delayed responses and restores keyboard focus',async()=>{
       await openPayments();x.payments.setDelay(650);await click('刷新记录');await click('采购明细');await pause(800);
       assert.equal(await evaluate("document.querySelector('.sp-payment-requests')===null"),true);
-      x.payments.setDelay(0);await click('对账');await has('127 条合同来源明细');await close();
+      x.payments.setDelay(0);await click('货款申请');await has('127 条合同来源明细');await close();
       // The shared overlay restores focus in requestAnimationFrame after unmount.
       await until(()=>evaluate("Boolean(document.activeElement?.getAttribute('aria-label')?.startsWith('查看 '))"),'drawer trigger focus restored',3000);
       assert.equal(await evaluate("document.activeElement?.getAttribute('aria-label')?.startsWith('查看 ')") ,true);

@@ -6,6 +6,7 @@ from pathlib import Path
 import sys
 import unittest
 from unittest.mock import patch
+from io import BytesIO
 
 spec = importlib.util.spec_from_file_location('paired_backup', Path(__file__).parents[1] / 'ainuoke_paired_backup.py')
 backup = importlib.util.module_from_spec(spec)
@@ -70,6 +71,30 @@ class BackupCommandTests(unittest.TestCase):
                 with patch.object(instance, 'sql', side_effect=backup.Stop('command_timeout')):
                     with self.assertRaisesRegex(backup.Stop, 'snapshot_timeout'):
                         instance.snapshot()
+
+    def test_archive_compression_is_an_exact_opt_in_before_file_io(self):
+        self.assertEqual(backup.archive_compression_args({}), [])
+        self.assertEqual(backup.archive_compression_args({'archiveCompression': 'zstd:1'}), ['--compress=zstd:1'])
+        for value in [None, True, 1, '', 'none', 'gzip', 'zstd:0', 'zstd:1 --exclude-table=orders']:
+            with self.subTest(value=value), patch.object(backup, 'direct') as direct:
+                with self.assertRaisesRegex(backup.Stop, 'archive_compression_policy_invalid'):
+                    backup.Backup({'archiveCompression': value})
+                direct.assert_not_called()
+
+    def test_archive_verification_decodes_data_without_a_database_connection(self):
+        instance = object.__new__(backup.Backup)
+        instance.db = 'owned-test-db'
+        dump = BytesIO(b'synthetic archive')
+        with patch.object(backup, 'execute') as execute:
+            instance.verify_archive(dump)
+        self.assertEqual([call.args[0][-1] for call in execute.call_args_list], ['--list', '--file=/dev/null'])
+        self.assertEqual([call.kwargs['timeout'] for call in execute.call_args_list], [60, 600])
+        self.assertTrue(all(call.kwargs['input_stream'] is dump for call in execute.call_args_list))
+        self.assertTrue(all(call.kwargs['output'] == subprocess.DEVNULL for call in execute.call_args_list))
+        for failure in [[backup.Stop('command_exit_nonzero')], [None, backup.Stop('command_exit_nonzero')]]:
+            with self.subTest(failure=failure), patch.object(backup, 'execute', side_effect=failure):
+                with self.assertRaisesRegex(backup.Stop, 'verify_failed'):
+                    instance.verify_archive(dump)
 
     def test_cleanup_waits_boundedly_for_a_transient_healthcheck_exec(self):
         inspected = subprocess.CompletedProcess([], 0, json.dumps([{'Id': 'db', 'Image': 'image'}]))

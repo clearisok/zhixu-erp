@@ -113,7 +113,7 @@ test("production list cannot route PostgreSQL UUIDs into the Browser editor", ()
 test("production states are explicit and never fall back to local orders", () => {
   assert.match(productionSource, /serverSession\.status === "checking"/u);
   assert.match(productionSource, /serverSession\.status === "anonymous"/u);
-  assert.match(productionSource, /没有订单查看权限/u);
+  assert.match(productionSource, /暂无订单查看权限/u);
   assert.match(productionSource, /error\.status === 401/u);
   assert.match(productionSource, /serverSession\.invalidate\(\)/u);
   assert.match(productionSource, /error\.status === 403/u);

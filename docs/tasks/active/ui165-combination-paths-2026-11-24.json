@@ -1,0 +1,329 @@
+{
+  "main": "10b9a7d827e1c09f152ead58c21f26712d49a619",
+  "inputs": [
+    "19e090bd13efa0fe552587acd3dc5eee2426bd3f",
+    "83ed26fd65e7aa9f8d05a1260eb0d26c15cb1967",
+    "8ab2ef04736a867f21594cfb105c894144bb630e",
+    "07fc0dc74a0524c9109a777674d665449340ee7c",
+    "2775aae86584f7a3db634dad658aa3ae46e767c9"
+  ],
+  "productPaths": [
+    {
+      "path": "app/globals.css",
+      "owners": [
+        "19e090bd"
+      ],
+      "combinedBlob": "2e7c9b6a4aa8ef83345b1ff563a72af8530f8eb1",
+      "shared": false
+    },
+    {
+      "path": "components/foundation/button.tsx",
+      "owners": [
+        "19e090bd"
+      ],
+      "combinedBlob": "15252bc9269114feafd0a3e1922a47d13a04269c",
+      "shared": false
+    },
+    {
+      "path": "features/production-scheduling/components/server-production-plan-fields.tsx",
+      "owners": [
+        "19e090bd"
+      ],
+      "combinedBlob": "2911f11577f3c55fbe483b9f53fad2453eb5756b",
+      "shared": false
+    },
+    {
+      "path": "features/production-scheduling/components/server-production-scheduling-page.tsx",
+      "owners": [
+        "19e090bd",
+        "2775aae8"
+      ],
+      "combinedBlob": "4a5de0e545137dd373facfd09ba51384fcd07778",
+      "shared": true
+    },
+    {
+      "path": "features/quote-center/components/attachment-panel.tsx",
+      "owners": [
+        "19e090bd",
+        "8ab2ef04"
+      ],
+      "combinedBlob": "f61b1170d9e87640c80cc61c6683aa462bec10ef",
+      "shared": true
+    },
+    {
+      "path": "features/quote-center/components/price-version-selector.tsx",
+      "owners": [
+        "19e090bd"
+      ],
+      "combinedBlob": "e5f63d2d0b9b564c6651a8f27cb6c38421cad1a5",
+      "shared": false
+    },
+    {
+      "path": "features/quote-center/components/quote-editor.tsx",
+      "owners": [
+        "19e090bd",
+        "8ab2ef04"
+      ],
+      "combinedBlob": "d4fa12c6d0db329ddf5b5810aa8cf90b03580355",
+      "shared": true
+    },
+    {
+      "path": "features/quote-center/components/revision-manager-modal.tsx",
+      "owners": [
+        "19e090bd"
+      ],
+      "combinedBlob": "cec447185b550f13c0dfe91e35a75929886fb379",
+      "shared": false
+    },
+    {
+      "path": "features/style-progress/components/material-control-tower-read-only.tsx",
+      "owners": [
+        "19e090bd",
+        "2775aae8"
+      ],
+      "combinedBlob": "607005682c9643ab11b8e89485ee5332e545f2bb",
+      "shared": true
+    },
+    {
+      "path": "components/foundation/confirmation-dialog.tsx",
+      "owners": [
+        "83ed26fd"
+      ],
+      "combinedBlob": "b7069340cc268e653a054c00c18fc492006c6a3e",
+      "shared": false
+    },
+    {
+      "path": "components/foundation/form-item.tsx",
+      "owners": [
+        "83ed26fd"
+      ],
+      "combinedBlob": "ada15d181fc131a372335e7ae5e54007e3b9a030",
+      "shared": false
+    },
+    {
+      "path": "components/foundation/guarded-draft.tsx",
+      "owners": [
+        "83ed26fd",
+        "07fc0dc7"
+      ],
+      "combinedBlob": "f07329cf4ad1d795f0da130b38d33cbe643f416d",
+      "shared": true
+    },
+    {
+      "path": "components/foundation/index.ts",
+      "owners": [
+        "83ed26fd"
+      ],
+      "combinedBlob": "7591f31ec1d76a048c2c5f4f92d60b55e7d21f95",
+      "shared": false
+    },
+    {
+      "path": "components/foundation/searchable-select.tsx",
+      "owners": [
+        "83ed26fd"
+      ],
+      "combinedBlob": "faf24a2bf80b45f151934690ceb62f0af88e56b1",
+      "shared": false
+    },
+    {
+      "path": "features/basic-settings/components/basic-settings-pages.tsx",
+      "owners": [
+        "83ed26fd",
+        "07fc0dc7"
+      ],
+      "combinedBlob": "8504b171793132da51dc70f108d9cbef11d51368",
+      "shared": true
+    },
+    {
+      "path": "features/closing-center/components/server-closing-source-dialog.tsx",
+      "owners": [
+        "83ed26fd"
+      ],
+      "combinedBlob": "0b3c88cfe4f90b9a56de2b510cf915b3754c622f",
+      "shared": false
+    },
+    {
+      "path": "features/order-center/components/processing-batch-dialog.tsx",
+      "owners": [
+        "83ed26fd",
+        "2775aae8"
+      ],
+      "combinedBlob": "635b9dce7c239f7838ed53854f5fced2fb7a1084",
+      "shared": true
+    },
+    {
+      "path": "features/permissions/components/server-role-page.tsx",
+      "owners": [
+        "83ed26fd",
+        "07fc0dc7"
+      ],
+      "combinedBlob": "3a388836ed8f0d2b0eef1dca9cca5a9e847aa7ed",
+      "shared": true
+    },
+    {
+      "path": "features/quote-center/components/global-quote-settings-page.tsx",
+      "owners": [
+        "83ed26fd",
+        "07fc0dc7"
+      ],
+      "combinedBlob": "a65b9423a4535c64baac6e52c17fffca6e66ab6e",
+      "shared": true
+    },
+    {
+      "path": "features/quote-center/components/production-quote-list-page.tsx",
+      "owners": [
+        "83ed26fd"
+      ],
+      "combinedBlob": "486224bbf5b5c01e23a106bce8630c17865249fa",
+      "shared": false
+    },
+    {
+      "path": "features/quote-center/components/quote-base-info.tsx",
+      "owners": [
+        "83ed26fd",
+        "8ab2ef04"
+      ],
+      "combinedBlob": "685e9b74e9672806886628c4a58692567253f58e",
+      "shared": true
+    },
+    {
+      "path": "features/quote-center/components/quote-settings-modals.tsx",
+      "owners": [
+        "83ed26fd"
+      ],
+      "combinedBlob": "6c99351930548d723464d95a728d5ab4a0cfc0f1",
+      "shared": false
+    },
+    {
+      "path": "features/quote-center/components/server-summary-modal.tsx",
+      "owners": [
+        "83ed26fd",
+        "8ab2ef04"
+      ],
+      "combinedBlob": "f37204bec87e7c3073dbea695dbf202c4fac68c3",
+      "shared": true
+    },
+    {
+      "path": "features/operation-logs/components/operation-log-modal.tsx",
+      "owners": [
+        "8ab2ef04"
+      ],
+      "combinedBlob": "e5ad8eb05d74757d38d95aa617274f36ea980f4c",
+      "shared": false
+    },
+    {
+      "path": "features/quote-center/components/cost-table.tsx",
+      "owners": [
+        "8ab2ef04"
+      ],
+      "combinedBlob": "72e8018f9cd715f23b4ab10f536ddd62e6d28bbc",
+      "shared": false
+    },
+    {
+      "path": "features/quote-center/components/quote-export-modal.tsx",
+      "owners": [
+        "8ab2ef04"
+      ],
+      "combinedBlob": "434171c06e7f9e08a388edb522a34bdd6b9b5eb3",
+      "shared": false
+    },
+    {
+      "path": "components/foundation/app-shell.tsx",
+      "owners": [
+        "07fc0dc7"
+      ],
+      "combinedBlob": "27d2b40e6aafbde0995f5e570f1ad221b5752388",
+      "shared": false
+    },
+    {
+      "path": "features/ainuoke-sync-audit/page.tsx",
+      "owners": [
+        "07fc0dc7"
+      ],
+      "combinedBlob": "9c33bcaf190889c8b72d05c683b285e1d994108a",
+      "shared": false
+    },
+    {
+      "path": "features/operation-logs/components/server-operation-log-viewer.tsx",
+      "owners": [
+        "07fc0dc7"
+      ],
+      "combinedBlob": "ea8b65c7a4152868a0c6ad3bfeabc97c3cba5e88",
+      "shared": false
+    },
+    {
+      "path": "features/operations-settings/components/server-production-resource-page.tsx",
+      "owners": [
+        "07fc0dc7"
+      ],
+      "combinedBlob": "e86178c798f43dcd1ada5cd6e932da1f3775d074",
+      "shared": false
+    },
+    {
+      "path": "features/permissions/components/server-user-permission-page.tsx",
+      "owners": [
+        "07fc0dc7"
+      ],
+      "combinedBlob": "1906965119cdbc67e02757684461250489e131c7",
+      "shared": false
+    },
+    {
+      "path": "features/ainuoke-material-progress/material-read-feedback.ts",
+      "owners": [
+        "2775aae8"
+      ],
+      "combinedBlob": "422bc74ca091688ce26696558234f63b73bd2a9a",
+      "shared": false
+    },
+    {
+      "path": "features/ainuoke-material-progress/order-material-summary.tsx",
+      "owners": [
+        "2775aae8"
+      ],
+      "combinedBlob": "c1fbfd1c4d924012aebfe236330727a689df1b1e",
+      "shared": false
+    },
+    {
+      "path": "features/closing-center/components/server-closing-adjustment-page.tsx",
+      "owners": [
+        "2775aae8"
+      ],
+      "combinedBlob": "16229b1fe5d2a055f835d0d569187f77f623795a",
+      "shared": false
+    },
+    {
+      "path": "features/order-center/components/server-order-center-page.tsx",
+      "owners": [
+        "2775aae8"
+      ],
+      "combinedBlob": "7030874cdf0a862f5d7e53cf5cbfb2abdab7b8bd",
+      "shared": false
+    },
+    {
+      "path": "features/order-center/components/server-sales-order-detail-page.tsx",
+      "owners": [
+        "2775aae8"
+      ],
+      "combinedBlob": "e42359c21b3f556b95661b9a1fcb45ff78dbe93e",
+      "shared": false
+    },
+    {
+      "path": "features/order-center/components/server-source-catalog.tsx",
+      "owners": [
+        "2775aae8"
+      ],
+      "combinedBlob": "0eca41bd186ebd7575aaea25c1f36dbb0e70bcec",
+      "shared": false
+    },
+    {
+      "path": "features/style-progress/components/material-progress-settings-page.tsx",
+      "owners": [
+        "2775aae8"
+      ],
+      "combinedBlob": "a2d2f5c2ad208709e23d7ff2449bf58f344d38cf",
+      "shared": false
+    }
+  ],
+  "allSingleOwnerBlobsExact": true,
+  "manifestFrozenFieldsUnchanged": true
+}

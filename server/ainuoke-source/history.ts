@@ -9,6 +9,8 @@ import {adaptAinuokeOrderDiscoverySnapshots} from '../../features/ainuoke-api/so
 import type {AinuokeOrderDiscoveryQuery,AinuokeReportSnapshot} from '../../features/ainuoke-api/model/ainuoke-api.js';
 import {normalizeAinuokeInsideOrderNo,normalizeAinuokeSalesContractNo} from '../../features/ainuoke-sync/source/ainuoke-garment-color-size-adapter.js';
 import {projectMaterialProgress,type MaterialProgressView} from '../../features/ainuoke-material-progress/projection.js';
+import {hydrateSharedPages} from './shared-content.js';
+import {hydrateSourceDirectory} from './catalog-evidence.js';
 
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const maxBytes=32*1024*1024;
@@ -19,30 +21,31 @@ export function parseMaterialHistoryQuery(query:URLSearchParams):MaterialHistory
  const value=query.get('limit')??'20';if(!/^[1-9][0-9]?$/.test(value)||Number(value)>50)fail(400,'invalid_material_history_query');
  const cursor=query.get('cursor');if(cursor!==null&&!uuid.test(cursor))fail(400,'invalid_material_history_query');return {limit:Number(value),cursor:cursor?.toLowerCase()??null};
 }
-export type MaterialHistoryRecord={runId:string;capturedAt:string;recordedAt:string;capturedTargetOrderId:string;salesContractNo:string;capturedAttributionChangeId:string|null;capturedOrderVersion:number|null;capturedSourceOwnerOrderId:string|null;identityEvidence:'recorded_context'|'legacy_context_unavailable'};
-export type MaterialHistoryPage={schemaVersion:'order-material-history-list.v1';originalOrderId:string;originalOrderNo:string;currentEffectiveOrderId:string;items:MaterialHistoryRecord[];nextCursor:string|null;hasMore:boolean};
+export type MaterialHistoryRecord={recordKind?:'legacy'|'initial'|'change'|'context';runId:string;capturedAt:string;recordedAt:string;capturedTargetOrderId:string;salesContractNo:string;capturedAttributionChangeId:string|null;capturedOrderVersion:number|null;capturedSourceOwnerOrderId:string|null;identityEvidence:'recorded_context'|'legacy_context_unavailable'};
+export type MaterialHistoryPage={schemaVersion:'order-material-history-list.v1';originalOrderId:string;originalOrderNo:string;currentEffectiveOrderId:string;items:MaterialHistoryRecord[];nextCursor:string|null;hasMore:boolean;sourceHistoryStartedAt?:string|null};
 export type HistoricalMaterialProgress=Omit<MaterialProgressView,'sourceStatus'|'schemaVersion'> & {schemaVersion:'order-material-history-progress.v1';sourceStatus:'historical'};
-export type MaterialHistoryDetail={schemaVersion:'order-material-history.v1';usage:'historical_only';currentStatusApplicable:false;originalOrderId:string;originalOrderNo:string;currentEffectiveOrderId:string;record:MaterialHistoryRecord;projectionBasis:'current-parser-on-captured-source';progress:HistoricalMaterialProgress};
+export type MaterialHistoryDetail={schemaVersion:'order-material-history.v1';usage:'historical_only';currentStatusApplicable:false;originalOrderId:string;originalOrderNo:string;currentEffectiveOrderId:string;record:MaterialHistoryRecord;projectionBasis:'current-parser-on-captured-source';progress:HistoricalMaterialProgress;sourceHistoryStartedAt?:string|null};
 export type MaterialHistoryReader={list:(identity:TrustedIdentity,id:string,query:MaterialHistoryQuery)=>Promise<MaterialHistoryPage>;read:(identity:TrustedIdentity,id:string,runId:string)=>Promise<MaterialHistoryDetail>};
 
-type StoredMeta={run_id:string;captured_at:Date;created_at:Date;sales_order_id:string;sales_contract_no:string;attribution_change_id:string|null;captured_order_version:number|null;source_link_id:string|null;source_owner_order_id:string|null;source_external_id:string|null;link_contract_no:string|null;bytes:number};
-const record=(row:StoredMeta):MaterialHistoryRecord=>({runId:row.run_id,capturedAt:row.captured_at.toISOString(),recordedAt:row.created_at.toISOString(),capturedTargetOrderId:row.sales_order_id,salesContractNo:row.sales_contract_no,capturedAttributionChangeId:row.attribution_change_id,capturedOrderVersion:row.captured_order_version,capturedSourceOwnerOrderId:row.source_owner_order_id,identityEvidence:row.source_link_id&&row.captured_order_version!==null?'recorded_context':'legacy_context_unavailable'});
+type StoredMeta={record_kind:'legacy'|'initial'|'change'|'context';run_id:string;captured_at:Date;created_at:Date;sales_order_id:string;sales_contract_no:string;attribution_change_id:string|null;captured_order_version:number|null;source_link_id:string|null;source_owner_order_id:string|null;source_external_id:string|null;link_contract_no:string|null;bytes:number};
+const record=(row:StoredMeta):MaterialHistoryRecord=>({recordKind:row.record_kind,runId:row.run_id,capturedAt:row.captured_at.toISOString(),recordedAt:row.created_at.toISOString(),capturedTargetOrderId:row.sales_order_id,salesContractNo:row.sales_contract_no,capturedAttributionChangeId:row.attribution_change_id,capturedOrderVersion:row.captured_order_version,capturedSourceOwnerOrderId:row.source_owner_order_id,identityEvidence:row.source_link_id&&row.captured_order_version!==null?'recorded_context':'legacy_context_unavailable'});
 
 /** Exact original captured target only. No current-root redirect, aggregation,
  * network, credentials, cache, CCT query or business mutation. */
 export function createPersistedMaterialHistoryReader(pool:Pool,config:SourceReadConfig,now:()=>number=Date.now):MaterialHistoryReader{
  if(!sourceKeyValid(config.sourceKey))throw new Error('invalid_source_read_configuration');
- const scope=async<T>(identity:TrustedIdentity,id:string,run:(client:PoolClient,context:{orderNo:string;effectiveId:string;attributed:boolean;recorded:boolean})=>Promise<T>)=>{
+ const scope=async<T>(identity:TrustedIdentity,id:string,run:(client:PoolClient,context:{orderNo:string;effectiveId:string;attributed:boolean;recorded:boolean;sourceHistoryStartedAt:string|null})=>Promise<T>)=>{
   if(!uuid.test(id))fail(400,'invalid_order_request');id=id.toLowerCase();const client=await pool.connect();
   try{
    await client.query('BEGIN ISOLATION LEVEL REPEATABLE READ READ ONLY');await sourceActor(client,identity,false,false);
    const order=(await client.query('SELECT order_no FROM sales_orders WHERE id=$1',[id])).rows[0];if(!order)fail(404,'order_not_available');
-   const profile=(await client.query('SELECT enabled FROM ainuoke_source_profiles WHERE source_key=$1',[config.sourceKey])).rows[0];if(!profile?.enabled)fail(503,'material_history_not_connected');
+   const profile=(await client.query("SELECT enabled,to_jsonb(p)->>'source_history_started_at' AS started FROM ainuoke_source_profiles p WHERE source_key=$1",[config.sourceKey])).rows[0];if(!profile?.enabled)fail(503,'material_history_not_connected');
    const attributed=await supportsSourceAttribution(client),recorded=await supportsMaterialCaptureContext(client),mapping=await resolveEffectiveOrder(client,id);
-   const result=await run(client,{orderNo:order.order_no,effectiveId:mapping.effectiveOrderId,attributed,recorded});await client.query('COMMIT');return result;
+   const epoch=profile.started;
+   const result=await run(client,{orderNo:order.order_no,effectiveId:mapping.effectiveOrderId,attributed,recorded,sourceHistoryStartedAt:epoch?new Date(epoch).toISOString():null});await client.query('COMMIT');return result;
   }catch(error){await client.query('ROLLBACK').catch(()=>undefined);if(error instanceof HttpError)throw error;fail(503,'material_history_unavailable');}finally{client.release();}
  };
- const sql=(context:{attributed:boolean;recorded:boolean})=>`SELECT r.id::text AS run_id,r.captured_at,r.created_at,s.sales_order_id::text,s.sales_contract_no,
+ const sql=(context:{attributed:boolean;recorded:boolean})=>`SELECT coalesce(to_jsonb(r)->>'record_kind','legacy') AS record_kind,r.id::text AS run_id,r.captured_at,r.created_at,s.sales_order_id::text,s.sales_contract_no,
   ${context.attributed?'s.attribution_change_id::text':'NULL::text'} AS attribution_change_id,
   ${context.recorded?'s.captured_order_version':'NULL::integer'} AS captured_order_version,
   ${context.recorded?'s.source_link_id::text':'NULL::text'} AS source_link_id,
@@ -59,13 +62,15 @@ export function createPersistedMaterialHistoryReader(pool:Pool,config:SourceRead
    let boundary='';const values:unknown[]=[config.sourceKey,id.toLowerCase()];
    if(query.cursor){const cursor=(await client.query<{created_at:Date}>('SELECT r.created_at FROM ainuoke_source_runs r JOIN ainuoke_material_source_snapshots s ON s.run_id=r.id WHERE r.source_key=$1 AND s.sales_order_id=$2 AND r.id=$3',[...values,query.cursor])).rows[0];if(!cursor)fail(400,'invalid_material_history_cursor');values.push(query.cursor);boundary=' AND (r.created_at,r.id)<(SELECT created_at,id FROM ainuoke_source_runs WHERE id=$3::uuid)';}
    values.push(query.limit+1);const rows=(await client.query<StoredMeta>(sql(context)+boundary+` ORDER BY r.created_at DESC,r.id DESC LIMIT $${values.length}`,values)).rows;
-   const visible=rows.slice(0,query.limit);return {schemaVersion:'order-material-history-list.v1',originalOrderId:id.toLowerCase(),originalOrderNo:context.orderNo,currentEffectiveOrderId:context.effectiveId,items:visible.map(record),hasMore:rows.length>query.limit,nextCursor:rows.length>query.limit?visible.at(-1)!.run_id:null};
+   const visible=rows.slice(0,query.limit);return {schemaVersion:'order-material-history-list.v1',originalOrderId:id.toLowerCase(),originalOrderNo:context.orderNo,currentEffectiveOrderId:context.effectiveId,sourceHistoryStartedAt:context.sourceHistoryStartedAt,items:visible.map(record),hasMore:rows.length>query.limit,nextCursor:rows.length>query.limit?visible.at(-1)!.run_id:null};
   }),
   read:async(identity,id,runId)=>{
    if(!uuid.test(runId))fail(400,'invalid_material_history_request');
    return scope(identity,id,async(client,context)=>{
     const metadata=(await client.query<StoredMeta>(sql(context)+' AND r.id=$3::uuid',[config.sourceKey,id.toLowerCase(),runId])).rows[0];if(!metadata)fail(404,'material_history_not_found');if(metadata.bytes>maxBytes)fail(413,'material_history_limit');
     const payload=(await client.query<{discovery:AinuokeReportSnapshot<AinuokeOrderDiscoveryQuery>[];snapshots:AinuokeReportSnapshot[];discovery_hash:string;content_hash:string;order_scope:unknown[]|null;order_scope_hash:string|null}>(`SELECT r.discovery,r.discovery_hash,s.snapshots,s.content_hash,${context.recorded?'r.order_scope':'NULL::jsonb'} AS order_scope,${context.attributed?'r.order_scope_hash':'NULL::text'} AS order_scope_hash FROM ainuoke_source_runs r JOIN ainuoke_material_source_snapshots s ON s.run_id=r.id WHERE r.id=$1 AND s.sales_order_id=$2`,[runId,id.toLowerCase()])).rows[0];
+    payload.discovery=await hydrateSourceDirectory(client,config.sourceKey,payload.discovery);
+    payload.snapshots=await hydrateSharedPages(client,config.sourceKey,payload.snapshots,{contract:metadata.sales_contract_no,kind:'materials'});
     if(hash(payload.discovery)!==payload.discovery_hash||hash(payload.snapshots)!==payload.content_hash)fail(503,'material_history_integrity_failed');
     inspect(payload.discovery);inspect(payload.snapshots);
     const captured=metadata.captured_at.getTime(),clock=now();if(!Number.isFinite(clock)||captured>clock||!payload.discovery.length||!payload.snapshots.length)fail(503,'material_history_integrity_failed');
@@ -83,7 +88,7 @@ export function createPersistedMaterialHistoryReader(pool:Pool,config:SourceRead
     // Quantities remain captured source facts. No historical or current readiness
     // verdict is asserted by a parser which may have changed since capture.
     const progress:HistoricalMaterialProgress={...projected,schemaVersion:'order-material-history-progress.v1',sourceStatus:'historical',message:'历史来源快照，按当前解析规则展示；不代表当前采购、库存或齐套状态。',rows:projected.rows.map(row=>({...row,status:null})),groups:projected.groups.map(group=>({...group,rows:group.rows.map(row=>({...row,status:null}))})),summary:{...projected.summary,fabric:{...projected.summary.fabric,unknown:projected.summary.fabric.demands,states:{not_purchased:0,purchasing:0,pending_inbound:0,ready:0}},trim:{...projected.summary.trim,unknown:projected.summary.trim.demands,states:{not_purchased:0,purchasing:0,pending_inbound:0,ready:0}}}};
-    return {schemaVersion:'order-material-history.v1',usage:'historical_only',currentStatusApplicable:false,originalOrderId:id.toLowerCase(),originalOrderNo:context.orderNo,currentEffectiveOrderId:context.effectiveId,record:record(metadata),projectionBasis:'current-parser-on-captured-source',progress};
+    return {schemaVersion:'order-material-history.v1',usage:'historical_only',currentStatusApplicable:false,originalOrderId:id.toLowerCase(),originalOrderNo:context.orderNo,currentEffectiveOrderId:context.effectiveId,sourceHistoryStartedAt:context.sourceHistoryStartedAt,record:record(metadata),projectionBasis:'current-parser-on-captured-source',progress};
    });
   }
  };

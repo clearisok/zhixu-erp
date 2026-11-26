@@ -1,0 +1,12 @@
+{
+  "status": "PASS",
+  "baselineSha": "10b9a7d827e1c09f152ead58c21f26712d49a619",
+  "checkedHead": "2ee960e37c62f222faf12c86e9410d300436ef57",
+  "historySha": "10b9a7d827e1c09f152ead58c21f26712d49a619",
+  "pages": 13,
+  "capabilities": 68,
+  "changedUiFiles": 40,
+  "scope": "source/evidence guard only; no browser, runtime, database or user acceptance claim",
+  "errors": [],
+  "note": "This is the exact cancellation checkpoint check. Subsequent changes only attest results and update current state; no product, SQL, UI or frozen input changes."
+}

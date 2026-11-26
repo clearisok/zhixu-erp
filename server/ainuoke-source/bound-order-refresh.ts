@@ -14,6 +14,7 @@ import {boundOrders} from './service.js';
 import {previewAdditions,hasCompleteEmptyColorEvidence} from './additions.js';
 import {hash,inspect,sourceKeyValid} from './contract.js';
 import {paymentDatabaseFingerprint} from './payment-request-collection.js';
+import {saveManualColorEvidence} from './manual-source-evidence.js';
 
 export type BoundOrderRefreshScope={sourceKey:string;accountFingerprint:string;salesOrderId:string};
 export type BoundOrderRefreshResult={requestId:string;salesOrderId:string;sourceOwnerOrderId:string;salesContractNo:string;
@@ -119,6 +120,8 @@ async function applyBoundOrderRefreshImplementation(pool:Pool,identity:TrustedId
   if(p.previewHash!==command.expectedPreview)fail(409,'bound_refresh_preview_changed');
   const operationId='bound-order-refresh:'+actor.internalUserId+':'+requestId;
   const refreshed=await refreshAinuokeSalesOrderSourceInTransaction(client,actor,p.owner.id,{...p.candidate,expectedSourceHash:p.mirror.source_hash,expectedPlanVersion:p.plans.version},{operationId,operationSequence:0});
+  const sourceEvidence=await saveManualColorEvidence(client,{sourceKey:scope.sourceKey,accountFingerprint:scope.accountFingerprint,sourceId:p.candidate.source.sourceId,contract:p.candidate.source.salesContractNo},evidence as import('./additions.js').AdditionBundle);
+  const retained=sourceEvidence&&(refreshed.sourceChanged||!(await client.query("SELECT 1 FROM operation_logs WHERE entity_type='SalesOrder' AND entity_id=$1 AND source_color_content_id IS NOT NULL LIMIT 1",[p.target.id])).rowCount);
   const result:BoundOrderRefreshResult={requestId,salesOrderId:p.target.id,sourceOwnerOrderId:p.owner.id,salesContractNo:p.candidate.source.salesContractNo,
    beforeSourceHash:p.mirror.source_hash,afterSourceHash:p.candidate.source.sourceHash,beforePlanVersion:p.plans.version,
    afterPlanVersion:refreshed.deliveryPlanSet.version,colorLines:p.candidate.colors.length,sourceFetchedAt:p.candidate.source.fetchedAt};
@@ -126,6 +129,7 @@ async function applyBoundOrderRefreshImplementation(pool:Pool,identity:TrustedId
   await client.query(`INSERT INTO ainuoke_order_source_refresh_receipts(actor_id,request_id,source_key,sales_order_id,source_owner_order_id,payload_hash,preview_hash,result)
    VALUES($1,$2,$3,$4,$5,$6,$7,$8::jsonb)`,[actor.internalUserId,requestId,scope.sourceKey,p.target.id,p.owner.id,payloadHash,p.previewHash,encoded]);
   await appendOperationLog(client,actor,{operationId,operationSequence:1,module:'艾诺科同步',action:'艾诺科同步订单',entityType:'SalesOrder',entityId:p.target.id,
+   sourceEvidence:retained?sourceEvidence:null,
    metadata:{mutationSurface:'bound_source_refresh',requestId,sourceOwnerOrderId:p.owner.id,previewHash:p.previewHash},
    afterData:{orderId:p.target.id,salesContractNo:result.salesContractNo,objectName:result.salesContractNo,values:{colorCount:result.colorLines}}});
   await auditPublished(client,scope.sourceKey,requestId,evidence,result.salesContractNo,['ainuoke_sales_order_contract_mirrors','ainuoke_sales_order_color_mirrors']);
@@ -135,13 +139,13 @@ async function applyBoundOrderRefreshImplementation(pool:Pool,identity:TrustedId
 /** The durable source-sync job is the outer receipt/transaction. Reuse the same
  * mapper, identity locks and source-only domain command as the reviewed refresh. */
 export async function refreshCollectedBoundOrderInTransaction(pool:Pool,client:PoolClient,actor:TrustedIdentity,
- rawScope:BoundOrderRefreshScope,rawEvidence:unknown,jobId:string,now:number) {
+ rawScope:BoundOrderRefreshScope,rawEvidence:unknown,jobId:string,now:number,automatic=false) {
  const scope=scopeOf(rawScope),evidence=evidenceOf(rawEvidence);
  await actorFor(client,actor,true);await available(client);await lockEffectiveAttribution(client);
  const p=await prepare(client,scope,evidence,now,true,await paymentDatabaseFingerprint(pool,client));
  await refreshAinuokeSalesOrderSourceInTransaction(client,actor,p.owner.id,
   {...p.candidate,expectedSourceHash:p.mirror.source_hash,expectedPlanVersion:p.plans.version},
-  {operationId:'catalog-sync:'+jobId,operationSequence:0});
+  {operationId:'catalog-sync:'+jobId,operationSequence:0,automatic});
  return {orderId:p.target.id,sourceOwnerOrderId:p.owner.id,colorLines:p.candidate.colors.length};
 }
 

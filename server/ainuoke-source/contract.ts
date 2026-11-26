@@ -8,11 +8,13 @@ export class SourceError extends Error {
     constructor(readonly code: string) { super(code); this.name = "SourceError"; }
 }
 export const sourceKeyValid = (key: string) => /^[a-z][a-z0-9_-]{2,63}$/u.test(key);
+/** Same identity normalization as the existing Discovery adapter; never rewrites raw values. */
+export const sourceIdText=(value:unknown)=>String(value??'').normalize('NFKC').trim();
 /** Canonical UUID shape accepted by PostgreSQL; never coerce untrusted JSON. */
 export const sourceUuidValid = (value: unknown): value is string => typeof value === 'string'
     && /^[a-f0-9]{8}(?:-[a-f0-9]{4}){3}-[a-f0-9]{12}$/iu.test(value);
 export const hash = (value: unknown): string => createHash("sha256").update(canonical(value)).digest("hex");
-function canonical(value: unknown): string {
+export function canonical(value: unknown): string {
     if (Array.isArray(value))
         return "[" + value.map(canonical).join(",") + "]";
     if (value && typeof value === "object")

@@ -9,7 +9,9 @@ import {
 import type { TrustedIdentity } from "../auth/session.js";
 import { projectOperationLogResponse, type OperationLogQuery } from "./query.js";
 
+export type SourceOperationEvidence={colorContentId:string;captureId:string};
 export type ServerOperationLogInput = {
+  sourceEvidence?: SourceOperationEvidence | null;
   operationId?: string;
   operationSequence?: number;
   module: OperationLog["module"];
@@ -102,11 +104,11 @@ export async function appendOperationLog(
        id, operation_id, operation_sequence,
        actor_user_id, actor_public_id, actor_name,
        module, action, entity_type, entity_id, quote_id,
-       context, before_data, after_data, changes, metadata
+       context, before_data, after_data, changes, metadata${input.sourceEvidence?', source_color_content_id, source_directory_capture_id':''}
      ) VALUES (
        $1, $2, $3, $4::bigint, $5::uuid, $6,
        $7, $8, $9, $10, $11,
-       $12::jsonb, $13::jsonb, $14::jsonb, $15::jsonb, $16::jsonb
+       $12::jsonb, $13::jsonb, $14::jsonb, $15::jsonb, $16::jsonb${input.sourceEvidence?', $17::uuid, $18::uuid':''}
      )
      RETURNING *`,
     [
@@ -126,6 +128,7 @@ export async function appendOperationLog(
       afterData === null ? null : JSON.stringify(afterData),
       JSON.stringify(changes),
       JSON.stringify(input.metadata ?? {}),
+      ...(input.sourceEvidence?[input.sourceEvidence.colorContentId,input.sourceEvidence.captureId]:[]),
     ],
   );
   return mapRow(result.rows[0]);

@@ -1,0 +1,13 @@
+{
+  "state": "PREPARATORY_UI_LOADING_GAP_IDENTIFIED_FINAL_GATE_TIGHTENED",
+  "originalEvidence": "preparatory-acceptance.json at commit6edfe429aa585c82e653b37f504f6bb321771c63",
+  "facts": "API and navigation passed; first order screenshot still skeleton; first closing screenshot still loading. They do not prove completed data rendering.",
+  "finalTargetRequirements": [
+    "actual orders contain SO rows and no loading skeleton",
+    "all twelve closing month buttons rendered and annual loading/error absent",
+    "all API server failures rejected except independently verified inherited corrupt PNG thumbnail",
+    "all business rows/references rechecked after final paired-backup service restart; business numbering/review sequences exact"
+  ],
+  "productCodeChanged": false,
+  "earlierEvidenceRetained": true
+}

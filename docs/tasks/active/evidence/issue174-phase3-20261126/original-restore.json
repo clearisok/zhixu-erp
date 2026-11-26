@@ -1,0 +1,23 @@
+{
+  "state": "ORIGINAL_RESTORE_VERIFIED",
+  "manifestSha256": "85bc4166743272cbbbcdca71379ef2c9ebeeab9e782aec1113bb4a95fae9dd25",
+  "restoreAndSecondCopySeconds": 1191.2132605034858,
+  "restoredDatabaseBytes": 12208897047,
+  "tableCount": 145,
+  "sequenceMetadataExact": true,
+  "sequenceCount": 5,
+  "pairedObjects": 13,
+  "fullReverificationSeconds": 498.972,
+  "isolatedStandaloneSequenceOwnerRepair": [
+    "quote_center_quote_number_seq",
+    "sales_order_number_seq"
+  ],
+  "sequenceValuesChanged": false,
+  "oldDatabaseChanged": false,
+  "verifierChanged": false,
+  "firstFailureRetained": true,
+  "selectedConversionStarted": true,
+  "formalTargetPopulated": false,
+  "workerStarted": false,
+  "cleanupEnabled": false
+}

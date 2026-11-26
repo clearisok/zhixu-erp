@@ -143,7 +143,7 @@ function RevisionManagerDialog({ serverMode = false, canViewSale = true, serverE
       </div>}
     </div>
   </Modal>
-  <Modal open={copyDecisionOpen} className="qc-revision-copy-confirm-modal" title="更新报价版本" description="此确认是进入报价版本更新流程的第一步。" onClose={() => setCopyDecisionOpen(false)} onSubmit={() => continueUpdate(true)} footer={<div className="qc-modal-footer-split"><Button variant="secondary" onClick={() => continueUpdate(false)}>否</Button><Button type="submit">是</Button></div>}>
+  <Modal open={copyDecisionOpen} className="qc-revision-copy-confirm-modal" title="更新报价版本"  onClose={() => setCopyDecisionOpen(false)} onSubmit={() => continueUpdate(true)} footer={<div className="qc-modal-footer-split"><Button variant="secondary" onClick={() => continueUpdate(false)}>直接更新</Button><Button type="submit">复制后更新</Button></div>}>
     <p className="qc-unsaved-message">是否复制当前报价版本后再进行更新？复制后将基于当前报价版本生成新的版本快照，历史版本保留只读。</p>
   </Modal></>;
 }

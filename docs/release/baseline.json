@@ -1,8 +1,8 @@
 {
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
-  "baselineSha": "4e1f9a514c8ff6e9cf7289d724df33c32bc05368",
-  "verifiedAt": "2026-11-20T14:51:38.168005+00:00",
+  "baselineSha": "10b9a7d827e1c09f152ead58c21f26712d49a619",
+  "verifiedAt": "2026-11-24T09:18:40Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -6315,6 +6315,83 @@
       "sha256": "24296b46057f976193f715b59ee62d77f648893dbf5d8c604bdbecdd0dc69e4f",
       "supersedes": "catalog-final-safety-contract-20261119",
       "changeReason": "User-approved Issue159 forward-only contract deletion/restoration lifecycle and red anomaly chip. Preserve all original business records and identity/scope/Price protections. Candidate only; no merge, Staging deployment or real state conversion authorized."
+    },
+    {
+      "id": "issue174-storage-business-input-20261124",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "a1e87ad43e344a49539c596ebe4741c75586c050",
+      "sha256": "12089cf7681cb8c877695ff7d9f01d6bf280adbcaa4e8d52003bb369f8e4e0b0",
+      "supersedes": "source-deleted-business-20261120",
+      "changeReason": "2026-11-24 Issue174用户批准分级保留业务输入及仅设计授权；旧业务/不可变证据、日期、hash和实际实施状态保留；非UI/能力变更。"
+    },
+    {
+      "id": "issue174-storage-decisions-20261124",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "a1e87ad43e344a49539c596ebe4741c75586c050",
+      "sha256": "35ac9cce6bef7b65aa73aa3f84bb3632e60222e6f7c4c4d4150377dcf94f10bf",
+      "supersedes": "source-deleted-decisions-20261120",
+      "changeReason": "2026-11-24 Issue174用户批准分级保留业务输入及仅设计授权；旧业务/不可变证据、日期、hash和实际实施状态保留；非UI/能力变更。"
+    },
+    {
+      "id": "issue174-storage-design-v1-20261124",
+      "kind": "document",
+      "path": "docs/features/Issue174-同步存储架构整改与数据库容量治理实施方案.md",
+      "recordedAtSha": "a1e87ad43e344a49539c596ebe4741c75586c050",
+      "sha256": "747693440c038e116b4c3f1806e622516bda1953e1e456fbc5fcbfa43714faa3"
+    },
+    {
+      "id": "issue174-storage-design-v1-1-20261124",
+      "kind": "document",
+      "path": "docs/features/Issue174-同步存储架构整改与数据库容量治理实施方案.md",
+      "recordedAtSha": "09ba6c4b47fdda7368d7c7f523bc6f9d3c07b566",
+      "sha256": "fb6dc024b013cf6a8bb183ba3bf74f864088e6f9923612378d0d4aafed5f6a18",
+      "supersedes": "issue174-storage-design-v1-20261124",
+      "changeReason": "Issue174 design v1.1 clarifies the existing verify-only migration startup compatibility matrix; no retention, business, implementation or deployment scope changes. Preserve the frozen v1 document and all historical evidence."
+    },
+    {
+      "id": "issue174-simplified-business-20261124",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "84f422dea12bdd3016d39beed16e8a063b85b2c3",
+      "sha256": "31910483dad7e2a573933de974d6177d2e6fdb7c15d0a373a183bd9c0746135c",
+      "supersedes": "issue174-storage-business-input-20261124",
+      "changeReason": "D200 records the user supplied pre-cutover unreferenced source-history exception. All protected business data, future real changes and safety/execution boundaries remain. The v2 selective-migration architecture is proposed, not implemented."
+    },
+    {
+      "id": "issue174-simplified-decisions-20261124",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "84f422dea12bdd3016d39beed16e8a063b85b2c3",
+      "sha256": "465f774a18dab5bfd9fb529d01c99e1e9b5f6e21defa4c816fe8b33b2fbd7ddd",
+      "supersedes": "issue174-storage-decisions-20261124",
+      "changeReason": "D200 records the user supplied pre-cutover unreferenced source-history exception. All protected business data, future real changes and safety/execution boundaries remain. The v2 selective-migration architecture is proposed, not implemented."
+    },
+    {
+      "id": "issue174-simplified-v2-20261124",
+      "kind": "document",
+      "path": "docs/features/Issue174-精简整改决策方案-v2.md",
+      "recordedAtSha": "84f422dea12bdd3016d39beed16e8a063b85b2c3",
+      "sha256": "150fbb1320df9ecacb732fabe407f400ce86bca4defdfd9ea1031e808ea4730f"
+    },
+    {
+      "id": "issue174-v2-implementation-decisions-20261125",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "26d82759c909112c1af1ca660a8fa7543d171388",
+      "sha256": "d60de03ea1f35d5a23e8ee8edbf4978c08ce5150ce9873b7eb28029e85d51c37",
+      "supersedes": "issue174-simplified-decisions-20261124",
+      "changeReason": "D201 transcribes explicit v2 phase one/two implementation and isolated rehearsal approval; preserve the no-switch/no-cleanup/no-worker/no-production boundaries and all earlier decisions."
+    },
+    {
+      "id": "issue174-v2-storage-contract-20261125",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SYNC_AUDIT.md",
+      "recordedAtSha": "26d82759c909112c1af1ca660a8fa7543d171388",
+      "sha256": "f827f5948ae6df99ca2d2d462bd2fc4d22ebe4a3e5e6e9efe9997d52b9a65709",
+      "supersedes": "source-deleted-contract-20261120",
+      "changeReason": "Approved v2 shared bodies, change-only versions, confirmation retention and isolated selective migration candidate; preserve existing deletion/restoration and source safety contracts. No deployed capability is asserted."
     }
   ],
   "pages": [

@@ -1,0 +1,390 @@
+{
+  "state": "STAGING_CUTOVER_ACCEPTED_PUBLIC_AND_LAN_REOPENED_WORKER_CLEANUP_HELD",
+  "gateBaseline": "1cccaeb31f7c79b96125030c9f5326426563a75f",
+  "candidate": "fd84815dee273c0c65b4565961c8d4ffe3bfb764",
+  "mainBaseline": "10b9a7d827e1c09f152ead58c21f26712d49a619",
+  "terminal": {
+    "state": "STAGING_CUTOVER_ACCEPTED_PUBLIC_AND_LAN_REOPENED_WORKER_CLEANUP_HELD",
+    "at": "2026-11-26T07:57:01.673068+00:00",
+    "newWritesOpeningAt": "2026-11-26T07:56:32.497523+00:00",
+    "candidate": "fd84815dee273c0c65b4565961c8d4ffe3bfb764",
+    "lanBuildVerified": true,
+    "tunnelActive": true,
+    "ownedCronOnlyRebound": true,
+    "workerMinuteEntryHeld": true,
+    "workerStarted": false,
+    "cleanupEnabled": false,
+    "oldResourcesPreserved": true,
+    "productionTouched": false,
+    "backup": "20261126T075529Z-8d50463a",
+    "maintenanceSeconds": 4564.734432,
+    "remainingSeconds": 8035.265568,
+    "actual": {
+      "databaseBytes": 408345623,
+      "tables": 147,
+      "orders": 636,
+      "cleanupEnabled": false
+    },
+    "originalPairRetentionAcceptedAt": "2026-11-26T07:57:01.673068+00:00",
+    "originalPairRetentionEarliestEnd": "2027-02-24T07:57:01.673068+00:00",
+    "oldDataAndBackupsRetained": true
+  },
+  "before": {
+    "databaseBytes": 12335701015,
+    "tables": 145,
+    "otherClients": 0,
+    "state": "OLD_SOURCE_FROZEN_ACTUAL_CAPACITY_MEASURED",
+    "at": "2026-11-26T07:06:55.367606+00:00",
+    "backupId": "20261126T064059Z-9fd043bd",
+    "manifestSha256": "63a1901c6dfbfb7bcb9cf5b5eda475cbe69a0383f0fc30942b8d76d4ff053e6e"
+  },
+  "databaseReductionPercent": 96.6897,
+  "formalInfrastructure": {
+    "local-restore-result": {
+      "startedAt": "2026-11-26T07:46:35.1690080Z",
+      "seconds": 307.7843262,
+      "fingerprint": "a2e67a21c9594367fc01a94eb5fe38e3e6b4c0589c2d2effde4cece847588b39",
+      "ownerAclAndBusinessGates": "still required; existing wrapper intentionally uses no-owner/no-privileges",
+      "finishedAt": "2026-11-26T07:51:42.9485216Z",
+      "state": "FORMAL_TARGET_DATA_RESTORED_WRITERS_FROZEN",
+      "dumpSha256": "51cb91a2e3bf6cace820719114a325c5e22d81327bf2c718860854161c8bc69a"
+    },
+    "final-integrity": {
+      "state": "ACTUAL_TARGET_ALL_ROWS_REFERENCES_ROLES_AND_SOURCE_VERIFIED",
+      "at": "2026-11-26T07:52:13.191186+00:00",
+      "tablesExact": 147,
+      "sequencesExact": 5,
+      "allOldBusinessAndRetainedProvenanceTransitiveFromSelected": true,
+      "allConstraintsTriggersFunctionsOwnersExact": true,
+      "role": {
+        "role": "quote_trial",
+        "superuser": false,
+        "createRole": false,
+        "bypassRls": false,
+        "ownsTables": 0,
+        "maintenanceMember": false,
+        "schemaCreate": false,
+        "canMaintain": true,
+        "canResolveFailure": false
+      },
+      "negativePermissionChecks": {
+        "bodyDelete": {
+          "rejected": true,
+          "sqlState": "23514"
+        },
+        "disableTrigger": {
+          "rejected": true,
+          "sqlState": "42501"
+        },
+        "replicationBypass": {
+          "rejected": true,
+          "sqlState": "42501"
+        },
+        "maintenanceSetRole": {
+          "rejected": true,
+          "sqlState": "42501"
+        }
+      },
+      "ordinarySourceCheck": {
+        "result": "CHECKED_NO_SOURCE_READ",
+        "targetFingerprint": "4b0ea251739d2ab29d744a33ffce84177f2cc3f11738e9c58327d7e20a4ff88c",
+        "sourceKey": "local-empty",
+        "boundOrders": 636
+      },
+      "previousPhysicalSourceFingerprint": "f3fe09ceadd17c8e74757eff75a3e2a9452c00ef0786dec7364c82d1ba13a7c9",
+      "newPhysicalSourceFingerprint": "4b0ea251739d2ab29d744a33ffce84177f2cc3f11738e9c58327d7e20a4ff88c",
+      "plannerSetting": "off; same existing role/database scope",
+      "cleanupEnabled": false,
+      "databaseBytes": 408329239,
+      "dumpSha256": "51cb91a2e3bf6cace820719114a325c5e22d81327bf2c718860854161c8bc69a",
+      "snapshotSeconds": 14.64670668169856,
+      "workerStarted": false,
+      "publicWritesOpened": false
+    },
+    "objects-restore": {
+      "operation": "restore",
+      "referencedObjects": 13,
+      "integrity": "PASS",
+      "bundleReadOnly": true
+    },
+    "start": {
+      "project": "zhixu-quote-trial-i174-v2b",
+      "operation": "start",
+      "result": "READY",
+      "readiness": "PASS"
+    },
+    "private-preview": {
+      "state": "SSH_LOOPBACK_ONLY_READ_ONLY_PREVIEW_PREPARED",
+      "at": "2026-11-26T07:53:19.982800+00:00",
+      "listen": "127.0.0.1:443",
+      "externalLanStill503": true,
+      "allowedMethods": "GET/HEAD; only auth/login POST permitted",
+      "sourceTunnelInactive": true,
+      "heldSha256": "bf2ef15fc9a7c3197f61d2e48bd6e49bc6618f1e7c4012f59a0666988e3f9d6f",
+      "restoreFinal": "restore original lan-before.conf bytes; preview disappears"
+    },
+    "cron-plan": {
+      "state": "OWNED_CRON_REBIND_PREPARED_NOT_APPLIED",
+      "changes": [
+        {
+          "block": "backup",
+          "schedule": "30 19 * * *",
+          "active": true
+        },
+        {
+          "block": "worker",
+          "schedule": "* * * * *",
+          "active": false
+        }
+      ],
+      "unrelatedBytesPreserved": true,
+      "workerMinuteEntryHeld": true
+    }
+  },
+  "postFinalBackupStartupBusinessIntegrity": {
+    "state": "POST_STARTUP_ALL_BUSINESS_AND_IDENTITIES_PRESERVED",
+    "at": "2026-11-26T07:56:10.164263+00:00",
+    "exactTableHashes": 143,
+    "changedOnlyExistingStartupAndLoginState": [
+      "app_roles",
+      "app_sessions",
+      "app_users",
+      "login_attempts",
+      "sequences"
+    ],
+    "identityChecks": {
+      "app_users": {
+        "businessFieldsExact": true,
+        "ignoredExistingRuntimeFields": [
+          "last_login_at",
+          "updated_at"
+        ],
+        "count": 3
+      },
+      "app_roles": {
+        "businessFieldsExact": true,
+        "ignoredExistingRuntimeFields": [
+          "updated_at"
+        ],
+        "count": 2
+      },
+      "app_permissions": {
+        "businessFieldsExact": true,
+        "ignoredExistingRuntimeFields": [
+          "updated_at"
+        ],
+        "count": 67
+      }
+    },
+    "businessDataAndReferenceChanges": 0,
+    "operationLogRowsExact": true,
+    "businessNumberAndReviewSequencesExact": true,
+    "roleAssignmentsExact": true,
+    "permissionAssignmentsExact": true,
+    "workerRunning": false,
+    "cleanupEnabled": false
+  },
+  "browser": {
+    "state": "REAL_STAGING_PRIVATE_BROWSER_READS_VERIFIED",
+    "at": "2026-11-26T07:54:45.535Z",
+    "source": "fd84815dee273c0c65b4565961c8d4ffe3bfb764",
+    "normalTls": true,
+    "secureHttpOnlySession": true,
+    "unauth": 401,
+    "login": 200,
+    "reads": [
+      {
+        "path": "/api/v1/auth/me",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/auth/permissions",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/sales-orders",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/quotes",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/ainuoke/catalog",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/operation-logs",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/production-scheduling/orders",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/production-scheduling/groups",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/closing/periods",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/quote-settings",
+        "status": 200
+      },
+      {
+        "path": "/api/v1/quote-masters/brands",
+        "status": 200
+      }
+    ],
+    "orders": 636,
+    "authenticatedAttachments": 13,
+    "attachmentHashesExact": true,
+    "historyEpochAndGapNoticeVisible": true,
+    "orderRowsLoaded": true,
+    "annualClosingTwelveMonthsLoaded": true,
+    "screenshots": [
+      {
+        "name": "orders",
+        "path": "/order-center"
+      },
+      {
+        "name": "quotes",
+        "path": "/quote-center"
+      },
+      {
+        "name": "production",
+        "path": "/production-scheduling"
+      },
+      {
+        "name": "closing",
+        "path": "/closing-center"
+      },
+      {
+        "name": "operations",
+        "path": "/system-settings/operation-logs"
+      },
+      {
+        "name": "sync",
+        "path": "/system-settings/ainuoke-sync-records"
+      },
+      {
+        "name": "catalog",
+        "path": "/order-center"
+      },
+      {
+        "name": "history-gap",
+        "path": "/order-center/server-detail"
+      }
+    ],
+    "blockedMutations": 0,
+    "exceptions": [],
+    "apiFailures": [],
+    "inheritedKnownLimitation": "one original 68-byte PNG cannot decode; same 503 on live a0a9; all original bytes/hash preserved; not changed by migration",
+    "otherRoleLogins": "not performed; existing role data and SQL integrity separately verified",
+    "businessMutationsPerformed": false
+  },
+  "newSourceBackup": {
+    "state": "NEW_SOURCE_BACKUP_VERIFIED_WRITERS_STILL_HELD",
+    "at": "2026-11-26T07:56:10.183070+00:00",
+    "id": "20261126T075529Z-8d50463a",
+    "manifestSha256": "2bb7c31074e1ff5609d831a5ef1c2e75f5cb8f5eb6c86a0e0aedb8080bea5975",
+    "bundle": "protected new-source paired backup root; exact id shown",
+    "source": "fd84815dee273c0c65b4565961c8d4ffe3bfb764",
+    "project": "zhixu-quote-trial-i174-v2b",
+    "tables": 147,
+    "objects": 13,
+    "files": 57,
+    "bytes": 72764180,
+    "startedAt": "2026-11-26T07:55:29.347283+00:00",
+    "finishedAt": "2026-11-26T07:56:02.841269+00:00",
+    "executorExited": true,
+    "cleanupVerified": true,
+    "allFileHashesVerified": true,
+    "allServicesResumedAndExact": true,
+    "workerStarted": false,
+    "cleanupEnabled": false,
+    "newWritesOpened": false,
+    "postBackupRestartBusinessIntegrityVerified": true
+  },
+  "newSourcePolicy": {
+    "state": "NEW_SOURCE_POLICY_AND_REVIEWED_PAUSED_WORKER_BACKUP_CHECKED",
+    "at": "2026-11-26T07:55:24.479583+00:00",
+    "source": "fd84815dee273c0c65b4565961c8d4ffe3bfb764",
+    "project": "zhixu-quote-trial-i174-v2b",
+    "fingerprint": "a2e67a21c9594367fc01a94eb5fe38e3e6b4c0589c2d2effde4cece847588b39",
+    "tableCount": 147,
+    "pinnedFiles": 36,
+    "policySha256": "480d30529d5192e5592a10be96ab840d4ee3a99de56bac7d51878e0bb6006758",
+    "serviceIds": {
+      "gateway": "045742b28549ec05a885423fe5bd9d6e44c4fffa49433953c74b63113da836b2",
+      "app": "f4b2861183b19a0eab5055e791bafd388fda8e4ea4bd0757f0c2bf9b12ae875f",
+      "objects-tls": "b45be28d69f746a189184652a7d61263b36f913b38f7c2efb00310b3b18e9a1b",
+      "objects": "f2ecf162e291c53a2d02d4f9763991fc54c5eb7ee28a9272e819d0ca8ccc82df",
+      "database": "a020819635e8e8277d16421b7c816669a9b3bc4a309b8d09ba097b84cf37bf01"
+    },
+    "workerStarted": false,
+    "cleanupEnabled": false
+  },
+  "external": {
+    "at": "2026-11-26T07:56:55.068Z",
+    "candidate": "fd84815dee273c0c65b4565961c8d4ffe3bfb764",
+    "publicAndLanSameCandidateHealthy": true,
+    "publicHealth": {
+      "status": "ok",
+      "database": "ready"
+    },
+    "lanHealth": {
+      "status": "ok",
+      "database": "ready"
+    },
+    "normalTls": true
+  },
+  "resources": {
+    "state": "MIGRATION_RESOURCES_MEASURED_AND_TASK_ISOLATION_STOPPED_RETAINED",
+    "at": "2026-11-26T07:59:01.044000+00:00",
+    "samples": 305,
+    "maxSamplingGapSeconds": 15.522736,
+    "minimumRootFreeBytes": 29019693056,
+    "maxTotalNetFilesystemDeltaIncludingPriorAttemptBytes": 44937805824,
+    "netDeltaScope": "two filesystem free-space deltas since first-attempt baseline; includes retained prior attempt and may include unrelated writes; 15sec samples",
+    "components": {
+      "freshIsolatedPgDataAllocatedBytes": 13799170048,
+      "newActivePgDataAllocatedBytes": 834981888,
+      "newObjectsAllocatedBytes": 18755584,
+      "freshTaskRootExcludingIsolatedPgAllocatedBytes": 4114182144,
+      "primaryFreshPairApparentBytes": 3843034087,
+      "newSourcePairApparentBytes": 72764180,
+      "freshAttemptAllocatedApproxBytes": 22610123751
+    },
+    "rootFreeBytesAfter": 29045686272,
+    "dataFreeBytesAfter": 897559973888,
+    "allTaskDatabasesAndVolumesRetained": true,
+    "originalLanBytesRestored": true,
+    "privateLoopbackPreviewRemoved": true,
+    "workerStarted": false,
+    "cleanupEnabled": false,
+    "productionTouched": false
+  },
+  "originalPairRetention": {
+    "acceptanceAt": "2026-11-26T07:57:01.673068+00:00",
+    "earliestExpiry": "2027-02-24T07:57:01.673068+00:00",
+    "days": 90,
+    "automaticDeletionAllowed": false,
+    "originalPair": "20261126T064059Z-9fd043bd"
+  },
+  "project": {
+    "number": 1,
+    "status": "Staging",
+    "issue174": "OPEN",
+    "onlyStatusFieldMutated": true
+  },
+  "humanBusinessAcceptance": "not substituted; only existing-admin read acceptance; other identities not signed in",
+  "naturalSyncOr24HourGrowth": "not performed; Worker remains explicitly held",
+  "codeChangedThisAttempt": false,
+  "remainingKnownLimitation": "one old 68-byte PNG thumbnail 503 also confirmed on old a0a9; original bytes/hash retained",
+  "oldResourcesNotDeleted": true,
+  "prMerged": false,
+  "productionTouched": false
+}

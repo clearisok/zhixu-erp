@@ -55,7 +55,7 @@ export async function importVerifiedMaterialArchive(pool:Pool,identity:Pick<Trus
    discoveryAfter:record.evidence.addition.discoveryAfter,materials:{[record.salesContractNo]:record.evidence.materials}},targets,at,600000);
   if(validated.rows.length!==1)throw new SourceError('source_missing');
   const runId=await publishMaterialSnapshotsInTransaction(c,actor,scope.sourceKey,validated,targets,
-   {historicalObservationId:record.observationId,replaceOlder:true});
+   {historicalObservationId:record.observationId,replaceOlder:true,externalArchive:true});
   // Last success belongs to the original complete capture, not this import.
   // No observation/job is manufactured and failures/active recovery remain intact.
   await c.query(`INSERT INTO ainuoke_contract_sync_state(source_key,source_id,last_success_at)

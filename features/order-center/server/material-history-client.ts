@@ -7,10 +7,11 @@ const date=(value:unknown)=>typeof value==='string'&&Number.isFinite(Date.parse(
 function invalid():never{throw new MaterialHistoryError(502,'invalid_material_history_response');}
 function record(value:unknown,orderId:string):value is MaterialHistoryRecord{
  if(!object(value)||typeof value.runId!=='string'||!uuid.test(value.runId)||value.capturedTargetOrderId!==orderId||!date(value.capturedAt)||!date(value.recordedAt)||typeof value.salesContractNo!=='string')return false;
+ if(value.recordKind!==undefined&&!['legacy','initial','change','context'].includes(String(value.recordKind)))return false;
  if(value.capturedAttributionChangeId!==null&&(typeof value.capturedAttributionChangeId!=='string'||!uuid.test(value.capturedAttributionChangeId)))return false;
  return value.identityEvidence==='recorded_context'?Number.isSafeInteger(value.capturedOrderVersion)&&Number(value.capturedOrderVersion)>0&&typeof value.capturedSourceOwnerOrderId==='string'&&uuid.test(value.capturedSourceOwnerOrderId):value.identityEvidence==='legacy_context_unavailable'&&value.capturedOrderVersion===null&&value.capturedSourceOwnerOrderId===null;
 }
-function original(value:unknown,id:string):value is Record<string,unknown>{return object(value)&&value.originalOrderId===id&&typeof value.originalOrderNo==='string'&&typeof value.currentEffectiveOrderId==='string'&&uuid.test(value.currentEffectiveOrderId);}
+function original(value:unknown,id:string):value is Record<string,unknown>{return object(value)&&value.originalOrderId===id&&typeof value.originalOrderNo==='string'&&typeof value.currentEffectiveOrderId==='string'&&uuid.test(value.currentEffectiveOrderId)&&(value.sourceHistoryStartedAt===undefined||value.sourceHistoryStartedAt===null||date(value.sourceHistoryStartedAt));}
 export function validateHistoryPage(value:unknown,id:string):MaterialHistoryPage{
  if(!original(value,id)||value.schemaVersion!=='order-material-history-list.v1'||!Array.isArray(value.items)||value.items.length>50||value.items.some(row=>!record(row,id))||new Set(value.items.map(row=>(row as MaterialHistoryRecord).runId)).size!==value.items.length||typeof value.hasMore!=='boolean')invalid();
  if(value.hasMore?value.items.length===0||value.nextCursor!==(value.items.at(-1) as MaterialHistoryRecord).runId:value.nextCursor!==null)invalid();

@@ -213,7 +213,7 @@ test('controlled offline bound-source refresh on owned disposable PG',{timeout:1
    const a=await loadExistingBootstrapActor(old,'synthetic.upgrade'),b=bindingBundle(Date.now());
    await legacy.bindOrders(old,a,{...options,expectedPreview:(await previewBindings(b)).reviewHash,collect:async()=>b});
    const tables=['app_users','app_roles','app_role_permissions','sales_orders','sales_order_source_links','ainuoke_sales_order_contract_mirrors','ainuoke_sales_order_color_mirrors','sales_order_delivery_plan_sets','sales_order_delivery_plans','operation_logs'];
-   const snapshot=async()=>Promise.all(tables.map(async table=>(await old.query(`SELECT row_to_json(x) data FROM ${table} x ORDER BY row_to_json(x)::text`)).rows));
+   const snapshot=async()=>Promise.all(tables.map(async table=>(await old.query(`SELECT to_jsonb(x)-ARRAY['source_color_content_id','source_directory_capture_id'] AS data FROM ${table} x ORDER BY to_jsonb(x)::text`)).rows));
    const before=await snapshot();assert.deepEqual((await runMigrations(old,resolve('database/migrations'))).applied,migrationFilesAfter(40));
    assert.deepEqual(await snapshot(),before);assert.equal((await old.query('SELECT count(*)::int n FROM ainuoke_order_source_refresh_receipts')).rows[0].n,0);
    assert.deepEqual((await runMigrations(old,resolve('database/migrations'))).applied,[]);

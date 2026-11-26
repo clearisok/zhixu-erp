@@ -5,11 +5,12 @@ import {hash,sourceKeyValid,SourceError} from './contract.js';
 import {SYNC_AUDIT_SOURCES} from './audit-sources.js';
 import type {RequestDiagnostic} from './sync-diagnostics.js';
 import {validateSyncPolicy} from './sync-schedule.js';
-import {loadCatalogEvidence} from './catalog-evidence.js';
+import {loadCatalogEvidence,hydrateContractEvidence,hydrateSourceDirectory} from './catalog-evidence.js';
+import {hydrateSharedPages} from './shared-content.js';
 
 type DB=Pick<Pool|PoolClient,'query'>;
 type Page={reportId:string;fetchedAt:string;page:number;total:number;queryContext:Record<string,unknown>;rows:{values:Record<string,unknown>}[]};
-type Context={id:string;sourceKey:string};
+type Context={id:string;sourceKey:string;automatic?:boolean};
 const context=new AsyncLocalStorage<Context>();
 export const currentSyncAudit=()=>context.getStore();
 /** Public operations must pin caller-owned input BEFORE the audit's first
@@ -69,12 +70,18 @@ export function auditRecordSet(pages:readonly Page[]){
  * Absence of a readable prior baseline is not evidence that every row is new. */
 export async function catalogAuditRecordSet(db:DB,sourceKey:string,run:{capture_evidence_id:string|null;account_fingerprint:string;discovery:unknown}){
  if(!/^[a-f0-9]{64}$/.test(run.account_fingerprint??''))throw new SourceError('catalog_audit_baseline_unavailable');
- const input=run.capture_evidence_id?await loadCatalogEvidence(db,sourceKey,run.capture_evidence_id,run.account_fingerprint):run.discovery;
+ const marker=Array.isArray(run.discovery)?run.discovery[0]:null;
+ const input=marker?.schemaVersion==='ainuoke-shared-directory.v1'?await hydrateSourceDirectory(db,sourceKey,run.discovery as unknown[]):run.capture_evidence_id?await loadCatalogEvidence(db,sourceKey,run.capture_evidence_id,run.account_fingerprint):run.discovery;
  const pages=auditPages(input);
  if(!pages.length||pages.some(p=>p.reportId!=='6086103'))throw new SourceError('catalog_audit_baseline_unavailable');
  return auditRecordSet(pages);
 }
-export async function withSyncAudit<T>(pool:Pool,scope:{id?:string;sourceKey:string;type:string;contracts?:string[];jobIds?:string[];retries?:number;historical?:boolean;frequencies?:string[];reports?:string[]},fn:()=>Promise<T>):Promise<T>{
+/** Capture evidence and upstream attempt IDs remain distinct ledger namespaces. */
+export async function auditDirectoryEvidence(db:DB,captureId:string){
+ const owner=context.getStore();if(!owner)return;
+ await db.query('UPDATE ainuoke_sync_audit_batches SET directory_evidence_ids=array_append(directory_evidence_ids,$2::uuid) WHERE id=$1 AND NOT $2::uuid=ANY(directory_evidence_ids)',[owner.id,captureId]);
+}
+export async function withSyncAudit<T>(pool:Pool,scope:{id?:string;sourceKey:string;type:string;automatic?:boolean;contracts?:string[];jobIds?:string[];retries?:number;historical?:boolean;frequencies?:string[];reports?:string[]},fn:()=>Promise<T>):Promise<T>{
  if(!sourceKeyValid(scope.sourceKey))throw new SourceError('invalid_source_configuration');
  if(context.getStore()?.sourceKey===scope.sourceKey)return fn();
  // Never spend a source request when its durable ledger is unavailable.
@@ -93,7 +100,7 @@ export async function withSyncAudit<T>(pool:Pool,scope:{id?:string;sourceKey:str
   await pool.query(`INSERT INTO ainuoke_sync_audit_tables(batch_id,report_id,source_name,target_tables,api_requests,page_count,cursor_info)
    VALUES($1,$2,$3,$4,0,0,'{"planned":true,"complete":false}')`,[id,report,definition?.name??'未登记报表 '+report,definition?.targets??[]]);
  }
- return context.run({id,sourceKey:scope.sourceKey},async()=>{
+ return context.run({id,sourceKey:scope.sourceKey,automatic:scope.automatic===true},async()=>{
   try{const result=await fn();const replay=result&&typeof result==='object'&&(('replayed' in result&&result.replayed===true)||('status' in result&&result.status==='existing_head_preserved'));await finishBatch(pool,id,undefined,Boolean(replay));return result;}
   catch(e){await pool.query(`UPDATE ainuoke_sync_audit_tables SET status='failed',error_code=coalesce(error_code,$2),failed_count=fetched_count
    WHERE batch_id=$1 AND status IN ('reading','acquired')`,[id,safeCode(e)]);
@@ -234,7 +241,7 @@ export async function auditPublished(db:DB,sourceKey:string,publication:string|s
   if(!old.size&&definition?.targets.includes('ainuoke_material_source_snapshots')){
    const prior=(await db.query(`SELECT s.snapshots FROM ainuoke_material_source_snapshots s JOIN ainuoke_source_runs r ON r.id=s.run_id
     WHERE r.source_key=$1 AND s.sales_contract_no=$2 AND s.run_id::text<>$3 ORDER BY r.captured_at DESC LIMIT 1`,[sourceKey,contract,publicationId])).rows[0];
-   if(prior){const baseline=auditRecordSet(auditPages(prior.snapshots).filter(p=>String(p.reportId)===reportId));if(!baseline.ambiguous)old=baseline.records;}
+   if(prior){const baseline=auditRecordSet(auditPages(await hydrateSharedPages(db,sourceKey,prior.snapshots,{contract,kind:'materials'})).filter(p=>String(p.reportId)===reportId));if(!baseline.ambiguous)old=baseline.records;}
   }
   if(!old.size&&reportId==='6086103'){
    const prior=(await db.query(`SELECT r.capture_evidence_id,r.account_fingerprint,r.discovery
@@ -244,10 +251,10 @@ export async function auditPublished(db:DB,sourceKey:string,publication:string|s
    catch(error){if(error instanceof SourceError){ambiguous=true;metricsError='comparison_baseline_unavailable';}else throw error;}
   }
   if(!old.size&&['6086997','6087105'].includes(reportId)&&contract){
-   const prior=(await db.query(`SELECT o.evidence->'colors'->$2 AS pages FROM ainuoke_contract_observations o
-    JOIN ainuoke_catalog_entries e USING(source_key,source_id) WHERE o.source_key=$1 AND e.sales_contract_no=$2 AND o.id::text<>$3
+   const prior=(await db.query(`SELECT o.*,p.account_fingerprint FROM ainuoke_contract_observations o
+    JOIN ainuoke_catalog_entries e USING(source_key,source_id) JOIN ainuoke_source_profiles p USING(source_key) WHERE o.source_key=$1 AND e.sales_contract_no=$2 AND o.id::text<>$3
     ORDER BY o.captured_at DESC LIMIT 1`,[sourceKey,contract,publicationId])).rows[0];
-   if(prior){const baseline=auditRecordSet(auditPages(prior.pages));if(!baseline.ambiguous)old=baseline.records;}
+   if(prior){const baseline=auditRecordSet(auditPages((await hydrateContractEvidence(db,prior)).addition.colors[contract]));if(!baseline.ambiguous)old=baseline.records;}
   }
   let inserted=0,updated=0,unchanged=0;
   if(!ambiguous)for(const [key,content]of records){if(replayed)unchanged++;else if(!old.has(key))inserted++;else if(old.get(key)===content)unchanged++;else updated++;}
@@ -265,7 +272,8 @@ export async function auditPublished(db:DB,sourceKey:string,publication:string|s
      ...(creation.length?{sourceCreationEvidence:{field:definition!.createdField,examples:creation.slice(0,5),moreValues:creation.length>5,timezone:'not_inferred'}}:{})})]);
   if(!ambiguous&&records.size)await db.query(`INSERT INTO ainuoke_sync_audit_record_state(source_key,report_id,scope_key,record_key,content_hash,batch_id)
    SELECT $1,$2,$3,r.key,r.content,$4 FROM jsonb_to_recordset($5::jsonb) AS r(key text,content text)
-   ON CONFLICT(source_key,report_id,scope_key,record_key) DO UPDATE SET content_hash=excluded.content_hash,batch_id=excluded.batch_id`,
+   ON CONFLICT(source_key,report_id,scope_key,record_key) DO UPDATE SET content_hash=excluded.content_hash,batch_id=excluded.batch_id
+   WHERE ainuoke_sync_audit_record_state.content_hash IS DISTINCT FROM excluded.content_hash`,
    [sourceKey,reportId,scope,ctx.id,JSON.stringify([...records].map(([key,content])=>({key,content})))]);
  }
 }

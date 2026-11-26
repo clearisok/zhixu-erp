@@ -52,3 +52,7 @@
 `backup-check` / `backup --reason <review-reference>` 原受锁路径新增窄入口：只在STOPPED_FAULT或RECOVERY_BLOCKED、原fault为worker_stopped_requires_review且显式审核理由3–300字符、旧owner已PAUSED、当前没有Worker owner时，复用原发布身份/policy/executor pins/镜像/隔离网和全新DB-only健康检查，DB/migration/无running或unknown/无worker lease全部正向满足才允许取得新配对备份。源pause可以保留以备份现场；这不是恢复授权、不清DB pause，不放行Recovery Gate。RECOVERY_FAILED、未知fault、管理员停用的监管配置、其他owner或任一未知前置仍拒绝；原backup fault流程保持。
 
 执行器只在原commandsCertain/groupsExited/servicesResumed均true时，为Docker短暂healthcheck exec最多3次、间隔0.5秒取得新的精确服务Id/image/ExecIDs空证明，记录采样次数和时刻。持续/无法确定exec、身份不匹配、超时或未知后代仍cleanup=false。不得改写旧cleanup=false、伪造terminal receipt或将应用部署独立复核证据替代Worker门禁要求。后续仍须匹配版本新备份、完整来源证据、准确previewHash的管理员恢复、全部Gate及真实新heartbeat。
+
+## 2026-11-26 Issue174稳定性验收授权与持久采集修复
+
+用户已明确授权原门禁后恢复Staging Worker、自然两轮和24小时观察，自动清理仍关闭。首轮自然运行及暂停、最小修复和异机恢复见[实际检查点](../tasks/active/issue174-stability-20261126.md)。持久子进程的每次采集回调绑定调用方AsyncResource上下文，避免后续任务证据写入首任务审计批次；原证据持久化、来源校验、未知结果和恢复门禁均保留。

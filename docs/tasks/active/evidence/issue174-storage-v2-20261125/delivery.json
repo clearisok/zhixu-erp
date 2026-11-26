@@ -1,0 +1,521 @@
+{
+  "date": "2026-11-25",
+  "phaseBaseline": {
+    "branch": "feat/issue174-storage-v2",
+    "head": "747fda5620eb805a64a1cdb7f2f6be6be96718d1",
+    "trackedAndUntrackedClean": true
+  },
+  "codeCandidate": "6d7dbc9c089f9dfa6c0ac72aa3edbd37aa13da85",
+  "main": "10b9a7d827e1c09f152ead58c21f26712d49a619",
+  "preservation": [
+    {
+      "label": "PR172",
+      "sha": "a0a9c78c6cccbadf5e635dbb60169f7f87944644",
+      "ancestor": true,
+      "exactProductPaths": 51,
+      "mismatches": []
+    },
+    {
+      "label": "PR173",
+      "sha": "da1c2653ae6c53a1527bcee60dbdec734cc36553",
+      "ancestor": true,
+      "exactProductPaths": 3,
+      "mismatches": []
+    },
+    {
+      "label": "Issue174",
+      "sha": "747fda5620eb805a64a1cdb7f2f6be6be96718d1",
+      "ancestor": true,
+      "exactProductPaths": 56,
+      "mismatches": []
+    }
+  ],
+  "agentsExactToPR172": true,
+  "tests": [
+    {
+      "name": "releaseBaseline",
+      "commandLog": "delivery-release-baseline.log",
+      "sha256": "c718e8d36597d2bddbbf35e8b8ec552717b0b748a738b4c13ba13c911527685f",
+      "state": "PASS",
+      "tests": 182
+    },
+    {
+      "name": "typecheck",
+      "commandLog": "delivery-typecheck.log",
+      "sha256": "302304dae6dfa71f31211837c732c0510177504fe6b5063786b269c5e1fef2ec",
+      "state": "PASS"
+    },
+    {
+      "name": "lint",
+      "commandLog": "delivery-lint.log",
+      "sha256": "f7b7d1c6adf3a6f68f34e7de6f6d3a6678f9c082be02e899f1277813cdad64e1",
+      "state": "PASS"
+    },
+    {
+      "name": "serverBuild",
+      "commandLog": "delivery-server-build.log",
+      "sha256": "4324ba56164805a6cbd3c41d72a1220800e818f501a6eda045e3ab1cd638c0d0",
+      "state": "PASS"
+    },
+    {
+      "name": "frontendServerBuild",
+      "commandLog": "delivery-build-corrected.log",
+      "sha256": "430d5b6dd24627381f954ef6f8f2807511babe99deaa3814b69ffb4be9873227",
+      "state": "PASS"
+    },
+    {
+      "name": "preservedUISourceTests",
+      "commandLog": "delivery-ui-source-tests.log",
+      "sha256": "8a67fb1229f6018c3facfa9405604ad47e7f3e0d900e03287e6fc8dd165f6d32",
+      "state": "PASS",
+      "tests": 44
+    },
+    {
+      "name": "pairedBackup",
+      "commandLog": "delivery-backup-tests.log",
+      "sha256": "4a640aec56b1f4aa60518fd7e1bed97ff0729f899b4ec0ee331391b3ac1930d9",
+      "state": "PASS",
+      "tests": 11,
+      "passed": 10,
+      "skipped": 1,
+      "limitation": "Windows POSIX test skipped; exact PR173 Linux proof retained, not rerun here"
+    },
+    {
+      "name": "historyAndCanonicalContent",
+      "commandLog": "delivery-history-storage-tests.log",
+      "sha256": "3d989d83853eca0993cb43ce9f4a54434bf91c330dd488ecafc491ac6e6874e2",
+      "state": "PASS",
+      "tests": 11
+    },
+    {
+      "name": "releaseBaselineGuard",
+      "commandLog": "delivery-guard-corrected.log",
+      "sha256": "7e549b7beb7919476a00e8c0c3570b473072077129a95cfc162d351065f24194",
+      "state": "PASS",
+      "checkedHead": "6d7dbc9c089f9dfa6c0ac72aa3edbd37aa13da85",
+      "changedUiFiles": 40,
+      "errors": []
+    }
+  ],
+  "knownFailedAttempt": {
+    "command": "node node_modules/vinext/dist/cli/index.js build",
+    "result": "MODULE_NOT_FOUND; incorrect tool path, no product code executed",
+    "correctedCommand": "node node_modules/vinext/dist/cli.js build",
+    "log": "delivery-build.log"
+  },
+  "network": {
+    "configuredProxyPath": [
+      "default uncertain_transport",
+      "HTTP/1.1 uncertain_transport",
+      "OpenSSL HTTP/1.1 uncertain_transport"
+    ],
+    "processOnlyBlankProxy": {
+      "systemGit": "ls-remote PASS",
+      "bundledGit": "ls-remote PASS",
+      "fetch": "PASS"
+    },
+    "persistentConfigurationChanged": false,
+    "tlsVerificationDisabled": false,
+    "credentialsChanged": false,
+    "rootCause": "Configured proxy path fails while direct process-only path works; proxy internal cause unresolved",
+    "documentBranch": {
+      "sha": "dee3d6800d718d67ac91494ec56c76b89ef11caf",
+      "state": "DELIVERED_VERIFIED",
+      "pushes": 1,
+      "pr": "https://github.com/clearisok/zhixu-erp/pull/175",
+      "ci": "Release baseline / First team access / Ainuoke server source all SUCCESS"
+    }
+  },
+  "runtimeActions": {
+    "stagingCutover": false,
+    "cleanupEnabled": false,
+    "workerResumed": false,
+    "productionAccess": false,
+    "originalRehearsalContainersRestarted": false,
+    "automaticPRMerge": false
+  },
+  "phase3": {
+    "estimatedDowntime": "about 3 hours; reserve 3.5 hours including new-source backup/buffer",
+    "exactLiveTargetsAndDisk": "must be filled by bounded read-only preflight before execution approval",
+    "plan": "docs/tasks/active/issue174-staging-phase3-ready.md"
+  },
+  "knownGuardFailure": {
+    "log": "delivery-guard.log",
+    "codes": [
+      "EVIDENCE_WORKTREE_DRIFT"
+    ],
+    "evidence": [
+      "issue174-v2-implementation-decisions-20261125",
+      "issue174-v2-storage-contract-20261125"
+    ],
+    "reason": "This delivery phase appended an update to two frozen documents. Own additions removed; exact frozen blobs and manifest hashes unchanged. New phase3 content lives in a separate runbook.",
+    "correctedResult": "PASS"
+  },
+  "finalInitialHead": {
+    "sha": "04e74cfbbaf54fa29b0843bfd8525f007fc44312",
+    "remote": "DELIVERED_VERIFIED",
+    "pr": "https://github.com/clearisok/zhixu-erp/pull/176",
+    "guard": {
+      "status": "PASS",
+      "log": "delivery-final-head-guard.log",
+      "sha256": "754770474570b3c87f97e75831664a6b35e279a4d9641cad999c99aa4e96b245",
+      "changedUiFiles": 40
+    }
+  },
+  "compatibilityGate": {
+    "baseline": "04e74cfbbaf54fa29b0843bfd8525f007fc44312",
+    "baselineClean": true,
+    "trigger": {
+      "run": "https://github.com/clearisok/zhixu-erp/actions/runs/45644446792",
+      "state": "failure",
+      "cause": "Complete no-bound-contract discovery rolled back; subsequent immutable-read assertion received 404"
+    },
+    "scope": [
+      "server/ainuoke-source/shared-publication.ts",
+      "server/integration/ainuoke-server-source.integration.test.ts"
+    ],
+    "behavior": "Retain one fully validated absent context with no material snapshot. Reuse exact scoped absent state across new capture timestamps. Restore material reads on reappearance. Original immutable/permissions/rollback assertions retained.",
+    "schemaChanges": false,
+    "tests": [
+      {
+        "name": "source",
+        "state": "PASS",
+        "file": "ci-compat-source-verified.log",
+        "sha256": "375f90098f2e07cb1d647e1b6c26cd6e0afbdccaaf56dfbd8324be17df3ebd78",
+        "passed": 20,
+        "skipped": 1
+      },
+      {
+        "name": "storageCatalogDeleted",
+        "state": "PASS",
+        "file": "ci-compat-storage-context.log",
+        "sha256": "7b5d7556ef6ac51d520428a8bdbbcafbfee9622c1c4cf78580af00ac5715c1e1",
+        "passed": 19,
+        "skipped": 0
+      },
+      {
+        "name": "serverBuild",
+        "state": "PASS",
+        "file": "ci-compat-server-build-corrected.log",
+        "sha256": "4324ba56164805a6cbd3c41d72a1220800e818f501a6eda045e3ab1cd638c0d0"
+      },
+      {
+        "name": "typecheck",
+        "state": "PASS",
+        "file": "ci-compat-typecheck.log",
+        "sha256": "302304dae6dfa71f31211837c732c0510177504fe6b5063786b269c5e1fef2ec"
+      },
+      {
+        "name": "lint",
+        "state": "PASS",
+        "file": "ci-compat-lint.log",
+        "sha256": "f7b7d1c6adf3a6f68f34e7de6f6d3a6678f9c082be02e899f1277813cdad64e1"
+      }
+    ],
+    "pr172And173Preserved": true,
+    "latestCandidate": "PR176 exact HEAD; see Issue174 delivery receipt after this checkpoint",
+    "unchangedEvidence": "All migration, selection, conversion, UI, guard and lockfile inputs unchanged; reuse accepted rehearsal/performance and full release regression, final CI reruns its own guards."
+  },
+  "closingFixtureGate": {
+    "baseline": "cfe09fddaa25bad80f36ad9cf544cdc8f38a2b96",
+    "baselineClean": true,
+    "trigger": "https://github.com/clearisok/zhixu-erp/actions/runs/45646483744",
+    "observed": "Closing backend 212 pass / 1 failure before nested closing-command assertions could start. Only operation_logs JSON row digests differed because 0066 adds two null fields.",
+    "change": "Original columns all compared exactly as before, excluding only the two newly added nullable evidence fields; added explicit assertion that every old operation has both new fields NULL. No production or SQL changes.",
+    "tests": [
+      {
+        "name": "closingUpgrade",
+        "state": "PASS",
+        "file": "ci-closing-upgrade-verified.log",
+        "sha256": "f05a75d001b080610cc8a8f177ab741930f2db4d1f0272fc1e58fbc2ad8ab9d5",
+        "passed": 14
+      },
+      {
+        "name": "focusedLint",
+        "state": "PASS",
+        "file": "ci-closing-fixture-lint.log",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ],
+    "guardInputsUnchanged": true,
+    "pr172And173ProductBlobsUnchanged": true
+  },
+  "finalDeliveryObservation": {
+    "at": "2026-11-26T00:00:45+08:00",
+    "candidate": "3ef5d004e76cd850b453439c376b8246f8e976b8",
+    "branchRemoteExact": true,
+    "gitReadAndRestRefAgree": true,
+    "pr": "https://github.com/clearisok/zhixu-erp/pull/176",
+    "prReportedHead": "cfe09fddaa25bad80f36ad9cf544cdc8f38a2b96",
+    "workflowRunsFor3ef": 0,
+    "manualExistingSourceDispatch": {
+      "attempts": 1,
+      "httpStatus": 500,
+      "createdRunNotObserved": true
+    },
+    "localGuard": {
+      "state": "PASS",
+      "sha": "3ef5d004e76cd850b453439c376b8246f8e976b8",
+      "uiPaths": 40,
+      "logSha256": "f688d8bfa4773fce2ab57706e93ea60d1bf19202ad1dea95022cf3b84e3657bc"
+    },
+    "network": {
+      "schannelDirect3ef": "one uncertain_transport; independently still cfe, not repeated",
+      "opensslDirectHTTP11": "read contrast passed, one safety-tool push DELIVERED_VERIFIED, independently git-read and REST-ref exact3ef",
+      "persistentConfigurationChanged": false,
+      "credentialsChanged": false,
+      "tlsVerificationDisabled": false,
+      "rootCause": "unresolved; no permanent recovery claim"
+    },
+    "readiness": "Latest PR/CI indexing inconsistent. Not authorized or ready for actual Staging cutover; no close/reopen/duplicate PR/force push to work around it."
+  },
+  "remainingBackendGate": {
+    "baseline": "343f6ef360145e466d4c51fe520bf2cfecfec88d",
+    "reason": "Source CI45650554572 found another old upgrade fixture comparing newly added columns as if they existed before. Local remainder also found old duplicate-version expectations and one raw snapshot parser.",
+    "productionChanges": false,
+    "sqlChanges": false,
+    "testFiles": [
+      "server/integration/effective-attribution-write-guards.integration.test.ts",
+      "server/integration/ainuoke-selected-binding.integration.test.ts",
+      "server/integration/material-confirmations.integration.test.ts"
+    ],
+    "assertions": "Every old field retained; new v2 defaults independently asserted NULL/legacy; two unchanged captures now assert one run/snapshot/body; unrelated absence adds no material version; real shared-page hydration precedes old confirmation checks. Original RBAC/corruption/order-isolation/readonly/stale-confirmation checks retained.",
+    "checks": [
+      {
+        "name": "test-order-effective-attribution",
+        "file": "remaining-ci-test-order-effective-attribution.log",
+        "sha256": "8341c2658ecd668d66c4b662518fecd2a9f2f20e01ce4303acb378055b400703",
+        "tests": 45,
+        "pass": 45,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "name": "test-order-normalization-execution",
+        "file": "remaining-ci-test-order-normalization-execution.log",
+        "sha256": "64cd19c3ffbf0491833a21d21ed56e0ba7660bacd802cf857f50d8163806bf4d",
+        "tests": 34,
+        "pass": 34,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "name": "test-order-command-control",
+        "file": "remaining-ci-test-order-command-control.log",
+        "sha256": "a71aaa67f7b435886aed64972589f8400fcbd7dc1d890c788fe29a4c4110f529",
+        "tests": 18,
+        "pass": 18,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "name": "test-material-history",
+        "file": "remaining-ci-test-material-history.log",
+        "sha256": "b8493c26bd7eb6ad6fc0954e7eb719a2a866bea36cc07141b802ee2738861170",
+        "tests": 17,
+        "pass": 17,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "name": "test-material-history-client",
+        "file": "remaining-ci-test-material-history-client.log",
+        "sha256": "f43651b02fdff62b921d61994b3b706a6c5b62411a21d249e005ab895f70808c",
+        "tests": 6,
+        "pass": 6,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "name": "test-normalization-review-workspace",
+        "file": "remaining-ci-test-normalization-review-workspace.log",
+        "sha256": "5013444d127aa1adb565aa1a33c0b64fc1655f5a9d7d4ad761fe431f2b06895d",
+        "tests": 21,
+        "pass": 21,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "name": "test-normalization-review-client",
+        "file": "remaining-ci-test-normalization-review-client.log",
+        "sha256": "0a45dd5571b241480d890a7efd28ee32a8dc9a50905664689143abd63ec5a823",
+        "tests": 4,
+        "pass": 4,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "name": "test-order-preparation-adoption",
+        "file": "remaining-ci-test-order-preparation-adoption.log",
+        "sha256": "079310531f9bc31637b43c365475f40c326f05d41f10c0c6ef6ff6cee095da12",
+        "tests": 23,
+        "pass": 23,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "name": "test-order-preparation-client",
+        "file": "remaining-ci-test-order-preparation-client.log",
+        "sha256": "ea272d325967103e6e1bbff0397740402ace331bb578efd6c6f7e5e5bcbdb04c",
+        "tests": 10,
+        "pass": 10,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "name": "test-postgres",
+        "file": "remaining-ci-test-postgres.log",
+        "sha256": "b70d1f8d6cc456765cb16d873f97124910fc740b191071b8816eb1fde1f4358b",
+        "tests": 270,
+        "pass": 270,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "name": "test-ainuoke-continuous-corrected",
+        "file": "remaining-ci-test-ainuoke-continuous-corrected.log",
+        "sha256": "7dd95bc09d7c0c9d85d29cb7e9eb6c30730ae1b199e996537ff30075299b0d64",
+        "tests": 81,
+        "pass": 80,
+        "fail": 0,
+        "skipped": 1,
+        "state": "PASS"
+      },
+      {
+        "name": "test-ainuoke-catalog",
+        "file": "remaining-ci-test-ainuoke-catalog.log",
+        "sha256": "76182b9a406cde9ddee4030a1e77dd40241f4b82d8b62188f8754d3afb99f7a0",
+        "tests": 106,
+        "pass": 106,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "name": "test-source-deleted",
+        "file": "remaining-ci-test-source-deleted.log",
+        "sha256": "f5919a657e2ca9fc5bc5de015454c380d71cbc1964d4741877b690d55119af7e",
+        "tests": 10,
+        "pass": 10,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "name": "test-ainuoke-readiness",
+        "file": "remaining-ci-test-ainuoke-readiness.log",
+        "sha256": "27d4e3d350e3a3fcc40b2a3afea6110b0637f35cd41fdc7f8acc9b4411e20ad7",
+        "tests": 10,
+        "pass": 9,
+        "fail": 0,
+        "skipped": 1,
+        "state": "PASS"
+      },
+      {
+        "name": "test-ainuoke-readonly-audit",
+        "file": "remaining-ci-test-ainuoke-readonly-audit.log",
+        "sha256": "114c6a3c0f9d7dd1379afa98c2d4d423f63e09f27539f7917294a31bcf28c19f",
+        "tests": 8,
+        "pass": 8,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "name": "test-ainuoke-targeted-diagnostic",
+        "file": "remaining-ci-test-ainuoke-targeted-diagnostic.log",
+        "sha256": "6a99da7b46b37a2f214ff9edcec8e57f3fd75eb0954b138a4dded693180d7259",
+        "tests": 5,
+        "pass": 5,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "name": "test-ainuoke-live-preflight",
+        "file": "remaining-ci-test-ainuoke-live-preflight.log",
+        "sha256": "ecc69bb5c21dea0588bdd9bf0bd26d3fa0580e9fdc9ca27eb91a5763d2c3a32a",
+        "tests": 24,
+        "pass": 24,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "name": "explicit-source-groups",
+        "file": "remaining-ci-explicit-source-groups.log",
+        "sha256": "09e6aaf612f82d28c487f32a46e37f90c940cae1d0d6c3bf29c0a821c3f47fa4",
+        "tests": 49,
+        "pass": 49,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      }
+    ],
+    "typecheck": "ci-final-fixtures-typecheck.log PASS",
+    "lint": "ci-final-fixtures-lint.log and ci-legacy-fixtures-lint.log PASS",
+    "protectedHeadsRechecked": {
+      "main": "10b9a7d827e1c09f152ead58c21f26712d49a619",
+      "pr172": "a0a9c78c6cccbadf5e635dbb60169f7f87944644",
+      "pr173": "da1c2653ae6c53a1527bcee60dbdec734cc36553"
+    },
+    "oldFailedLogsRetained": [
+      "remaining-ci-test-ainuoke-continuous.log"
+    ],
+    "latestCandidate": "PR176 exact HEAD, frozen by this checkpoint; final delivery/CI receipt in Issue174"
+  },
+  "selectedContractVersionFixtureGate": {
+    "baseline": "600c4d0289c0530e4129a4c9ea04c2e64db8cc2d",
+    "trigger": "https://github.com/clearisok/zhixu-erp/actions/runs/45657556080",
+    "change": "Only two assertions in existing selected-source-once test: two contracts have two accepted versions; rejected scope must retain those exact two. Keep snapshot count2, scope/malformed/order-version/reader and unrelated-domain assertions. No production, SQL or workflow changes.",
+    "checks": [
+      {
+        "file": "ci-selected-once-verified.log",
+        "sha256": "add9b943c8684624396873e0ca9d894edca7871bd2f345672e89c336423ab6bc",
+        "tests": 17,
+        "pass": 17,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "file": "ci-remainder-fresh-start.log",
+        "sha256": "8c45ed713ceade9b7a2bd624f6b622c0cd30b21f9866c17fa02c7e2620a9c100",
+        "tests": 7,
+        "pass": 7,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "file": "ci-remainder-quality-boundaries.log",
+        "sha256": "fd4041c806ce84ab9fd76b6c6589f7a511a2e0348c363f25fcabb38d2ea01fd1",
+        "tests": 84,
+        "pass": 84,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      },
+      {
+        "file": "ci-remainder-quality-facts.log",
+        "sha256": "8f7e5dce03fa69f0b5ec2f1c24357f0743356fc65fda4d93d61838323b849d87",
+        "tests": 33,
+        "pass": 33,
+        "fail": 0,
+        "skipped": 0,
+        "state": "PASS"
+      }
+    ],
+    "lint": "ci-selected-once-lint.log PASS"
+  }
+}

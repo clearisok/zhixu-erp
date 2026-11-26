@@ -48,7 +48,7 @@ export function QuoteExportModal({
     </>}
   >
     <div className="qc-quote-export-form">
-      {serverMode && <p>内置正式模板 · 导出已保存 Server 来源；不会读取 Browser 自定义模板。</p>}
+      {serverMode && <p>内置正式模板</p>}
       <div className="qc-export-revision"><span>报价版本</span><strong>{revisionLabel}</strong></div>
       <fieldset disabled={loading}>
         <legend>导出范围</legend>

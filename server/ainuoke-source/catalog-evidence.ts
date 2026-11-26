@@ -1,31 +1,50 @@
-import { randomUUID } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import type { Pool, PoolClient } from 'pg';
 import type { AdditionBundle, AdditionDiscoveryBundle } from './additions.js';
-import { hash, SourceError, type SourceBundle } from './contract.js';
+import { canonical, hash, sourceIdText,SourceError, type SourceBundle } from './contract.js';
+import { hydrateSharedPages } from './shared-content.js';
 
 type Database = Pick<Pool | PoolClient, 'query'>;
 type PackedPage = { metadata: Record<string, unknown>; rowsHash: string };
 type PackedDirectory = { schemaVersion: 'ainuoke-packed-directory.v1'; discoveryBefore: PackedPage[]; discoveryAfter: PackedPage[] };
 
+/** One bounded set per capture; hash hits still compare the complete canonical body. */
+async function persistDirectoryRows(c:Database,sourceKey:string,pages:AdditionDiscoveryBundle['discoveryAfter']){
+ const unique=new Map<string,{rows:unknown[];encoded:string}>(),packed:PackedPage[]=[];
+ for(const page of pages){
+  const {rows,...metadata}=page,encoded=canonical(rows),rowsHash=createHash('sha256').update(encoded).digest('hex'),prior=unique.get(rowsHash);
+  if(prior&&prior.encoded!==encoded)throw new SourceError('catalog_evidence_hash_collision');
+  unique.set(rowsHash,{rows,encoded});packed.push({metadata,rowsHash});
+ }
+ if(unique.size){
+  const expected=[...unique].map(([content_hash,{rows}])=>({content_hash,rows})),serialized=JSON.stringify(expected);
+  const read=()=>c.query(`SELECT e.content_hash,(q.rows=e.rows) AS body_equal
+   FROM jsonb_to_recordset($2::jsonb) AS e(content_hash text,rows jsonb)
+   JOIN ainuoke_catalog_evidence_chunks q ON q.source_key=$1 AND q.content_hash=e.content_hash`,[sourceKey,serialized]);
+  let stored=(await read()).rows;
+  if(stored.some(r=>r.body_equal!==true))throw new SourceError('catalog_evidence_hash_collision');
+  if(stored.length!==unique.size){
+   const found=new Set(stored.map(r=>r.content_hash)),missing=expected.filter(r=>!found.has(r.content_hash));
+   await c.query(`INSERT INTO ainuoke_catalog_evidence_chunks(source_key,content_hash,rows)
+    SELECT $1,r.content_hash,r.rows FROM jsonb_to_recordset($2::jsonb) AS r(content_hash text,rows jsonb) ON CONFLICT DO NOTHING`,[sourceKey,JSON.stringify(missing)]);
+   stored=(await read()).rows;
+   if(stored.length!==unique.size||stored.some(r=>r.body_equal!==true))throw new SourceError('catalog_evidence_hash_collision');
+  }
+ }
+ return packed;
+}
+
 /** Called inside the publication transaction. No old rows are rewritten. */
 export async function saveCatalogEvidence(c: Database, sourceKey: string, fingerprint: string, bundle: AdditionDiscoveryBundle) {
- const pack = async (pages: AdditionDiscoveryBundle['discoveryAfter']) => {
-  const result: PackedPage[] = [];
-  for (const page of pages) {
-   const { rows, ...metadata } = page, rowsHash = hash(rows);
-   await c.query(`INSERT INTO ainuoke_catalog_evidence_chunks(source_key,content_hash,rows) VALUES($1,$2,$3::jsonb)
-    ON CONFLICT DO NOTHING`, [sourceKey, rowsHash, JSON.stringify(rows)]);
-   result.push({ metadata, rowsHash });
-  }
-  return result;
- };
+ const packed=await persistDirectoryRows(c,sourceKey,[...bundle.discoveryBefore,...bundle.discoveryAfter]);
  const directory: PackedDirectory = { schemaVersion: 'ainuoke-packed-directory.v1',
-  discoveryBefore: await pack(bundle.discoveryBefore), discoveryAfter: await pack(bundle.discoveryAfter) };
+  discoveryBefore: packed.slice(0,bundle.discoveryBefore.length), discoveryAfter: packed.slice(bundle.discoveryBefore.length) };
  const digest = hash(directory), id = randomUUID();
  const row = (await c.query(`INSERT INTO ainuoke_catalog_capture_evidence(id,source_key,account_fingerprint,content_hash,directory)
   VALUES($1,$2,$3,$4,$5::jsonb) ON CONFLICT DO NOTHING RETURNING id::text`, [id,sourceKey,fingerprint,digest,JSON.stringify(directory)])).rows[0]
-  ?? (await c.query('SELECT id::text,account_fingerprint FROM ainuoke_catalog_capture_evidence WHERE source_key=$1 AND content_hash=$2', [sourceKey,digest])).rows[0];
+  ?? (await c.query('SELECT id::text,account_fingerprint,directory FROM ainuoke_catalog_capture_evidence WHERE source_key=$1 AND content_hash=$2', [sourceKey,digest])).rows[0];
  if (!row || row.account_fingerprint && row.account_fingerprint !== fingerprint) throw new SourceError('catalog_evidence_identity_changed');
+ if(row.directory&&canonical(row.directory)!==canonical(directory))throw new SourceError('catalog_evidence_hash_collision');
  return row.id as string;
 }
 
@@ -52,7 +71,76 @@ export async function hydrateContractEvidence(c: Database, row: {
 }) {
  if (hash(row.evidence) !== row.content_hash) throw new SourceError('catalog_evidence_invalid');
  if (!row.capture_evidence_id) return row.evidence as unknown as { addition: AdditionBundle; materials: SourceBundle['materials'][string] };
- if (row.evidence.schemaVersion !== 'ainuoke-contract-observation.v2' || row.evidence.captureId !== row.capture_evidence_id) throw new SourceError('catalog_evidence_invalid');
+ if (!['ainuoke-contract-observation.v2','ainuoke-contract-observation.v3'].includes(String(row.evidence.schemaVersion)) || row.evidence.captureId !== row.capture_evidence_id) throw new SourceError('catalog_evidence_invalid');
  const directory = await loadCatalogEvidence(c,row.source_key,row.capture_evidence_id,row.account_fingerprint);
+ if(row.evidence.schemaVersion==='ainuoke-contract-observation.v3') {
+  const contract=String(row.evidence.contract),sourceId=String(row.evidence.sourceId);
+  const colors=await hydrateSharedPages(c,row.source_key,[row.evidence.colors],{accountFingerprint:row.account_fingerprint,sourceId,contract,kind:'colors'});
+  const materials=await hydrateSharedPages(c,row.source_key,[row.evidence.materials],{accountFingerprint:row.account_fingerprint,sourceId,contract,kind:'materials'});
+  const result={addition:{...directory,schemaVersion:'ainuoke-order-addition.v1',colors:{[contract]:colors}} as unknown as AdditionBundle,materials};
+  const proof=row.evidence.legacyProof as {format:string;contentHash:string}|undefined;
+  if(proof){
+   const original=proof.format==='v2'?{schemaVersion:'ainuoke-contract-observation.v2',captureId:row.capture_evidence_id,colors:{[contract]:colors},materials}:proof.format==='inline'?result:null;
+   if(!original||hash(original)!==proof.contentHash)throw new SourceError('catalog_legacy_proof_invalid');
+  }
+  return result;
+ }
  return { addition:{ ...directory,schemaVersion:'ainuoke-order-addition.v1',colors:row.evidence.colors } as AdditionBundle, materials:row.evidence.materials as SourceBundle['materials'][string] };
+}
+
+export async function hydrateSourceDirectory(c:Database,sourceKey:string,pages:unknown[]):Promise<SourceBundle['discoveryAfter']>{
+ const marker=pages[0] as {schemaVersion?:string;captureId?:string};
+ if(marker?.schemaVersion!=='ainuoke-shared-directory.v1')return pages as SourceBundle['discoveryAfter'];
+ if(pages.length!==1||!marker.captureId)throw new SourceError('catalog_evidence_invalid');
+ const p=(await c.query('SELECT account_fingerprint FROM ainuoke_source_profiles WHERE source_key=$1',[sourceKey])).rows[0];
+ if(!p)throw new SourceError('catalog_evidence_invalid');
+ const stored=(await c.query('SELECT directory,content_hash,account_fingerprint FROM ainuoke_catalog_capture_evidence WHERE id=$1 AND source_key=$2',[marker.captureId,sourceKey])).rows[0];
+ if(stored?.directory.schemaVersion==='ainuoke-packed-after-only.v1'){
+  if(stored.account_fingerprint!==p.account_fingerprint||hash(stored.directory)!==stored.content_hash)throw new SourceError('catalog_evidence_invalid');
+  const pages=stored.directory.discoveryAfter as PackedPage[],hashes=[...new Set(pages.map(p=>p.rowsHash))];
+  const chunks=(await c.query('SELECT content_hash,rows FROM ainuoke_catalog_evidence_chunks WHERE source_key=$1 AND content_hash=ANY($2::text[])',[sourceKey,hashes])).rows;
+  const byHash=new Map(chunks.map(r=>[r.content_hash,r.rows]));
+  const result=[];
+  for(const page of pages){
+   const rows=byHash.get(page.rowsHash);
+   if(!Array.isArray(rows)||hash(rows)!==page.rowsHash)throw new SourceError('catalog_evidence_invalid');
+   result.push({...page.metadata,rows});
+  }
+  return result as SourceBundle['discoveryAfter'];
+ }
+ return (await loadCatalogEvidence(c,sourceKey,marker.captureId,p.account_fingerprint)).discoveryAfter;
+}
+
+/** A contract-state comparison needs its own original row, not every other
+ * contract's old rows. Verify the capture/account and complete owning chunk;
+ * full history readers continue to validate the whole original capture. */
+export async function loadContractDirectoryRows(c:Database,sourceKey:string,captureId:string,fingerprint:string,sourceId:string){
+ const row=(await c.query('SELECT account_fingerprint,directory,content_hash FROM ainuoke_catalog_capture_evidence WHERE source_key=$1 AND id=$2',[sourceKey,captureId])).rows[0];
+ if(!row||row.account_fingerprint!==fingerprint||hash(row.directory)!==row.content_hash||!['ainuoke-packed-directory.v1','ainuoke-packed-after-only.v1'].includes(row.directory.schemaVersion)||!Array.isArray(row.directory.discoveryAfter))throw new SourceError('catalog_evidence_invalid');
+ const hashes=[...new Set((row.directory.discoveryAfter as PackedPage[]).map(p=>p.rowsHash))];
+ if(hashes.some(h=>!/^[a-f0-9]{64}$/.test(h)))throw new SourceError('catalog_evidence_invalid');
+ let chunks=(await c.query(`SELECT q.content_hash,q.rows FROM ainuoke_catalog_evidence_chunks q WHERE q.source_key=$1 AND q.content_hash=ANY($2::text[])
+  AND EXISTS(SELECT 1 FROM jsonb_array_elements(q.rows) r WHERE btrim(normalize(r#>>'{values,id}',NFKC))=$3)`,[sourceKey,hashes,sourceId])).rows;
+ // Preserve the exact JS identity rule for unusual Unicode whitespace as well.
+ if(!chunks.length)chunks=(await c.query('SELECT content_hash,rows FROM ainuoke_catalog_evidence_chunks WHERE source_key=$1 AND content_hash=ANY($2::text[])',[sourceKey,hashes])).rows;
+ const facts:SourceBundle['discoveryAfter'][number]['rows']=[];
+ for(const chunk of chunks){
+  if(!Array.isArray(chunk.rows))throw new SourceError('catalog_evidence_invalid');
+  const own=(chunk.rows as SourceBundle['discoveryAfter'][number]['rows']).filter(r=>sourceIdText(r.values?.id)===sourceId);
+  if(own.length&&hash(chunk.rows)!==chunk.content_hash)throw new SourceError('catalog_evidence_invalid');
+  facts.push(...own);
+ }
+ if(facts.length!==1)throw new SourceError('source_identity_mismatch');
+ return facts;
+}
+
+/** Offline selected legacy runs only: their missing before pass is never fabricated. */
+export async function saveLegacyDirectoryAfter(c:Database,sourceKey:string,fingerprint:string,pages:SourceBundle['discoveryAfter']){
+ const discoveryAfter=await persistDirectoryRows(c,sourceKey,pages);
+ const directory={schemaVersion:'ainuoke-packed-after-only.v1',discoveryAfter},id=randomUUID(),digest=hash(directory);
+ const row=(await c.query(`INSERT INTO ainuoke_catalog_capture_evidence(id,source_key,account_fingerprint,content_hash,directory) VALUES($1,$2,$3,$4,$5::jsonb) ON CONFLICT DO NOTHING RETURNING id::text`,[id,sourceKey,fingerprint,digest,JSON.stringify(directory)])).rows[0]
+  ??(await c.query('SELECT id::text,account_fingerprint,directory FROM ainuoke_catalog_capture_evidence WHERE source_key=$1 AND content_hash=$2',[sourceKey,digest])).rows[0];
+ if(!row||row.account_fingerprint&&row.account_fingerprint!==fingerprint)throw new SourceError('catalog_evidence_identity_changed');
+ if(row.directory&&canonical(row.directory)!==canonical(directory))throw new SourceError('catalog_evidence_hash_collision');
+ return row.id as string;
 }

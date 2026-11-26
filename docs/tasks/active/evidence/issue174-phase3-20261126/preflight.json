@@ -1,0 +1,100 @@
+{
+  "schemaVersion": "issue174-phase3-preflight.v1",
+  "authorization": "https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7179037950",
+  "branch": "feat/issue174-storage-v2",
+  "sourceSha": "fd84815dee273c0c65b4565961c8d4ffe3bfb764",
+  "mainSha": "10b9a7d827e1c09f152ead58c21f26712d49a619",
+  "checks": {
+    "at": "2026-11-26T00:59:04.108373+00:00",
+    "state": "DATA_AND_BACKUP_PREFLIGHT_PASS_MAINTENANCE_CONTROL_BLOCKED",
+    "database": {
+      "bytes": 12335701015,
+      "tables": 145,
+      "ledgerRows": 59,
+      "maxMigration": 60,
+      "orders": 636,
+      "objects": 13,
+      "unfinishedObjects": 0
+    },
+    "schemaInventorySha256": "28c6a4045851354398fab3c05c77e961c5fad46e4fd36e6fae5e83e5290e2e66",
+    "pairedToolCheck": {
+      "state": "EXACT_TARGET_VERIFIED",
+      "sourceRequests": 0,
+      "businessWrites": 0
+    },
+    "workerQuietCheck": {
+      "state": "BACKUP_WORKER_QUIET",
+      "sourceRequests": 0
+    },
+    "executorSha256": "856c5f3c1cfc60b3bd0f3ff7bdd993a5ca71cb693c1159238b748d0c683d062b",
+    "stagingOnlyTunnel": true,
+    "tunnelManagedBy": "root systemd cloudflared.service",
+    "currentAccount": "jackson",
+    "noninteractiveSudoAvailable": false,
+    "systemdPolkitAvailable": false,
+    "stagingEntryHeld": false,
+    "maintenanceStarted": false,
+    "migrationStarted": false,
+    "cutoverPerformed": false,
+    "workerStarted": false,
+    "cleanupEnabled": false,
+    "productionTouched": false,
+    "rootFreeBytes": 38485643264,
+    "workFreeBytes": 933025439744
+  },
+  "newTarget": {
+    "state": "NEW_EMPTY_TARGET_PREPARED",
+    "candidate": "fd84815dee273c0c65b4565961c8d4ffe3bfb764",
+    "appImage": "sha256:776effff8f66c652f4ed7694440535f060dbb58d0bb8ea3c63ad0241d95e50de",
+    "operatorImage": "sha256:6e0f4b2c033e769cd95ab1b3ade99f544477eda5c81df9821f5337702ed2db9c",
+    "project": "zhixu-quote-trial-i174-v2",
+    "databaseContainerId": "8b8bb05ad75388fba170cc33a7821a366f0d3af64986ed7e77dc3ac3547e6ab1",
+    "databaseVolume": "zhixu-quote-trial-i174-v2_data",
+    "databaseFingerprint": "a326d8d6f36e69cafa57318f88c73b947ae8404b6fe4d42174be623991d9f79c",
+    "emptyTarget": {
+      "tables": 0,
+      "clients": 0,
+      "identity": "quote_trial|local_socket|5432"
+    },
+    "isolatedContainerId": "69e63582198c9b8e42d3699f30fc5164269f8f3a22e4546517b0346d9399e7df",
+    "isolatedWorkDisk": "/data",
+    "workDiskFreeBytes": 933025447936,
+    "rootFreeBytes": 38485897216,
+    "isolatedWorkBudgetBytes": 60000000000,
+    "rootLowWaterBytes": 15000000000,
+    "finalTargetBudgetRecheck": "after fresh selection before final restore; no old resources counted as reclaimable",
+    "oldResourcesPreserved": true,
+    "workerStarted": false,
+    "cleanupEnabled": false,
+    "maintenanceStarted": false,
+    "productionTouched": false
+  },
+  "checkpoint": {
+    "at": "2026-11-26T00:59:39.352933+00:00",
+    "state": "CHECKPOINT_MAINTENANCE_PERMISSION_BLOCKED",
+    "oldWorkerRunning": false,
+    "newEmptyDatabaseStopped": true,
+    "newIsolatedDatabaseStopped": true,
+    "dataMigrationStarted": false,
+    "maintenanceStarted": false,
+    "routingChanged": false,
+    "oldVolumeDeleted": false,
+    "cleanupEnabled": false,
+    "productionTouched": false,
+    "prMerged": false,
+    "resumeNeeds": "Existing authorized manager of root-owned Staging-only cloudflared.service. Then recheck current state and resource budget before maintenance."
+  },
+  "candidateCi": {
+    "source": 45660958648,
+    "release": 45660958709,
+    "team": 45660958535,
+    "conclusions": "success"
+  },
+  "limitations": [
+    "No maintenance window started",
+    "No latest migration backup or selective conversion",
+    "No target business integrity or attachment/RBAC acceptance yet",
+    "No real cutover capacity, downtime or growth measurement",
+    "New empty PG and isolated PG stopped; resources retained"
+  ]
+}

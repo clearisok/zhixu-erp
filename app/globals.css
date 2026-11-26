@@ -665,9 +665,7 @@ html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
 
 /* Permission foundation: disabled actions stay visible and explain why. */
 .qc-permission-disabled { position: relative; display: inline-flex; cursor: not-allowed; }
-.qc-permission-disabled > button { pointer-events: none; }
-.qc-permission-disabled::after { position: absolute; z-index: 420; right: 0; bottom: calc(100% + 7px); width: max-content; max-width: 220px; padding: 7px 9px; color: #fff; border-radius: 7px; background: #183a30; box-shadow: 0 9px 24px rgba(10, 35, 27, .2); content: attr(data-tooltip); font-size: 11px; line-height: 1.4; opacity: 0; pointer-events: none; transform: translateY(3px); transition: opacity .15s ease, transform .15s ease; }
-.qc-permission-disabled:hover::after, .qc-permission-disabled:focus-within::after { opacity: 1; transform: translateY(0); }
+.qc-permission-disabled > button:disabled { pointer-events: none; }
 .qc-test-user-switcher { min-width: 188px; height: 38px; display: flex; align-items: center; gap: 8px; padding: 3px 9px 3px 4px; border: 1px solid var(--line); border-radius: 20px; background: #fff; }
 .qc-test-user-switcher > span { width: 30px; height: 30px; display: grid; place-items: center; color: #fff; border-radius: 50%; background: var(--forest); font-weight: 700; }
 .qc-test-user-switcher select { min-width: 0; flex: 1; color: #33463e; border: 0; outline: 0; background: transparent; font: inherit; font-size: 11px; }

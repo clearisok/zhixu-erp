@@ -101,3 +101,20 @@ test('audit callback failure stops the owner; unrequested or secret-bearing requ
  second.child.stdout.write(JSON.stringify({schemaVersion:'ainuoke-request-event.v1',phase:'started',diagnostic:{secret:selectedConfig.password}})+'\n');
  await assert.rejects(blocked,/source_invalid/);assert.equal(second.owner.available(),false);
 });
+
+test('persistent child callbacks use each capture caller context',async()=>{
+ const {AsyncLocalStorage}=await import('node:async_hooks');
+ const scopes=new AsyncLocalStorage<string>();const {owner,child}=fixture();const seen:string[]=[];
+ try{
+  for(const scope of ['first','second']){
+   const p=page(),diagnostic={kind:'report',reportId:6086103,page:1,elapsedMs:0,httpStatus:null,outcome:'complete'};
+   const finished={...diagnostic,httpStatus:200,responseIsOk:true,receivedRows:1};
+   const record=async()=>{seen.push(scopes.getStore()??'missing');};
+   const result=scopes.run(scope,()=>owner.collect(selectedConfig,{mode:'catalog-contracts',contracts:['SYN-1']},{recapturePages:[1],onRecapturePage:record,onRequest:record}));
+   const frames=[{schemaVersion:'ainuoke-request-event.v1',phase:'started',diagnostic},{schemaVersion:'ainuoke-request-event.v1',phase:'finished',diagnostic:finished},{schemaVersion:'ainuoke-recapture-page.v1',page:p},{...final,requests:[finished],capture:{recapture:[p]}}];
+   scopes.run('first',()=>child.stdout.write(frames.map(f=>JSON.stringify(f)).join('\n')+'\n'));
+   await result;
+  }
+  assert.deepEqual(seen,['first','first','first','second','second','second']);
+ }finally{owner.close();}
+});
