@@ -14,4 +14,4 @@
 
 最终全147行/角色/owner/ACL/引用、13附件认证下载、匿名401/正常TLS管理员/11API200/8页实际UI和加载完成订单/关账12个月通过；备份最后重启后业务与quote/order/normalization-review三seq复核无变化，仅正常启动登录状态变化。原68字节PNG原线上相同缩略图503，原文完整，不改数据。其他角色未登录、用户人工全业务验收未替代，自然两轮/24h未测（Worker OFF）。当前formal五服务运行；新隔离PG **481b50dda5a07c321fed026a745412d5ba5d1e507dd54006dae6d8f3b98bbfe9** 已停止保留，旧候选/旧隔离也停止保留，旧原业务PG保留、旧writers停止。305次采样最大gap15.523秒/root最低29.02GB/含前次净峰44.94GB，本次约22.61GB。
 
-本机私密 **D:/CodexPrivate/issue174-20261124-v2** 全部源结果、8真实截图、driver日志与失败保留；勿stage任何dump/env/原始业务JSON/截图。182发布回归和fd三CI已PASS；本轮产品代码未改，最终源码/证据守卫PASS（13页/68能力/40UI路径/errors[]），最终commit远端收口中，须以当前最终commit精确核实远端/PR后报告，不冒称新文档HEAD三CI。用户只需实际验收；未经授权不要再开维护或恢复Worker/清理。
+本机私密 **D:/CodexPrivate/issue174-20261124-v2** 全部源结果、8真实截图、driver日志与失败保留；勿stage任何dump/env/原始业务JSON/截图。182发布回归和fd三CI已PASS；本轮产品代码未改，最终源码/证据守卫PASS（13页/68能力/40UI路径/errors[]），完整终态检查点85446d7f58b3bb874a84d871dd4a63392426e486已DELIVERED_VERIFIED；之后仅交付结果元数据，最新精确HEAD以PR176及Issue回执核对，不冒称新文档HEAD三CI。用户只需实际验收；未经授权不要再开维护或恢复Worker/清理。

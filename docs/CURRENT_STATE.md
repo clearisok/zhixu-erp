@@ -8,4 +8,4 @@
 
 **Worker仍停止、分钟入口hold、cleanup=false**；每日新source备份同原频率/受审暂停门禁，原fault和pause保留。旧DB/卷/所有原始配对保留，新原始配对90天最早2027-02-24 15:57:01北京时间，不自动退役；同机第二物理磁盘副本不冒称offhost。已开放新写，回退须先保全新库/对象/新增业务并用最新v2配对或前向修复，禁止盲回旧库。临时预览和owned转发关闭，任务隔离PG停止保留，Production及其他Staging整改未操作。
 
-匿名401/管理员正常TLS与SecureHttpOnly/11API200、订单与关账完整加载及8页实际UI、13认证附件SHA均PASS。一个原有68字节PNG缩略图503（旧线上相同），原文完整；其他角色未实际登录，不替代用户人工业务验收。Project仅Status→Staging、Issue保持OPEN，PR不合并。自然两轮/24h增长未测，不能因Worker暂停编造观察。182发布回归与fd三CI已PASS，本轮无产品代码改动；最终源码/证据守卫PASS（13页/68能力/40UI路径/errors[]），最终commit交付收口中；不冒称文档新HEAD三CI。[旧恢复摘要](tasks/completed/2026-11-26-issue174-second-window-checkpoints/README.md)。
+匿名401/管理员正常TLS与SecureHttpOnly/11API200、订单与关账完整加载及8页实际UI、13认证附件SHA均PASS。一个原有68字节PNG缩略图503（旧线上相同），原文完整；其他角色未实际登录，不替代用户人工业务验收。Project仅Status→Staging、Issue保持OPEN，PR不合并。自然两轮/24h增长未测，不能因Worker暂停编造观察。182发布回归与fd三CI已PASS，本轮无产品代码改动；最终源码/证据守卫PASS（13页/68能力/40UI路径/errors[]），完整终态检查点85446d7f58b3bb874a84d871dd4a63392426e486已DELIVERED_VERIFIED；后续仅交付结果元数据，最新精确HEAD见PR176及Issue回执，不冒称文档新HEAD三CI。[旧恢复摘要](tasks/completed/2026-11-26-issue174-second-window-checkpoints/README.md)。
