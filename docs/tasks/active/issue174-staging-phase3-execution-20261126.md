@@ -124,3 +124,34 @@ Gate baseline **1033308e55fed50efa67a111c97337d73ef98b69 clean**。选择复制2
 本Gate baselinefe921971a9ee796054746634953ef9e2e541c134 clean/DELIVERED_VERIFIED。[选择与转换完整证明](evidence/issue174-phase3-20261126/second-selected-migration.json)：**656.755秒** PASS，145旧表全部旧列与必要来源正文的独立恢复/水合比对、5序列、validated FK、临时转换role移除、cleanup=false门禁通过。转换2165次采集/2167快照/1547观察，目录正文新转换0（与既有历史结构一致，不编造），原目录来源证据1820保留。12张技术表获批未迁入旧行，所有其他正式业务及必要引用完整保留，旧源未改。选择工作库491,691,031bytes；epoch **2026-11-26T07:37:44.970Z** 是本次历史起点，非入口T、非真实SourceSync。
 
 紧凑包 **63,996,440bytes**，SHA **51cb91a2e3bf6cace820719114a325c5e22d81327bf2c718860854161c8bc69a**，完整decode PASS（6.093秒），Windows新私密frozen restore ops副本已完成完整SHA门禁。新目标i174-v2b只接受本次fresh摘要，独立driver15:45:38开始原冻结Restore wrapper；服务器restore lease持有phase.lock，防止超时取消和恢复并发。未开放新写。15:46剩约145分钟/root29.85GB/净变化约44.06GB，预算充足。
+
+
+## 第三阶段第二次窗口最终成功（2026-11-26 15:57:01北京时间）
+
+本Delivery Gate baseline **1cccaeb31f7c79b96125030c9f5326426563a75f clean/DELIVERED_VERIFIED**；应用 **fd84815dee273c0c65b4565961c8d4ffe3bfb764**，main **10b9a7d827e1c09f152ead58c21f26712d49a619**（切换后API重核不变）。[最终完整脱敏证据](evidence/issue174-phase3-20261126/second-cutover-accepted.json)、[实际切库Issue回执](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7186102906)。旧窗口取消及两份不同配对/新旧候选证据保留，不能混用。
+
+| 统一pg_database_size口径 | 实际bytes | 十进制容量 |
+|---|---:|---:|
+| 本轮冻结旧业务库 | 12,335,701,015 | 12.336GB |
+| 真实新活动库（最终验收时） | 408,345,623 | 408.35MB |
+
+新库147表，减少 **96.6897%**。不是仅工作库/旧预备候选容量。原Restore本体07:46:35.169–07:51:42.949Z，307.784秒；整个独立wrapper从07:45:38还包括精确空库检查。随后普通角色/4个maintenance函数owner/ACL按原SQL恢复，147表全部行表示、5序列、所有FK/索引/触发器/函数/owner与已验证selected一致；SQL负权限四项严格拒绝，planner off保留原role/database作用域，source普通角色DB-only check绑定物理指纹 **4b0ea251739d2ab29d744a33ffce84177f2cc3f11738e9c58327d7e20a4ff88c**，无上游请求。Docker恢复指纹仍 **a2e67a21c9594367fc01a94eb5fe38e3e6b4c0589c2d2effde4cece847588b39**，两种指纹不可互换。
+
+全部13对象在独立存储恢复，18,292,567原文bytes与绑定/认证下载SHA一致；正式636订单、8报价8修订、13附件13绑定、3员工、223,220操作日志及其他正式计划/财务/生产/关账/权限等全旧列、必要来源与删除恢复/异常幂等引用完整。12技术表获批无引用旧行仅未迁入新库，原库原配对未删除。新history epoch07:37:44.970Z；后续真实变化按新结构长期留存，不能宣称迁入全量旧技术时间线。
+
+实际新目标正常TLS/SecureHttpOnly既有管理员登录、匿名401、11API200、8页截图通过；额外等待真实SO行和关账12个月完整渲染，视觉复核已看到636订单列表、751月份片段及十二个月。历史起点/缺口提示可见。生产组为空反映原库数据，非种子替代。原68字节PNG自身libpng解码失败，原a0a9同缩略图503，仍原样保留且可完整下载；仅此精确已知503列为继承限制，所有其他API5xx/未处理前端异常均无。其他员工角色未实际登录，原权限关系和既有测试验证，不替代用户人工完整业务操作验收。
+
+新source正常配对 **20261126T075529Z-8d50463a** /manifest **2bb7c31074e1ff5609d831a5ef1c2e75f5cb8f5eb6c86a0e0aedb8080bea5975**，147表/13对象/57文件 **72,764,180bytes**；07:55:29.347–07:56:02.841Z正常原工具完成，全hash/TOC+decode/首末全行快照/执行器真实退出/命令组及Dockerexec quiescent/精确五服务恢复全部PASS。新policy147表/原压缩与600秒snapshot预算、15GB低水、全部运行输入和普通role恢复说明均pinned；备份后app重新启动，07:56:10再做全量业务验证：业务/引用变化0，账号业务字段、角色关系/67权限及操作日志完全保留，quote/order/normalization-review三条业务seq不变，仅正常启动/登录行与用户/登录序列变化。Worker/cleanup始终OFF。
+
+07:56:32.498Z在开放任何新写前落地opening intent，07:56:36.178Z原LAN配置和专项sudo启动Tunnel完成；07:57:01.673Z公网/LAN新build与数据库ready双端独立确认。维护从06:40:56.939Z起 **4564.734秒=1h16m04.734s**，硬截止前余8035.266秒（2h13m55）。Windows独立driver成功退出；服务器监控终态后自行退出，305条采样最大间隔15.523秒，无上轮91分钟控制空白。
+
+本次新尝试磁盘实测约 **22,610,123,751bytes/22.61GB**：新隔离PGDATA13.799GB、新活动PGDATA0.835GB（含WAL等，不等于DB大小）、新对象18.76MB、任务目录（不重复隔离PG）4.114GB、原始主配对3.843GB；原始主配对按文件长度计，其余du分配块近似，Windows副本不计。包含前一次保留任务的双文件系统净变化15秒采样峰值 **44,937,805,824bytes/44.94GB**，可能含其他写入，非仅本次组件精确峰值；系统盘最低 **29,019,693,056bytes/29.02GB**，高于15GB低水。旧库/旧尝试和全部备份保留，服务器磁盘仍包含这些副本。
+
+正式验收成功起原始新配对至少90天，到 **2027-02-24 15:57:01.673北京时间** 最早到期；没有自动删除授权。/data第二物理磁盘副本完整验证但仍同机，不冒称offhost。当前已经开放新写，今后故障必须先隔离入口并保全新库、对象及所有新增业务，使用最新v2配对恢复或前向修复；禁止直接盲回旧冻结库/初始v2备份覆盖新增数据。本轮未做故障注入恢复或真实业务增删。
+
+原LAN完整bytes/SHA还原、临时回环预览移除，owned SSH精确PID/start/forward核实后关闭，未知旧SSH不动；新本次隔离PG和旧隔离/旧候选均停止保留，新的正式五服务正常运行。仅两owned cron机制重绑新runtime：每日backup仍原30 19 UTC/显式受审暂停理由，分钟Worker继续hold，其他cron原字节保留。现有Project #1 item仅Status Review→Staging并复读确认，Issue174仍OPEN等待用户验收，不合并PR、不部署Production、不覆盖其他Staging整改。自然两轮/24h同步增长未执行，Worker未获恢复授权；旧离线同负载基准不是本轮自然观察。
+
+[更新前恢复摘要归档](../completed/2026-11-26-issue174-second-window-checkpoints/README.md)。182发布回归及fd三CI沿用已通过的不可变产品结果，本轮未改产品代码；最终源码/证据守卫与精确远端收口记录在当前摘要/PR，不能把新文档HEAD冒称新全测试或用户验收。
+
+
+最终源码/证据守卫同main10b9a7d827e1c09f152ead58c21f26712d49a619 **PASS**（13页/68能力/40UI路径/errors[]），[守卫回执](evidence/issue174-phase3-20261126/second-final-release-guard.json)。本轮无产品代码变化，182发布回归既有PASS/0fail/0skip不重复充当新的代码测试。08:06:35Z切库后精确五服务健康/旧writers停止/原fault和legacy pause/所有非owned cron原bytes/Worker OFF再次核实，[后检](evidence/issue174-phase3-20261126/second-post-cutover-holds.json)。该验证不回写或清理任何业务数据。
