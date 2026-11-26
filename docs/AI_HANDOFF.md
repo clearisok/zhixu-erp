@@ -21,3 +21,8 @@ SSH weaveops=Tailscale100.80.138.58:22/jackson，与Tunnel独立；专项sudo3�
 
 
 最新备份Gate（baseline c5cbe40a40c9c0ae505cbededf825c9ee14780ee clean）：新pair **20261126T064059Z-9fd043bd** /manifest **63a1901c6dfbfb7bcb9cf5b5eda475cbe69a0383f0fc30942b8d76d4ff053e6e**，145表13对象58文件3,843,034,087bytes，07:04:45正常备份全部门禁通过/源已再冻结，独立driver已自动原样恢复新隔离PG。新/data副本58文件SHA PASS（同机第二物理磁盘，16.470秒，不是offhost）；90天未起算。原冻结库07:06:55Z实际12,335,701,015bytes/145表/其他clients0。看r/evidence/driver-original-restore.json、window-status.json、monitor-status.json；不要重跑有intent作业。窗口deadline仍10:10:56.938636Z，取消点09:40:56.938636Z，不受用户“继续”重置。此时未切库，Worker/cleanup仍OFF。
+
+
+最新原样Gate（baseline05bd0194656cd092279c1d6d8a190d7cdef4281c clean）：15:33原样全量PASS，恢复1153.971秒、原样12,208,782,359bytes、验证517.257秒；145表5seq13对象与本次fresh pair一致，636单/8报价8修订/13附件13绑定/3账号/223220操作日志。driver已自动select-convert，预计无需人工继续。原样owner修复仅新隔离安全NOLOGIN quote_trial及两个已知独立seq，不改变任何旧业务数据。
+
+重要前向更正：首次预验收orders截图仍骨架、closing仍读取，不能代表已完整渲染。保留旧证据并新增preparatory-ui-follow-up.json；本机phase3b-real-browser.mjs已加强等待真实SO行及12个月关账数据/无错误，产品代码未改。new-source-backup.py还会在备份服务重启后调用post-startup-integrity.py，所有业务数据/引用及quote_center_quote_number_seq/sales_order_number_seq/sales_order_normalization_reviews_sequence_seq必须完全一致。以上脚本均未到执行点，后续必查实际结果，不冒称已通过。窗口deadline10:10:56Z、取消09:40:56Z不变，Worker/清理OFF，原资源保留。
