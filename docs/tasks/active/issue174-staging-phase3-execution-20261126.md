@@ -44,3 +44,12 @@
 原始完整配对副本在/data第二物理磁盘逐文件校验（58文件、3,843,034,120bytes、相同manifest）；同一主机，**不是异地或offhost备份**。90天仍从未来正式迁移验收成功起算，不启动退役。03:04:55Z开始任务internal/no-port隔离原样恢复，尚未完成原样核验、选择转换或最终恢复。原样job已有intent，失败先对账，不能盲目重复。
 
 系统盘当时可用34,616,209,408bytes、/data924,540,665,856bytes，保留60GB工作预算与系统盘15GB低水位；采样记录实际PGDATA分配，不将其冒称连续峰值。窗口截止及30分钟取消余量不变。
+
+
+## 2026-11-26 11:47：最新原样恢复完整门禁PASS
+
+Gate baseline branch feat/issue174-storage-v2，HEAD **8b326c871cd1396998579db5525b57dfb52ae52a clean**。原样恢复含第二副本保存/校验共1191.213秒，DB12,208,897,047bytes。首次全量校验仅5序列集合中两个独立序列owner不同：quote_center_quote_number_seq、sales_order_number_seq为postgres，备份为quote_trial；145表完整行摘要、全部序列值及其他元数据均一致。ALTER TABLE不会转移没有OWNED BY依赖的独立序列。只在隔离副本将这两个owner恢复至已核实NOLOGIN/非superuser/非createrole/非bypassRLS的quote_trial，未改值、原库或原校验工具，保留首次失败与单独修复intent。随后原完整verifier重跑498.972秒，返回 **ORIGINAL_RESTORE_VERIFIED**：145表全部旧列SHA多重集合/5序列元数据精确，13对象配对引用通过。
+
+03:47Z开始隔离select-convert，仍用本次manifest与原样证明，未改固定CLI白名单、实际业务库或放宽断言。尚未宣称选择转换、最终147表、普通角色、对象恢复、真实验收或新source备份通过。公网Tunnel inactive/LAN503/调度hold持续，Worker与清理关闭。仅新增临时127.0.0.1私密TLS验收入口，除登录外拒绝所有写方法，独立请求LAN503/普通业务POST405已核实；最终还原原LAN配置移除此入口。
+
+03:13Z附近SSH短暂timeout，Tailscale控制面在线、LAN仍503，03:17Z新SSH恢复；原因未确认，没有改共享网络/认证/安全配置，也没有重启原样作业。最新配对Gate已[回链Issue](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7181669651)。main10b9/PR172a0a9/PR173da1c再次核实精确未变、均未合并。窗口、取消余量和原保全约束不变。
