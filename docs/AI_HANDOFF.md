@@ -1,3 +1,7 @@
+# 当前接力：稳定性验收发现持久采集上下文故障
+
+2026-11-26 新用户授权已允许通过原门禁恢复Worker。e6三CI全部PASS。08:34Z自然启动后目录成功新增5单、1合同无变化成功，下一任务诊断回执冲突自行暂停；原证据全保留。最小回调上下文修复及定向测试已PASS，尚未发布/再次恢复；24h未开始。详见[本轮检查点](tasks/active/issue174-stability-20261126.md)。下列第三阶段原摘要仅保留历史，不再把旧Worker禁止解释为新授权阻塞。自动清理OFF、PR176 Draft、Issue174 Open、旧库备份保留、Production/合并禁止仍有效。
+
 # 接力：Issue174第三阶段已成功，公网及LAN开放
 
 2026-11-26；branch feat/issue174-storage-v2，本Gate baseline **1cccaeb31f7c79b96125030c9f5326426563a75f clean**。线上fd84815dee273c0c65b4565961c8d4ffe3bfb764/staging-i174-fd84815d；main10b9a7d827e1c09f152ead58c21f26712d49a619。PR176 Draft不合并，PR172/173保全，Issue174 OPEN/Project仅Status Staging，等待用户实际业务验收。[执行与各Gate](tasks/active/issue174-staging-phase3-execution-20261126.md)、[最终证据](tasks/active/evidence/issue174-phase3-20261126/second-cutover-accepted.json)、[旧摘要保全](tasks/completed/2026-11-26-issue174-second-window-checkpoints/README.md)。
@@ -15,3 +19,4 @@
 最终全147行/角色/owner/ACL/引用、13附件认证下载、匿名401/正常TLS管理员/11API200/8页实际UI和加载完成订单/关账12个月通过；备份最后重启后业务与quote/order/normalization-review三seq复核无变化，仅正常启动登录状态变化。原68字节PNG原线上相同缩略图503，原文完整，不改数据。其他角色未登录、用户人工全业务验收未替代，自然两轮/24h未测（Worker OFF）。当前formal五服务运行；新隔离PG **481b50dda5a07c321fed026a745412d5ba5d1e507dd54006dae6d8f3b98bbfe9** 已停止保留，旧候选/旧隔离也停止保留，旧原业务PG保留、旧writers停止。305次采样最大gap15.523秒/root最低29.02GB/含前次净峰44.94GB，本次约22.61GB。
 
 本机私密 **D:/CodexPrivate/issue174-20261124-v2** 全部源结果、8真实截图、driver日志与失败保留；勿stage任何dump/env/原始业务JSON/截图。182发布回归和fd三CI已PASS；本轮产品代码未改，最终源码/证据守卫PASS（13页/68能力/40UI路径/errors[]），完整终态检查点85446d7f58b3bb874a84d871dd4a63392426e486已DELIVERED_VERIFIED；之后仅交付结果元数据，最新精确HEAD以PR176及Issue回执核对，不冒称新文档HEAD三CI。用户只需实际验收；未经授权不要再开维护或恢复Worker/清理。
+

@@ -1,4 +1,5 @@
 import {spawn,type ChildProcessWithoutNullStreams} from 'node:child_process';
+import {AsyncResource} from 'node:async_hooks';
 import {resolve} from 'node:path';
 import {parseCollectorConfig,type CollectorConfig} from './collector.js';
 import {SourceError,hash} from './contract.js';
@@ -84,7 +85,12 @@ export function createSessionCollector(start:typeof spawn=spawn){
   }
   return new Promise((resolveResult,reject)=>{
    pending={resolve:resolveResult,reject,timer:setTimeout(()=>stop('source_timeout'),180000),progress:Promise.resolve(),
-    onPage:options?.onPage,onRequest:options?.onRequest,onRecapturePage:options?.onRecapturePage,targets:[...targets],recaptured:[],requests:[],requestOpen:null,requestEvents:0,progressCount:0,progressBytes:0,finalReceived:false};
+    // The persistent child's stdout listener belongs to its first capture.
+    // Bind durable callbacks to this capture's audit context before IPC arrives.
+    onPage:options?.onPage?AsyncResource.bind(options.onPage):undefined,
+    onRequest:options?.onRequest?AsyncResource.bind(options.onRequest):undefined,
+    onRecapturePage:options?.onRecapturePage?AsyncResource.bind(options.onRecapturePage):undefined,
+    targets:[...targets],recaptured:[],requests:[],requestOpen:null,requestEvents:0,progressCount:0,progressBytes:0,finalReceived:false};
    child!.stdin.write(JSON.stringify({baseUrl:cfg.baseUrl,username:cfg.username,password:cfg.password,contracts:request.contracts,
     mode:request.mode,...(cfg.materialReport&&request.mode==='catalog-contracts'?{materialReport:cfg.materialReport}:{}),
     ...(options?.onPage?{catalogProgress:true,catalogResume:options.resumePages??[]}:{}),
