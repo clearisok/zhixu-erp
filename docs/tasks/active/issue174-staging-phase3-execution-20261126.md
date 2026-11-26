@@ -92,3 +92,10 @@ Gate baseline **1033308e55fed50efa67a111c97337d73ef98b69 clean**。选择复制2
 已知原有问题：一个原始68字节PNG自身libpng解码失败；当前线上a0a9同一缩略图也503；13原文均下载/哈希完整，候选Linux缩略图编解码测试PASS。保留文件原样、不扩大范围修旧附件，失败记录保留，仅这个既有503作为明确限制。
 
 正式再次迁移使用全新project zhixu-quote-trial-i174-v2b/container a0208196…/data卷/指纹a2e67a21c9594367fc01a94eb5fe38e3e6b4c0589c2d2effde4cece847588b39；空库0表/0clients/无运行角色。新隔离PG issue174-v2-pg-20261126b仅在独立内部网提供原CLI固定别名，未改白名单；旧候选和旧隔离库保留。私密新根/data/issue174-phase3-20261126b；root约33.72GB、data约915.27GB，60GB总工作预算包含旧尝试保留，root低水15GB。新服务专项sudo/固定root执行链/祖先不可写/仅Staging ingress/Tailscale22独立SSH再次验证。尚未开窗口，源仍正常开放；正式必须新配对，旧636快照不能代替。
+
+
+### 第二次正式维护窗口已进入（14:40:56北京时间）
+
+准备Gate **6edfe429aa585c82e653b37f504f6bb321771c63** DELIVERED_VERIFIED，PR176自动跟踪精确HEAD；[预验收Issue回执](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7184657908)。新执行Phase baseline同hash clean，应用仍fd。原冻结Restore检查新目标0表/0clients/普通role absent通过。
+
+[窗口入口](evidence/issue174-phase3-20261126/second-window-entry.json)：**14:40:56.938636–18:10:56.938636**，取消余量从17:40:56.938636开始；新窗口不是原窗口延时。14:40:58公网Tunnel停止、LAN503、两owned cron块hold，现有Worker继续停止，原Supervisor正常最新一致性备份正在运行。Windows独立driver PID6444、服务器独立监控/每15秒时钟空间采样已运行，所有远端阶段有独立状态/锁/预算边界。此处仅入口确认，未把备份或切库写成PASS；所有旧资源保留。

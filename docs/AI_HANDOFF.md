@@ -13,3 +13,8 @@
 SSH weaveops=Tailscale100.80.138.58:22/jackson，与Tunnel独立；专项sudo3命令及root文件祖先无普通用户写权限、仅Staging路由再次核实。新root空闲约33.72GB/data915.27GB，预算60GB包含保留旧尝试，root低水15GB。当前cron每日原频率+reviewreason，分钟Workerheld；开窗保存当前cron再hold两块，不能复用前窗crontab。开放新写前记录保守intent；之后不盲回旧库。
 
 182发布回归已PASS，fd三CI成功；本轮仅运维材料。本Gate源码守卫同main PASS（13页/68能力/40UI路径/errors[]），新目标原冻结Restore空库检查PASS；精确远端后更新回执；不把文档新HEAD说成三CI。所有旧日期/hash/失败保留在执行记录，旧取消结果仍有效但等待新授权句已被本轮用户明确替代。
+
+
+## 最新执行入口：新窗口已进入
+
+准备commit6edfe429aa585c82e653b37f504f6bb321771c63已DELIVERED_VERIFIED，本Phase baseline同hash clean。北京时间14:40:56.938636开窗、18:10:56.938636硬截止、17:40:56.938636取消余量；新root维护window.json和evidence/monitor-status.json为实际时钟。14:40:58公网/LAN503/owned cron两块已隔离，最新配对备份运行中，未切库。Windows独立node driver PID6444，process精确记录phase3b-independent-driver-process.json；events每约20秒写phase3b-driver-events.jsonl。服务器monitor独立15秒无Docker调用采样/截止保护；step.py独占phase.lock，所有阶段正向回执后才继续；原Restore由冻结PS wrapper在本机独立driver调用，lease锁防并发取消。不要重跑driver或有intent的步骤、不要因桌面暂停修改deadline；先看实际状态/终态和失败日志。保留当前owned预览SSH PID34688/forward127443，LAN原配置已精确恢复且旧候选/旧隔离PG停止保留；正式目标预览由独立流程重新建立。新写opening intent前可取消回原库；之后不能盲回旧库。Worker/清理禁止继续有效。
