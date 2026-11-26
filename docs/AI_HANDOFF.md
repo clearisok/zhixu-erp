@@ -1,19 +1,21 @@
-# 接力：Issue174 第三阶段已授权，维护入口权限阻塞
+# 接力：Issue174 Staging维护已开始，最新原始备份进行中
 
-2026-11-26。先读[当前状态](CURRENT_STATE.md)、[阶段三执行检查点](tasks/active/issue174-staging-phase3-execution-20261126.md)、[执行单](tasks/active/issue174-staging-phase3-ready.md)及[用户“执行第三阶段”转录](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7179037950)。已有明确执行授权，不再次求批；维护权限解决前不得开始停写/迁移。
+2026-11-26；branch feat/issue174-storage-v2，起点7863d0aa3e53ccdca52f80a0c9a01f195d984816 clean；应用候选仍fd84815dee273c0c65b4565961c8d4ffe3bfb764，main10b9未变。[当前执行日志](tasks/active/issue174-staging-phase3-execution-20261126.md)、[用户专项sudo及直接续做决定](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7180928896)、[原批准执行单](tasks/active/issue174-staging-phase3-ready.md)。此前权限阻塞已经解决，不再求批。
 
-branch feat/issue174-storage-v2，起始clean HEAD fd84815dee273c0c65b4565961c8d4ffe3bfb764，main10b9a7d827e1c09f152ead58c21f26712d49a619；PR176精确fd三CI成功，PR172/a0a9与PR173/da1c未变/未合并且在祖先。之后本轮只记执行证据，**应用候选仍fd**，不能把运维文档新commit写成已构建/已部署应用。
+**维护已经生效，不可当作旧Staging仍开放。** 10:37:07北京时间开始，14:07:07绝对截止，13:37前保留30分钟取消余量，窗口不得重置。LAN nginx原配置保全后添加return503并由独立新请求确认，公网Staging-only cloudflared已用专项sudo停，停后新Tailscale SSH22连接成功；两个owned cron块有逐行hold、其余字节保留，Worker保持停止。服务unit/drop-in/executable/token及父路径root控制，未发现用户可写执行/Env/hook入口，不改系统安全配置。
 
-原 Staging 五服务原ID/image正常，app a0a9/a033…；Worker已停，来源原pause保留，unknown/lease无。145表/max60/ledger59、636单/13对象、12,335,701,015 bytes，inventory28c6…和executor856c…/policy、backup-check均PASS。无新迁移备份，无旧库写入/清理/切换；不可用11/24旧635单恢复覆盖新写。
+原Supervisor持原锁、原executor于02:38:37Z正常取得最新原始配对备份 **20261126T023837Z-14573686**，**进行中而非PASS**。02:50Z首遍摘要已完成、archive约1.90GB，后续仍需完整decode/第二遍摘要/全部cleanup证明。原始备份root /home/jackson/weaveops-trial-backups；不要重跑已开始的backup、不改policy/pins/失败回执，也不要恢复Worker。旧app/gateway目前由正常备份暂停，成功恢复证明后continue-backup.py会立即按原trial maintenance-db再次冻结旧app及objects；外部入口全程保持hold。
 
-服务器私密新根 /data/issue174-phase3-20261126：candidate.json、prepared-target.json、preflight.json、paused-checkpoint.json及全部准备失败日志在 evidence；trial.conf/isolated.env/secrets等禁止输出/进Git。本机副本 D:\CodexPrivate\issue174-20261124-v2\phase3-*.json。精确app776effff…、operator6e0f4b2c…、build staging-i174-fd84815d已离线构建；未部署。新空PG project zhixu-quote-trial-i174-v2，container8b8bb05a…、target fingerprint a326d8d6f36e69cafa57318f88c73b947ae8404b6fe4d42174be623991d9f79c；同机隔离PG issue174-v2-pg-20261124/container69e63582…，internal/no ports，仅挂新/data目录。两新PG已停止，保留全部卷/身份，不能盲目重跑会拒绝现有资源的 prepare 脚本。
+服务器私密根 **/data/issue174-phase3-20261126**；状态 `evidence/window-status.json`、原备份status.json及 `evidence/continue-backup-result.log`；`maintenance/window.json`有绝对deadline/newWritesOpened=false。最初nginx reload后的即时观察尚未激活而正确停止，原window-failure.private.txt是已保留旧事件；当前作业是continue-backup.py，不能把旧文件存在当成本次备份失败。所有配置/历史failure/cron/LAN原字节在maintenance私密保存。当前数据源仍旧库12.336GB/145表/max60/636单/13对象（这些是维护前计数），未改旧数据。
 
-现有trial禁止 volume.driver_opts，已经保留门禁，最终目标用标准独立卷；/data仅承载重型隔离工作。/data约933GB，60GB隔离预算；root约38.49GB，低水位15GB，实际最新紧凑容量/新备份/WAL预算必须恢复前重新检查。默认Docker地址池已耗尽，新独立网络用现有subnet-policy分配经过Docker+host真实路由排除的/28，不修改daemon/旧网络。准备时一次仅本任务新建、空且未挂载的秘密卷失败后经正向证明重建；任何旧卷未删除。
+候选app776effff…/operator6e0f4b2c…/build staging-i174-fd84815d已冻结；新空PG project zhixu-quote-trial-i174-v2、container8b8bb05a…、Docker target fingerprint a326d8d6f36e69cafa57318f88c73b947ae8404b6fe4d42174be623991d9f79c；同机隔离issue174-v2-pg-20261124/container69e63582…已按原ID/挂载启动，internal/no ports。/data约933GB、60GB隔离预算，root约38GB/15GB低水位，旧资源不算可回收；最终PG仍标准独立卷，不放宽driver_opts门禁。
 
-**阻塞**：root systemd cloudflared.service 的 /config只路由Staging至3003/其他404；LAN也转3003。jackson无非交互sudo/Polkit，用户现有管理入口待回复。不借Docker提升宿主权限、不绕过服务恢复/未知结果门禁。正常备份自动恢复app/gateway，所以必须取得持续阻止公网写入的维护控制后才能进入窗口；目前未改入口/cron/旧policy，Staging无本次停机。
+下一步 **等fresh-backup.json中LATEST_PAIRED_BACKUP_VERIFIED_SOURCE_FROZEN后**，执行私密 `python3 isolated.py restore-original`：先将本次完整原始配对包复制到/data第二物理磁盘并全hash核实（不冒充offhost），再原样恢复；之后逐步 `verify-original`→`select-convert`→`compact`。每个phase有不可重复intent，失败先核实，不盲跑。isolated.py复用现有restore verifier/固定CLI白名单，用本次fresh manifest/证明、严格145表inventory和原LF SQL；原样库issue174_original，选择库issue174_selected_phase3_20261126。副本以外不筛选/删数据。所有private日志/proof在evidence/migration及isolated-*-result.json。
 
-取得管理能力后重新核实目标/旧运行版本/未知结果/磁盘/空库，按检查点恢复两个新PG，保全原pause/failure；进入3.5h维护预算并持续owned调度hold、LAN维护及仅Staging公网hold，执行最新原始完整配对备份/新manifest和隔离原样验证，再现有CLI固定host/最新证据选择转换，最终PG/对象恢复及普通quote_trial非owner角色和全部业务/来源/附件/RBAC门禁。不要调用trial init；不要把POSTGRES_USER postgres用作app。新source policy147/旧145、精确工具/worker pins一致，Worker始终不启动。
+新TLS/受管输入在runtime/tls/backups目录准备，证书字节相同，原pause/fault保留；不创建或启动Worker。新source CLI fingerprint包含实际DB地址，必须在最终新精确目标/普通quote_trial角色上以原 `--check`只读重算，再绑定runtime/identity/policy，不能沿旧物理地址指纹。新role用已批准runtime-role.sql创建NOLOGIN，受管密码单独启用、非owner/superuser/createrole/bypassRls/维护成员；按原role/database作用域保留enable_presorted_aggregate=off，旧库不改。
 
-现有Restore-Zhixu.ps1使用--no-owner --no-privileges，不能把其单独完成当维护SECURITY DEFINER owner/ACL恢复PASS；必须按精确紧凑包恢复并核对已验收maintenance owner/ACL、普通身份拒绝绕过，再开写。Linux执行身份与本机PowerShell DOCKER_HOST目标必须分别正向验证，禁止用默认桌面Docker误恢复。原迁移LF字节与全部旧ledger checksum继续严格匹配，不改账本。
+实际目标quote_trial不在隔离CLI白名单，禁止放宽：先隔离selected完整业务/原proof验证，再把compact全147表/5序列的完整行SHA多重集合与实际目标逐项等价，另验FK/trigger/ownership/附件，形成传递证明。已有Restore-Zhixu.ps1会--no-owner/--no-privileges，恢复后必须从精确compact包恢复维护owner/ACL并比对，不能把其单独完成当安全PASS。本机PowerShell须用进程级DOCKER_HOST=ssh://weaveops并独立正向核实远端Docker、target fingerprint；不得误用默认桌面Docker。私密frozen restore ops+backups放D:/CodexPrivate，不把真实dump放工作树或Git。
 
-所有断言PASS后才切入口/开写，记录实际T/来源epoch/首次真实同步分别；新source完整备份后保留恢复门禁。开放新写后禁止退冻结旧库丢数据。90天从正式迁移验收成功起算。Worker、清理、旧库备份退役、PR合并及Production继续禁止；不冒称新业务完整性/24h自然观察已通过。已有完整CI/前两阶段不重跑；本轮文档检查和精确Git回执写Issue。旧三摘要[完整归档](tasks/completed/2026-11-26-before-issue174-phase3/README.md)。
+开写前全部业务/引用/附件/普通角色/RBAC/候选UI门禁及目标预算通过；新source policy147/旧145、精确工具/pins保持，Worker/清理继续关闭。所有门禁PASS才开放入口/写入，之后先保全新数据再兼容恢复/前向修复，禁止退冻结旧库丢业务。原始配对90天从未来正式迁移验收成功起算，旧库/卷/备份不退役，PR不合并，Production不动。新库和新source备份尚未完成，不能冒称。
+
+182发布回归已完整182pass/0fail/0skip，1474813ms；不重跑。786文档Release/Team成功、Source45733618658 cancelled；应用fd三完整CI成功独立有效，未改代码。其他旧摘要/原演练证据依[索引](PROJECT_INDEX.md)保留。最新checkpoint/进展回链Issue174，当前Git提交可能仅为运维文档，不把它冒充应用构建SHA。

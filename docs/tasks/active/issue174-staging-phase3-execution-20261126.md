@@ -21,3 +21,15 @@
 源库仍12.336 GB，**整改后实际容量和真实停机时间目前不存在**；11/24的635单/406 MB旧演练不能冒充这次迁移。尚未取得本次最新备份、执行选择转换、验证新库业务引用/附件/RBAC、开放新写或开始90天保留倒计时。Worker、清理继续关闭；旧库/旧卷/备份不退役，不合并 PR、不操作 Production。已批准约3h/预算3.5h不从本轮预检开始计时；真正维护前重新记录开始/取消余量。
 
 私密原件与失败准备日志：服务器 `/data/issue174-phase3-20261126`，本机 `D:\CodexPrivate\issue174-20261124-v2\phase3-*.json`；仅[脱敏预检](evidence/issue174-phase3-20261126/preflight.json)进 Git，不上传配置、凭据、备份、原始业务或临时脚本。旧摘要[按 fd 原字节归档](../completed/2026-11-26-before-issue174-phase3/README.md)。
+
+## 2026-11-26 10:38：权限门禁通过，维护窗口已开始
+
+[用户补齐三项专项sudo并授权直接续做](https://github.com/clearisok/zhixu-erp/issues/174#issuecomment-7180928896)。实际精确stop/start/restart规则均列出，start无操作成功；unit/drop-in/binary/token及父目录root控制、无用户可写执行或环境hooks。有效root drop-in固定既有http2，不修改服务配置。只读Tunnel配置仍仅Staging→localhost3003/其他404；SSH直连Tailscale22、无Tunnel单元依赖，停Tunnel后新SSH连接再次成功。未通过Docker或其他方式提升宿主权限。
+
+旧目标网仅五服务，唯一业务发布为127.0.0.1:3003，app/PG/objects/objects-tls均无宿主发布端口。原两个owned cron块逐行加维护hold，其他块字节保留；原pause/fault/配置/历史failure原件及hash私密保全。LAN原配置保留并添加维护503，nginx reload返回后首个观察尚未生效，门禁正确停止；独立新请求连续503后才继续停Tunnel，没有降低断言或提前取备份。
+
+维护从 **2026-11-26T02:37:07.655231Z（北京时间10:37:07）** 起算，截止 **06:07:07Z（14:07:07）**，最迟05:37Z前保留30分钟取消余量，不能重置窗口。02:38:36Z确认LAN503/Tunnel inactive/两owned cron hold/Worker未运行；02:38:37Z原Supervisor/原executor正常受锁开始最新完整配对备份 **20261126T023837Z-14573686**。当前备份进行中，**不是备份PASS、迁移PASS或切换完成**。无旧数据删除、清理启用或Worker恢复。
+
+新两个任务PG按原ID/挂载正向核实后已启动；仍无正式数据导入/新app启动。新TLS及runtime输入在任务私密根准备，TLS字节全同，维护角色与普通quote_trial角色分离仍待恢复后的实际门禁。原运行角色的既有 `enable_presorted_aggregate=off` 将在新普通角色创建后按相同role/database作用域保留；不改旧库。新CLI target fingerprint包含实际DB地址，必须在新精确目标的正常普通角色上用原只读check重新绑定identity/policy，不可沿用旧物理地址的指纹。
+
+上一检查点发布回归实际完成182/182、0fail/0skip（1474813ms）；不重跑。786文档Release45733618665/Team45733618659成功，Source45733618658 cancelled，不能写三CI成功；已构建应用fd完整三CI成功独立有效，本轮没有代码变化。后续切换、业务/附件/普通角色与新source备份结果在本日志前向追加，旧时点记录保留。
