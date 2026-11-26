@@ -117,3 +117,10 @@ Gate baseline **1033308e55fed50efa67a111c97337d73ef98b69 clean**。选择复制2
 15:33:22独立driver自动开始选择/转换；15:35剩约155分钟，root29.86GB、双文件系统净变化43.94GB/60GB。没有开放候选新写，也没有暂停独立推进等待文档。
 
 [预验收截图补充](evidence/issue174-phase3-20261126/preparatory-ui-follow-up.json)：后续视觉复核发现最初订单页仍是骨架、关账页仍在读取；前述API200/导航证据不代表这两页已完成数据渲染。原截图及失败保留，不冒称完全渲染PASS。最终目标浏览器脚本已收紧为实际SO行、12个月完整渲染/无关账读取错误后截图，所有额外API500仍拒绝，仅允许已在线上独立核实的原坏PNG缩略图503。最终目标还将在新source配对备份重新启动app后重验全部业务与三条业务编号/审核序列。无产品代码修改，正式验收未省略。
+
+
+### 第二次选择/转换/必要来源全量门禁PASS，正式目标恢复中（15:45）
+
+本Gate baselinefe921971a9ee796054746634953ef9e2e541c134 clean/DELIVERED_VERIFIED。[选择与转换完整证明](evidence/issue174-phase3-20261126/second-selected-migration.json)：**656.755秒** PASS，145旧表全部旧列与必要来源正文的独立恢复/水合比对、5序列、validated FK、临时转换role移除、cleanup=false门禁通过。转换2165次采集/2167快照/1547观察，目录正文新转换0（与既有历史结构一致，不编造），原目录来源证据1820保留。12张技术表获批未迁入旧行，所有其他正式业务及必要引用完整保留，旧源未改。选择工作库491,691,031bytes；epoch **2026-11-26T07:37:44.970Z** 是本次历史起点，非入口T、非真实SourceSync。
+
+紧凑包 **63,996,440bytes**，SHA **51cb91a2e3bf6cace820719114a325c5e22d81327bf2c718860854161c8bc69a**，完整decode PASS（6.093秒），Windows新私密frozen restore ops副本已完成完整SHA门禁。新目标i174-v2b只接受本次fresh摘要，独立driver15:45:38开始原冻结Restore wrapper；服务器restore lease持有phase.lock，防止超时取消和恢复并发。未开放新写。15:46剩约145分钟/root29.85GB/净变化约44.06GB，预算充足。
