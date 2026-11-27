@@ -19,3 +19,6 @@ source诊断经Codex CI provider取得实际head/check/annotations；job日志�
 候选通过现有工程/发布及隔离兼容门禁后，读取实际Supervisor/policy状态，依原正式配对备份、完整性/恢复/正向cleanup/服务恢复门禁及trial.mjs流程发布。应用/网关镜像更新与原版本绑定按原机制，原业务库/对象/卷及调度/保留/清理开关不改。若正常流程不能在此边界内进行即报告，不绕过。部署前后比较关键业务只读摘要、迁移账本/权限及原其他模块；最终公网HTTPS、版本、DB健康、6233、历史与桌面/手机只读验收，不真实保存/采集。
 
 本文件为恢复点，实际测试/合并/备份/部署/验收结果按阶段追加，不预写PASS。
+
+8e1a修复已精确送达。Typecheck、完整Lint和Server前端Build通过；本地连续来源三宽测试通过，新51笔真实历史失败页回退桌面/手机测试通过。另两条既有价格UI测试暴露首次SSR按钮在React接管前点击被忽略：body停留订单总览、没有真实页签选中。driver改为有界等待实际aria-selected并在未选中时点击原按钮，保留原金额/颜色断言与20秒超时，无业务改动。
+实际paired-backup check返回EXACT_TARGET_VERIFIED。误用仅适用于已安静Worker的supervisor backup-check在当前RUNNING上被拒绝SUPERVISOR_REQUIRES_REVIEW；代码明确backup_worker_not_quiet，本次没有执行备份或改变状态，不能称备份执行失败或通过。后续仅原正式受锁停稳/备份路径，无绕过。

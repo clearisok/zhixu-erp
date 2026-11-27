@@ -17,3 +17,5 @@ Staging实际220ec86c且含未合并176/172/173和0061–0067，Worker当前运�
 本机5177只读Demo持续运行，/__demo及build-info=c856。[新运行指南](tasks/active/order-workbench-refinement-demo-2026-11-27.md)、[新截图/证据](release/evidence/order-workbench-refinement-20261127/engineering.md)。来源截至21:43:38，后判stale，16自购/15采购记录/12入库记录明确历史，10旧待入库只历史展开；完成16项未知无比例。没有采集/修改来源事实，业务非GET本机403，凭据不输出/落盘。
 
 原PR178已更新P1–P4、口径、前后截图和测试；Issue177仅Status回Review并保持开放，其他字段/视图/自动化保留。9af Hosted baseline成功，source/team-access仍运行；最终提交CI单独核对，不假报全绿。最后更新原PR提交链接/Issue最终comment，最终报告branch/hash/PR/tests/dirty；无auto-merge。旧接力逐字归档到tasks/completed/2026-11-27-before-order-workbench-refinement，所有阶段结果在当前任务保留。
+
+当前进展2026-11-27：8e1a已精确push，type/lint/build PASS。新增分页失败恢复桌面/手机PASS；连续来源三宽PASS；另外两条旧价格测试SSR点击时机缺等待，driver正在补实际页签选中验证。root/release仍运行，Hosted source进行中；未merge/deploy/改远端配置。
