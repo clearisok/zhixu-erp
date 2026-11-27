@@ -53,3 +53,13 @@ Linux验证使用本机新建可丢弃镜像order-workbench-ui-runtime:11053c10�
 635cef checkpoint独立push一次并精确远端核验DELIVERED_VERIFIED。e638此前push时并行新增本任务图片触发STOP_LOCAL_CHANGED（pushes1），随后独立只读ls-remote确认为精确e638，未重推；main仍精确10b9。网络正常，没有force/reset/clean或修改共享Git配置。
 
 当前阶段新增工程证明、来源driver及CI覆盖、共享摘要更新，基线635cef，全部本任务dirty，无继承用户改动。下一步将新文档/截图按真实commit和SHA256前向冻结，最终守卫及PR交付另记，不把早期候选结果冒充本阶段最终通过。
+
+## 最终冻结清单 Gate
+
+main再次只读核实为10b9a7d827e1c09f152ead58c21f26712d49a619。工程checkpoint e0a2e5ceaef1cd82a1c1761887a03bea4be58858已一次push并精确DELIVERED_VERIFIED；其后新增8条前向冻结证据（六图、工程文档、Demo指南），旧ID/日期/hash/人验/部署维度不覆盖。
+
+最终候选清单与e0源码在隔离Linux再次npm test，1026/1026 PASS；清单SHA256 37dc0c98b23b1e90d5cb41c785aa83df626fb82a4ff42603c0f3128107bb52d0。独立npm run check:release-baseline -- --base-sha 10b9a7d827e1c09f152ead58c21f26712d49a619 PASS，13页/68能力/精确8个UI文件，零errors。最终清单的独立release182仍在执行；此前同UI源码182/182通过，不将当前未结束轮次提前记PASS。
+
+首个隔离Git副本把Windows系统core.autocrlf=true的归档按Linux默认false读取，造成482条假差异/旧UI记录误报；未改清单路径或任何历史hash。核对归档app/globals.css实际CRLF及原Git归一化blob b9f47b16d88968733d89140fdf8435ce52ef0f6e后，只在可丢弃Git副本设置与原环境相同的core.autocrlf=true，hash-object完全一致、守卫精确8路径PASS。原Git对象只读打包到容器本地以避免逐文件p9开销，没有修改共享Git配置或原objects。两失败日志保留，不冒称通过。
+
+当前最后提交只冻结清单和记录结果；8个UI源码与渲染11053c106dd8f97c8bd52ba1482070daa63b4928逐字一致。下一步推送核验、创建唯一PR，最终release结果及PR链接后续回写，Issue保持开放。

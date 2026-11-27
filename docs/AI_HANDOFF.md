@@ -9,3 +9,6 @@
 类型/lint零警告/前后端build、隔离Linux root1026/1026、release182/182通过；工作台9/9、交期14/14、来源详情9/9及原连续/出货/来源维护/调价/加工浏览器最终通过。Windows退出/EBUSY和Linux首次回环失败、两次driver导航/前置GET时序失败保留在任务，不冒称PASS；未改业务断言。Linux专用临时容器TCP转接只解决Docker Desktop loopback，不改主机/服务器/产品。
 
 635cef81117c2ff16969a3118ef7a8d466fe989f已一次push并精确核实DELIVERED_VERIFIED。e638此前push时并行新增本任务截图触发STOP_LOCAL_CHANGED，独立只读ls-remote核实精确e638，未重推；后续交付必须等待脚本完成再编辑。使用官方scripts/git-delivery.ps1及完整ExpectedHead；代理仅进程限定7888，不改共享设置。PR171/172/176共享文件风险保留，不擅自合入。当前阶段冻结最终证据、运行最终守卫并创建唯一PR，Issue177到Review后等用户；不关闭Issue。旧接力原件保留在tasks/completed/2026-11-27-before-order-workbench。
+
+
+最终候选698条证据已全量1026/1026与精确8路径守卫PASS（main10b9），独立release最后重跑仍执行中；清单SHA256/失败诊断见任务。隔离Git副本需匹配原系统core.autocrlf=true，否则Windows归档CRLF被误判482文件，不扩大路径清单/改历史hash。e0a2e5ce工程checkpoint已独立push并核实，当前仅冻结清单/共享摘要增量，UI11053c10不变。最后创建PR后回写链接、Issue转Review并等用户，不做合并或部署。

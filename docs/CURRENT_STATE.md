@@ -6,6 +6,6 @@
 
 [本机真实只读Demo及运行步骤](tasks/active/order-workbench-demo-2026-11-27.md)已提供；UI实际构建11053c106dd8f97c8bd52ba1482070daa63b4928，6233-937和另一真实订单各42项通过。业务提交/采集在本地403，保存功能用独立合成库验证。出货现有503如实展示；完整整单变更时间线没有接口。截图期间独立Worker更新来源，不能算本Demo采集或部署。
 
-[工程及前后截图](release/evidence/order-workbench-20261127/engineering.md)：typecheck、零警告lint、前/后端build通过；隔离Linux root1026/1026、release182/182，工作台9/9、原交期重跑14/14、来源详情9/9，以及原连续页面/出货/来源/调价/加工浏览器最终均通过。Windows退出/EBUSY、首次Linux回环网络及driver失败均保留记录，不冒称通过。最终冻结清单守卫与交付结果见任务；人工接受仍待用户。
+[工程及前后截图](release/evidence/order-workbench-20261127/engineering.md)：typecheck、零警告lint、前/后端build通过；隔离Linux root1026/1026、release182/182，工作台9/9、原交期重跑14/14、来源详情9/9，以及原连续页面/出货/来源/调价/加工浏览器最终均通过。Windows退出/EBUSY、首次Linux回环网络及driver失败均保留记录，不冒称通过。最终698条证据候选的全量1026/1026与精确8路径守卫通过；独立release重跑及交付结果见任务，人工接受仍待用户。
 
 PR171/172/176共享部分文件，后续合并顺序有冲突风险，本轮不改其他分支或既有字段/视图/自动化。2026-11-20的0752部署只是历史，不作为当前线上源码。旧三个共享摘要[逐字归档](tasks/completed/2026-11-27-before-order-workbench/CURRENT_STATE.md)保留日期/hash/限制。本轮下一步仅冻结证据、核验远端、创建PR并等待体验；无部署授权。

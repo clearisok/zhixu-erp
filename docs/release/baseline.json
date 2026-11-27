@@ -6322,6 +6322,80 @@
       "path": "docs/tasks/active/order-workbench-approval-2026-11-27.md",
       "recordedAtSha": "b2cc6ad4ea1c015ffb4960aacb68197b24fe0f5e",
       "sha256": "ca85efe1c6c7e7c4497577cb98024b8df43298590e2ec4369e3d397d0750f52b"
+    },
+    {
+      "id": "order-workbench-before-20261127",
+      "kind": "screenshot",
+      "path": "docs/release/evidence/order-workbench-20261127/before-main-10b9-1440.png",
+      "recordedAtSha": "635cef81117c2ff16969a3118ef7a8d466fe989f",
+      "sha256": "b8ae1af4ad40164bb1e56a8aee7728a4a4cca8b9793e9124c326cb8cbf2c5133",
+      "renderedSourceSha": "10b9a7d827e1c09f152ead58c21f26712d49a619",
+      "changeReason": "Issue177用户批准的真实订单工作台本地工程评审；保留旧日期和截图，不声明用户最终验收或部署。",
+      "approvalEvidence": "order-workbench-user-approval-20261127"
+    },
+    {
+      "id": "order-workbench-after-11053c10-1440-20261127",
+      "kind": "screenshot",
+      "path": "docs/release/evidence/order-workbench-20261127/after-11053c10-1440.png",
+      "recordedAtSha": "635cef81117c2ff16969a3118ef7a8d466fe989f",
+      "sha256": "e4bab2333ad0bdb85ff75f40d7a5f2794cced1d2ad543aa306ab1e7b7a8ea9d1",
+      "renderedSourceSha": "11053c106dd8f97c8bd52ba1482070daa63b4928",
+      "changeReason": "Issue177用户批准的真实订单工作台本地工程评审；保留旧日期和截图，不声明用户最终验收或部署。",
+      "approvalEvidence": "order-workbench-user-approval-20261127"
+    },
+    {
+      "id": "order-workbench-colors-11053c10-1440-20261127",
+      "kind": "screenshot",
+      "path": "docs/release/evidence/order-workbench-20261127/colors-11053c10-1440.png",
+      "recordedAtSha": "635cef81117c2ff16969a3118ef7a8d466fe989f",
+      "sha256": "15b8f88611f982a37468d1c3970451bd68daa8a8702adc21f3d25783d9c9cb25",
+      "renderedSourceSha": "11053c106dd8f97c8bd52ba1482070daa63b4928",
+      "changeReason": "Issue177用户批准的真实订单工作台本地工程评审；保留旧日期和截图，不声明用户最终验收或部署。",
+      "approvalEvidence": "order-workbench-user-approval-20261127"
+    },
+    {
+      "id": "order-workbench-execution-11053c10-1440-20261127",
+      "kind": "screenshot",
+      "path": "docs/release/evidence/order-workbench-20261127/execution-11053c10-1440.png",
+      "recordedAtSha": "635cef81117c2ff16969a3118ef7a8d466fe989f",
+      "sha256": "bfe9c250a10a70cff7dd8c99f50d529abb4cf1544f52ecbd2a4c3d31c06df629",
+      "renderedSourceSha": "11053c106dd8f97c8bd52ba1482070daa63b4928",
+      "changeReason": "Issue177用户批准的真实订单工作台本地工程评审；保留旧日期和截图，不声明用户最终验收或部署。",
+      "approvalEvidence": "order-workbench-user-approval-20261127"
+    },
+    {
+      "id": "order-workbench-after-11053c10-390-20261127",
+      "kind": "screenshot",
+      "path": "docs/release/evidence/order-workbench-20261127/after-11053c10-390.png",
+      "recordedAtSha": "635cef81117c2ff16969a3118ef7a8d466fe989f",
+      "sha256": "dff21b377028ac8844516e003a2caf35d203481601a3a4ceb928674d58e9b1ba",
+      "renderedSourceSha": "11053c106dd8f97c8bd52ba1482070daa63b4928",
+      "changeReason": "Issue177用户批准的真实订单工作台本地工程评审；保留旧日期和截图，不声明用户最终验收或部署。",
+      "approvalEvidence": "order-workbench-user-approval-20261127"
+    },
+    {
+      "id": "order-workbench-colors-11053c10-390-20261127",
+      "kind": "screenshot",
+      "path": "docs/release/evidence/order-workbench-20261127/colors-11053c10-390.png",
+      "recordedAtSha": "635cef81117c2ff16969a3118ef7a8d466fe989f",
+      "sha256": "084fefea3407ab092ad3bfbbf527eb5650b7b1b33636b46e13d3dea8ea582e78",
+      "renderedSourceSha": "11053c106dd8f97c8bd52ba1482070daa63b4928",
+      "changeReason": "Issue177用户批准的真实订单工作台本地工程评审；保留旧日期和截图，不声明用户最终验收或部署。",
+      "approvalEvidence": "order-workbench-user-approval-20261127"
+    },
+    {
+      "id": "order-workbench-engineering-20261127",
+      "kind": "document",
+      "path": "docs/release/evidence/order-workbench-20261127/engineering.md",
+      "recordedAtSha": "e0a2e5ceaef1cd82a1c1761887a03bea4be58858",
+      "sha256": "3f1cffa9dc85e5eebd0cedad21d7d8b7a32ad66dfe43da1e95c7316f8859fd21"
+    },
+    {
+      "id": "order-workbench-demo-guide-20261127",
+      "kind": "document",
+      "path": "docs/tasks/active/order-workbench-demo-2026-11-27.md",
+      "recordedAtSha": "635cef81117c2ff16969a3118ef7a8d466fe989f",
+      "sha256": "0058650ccb63046cbfc82fbada2d0bee26c872c12b833c3a51809ae00ea5e06c"
     }
   ],
   "pages": [
@@ -6454,7 +6528,15 @@
         "order-saved-source-20261024-after-sizes-1440",
         "order-saved-source-20261024-after-sizes-390",
         "order-saved-source-20261024-after-plan-facts",
-        "order-workbench-user-approval-20261127"
+        "order-workbench-user-approval-20261127",
+        "order-workbench-before-20261127",
+        "order-workbench-after-11053c10-1440-20261127",
+        "order-workbench-colors-11053c10-1440-20261127",
+        "order-workbench-execution-11053c10-1440-20261127",
+        "order-workbench-after-11053c10-390-20261127",
+        "order-workbench-colors-11053c10-390-20261127",
+        "order-workbench-engineering-20261127",
+        "order-workbench-demo-guide-20261127"
       ]
     },
     {
@@ -6507,7 +6589,8 @@
         "material-seven-approved-20261112",
         "material-color-first-approved-20261112",
         "material-display-decisions-20261112",
-        "sync-audit-ui-approved-20261112"
+        "sync-audit-ui-approved-20261112",
+        "order-workbench-engineering-20261127"
       ]
     },
     {
