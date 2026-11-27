@@ -119,6 +119,7 @@ jobs:
           node --test tests/server-navigation-history.test.mjs
           npx --no-install tsx --test server/integration/server-navigation-continuity.integration.test.mjs
           npx --no-install tsx --test server/integration/order-workbench-ui.integration.test.mjs
+          npx --no-install tsx --test server/integration/order-saved-sources-ui.integration.test.mjs
           npm run test:production-resources-ui
           npm run test:production-planning-ui
           npm run test:ainuoke-continuous-ui

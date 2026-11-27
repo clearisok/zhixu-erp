@@ -41,3 +41,15 @@ Phase2以b2cc6ad4为baseline；随后dirty均为本轮新增浏览器测试/只�
 `0e5e573b283756119408456577c5627c5c43522a` 已独立提交、一次push并核实精确远端。此源码Server前端/后端构建、typecheck及完整lint通过（零警告）。真实6233浏览器42项身份/数量/六宽三页签/卡片可达性/字号/无业务写入/无异常检查均通过，但Windows Chromium退出超时，命令整体不记PASS。隔离工作台8个功能子项亦通过，外层同样因退出超时失败；原连续UI功能子项与成衣13项（含批次、权限、折叠401、A-B-A、空历史游标）通过，外层退出超时不冒称套件全过。原交期套件另有断言待排查。私有profile按既有保护保留，未按进程名清理浏览器。
 
 Phase3基线0e5e573b；本阶段增量仅全局旧表格min-width:1000px的工作台局部覆盖、两个新driver沿既有允许范围增加退出等待，以及验证记录。没有改变业务数据/计算。root与release守卫仍执行中，输入的基线/冻结历史不变。
+
+## 最终工程验证与证据冻结起点
+
+UI构建固定11053c106dd8f97c8bd52ba1482070daa63b4928。root1026/1026和release182/182在隔离Linux完整PASS；Windows两长跑因同源码Linux完成而主动中止，不记通过。typecheck/完整lint零警告、server:build、Server build PASS。真实6233和真实SO-00000001各42/42且最终浏览器正常退出；选定六图已在635cef81117c2ff16969a3118ef7a8d466fe989f提交，截图期间后台Worker独立更新来源，每次按对应GET，不宣称本Demo采集。
+
+七套Linux组合70/72，两个失败计数是同一交期driver在初次前置GET前劫持401，修driver等待初读后武装，独立重跑交期14/14且清理PASS。其余六套最终全PASS，包括商业权限/原回执/批次/ABA。原来源详情driver完整适配前置交付和规则分组矩阵，先误选另一规则组的表导致1子项失败，定位原规则表后9/9 PASS，七角色、错归属、离线、当前/迟到401均保留。新工作台9/9、原来源详情9/9加入既有CI步骤，未改触发器/权限/自动化。最后测试driver定向lint PASS。
+
+Linux验证使用本机新建可丢弃镜像order-workbench-ui-runtime:11053c10（由既有Node24.22.3/TS5.9.3测试镜像加Chromium156和Docker CLI），只读原Git历史和任务源码归档。Docker Desktop的127发布在Windows侧，初4套PG连接失败后仅测试容器内TCP转接host.docker.internal对应端口；实际PG/NodeAPI/Chromium未mock，未改产品、共享主机/服务器配置或真实数据库。初轮调价恰遇产物重建ENOENT、Windows Chromium退出/EBUSY均如实保留忽略目录日志，稳定构建后的相应完整复核见工程证明。
+
+635cef checkpoint独立push一次并精确远端核验DELIVERED_VERIFIED。e638此前push时并行新增本任务图片触发STOP_LOCAL_CHANGED（pushes1），随后独立只读ls-remote确认为精确e638，未重推；main仍精确10b9。网络正常，没有force/reset/clean或修改共享Git配置。
+
+当前阶段新增工程证明、来源driver及CI覆盖、共享摘要更新，基线635cef，全部本任务dirty，无继承用户改动。下一步将新文档/截图按真实commit和SHA256前向冻结，最终守卫及PR交付另记，不把早期候选结果冒充本阶段最终通过。
