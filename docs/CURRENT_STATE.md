@@ -1,3 +1,9 @@
+# 当前：PR178合并/Staging授权执行中
+
+用户新授权已覆盖必要修复、仅178合并main、Staging部署及只读验收；不授权Production/其他PR合并/数据库业务或调度清理网络变更。[当前阶段与保全方案](tasks/active/order-workbench-staging-2026-11-27.md)。起点415a99c2 clean/main10b9，source失败及Review P2正在修复，尚未合并或部署。
+
+Staging实际220ec86c包含未合并PR176/172/173与存储v2，不能直接main覆盖；拟独立部署候选保留220完整能力后集成178，原库/对象/迁移/Worker调度保持，正式备份门禁失败即停止部署。下文保留上一阶段验收快照（历史）。
+
 # 当前：Issue177 订单工作台 P1–P4 / PR178待用户评审
 
 2026-11-27；分支feat/order-workbench，阶段起点0787ae72815384a19779b5e4ae90e7d24db4fc8e clean；开始fetch及交付前只读核实main10b9a7d827e1c09f152ead58c21f26712d49a619。[用户局部v2批准](tasks/active/order-workbench-refinement-approval-2026-11-27.md)、[最终阶段/工程结果](tasks/active/order-workbench-refinement-2026-11-27.md)。原[PR178](https://github.com/clearisok/zhixu-erp/pull/178)已更新中文P1–P4说明、统计口径及前后截图，Issue177回Review并保持开放。

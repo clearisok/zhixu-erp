@@ -151,7 +151,17 @@ test("built existing P6 pages use bound orders and persisted four-stream sources
    assert.equal(await evaluate("getComputedStyle(document.querySelector('.qc-toolbar')).display"),"flex");
    assert.equal(await evaluate("getComputedStyle(document.querySelector('.qc-page-container')).display"),"grid");
    assert.equal(await evaluate("document.documentElement.scrollWidth>innerWidth+1"),false);await screenshot("list-"+width);
-   await navigate("/order-center/server-detail?id="+x.orderId);await has("物料采购汇总");await has("来源读取");await has("2026-11-01");
+   await navigate("/order-center/server-detail?id="+x.orderId);await has("物料采购汇总");
+   const sourceDetails=".oc-server-detail-material-summary .ow-refresh";
+   await until(()=>evaluate("Boolean(document.querySelector("+JSON.stringify(sourceDetails)+"))"),'material source disclosure');
+   assert.equal(await evaluate("document.querySelector("+JSON.stringify(sourceDetails)+").open"),false);
+   await evaluate("document.querySelector("+JSON.stringify(sourceDetails+" > summary")+").click()");
+   await has("来源读取");
+   const material=await evaluate("fetch('/api/v1/sales-orders/"+x.orderId+"/material-progress').then(async r=>({status:r.status,body:await r.json()}))");
+   assert.equal(material.status,200);assert.equal(material.body.progress.sourceStatus,'ready');assert.ok(material.body.progress.fetchedAt);
+   await evaluate("document.querySelector("+JSON.stringify(sourceDetails+" > summary")+").click()");
+   assert.equal(await evaluate("document.querySelector("+JSON.stringify(sourceDetails)+").open"),false);
+   await has("2026-11-01");
    const result=await evaluate("(()=>{return{metrics:document.querySelectorAll('.ow-heading-metrics>div').length,overflow:document.documentElement.scrollWidth>innerWidth+1,technicalOpen:document.querySelector('.ow-source-details details').open};})()");
    assert.equal(result.metrics,2);assert.equal(result.overflow,false);assert.equal(result.technicalOpen,false);metrics.push({width,...result});await screenshot("order-"+width);
    await evaluate("[...document.querySelectorAll('a')].find(n=>n.textContent.includes('查看物料跟进')).click()");await has("合成棉布");

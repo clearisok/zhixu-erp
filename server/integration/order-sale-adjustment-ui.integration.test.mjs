@@ -88,6 +88,31 @@ test("quote center negotiates selected orders and recovers original receipts", {
     await open();await click('调价历史');await has('Synthetic response-loss test');for(const width of [1440,390]){await command('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:1,mobile:width===390});await wait(200);const r=await evaluate("(()=>{const r=document.querySelector('[role=dialog]').getBoundingClientRect();return {left:r.left,right:r.right};})()");assert.ok(r.left>=-1&&r.right<=width+1);await screenshot('sale-adjustment-'+width);}await click('关闭');
     await navigate('/order-center/server-detail?id='+second);await has('117 CNY');await has('订单调价历史');assert.equal(await evaluate("[...document.querySelectorAll('button')].some(n=>/确认订单调价|批量调整/.test(n.textContent))"),false);
   });
+  await t.test('history page failures retain a reachable previous page at desktop and mobile widths',async()=>{
+    const id=(await createAinuokeSalesOrder(x.pool,actor,{source:{sourceId:'SYN-HISTORY',sourceRowIdentity:'SYN-HISTORY-ROW',salesContractNo:'SYN-HISTORY-CONTRACT',insideOrderNo:'SYN-HISTORY',lifecycleStatusRaw:'生效',contractDate:'2026-10-01',contractDeliveryDate:'2026-12-01',styleNo:'SYN-HISTORY',companyNameSnapshot:'Synthetic',customerNameSnapshot:'Synthetic',brandNameSnapshot:'Synthetic',quantity:100,sourceHash:'synthetic-history',fetchedAt:'2026-10-17T00:00:00Z'},colors:[]})).salesOrder.id;
+    const adoption=await previewOrderBusinessSource(x.pool,actor,id,selection);
+    await adoptOrderBusinessSource(x.pool,actor,id,{selection,requestId:randomUUID(),expectedVersion:0,fingerprint:adoption.fingerprint,reason:'Synthetic history pagination'});
+    for(let i=0;i<51;i++){
+      const rule={kind:'set',value:String(200+i)},preview=await previewSaleAdjustment(x.pool,actor,{rule,items:[{salesOrderId:id}]}),item=preview.items[0];assert.equal(item.status,'ready');
+      const receipt=await commitSaleAdjustment(x.pool,actor,{requestId:randomUUID(),reason:'Synthetic paged history '+i,rule,items:[{salesOrderId:id,expectedVersion:item.expectedVersion,fingerprint:item.fingerprint}]});assert.equal(receipt.items[0].status,'updated');
+    }
+    const rows=()=>evaluate("document.querySelectorAll('[aria-label=订单调价历史] tbody tr').length");
+    for(const width of [1440,390]){
+      await command('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor:1,mobile:width===390});
+      await navigate('/order-center/server-detail?id='+id);await has('订单调价历史');await until(async()=>await rows()===50,'first real history page');
+      try{
+        await command('Network.setBlockedURLs',{urls:['*/api/v1/order-price-adjustments?*offset=50*']});await click('下一页历史');await has('调价历史暂不可用。');
+        assert.equal(await rows(),0,'failed page must not pretend to contain previous records');
+        assert.equal(await evaluate("[...document.querySelectorAll('button')].some(b=>b.textContent==='上一页历史'&&!b.disabled&&b.getClientRects().length>0)"),true,'previous page stays visible after failure');
+        await click('上一页历史');await until(async()=>await rows()===50,'previous real page recovered');
+      }finally{await command('Network.setBlockedURLs',{urls:[]});}
+      await click('下一页历史');await until(async()=>await rows()===1,'last real history page');
+      await click('上一页历史');await until(async()=>await rows()===50,'back from nonempty last page');
+    }
+    await navigate('/order-center/server-detail?id='+x.orderId);await has('订单调价历史');await has('暂无订单议价记录。');
+    assert.equal(await evaluate("getComputedStyle(document.querySelector('[aria-label=订单调价历史] .oc-business-source-search')).display"),'none','only the successful empty first page hides pagination');
+    await command('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
+  });
   await t.test('nested quote-source unknown submission blocks browser history and preserves the original command',async()=>{
     await command('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
     await navigate('/order-center');await has('导入加工订单');await click('报价中心');await has('更多');await click('更多报价操作');await click('批量调整订单成交价');await has('SO-00000002');

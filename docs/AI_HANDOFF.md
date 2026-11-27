@@ -1,3 +1,11 @@
+# 当前：用户已授权PR178修复、合并及Staging
+
+起点feat/order-workbench/415a99c22007c668950edf6d861842e806fc73c2 clean，main10b9已fetch；原PR source失败、其他二CI成功。当前必要修复/保全方案见[执行任务](tasks/active/order-workbench-staging-2026-11-27.md)。用户明确授权只合并178及部署Staging，不重复问许可；不操作Production/其他PR/数据库业务/调度/清理/网络，门禁失败停止相关动作。
+
+已改continuous driver为真实展开来源再读，价格CSS仅隐藏成功空第一页，新增51笔真实隔离调价后页失败恢复测试。Typecheck/Lint进行中，后续源码checkpoint→构建→相关浏览器/根/发布→push及全部Hosted CI通过才能merge。
+
+Staging实际220ec86c且含未合并176/172/173和0061–0067，Worker当前运行。不能用main直接覆盖；只在独立部署候选集成实际220与178的新main，其他PR/main范围保持；门禁与备份/trial.mjs原流程，不清库/退回旧库。尚未合并或部署，现有线上不变。下方保留前一阶段原接力（历史）。
+
 # 接力：Issue177 P1–P4 / PR178 Review
 
 2026-11-27；feat/order-workbench；起点0787ae72815384a19779b5e4ae90e7d24db4fc8e clean，main10b9a7d827e1c09f152ead58c21f26712d49a619已fetch及交付前复核。用户v2批准/完整阶段与commit记录见[当前任务](tasks/active/order-workbench-refinement-2026-11-27.md)。只沿PR178，等待体验，不合并/部署/写DB或真实数据。

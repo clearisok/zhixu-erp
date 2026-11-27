@@ -1,5 +1,7 @@
 # 当前项目入口
 
+本轮用户已明确授权PR178修复/合并/Staging，当前入口：[执行任务与保全方案](tasks/active/order-workbench-staging-2026-11-27.md)。下文为前轮Demo时点。
+
 2026-11-27；本轮已核实main **10b9a7d827e1c09f152ead58c21f26712d49a619**。当前Issue177正式订单工作台P1–P4局部优化，沿PR178；不合并或部署。
 
 1. [局部优化批准v2](tasks/active/order-workbench-refinement-approval-2026-11-27.md)、[当前局部优化任务](tasks/active/order-workbench-refinement-2026-11-27.md)、[新版Demo运行](tasks/active/order-workbench-refinement-demo-2026-11-27.md)、[本轮截图/证据](release/evidence/order-workbench-refinement-20261127/engineering.md)、[当前状态](CURRENT_STATE.md)、[接力](AI_HANDOFF.md)、[工作台批准](tasks/active/order-workbench-approval-2026-11-27.md)、[工作台任务](tasks/active/order-workbench-2026-11-27.md)、[Demo与运行](tasks/active/order-workbench-demo-2026-11-27.md)、[工程及截图](release/evidence/order-workbench-20261127/engineering.md)。

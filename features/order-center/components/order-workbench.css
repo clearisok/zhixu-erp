@@ -67,7 +67,7 @@
 .ow-workbench .ow-source-details .qc-description-list { padding-inline: 18px; }
 .ow-price-history .oc-price-summary { padding: 0 0 14px; }
 .ow-workbench .ow-order-history { margin-top: 18px; }
-.ow-workbench .ow-price-history [aria-label="订单调价历史"]:not(:has(table)) .oc-business-source-search { display: none; }
+.ow-workbench .ow-price-history [aria-label="订单调价历史"][data-history-empty="true"] .oc-business-source-search { display: none; }
 .ow-workbench .ow-garment-summary { padding: 11px 18px; font-size: 13px; }
 .ow-workbench .ow-garment-summary p { margin: 3px 0; }
 .ow-data-warning { color: #805d21; font-size: 13px; }
