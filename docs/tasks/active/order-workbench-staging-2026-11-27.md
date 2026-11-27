@@ -32,3 +32,13 @@ Review P2 PRRT_kwDOUKkHu868uXeS已回复验证证据并解决；暂未发现其�
 Staging 2026-11-27 23:32只读公网核实：HTTPS正常，build-info/health/permissions/6233详情/物料/物料历史/价格历史API全部200，正常现有管理员登录，无权限或凭据更改。物料来源stale：自购16（面料3、辅料13）、有采购记录15、有入库记录12；采购及入库完成16项均未知，比例null，旧待入库10项只可作为历史，不可伪报当前齐套率。原页截图保留本机outputs/order-workbench/staging-20261127/before-desktop.jpg，私密原始API不提交。业务写入0；来源刷新和订单维护均未提交。原crontab SHA256 c71caad3ddc46bf13a725ddd15e53b82345208ead6deb044e13dca3559716f82。
 
 下一Gate：最终HEAD精确发布守卫与Hosted CI→仅merge178→实际220与新main独立集成→保全/备份/恢复门禁→Staging发布与只读验收。不能把本段工程PASS当成合并、部署或最终用户验收。
+
+## 2026-11-28 目录过期来源 driver / CI预算 checkpoint
+
+最终36ce已核实远端，team-access及baseline SUCCESS；source运行46025943527/job140597380243在2026-11-27T15:57:39Z FAILURE。已通过CI provider核实并由GitHub connector读取完整日志：continuous三宽原缺陷已通过；后续catalog子测试仍等待已由P4移除的旧常驻“这不表示没有采购”，实际body已有上次来源标记、真实1/1/1项数及两个待核对率。本轮保留原无旧summary断言，新增HTTP200/stale、真实采购事件存在、五指标精确1/1/待核对/1/待核对、当前待处理不得出现数字，finally恢复fixture时间偏移；本地完整catalog八子测试及父测试通过。未改产品文案来适配旧断言、未改数据规则、未延长任何单项等待。
+
+实际Hosted SQL/API阶段15:34:06–15:53:20共19分14秒，UI阶段直到目录失败已4分7秒，仍有多套必选UI及Python未执行。整job上限25→35分钟，以容纳完整既有套件；没有删除步骤、过滤错误或降低每项断言/超时。后续剩余13套主线UI正在本地现有8e1a同产品真实构建上完整运行，结果单独记录，不预写PASS。
+
+独立Staging预候选F7b1201d530d3e9cdf7a01932ec023e8218e482d 已完成具体错误反馈/alert/时区time/ISO/只读重读与无Browser回退边界保全：typecheck/完整lint PASS、前后端离线image5591d1f7/opacd28e87构建PASS，受影响compact+workbench两套25/25 PASS；其他五套H1来源/交付/物料/历史/价格51/51 PASS（不同checkpoint精确区分，不冒称F7重跑76项）。root1035/release182/47路径guard为H1结果。尚未创建实际main集成，仍无线上服务、数据库或Worker更改。
+
+网络：36ce正式脚本最终DELIVERED_VERIFIED，但只读Git预检发生不确定传输，工具明确NETWORK_DEGRADED；其后GH API规则读取一次EOF亦已停止该通道读取。依AGENTS 131/136，不再在后续Gate自动push同通道或自动执行恢复命令。新checkpoint仅本地；需要用户执行工具给出的官方精确HEAD恢复命令并告知通道状态，不能将本地新代码写成远端已交付。GitHub connector只读main仍10b9、branch protection disabled、PR178唯一Review线程已解决；没有因CI失败合并或绕过门禁。

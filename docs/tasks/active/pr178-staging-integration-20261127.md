@@ -15,3 +15,5 @@ Staging只读实况：220/build staging-i174-220ec86c、app c0d84053…、Worker
 预整合db785a：typecheck/完整lint/server build PASS、root1035/1035、release182/182、精确main10b9的47UI路径守卫PASS。离线候选image94c08e27…/op1cffd99…构建通过未上线。集成UI发现C3 driver仍等待默认折叠来源中的错误；本分支保留原role=alert和time/ISO详情、只读重读功能，并让driver实际展开来源后执行原403/网络/恢复/三GET/时区断言，不能删除此测试。其余五项维护页签/桌面/角色等正在原隔离套件验证。首次完整bundle过大已停自有传输，使用已有220对象的1.8MB增量bundle；首次镜像FROM误写裸digest被拒绝，改用核验精确digest的既有本地tag完成离线构建，没有改服务器网络/代理/拉取依赖。失败输出与所有旧资产保留。
 
 H1浏览器其余物料历史/六宽物料排序/七角色/交付计划/分页/颜色/来源读取已通过；工作台错误场景断言要求原次级诊断继续明确不会回退Browser。现结合原Staging错误反馈，在展开来源错误行保留该既有边界，主指标仍全待核对且不含技术文案。没有通过改断言隐去。da918增量构建通过，C3真实展开回归正在运行。
+
+2026-11-28：正常merge主线本地c04（catalog真实stale/指标断言加强及CI整job35分钟），仅共享摘要冲突并逐字归档主线版本，717历史记录不改。主线新代码NETWORK_DEGRADED暂未GitHub送达；未merge/deploy。集成F7完整type/lint/build及受影响compact/workbench两套25/25 PASS；其他五套H1的51/51为同保持组件结果，不伪造全76在F7重跑。
