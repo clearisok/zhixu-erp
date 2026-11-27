@@ -54,7 +54,7 @@
 .ow-workbench details summary { cursor: pointer; font-size: 13px; color: #28634d; line-height: 1.7; }
 .ow-workbench details > :not(summary) { margin-top: 12px; }
 .ow-table-scroll { overflow-x: auto; max-width: 100%; min-width: 0; }
-.ow-table-scroll table { border-collapse: collapse; width: 100%; font-size: 13px; }
+.ow-table-scroll table { border-collapse: collapse; width: 100%; min-width: 0; font-size: 13px; }
 .oc-server-detail-page .ow-workbench .ow-table-scroll table :is(th,td) { padding: 12px 13px; border-bottom: 1px solid var(--qc-border, #dce4df); text-align: left; font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .ow-table-scroll th { color: #536b5e; background: #f5f8f5; font-weight: 600; }
 .ow-table-scroll [data-unknown] { color: #718176; }

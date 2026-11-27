@@ -67,6 +67,6 @@ try {
   await writeFile(join(output,'proof.json'),JSON.stringify(proof,null,2));
   console.log(JSON.stringify({sourceSha:build.gitCommit,orderId:order.id,checks,geometry,unavailable:responses.filter(row=>row.status!==200)}));
 }finally{
-  if(browser)await stopOwnedChromium(browser,{gracefulClose:socket?()=>command('Browser.close',{},null):undefined});
+  if(browser)await stopOwnedChromium(browser,{gracefulClose:socket?()=>command('Browser.close',{},null):undefined,graceMs:10000,exitMs:10000});
   if(socket)socket.close();
 }

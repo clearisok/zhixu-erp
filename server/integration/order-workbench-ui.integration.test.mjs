@@ -129,7 +129,7 @@ test('built order workbench uses existing live APIs, preserves unknown facts, ro
     assert.deepEqual(exceptions, []);
     await writeFile(join(directory, 'result.json'), JSON.stringify({ sourceSha: build.gitCommit, widths: [1920,1536,1440,1280,900,390,320], browserExceptions: exceptions, realSourceRequests: 0, scope: 'owned synthetic PostgreSQL and actual built UI/API' }, null, 2));
   } finally {
-    if (browser) await stopOwnedChromium(browser, { gracefulClose: ws ? () => command('Browser.close', {}, null) : undefined });
+    if (browser) await stopOwnedChromium(browser, { gracefulClose: ws ? () => command('Browser.close', {}, null) : undefined, graceMs: 10000, exitMs: 10000 });
     if (ws) ws.close(); await x.close();
   }
 });
