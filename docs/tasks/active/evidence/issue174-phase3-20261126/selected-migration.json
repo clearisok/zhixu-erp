@@ -1,0 +1,141 @@
+{
+  "state": "SELECTED_AND_CONVERTED_FULLY_VERIFIED",
+  "manifestSha256": "85bc4166743272cbbbcdca71379ef2c9ebeeab9e782aec1113bb4a95fae9dd25",
+  "selectionCopySeconds": 218.077,
+  "conversionSeconds": 263.742,
+  "selectionConversionAndVerificationSeconds": 660.9356959452853,
+  "verifiedOldTables": 145,
+  "sequences": 5,
+  "selectedWorkDatabaseBytes": 491674647,
+  "compactBytes": 63878715,
+  "compactSha256": "00f22f8a1a034b7ae16ef5d7642ddb41f5044bb65e803aa0a8ae42fff9cce1c5",
+  "completeCompactDecoded": true,
+  "historyEpoch": [
+    {
+      "source_key": "local-empty",
+      "source_history_started_at": "2026-11-26T03:51:33.162+00:00"
+    }
+  ],
+  "omittedTechnicalRows": [
+    {
+      "table": "ainuoke_catalog_capture_evidence",
+      "source": 16008,
+      "selected": 624,
+      "omitted": 15384
+    },
+    {
+      "table": "ainuoke_catalog_evidence_chunks",
+      "source": 150,
+      "selected": 137,
+      "omitted": 13
+    },
+    {
+      "table": "ainuoke_catalog_runs",
+      "source": 73666,
+      "selected": 1820,
+      "omitted": 71846
+    },
+    {
+      "table": "ainuoke_catalog_scan_pages",
+      "source": 6162,
+      "selected": 26,
+      "omitted": 6136
+    },
+    {
+      "table": "ainuoke_contract_observations",
+      "source": 73373,
+      "selected": 1547,
+      "omitted": 71826
+    },
+    {
+      "table": "ainuoke_material_source_snapshots",
+      "source": 74557,
+      "selected": 2167,
+      "omitted": 72390
+    },
+    {
+      "table": "ainuoke_source_runs",
+      "source": 74180,
+      "selected": 2165,
+      "omitted": 72015
+    },
+    {
+      "table": "ainuoke_sync_audit_batches",
+      "source": 10151,
+      "selected": 337,
+      "omitted": 9814
+    },
+    {
+      "table": "ainuoke_sync_audit_events",
+      "source": 223,
+      "selected": 202,
+      "omitted": 21
+    },
+    {
+      "table": "ainuoke_sync_audit_tables",
+      "source": 330017,
+      "selected": 11019,
+      "omitted": 318998
+    },
+    {
+      "table": "ainuoke_sync_capture_attempts",
+      "source": 16050,
+      "selected": 375,
+      "omitted": 15675
+    },
+    {
+      "table": "ainuoke_sync_jobs",
+      "source": 73777,
+      "selected": 1951,
+      "omitted": 71826
+    }
+  ],
+  "protectedExamples": [
+    {
+      "table": "app_users",
+      "source": 3,
+      "selected": 3,
+      "omitted": 0
+    },
+    {
+      "table": "operation_logs",
+      "source": 223220,
+      "selected": 223220,
+      "omitted": 0
+    },
+    {
+      "table": "quote_attachments",
+      "source": 13,
+      "selected": 13,
+      "omitted": 0
+    },
+    {
+      "table": "quote_center_quotes",
+      "source": 8,
+      "selected": 8,
+      "omitted": 0
+    },
+    {
+      "table": "quote_center_revisions",
+      "source": 8,
+      "selected": 8,
+      "omitted": 0
+    },
+    {
+      "table": "quote_revision_attachments",
+      "source": 13,
+      "selected": 13,
+      "omitted": 0
+    },
+    {
+      "table": "sales_orders",
+      "source": 636,
+      "selected": 636,
+      "omitted": 0
+    }
+  ],
+  "oldDatabaseChanged": false,
+  "formalTargetRestored": false,
+  "workerStarted": false,
+  "cleanupEnabled": false
+}

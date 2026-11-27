@@ -74,7 +74,7 @@ test("production detail has trusted-session 401, order.view 403, 404, and unavai
   assert.match(detailSource, /serverSession\.invalidate\(\)/u);
   assert.match(detailSource, /nextError\.status === 403/u);
   assert.match(detailSource, /order\.view/u);
-  assert.match(detailSource, /Server 权限不足（403）/u);
+  assert.match(detailSource, /暂无订单查看权限/u);
   assert.match(detailSource, /nextError\.status === 404/u);
   assert.match(detailSource, /正式订单不存在（404）/u);
   assert.match(detailSource, /订单服务暂时不可用/u);

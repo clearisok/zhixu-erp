@@ -18,8 +18,8 @@ type Identity=Pick<TrustedIdentity,'internalUserId'|'userId'>;
 export async function readCatalogCaptureReceipt(pool:Pool,identity:Identity,sourceKey:string,requestId:string){
  const actor=await sourceActor(pool,identity,true);
  const row=(await pool.query(`SELECT status,result FROM ainuoke_catalog_requests WHERE source_key=$1 AND request_id=$2 AND actor_id=$3`,[sourceKey,requestId,actor.internalUserId])).rows[0];
- const committed=(await pool.query(`SELECT r.id::text AS "runId",jsonb_array_length(CASE WHEN r.capture_evidence_id IS NULL THEN r.discovery ELSE e.directory->'discoveryAfter' END) AS pages
-  FROM ainuoke_catalog_runs r LEFT JOIN ainuoke_catalog_capture_evidence e ON e.source_key=r.source_key AND e.id=r.capture_evidence_id
+ const committed=(await pool.query(`SELECT r.id::text AS "runId",jsonb_array_length(CASE WHEN e.id IS NOT NULL THEN e.directory->'discoveryAfter' ELSE r.discovery END) AS pages
+  FROM ainuoke_catalog_runs r LEFT JOIN ainuoke_catalog_capture_evidence e ON e.source_key=r.source_key AND e.id=coalesce(r.capture_evidence_id,(to_jsonb(r)->>'legacy_directory_capture_id')::uuid)
   WHERE r.source_key=$1 AND r.request_id=$2 AND r.actor_user_id=$3`,[sourceKey,requestId,actor.internalUserId])).rows[0];
  return committed?{status:'complete',result:committed}:row??null;
 }
@@ -32,7 +32,7 @@ export async function captureCatalogOnce(pool:Pool,identity:Identity,raw:Collect
   // share this lease so recovery cannot race an upstream call still in flight.
   locked=(await lease.query('SELECT pg_try_advisory_lock(hashtextextended($1,0)) AS locked',['ainuoke-sync-worker:'+config.sourceKey])).rows[0].locked;
   if(!locked)throw new SourceError('sync_worker_busy');
-  return await withSyncAudit(pool,{sourceKey:config.sourceKey,type:'catalog',id:requestId,reports:['6086103'],frequencies:['catalog']},()=>captureUnderLease(pool,identity,config,requestId,collect,adoptNewOrders));
+  return await withSyncAudit(pool,{sourceKey:config.sourceKey,type:'catalog',automatic:Boolean(workerLease),id:requestId,reports:['6086103'],frequencies:['catalog']},()=>captureUnderLease(pool,identity,config,requestId,collect,adoptNewOrders));
  }finally{
   if(locked)await lease.query('SELECT pg_advisory_unlock(hashtextextended($1,0))',['ainuoke-sync-worker:'+config.sourceKey]).catch(()=>undefined);
   if(!workerLease)lease.release();

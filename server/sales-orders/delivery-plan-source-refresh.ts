@@ -34,7 +34,7 @@ export async function refreshAinuokeSalesOrderSource(pool:Pool,actor:TrustedIden
     await lockEffectiveAttribution(client);
     const currentActor=await requireOrderCommandActor(client,actor,'ainuoke.sync');
     const result=await refreshAinuokeSalesOrderSourceInTransaction(client,currentActor,salesOrderId,input);
-    await client.query('COMMIT');return result;
+    await client.query('COMMIT');return {salesOrder:result.salesOrder,deliveryPlanSet:result.deliveryPlanSet};
   } catch(error){await client.query('ROLLBACK').catch(()=>undefined);throw error;}
   finally {client.release();}
 }
@@ -43,7 +43,7 @@ export async function refreshAinuokeSalesOrderSource(pool:Pool,actor:TrustedIden
  * The original source owner is intentional, including historical aliases. */
 export async function refreshAinuokeSalesOrderSourceInTransaction(
   client:PoolClient,currentActor:TrustedIdentity,salesOrderId:string,input:AinuokeSourceRefreshInput,
-  audit?:{operationId:string;operationSequence:number},
+  audit?:{operationId:string;operationSequence:number;automatic?:boolean},
 ) {
     requirePermission(currentActor.permissions,'order.view');requirePermission(currentActor.permissions,'ainuoke.sync');validate(input);
     const root = await client.query("SELECT id FROM sales_orders WHERE id=$1::uuid AND creation_source='ainuoke' FOR UPDATE", [salesOrderId]);
@@ -71,11 +71,12 @@ export async function refreshAinuokeSalesOrderSourceInTransaction(
     const insideOrderNo=input.source.insideOrderNo.normalize('NFKC').trim()||null;
     if(link.rows[0].inside_order_no!==insideOrderNo)await client.query('UPDATE sales_order_source_links SET inside_order_no=$2 WHERE id=$1',[link.rows[0].id,insideOrderNo]);
     await upsertCurrentAinuokeContractMirror(client, salesOrderId, input.source);
-    await replaceCurrentAinuokeColorSlice(client, salesOrderId, input.colors);
+    const colorsChanged=await replaceCurrentAinuokeColorSlice(client, salesOrderId, input.colors);
     const afterPlans = await readDeliveryPlanSet(client, salesOrderId);
     const after = await getFoundationSalesOrderById(client, salesOrderId);
-    await appendOperationLog(client, currentActor, {
-      ...audit,
+    const sourceChanged=mirror.source_hash!==input.source.sourceHash||colorsChanged||beforePlans.version!==afterPlans.version;
+    if(!audit?.automatic||sourceChanged)await appendOperationLog(client, currentActor, {
+      ...(audit?{operationId:audit.operationId,operationSequence:audit.operationSequence}:{}),
       module: '艾诺科同步', action: '艾诺科同步订单', entityType: 'SalesOrder', entityId: salesOrderId,
       beforeData: { orderId: salesOrderId, values: { sourceDeliveryDate: beforePlans.sourceDeliveryDate,
         sourceQuantity: beforePlans.sourceQuantity, insideOrderNo: before?.insideOrderNo ?? null,
@@ -89,5 +90,5 @@ export async function refreshAinuokeSalesOrderSourceInTransaction(
         dateStatus: afterPlans.reconciliation.dateStatus, quantityStatus: afterPlans.reconciliation.quantityStatus } },
       metadata: { domain: 'DeliveryPlan', mutationSurface: 'source_refresh' },
     });
-    return { salesOrder: after, deliveryPlanSet: afterPlans };
+    return { salesOrder: after, deliveryPlanSet: afterPlans,sourceChanged };
 }

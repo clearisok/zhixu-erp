@@ -1,0 +1,38 @@
+{
+  "state": "LATEST_ORIGINAL_RESTORED",
+  "seconds": 1153.9706094171852,
+  "databaseBytes": 12208782359,
+  "manifestSha256": "63a1901c6dfbfb7bcb9cf5b5eda475cbe69a0383f0fc30942b8d76d4ff053e6e",
+  "verification": {
+    "state": "ORIGINAL_RESTORE_VERIFIED",
+    "tableCount": 145,
+    "sequenceMetadataExact": true,
+    "manifestSha256": "63a1901c6dfbfb7bcb9cf5b5eda475cbe69a0383f0fc30942b8d76d4ff053e6e",
+    "durationSeconds": 517.257,
+    "snapshotAlgorithm": "row-sha256-multiset-v2; materialized hash projection",
+    "sourceWrites": 0,
+    "sourceRequests": 0
+  },
+  "attachments": {
+    "state": "PAIRED_OBJECTS_VERIFIED",
+    "objects": 13,
+    "objectBytes": 18292567,
+    "databaseReferencesMatched": true,
+    "allBackupFilesVerified": 58,
+    "manifestSha256": "63a1901c6dfbfb7bcb9cf5b5eda475cbe69a0383f0fc30942b8d76d4ff053e6e",
+    "sourceWrites": 0,
+    "sourceRequests": 0
+  },
+  "sequenceCount": 5,
+  "fullSnapshotSha256": "acb3047841f29d78293b9aaa512b3ff6ad83db8cecb03b948cef3bc392cb2716",
+  "protectedRowCounts": {
+    "sales_orders": 636,
+    "quote_center_quotes": 8,
+    "quote_center_revisions": 8,
+    "quote_attachments": 13,
+    "quote_revision_attachments": 13,
+    "app_users": 3,
+    "operation_logs": 223220
+  },
+  "gateBaseline": "05bd0194656cd092279c1d6d8a190d7cdef4281c"
+}

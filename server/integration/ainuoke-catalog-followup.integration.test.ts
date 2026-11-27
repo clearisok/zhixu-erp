@@ -133,6 +133,7 @@ test('catalogue is not a business ledger; active groups publish and fail indepen
    const review=await recoverSync(pool,actor,sourceKey);
    await recoverSync(pool,actor,sourceKey,{expectedHash:review.reviewHash,reason:'合成目录错误已核对；不复用旧请求'});
    const success=await captureCatalogOnce(pool,actor,selectedConfig,randomUUID(),async()=>selectedWorkerFixture('catalog-discovery','',[]));assert.equal(success.status,'complete');
+   assert.equal((await pool.query("SELECT metadata->>'automatic' automatic FROM operation_logs WHERE entity_id=$1 AND action='更新合同目录'",[success.result.runId])).rows[0].automatic,'false','manual directory intent is retained');
    await assert.rejects(pool.query("UPDATE ainuoke_catalog_requests SET result='{}' WHERE source_key=$1 AND request_id=$2",[sourceKey,id]),/immutable/);
   });
   await t.test('read-only detail has no raw or commercial amounts; explicit adoption uses original SO service and atomic receipt',async()=>{
@@ -167,7 +168,9 @@ test('catalogue is not a business ledger; active groups publish and fail indepen
     assert.equal((await runSyncTick(pool,actor,selectedConfig,{collect:async()=>{requests++;return null;}})).status,'busy');
     await assert.rejects(recoverSync(pool,actor,sourceKey),/sync_worker_busy/);assert.equal(requests,0);
     await assert.rejects(captureCatalogOnce(pool,actor,selectedConfig,randomUUID(),async()=>{requests++;return null;}),/sync_worker_busy/);assert.equal(requests,0);
-    assert.equal((await captureCatalogOnce(pool,actor,selectedConfig,randomUUID(),async()=>selectedWorkerFixture('catalog-discovery','',[]),lock)).status,'complete');
+    const periodic=await captureCatalogOnce(pool,actor,selectedConfig,randomUUID(),async()=>selectedWorkerFixture('catalog-discovery','',[]),lock);
+    assert.equal(periodic.status,'complete');
+    assert.deepEqual((await pool.query("SELECT metadata->>'automatic' automatic,metadata->>'sourceKey' source FROM operation_logs WHERE entity_id=$1 AND action='更新合同目录'",[periodic.result.runId])).rows[0],{automatic:'true',source:sourceKey},'trusted worker directory success is eligible for the existing seven-day technical-log rule');
     await assert.rejects(recoverSync(pool,actor,sourceKey),/sync_worker_busy/);
    }finally{await lock.query('SELECT pg_advisory_unlock(hashtextextended($1,0))',['ainuoke-sync-worker:'+sourceKey]);lock.release();}
   });

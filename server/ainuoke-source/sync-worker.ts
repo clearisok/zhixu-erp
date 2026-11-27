@@ -5,7 +5,7 @@ import type { Pool } from 'pg';
 import type { TrustedIdentity } from '../auth/session.js';
 import { appendOperationLog } from '../operation-logs/repository.js';
 import { accountFingerprint, parseCollectorConfig, type CollectorConfig } from './collector.js';
-import { hash, SourceError, validateBundle } from './contract.js';
+import { hash, SourceError, validateBundle,sourceIdText } from './contract.js';
 import { boundOrders, sourceActor, publishMaterialSnapshotsInTransaction } from './service.js';
 import { requireAdditionProfile } from './additions.js';
 import { refreshCollectedBoundOrderInTransaction } from './bound-order-refresh.js';
@@ -18,6 +18,8 @@ import {requirePermission} from '../auth/permissions.js';
 import {createAinuokeSalesOrderInTransaction} from '../sales-orders/service.js';
 import {lockEffectiveAttribution} from '../sales-orders/effective-attribution.js';
 import { saveCatalogEvidence } from './catalog-evidence.js';
+import { saveSharedPages, supportsSharedContent, businessDigest,type PackedPages } from './shared-content.js';
+import {saveManualColorEvidence} from './manual-source-evidence.js';
 import {CatalogConsistencyError,type CatalogChangeDiagnostic} from './catalog-consistency.js';
 import {retainCatalogDifferences,recapturePagesFor,loadRecapturePages,recapturePageHandler,appendCatalogDiagnostic} from './catalog-diagnostics.js';
 import { CatalogDiagnosticValidationError, collectCatalogDiagnostic, validateCatalogDiagnostic, diagnosticSummary, finishCaptureAttempt, retryDelayMs, retryableCapture, type RequestDiagnostic } from './sync-diagnostics.js';
@@ -49,32 +51,42 @@ async function publishContract(pool:Pool,identity:Identity,config:CollectorConfi
       requirePermission(actor.permissions,'ainuoke.bind');
       const candidate=captured.candidates.candidates.find(item=>item.source.salesContractNo===job.sales_contract_no);
       if(!candidate||candidate.source.sourceId!==job.source_id)throw new SourceError('catalog_identity_changed');
-      await createAinuokeSalesOrderInTransaction(c,actor,candidate,{materialPublication:'same_transaction'});
+      await createAinuokeSalesOrderInTransaction(c,actor,candidate,{materialPublication:'same_transaction',sourceEvidence:()=>saveManualColorEvidence(c,
+       {sourceKey:config.sourceKey,accountFingerprint:accountFingerprint(config),sourceId:job.source_id,contract:job.sales_contract_no},captured.addition)});
       target=(await boundOrders(c)).find(o=>o.salesContractNo===job.sales_contract_no);
       if(!target)throw new SourceError('material_recovery_binding_missing');
     }
     const singleAddition={...captured.addition,colors:{[job.sales_contract_no]:captured.addition.colors[job.sales_contract_no]}};
     let orderId:string|null=null;
     let publicationRunId:string|null=null;
+    let publicationCaptureId:string|null=null;
+    let publicationMaterial:PackedPages|null=null;
     if(target) {
       // Only an existing trusted binding can update business Source mirrors.
       const result=await refreshCollectedBoundOrderInTransaction(pool,c,actor,
-        {sourceKey:config.sourceKey,accountFingerprint:accountFingerprint(config),salesOrderId:target.id},singleAddition,job.id,now);
+        {sourceKey:config.sourceKey,accountFingerprint:accountFingerprint(config),salesOrderId:target.id},singleAddition,job.id,now,job.kind==='automatic');
       orderId=result.orderId;
       const refreshed=await boundOrders(c,true,[target.id]);
       const materialBundle={...captured.materials.bundle,materials:{[job.sales_contract_no]:captured.materials.bundle.materials[job.sales_contract_no]}};
       const materials=await validateBundle(materialBundle,refreshed,now,600000);
       publicationRunId=await publishMaterialSnapshotsInTransaction(c,actor,config.sourceKey,materials,refreshed);
-      const published=await c.query(`SELECT 1 FROM ainuoke_material_order_heads h
+      const published=await c.query(`SELECT to_jsonb(h)->>'verified_capture_id' AS verified_capture_id,to_jsonb(h)->'verified_material_manifest' AS verified_material_manifest FROM ainuoke_material_order_heads h
         JOIN ainuoke_material_source_snapshots s ON s.run_id=h.run_id AND s.sales_order_id=h.sales_order_id
         WHERE h.source_key=$1 AND h.sales_order_id=$2 AND h.run_id=$3 AND h.last_error_code IS NULL
         AND s.sales_contract_no=$4 AND s.source_link_id=$5 AND s.captured_order_version=$6`,
         [config.sourceKey,target.id,publicationRunId,job.sales_contract_no,refreshed[0].sourceLinkId,refreshed[0].version]);
       if(published.rowCount!==1)throw new SourceError('material_publication_not_readable');
+      publicationCaptureId=published.rows[0].verified_capture_id;
+      publicationMaterial=published.rows[0].verified_material_manifest;
     }
     const observationId=randomUUID(),directoryId=randomUUID();
-    const captureId=await saveCatalogEvidence(c,config.sourceKey,accountFingerprint(config),captured.directory.bundle);
-    const evidence={schemaVersion:'ainuoke-contract-observation.v2',captureId,colors:singleAddition.colors,materials:captured.materials.bundle.materials[job.sales_contract_no]};
+    const captureId=publicationCaptureId??await saveCatalogEvidence(c,config.sourceKey,accountFingerprint(config),captured.directory.bundle);
+    const shared=await supportsSharedContent(c);
+    const scope={sourceKey:config.sourceKey,accountFingerprint:accountFingerprint(config),sourceId:job.source_id,contract:job.sales_contract_no};
+    const colorContent=shared?await saveSharedPages(c,{...scope,kind:'colors'},singleAddition.colors[job.sales_contract_no]):null;
+    const materialContent=shared?(publicationMaterial??await saveSharedPages(c,{...scope,kind:'materials'},captured.materials.bundle.materials[job.sales_contract_no])):null;
+    const evidence=shared?{schemaVersion:'ainuoke-contract-observation.v3',captureId,contract:job.sales_contract_no,sourceId:job.source_id,colors:colorContent,materials:materialContent}
+     :{schemaVersion:'ainuoke-contract-observation.v2',captureId,colors:singleAddition.colors,materials:captured.materials.bundle.materials[job.sales_contract_no]};
     await c.query(`INSERT INTO ainuoke_catalog_runs(id,source_key,account_fingerprint,request_id,actor_user_id,captured_at,discovery,content_hash,capture_evidence_id)
       VALUES($1,$2,$3,$4,$5,$6,'[]'::jsonb,$7,$8)`,[directoryId,config.sourceKey,accountFingerprint(config),job.id,actor.internalUserId,captured.directory.capturedAt,
       captured.directory.contentHash,captureId]);
@@ -83,17 +95,31 @@ async function publishContract(pool:Pool,identity:Identity,config:CollectorConfi
     await c.query(`UPDATE ainuoke_catalog_entries SET inside_order_no=$3,style_no=$4,customer_name=$5,brand_name=$6,quantity=$7,
       contract_date=$8,delivery_date=$9,lifecycle_status_raw=$10,visible=true,observed_run_id=$11 WHERE source_key=$1 AND source_id=$2`,
       [config.sourceKey,job.source_id,observed.insideOrderNo,observed.styleNo,observed.customerName,observed.brandName,observed.quantity,observed.contractDate,observed.deliveryDate,observed.lifecycleStatusRaw,directoryId]);
-    await c.query(`INSERT INTO ainuoke_contract_observations(id,source_key,source_id,job_id,captured_at,evidence,content_hash,capture_evidence_id) VALUES($1,$2,$3,$4,$5,$6::jsonb,$7,$8)`,
-      [observationId,config.sourceKey,job.source_id,job.id,new Date(now),JSON.stringify(evidence),hash(evidence),captureId]);
+    const observationValues=[observationId,config.sourceKey,job.source_id,job.id,new Date(now),JSON.stringify(evidence),hash(evidence),captureId];
+    let businessChanged=true;
+    if(shared){
+      const stateHash=businessDigest({schemaVersion:'ainuoke-contract-state.v1',scope,materials:materialContent!.contentId,colors:colorContent!.contentId,
+       directory:captured.directory.bundle.discoveryAfter.flatMap(p=>p.rows).filter(r=>sourceIdText(r.values.id)===job.source_id).map(r=>r.values),
+       target:target?(await boundOrders(c,false,[target.id]))[0]:null});
+      const prior=(await c.query(`SELECT o.business_hash FROM ainuoke_contract_sync_state s JOIN ainuoke_contract_observations o ON o.id=s.observation_id WHERE s.source_key=$1 AND s.source_id=$2`,[config.sourceKey,job.source_id])).rows[0];
+      businessChanged=prior?.business_hash!==stateHash;
+      await c.query(`INSERT INTO ainuoke_contract_observations(id,source_key,source_id,job_id,captured_at,evidence,content_hash,capture_evidence_id,business_hash,record_kind)
+       VALUES($1,$2,$3,$4,$5,$6::jsonb,$7,$8,$9,$10)`,[...observationValues,stateHash,prior?.business_hash===stateHash?'confirmation':'change']);
+    }else await c.query(`INSERT INTO ainuoke_contract_observations(id,source_key,source_id,job_id,captured_at,evidence,content_hash,capture_evidence_id) VALUES($1,$2,$3,$4,$5,$6::jsonb,$7,$8)`,observationValues);
+    if(shared){
+      // Set structured references at INSERT time; immutable observations cannot be patched afterwards.
+      // The database trigger validates the manifest references and their full trusted scope.
+      if(target)await c.query('UPDATE ainuoke_material_order_heads SET verified_observation_id=$3 WHERE source_key=$1 AND sales_order_id=$2',[config.sourceKey,target.id,observationId]);
+    }
     await c.query(`INSERT INTO ainuoke_contract_sync_state(source_key,source_id,observation_id,last_success_at,last_attempt_at,last_error_code,last_diagnostic) VALUES($1,$2,$3,$4,$4,NULL,NULL)
       ON CONFLICT(source_key,source_id) DO UPDATE SET observation_id=excluded.observation_id,last_success_at=excluded.last_success_at,last_attempt_at=excluded.last_attempt_at,last_error_code=NULL,last_diagnostic=NULL`,[config.sourceKey,job.source_id,observationId,new Date(now)]);
-    const result={code:'complete',orderId,publicationRunId,publicationStatus:orderId?'published':'catalog_only',observedAt:new Date(now).toISOString(),contract:job.sales_contract_no,
+    const result={code:'complete',orderId,publicationRunId,publicationStatus:orderId?'published':'catalog_only',observedAt:new Date(now).toISOString(),contract:job.sales_contract_no,businessChanged,
       colorLines:captured.candidates.candidates.find(c=>c.source.salesContractNo===job.sales_contract_no)?.colors.length??0,
       materialRows:captured.materials.bundle.materials[job.sales_contract_no]
         .filter(p=>p.reportId==='6087050'||p.reportId==='6087051').reduce((n,p)=>n+p.rows.length,0)};
     await c.query("UPDATE ainuoke_sync_jobs SET status='complete',finished_at=$2,result=$3::jsonb WHERE id=$1",[job.id,new Date(now),JSON.stringify(result)]);
     await appendOperationLog(c,actor,{module:'艾诺科同步',action:'采集艾诺科来源',entityType:'AinuokeCatalogRun',entityId:directoryId,
-      metadata:{sourceOnly:true,jobId:job.id,requestedBy:current.requested_by},afterData:{objectName:job.sales_contract_no,values:{result:'同步成功'}}});
+      metadata:{sourceOnly:true,sourceKey:config.sourceKey,automatic:job.kind==='automatic',jobId:job.id,requestedBy:current.requested_by},afterData:{objectName:job.sales_contract_no,values:{result:'同步成功'}}});
     await auditPublished(c,config.sourceKey,observationId,singleAddition.colors[job.sales_contract_no],job.sales_contract_no,target?undefined:['ainuoke_contract_observations']);
     if(!target)await auditPublished(c,config.sourceKey,observationId,captured.materials.bundle.materials[job.sales_contract_no],job.sales_contract_no,['ainuoke_contract_observations']);
     await auditPublished(c,config.sourceKey,directoryId,captured.directory.bundle,'',['ainuoke_catalog_capture_evidence','ainuoke_catalog_runs','ainuoke_catalog_entries']);

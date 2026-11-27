@@ -4,3 +4,10 @@ database/migrations/0010_quote_creation_receipts.sql text eol=lf
 database/migrations/0011_quote_creation_defaults.sql text eol=lf
 
 database/migrations/0012_ainuoke_server_source.sql text eol=lf
+database/migrations/0061_ainuoke_storage_v2.sql text eol=lf
+database/migrations/0062_ainuoke_storage_maintenance.sql text eol=lf
+database/migrations/0063_ainuoke_history_epoch.sql text eol=lf
+database/migrations/0064_ainuoke_shared_row_identity.sql text eol=lf
+database/migrations/0065_ainuoke_directory_commit_evidence.sql text eol=lf
+database/migrations/0066_ainuoke_business_source_evidence.sql text eol=lf
+database/migrations/0067_ainuoke_source_event_kind.sql text eol=lf

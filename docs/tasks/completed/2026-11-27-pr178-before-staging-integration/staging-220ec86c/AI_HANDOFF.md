@@ -1,0 +1,22 @@
+# 当前接力：稳定性验收发现持久采集上下文故障
+
+2026-11-26 新用户授权已允许通过原门禁恢复Worker。e6三CI全部PASS。08:34Z自然启动后目录成功新增5单、1合同无变化成功，下一任务诊断回执冲突自行暂停；原证据全保留。最小回调上下文修复及定向测试已PASS，尚未发布/再次恢复；24h未开始。详见[本轮检查点](tasks/active/issue174-stability-20261126.md)。下列第三阶段原摘要仅保留历史，不再把旧Worker禁止解释为新授权阻塞。自动清理OFF、PR176 Draft、Issue174 Open、旧库备份保留、Production/合并禁止仍有效。
+
+# 接力：Issue174第三阶段已成功，公网及LAN开放
+
+2026-11-26；branch feat/issue174-storage-v2，本Gate baseline **1cccaeb31f7c79b96125030c9f5326426563a75f clean**。线上fd84815dee273c0c65b4565961c8d4ffe3bfb764/staging-i174-fd84815d；main10b9a7d827e1c09f152ead58c21f26712d49a619。PR176 Draft不合并，PR172/173保全，Issue174 OPEN/Project仅Status Staging，等待用户实际业务验收。[执行与各Gate](tasks/active/issue174-staging-phase3-execution-20261126.md)、[最终证据](tasks/active/evidence/issue174-phase3-20261126/second-cutover-accepted.json)、[旧摘要保全](tasks/completed/2026-11-26-issue174-second-window-checkpoints/README.md)。
+
+第二窗口14:40:56–15:57:01北京时间成功，维护4564.734秒，提前8035.266秒。独立Windowsdriver PID6444已成功退出，服务器监控终态后退出；不要重跑driver/有intent步骤/任何取消脚本。新写opening intent07:56:32.497523Z已落地，**禁止盲回旧库**。公网/LAN同fd/DBready正常，原LAN SHA78efce7e878b031095b4ea8d050fdd61689b9092b0035a5739d7f693814d8e71完整还原，临时127预览移除，owned SSH34688已精确关闭，未知27712不动。Worker/自动清理/旧库备份退役/合并/Production仍禁止。
+
+实际新project **zhixu-quote-trial-i174-v2b**，PG **a020819635e8e8277d16421b7c816669a9b3bc4a309b8d09ba097b84cf37bf01**，标准volume同project_data；Docker恢复fp **a2e67a21c9594367fc01a94eb5fe38e3e6b4c0589c2d2effde4cece847588b39**，CLI物理fp **4b0ea251739d2ab29d744a33ffce84177f2cc3f11738e9c58327d7e20a4ff88c**，不可混用。active DB408,345,623bytes/147表/636单。维护前源12,335,701,015bytes，减少96.6897%。普通quote_trial LOGIN非owner/非super、维护role NOLOGIN/4函数owner+ACL恢复/负权限四项通过，planner role/database off保留。source DB-only check无上游请求。
+
+服务器私密根 **/data/issue174-phase3-20261126b**，runtime/supervisor.json、identity.json、operator.env/collector.json、backups/policy.json等已精确pinned；source app image776effff8f66c652f4ed7694440535f060dbb58d0bb8ea3c63ad0241d95e50de，operator6e0f4b2c033e769cd95ab1b3ade99f544477eda5c81df9821f5337702ed2db9c，PG721873c34ceb9f8d8fc265984940dc982404c105f19ad51be9fdc5970a6080ea。五服务实际ID在evidence/new-policy.json与backups/policy.json，不可猜或静默repin。新Worker未创建，目标containerName weaveops-catalog-sync-fd84815d；status保留RECOVERY_BLOCKED/worker_stopped_requires_review和原legacy PAUSED。每日backup仍30 19 UTC带reviewreason，分钟Workerhold，其他cron原bytes保留。不要执行tick/activate或启cleanup。
+
+本轮原始pair **20261126T064059Z-9fd043bd** /manifest **63a1901c6dfbfb7bcb9cf5b5eda475cbe69a0383f0fc30942b8d76d4ff053e6e**，主存/home/jackson/weaveops-trial-backups/bundles和/data新根/latest-original-paired-backup，两物理磁盘同机（非offhost）；145表13对象58文件3.843GB全验证。旧pair20261126T023837Z-14573686与旧根/data/issue174-phase3-20261126全部保留，不可当本次新源。正式验收起90天最早2027-02-24T07:57:01.673068Z，无自动退役授权。
+
+选择工作库491,691,031bytes，145旧列/必要raw水合/5seq/FK/临时role移除全PASS；紧凑63,996,440bytes/SHA51cb91a2e3bf6cace820719114a325c5e22d81327bf2c718860854161c8bc69a，Windows私密phase3b-restore-ops及服务器均保留。新history epoch2026-11-26T07:37:44.970Z，不是切库或真实sync。12技术表获批无引用旧行未迁入新库，其余正式业务完整。新source first pair **20261126T075529Z-8d50463a** /manifest **2bb7c31074e1ff5609d831a5ef1c2e75f5cb8f5eb6c86a0e0aedb8080bea5975**，新根/backups/bundles，147表13对象57文件72,764,180bytes，清理/进程组/服务恢复全PASS。**开放写入后若需恢复，必须先保全最新新库/对象/新增业务，不能直接用此初始pair覆盖后续写入。**
+
+最终全147行/角色/owner/ACL/引用、13附件认证下载、匿名401/正常TLS管理员/11API200/8页实际UI和加载完成订单/关账12个月通过；备份最后重启后业务与quote/order/normalization-review三seq复核无变化，仅正常启动登录状态变化。原68字节PNG原线上相同缩略图503，原文完整，不改数据。其他角色未登录、用户人工全业务验收未替代，自然两轮/24h未测（Worker OFF）。当前formal五服务运行；新隔离PG **481b50dda5a07c321fed026a745412d5ba5d1e507dd54006dae6d8f3b98bbfe9** 已停止保留，旧候选/旧隔离也停止保留，旧原业务PG保留、旧writers停止。305次采样最大gap15.523秒/root最低29.02GB/含前次净峰44.94GB，本次约22.61GB。
+
+本机私密 **D:/CodexPrivate/issue174-20261124-v2** 全部源结果、8真实截图、driver日志与失败保留；勿stage任何dump/env/原始业务JSON/截图。182发布回归和fd三CI已PASS；本轮产品代码未改，最终源码/证据守卫PASS（13页/68能力/40UI路径/errors[]），完整终态检查点85446d7f58b3bb874a84d871dd4a63392426e486已DELIVERED_VERIFIED；之后仅交付结果元数据，最新精确HEAD以PR176及Issue回执核对，不冒称新文档HEAD三CI。用户只需实际验收；未经授权不要再开维护或恢复Worker/清理。
+

@@ -130,7 +130,7 @@ test('controlled new-contract intake uses the existing order model and one atomi
         return material;
       }});
       assert.equal(result.orders,2);
-      const snapshots=(await pool.query('SELECT sales_order_id::text,sales_contract_no FROM ainuoke_material_source_snapshots WHERE run_id=$1',[result.runId])).rows;
+        const snapshots=(await pool.query('SELECT sales_order_id::text,sales_contract_no FROM ainuoke_material_source_snapshots WHERE run_id=ANY($1::uuid[])',['runIds' in result?result.runIds:[result.runId]])).rows;
       assert.equal(snapshots.length,2);
       assert.ok(snapshots.some(row=>row.sales_order_id===inserted.orderIds[0]&&row.sales_contract_no===selected[0]));
     });

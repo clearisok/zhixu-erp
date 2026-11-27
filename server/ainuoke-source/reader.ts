@@ -8,6 +8,8 @@ import { normalizeAinuokeSalesContractNo } from "../../features/ainuoke-sync/sou
 import type { AinuokeOrderDiscoveryQuery, AinuokeReportSnapshot } from "../../features/ainuoke-api/model/ainuoke-api.js";
 import { hash, SourceError, sourceKeyValid } from "./contract.js";
 import { sourceActor, boundOrders, supportsSourceAttribution, supportsMaterialCaptureContext } from "./service.js";
+import { hydrateSharedPages, type PackedPages } from './shared-content.js';
+import { hydrateSourceDirectory } from './catalog-evidence.js';
 export type SourceReadConfig = { sourceKey: string; maxAgeMs: number };
 export function sourceReadConfig(values: Readonly<Record<string, string | undefined>>, identityMode: string): SourceReadConfig | null {
     if ((values.ZHIXU_AINUOKE_SOURCE_READ ?? "disabled") === "disabled") return null;
@@ -23,6 +25,7 @@ type Header = {
     discovery: AinuokeReportSnapshot<AinuokeOrderDiscoveryQuery>[];
     discovery_hash: string; last_error_code: string | null;
     order_scope: Array<Record<string, unknown>> | null; order_scope_hash: string | null;
+    verified_capture_id?: string | null; verified_material_manifest?: PackedPages | null;
 };
 type Stored = {
     sales_order_id: string; snapshots: AinuokeReportSnapshot[]; sales_contract_no: string;
@@ -63,10 +66,12 @@ export async function prepareMaterialPortsInTransaction(client: PoolClient, conf
         FROM ainuoke_source_profiles p JOIN ainuoke_source_runs r ON r.id=p.latest_run_id AND r.source_key=p.source_key
         WHERE p.source_key=$1 AND p.enabled=true`, [localConfig.sourceKey])).rows[0];
     if (!perOrder && profile?.enabled && profile.latest_run_id !== null && !legacyHeader) throw new SourceError('source_snapshot_changed');
-    const heads=perOrder?(await client.query<Header & {sales_order_id:string}>(`SELECT h.sales_order_id::text,h.run_id::text,p.account_fingerprint,r.discovery,r.discovery_hash,h.last_error_code,r.order_scope,r.order_scope_hash
+    const heads=perOrder?(await client.query<Header & {sales_order_id:string}>(`SELECT h.sales_order_id::text,h.run_id::text,p.account_fingerprint,r.discovery,r.discovery_hash,h.last_error_code,r.order_scope,r.order_scope_hash,
+      to_jsonb(h)->>'verified_capture_id' AS verified_capture_id,to_jsonb(h)->'verified_material_manifest' AS verified_material_manifest
       FROM ainuoke_material_order_heads h JOIN ainuoke_source_profiles p ON p.source_key=h.source_key AND p.enabled=true
       LEFT JOIN ainuoke_source_runs r ON r.id=h.run_id AND r.source_key=h.source_key WHERE h.source_key=$1 AND h.sales_order_id=ANY($2::uuid[])`,[localConfig.sourceKey,ids])).rows:[];
     const headers=new Map(ids.map(id=>[id,perOrder?heads.find(h=>h.sales_order_id===id):legacyHeader]));
+    for(const h of new Set([...headers.values(),legacyHeader]))if(h?.run_id)h.discovery=await hydrateSourceDirectory(client,localConfig.sourceKey,h.discovery);
     for(const h of headers.values())if(h?.run_id && hash(h.discovery)!==h.discovery_hash)throw new SourceError('source_snapshot_changed');
     const runIds=[...new Set([...headers.values()].filter(h=>h?.run_id).map(h=>h!.run_id))];
     const records = runIds.length ? (await client.query<Stored>(`SELECT s.run_id::text,s.sales_order_id::text,s.snapshots,s.sales_contract_no,s.content_hash,
@@ -75,6 +80,18 @@ export async function prepareMaterialPortsInTransaction(client: PoolClient, conf
         ${context ? 's.captured_order_version' : 'NULL::integer'} AS captured_order_version
         FROM ainuoke_material_source_snapshots s WHERE s.run_id=ANY($1::uuid[]) AND s.sales_order_id=ANY($2::uuid[])`, [runIds, ids])).rows.filter(record=>(record as Stored & {run_id:string}).run_id===headers.get(record.sales_order_id)?.run_id) : [];
     const indexed = new Map(records.map(record => [record.sales_order_id, record]));
+    const verifiedPages = new Map<string,AinuokeReportSnapshot[]>(),verifiedDirectories=new Map<string,Header['discovery']>();
+    for(const record of records){
+      const packed=record.snapshots[0] as unknown as PackedPages;
+      record.snapshots=await hydrateSharedPages(client,localConfig.sourceKey,record.snapshots,{contract:record.sales_contract_no,kind:'materials'});
+      if(hash(record.snapshots)!==record.content_hash)throw new SourceError('source_snapshot_changed');
+      const h=headers.get(record.sales_order_id);
+      if(h?.verified_material_manifest){
+        if(packed?.schemaVersion!=='ainuoke-shared-pages.v1'||packed.contentId!==h.verified_material_manifest.contentId||!h.verified_capture_id)throw new SourceError('source_snapshot_changed');
+        verifiedPages.set(record.sales_order_id,await hydrateSharedPages(client,localConfig.sourceKey,[h.verified_material_manifest],{contract:record.sales_contract_no,kind:'materials'}));
+        verifiedDirectories.set(record.sales_order_id,await hydrateSourceDirectory(client,localConfig.sourceKey,[{schemaVersion:'ainuoke-shared-directory.v1',captureId:h.verified_capture_id}]));
+      }
+    }
     const beforeFirstCapture = profile?.enabled === true && profile.latest_run_id === null;
     // A trusted intake can precede its first material capture. Reuse complete
     // Discovery identity validation; an absent material record is never a zero.
@@ -120,7 +137,7 @@ export async function prepareMaterialPortsInTransaction(client: PoolClient, conf
             } else if (header.order_scope !== null || record.captured_order_version !== null) throw new SourceError('source_snapshot_changed');
             if (hash(record.snapshots) !== record.content_hash) throw new SourceError('source_snapshot_changed');
             const result = await createMaterialSourceLoader({resolveVisibleOrder, provenance: 'server_snapshot', maxAgeMs: localConfig.maxAgeMs, now, retainPublishedHistory: true,
-                readDiscovery: async () => structuredClone(header.discovery), readMaterial: async () => structuredClone(record.snapshots)})(candidate, actor);
+                readDiscovery: async () => structuredClone(verifiedDirectories.get(order.id)??header.discovery), readMaterial: async () => structuredClone(verifiedPages.get(order.id)??record.snapshots)})(candidate, actor);
             if (historicalFailure && result?.snapshots.length && (!result.issue || result.issue === 'stale')) result.issue = 'source_failed';
             return result;
         },

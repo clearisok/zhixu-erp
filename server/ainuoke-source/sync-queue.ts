@@ -128,7 +128,9 @@ export async function claimSyncJobs(pool: Pool, identity: Identity, sourceKey: s
     await lockSource(c,sourceKey); const actor = await sourceActor(c,identity,true), settings = await control(c,sourceKey);
     if (String(settings.operator_id) !== actor.internalUserId) throw new SourceError('sync_operator_changed');
     const rows = (await c.query(`SELECT j.*,j.requested_by::text,e.contract_date,${effectiveSyncDeliverySql()} AS delivery_date,
-      coalesce(jsonb_array_length(o.evidence->'materials'),12)+coalesce(jsonb_array_length(coalesce(o.evidence->'colors',o.evidence#>'{addition,colors}')->j.sales_contract_no),1) AS detail_pages
+      CASE WHEN o.evidence->>'schemaVersion'='ainuoke-contract-observation.v3' THEN
+       jsonb_array_length(o.evidence#>'{materials,manifest}')+jsonb_array_length(o.evidence#>'{colors,manifest}')
+      ELSE coalesce(jsonb_array_length(o.evidence->'materials'),12)+coalesce(jsonb_array_length(coalesce(o.evidence->'colors',o.evidence#>'{addition,colors}')->j.sales_contract_no),1) END AS detail_pages
       FROM ainuoke_sync_jobs j JOIN ainuoke_catalog_entries e USING(source_key,source_id)
       LEFT JOIN ainuoke_contract_sync_state s USING(source_key,source_id)
       LEFT JOIN ainuoke_contract_observations o ON o.id=s.observation_id

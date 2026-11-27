@@ -1,0 +1,14 @@
+{
+  "state": "DELIVERED_VERIFIED",
+  "deliveredAcceptanceCommit": "85446d7f58b3bb874a84d871dd4a63392426e486",
+  "remoteExactSha": "85446d7f58b3bb874a84d871dd4a63392426e486",
+  "branch": "feat/issue174-storage-v2",
+  "pushes": 1,
+  "retries": 0,
+  "verification": "independent GitHub API",
+  "networkMode": "NORMAL for this bounded push; no persistent shared configuration changed",
+  "subsequentMetadataAttestationBaseline": "85446d7f58b3bb874a84d871dd4a63392426e486 clean",
+  "runtimeSource": "fd84815dee273c0c65b4565961c8d4ffe3bfb764",
+  "runtimeOrCodeOrFrozenInputChangesAfterAcceptance": false,
+  "newDocumentHeadCiNotClaimed": true
+}

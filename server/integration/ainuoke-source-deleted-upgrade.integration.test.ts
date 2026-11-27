@@ -1,3 +1,4 @@
+import {migrationFilesAfter} from './current-migration-ledger-fixture.js';
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {mkdtemp,readdir,copyFile,rm} from 'node:fs/promises';
@@ -42,7 +43,7 @@ test('0059→0060 preserves nonempty original rows; old invisible is unclassifie
   await publish(removed);
   const tables=(await pool.query("SELECT tablename FROM pg_tables WHERE schemaname='public' AND tablename<>'schema_migrations' ORDER BY tablename")).rows.map(r=>r.tablename);
   const snapshot=await freezeExistingPublicRows(pool,tables),before=await snapshot();
-  assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,['0060_ainuoke_contract_lifecycle.sql']);
+  assert.deepEqual((await runMigrations(pool,resolve('database/migrations'))).applied,migrationFilesAfter(59));
   assert.deepEqual(await snapshot(),before);
   assert.equal((await pool.query('SELECT count(*)::int n FROM ainuoke_contract_lifecycle_events')).rows[0].n,0);
   assert.deepEqual((await pool.query("SELECT visible,source_lifecycle_state FROM ainuoke_catalog_entries WHERE source_id='1'")).rows,[{visible:false,source_lifecycle_state:'present'}]);

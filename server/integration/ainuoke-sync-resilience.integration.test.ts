@@ -21,7 +21,8 @@ test('shared catalogue evidence keeps exact captures and old readers without rew
    assert.equal(observations.length,3);
    assert.equal(new Set(observations.map(o=>o.capture_evidence_id)).size,1);
    for(const row of observations){
-    assert.equal(row.evidence.schemaVersion,'ainuoke-contract-observation.v2');
+    assert.equal(row.evidence.schemaVersion,'ainuoke-contract-observation.v3');
+     assert.ok(row.evidence.materials.contentId&&row.evidence.colors.contentId);
     assert.equal(row.evidence.addition,undefined);
     const hydrated=await hydrateContractEvidence(f.pool,row);
     assert.ok(hydrated.addition.discoveryAfter[0].rows.length>0);

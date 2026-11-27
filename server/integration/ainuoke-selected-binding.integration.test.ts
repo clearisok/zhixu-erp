@@ -78,17 +78,20 @@ test("selected first binding is atomic, exact on replay and refreshes only bound
    await pool.query("INSERT INTO app_role_permissions VALUES('role-server-admin','ainuoke.bind')");
    assert.equal(await count("sales_orders"),1);
   });
-  await t.test("two persisted four-stream captures with full discovery and selected-only material fetch",async()=>{
+  await t.test("two full four-stream captures share unchanged facts and fetch only selected materials",async()=>{
    const reader=createOrderMaterialReader(createPersistedMaterialPorts(pool,{sourceKey:opts.sourceKey,maxAgeMs:1800000}));
+   const runIds:string[]=[];
    for(let cycle=0;cycle<2;cycle++){
-    await captureSource(pool,actor,{sourceKey:opts.sourceKey,accountFingerprint:opts.accountFingerprint,maxAgeMs:600000,collect:async contracts=>{
+    const capture=await captureSource(pool,actor,{sourceKey:opts.sourceKey,accountFingerprint:opts.accountFingerprint,maxAgeMs:600000,collect:async contracts=>{
      assert.deepEqual(contracts,selected);const materials=freshMaterialBundle();const discovery=additionBundle(Date.now(),3,[0]).discoveryBefore;
      materials.discoveryBefore=discovery;materials.discoveryAfter=structuredClone(discovery);return materials;
     }});
+    runIds.push(capture.runId);
     const read=await reader(actor,{salesOrderId:r.orderIds[0]});assert.equal(read.status,200);
     if(read.status===200){assert.equal(read.body.progress.sourceStatus,"ready");for(const stream of ["purchases","inbounds","shipments","outbounds"] as const)assert.ok(read.body.progress.rows.some(row=>row[stream].length));}
    }
-   assert.equal(await count("sales_orders"),1);assert.equal(await count("ainuoke_source_runs"),2);assert.equal(await count("quote_center_quotes"),0);
+   assert.equal(new Set(runIds).size,1);assert.equal(await count("sales_orders"),1);assert.equal(await count("ainuoke_source_runs"),1);assert.equal(await count("ainuoke_material_source_snapshots"),1);assert.equal(await count("quote_center_quotes"),0);
+   assert.equal((await pool.query("SELECT count(*)::int n FROM ainuoke_contract_contents WHERE source_key=$1 AND kind='materials'",[opts.sourceKey])).rows[0].n,1);
   });
   await t.test("a newly admitted contract does not borrow the old order snapshot or appear missing",async()=>{
    const addition=additionBundle(Date.now(),3,[1]),contracts=Object.keys(addition.colors);
@@ -131,7 +134,7 @@ test("selected first binding is atomic, exact on replay and refreshes only bound
    missing.discoveryBefore=discovery;missing.discoveryAfter=structuredClone(discovery);
    await captureSource(pool,actor,{sourceKey:opts.sourceKey,accountFingerprint:opts.accountFingerprint,maxAgeMs:600000,collect:async()=>missing});
    assert.equal((await materialReader(actor,{salesOrderId:second})).status,404);
-   assert.equal(await count("sales_orders"),2);assert.equal(await count("ainuoke_material_source_snapshots"),3);
+   assert.equal(await count("sales_orders"),2);assert.equal(await count("ainuoke_material_source_snapshots"),counts[2],'An unrelated missing contract must not version unchanged material facts');
   });
  }finally{await pool.end();await db.stop();}
 });

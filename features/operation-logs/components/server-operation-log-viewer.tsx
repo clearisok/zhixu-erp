@@ -78,4 +78,4 @@ function LogViewer({quoteId}:{quoteId?:string}){
   </Drawer>
  </section>;
 }
-export function ServerGlobalOperationLogPage(){return <AppShell title="操作日志"><PageContainer><PageHeader title="操作日志" description="查看团队操作与修改前后的记录。"/><ServerOperationLogViewer/></PageContainer></AppShell>;}
+export function ServerGlobalOperationLogPage(){return <AppShell title="操作日志"><PageContainer><PageHeader title="操作日志"/><ServerOperationLogViewer/></PageContainer></AppShell>;}

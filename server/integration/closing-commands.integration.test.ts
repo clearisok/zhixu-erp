@@ -23,8 +23,9 @@ test('current month adoption: nonempty upgrade, immutable snapshots, trusted HTT
   async function digests() {
     const values: Record<string, string> = {};
     for (const name of tableNames) { assert.match(name, /^[a-z0-9_]+$/u);
-      // 0046 adds one nullable evidence column; compare every pre-upgrade field.
-      const row = name === 'sales_order_commercial_lines' ? "to_jsonb(r)-'labor_confirmation_source'" : 'to_jsonb(r)';
+      // Compare every pre-upgrade field; 0046/0066 only add nullable evidence.
+      const row = name === 'sales_order_commercial_lines' ? "to_jsonb(r)-'labor_confirmation_source'"
+        : name === 'operation_logs' ? "to_jsonb(r)-'source_color_content_id'-'source_directory_capture_id'" : 'to_jsonb(r)';
       values[name] = (await pool.query(`SELECT md5(coalesce(jsonb_agg(${row} ORDER BY ${row}::text)::text,'[]')) digest FROM public."${name}" r`)).rows[0].digest; }
     return values;
   }
@@ -34,6 +35,7 @@ test('current month adoption: nonempty upgrade, immutable snapshots, trusted HTT
   assert.deepEqual(upgrade.applied, migrationFilesAfter(44));
   assert.deepEqual(await digests(), before); assert.deepEqual((await pool.query('SELECT * FROM schema_migrations WHERE version<=44 ORDER BY version')).rows, ledger);
   assert.equal((await pool.query('SELECT count(*)::int n FROM sales_order_commercial_lines WHERE labor_confirmation_source IS NOT NULL')).rows[0].n, 0);
+  assert.equal((await pool.query('SELECT count(*)::int n FROM operation_logs WHERE source_color_content_id IS NOT NULL OR source_directory_capture_id IS NOT NULL')).rows[0].n, 0, 'Upgrade must not invent source evidence for old employee operations');
   await t.test('0045 adds empty tables without changing old nonempty rows and is idempotent', async () => {
     assert.deepEqual(CURRENT_MIGRATION_FILES, (await readdir(resolve('database/migrations'))).filter(name => /^\d+_.*\.sql$/u.test(name)).sort());
     assert.deepEqual((await runMigrations(pool, resolve('database/migrations'))).applied, []);

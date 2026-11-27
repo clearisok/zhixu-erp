@@ -8,13 +8,14 @@ import {createOrderMaterialReader} from '../../features/ainuoke-material-progres
 import {buildAinuokeMaterialApiPreview} from '../../features/style-progress/service/ainuoke-material-api-preview.js';
 import {materialConfirmationEvidence,type MaterialConfirmation} from '../../features/ainuoke-material-progress/confirmed-facts.js';
 import {createLocalConfirmedMaterialPorts} from '../ainuoke-source/local-unit-confirmations.js';
+import {hydrateSharedPages} from '../ainuoke-source/shared-content.js';
 
 test('explicit reviewed confirmations use persisted identity, survive batch reads, and never write source or business facts',{timeout:120000},async()=>{
  const x=await startContinuousFixture(resolve('dist/client'),{orderAlerts:true});
  try{
   const actor=await loadExistingBootstrapActor(x.pool,x.users[0]);
-  const records=async()=> (await x.pool.query('SELECT snapshots,content_hash FROM ainuoke_material_source_snapshots ORDER BY run_id,sales_order_id')).rows;
-  const before=await records(),pipeline=buildAinuokeMaterialApiPreview({snapshots:before[0].snapshots}).pipeline;
+  const records=async()=> (await x.pool.query('SELECT snapshots,content_hash,sales_contract_no FROM ainuoke_material_source_snapshots ORDER BY run_id,sales_order_id')).rows;
+  const before=await records(),pages=await hydrateSharedPages(x.pool,'synthetic-demo',before[0].snapshots,{kind:'materials',contract:before[0].sales_contract_no}),pipeline=buildAinuokeMaterialApiPreview({snapshots:pages}).pipeline;
   const demand=pipeline.demands.find(d=>d.materialCode==='SYNTHETIC-MAT-ready')!;
   const receipt:MaterialConfirmation={id:'synthetic-unit-confirmation',salesContractNo:demand.salesContractNo,demandId:demand.id,
    evidenceKey:materialConfirmationEvidence(demand,pipeline.rawRows.filter(r=>r.normalizedDemandId===demand.id)),

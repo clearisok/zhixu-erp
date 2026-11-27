@@ -417,15 +417,20 @@ export async function replaceCurrentAinuokeColorSlice(
   client: Queryable,
   salesOrderId: string,
   colors: readonly AinuokeColorMirrorInput[],
-): Promise<void> {
+): Promise<boolean> {
  return writeSourceObservation(client,salesOrderId,async client=>{
-  await client.query("DELETE FROM ainuoke_sales_order_color_mirrors WHERE sales_order_id = $1::uuid", [salesOrderId]);
+  let changed=Boolean((await client.query("DELETE FROM ainuoke_sales_order_color_mirrors WHERE sales_order_id = $1::uuid AND NOT(source_line_identity=ANY($2::text[]))", [salesOrderId,colors.map(c=>requiredText(c.sourceLineIdentity,'sourceLineIdentity'))])).rowCount);
   for (const color of colors) {
-    await client.query(
+    const written=await client.query(
       `INSERT INTO ainuoke_sales_order_color_mirrors(
          sales_order_id, source_line_identity, color_name, quantity,
          delivery_date, source_hash, source_metadata
-       ) VALUES ($1::uuid, $2, $3, $4, $5::date, $6, $7::jsonb)`,
+       ) VALUES ($1::uuid, $2, $3, $4, $5::date, $6, $7::jsonb)
+       ON CONFLICT(sales_order_id,source_line_identity) DO UPDATE SET color_name=excluded.color_name,quantity=excluded.quantity,
+       delivery_date=excluded.delivery_date,source_hash=excluded.source_hash,source_metadata=excluded.source_metadata,updated_at=now()
+       WHERE (ainuoke_sales_order_color_mirrors.color_name,ainuoke_sales_order_color_mirrors.quantity,ainuoke_sales_order_color_mirrors.delivery_date,
+        ainuoke_sales_order_color_mirrors.source_hash,ainuoke_sales_order_color_mirrors.source_metadata) IS DISTINCT FROM
+        (excluded.color_name,excluded.quantity,excluded.delivery_date,excluded.source_hash,excluded.source_metadata)`,
       [
         salesOrderId,
         requiredText(color.sourceLineIdentity, "sourceLineIdentity"),
@@ -436,7 +441,9 @@ export async function replaceCurrentAinuokeColorSlice(
         JSON.stringify(color.sourceMetadata ?? {}),
       ],
     );
+    changed ||= Boolean(written.rowCount);
   }
+  return changed;
  });
 }
 

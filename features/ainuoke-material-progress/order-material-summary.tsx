@@ -3,6 +3,8 @@ import { useEffect, useState, type ReactNode } from 'react';
 import { useServerSession } from '@/features/server-auth';
 import { ServerContractRefresh } from '@/features/order-center/components/server-contract-refresh';
 import { Card } from '@/components/foundation/card';
+import { Button } from '@/components/foundation/button';
+import { materialReadFeedback, materialReadTime } from './material-read-feedback';
 import { readOrderMaterial } from './http-client';
 import { orderMaterialNavigation } from './order-navigation';
 import type { OrderMaterialReadModel } from './read-service';
@@ -26,7 +28,7 @@ export function useOrderMaterial(id: string) {
       if(pending||controller.signal.aborted)return;
       clearTimeout(timer);pending=true;
       try{const model=await readOrderMaterial(id,controller.signal);if(!controller.signal.aborted)setState({id:scope,model,error:null,loading:false});}
-      catch{if(!controller.signal.aborted)setState({id:scope,model:null,error:'正式物料来源未接通或不可读取；不会回退 Browser。',loading:false});}
+      catch(error){if(!controller.signal.aborted)setState({id:scope,model:null,error:materialReadFeedback(error),loading:false});}
       finally{pending=false;if(!controller.signal.aborted)timer=setTimeout(()=>{if(document.visibilityState==='visible')void read();else timer=setTimeout(onVisible,MATERIAL_REFRESH_MS);},MATERIAL_REFRESH_MS);}
     };
     const onVisible=()=>{if(document.visibilityState==='visible')void read();};
@@ -55,7 +57,7 @@ export function OrderMaterialSummary({salesOrderId,history,onReadState}:{salesOr
         <div className="ow-material-pending" role="status"><span>待采购<strong>{!items || items.procurementUnknown ? '待核对' : `${items.pendingPurchase} 项`}</strong>{Boolean(items?.procurementUnknown && items.pendingPurchase) && `（已确认 ${items!.pendingPurchase} 项）`}</span><span title="沿用来源已采购数量减已入库数量的逐需求缺口；不等同需求入库齐套">待入库（已采购）<strong>{!items || items.historical ? '待核对' : items.pendingInboundUnknown ? `已确认 ${items.pendingInbound.length} 项 · ${items.pendingInboundUnknown} 项待核对` : `${items.pendingInbound.length} 项`}</strong></span></div>
         {items?.pendingInbound.length ? <details className="ow-material-pending-details"><summary>{items.historical ? "查看上次来源待入库物料" : "查看待入库物料"}（{items.pendingInbound.length} 项）</summary><ul>{items.pendingInbound.map(row => <li key={row.demand.id}><span>{row.demand.materialName}{row.demand.materialColor && ` · ${row.demand.materialColor}`}{row.demand.specification && ` · ${row.demand.specification}`}</span><strong>{row.business!.pendingInbound.quantity?.toLocaleString('zh-CN',{maximumFractionDigits:9})} {row.business!.pendingInbound.unit}</strong></li>)}</ul></details> : null}
       </>}
-    </div> : state.loading?<p>读取物料来源…</p>:state.error?<p role="status">{state.error}</p>:view&&<><p role="status">{view.message} · 来源读取 {sourceTime(view.fetchedAt)}</p>{view.sourceStatus==='ready'?<div className="sp-server-summary">{(['fabric','trim'] as const).map(type=><section key={type}><strong>{type==='fabric'?'面料':'辅料'} {view.summary[type].demands} 项</strong><span>{Object.entries(materialStateLabels).map(([key,label])=><small key={key}>{label} {view.summary[type].states[key as keyof typeof materialStateLabels]}　</small>)}<small>未知 {view.summary[type].unknown}</small></span></section>)}</div>:<p>当前采购数量待核对；这不表示没有采购。可刷新来源，或查看历史物料来源。</p>}</>}
-    {history?<details className="ow-refresh"><summary>数据来源、统计口径与刷新</summary><p>{state.error ?? view?.message ?? '暂未取得物料来源。'} · 来源读取 {sourceTime(view?.fetchedAt ?? null)}</p><p>按自购物料需求明细项统计，不跨单位累计数量。有采购或入库记录不代表已完成；齐套率仅在全部需求项均可判定时显示。采购完成沿用已核实的采购缺口为零，入库完成沿用原齐套状态，分母均为自购需求项。待入库明细沿用已采购未入库的来源缺口，不代表需求齐套。</p>{items && items.otherSupply > 0 && <p>另有 {items.otherSupply} 项厂供或其他供料，保留在物料跟进中，不计入自购摘要。</p>}<ServerContractRefresh key={salesOrderId} scope={{orderId:salesOrderId}} onComplete={state.reload} /></details>:<ServerContractRefresh key={salesOrderId} scope={{orderId:salesOrderId}} onComplete={state.reload} />}
+    </div> : state.loading?<p>读取物料来源…</p>:state.error?<div><p role="alert">{state.error}</p><Button variant="secondary" onClick={state.reload}>重新读取物料</Button></div>:view&&<><p role="status">{view.message} · 来源读取（北京时间） <time dateTime={view.fetchedAt??undefined}>{materialReadTime(view.fetchedAt)}</time></p>{view.fetchedAt&&<details><summary>来源时间详情</summary><time dateTime={view.fetchedAt}>{view.fetchedAt}</time></details>}{view.sourceStatus==='ready'?<div className="sp-server-summary">{(['fabric','trim'] as const).map(type=><section key={type}><strong>{type==='fabric'?'面料':'辅料'} {view.summary[type].demands} 项</strong><span>{Object.entries(materialStateLabels).map(([key,label])=><small key={key}>{label} {view.summary[type].states[key as keyof typeof materialStateLabels]}　</small>)}<small>未知 {view.summary[type].unknown}</small></span></section>)}</div>:<p>当前采购数量待核对；这不表示没有采购。可刷新来源，或查看历史物料来源。</p>}</>}
+    {history?<details className="ow-refresh"><summary>数据来源、统计口径与刷新</summary>{state.error&&<Button variant="secondary" onClick={state.reload}>重新读取物料</Button>}<p>{state.error ?? view?.message ?? '暂未取得物料来源。'} · 来源读取 {sourceTime(view?.fetchedAt ?? null)}</p><p>按自购物料需求明细项统计，不跨单位累计数量。有采购或入库记录不代表已完成；齐套率仅在全部需求项均可判定时显示。采购完成沿用已核实的采购缺口为零，入库完成沿用原齐套状态，分母均为自购需求项。待入库明细沿用已采购未入库的来源缺口，不代表需求齐套。</p>{items && items.otherSupply > 0 && <p>另有 {items.otherSupply} 项厂供或其他供料，保留在物料跟进中，不计入自购摘要。</p>}<ServerContractRefresh key={salesOrderId} scope={{orderId:salesOrderId}} onComplete={state.reload} /></details>:<ServerContractRefresh key={salesOrderId} scope={{orderId:salesOrderId}} onComplete={state.reload} />}
   </Card>;
 }
