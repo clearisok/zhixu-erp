@@ -6396,6 +6396,97 @@
       "path": "docs/tasks/active/order-workbench-demo-2026-11-27.md",
       "recordedAtSha": "635cef81117c2ff16969a3118ef7a8d466fe989f",
       "sha256": "0058650ccb63046cbfc82fbada2d0bee26c872c12b833c3a51809ae00ea5e06c"
+    },
+    {
+      "id": "order-workbench-refinement-approval-20261127",
+      "kind": "document",
+      "path": "docs/tasks/active/order-workbench-refinement-approval-2026-11-27.md",
+      "recordedAtSha": "12dd49c3a09950907df9c9101236703a32457a69",
+      "sha256": "e27359a5765f9dd9b346d7548868315d3710e45816ff63f670ecb68c63516713"
+    },
+    {
+      "id": "order-workbench-refinement-before-11053c10-1440-20261127",
+      "kind": "screenshot",
+      "path": "docs/release/evidence/order-workbench-refinement-20261127/before-11053c10-1440.png",
+      "recordedAtSha": "d3f1b1a24303cb44215ec7defab050bc0e9eb068",
+      "sha256": "8e318a7a247831388c4f6a5ec5a064a0a2b9650ea245dd0d5ddd93a0f85cee35",
+      "renderedSourceSha": "11053c106dd8f97c8bd52ba1482070daa63b4928",
+      "changeReason": "Issue177用户明确批准P1–P4局部优化；真实只读API截图，来源过期明确标历史，非人工接受或部署。",
+      "approvalEvidence": "order-workbench-refinement-approval-20261127"
+    },
+    {
+      "id": "order-workbench-refinement-before-material-11053c10-1440-20261127",
+      "kind": "screenshot",
+      "path": "docs/release/evidence/order-workbench-refinement-20261127/before-material-11053c10-1440.png",
+      "recordedAtSha": "d3f1b1a24303cb44215ec7defab050bc0e9eb068",
+      "sha256": "d571ee07ebb45e5b49a1008ce19fbe4535d06e49da6b6767c923e60b04afb83c",
+      "renderedSourceSha": "11053c106dd8f97c8bd52ba1482070daa63b4928",
+      "changeReason": "Issue177用户明确批准P1–P4局部优化；真实只读API截图，来源过期明确标历史，非人工接受或部署。",
+      "approvalEvidence": "order-workbench-refinement-approval-20261127"
+    },
+    {
+      "id": "order-workbench-refinement-after-c856f35f-1440-20261127",
+      "kind": "screenshot",
+      "path": "docs/release/evidence/order-workbench-refinement-20261127/after-c856f35f-1440.png",
+      "recordedAtSha": "d3f1b1a24303cb44215ec7defab050bc0e9eb068",
+      "sha256": "7386db06da521c3d365053548ab485af7c1f4a24b83c61f47d11134d610667c1",
+      "renderedSourceSha": "c856f35f1caa073c829976c829513f6e941d44df",
+      "changeReason": "Issue177用户明确批准P1–P4局部优化；真实只读API截图，来源过期明确标历史，非人工接受或部署。",
+      "approvalEvidence": "order-workbench-refinement-approval-20261127"
+    },
+    {
+      "id": "order-workbench-refinement-material-c856f35f-1440-20261127",
+      "kind": "screenshot",
+      "path": "docs/release/evidence/order-workbench-refinement-20261127/material-c856f35f-1440.png",
+      "recordedAtSha": "d3f1b1a24303cb44215ec7defab050bc0e9eb068",
+      "sha256": "6104b910758a70b03d2dda4ba5c0409a6b64f7c0defcac34c6cba1d6867d33ed",
+      "renderedSourceSha": "c856f35f1caa073c829976c829513f6e941d44df",
+      "changeReason": "Issue177用户明确批准P1–P4局部优化；真实只读API截图，来源过期明确标历史，非人工接受或部署。",
+      "approvalEvidence": "order-workbench-refinement-approval-20261127"
+    },
+    {
+      "id": "order-workbench-refinement-pending-c856f35f-1440-20261127",
+      "kind": "screenshot",
+      "path": "docs/release/evidence/order-workbench-refinement-20261127/pending-c856f35f-1440.png",
+      "recordedAtSha": "d3f1b1a24303cb44215ec7defab050bc0e9eb068",
+      "sha256": "32a71e0685662f006343ccb78676f3507eb6d19046b38e451e34f68ff9723cb6",
+      "renderedSourceSha": "c856f35f1caa073c829976c829513f6e941d44df",
+      "changeReason": "Issue177用户明确批准P1–P4局部优化；真实只读API截图，来源过期明确标历史，非人工接受或部署。",
+      "approvalEvidence": "order-workbench-refinement-approval-20261127"
+    },
+    {
+      "id": "order-workbench-refinement-after-c856f35f-390-20261127",
+      "kind": "screenshot",
+      "path": "docs/release/evidence/order-workbench-refinement-20261127/after-c856f35f-390.png",
+      "recordedAtSha": "d3f1b1a24303cb44215ec7defab050bc0e9eb068",
+      "sha256": "a962e6cfe8668223744746589404e52de3f6923e1cf843f8d59b34105769b7cc",
+      "renderedSourceSha": "c856f35f1caa073c829976c829513f6e941d44df",
+      "changeReason": "Issue177用户明确批准P1–P4局部优化；真实只读API截图，来源过期明确标历史，非人工接受或部署。",
+      "approvalEvidence": "order-workbench-refinement-approval-20261127"
+    },
+    {
+      "id": "order-workbench-refinement-material-c856f35f-390-20261127",
+      "kind": "screenshot",
+      "path": "docs/release/evidence/order-workbench-refinement-20261127/material-c856f35f-390.png",
+      "recordedAtSha": "d3f1b1a24303cb44215ec7defab050bc0e9eb068",
+      "sha256": "b462d0821365ba471cd0cd71f74f968604431abb2716190da8f3e3d0a564bb79",
+      "renderedSourceSha": "c856f35f1caa073c829976c829513f6e941d44df",
+      "changeReason": "Issue177用户明确批准P1–P4局部优化；真实只读API截图，来源过期明确标历史，非人工接受或部署。",
+      "approvalEvidence": "order-workbench-refinement-approval-20261127"
+    },
+    {
+      "id": "order-workbench-refinement-engineering-20261127",
+      "kind": "document",
+      "path": "docs/release/evidence/order-workbench-refinement-20261127/engineering.md",
+      "recordedAtSha": "d3f1b1a24303cb44215ec7defab050bc0e9eb068",
+      "sha256": "5c802a0e45cc618fff01794d4bfd64289516d90a022026441356001354c7eaa3"
+    },
+    {
+      "id": "order-workbench-refinement-demo-20261127",
+      "kind": "document",
+      "path": "docs/tasks/active/order-workbench-refinement-demo-2026-11-27.md",
+      "recordedAtSha": "d3f1b1a24303cb44215ec7defab050bc0e9eb068",
+      "sha256": "ecb1c4436defab3cc0cab90f5e89a7a837425095454f2d997f7858fb3c985483"
     }
   ],
   "pages": [
@@ -6536,7 +6627,17 @@
         "order-workbench-after-11053c10-390-20261127",
         "order-workbench-colors-11053c10-390-20261127",
         "order-workbench-engineering-20261127",
-        "order-workbench-demo-guide-20261127"
+        "order-workbench-demo-guide-20261127",
+        "order-workbench-refinement-approval-20261127",
+        "order-workbench-refinement-before-11053c10-1440-20261127",
+        "order-workbench-refinement-before-material-11053c10-1440-20261127",
+        "order-workbench-refinement-after-c856f35f-1440-20261127",
+        "order-workbench-refinement-material-c856f35f-1440-20261127",
+        "order-workbench-refinement-pending-c856f35f-1440-20261127",
+        "order-workbench-refinement-after-c856f35f-390-20261127",
+        "order-workbench-refinement-material-c856f35f-390-20261127",
+        "order-workbench-refinement-engineering-20261127",
+        "order-workbench-refinement-demo-20261127"
       ]
     },
     {
