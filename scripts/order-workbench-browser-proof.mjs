@@ -72,7 +72,7 @@ try {
       await pause(120);await evaluate("document.querySelector('.ops-workspace').scrollTop=0");
       check(label+' width '+width,await evaluate('document.documentElement.scrollWidth<=innerWidth+1'));
       check(label+' cards reachable '+width,await evaluate(`[...document.querySelectorAll('.ow-workbench [role=tabpanel]:not([hidden]) .oc-server-detail-section')].every(e=>{const r=e.getBoundingClientRect();return r.left>=0&&r.right<=innerWidth+1})`));
-      if(width===390){await capture(label==='订单总览'?'overview-390':label==='颜色与尺码'?'colors-390':'prices-390');if(label==='订单总览'){await evaluate("document.querySelector('.ow-material-anchor').scrollIntoView({block:'start',behavior:'instant'})");await pause(100);await capture('material-390');}}
+      if(width===390){await capture(label==='订单总览'?'overview-390':label==='颜色与尺码'?'colors-390':'prices-390');if(label==='订单总览'){await evaluate("document.querySelector('.ow-material-anchor').scrollIntoView({block:'start',behavior:'instant'})");await pause(100);check('material heading clears mobile topbar',await evaluate("document.querySelector('.oc-server-detail-material-summary header').getBoundingClientRect().top>=document.querySelector('.ops-topbar').getBoundingClientRect().bottom"));await capture('material-390');}}
     }
   }
   await evaluate("[...document.querySelectorAll('[role=tab]')].find(e=>e.textContent==='颜色与尺码').click()");await pause(150);

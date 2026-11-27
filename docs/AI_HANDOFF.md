@@ -7,3 +7,5 @@
 13项针对性单元/切线检查通过，Typecheck通过；完整Lint零警告通过。12dd49c3已提交并精确送达，Server前端Build、root1032/1032、4套UI43/43及精确9路径守卫通过。真实来源过期后补充上次来源项数并显式标历史，旧完成/缺口不作当前判断；7/7纯统计检查通过，新源码待checkpoint后重建、实机与完整检查。原0787 Hosted team-access的旧identity selector已修复为实际工作台，原source取消/baseline成功，不记旧CI全绿。
 
 本机5177只读Demo SSH桥已重启，仅本任务进程，远端服务未重启。所有业务非GET在本机403，无采集。新证据前向提交，不覆盖旧冻结文档/图像。旧共享摘要逐字保存在[tasks/completed/2026-11-27-before-order-workbench-refinement](tasks/completed/2026-11-27-before-order-workbench-refinement/AI_HANDOFF.md)。交付用官方git-delivery.ps1，一次push并精确核实，等脚本完全结束再编辑。
+
+1ba496570989def249a41e9e9ae3ae8b3018d7df已一次push并核验精确送达，真实历史摘要已核对。手机锚点避免顶栏遮挡的CSS微调与几何断言待本Gate提交后重建；四套UI的1ba复核进行中。12dd release182/182已通过。
