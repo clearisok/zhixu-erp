@@ -96,6 +96,18 @@ test('built order workbench uses existing live APIs, preserves unknown facts, ro
       await evaluate('window.materialFailure=false;window.dispatchEvent(new Event("focus"))'); await has('自购需求项');
       await until(()=>evaluate('document.querySelector(".ow-material-metrics dd").textContent!=="待核对"'),'material recovery');
     });
+    await t.test('retained old material counts stay labelled and cannot become current rates or gaps', async () => {
+      const previous = await evaluate('document.querySelector(".ow-material-metrics dd").textContent');
+      try {
+        x.setMode('stale'); await evaluate('window.dispatchEvent(new Event("focus"))');
+        await has('上次来源 · 当前待核对');
+        assert.equal(await evaluate('document.querySelector(".ow-material-metrics dd").textContent'),previous);
+        const values = await evaluate('[...document.querySelectorAll(".ow-material-metrics dd")].map(e=>e.textContent)');
+        assert.equal(values[2],'待核对'); assert.equal(values[4],'待核对');
+        assert.doesNotMatch(await evaluate('document.querySelector(".ow-material-pending").innerText'),/\d/);
+      } finally { x.setMode('ready'); await evaluate('window.dispatchEvent(new Event("focus"))'); }
+      await until(()=>evaluate('!document.querySelector(".oc-server-detail-material-summary header").innerText.includes("上次来源")'),'fresh material recovery');
+    });
     await t.test('color quantities lead to source matrices without losing unknown or pending evidence', async () => {
       await evaluate('document.querySelector(".ow-color-summary-row button").click()');
       await has('未知不补 0');

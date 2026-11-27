@@ -43,7 +43,7 @@ test('factory and other supplies are preserved but excluded from Server self-pur
 });
 test('stale, failed, incomplete, absent and inconsistent sources never become zero or a percentage', () => {
   assert.equal(materialSummaryItems(null), null);
-  for (const status of ['stale','source_failed','incomplete','not_connected','identity_mismatch']) assert.equal(materialSummaryItems(model([row('a','ready',0)],status)), null);
+  for (const status of ['incomplete','not_connected','identity_mismatch']) assert.equal(materialSummaryItems(model([row('a','ready',0)],status)), null);
   const inconsistent = model([row('a','ready',0)]); inconsistent.progress.summary.fabric.demands = 2;
   assert.equal(materialSummaryItems(inconsistent), null);
   assert.equal(materialSummaryItems(model([row('duplicate','ready',0),row('duplicate','ready',0)])), null);
@@ -52,4 +52,14 @@ test('a valid empty source has zero demand items but no zero-denominator rate', 
   const result = materialSummaryItems(model([]));
   assert.equal(result.demands, 0); assert.equal(result.purchaseRecords, 0);
   assert.equal(result.procurementRate, null); assert.equal(result.inboundRate, null);
+});
+
+test('retained old sources show labelled record counts without current completion or rates', () => {
+  for (const status of ['stale','source_failed']) {
+    const result = materialSummaryItems(model([row('old','ready',0,'米',{purchases:[{id:'p'}]})],status));
+    assert.equal(result.historical, true); assert.equal(result.demands, 1); assert.equal(result.purchaseRecords, 1);
+    assert.equal(result.procurementRate, null); assert.equal(result.inboundRate, null);
+    assert.equal(result.reviewItems, 1); assert.equal(result.procurementUnknown, 1);
+    assert.equal(materialSummaryItems(model([],status)), null);
+  }
 });

@@ -47,17 +47,17 @@ try {
   check('real source quantity',header.includes(order.quantity===null?'暂未取得数据':order.quantity.toLocaleString('zh-CN')));
   check('redundant heading explanations removed',!/来源只读|合同交期（来源）|与织序交付计划分别保留/u.test(header));
   check('redundant plan disclosure removed',await evaluate('document.querySelector(".ow-plan-evidence")===null'));
-  const material = await evaluate(`fetch('/api/v1/sales-orders/'+${JSON.stringify(order.id)}+'/material-progress').then(async r=>r.ok?r.json():null).then(m=>{if(!m||m.progress.sourceStatus!=='ready')return null;const rows=m.progress.rows.filter(r=>r.demand.supplyMethod?.normalize('NFKC').trim()==='自购');return{demands:rows.length,purchaseRecords:rows.filter(r=>r.purchases.length||r.unverifiedEvents?.some(e=>e.flow==='purchase')).length,inboundRecords:rows.filter(r=>r.inbounds.length||r.unverifiedEvents?.some(e=>e.flow==='inbound')).length,unknown:rows.filter(r=>r.status===null).length,pendingInbound:rows.filter(r=>r.business?.pendingInbound.reason==='known'&&r.business.pendingInbound.quantity>0).length}})`);
+  const material = await evaluate(`fetch('/api/v1/sales-orders/'+${JSON.stringify(order.id)}+'/material-progress').then(async r=>r.ok?r.json():null).then(m=>{if(!m||!['ready','stale','source_failed'].includes(m.progress.sourceStatus))return null;const rows=m.progress.rows.filter(r=>r.demand.supplyMethod?.normalize('NFKC').trim()==='自购');return{sourceStatus:m.progress.sourceStatus,demands:rows.length,purchaseRecords:rows.filter(r=>r.purchases.length||r.unverifiedEvents?.some(e=>e.flow==='purchase')).length,inboundRecords:rows.filter(r=>r.inbounds.length||r.unverifiedEvents?.some(e=>e.flow==='inbound')).length,unknown:rows.filter(r=>r.status===null).length,pendingInbound:rows.filter(r=>r.business?.pendingInbound.reason==='known'&&r.business.pendingInbound.quantity>0).length}})`);
   const metrics = await evaluate('[...document.querySelectorAll(".ow-material-metrics dd")].map(e=>e.textContent)');
   if(material){
     check('real material demand count',metrics[0]===String(material.demands));
     check('real material purchase-record count',metrics[1]===String(material.purchaseRecords));
     check('real material inbound-record count',metrics[3]===String(material.inboundRecords));
-    if(material.unknown)check('unknown readiness has no fabricated rate',metrics[2]==='待核对'&&metrics[4]==='待核对');
+    if(material.unknown||material.sourceStatus!=='ready')check('unknown readiness has no fabricated rate',metrics[2]==='待核对'&&metrics[4]==='待核对');
   }
   check('desktop attention stays compact',await evaluate(`(()=>{const p=document.querySelector('.ow-attention'),items=p.querySelectorAll('li');return items.length!==1||p.getBoundingClientRect().height<66})()`));
   await capture('overview-1440');
-  await evaluate("document.querySelector('.oc-server-detail-material-summary').scrollIntoView({block:'start',behavior:'instant'})");await pause(100);await capture('material-1440');
+  await evaluate("document.querySelector('.ow-material-anchor').scrollIntoView({block:'start',behavior:'instant'})");await pause(100);await capture('material-1440');
   if(material?.pendingInbound){
     await evaluate("document.querySelector('.ow-material-pending-details summary').click()");
     check('pending inbound detail count matches API',await evaluate("document.querySelectorAll('.ow-material-pending-details li').length")===material.pendingInbound);
@@ -72,7 +72,7 @@ try {
       await pause(120);await evaluate("document.querySelector('.ops-workspace').scrollTop=0");
       check(label+' width '+width,await evaluate('document.documentElement.scrollWidth<=innerWidth+1'));
       check(label+' cards reachable '+width,await evaluate(`[...document.querySelectorAll('.ow-workbench [role=tabpanel]:not([hidden]) .oc-server-detail-section')].every(e=>{const r=e.getBoundingClientRect();return r.left>=0&&r.right<=innerWidth+1})`));
-      if(width===390){await capture(label==='订单总览'?'overview-390':label==='颜色与尺码'?'colors-390':'prices-390');if(label==='订单总览'){await evaluate("document.querySelector('.oc-server-detail-material-summary').scrollIntoView({block:'start',behavior:'instant'})");await pause(100);await capture('material-390');}}
+      if(width===390){await capture(label==='订单总览'?'overview-390':label==='颜色与尺码'?'colors-390':'prices-390');if(label==='订单总览'){await evaluate("document.querySelector('.ow-material-anchor').scrollIntoView({block:'start',behavior:'instant'})");await pause(100);await capture('material-390');}}
     }
   }
   await evaluate("[...document.querySelectorAll('[role=tab]')].find(e=>e.textContent==='颜色与尺码').click()");await pause(150);
