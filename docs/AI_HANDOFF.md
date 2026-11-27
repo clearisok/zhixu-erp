@@ -7,3 +7,5 @@ main核实10b9a7d827e1c09f152ead58c21f26712d49a619，178最终36ce已精确送�
 Staging仍220/Worker运行、原配对备份哈希与隔离恢复147表13附件通过，无线上改动。正式backup-check只适用于Worker安静；对RUNNING调用被拒绝，无备份执行，不当备份失败或通过。不能绕过锁/正向cleanup/未知结果/配对身份。用户授权Staging，Production/其他PR/业务库DDL或数据/调度/清理/保留/网络不许改。[执行](tasks/active/pr178-staging-integration-20261127.md)。两侧旧接力逐字归档[178](tasks/completed/2026-11-27-pr178-before-staging-integration/pr178-36ce/AI_HANDOFF.md)/[220](tasks/completed/2026-11-27-pr178-before-staging-integration/staging-220ec86c/AI_HANDOFF.md)。
 
 预检db785a type/lint/serverbuild/root1035/release182/47路径guard与离线镜像通过。C3原测试等待新折叠区，正在保留alert/time/ISO和仅GET重读语义并调整driver真实展开；候选未部署，178 main未合并。
+
+集成次级来源错误行补回原不会回退Browser边界，保留Staging具体反馈；主指标未知不变。仅独立集成分支，原PR178仍36ce，source CI运行中。
