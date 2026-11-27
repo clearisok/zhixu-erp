@@ -1,0 +1,21 @@
+{
+  "baselineSha": "10b9a7d827e1c09f152ead58c21f26712d49a619",
+  "level": "V2",
+  "paths": [
+    "features/order-center/components/server-sales-order-detail-page.tsx",
+    "features/order-center/components/server-order-workbench.tsx",
+    "features/order-center/components/order-workbench-execution.tsx",
+    "features/order-center/components/order-workbench.css",
+    "features/order-center/components/server-saved-order-sources.tsx",
+    "features/order-center/components/material-history-dialog.tsx",
+    "features/ainuoke-material-progress/order-material-summary.tsx",
+    "features/ainuoke-garment-shipments/garment-shipment-section.tsx"
+  ],
+  "pages": ["order-detail", "material"],
+  "visibleDifference": "批准的订单工作台：精简身份、前置交付、现有提醒与四执行模块、颜色尺码矩阵、次级价格历史和技术来源；保留原操作、权限和业务口径。",
+  "evidence": ["docs/tasks/active/order-workbench-2026-11-27.md"],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/order-workbench-approval-2026-11-27.md"
+  }
+}

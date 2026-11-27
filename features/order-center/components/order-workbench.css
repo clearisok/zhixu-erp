@@ -1,0 +1,74 @@
+/* Issue177 V2: scoped to the formal order workspace; Foundation and other pages stay intact. */
+.ow-workbench { gap: 18px; min-width: 0; color: var(--qc-text, #243c32); }
+.ow-workbench [hidden] { display: none !important; }
+.ow-workbench :is(h1,h2,h3,p,dd,td,th) { overflow-wrap: anywhere; }
+.ow-workbench .ow-order-heading { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: start; gap: 24px; padding: 8px 2px 14px; }
+.ow-heading-title { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+.ow-heading-title .oc-order-identity { margin: 0; font-family: inherit; font-weight: 750; font-size: clamp(24px,2.2vw,32px); line-height: 1.25; color: var(--qc-text, #173d31); }
+.ow-customer { margin: 9px 0 6px; font-size: 14px; }
+.ow-identifiers { display: flex; flex-wrap: wrap; gap: 6px 16px; color: var(--qc-muted, #687b71); font-size: 12px; }
+.ow-heading-metrics { display: flex; flex-wrap: wrap; justify-content: end; gap: 18px 30px; margin: 0; text-align: right; }
+.ow-heading-metrics dt,.ow-heading-metrics small { color: var(--qc-muted, #687b71); font-size: 12px; }
+.ow-heading-metrics dd { margin: 5px 0; font-size: 23px; line-height: 1.35; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ow-attention { padding: 13px 17px; background: var(--qc-surface, #fff); border: 1px solid var(--qc-border, #dce4df); border-radius: var(--foundation-radius); }
+.ow-attention.ow-has-attention { background: #fbf5e8; border-left: 3px solid #9a712b; }
+.ow-attention-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
+.ow-attention h2 { margin: 0; font-size: 15px; }
+.ow-attention ul { list-style: none; margin: 9px 0 0; padding: 0; display: grid; gap: 9px; }
+.ow-attention li { display: flex; gap: 7px 10px; align-items: center; flex-wrap: wrap; font-size: 13px; }
+.ow-alert-kind { color: #775c28; font-size: 12px; padding: 2px 7px; border-radius: 4px; background: #f1e7cf; }
+.ow-source-deleted { padding: 14px 18px; border: 1px solid #e5b4ae; border-radius: var(--foundation-radius); background: #fff0ee; color: #942f28; }
+.ow-source-deleted p { margin: 6px 0 0; font-size: 13px; }
+.ow-tabs { display: flex; flex-wrap: wrap; gap: 5px 24px; border-bottom: 1px solid var(--qc-border, #dce4df); }
+.ow-tabs button { min-height: 42px; padding: 9px 1px; border: 0; border-bottom: 2px solid transparent; background: transparent; color: var(--qc-muted, #687b71); font: inherit; font-size: 14px; cursor: pointer; }
+.ow-tabs button[aria-selected="true"] { color: #17624b; border-bottom-color: #17624b; font-weight: 700; }
+.ow-overview-grid { display: grid; grid-template-columns: minmax(0,2.1fr) minmax(245px,1fr); gap: 18px; align-items: start; }
+.ow-main-stack,.ow-side-stack { display: grid; gap: 18px; min-width: 0; }
+.ow-workbench .oc-server-detail-section { min-width: 0; margin: 0; }
+.ow-workbench .oc-server-detail-section > header { padding: 14px 18px; align-items: center; flex-wrap: wrap; gap: 8px 12px; }
+.ow-workbench .oc-server-detail-section > header h2 { margin: 0; font-size: 17px; line-height: 1.45; }
+.ow-workbench .oc-server-detail-section > header small { display: block; margin-top: 3px; color: var(--qc-muted, #687b71); font-size: 12px; }
+.ow-section-body { padding: 14px 18px; min-width: 0; }
+.ow-section-copy { margin: 0; padding: 15px 18px; font-size: 13px; }
+.ow-help { margin: 7px 0; color: var(--qc-muted, #687b71); font-size: 12px; line-height: 1.65; }
+.ow-workbench .ow-module-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.ow-material-anchor { scroll-margin-top: 100px; min-width: 0; }
+.ow-workbench .oc-server-detail-material-summary > :is(p,details) { margin: 0; padding: 12px 18px; font-size: 13px; }
+.ow-workbench .oc-server-detail-material-summary .sp-server-summary { padding: 0 18px 12px; }
+.ow-workbench .oc-server-detail-material-summary .sp-server-summary section { min-width: 0; }
+.ow-workbench .oc-server-detail-material-summary .sp-server-summary small { display: inline-block; white-space: normal; }
+.ow-workbench .ow-refresh summary { padding: 4px 0; }
+.ow-workbench .ow-refresh > div { margin-top: 9px; }
+.ow-metrics { display: flex; flex-wrap: wrap; gap: 15px 28px; margin: 0 0 14px; }
+.ow-metrics dt { font-size: 12px; color: var(--qc-muted, #687b71); }
+.ow-metrics dd { margin: 5px 0 0; font-size: 20px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ow-info { display: grid; grid-template-columns: 76px minmax(0,1fr); gap: 12px 10px; margin: 0; font-size: 13px; }
+.ow-info dt { color: var(--qc-muted, #687b71); }
+.ow-info dd { margin: 0; overflow-wrap: anywhere; }
+.ow-color-summary-row { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--qc-border, #dce4df); font-size: 13px; }
+.ow-color-summary-row .qc-button { font-size: 16px; font-variant-numeric: tabular-nums; }
+.ow-color-summary .ow-section-body { padding-top: 0; }
+.ow-workbench details summary { cursor: pointer; font-size: 13px; color: #28634d; line-height: 1.7; }
+.ow-workbench details > :not(summary) { margin-top: 12px; }
+.ow-table-scroll { overflow-x: auto; max-width: 100%; min-width: 0; }
+.ow-table-scroll table { border-collapse: collapse; width: 100%; font-size: 13px; }
+.ow-table-scroll :is(th,td) { padding: 12px 13px; border-bottom: 1px solid var(--qc-border, #dce4df); text-align: left; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.ow-table-scroll th { color: #536b5e; background: #f5f8f5; font-weight: 600; }
+.ow-table-scroll [data-unknown] { color: #718176; }
+.ow-table-scroll tr[data-selected] > *,.ow-size-note[data-selected] { background: #eaf3ec; }
+.ow-size-matrix { padding: 2px 18px 16px; }
+.ow-size-matrix .ow-table-scroll { margin: 13px 0; }
+.ow-size-note { margin: 10px 0; padding: 9px 0; font-size: 13px; border-bottom: 1px solid var(--qc-border, #dce4df); }
+.ow-color-evidence { padding-top: 9px; }
+.ow-color-evidence p { font-size: 12px; color: var(--qc-muted, #687b71); }
+.ow-workbench .ow-source-details > details > summary { padding: 14px 18px; }
+.ow-workbench .ow-source-details .qc-description-list { padding-inline: 18px; }
+.ow-price-history .oc-price-summary { padding: 0 0 14px; }
+.ow-workbench .ow-order-history { margin-top: 18px; }
+.ow-workbench .ow-price-history [aria-label="订单调价历史"]:not(:has(table)) .oc-business-source-search { display: none; }
+.ow-workbench .ow-garment-summary { padding: 11px 18px; font-size: 13px; }
+.ow-workbench .ow-garment-summary p { margin: 3px 0; }
+.ow-data-warning { color: #805d21; font-size: 13px; }
+@media(max-width:1100px) { .ow-overview-grid { grid-template-columns: minmax(0,1fr); } .ow-side-stack { grid-template-columns: 1fr 1fr; } .ow-workbench .ow-order-heading { grid-template-columns: minmax(0,1fr); gap: 17px; } .ow-heading-metrics { justify-content: start; text-align: left; } }
+@media(max-width:600px) { .ow-side-stack { grid-template-columns: minmax(0,1fr); } .ow-workbench { gap: 14px; } .ow-tabs { gap: 6px 18px; } .ow-workbench .oc-server-detail-section > header { padding: 13px 14px; } .ow-section-body,.ow-size-matrix { padding-inline: 14px; } .ow-heading-metrics { gap: 15px 24px; } .ow-heading-metrics dd { font-size: 21px; } .ow-metrics { gap: 14px 20px; } .ow-metrics dd { font-size: 18px; } .ow-attention { padding: 12px 14px; } .ow-module-actions { width: 100%; } .ow-workbench .ow-source-details > details > summary { padding: 13px 14px; } }
+@media(pointer:coarse) { .ow-tabs button { min-height: 44px; } }

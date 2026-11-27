@@ -46,7 +46,7 @@ function Observation({ view, stale, recordsOnly = false }: { view: TimedGarmentV
   </div>;
 }
 
-export function GarmentShipmentSection({ orderId, contract, processing = false, historicalAlias = false }: { orderId: string; contract: string | null; processing?: boolean; historicalAlias?: boolean }) {
+export function GarmentShipmentSection({ orderId, contract, processing = false, historicalAlias = false, workbench = false }: { orderId: string; contract: string | null; processing?: boolean; historicalAlias?: boolean; workbench?: boolean }) {
   const session = useServerSession(), [expanded, setExpanded] = useState(false), [historyOpen, setHistoryOpen] = useState(false);
   const [publicationId, setPublicationId] = useState<string | undefined>(), [cursors, setCursors] = useState<(number | undefined)[]>([undefined]);
   const [block, setBlock] = useState<{ session: object; orderId: string; message: string } | null>(null);
@@ -55,7 +55,7 @@ export function GarmentShipmentSection({ orderId, contract, processing = false, 
   const active = !processing && !historicalAlias && Boolean(contract) && !blocked;
   // Opening history revalidates the current binding before exposing an index or
   // historical detail. An empty index alone cannot prove the source is enabled.
-  const current = useGarmentObservation(orderId, contract ?? "", active && (expanded || historyOpen), undefined, "current/" + historyOpen, onBlock);
+  const current = useGarmentObservation(orderId, contract ?? "", active && (expanded || historyOpen || workbench), undefined, "current/" + historyOpen, onBlock);
   const historyReady = active && historyOpen && Boolean(current.data);
   const history = useGarmentHistory(orderId, historyReady && !publicationId, cursors[cursors.length - 1], onBlock);
   const selected = useGarmentObservation(orderId, contract ?? "", historyReady && Boolean(publicationId), publicationId, "history", onBlock);
@@ -69,6 +69,7 @@ export function GarmentShipmentSection({ orderId, contract, processing = false, 
       <Button size="compact" variant="text" aria-expanded={expanded} onClick={() => setExpanded(value => !value)}>{expanded ? "收起出货记录" : "展开出货记录"}</Button>
       <Button size="compact" variant="secondary" onClick={openHistory}>出货历史</Button>
     </div></header>
+    {workbench && !expanded && <div className="ow-garment-summary" role="status">{blocked ? <p>{blocked}</p> : current.loading ? <p>读取成衣出货来源…</p> : current.error ? <p>暂未取得数据，可展开重新读取。</p> : current.data?.status === "observed" ? <><p>当前采集批次：{current.data.model.rows.length} 条来源记录 · {current.stale ? "已过期，待核对" : "来源观察"}</p><p className="ow-help">截至 {capturedTime(current.data.model.observedThrough)} · 不跨采集批次累加</p></> : current.data ? <p>{GARMENT_EMPTY_LABELS[current.data.model.sourceStatus]}</p> : <p>暂未取得数据。</p>}</div>}
     {expanded && <div style={{ padding: "0 18px 18px", minWidth: 0 }}>
       {blocked ? <ErrorState description={blocked} onRetry={reread} /> : current.loading ? <LoadingState compact rows={2} label="读取成衣出货" /> : current.error ? <ErrorState description={current.error.message} onRetry={reread} />
         : current.data ? <Observation key={current.data.status === "observed" ? current.data.model.publicationId : current.data.model.sourceStatus} view={current.data} stale={Boolean(current.stale)} /> : null}

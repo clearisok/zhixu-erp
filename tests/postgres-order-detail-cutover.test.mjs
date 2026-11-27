@@ -6,6 +6,7 @@ import { loadServerOrderCenterDetail } from "../features/order-center/server/ser
 const routeSource = await readFile(new URL("../app/order-center/server-detail/page.tsx", import.meta.url), "utf8");
 const listSource = await readFile(new URL("../features/order-center/components/server-order-center-page.tsx", import.meta.url), "utf8");
 const detailSource = await readFile(new URL("../features/order-center/components/server-sales-order-detail-page.tsx", import.meta.url), "utf8");
+const workbenchSource = await readFile(new URL("../features/order-center/components/server-order-workbench.tsx", import.meta.url), "utf8");
 const modelSource = await readFile(new URL("../features/order-center/server/sales-order-server-model.ts", import.meta.url), "utf8");
 const clientSource = await readFile(new URL("../features/order-center/server/sales-order-server-client.ts", import.meta.url), "utf8");
 const serverRepositorySource = await readFile(new URL("../features/order-center/server/server-sales-order-read-repository.ts", import.meta.url), "utf8");
@@ -94,9 +95,9 @@ test("detail uses exact Server source fields and presents source quantity as rea
     "detail.sourceLifecycleStatus",
     "detail.colorCount",
     "订单数量（来源只读）",
-    "oc-overview-heading",
-    "oc-order-identifiers",
-  ]) assert.match(detailSource, new RegExp(token.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "u"));
+    "ow-heading-title",
+    "ow-identifiers",
+  ]) assert.match(workbenchSource, new RegExp(token.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "u"));
   assert.match(modelSource, /insideOrderNo:\s*dto\.insideOrderNo/u);
   assert.match(modelSource, /quantity:\s*dto\.quantity/u);
   assert.doesNotMatch(detailSource, /factoryStyleNo|initialQuantity/u);
@@ -104,7 +105,7 @@ test("detail uses exact Server source fields and presents source quantity as rea
 
 test("color detail preserves source identity and quantity while delegating read-only color prices", async () => {
   const colorSource=await readFile("features/order-center/components/order-color-prices.tsx","utf8");
-  assert.match(detailSource, /OrderColorPrices/u);
+  assert.match(workbenchSource, /OrderColorPrices/u);
   assert.match(colorSource, /c\.sourceLineIdentity/u);
   assert.match(colorSource, /c\.colorName/u);
   assert.match(colorSource, /c\.quantity/u);

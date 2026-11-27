@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useServerSession } from '@/features/server-auth';
 import { ServerContractRefresh } from '@/features/order-center/components/server-contract-refresh';
 import { Card } from '@/components/foundation/card';
@@ -30,10 +30,10 @@ export function useOrderMaterial(id: string) {
     completion:state.id===scope&&!state.loading?state:null,
     reload:()=>{setState({id:scope,model:null,error:null,loading:true});setRefresh(n=>n+1);}};
 }
-export function OrderMaterialSummary({salesOrderId}:{salesOrderId:string}) {
+export function OrderMaterialSummary({salesOrderId,history}:{salesOrderId:string;history?:ReactNode}) {
   const state=useOrderMaterial(salesOrderId); const route=orderMaterialNavigation(salesOrderId);const view=state.model?.progress;
-  return <Card className="oc-server-detail-section oc-server-detail-material-summary"><header><div><small>EXECUTION FACTS · READ ONLY</small><h2>物料采购汇总</h2></div>{route&&<a className="qc-button qc-button-text" href={route.detailHref}>查看物料跟进 →</a>}</header>
+  return <Card className="oc-server-detail-section oc-server-detail-material-summary"><header><div><h2>物料采购汇总</h2><small>面料、辅料与来源状态</small></div><div className="ow-module-actions">{history}{route&&<a className="qc-button qc-button-text" href={route.detailHref}>查看物料跟进 →</a>}</div></header>
     {state.loading?<p>读取物料来源…</p>:state.error?<p role="status">{state.error}</p>:view&&<><p role="status">{view.message} · 来源读取 {view.fetchedAt??'—'}</p>{view.sourceStatus==='ready'?<div className="sp-server-summary">{(['fabric','trim'] as const).map(type=><section key={type}><strong>{type==='fabric'?'面料':'辅料'} {view.summary[type].demands} 项</strong><span>{Object.entries(materialStateLabels).map(([key,label])=><small key={key}>{label} {view.summary[type].states[key as keyof typeof materialStateLabels]}　</small>)}<small>未知 {view.summary[type].unknown}</small></span></section>)}</div>:<p>当前采购数量待核对；这不表示没有采购。可刷新来源，或查看历史物料来源。</p>}</>}
-    <ServerContractRefresh key={salesOrderId} scope={{orderId:salesOrderId}} onComplete={state.reload} />
+    {history?<details className="ow-refresh"><summary>来源状态与刷新</summary><ServerContractRefresh key={salesOrderId} scope={{orderId:salesOrderId}} onComplete={state.reload} /></details>:<ServerContractRefresh key={salesOrderId} scope={{orderId:salesOrderId}} onComplete={state.reload} />}
   </Card>;
 }

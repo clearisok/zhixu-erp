@@ -33,12 +33,15 @@ function sizeNote(color: ServerSalesOrderColorDto): string {
 }
 
 /** Saved evidence only: no source request, quantity allocation or price read. */
-export function SavedColorSizes({ colors, source, processing = false }: {
+export function SavedColorSizes({ colors, source, processing = false, matrix = false, selectedColor = null }: {
   colors: ServerSalesOrderColorDto[];
   source?: ServerSalesOrderDetailDto["colorSource"];
   processing?: boolean;
+  matrix?: boolean;
+  selectedColor?: string | null;
 }) {
   const [expanded, setExpanded] = useState(false);
+  if (matrix) return <SavedColorMatrix colors={colors} source={source} processing={processing} selectedColor={selectedColor} />;
   return <details className="oc-server-technical-details" data-saved-color-sizes onToggle={event => setExpanded(event.currentTarget.open)}>
     <summary>查看颜色尺码 <span>只读</span></summary>
     {expanded && <>
@@ -61,6 +64,37 @@ export function SavedColorSizes({ colors, source, processing = false }: {
       </>}
     </>}
   </details>;
+}
+
+function SavedColorMatrix({ colors, source, processing, selectedColor }: {
+  colors: ServerSalesOrderColorDto[]; source?: ServerSalesOrderDetailDto["colorSource"]; processing: boolean; selectedColor: string | null;
+}) {
+  if (processing) return <p className="ow-section-copy">加工订单不适用艾诺科颜色尺码来源。</p>;
+  const groups = new Map<string, { columns: { slot: number; sizeName: string | null }[]; colors: ServerSalesOrderColorDto[] }>();
+  const unavailable: ServerSalesOrderColorDto[] = [];
+  for (const color of colors) {
+    const evidence = color.sizeEvidence;
+    if (evidence?.status !== "available" || !evidence.allocations.length) { unavailable.push(color); continue; }
+    const columns = evidence.allocations.map(size => ({ slot: size.slot, sizeName: size.sizeName }));
+    const key = JSON.stringify(columns), existing = groups.get(key);
+    if (existing) existing.colors.push(color); else groups.set(key, { columns, colors: [color] });
+  }
+  return <section className="ow-size-matrix" data-saved-color-sizes aria-label="颜色尺码来源矩阵">
+    <p className="ow-help">颜色数量与尺码原值分别保留；未知不补 0，不自动合计。不同尺码规则分表展示。</p>
+    {[...groups].map(([key, group]) => <div className="ow-table-scroll" role="region" aria-label="颜色尺码明细" tabIndex={0} key={key}><table>
+      <thead><tr><th>颜色</th><th>颜色数量</th>{group.columns.map(column => <th key={column.slot}>{column.sizeName ?? "尺码未知"}{group.columns.filter(item => item.sizeName === column.sizeName).length > 1 && `（槽位${column.slot}）`}</th>)}</tr></thead>
+      <tbody>{group.colors.map(color => <tr key={color.sourceLineIdentity} data-selected={selectedColor === color.sourceLineIdentity || undefined}><th scope="row">{color.colorName}</th><td>{color.sizeEvidence?.status === "available" && color.sizeEvidence.quantityPendingConfirmation ? `待确认（来源 ${color.quantity.toLocaleString("zh-CN")}）` : color.quantity.toLocaleString("zh-CN")}</td>
+        {color.sizeEvidence?.status === "available" && color.sizeEvidence.allocations.map(size => <td key={size.slot} data-unknown={size.quantity === null || undefined}>{size.quantity === null ? "未知" : String(size.quantity)}</td>)}
+      </tr>)}</tbody>
+    </table></div>)}
+    {unavailable.map(color => <p className="ow-size-note" key={color.sourceLineIdentity} data-selected={selectedColor === color.sourceLineIdentity || undefined}><strong>{color.colorName} · {color.quantity.toLocaleString("zh-CN")}</strong>：{sizeNote(color)}</p>)}
+    {!colors.length && <p className="ow-section-copy">暂未取得颜色尺码数据。</p>}
+    <details className="ow-color-evidence"><summary>查看颜色尺码来源与核对说明</summary>
+      <p>{source?.status === "recorded" ? source.colorDetailStatus === "missing" ? "来源未返回可用颜色明细。" : source.colorDetailStatus === "invalid" ? "保存的颜色来源存在异常。" : "已保存颜色来源。" : source?.status === "invalid" ? "颜色来源证据无法可靠核对。" : "颜色来源批次尚未记录。"}</p>
+      {source?.status === "recorded" && <>{source.insideOrderNoDrift && <p>工厂款号有变化，仍按销售合同对应。</p>}{source.savedSourceBatchAt && <p>来源批次保存时间：{new Date(source.savedSourceBatchAt).toLocaleString("zh-CN", { timeZone: "Asia/Shanghai", hour12: false })}（北京时间，非逐色读取时间）。</p>}</>}
+      {colors.map(color => <p key={color.sourceLineIdentity}><strong>{color.colorName}</strong> · {sizeNote(color)}{color.sizeEvidence?.status === "available" && color.sizeEvidence.insideOrderNoDrift && " 工厂款号有变化。"}</p>)}
+    </details>
+  </section>;
 }
 
 const ownershipLabels = {
@@ -138,13 +172,11 @@ export function SavedDeliveryPlans({ orderId, active, processing = false, refres
   </section>;
 }
 
-export function SavedOrderSourceDetails({ orderId, processing, children, deliveryPlanRefreshToken = 0 }: {
+export function SavedOrderSourceDetails({ children }: {
   orderId: string; processing: boolean; children: ReactNode; deliveryPlanRefreshToken?: number;
 }) {
-  const [expanded, setExpanded] = useState(false);
-  return <details className="oc-server-technical-details" onToggle={event => setExpanded(event.currentTarget.open)}>
+  return <details className="oc-server-technical-details">
     <summary>来源与技术详情 <span>只读</span></summary>
-    <SavedDeliveryPlans orderId={orderId} active={expanded} processing={processing} refreshToken={deliveryPlanRefreshToken} />
     {children}
   </details>;
 }

@@ -1,13 +1,11 @@
-# 当前：PR160已合并，订单删除与Staging同步恢复已验收
+# 当前：Issue177 正式订单工作台，本地开发与 PR 评审
 
-2026-11-20；代码整合main基线 **4e1f9a514c8ff6e9cf7289d724df33c32bc05368**（PR160 merge commit），受审分支HEAD e833b819f653f27b3448e447795864693a0a6568。用户在本会话明确认可订单删除及自动同步恢复，并授权Ready/正常合并、Issue159与Project收尾；Production及本轮重新部署/Worker重启/业务数据操作仍禁止。本次后续仅文档收尾；未来任务先fetch并核实实际origin/main，不把部署SHA当主线SHA。
+2026-11-27；本轮 fetch 已核实 main **10b9a7d827e1c09f152ead58c21f26712d49a619**；独立分支 `feat/order-workbench`，起点 clean。用户已认可产品稿并批准真实页面实现、独立本地 Demo、检查、提交、推送和 PR；不合并、不部署、不改服务器配置、schema 或真实业务数据。[批准](tasks/active/order-workbench-approval-2026-11-27.md)、[任务](tasks/active/order-workbench-2026-11-27.md)，Issue177 / In Progress。
 
-实际Staging仍为已验收代码 **0752d64f309d68b6e52afbbd712d28e0d9db9c1e**，未因Git合并重新部署。0060/145表，原database/objects容器及四卷保留。新备份20261120T111255Z-b640f966、原清理证明、九Gate全PASS，Supervisor自然启动唯一Worker并验证真实PG心跳。两轮255+255=510成功/0失败，每合同下一次计划为完成+1800秒；142原失败及所有暂停/恢复历史保留。两删除合同PI2611-142/143保持source_deleted/version1、无新自动任务，数量10000/8000及历史不变。以上是2026-11-20验收事实，本轮未新查业务数据库或更改运行环境。
+当前工程候选将正式详情改为订单工作台：紧凑身份与来源数量/合同交期、现有提醒、前置织序交付计划、物料/生产/成衣出货/关账、颜色摘要与按原尺码规则分组的矩阵、价格历史及技术披露。保持原来源/交期维护与未决请求、权限、来源归属和保存保护；只读已有接口，不建立新业务计算。未登记实际生产不显示0，关账分月与财务确认区分，出货仅当前采集批次。
 
-用户已验收红色“订单删除”及其他订单不受影响。完整双遍、历史成功出现、账号/身份/报表/范围/分页和唯一BillNo关联仍为删除/恢复门槛；不物理删除、不改Price隔离/未知结果保护/30分钟策略。Issue159和161正式验收完成；GitHub实际Done/关闭结果见[最终收尾记录](tasks/completed/pr160-final-acceptance-2026-11-20.md)。用户验收不倒改此前助手Staging浏览器工具故障的历史记录。
+实现和新接线正在验证，未完成的测试/真实样本/浏览器结果不记通过。计划提供真实 API 的本机只读 Demo；业务提交和来源刷新在本机入口拦截，正常认证只用于已有 API 读取。未启动或改写既有本地ERP/容器；隔离合成验证与真实数据核对分别记录。
 
-e833最新三项CI全部真实SUCCESS：Source44741932214、Release baseline44741932219、First team access44741932341。0752已有root1026/1026、baseline182/182、目录106、生命周期PG10、Linux30、真实Docker/PG E2E1及typecheck/lint/前后端build，未重跑同SHA完整套件。旧dfcd Source cancelled保留历史，不能代替本轮success。纯文档收尾只新增适用的基线/链接检查，不改业务代码、UI、SQL、脚本或workflow。
+main 之外仍有 PR171/172/176 等候选，共享详情/物料文件有后续合并冲突风险；不改其他分支。2026-11-20 的0752部署只是历史；本轮SSH只读盘点见i174-v2b服务和独立Worker，未核其全部证据，不能把旧状态冒充当前部署。此次没有部署授权。
 
-Git当前已证明星辰VPN7888可用，旧GitHub专用代理17989无监听；正式脚本一次push把e833精确送达。仅子进程覆盖代理，不改全局/共享Git配置、认证或TLS。长期仓库级方案与回退边界见最终收尾记录，尚未执行持久修改。
-
-保留限制：旧selected_source_invalid原始坏行raw缺失，无法还原具体字段；两轮验收不是永久无故障承诺。备份资产、旧失败、私密配置及证据仍在原受控位置，不上传秘密/原业务导出。[恢复证据](tasks/active/staging-selected-source-recovery-2026-11-20.md)、[删除生命周期证据](tasks/active/ainuoke-source-deleted-2026-11-20.md)、[上阶段摘要原件](tasks/completed/2026-11-20-pr160-before-final-acceptance/CURRENT_STATE.md)。本轮无新功能，下一步以最新origin/main为稳定开发基线。
+旧三个共享摘要逐字保存至[前状态归档](tasks/completed/2026-11-27-before-order-workbench/CURRENT_STATE.md)，原日期、SHA、轮次、备份和限制保留。下一步仅本分支验证、Demo与PR，等待用户评审。

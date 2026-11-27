@@ -1,26 +1,19 @@
 "use client";
+import { ServerOrderWorkbench } from "./server-order-workbench";
 import {useServerNavigationProtection} from '@/components/foundation/server-navigation-protection';
-import {OrderColorPrices} from './order-color-prices';
-import { SavedColorSizes, SavedOrderSourceDetails } from './server-saved-order-sources';
-import { MaterialHistoryDialog } from "./material-history-dialog";
 import { OrderBusinessSourceButton } from "./order-business-source-button";
 import { ServerDeliveryPlanMaintenance } from './server-delivery-plan-maintenance';
-import { GarmentShipmentSection } from "@/features/ainuoke-garment-shipments/garment-shipment-section";
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { OrderMaterialSummary } from '@/features/ainuoke-material-progress/order-material-summary';
 import { useSearchParams } from "next/navigation";
 import { useProtectedRouter as useRouter } from "@/components/foundation/server-navigation-protection";
 import {
   AlertBanner,
   AppShell,
-  Card,
-  DescriptionList,
   EmptyState,
   ErrorState,
   LoadingState,
   PageContainer,
-  StatusTag,
 } from "@/components/foundation";
 import { ServerLoginCard, useServerSession } from "@/features/server-auth";
 import { SalesOrderServerReadError } from "../server/sales-order-server-client";
@@ -28,32 +21,7 @@ import { loadServerOrderCenterDetail } from "../server/server-order-center-query
 import { serverSalesOrderReadRepository } from "../server/server-sales-order-read-repository";
 import type {
   OrderCenterServerDetailViewModel,
-  ServerSalesOrderCreationSource,
-  ServerSalesOrderLifecycleState,
 } from "../server/sales-order-server-model";
-
-const lifecycleLabels: Record<ServerSalesOrderLifecycleState, string> = {
-  draft: "草稿",
-  confirmed: "已确认",
-  active: "执行中",
-  completed: "已完成",
-  cancelled: "已取消",
-};
-
-const creationSourceLabels: Record<ServerSalesOrderCreationSource, string> = {
-  ainuoke: "艾诺科",
-  quote: "报价",
-  reorder: "翻单",
-  manual: "手工",
-};
-
-function lifecycleTone(
-  lifecycleState: ServerSalesOrderLifecycleState,
-): "neutral" | "success" | "danger" {
-  if (lifecycleState === "cancelled") return "danger";
-  if (lifecycleState === "confirmed" || lifecycleState === "completed") return "success";
-  return "neutral";
-}
 
 function unavailableMessage(error: unknown): string {
   if (error instanceof SalesOrderServerReadError) {
@@ -75,7 +43,7 @@ function ServerDetailFrame({
   sourceAction?: React.ReactNode;
 }) {
   return (
-    <AppShell title="正式订单详情" backTarget={{href:"/order-center",label:"返回订单列表"}} identityMode="server" headerActions={sourceAction} onRequestNavigation={onRequestNavigation} onRequestLogout={onRequestLogout}>
+    <AppShell title="订单工作台" backTarget={{href:"/order-center",label:"返回订单列表"}} identityMode="server" headerActions={sourceAction} onRequestNavigation={onRequestNavigation} onRequestLogout={onRequestLogout}>
       <PageContainer className="oc-order-center-page oc-server-detail-page">
         {children}
       </PageContainer>
@@ -218,54 +186,7 @@ export function ServerSalesOrderDetailPage({ executionOnly = false }: { executio
       ) : error ? (
         <ErrorState title="订单服务暂时不可用" description={error} onRetry={() => void loadDetail()} />
       ) : detail ? (
-        <div className="oc-server-detail-content">
-          {detail.attribution?.historicalDuplicate&&<AlertBanner tone="warning" title="历史重复订单 · 原身份与记录保留" actions={<a className="qc-button qc-button-secondary" href={`/order-center/server-detail?id=${encodeURIComponent(detail.attribution.effectiveOrderId)}`}>查看有效订单</a>}>此单不再接收新的执行、认领或价格采用。原合同、商业版本和历史流水保持。</AlertBanner>}
-          <Card className="oc-server-detail-section oc-server-detail-zhixu oc-server-detail-overview">
-            <header className="oc-overview-heading"><div><h2>订单概况</h2><h1 className="oc-order-identity">{detail.businessType==='ainuoke_contract' ? detail.insideOrderNo || "工厂款号待获取" : detail.styleNo || "款号待维护"}</h1><p className="oc-order-identifiers"><span>{detail.orderNo}</span><span>{detail.businessType==='processing' ? "加工订单" : `BillNo ${detail.billNo ?? "—"}`}</span></p></div><StatusTag tone={lifecycleTone(detail.lifecycleState)}>{lifecycleLabels[detail.lifecycleState]}</StatusTag></header>
-            <DescriptionList columns={3} compact items={[
-              { key: "styleNo", label: "业务款号", value: detail.styleNo },
-              { key: "customer", label: "客户", value: detail.customerName },
-              { key: "brand", label: "品牌", value: detail.brandName },
-              { key: "quantity", label: detail.businessType==='processing'?"加工数量（下单批次）":"订单数量（来源只读）", value: detail.quantity?.toLocaleString("zh-CN") },
-              { key: "contractDelivery", label: detail.businessType==='processing'?"加工交期":"合同交期（来源）", value: detail.contractDeliveryDate },
-              { key: "lifecycle", label: "订单状态", value: lifecycleLabels[detail.lifecycleState] },
-              { key: "sourceLifecycle", label: "艾诺科状态", value: detail.businessType==='processing'?"不适用":detail.sourceLifecycleStatus },
-            ]} />
-          </Card>
-          <Card className="oc-server-detail-section oc-server-detail-colors">
-            <header>
-              <div><h2>颜色明细</h2></div>
-              <span>{detail.colors.length} 个颜色 · 来源只读</span>
-            </header>
-            <SavedColorSizes key={'sizes-'+scopeKey} colors={detail.colors} source={detail.colorSource} processing={detail.businessType==='processing'} />
-            <OrderColorPrices key={'color-'+scopeKey} orderId={detail.id} colors={detail.colors} processing={detail.businessType==='processing'} />
-          </Card>
-
-          {detail.businessType==='processing'?<Card className="oc-server-detail-section"><p style={{padding:18}}>加工订单不关联艾诺科销售合同，艾诺科物料流水不适用。</p></Card>:detail.attribution?.historicalDuplicate?<Card className="oc-server-detail-section"><p style={{padding:18}}>当前物料来源请在有效订单查看；原单快照保留在历史物料来源。</p></Card>:<OrderMaterialSummary key={'materials-'+scopeKey} salesOrderId={detail.id} />}
-          {detail.businessType!=='processing'&&<MaterialHistoryDialog key={'material-history-'+scopeKey} orderId={detail.id}/>}
-          <GarmentShipmentSection key={'garment-'+scopeKey} orderId={detail.id} contract={detail.billNo} processing={detail.businessType==='processing'} historicalAlias={Boolean(detail.attribution?.historicalDuplicate)} />
-          <Card className="oc-server-detail-section">
-            <SavedOrderSourceDetails key={'technical-'+scopeKey} orderId={detail.id} processing={detail.businessType==='processing'} deliveryPlanRefreshToken={deliveryPlanRefreshToken}>
-              <DescriptionList columns={3} compact items={[
-                { key: "uuid", label: "UUID", value: detail.id },
-                { key: "version", label: "数据版本", value: `v${detail.version}` },
-                { key: "creationSource", label: "创建来源", value: creationSourceLabels[detail.creationSource], secondary: detail.creationSource },
-                { key: "lifecycleCode", label: "生命周期原值", value: detail.lifecycleState },
-                { key: "insideOrderNo", label: "工厂款号 / InsideOrderNo", value: detail.insideOrderNo, secondary: "可变来源属性，不是稳定订单身份" },
-                { key: "company", label: "公司", value: detail.companyName },
-                { key: "contractDate", label: detail.businessType==='processing'?"下单日期":"合同日期", value: detail.contractDate },
-                { key: "colorCount", label: "有效颜色数", value: detail.colorCount.toLocaleString("zh-CN") },
-                { key: "createdAt", label: "创建时间", value: detail.createdAt },
-                { key: "updatedAt", label: "更新时间", value: detail.updatedAt },
-              ]} />
-              <div className="oc-server-source-bar">
-                <span><i aria-hidden="true" />数据源：PostgreSQL</span>
-                <small>Server identity：{trustedIdentity}</small>
-
-              </div>
-            </SavedOrderSourceDetails>
-          </Card>
-        </div>
+        <ServerOrderWorkbench key={scopeKey} detail={detail} trustedIdentity={trustedIdentity} deliveryPlanRefreshToken={deliveryPlanRefreshToken} />
       ) : (
         <EmptyState title="未读取到正式订单详情" />
       )}
