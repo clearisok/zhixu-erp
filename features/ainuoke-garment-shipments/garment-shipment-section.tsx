@@ -55,7 +55,7 @@ export function GarmentShipmentSection({ orderId, contract, processing = false, 
   const active = !processing && !historicalAlias && Boolean(contract) && !blocked;
   // Opening history revalidates the current binding before exposing an index or
   // historical detail. An empty index alone cannot prove the source is enabled.
-  const current = useGarmentObservation(orderId, contract ?? "", active && (expanded || historyOpen || workbench), undefined, "current/" + historyOpen, onBlock);
+  const current = useGarmentObservation(orderId, contract ?? "", active && (expanded || historyOpen || workbench), undefined, workbench ? `workbench/${expanded}/${historyOpen}` : "current/" + historyOpen, onBlock);
   const historyReady = active && historyOpen && Boolean(current.data);
   const history = useGarmentHistory(orderId, historyReady && !publicationId, cursors[cursors.length - 1], onBlock);
   const selected = useGarmentObservation(orderId, contract ?? "", historyReady && Boolean(publicationId), publicationId, "history", onBlock);

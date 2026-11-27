@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { DescriptionList, ErrorState, LoadingState } from "@/components/foundation";
+import { Button, DescriptionList, ErrorState, LoadingState } from "@/components/foundation";
 import { useServerSession } from "@/features/server-auth";
 import type { DeliveryPlanSetDto } from "../../../server/sales-orders/delivery-plan-model";
 import type { ServerSalesOrderColorDto, ServerSalesOrderDetailDto } from "../server/sales-order-server-model";
@@ -108,7 +108,12 @@ const quantityLabels = {
 };
 const dateLabels = { no_source_date: "合同交期未记录", matched: "计划日期与合同交期一致", drift: "计划日期与合同交期有差异" };
 
-export function SavedDeliveryPlanFacts({ data, processing = false }: { data: DeliveryPlanSetDto; processing?: boolean }) {
+export function SavedDeliveryPlanFacts({ data, processing = false, compact = false }: { data: DeliveryPlanSetDto; processing?: boolean; compact?: boolean }) {
+  if (compact) return <div className="ow-compact-plan">
+    <p className="ow-plan-reconciliation">{processing ? "加工订单无艾诺科合同对照。" : `${dateLabels[data.reconciliation.dateStatus]}；${quantityLabels[data.reconciliation.quantityStatus]}。`}</p>
+    {data.plans.length ? <div className="ow-table-scroll" role="region" aria-label="织序交付计划明细" tabIndex={0}><table><thead><tr><th>交付日期</th><th>计划数量</th><th>记录状态</th></tr></thead><tbody>{data.plans.map(plan => <tr key={plan.id}><td>{plan.deliveryDate ?? "日期未记录"}</td><td>{plan.quantity}</td><td>{plan.voidedAt ? "已作废（历史保留）" : "有效"}{plan.isDerivedDefault ? " · 初始默认行" : ""}</td></tr>)}</tbody></table></div> : <p>尚无交付计划记录。</p>}
+    <details className="ow-plan-evidence"><summary>查看计划归属与合同对照</summary><dl className="ow-info"><dt>计划归属</dt><dd>{ownershipLabels[data.ownership]}</dd>{!processing && <><dt>合同交期</dt><dd>{data.sourceDeliveryDate ?? "未记录"}</dd><dt>合同数量</dt><dd>{data.sourceQuantity ?? "未记录"}</dd></>}</dl><p className="ow-help">不自动分配或修改计划。</p></details>
+  </div>;
   return <>
     <DescriptionList columns={3} compact items={[
       { key: "ownership", label: "计划归属", value: ownershipLabels[data.ownership] },
@@ -132,7 +137,7 @@ export function SavedDeliveryPlanFacts({ data, processing = false }: { data: Del
 type PlanView = { lease: object } & ({ data: DeliveryPlanSetDto; error?: never } | { error: number; data?: never });
 
 /** Only the existing disclosure triggers a GET; each committed identity owns its reply. */
-export function SavedDeliveryPlans({ orderId, active, processing = false, refreshToken = 0 }: { orderId: string; active: boolean; processing?: boolean; refreshToken?: number }) {
+export function SavedDeliveryPlans({ orderId, active, processing = false, refreshToken = 0, compact = false }: { orderId: string; active: boolean; processing?: boolean; refreshToken?: number; compact?: boolean }) {
   const session = useServerSession();
   const [attempt, setAttempt] = useState(0);
   const [view, setView] = useState<PlanView | null>(null);
@@ -162,13 +167,14 @@ export function SavedDeliveryPlans({ orderId, active, processing = false, refres
   if (!active || session.status !== "authenticated" || !session.hasPermission("order.view")) return null;
   const result = view?.lease === lease ? view : null;
   return <section aria-label="交付计划（织序）" data-saved-delivery-plans>
-    <p className="oc-server-color-note"><strong>交付计划（织序）</strong> · 读取织序保存的计划；与订单详情为独立读取。</p>
-    {!result ? <LoadingState compact label="读取交付计划" rows={2} /> : result.data ? <SavedDeliveryPlanFacts data={result.data} processing={processing} /> : <ErrorState
+    {!compact && <p className="oc-server-color-note"><strong>交付计划（织序）</strong> · 读取织序保存的计划；与订单详情为独立读取。</p>}
+    {!result ? <LoadingState compact label="读取交付计划" rows={2} /> : result.data ? <SavedDeliveryPlanFacts data={result.data} processing={processing} compact={compact} /> : <ErrorState
       title={result.error === 403 ? "没有交付计划查看权限" : result.error === 404 ? "交付计划对应订单不存在" : "交付计划暂时无法读取"}
       description="未展示先前计划。重试只读取织序记录，不采集艾诺科来源。"
       permission={result.error === 403}
       onRetry={() => setAttempt(value => value + 1)}
     />}
+    {compact && result?.data && <div className="ow-plan-operations"><Button variant="text" size="compact" onClick={() => setAttempt(value => value + 1)}>重新读取交付计划</Button></div>}
   </section>;
 }
 

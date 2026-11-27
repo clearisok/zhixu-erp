@@ -14,7 +14,7 @@ for (let i = 2; i < process.argv.length; i += 2) {
   args.set(key, value);
 }
 const host = args.get("--ssh"), container = args.get("--container");
-const port = Number(args.get("--port") ?? "63177"), directory = resolve(args.get("--static") ?? "dist/client");
+const port = Number(args.get("--port") ?? "5177"), directory = resolve(args.get("--static") ?? "dist/client");
 const orderId = args.get("--order-id");
 if (!host || !container || !/^[a-zA-Z0-9][a-zA-Z0-9_.@-]*$/u.test(host) || !/^[a-zA-Z0-9][a-zA-Z0-9_.-]*$/u.test(container)
   || !Number.isInteger(port) || port < 1024 || port > 65535 || orderId && !/^[a-f0-9-]{36}$/u.test(orderId)) throw Error("explicit_demo_target_required");

@@ -114,9 +114,11 @@ jobs:
           PAYMENT_PANEL_EXPECTED_SOURCE: ${{ github.sha }}
           CLOSING_UI_EXPECTED_SOURCE: ${{ github.sha }}
           CHROME_PATH: google-chrome
+          ORDER_WORKBENCH_EXPECTED_SOURCE: ${{ github.sha }}
         run: |
           node --test tests/server-navigation-history.test.mjs
           npx --no-install tsx --test server/integration/server-navigation-continuity.integration.test.mjs
+          npx --no-install tsx --test server/integration/order-workbench-ui.integration.test.mjs
           npm run test:production-resources-ui
           npm run test:production-planning-ui
           npm run test:ainuoke-continuous-ui

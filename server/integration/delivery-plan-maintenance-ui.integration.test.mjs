@@ -108,9 +108,9 @@ test('approved delivery plan maintenance works on the exact built Server detail'
     const modalClick = label => click(label, '.oc-delivery-modal button');
     const route = '/order-center/server-detail?id=' + x.orderId.toUpperCase();
     const navigate = async (path = route) => { const marker = randomUUID(); await evaluate('window.deliveryNavigation=' + JSON.stringify(marker)); await command('Page.navigate', { url: x.base + path });
-      await until(() => evaluate('window.deliveryNavigation!==' + JSON.stringify(marker) + '&&document.readyState===\'complete\''), 'fresh document'); await has('订单概况'); };
+      await until(() => evaluate('window.deliveryNavigation!==' + JSON.stringify(marker) + '&&document.readyState===\'complete\''), 'fresh document'); await has('订单工作台'); };
     const cookie = async username => { const value = await x.login(username), at = value.indexOf('='); await command('Network.setCookie', { name: value.slice(0, at), value: value.slice(at + 1), domain: '127.0.0.1', path: '/', httpOnly: true }); };
-    const login = async username => { await until(() => evaluate("!!document.querySelector('input[name=username]')"), 'login form'); await evaluate(`(()=>{for(const [name,value]of ${JSON.stringify([['username', 'PLACEHOLDER'], ['password', x.password]])}){const n=document.querySelector('input[name='+name+']');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(n,name==='username'?${JSON.stringify(username)}:value);n.dispatchEvent(new Event('input',{bubbles:true}));}document.querySelector('input[name=username]').closest('form').requestSubmit();})()`); await has('订单概况'); };
+    const login = async username => { await until(() => evaluate("!!document.querySelector('input[name=username]')"), 'login form'); await evaluate(`(()=>{for(const [name,value]of ${JSON.stringify([['username', 'PLACEHOLDER'], ['password', x.password]])}){const n=document.querySelector('input[name='+name+']');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(n,name==='username'?${JSON.stringify(username)}:value);n.dispatchEvent(new Event('input',{bubbles:true}));}document.querySelector('input[name=username]').closest('form').requestSubmit();})()`); await has('订单工作台'); };
     const logout = async () => { await evaluate("document.querySelector('[aria-label=用户菜单]').click()"); await click('退出登录'); await until(() => evaluate("!!document.querySelector('input[name=username]')"), 'logout'); };
     const open = async () => { await until(() => evaluate("(()=>{const n=document.querySelector('[data-maintain-delivery-plans]');if(!n||n.disabled)return false;n.click();return true})()"), 'delivery action'); await has('维护每期交付日期和数量'); };
     const absent = () => until(() => evaluate("!document.querySelector('.oc-delivery-modal')"), 'closed delivery modal');
@@ -210,7 +210,7 @@ test('approved delivery plan maintenance works on the exact built Server detail'
       await modalClick('取消'); await absent(); assert.equal((await read()).ownership, 'source_derived');
     });
     await phase('preview, exact quantities, default preservation and one double-click save refresh the open disclosure', async () => {
-      await click('来源与技术详情 只读', 'summary'); await has('交付计划（织序）'); await open();
+      await click('来源与技术详情 只读', 'summary'); await has('交付计划'); await open();
       await add('2027-01-02', '9007199254740993.0001'); await preview(); await has('计划数量超出合同数量，请核对。');
       const before = await evaluate('deliveryWire.patches.length');
       await evaluate("(()=>{const n=[...document.querySelectorAll('.oc-delivery-modal button')].find(n=>n.textContent==='确认保存');n.click();n.click();})()");
@@ -306,14 +306,14 @@ test('approved delivery plan maintenance works on the exact built Server detail'
     });
     await phase('same-user A to B to A cannot consume late200 or late401, and refresh restores only the original intent', async () => {
       for (const late of ['hold200', 'hold401']) {
-        await navigate(); await evaluate("deliveryWire.readMode='hold401'"); await click('来源与技术详情 只读', 'summary');
+        await navigate(); await evaluate("deliveryWire.readMode='hold401'"); await click('重新读取交付计划');
         await until(() => evaluate('deliveryWire.readWaiters.length===1'), 'independent held read');
         await open(); await add('2027-02-08', '8'); await preview(); await evaluate('deliveryWire.patchMode=' + JSON.stringify(late)); await modalClick('确认保存');
         await until(() => evaluate('deliveryWire.patchWaiters.length===1'), 'held original save'); const raw = await pendingRaw();
         await evaluate('deliveryWire.readWaiters.shift()()'); await until(() => evaluate("!!document.querySelector('input[name=username]')"), 'current independent401');
         await login('demo.manager'); assert.equal(await evaluate("!!document.querySelector('.oc-delivery-modal')"), false); await logout(); await login('demo.admin');
         await open(); await has('保存结果暂未确认'); assert.deepEqual(await pendingRaw(), raw);
-        await evaluate('deliveryWire.patchWaiters.shift()()'); await has('订单概况'); assert.equal(await evaluate("!!document.querySelector('input[name=username]')"), false);
+        await evaluate('deliveryWire.patchWaiters.shift()()'); await has('订单工作台'); assert.equal(await evaluate("!!document.querySelector('input[name=username]')"), false);
         assert.deepEqual(await pendingRaw(), raw); await modalClick('核对保存结果'); await saved(); await modalClick('关闭'); await absent();
       }
       await open(); await add('2027-02-09', '9'); await preview(); await evaluate("deliveryWire.patchMode='lost'"); await modalClick('确认保存'); await unknownReady();
@@ -343,7 +343,7 @@ test('approved delivery plan maintenance works on the exact built Server detail'
         const grants = new Set((await x.pool.query('SELECT rp.permission_key FROM app_users u JOIN app_user_roles ur ON ur.user_id=u.id JOIN app_role_permissions rp ON rp.role_id=ur.role_id WHERE u.username=$1', [username])).rows.map(row => row.permission_key));
         await cookie(username); const marker = randomUUID(); await evaluate('window.deliveryRole=' + JSON.stringify(marker)); await command('Page.navigate', { url: x.base + route });
         await until(() => evaluate('window.deliveryRole!==' + JSON.stringify(marker) + '&&document.readyState===\'complete\''), 'role document');
-        await until(() => evaluate("(document.body?.innerText??'').includes('订单概况')||(document.body?.innerText??'').includes('当前 Server 账号没有订单查看权限')"), 'role result ' + username);
+        await until(() => evaluate("(document.body?.innerText??'').includes('订单工作台')||(document.body?.innerText??'').includes('当前 Server 账号没有订单查看权限')"), 'role result ' + username);
         if (grants.has('order.view')) {
           await until(() => evaluate("!!document.querySelector('[data-maintain-delivery-plans]')"), 'role action');
           if (grants.has('order.edit')) await until(() => evaluate("!document.querySelector('[data-maintain-delivery-plans]').disabled"), 'role ready');

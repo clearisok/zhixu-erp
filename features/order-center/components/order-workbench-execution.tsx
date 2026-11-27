@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
-import { Button, Card, ErrorState, LoadingState } from "@/components/foundation";
+import { Card, ErrorState, LoadingState } from "@/components/foundation";
 import { useServerSession } from "@/features/server-auth";
 import { ServerAuthError } from "@/features/server-auth/server-auth-client";
 import { productionPlanClient } from "@/features/production-scheduling/server/production-plan-client";
@@ -52,11 +52,13 @@ export function WorkbenchProduction({ orderId, historical = false }: { orderId: 
           <div><dt>实际完成数量</dt><dd>{Object.keys(data.executions).length ? closingNumber(data.summary.completedQuantity) : "尚未登记"}</dd></div>
           <div><dt>待执行数量</dt><dd>{closingNumber(data.summary.outstandingPlannedQuantity)}</dd></div></dl>
         {data.assignments.length ? <details><summary>查看 {data.assignments.length} 条排单与完成记录</summary>
-          <div className="ow-table-scroll" role="region" aria-label="本订单生产明细" tabIndex={0}><table><thead><tr><th>执行方式 / 颜色</th><th>计划起止</th><th>计划数量</th><th>实际完成</th><th>记录状态</th></tr></thead><tbody>{data.assignments.map(row => <tr key={row.id}>
-            <td>{row.executionType === "internal" ? "内制" : "外发"} · {row.colorNameSnapshot ?? "全单"}</td>
+          <div className="ow-table-scroll" role="region" aria-label="本订单生产明细" tabIndex={0}><table><thead><tr><th>执行方 / 颜色</th><th>计划起止</th><th>计划数量</th><th>实际完成</th><th>记录状态</th></tr></thead><tbody>{data.assignments.map(row => {
+            const resource = data.resources[row.resourceSnapshotHash];
+            return <tr key={row.id}>
+            <td>{resource?.executionType === "internal" ? resource.group.name : resource?.factory.name ?? "执行方待核对"}<small className="ow-help">{row.executionType === "internal" ? "内制" : "外发"} · {row.colorNameSnapshot ?? "全单"}</small></td>
             <td>{row.plannedStartDate ?? "未记录"} — {row.plannedEndDate ?? "未记录"}</td><td>{closingNumber(row.plannedQuantity)}</td>
             <td>{data.executions[row.id] ? closingNumber(data.executions[row.id].completedQuantity) : "尚未登记"}</td><td>{row.status === "cancelled" ? "排单已取消" : "有效排单"}{data.executions[row.id] && (data.executions[row.id].status === "completed" ? " · 执行已结束" : " · 执行中")}</td>
-          </tr>)}</tbody></table></div></details> : <p className="ow-help">暂未记录排单，不能据此推断其他环节状态。</p>}
+          </tr>; })}</tbody></table></div></details> : <p className="ow-help">暂未记录排单，不能据此推断其他环节状态。</p>}
       </div> : null}
   </Card>;
 }

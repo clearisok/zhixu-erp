@@ -8,6 +8,12 @@ import { orderMaterialNavigation } from './order-navigation';
 import type { OrderMaterialReadModel } from './read-service';
 export const materialStateLabels = {not_purchased:'未采购',purchasing:'采购中',pending_inbound:'已采购待入库',ready:'已齐套'} as const;
 export const MATERIAL_REFRESH_MS=30000;
+export type MaterialSummaryReadState = { status: string; message: string; fetchedAt: string | null };
+function sourceTime(value: string | null) {
+  if (!value) return '未记录';
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? value + '（时间待核对）' : new Intl.DateTimeFormat('zh-CN',{timeZone:'Asia/Shanghai',dateStyle:'short',timeStyle:'medium',hour12:false}).format(date) + '（北京时间）';
+}
 export function useOrderMaterial(id: string) {
   const session=useServerSession();
   const scope=id+"/"+(session.user?.id??"")+"/"+session.status+"/"+session.permissions.join("|");
@@ -30,10 +36,11 @@ export function useOrderMaterial(id: string) {
     completion:state.id===scope&&!state.loading?state:null,
     reload:()=>{setState({id:scope,model:null,error:null,loading:true});setRefresh(n=>n+1);}};
 }
-export function OrderMaterialSummary({salesOrderId,history}:{salesOrderId:string;history?:ReactNode}) {
+export function OrderMaterialSummary({salesOrderId,history,onReadState}:{salesOrderId:string;history?:ReactNode;onReadState?:(state:MaterialSummaryReadState)=>void}) {
   const state=useOrderMaterial(salesOrderId); const route=orderMaterialNavigation(salesOrderId);const view=state.model?.progress;
+  useEffect(()=>{onReadState?.({status:state.loading?'loading':state.error?'unavailable':view?.sourceStatus??'unavailable',message:state.error??view?.message??'',fetchedAt:view?.fetchedAt??null});},[onReadState,state.loading,state.error,view?.sourceStatus,view?.message,view?.fetchedAt]);
   return <Card className="oc-server-detail-section oc-server-detail-material-summary"><header><div><h2>物料采购汇总</h2><small>面料、辅料与来源状态</small></div><div className="ow-module-actions">{history}{route&&<a className="qc-button qc-button-text" href={route.detailHref}>查看物料跟进 →</a>}</div></header>
-    {state.loading?<p>读取物料来源…</p>:state.error?<p role="status">{state.error}</p>:view&&<><p role="status">{view.message} · 来源读取 {view.fetchedAt??'—'}</p>{view.sourceStatus==='ready'?<div className="sp-server-summary">{(['fabric','trim'] as const).map(type=><section key={type}><strong>{type==='fabric'?'面料':'辅料'} {view.summary[type].demands} 项</strong><span>{Object.entries(materialStateLabels).map(([key,label])=><small key={key}>{label} {view.summary[type].states[key as keyof typeof materialStateLabels]}　</small>)}<small>未知 {view.summary[type].unknown}</small></span></section>)}</div>:<p>当前采购数量待核对；这不表示没有采购。可刷新来源，或查看历史物料来源。</p>}</>}
+    {state.loading?<p>读取物料来源…</p>:state.error?<p role="status">{state.error}</p>:view&&<><p role="status">{view.message} · 来源读取 {sourceTime(view.fetchedAt)}</p>{view.sourceStatus==='ready'?<div className="sp-server-summary">{(['fabric','trim'] as const).map(type=><section key={type}><strong>{type==='fabric'?'面料':'辅料'} {view.summary[type].demands} 项</strong><span>{Object.entries(materialStateLabels).map(([key,label])=><small key={key}>{label} {view.summary[type].states[key as keyof typeof materialStateLabels]}　</small>)}<small>未知 {view.summary[type].unknown}</small></span></section>)}</div>:<p>当前采购数量待核对；这不表示没有采购。可刷新来源，或查看历史物料来源。</p>}</>}
     {history?<details className="ow-refresh"><summary>来源状态与刷新</summary><ServerContractRefresh key={salesOrderId} scope={{orderId:salesOrderId}} onComplete={state.reload} /></details>:<ServerContractRefresh key={salesOrderId} scope={{orderId:salesOrderId}} onComplete={state.reload} />}
   </Card>;
 }

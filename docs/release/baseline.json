@@ -6315,6 +6315,13 @@
       "sha256": "24296b46057f976193f715b59ee62d77f648893dbf5d8c604bdbecdd0dc69e4f",
       "supersedes": "catalog-final-safety-contract-20261119",
       "changeReason": "User-approved Issue159 forward-only contract deletion/restoration lifecycle and red anomaly chip. Preserve all original business records and identity/scope/Price protections. Candidate only; no merge, Staging deployment or real state conversion authorized."
+    },
+    {
+      "id": "order-workbench-user-approval-20261127",
+      "kind": "document",
+      "path": "docs/tasks/active/order-workbench-approval-2026-11-27.md",
+      "recordedAtSha": "b2cc6ad4ea1c015ffb4960aacb68197b24fe0f5e",
+      "sha256": "ca85efe1c6c7e7c4497577cb98024b8df43298590e2ec4369e3d397d0750f52b"
     }
   ],
   "pages": [
@@ -6419,10 +6426,12 @@
       "routeFile": "app/order-center/server-detail/page.tsx",
       "components": [
         "features/order-center/components/server-sales-order-detail-page.tsx",
-        "features/order-center/components/server-saved-order-sources.tsx"
+        "features/order-center/components/server-saved-order-sources.tsx",
+        "features/order-center/components/server-order-workbench.tsx",
+        "features/order-center/components/order-workbench-execution.tsx"
       ],
-      "acceptance": "approved-history",
-      "acceptanceScope": "Compact executionOnly, no CCT calls, three/one columns, folded technical facts; production not activated. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance. D121 original-history functions have synthetic engineering evidence only; no new human visual acceptance or deployment. D121 header corrections have synthetic six-width evidence; this is not new human pixel acceptance. D147 Gate4B current 2026-10-24 isolated engineering restores saved size/owned plan reads in default-closed original disclosures; new before/after images and six-width default geometry are engineering evidence only, not renewed human acceptance or deployment.",
+      "acceptance": "implementation-only",
+      "acceptanceScope": "Compact executionOnly, no CCT calls, three/one columns, folded technical facts; production not activated. D108 records subsequent user acceptance of the unified local synthetic experience only; no real-source or deployment acceptance. D121 original-history functions have synthetic engineering evidence only; no new human visual acceptance or deployment. D121 header corrections have synthetic six-width evidence; this is not new human pixel acceptance. D147 Gate4B current 2026-10-24 isolated engineering restores saved size/owned plan reads in default-closed original disclosures; new before/after images and six-width default geometry are engineering evidence only, not renewed human acceptance or deployment. Issue177 (2026-11-27): the user approved the concrete workbench design and local Demo/PR implementation. The new layout, forward delivery read, matrices and four execution modules are engineering candidates awaiting implementation review; the earlier acceptance evidence remains historical. No deployment or source activation authorized.",
       "evidence": [
         "order-integration",
         "order-images",
@@ -6444,7 +6453,8 @@
         "order-saved-source-20261024-after-default-390",
         "order-saved-source-20261024-after-sizes-1440",
         "order-saved-source-20261024-after-sizes-390",
-        "order-saved-source-20261024-after-plan-facts"
+        "order-saved-source-20261024-after-plan-facts",
+        "order-workbench-user-approval-20261127"
       ]
     },
     {

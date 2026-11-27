@@ -1,6 +1,7 @@
 /* Issue177 V2: scoped to the formal order workspace; Foundation and other pages stay intact. */
 .ow-workbench { gap: 18px; min-width: 0; color: var(--qc-text, #243c32); }
 .ow-workbench [hidden] { display: none !important; }
+.ow-workbench > [role="tabpanel"] { min-width: 0; width: 100%; }
 .ow-workbench :is(h1,h2,h3,p,dd,td,th) { overflow-wrap: anywhere; }
 .ow-workbench .ow-order-heading { display: grid; grid-template-columns: minmax(0,1fr) auto; align-items: start; gap: 24px; padding: 8px 2px 14px; }
 .ow-heading-title { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
@@ -14,6 +15,8 @@
 .ow-attention.ow-has-attention { background: #fbf5e8; border-left: 3px solid #9a712b; }
 .ow-attention-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
 .ow-attention h2 { margin: 0; font-size: 15px; }
+.ow-attention:not(.ow-has-attention) { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+.ow-attention:not(.ow-has-attention) .ow-help { margin: 0; }
 .ow-attention ul { list-style: none; margin: 9px 0 0; padding: 0; display: grid; gap: 9px; }
 .ow-attention li { display: flex; gap: 7px 10px; align-items: center; flex-wrap: wrap; font-size: 13px; }
 .ow-alert-kind { color: #775c28; font-size: 12px; padding: 2px 7px; border-radius: 4px; background: #f1e7cf; }
@@ -52,11 +55,11 @@
 .ow-workbench details > :not(summary) { margin-top: 12px; }
 .ow-table-scroll { overflow-x: auto; max-width: 100%; min-width: 0; }
 .ow-table-scroll table { border-collapse: collapse; width: 100%; font-size: 13px; }
-.ow-table-scroll :is(th,td) { padding: 12px 13px; border-bottom: 1px solid var(--qc-border, #dce4df); text-align: left; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.oc-server-detail-page .ow-workbench .ow-table-scroll table :is(th,td) { padding: 12px 13px; border-bottom: 1px solid var(--qc-border, #dce4df); text-align: left; font-size: 13px; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .ow-table-scroll th { color: #536b5e; background: #f5f8f5; font-weight: 600; }
 .ow-table-scroll [data-unknown] { color: #718176; }
 .ow-table-scroll tr[data-selected] > *,.ow-size-note[data-selected] { background: #eaf3ec; }
-.ow-size-matrix { padding: 2px 18px 16px; }
+.ow-size-matrix { min-width: 0; max-width: 100%; padding: 2px 18px 16px; }
 .ow-size-matrix .ow-table-scroll { margin: 13px 0; }
 .ow-size-note { margin: 10px 0; padding: 9px 0; font-size: 13px; border-bottom: 1px solid var(--qc-border, #dce4df); }
 .ow-color-evidence { padding-top: 9px; }
@@ -69,6 +72,8 @@
 .ow-workbench .ow-garment-summary { padding: 11px 18px; font-size: 13px; }
 .ow-workbench .ow-garment-summary p { margin: 3px 0; }
 .ow-data-warning { color: #805d21; font-size: 13px; }
+.ow-plan-reconciliation { margin: 0 0 12px; color: #4f695b; font-size: 13px; }
+.ow-plan-evidence { margin-top: 12px; }
 @media(max-width:1100px) { .ow-overview-grid { grid-template-columns: minmax(0,1fr); } .ow-side-stack { grid-template-columns: 1fr 1fr; } .ow-workbench .ow-order-heading { grid-template-columns: minmax(0,1fr); gap: 17px; } .ow-heading-metrics { justify-content: start; text-align: left; } }
 @media(max-width:600px) { .ow-side-stack { grid-template-columns: minmax(0,1fr); } .ow-workbench { gap: 14px; } .ow-tabs { gap: 6px 18px; } .ow-workbench .oc-server-detail-section > header { padding: 13px 14px; } .ow-section-body,.ow-size-matrix { padding-inline: 14px; } .ow-heading-metrics { gap: 15px 24px; } .ow-heading-metrics dd { font-size: 21px; } .ow-metrics { gap: 14px 20px; } .ow-metrics dd { font-size: 18px; } .ow-attention { padding: 12px 14px; } .ow-module-actions { width: 100%; } .ow-workbench .ow-source-details > details > summary { padding: 13px 14px; } }
 @media(pointer:coarse) { .ow-tabs button { min-height: 44px; } }
