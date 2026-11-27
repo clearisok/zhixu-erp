@@ -94,7 +94,7 @@ test("detail uses exact Server source fields and presents source quantity as rea
     "detail.contractDeliveryDate",
     "detail.sourceLifecycleStatus",
     "detail.colorCount",
-    "订单数量（来源只读）",
+    "订单数量",
     "ow-heading-title",
     "ow-identifiers",
   ]) assert.match(workbenchSource, new RegExp(token.replace(/[.*+?^${}()|[\]\\]/gu, "\\$&"), "u"));

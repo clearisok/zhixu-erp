@@ -11,13 +11,12 @@
 .ow-heading-metrics { display: flex; flex-wrap: wrap; justify-content: end; gap: 18px 30px; margin: 0; text-align: right; }
 .ow-heading-metrics dt,.ow-heading-metrics small { color: var(--qc-muted, #687b71); font-size: 12px; }
 .ow-heading-metrics dd { margin: 5px 0; font-size: 23px; line-height: 1.35; font-weight: 700; font-variant-numeric: tabular-nums; }
-.ow-attention { padding: 13px 17px; background: var(--qc-surface, #fff); border: 1px solid var(--qc-border, #dce4df); border-radius: var(--foundation-radius); }
+.ow-attention { display: flex; align-items: center; flex-wrap: wrap; gap: 7px 14px; padding: 8px 17px; background: var(--qc-surface, #fff); border: 1px solid var(--qc-border, #dce4df); border-radius: var(--foundation-radius); }
 .ow-attention.ow-has-attention { background: #fbf5e8; border-left: 3px solid #9a712b; }
-.ow-attention-heading { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px; }
-.ow-attention h2 { margin: 0; font-size: 15px; }
-.ow-attention:not(.ow-has-attention) { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
-.ow-attention:not(.ow-has-attention) .ow-help { margin: 0; }
-.ow-attention ul { list-style: none; margin: 9px 0 0; padding: 0; display: grid; gap: 9px; }
+.ow-attention h2 { flex: none; margin: 0; font-size: 15px; }
+.ow-attention .ow-help { margin: 0; }
+.ow-attention ul { flex: 1 1 auto; min-width: 0; list-style: none; margin: 0; padding: 0; display: grid; gap: 7px; }
+.ow-attention .ow-attention-action { flex: none; margin-left: auto; }
 .ow-attention li { display: flex; gap: 7px 10px; align-items: center; flex-wrap: wrap; font-size: 13px; }
 .ow-alert-kind { color: #775c28; font-size: 12px; padding: 2px 7px; border-radius: 4px; background: #f1e7cf; }
 .ow-source-deleted { padding: 14px 18px; border: 1px solid #e5b4ae; border-radius: var(--foundation-radius); background: #fff0ee; color: #942f28; }
@@ -73,7 +72,20 @@
 .ow-workbench .ow-garment-summary p { margin: 3px 0; }
 .ow-data-warning { color: #805d21; font-size: 13px; }
 .ow-plan-reconciliation { margin: 0 0 12px; color: #4f695b; font-size: 13px; }
-.ow-plan-evidence { margin-top: 12px; }
+.ow-workbench .ow-material-business { padding: 16px 18px 8px; }
+.ow-material-metrics { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 14px 12px; margin: 0; }
+.ow-material-metrics dt { font-size: 12px; color: var(--qc-muted, #687b71); }
+.ow-material-metrics dd { margin: 7px 0 3px; font-size: 22px; font-weight: 700; font-variant-numeric: tabular-nums; }
+.ow-material-metrics small { font-size: 12px; color: var(--qc-muted, #687b71); }
+.ow-material-metrics dd[data-unknown] { font-size: 16px; color: #805d21; }
+.ow-material-pending { display: flex; flex-wrap: wrap; gap: 8px 20px; margin: 14px 0 8px; font-size: 13px; }
+.ow-material-pending strong { margin-left: 6px; }
+.ow-material-pending-details { border-top: 1px solid var(--qc-border, #dce4df); padding-top: 8px; }
+.ow-material-pending-details ul { padding: 0; list-style: none; font-size: 13px; }
+.ow-material-pending-details li { display: flex; justify-content: space-between; gap: 10px; padding: 7px 0; }
+.ow-material-pending-details li strong { flex-shrink: 0; }
+@media(min-width:1200px) { .ow-attention:has(li:only-child) { flex-wrap: nowrap; } }
+@media(max-width:700px) { .ow-material-metrics { grid-template-columns: repeat(2,minmax(0,1fr)); } .ow-material-metrics dd { font-size: 20px; } }
 @media(max-width:1100px) { .ow-overview-grid { grid-template-columns: minmax(0,1fr); } .ow-side-stack { grid-template-columns: 1fr 1fr; } .ow-workbench .ow-order-heading { grid-template-columns: minmax(0,1fr); gap: 17px; } .ow-heading-metrics { justify-content: start; text-align: left; } }
 @media(max-width:600px) { .ow-side-stack { grid-template-columns: minmax(0,1fr); } .ow-workbench { gap: 14px; } .ow-tabs { gap: 6px 18px; } .ow-workbench .oc-server-detail-section > header { padding: 13px 14px; } .ow-section-body,.ow-size-matrix { padding-inline: 14px; } .ow-heading-metrics { gap: 15px 24px; } .ow-heading-metrics dd { font-size: 21px; } .ow-metrics { gap: 14px 20px; } .ow-metrics dd { font-size: 18px; } .ow-attention { padding: 12px 14px; } .ow-module-actions { width: 100%; } .ow-workbench .ow-source-details > details > summary { padding: 13px 14px; } }
 @media(pointer:coarse) { .ow-tabs button { min-height: 44px; } }

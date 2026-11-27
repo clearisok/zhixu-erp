@@ -52,6 +52,7 @@ test('built order workbench uses existing live APIs, preserves unknown facts, ro
     const target = await command('Target.createTarget', { url: 'about:blank' }, null);
     session = (await command('Target.attachToTarget', { targetId: target.targetId, flatten: true }, null)).sessionId;
     await command('Runtime.enable'); await command('Page.enable'); await command('Network.enable');
+    await command('Page.addScriptToEvaluateOnNewDocument', {source: `window.materialFailure=false; const originalFetch=window.fetch; window.fetch=(input,init)=>window.materialFailure&&String(typeof input==='string'?input:input.url).includes('/material-progress')?Promise.resolve(new Response('{}',{status:503})):originalFetch(input,init);`});
     const evaluate = async expression => { const result = await command('Runtime.evaluate', { expression, awaitPromise: true, returnByValue: true }); assert.equal(Boolean(result.exceptionDetails), false); return result.result.value; };
     const click = text => evaluate(`(()=>{const e=[...document.querySelectorAll('button,summary')].find(e=>e.textContent.trim()===${JSON.stringify(text)}&&e.getClientRects().length);if(!e)return false;e.click();return true})()`);
     const text = () => evaluate('document.body?.innerText??""');
@@ -71,6 +72,29 @@ test('built order workbench uses existing live APIs, preserves unknown facts, ro
       assert.ok(requests.some(row => row.url.includes('/closing/orders/') && row.url.includes('view=display')));
       assert.equal(await evaluate('document.querySelectorAll(".ow-workbench .oc-server-detail-section").length>0'), true);
       await screenshot('desktop-overview');
+    });
+    await t.test('local refinements remove repeated explanations and preserve an independent read action', async () => {
+      const heading = await evaluate('document.querySelector(".ow-order-heading").innerText');
+      assert.doesNotMatch(heading,/来源只读|合同交期（来源）|与织序交付计划分别保留/);
+      assert.equal(await evaluate('document.querySelector(".ow-plan-evidence")===null'),true);
+      assert.doesNotMatch(await evaluate('document.querySelector(".ow-delivery").innerText'),/织序交付要求，与合同来源分开维护|计划日期与合同交期一致；计划数量与合同数量一致/);
+      assert.equal(await evaluate('document.querySelectorAll(".ow-heading-metrics input").length'),0);
+      assert.equal(await click('重新读取交付计划'),true);
+    });
+    await t.test('material metrics come from the real fixture API, and unavailable data never becomes zero', async () => {
+      await has('自购需求项');
+      const material = await read('/api/v1/sales-orders/' + x.orderId + '/material-progress');
+      const expectedDemands = material.progress.summary.fabric.demands + material.progress.summary.trim.demands;
+      assert.equal(await evaluate('document.querySelector(".ow-material-metrics dd").textContent'),String(expectedDemands));
+      await evaluate('window.materialFailure=true;window.dispatchEvent(new Event("focus"))');
+      await until(()=>evaluate('[...document.querySelectorAll(".ow-material-metrics dd")].every(e=>e.textContent==="待核对")'),'unavailable material metrics');
+      const business = await evaluate('document.querySelector("[data-material-business]").innerText');
+      assert.doesNotMatch(business,/Browser|未接通|接口|0%/);
+      const source = await evaluate('document.querySelector(".oc-server-detail-material-summary .ow-refresh").textContent');
+      assert.match(source,/不会回退 Browser/);
+      assert.equal(await evaluate('document.querySelector(".oc-server-detail-material-summary .ow-refresh").open'),false);
+      await evaluate('window.materialFailure=false;window.dispatchEvent(new Event("focus"))'); await has('自购需求项');
+      await until(()=>evaluate('document.querySelector(".ow-material-metrics dd").textContent!=="待核对"'),'material recovery');
     });
     await t.test('color quantities lead to source matrices without losing unknown or pending evidence', async () => {
       await evaluate('document.querySelector(".ow-color-summary-row button").click()');

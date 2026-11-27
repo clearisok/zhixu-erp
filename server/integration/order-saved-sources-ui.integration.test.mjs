@@ -160,13 +160,13 @@ test('built order disclosures preserve saved size and owned plan facts without s
       } finally { await x.pool.query('UPDATE ainuoke_sales_order_color_mirrors SET source_metadata=$3 WHERE sales_order_id=$1 AND source_line_identity=$2', [x.orderId, row.source_line_identity, row.source_metadata]); }
     });
 
-    await t.test('owned plans keep exact decimals, null dates, zero and void history with separate source comparison', async () => {
+    await t.test('owned plans keep exact decimals, null dates, zero and void history without redundant comparison', async () => {
       await x.pool.query("UPDATE sales_order_delivery_plans SET quantity=9007199254740993.123456789012345678,delivery_date=NULL WHERE sales_order_id=$1", [x.orderId]);
       await x.pool.query("INSERT INTO sales_order_delivery_plans(sales_order_id,delivery_date,quantity,is_derived_default,voided_at) VALUES($1,'2026-12-12',0,false,now())", [x.orderId]);
       await navigate(route); await has('查看颜色尺码'); await planReady();
-      await has('9007199254740993.123456789012345678'); await fold('查看计划归属与合同对照');
+      await has('9007199254740993.123456789012345678');
       const text = await evaluate("document.querySelector('[data-saved-delivery-plans]').innerText");
-      assert.match(text, /日期未记录/); assert.match(text, /已作废（历史保留）/); assert.match(text, /合同数量/); assert.match(text, /100/);
+      assert.match(text, /日期未记录/); assert.match(text, /已作废（历史保留）/); assert.equal(await evaluate("document.querySelector('.ow-plan-evidence')===null"), true); assert.ok((await evaluate("document.querySelector('.ow-heading-metrics').innerText")).includes('100'));
       assert.equal(await evaluate('planReads'), 1);
       await evaluate("document.querySelector('[data-saved-delivery-plans]').scrollIntoView({block:'start'})");
       await shot('plan-facts');
@@ -185,7 +185,7 @@ test('built order disclosures preserve saved size and owned plan facts without s
       }
     });
 
-    await t.test('real processing batch has no invented Ainuoke sizes or comparison and keeps unknown plan ownership', async () => {
+    await t.test('real processing batch has no invented Ainuoke sizes, comparison or plan records', async () => {
       const actor = await loadExistingBootstrapActor(x.pool, x.users[0]);
       const quote = createSyntheticQuoteFixture('saved-sources-processing', 'processing');
       for (const r of quote.revisions) { r.imageAttachmentIds = []; r.fileAttachmentIds = []; r.styleImageAttachmentId = null; }
@@ -200,8 +200,8 @@ test('built order disclosures preserve saved size and owned plan facts without s
       assert.equal(result.results[0].status, 'created');
       await navigate('/order-center/server-detail?id=' + result.results[0].salesOrderId); await has('查看颜色尺码');
       await fold('查看颜色尺码'); await has('加工订单不适用艾诺科颜色尺码来源。');
-      await click('订单总览'); await planReady(); await has('加工订单无艾诺科合同对照。'); await fold('查看计划归属与合同对照');
-      await has('所有权尚未记录，不推定为自动或人工'); await has('尚无交付计划记录。');
+      await click('订单总览'); await planReady(); await has('尚无交付计划记录。');
+      assert.equal(await evaluate("document.querySelector('.ow-plan-evidence')===null"), true);
       assert.equal(await evaluate("document.querySelector('[data-saved-delivery-plans]').innerText.includes('艾诺科合同数量（对照）')"), false);
       assert.equal(await evaluate("document.querySelectorAll('[data-saved-delivery-plans] tbody tr').length"), 0);
     });

@@ -110,9 +110,8 @@ const dateLabels = { no_source_date: "合同交期未记录", matched: "计划�
 
 export function SavedDeliveryPlanFacts({ data, processing = false, compact = false }: { data: DeliveryPlanSetDto; processing?: boolean; compact?: boolean }) {
   if (compact) return <div className="ow-compact-plan">
-    <p className="ow-plan-reconciliation">{processing ? "加工订单无艾诺科合同对照。" : `${dateLabels[data.reconciliation.dateStatus]}；${quantityLabels[data.reconciliation.quantityStatus]}。`}</p>
+    {!processing && (data.reconciliation.dateStatus !== "matched" || data.reconciliation.quantityStatus !== "matched") && <p className="ow-plan-reconciliation">{[data.reconciliation.dateStatus !== "matched" ? dateLabels[data.reconciliation.dateStatus] : null, data.reconciliation.quantityStatus !== "matched" ? quantityLabels[data.reconciliation.quantityStatus] : null].filter(Boolean).join("；")}</p>}
     {data.plans.length ? <div className="ow-table-scroll" role="region" aria-label="织序交付计划明细" tabIndex={0}><table><thead><tr><th>交付日期</th><th>计划数量</th><th>记录状态</th></tr></thead><tbody>{data.plans.map(plan => <tr key={plan.id}><td>{plan.deliveryDate ?? "日期未记录"}</td><td>{plan.quantity}</td><td>{plan.voidedAt ? "已作废（历史保留）" : "有效"}{plan.isDerivedDefault ? " · 初始默认行" : ""}</td></tr>)}</tbody></table></div> : <p>尚无交付计划记录。</p>}
-    <details className="ow-plan-evidence"><summary>查看计划归属与合同对照</summary><dl className="ow-info"><dt>计划归属</dt><dd>{ownershipLabels[data.ownership]}</dd>{!processing && <><dt>合同交期</dt><dd>{data.sourceDeliveryDate ?? "未记录"}</dd><dt>合同数量</dt><dd>{data.sourceQuantity ?? "未记录"}</dd></>}</dl><p className="ow-help">不自动分配或修改计划。</p></details>
   </div>;
   return <>
     <DescriptionList columns={3} compact items={[

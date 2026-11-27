@@ -33,7 +33,7 @@ export function ServerOrderWorkbench({ detail, trustedIdentity, deliveryPlanRefr
   const alerts = detail.alerts ?? [];
   const deleted = detail.sourceLifecycle?.state === "source_deleted" || alerts.some(alert => alert.code === "order_source_deleted");
   const otherAlerts = alerts.filter(alert => alert.code !== "order_source_deleted");
-  const materialNeedsReview = materialRead !== null && !["ready", "loading"].includes(materialRead.status) && !otherAlerts.some(alert => alert.code === "material_source_stale" || alert.code === "material_source_unavailable");
+  const materialNeedsReview = materialRead !== null && (!["ready", "loading"].includes(materialRead.status) || Boolean(materialRead.reviewItems)) && !otherAlerts.some(alert => alert.code === "material_source_stale" || alert.code === "material_source_unavailable");
   const hasAttention = otherAlerts.length > 0 || materialNeedsReview;
   const selectColor = (identity: string) => { setSelectedColor(identity); setTab("colors"); };
   const showMaterial = () => { setTab("overview"); requestAnimationFrame(() => document.getElementById("ow-material-" + detail.id)?.scrollIntoView({ block: "start", behavior: "smooth" })); };
@@ -43,12 +43,13 @@ export function ServerOrderWorkbench({ detail, trustedIdentity, deliveryPlanRefr
     <section className="ow-order-heading" aria-label="订单概况">
       <div><div className="ow-heading-title"><h1 className="oc-order-identity">{title}</h1><StatusTag tone={detail.lifecycleState === "cancelled" ? "danger" : ["confirmed", "completed"].includes(detail.lifecycleState) ? "success" : "neutral"}>订单状态 · {lifecycleLabels[detail.lifecycleState]}</StatusTag></div>
         <p className="ow-customer">{detail.customerName || "客户暂未取得"}</p><div className="ow-identifiers"><span>{detail.orderNo}</span><span>{processing ? "加工订单" : `销售合同 ${detail.billNo ?? "未记录"}`}</span><span>{detail.brandName || "品牌未记录"}</span></div></div>
-      <dl className="ow-heading-metrics"><div><dt>{processing ? "加工数量（下单批次）" : "订单数量（来源只读）"}</dt><dd>{quantity(detail.quantity)}</dd><small>{detail.colors.length} 个颜色</small></div><div><dt>{processing ? "加工交期" : "合同交期（来源）"}</dt><dd>{detail.contractDeliveryDate ?? "暂未取得数据"}</dd><small>{processing ? "下单批次日期" : "与织序交付计划分别保留"}</small></div></dl>
+      <dl className="ow-heading-metrics"><div><dt title="来源只读">{processing ? "加工数量（下单批次）" : "订单数量"}</dt><dd>{quantity(detail.quantity)}</dd><small>{detail.colors.length} 个颜色</small></div><div><dt title={processing ? undefined : "来源合同交期，只读"}>{processing ? "加工交期" : "合同交期"}</dt><dd>{detail.contractDeliveryDate ?? "暂未取得数据"}</dd>{processing && <small>下单批次日期</small>}</div></dl>
     </section>
     <section className={`ow-attention ${hasAttention ? "ow-has-attention" : ""}`} aria-label="需要关注">
-      <div className="ow-attention-heading"><h2>需要关注</h2>{hasAttention && !processing && <Button variant="text" size="compact" onClick={showMaterial}>查看物料跟进 →</Button>}</div>
-      {hasAttention ? <ul>{otherAlerts.map((alert, index) => <li key={alert.code + index}><span className="ow-alert-kind">{alert.code === "color_quantity_zero" ? "业务提醒" : "数据待核对"}</span><strong>{orderAlertLabels[alert.code]}</strong><span>{alert.count === undefined && ["color_quantity_zero", "material_unit_missing", "material_unit_conflict"].includes(alert.code) ? "数量或单位信息待核对" : orderAlertDescription(alert)}</span>{alert.code === "color_quantity_zero" && <Button variant="text" size="compact" onClick={() => setTab("colors")}>查看颜色</Button>}</li>)}{materialNeedsReview && <li><span className="ow-alert-kind">数据待核对</span><strong>物料数据待核对</strong><span>暂未取得可用于判断当前采购的来源，请查看物料模块。</span></li>}</ul>
+      <h2>需要关注</h2>
+      {hasAttention ? <ul>{otherAlerts.map((alert, index) => <li key={alert.code + index}><span className="ow-alert-kind">{alert.code === "color_quantity_zero" ? "业务提醒" : "数据待核对"}</span><strong>{orderAlertLabels[alert.code]}</strong><span>{alert.count === undefined && ["color_quantity_zero", "material_unit_missing", "material_unit_conflict"].includes(alert.code) ? "数量或单位信息待核对" : orderAlertDescription(alert)}</span>{alert.code === "color_quantity_zero" && <Button variant="text" size="compact" onClick={() => setTab("colors")}>查看颜色</Button>}</li>)}{materialNeedsReview && <li><span className="ow-alert-kind">数据待核对</span><strong>物料数据待核对</strong><span>{materialRead.status === "ready" && materialRead.reviewItems ? `${materialRead.reviewItems} 项物料完成状态待核对` : "暂未取得可用于判断当前采购的来源"}</span></li>}</ul>
         : <p className="ow-help">{materialRead?.status === "loading" ? "正在核对物料数据。" : "暂无已确认的待处理事项。各环节数据是否可用，请查看下方模块。"}</p>}
+      {hasAttention && !processing && <Button className="ow-attention-action" variant="text" size="compact" onClick={showMaterial}>查看物料跟进 →</Button>}
     </section>
     <div className="ow-tabs" role="tablist" aria-label="订单工作台内容" ref={tablist} onKeyDown={event => {
       const index = tabs.findIndex(item => item.id === tab);
@@ -57,7 +58,7 @@ export function ServerOrderWorkbench({ detail, trustedIdentity, deliveryPlanRefr
     }}>{tabs.map(item => <button key={item.id} type="button" role="tab" id={`ow-tab-${item.id}`} aria-controls={`ow-panel-${item.id}`} aria-selected={tab === item.id} tabIndex={tab === item.id ? 0 : -1} onClick={() => setTab(item.id)}>{item.label}</button>)}</div>
     <div id="ow-panel-overview" role="tabpanel" aria-labelledby="ow-tab-overview" hidden={tab !== "overview"}>
       <div className="ow-overview-grid"><div className="ow-main-stack">
-        <Card className="oc-server-detail-section ow-delivery"><header><div><h2>交付计划</h2><small>织序交付要求，与合同来源分开维护</small></div></header><div className="ow-section-body"><SavedDeliveryPlans orderId={detail.id} active processing={processing} refreshToken={deliveryPlanRefreshToken} compact /></div></Card>
+        <Card className="oc-server-detail-section ow-delivery"><header><h2>交付计划</h2></header><div className="ow-section-body"><SavedDeliveryPlans orderId={detail.id} active processing={processing} refreshToken={deliveryPlanRefreshToken} compact /></div></Card>
         <div id={"ow-material-" + detail.id} className="ow-material-anchor">
           {processing ? <Card className="oc-server-detail-section"><header><h2>物料</h2></header><p className="ow-section-copy">加工订单不关联艾诺科销售合同，艾诺科物料流水不适用。</p></Card>
             : historical ? <Card className="oc-server-detail-section"><header><h2>物料历史</h2><MaterialHistoryDialog orderId={detail.id} compact /></header><p className="ow-section-copy">当前物料来源请在有效订单查看；原单快照保留在历史物料来源。</p></Card>

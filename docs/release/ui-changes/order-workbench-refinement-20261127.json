@@ -1,0 +1,18 @@
+{
+  "baselineSha": "10b9a7d827e1c09f152ead58c21f26712d49a619",
+  "level": "V2",
+  "paths": [
+    "features/order-center/components/server-order-workbench.tsx",
+    "features/order-center/components/order-workbench.css",
+    "features/order-center/components/server-saved-order-sources.tsx",
+    "features/ainuoke-material-progress/order-material-summary.tsx",
+    "features/ainuoke-material-progress/material-summary-items.ts"
+  ],
+  "pages": ["order-detail", "material"],
+  "visibleDifference": "用户指定P1–P4局部优化：紧凑关注行、删除重复辅助说明及计划对照，物料摘要按真实需求项显示记录覆盖/原状态与待入库缺口；未知不补0、不推定齐套。其余工作台布局及业务操作保留。",
+  "evidence": ["docs/tasks/active/order-workbench-refinement-2026-11-27.md"],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/order-workbench-refinement-approval-2026-11-27.md"
+  }
+}
