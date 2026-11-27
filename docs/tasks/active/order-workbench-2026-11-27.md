@@ -63,3 +63,13 @@ main再次只读核实为10b9a7d827e1c09f152ead58c21f26712d49a619。工程checkp
 首个隔离Git副本把Windows系统core.autocrlf=true的归档按Linux默认false读取，造成482条假差异/旧UI记录误报；未改清单路径或任何历史hash。核对归档app/globals.css实际CRLF及原Git归一化blob b9f47b16d88968733d89140fdf8435ce52ef0f6e后，只在可丢弃Git副本设置与原环境相同的core.autocrlf=true，hash-object完全一致、守卫精确8路径PASS。原Git对象只读打包到容器本地以避免逐文件p9开销，没有修改共享Git配置或原objects。两失败日志保留，不冒称通过。
 
 当前最后提交只冻结清单和记录结果；8个UI源码与渲染11053c106dd8f97c8bd52ba1482070daa63b4928逐字一致。下一步推送核验、创建唯一PR，最终release结果及PR链接后续回写，Issue保持开放。
+
+## PR交付与等待用户评审
+
+最终候选698条清单（同上SHA256）全量1026/1026、精确8路径守卫PASS，独立release最终182/182 PASS（147309ms）。初次错误的Linux CRLF读取造成额外路径，已在一次性Git副本复现原系统有效core.autocrlf=true归一化，未改历史hash或扩影响清单。失败轮次不记通过。
+
+a2e02c599d4e1a69fb964bcdfe1e6a590ae3f6be已按官方脚本Dry Run后一次push，精确远端DELIVERED_VERIFIED，dirty为空。随后用GitHub连接器创建唯一[PR178](https://github.com/clearisok/zhixu-erp/pull/178)，标题feat(order): 重构正式订单详情为订单工作台，目标main；非draft、无auto-merge、未合并。main仍精确10b9；GitHub实际mergeable=MERGEABLE，三个既有CI检查开始执行，不能记远端CI PASS。
+
+实际读取Project字段后仅把Issue177的Status从In Progress转Review，其他字段/视图/自动化不改，Issue保持开放。PR含中文前后区别/交互/文件/测试/限制、六张选定截图及真实只读Demo运行方式。没有部署、服务器配置或数据库业务操作。
+
+本轮最后增量只回写结果/链接/等待评审状态，基线a2e02c59，不改UI或冻结证据。最后一次守卫按最终HEAD另核，远端CI和用户体验分别记录，不以本地工程通过代替人工接受。真实Demo本机5177及auth/me已再次200，可直接体验6233-937；保存/采集仍本机403，不向真实API发送业务写入。
