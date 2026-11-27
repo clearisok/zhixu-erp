@@ -6,6 +6,6 @@
 
 真实6233-937接口已读取16自购需求（面3/辅13），15项有采购记录、12项有入库记录、10项已采购未入库缺口；16项完成状态未知，不能展示可靠齐套率。数据不可用显示待核对，记录不冒充完成，厂供/其他供料保留于原详情。
 
-本轮13项针对性检查和Typecheck通过，完整Lint零警告通过；新UI构建、真实浏览器/截图及后续完整检查待执行。旧0787 CI baseline成功、source取消、team-access旧identity selector失败；本轮已修复该driver，不假报旧CI通过。本机5177实际API只读Demo重启本地桥，未重启远端服务。
+本轮实际构建c856f35f1caa073c829976c829513f6e941d44df，6233真实浏览器51/51及手机锚点复核通过；1ba产品四套UI44/44、精度/角色/未知/历史及清理通过。12dd根1032/1032与release182/182及9路径守卫通过，后续新增历史保护7/7纯统计通过；最终新冻结清单的根/发布检查待执行，Typecheck与完整Lint最终复核中。新[运行指南](tasks/active/order-workbench-refinement-demo-2026-11-27.md)、[工程和7张对比截图](release/evidence/order-workbench-refinement-20261127/engineering.md)已整理。过期来源只作为明确标识的历史事实，不能冒称当前采购完成。
 
 旧共享摘要[逐字保留](tasks/completed/2026-11-27-before-order-workbench-refinement/CURRENT_STATE.md)，原工程/截图冻结不覆盖。尚未合并或部署、没有真实写入；当前新增量待代码checkpoint、构建、验证及同PR交付。PR171/172/176共享文件合并风险不随局部优化消失。

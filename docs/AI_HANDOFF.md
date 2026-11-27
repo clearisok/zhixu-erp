@@ -1,11 +1,11 @@
 # 接力：Issue177 / PR178 P1–P4 局部优化
 
-2026-11-27；分支feat/order-workbench，阶段起点0787ae72815384a19779b5e4ae90e7d24db4fc8e，dirty为空；已fetch main10b9a7d827e1c09f152ead58c21f26712d49a619，原PR远端一致。[用户明确批准v2](tasks/active/order-workbench-refinement-approval-2026-11-27.md)、[当前任务及恢复点](tasks/active/order-workbench-refinement-2026-11-27.md)。只沿PR178，不合并/部署/改DB或真实业务数据。
+2026-11-27；feat/order-workbench；阶段起点0787ae72815384a19779b5e4ae90e7d24db4fc8e clean，main10b9a7d827e1c09f152ead58c21f26712d49a619已fetch。用户v2明确批准，见[批准](tasks/active/order-workbench-refinement-approval-2026-11-27.md)、[当前任务/完整阶段记录](tasks/active/order-workbench-refinement-2026-11-27.md)。只沿PR178，不合并/部署/改DB或真实数据。
 
-已实施紧凑关注、指定说明删除、无效计划对照删除及物料项摘要。保留精确计划/作废历史/重新读取、原维护操作及来源刷新；正式自购范围不变。有记录不表示完成，不跨单位加总，原状态未知则比例待核对。6233真实GET=16自购需求、15有采购/12有入库、10已采购待入库、16状态未知，不修复或绕过来源规则。
+最终UI c856f35f1caa073c829976c829513f6e941d44df已一次push并核验精确送达。关注紧凑、指定说明/计划重复对照删除、保留差异/精确行/作废/重新读取及维护；物料按自购需求项统计，不跨单位合计、记录不表示完成。旧来源显式标历史，当前比例/待处理仍待核对；厂供/其他供料留原详情。
 
-13项针对性单元/切线检查通过，Typecheck通过；完整Lint零警告通过。12dd49c3已提交并精确送达，Server前端Build、root1032/1032、4套UI43/43及精确9路径守卫通过。真实来源过期后补充上次来源项数并显式标历史，旧完成/缺口不作当前判断；7/7纯统计检查通过，新源码待checkpoint后重建、实机与完整检查。原0787 Hosted team-access的旧identity selector已修复为实际工作台，原source取消/baseline成功，不记旧CI全绿。
+c856 Server前端Build及真实6233最终51/51通过，6宽3页签及手机标题定位；1ba四套UI44/44清理通过；12dd root1032/1032、release182/182与精确9路径守卫通过，新增历史纯统计7/7。最后Typecheck/Lint复核进行中；7PNG/工程/新运行指南即将证据checkpoint，绑定新清单后还需最终根/两条发布检查，不借旧PASS冒充。
 
-本机5177只读Demo SSH桥已重启，仅本任务进程，远端服务未重启。所有业务非GET在本机403，无采集。新证据前向提交，不覆盖旧冻结文档/图像。旧共享摘要逐字保存在[tasks/completed/2026-11-27-before-order-workbench-refinement](tasks/completed/2026-11-27-before-order-workbench-refinement/AI_HANDOFF.md)。交付用官方git-delivery.ps1，一次push并精确核实，等脚本完全结束再编辑。
+本机5177实际API只读Demo运行，/__demo和build-info=c856。真实来源截至21:43:38，后判stale，历史16自购、15采购记录、12入库记录、10历史待入库，16完成未知；未采集/绕过来源限制。业务非GET本机403，凭据不输出/落盘。Hosted旧0787有失败/取消，本轮修复compact driver旧selector，新CI单独核对。
 
-1ba496570989def249a41e9e9ae3ae8b3018d7df已一次push并核验精确送达，真实历史摘要已核对。手机锚点避免顶栏遮挡的CSS微调与几何断言待本Gate提交后重建；四套UI的1ba复核进行中。12dd release182/182已通过。
+[新版运行指南](tasks/active/order-workbench-refinement-demo-2026-11-27.md)、[新截图/证据](release/evidence/order-workbench-refinement-20261127/engineering.md)。旧共享摘要逐字归档到tasks/completed/2026-11-27-before-order-workbench-refinement，旧冻结证据不覆盖。官方git-delivery.ps1一次push，等待脚本完全结束再编辑；最后更新原PR/Issue Review，保持Issue开放，无auto-merge。
