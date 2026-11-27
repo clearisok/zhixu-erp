@@ -43,3 +43,13 @@
 证据checkpoint d3f1b1a24303cb44215ec7defab050bc0e9eb068已一次push精确核实；只新增本轮7PNG、工程和新运行指南，不覆盖旧证据。708条清单候选SHA256=f4a9b6c6ffd9f4d220bc12eab6955d1d4bacdc86f1452f2e9a9670b1b99b2285，10条新证据分别绑定已存在12dd批准/d3f1图文checkpoint，截图渲染SHA独立记录。原698条及能力状态保持。
 
 最终完整Typecheck和Lint均exit0、零警告。Windows源码守卫尝试无结果后主动停止，不记录PASS；按前轮已验证方式在任务专用隔离Linux、实际Git对象副本/匹配autocrlf、原Node24依赖上运行最终两条发布检查和根测试。共享Git配置及对象只读，不改宿主环境。最终结果待运行后追加。
+
+## 最终工程PASS与评审回填
+
+完整冻结清单提交9af74ab9aaa0bd34e8441fcea02933f37cb69ae4已一次push并精确核实DELIVERED_VERIFIED，main交付前只读复核仍10b9a7d827e1c09f152ead58c21f26712d49a619。最终实际源码/证据版本（708条、候选SHA256如上）在隔离Linux Node24/实际Git对象副本中：npm test **1033/1033**；npm run test:release-baseline **182/182**；npm run check:release-baseline -- --base-sha 10b9a7d827e1c09f152ead58c21f26712d49a619 **PASS，9路径**。三项均exit0，无失败/跳过。日志保留outputs/order-workbench/refinement-final-root.log、refinement-final-release.log。
+
+最终c856构建四套UI **44/44**、无失败/跳过，owned Chromium/HTTP/PG清理通过，日志refinement-final-ui.log；真实6233 **51/51**，截图和历史数字与GET核对，手机物料标题避开顶栏。最终完整Typecheck与Lint均exit0，Lint零警告；Server前端最终c856 Build通过。此后只回写文档/结果，不改代码、UI、清单或冻结证据；最终HEAD再跑源码守卫，完整已通过检查不无理由重跑。
+
+原PR178已通过GitHub连接器更新中文描述、统计口径、真实本地Demo、P1–P4前后7图、测试及未解决的来源限制。9af远端baseline成功，source/team-access运行中；不能冒称CI全部通过。Project实际复读后只把Issue177 Status从In Progress回Review；Issue仍开放，其他字段/视图/自动化保持。最终结果文档提交/精确远端SHA和CI状态在原PR及交付回复核实。
+
+待用户实际体验及评审；不合并、不部署、不改服务器配置/数据库/真实业务数据，不启用自动合并。源数据完成状态、来源时效和原出货503限制仍保留，不为满足数字展示扩大业务范围。

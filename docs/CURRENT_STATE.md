@@ -1,11 +1,11 @@
-# 当前：Issue177 订单工作台 P1–P4 局部优化 / PR178
+# 当前：Issue177 订单工作台 P1–P4 / PR178待用户评审
 
-2026-11-27；feat/order-workbench，阶段起点0787ae72815384a19779b5e4ae90e7d24db4fc8e clean；再次fetch main10b9a7d827e1c09f152ead58c21f26712d49a619。[用户批准v2](tasks/active/order-workbench-refinement-approval-2026-11-27.md)、[当前任务](tasks/active/order-workbench-refinement-2026-11-27.md)，沿[PR178](https://github.com/clearisok/zhixu-erp/pull/178)；Issue177仅Status Review→In Progress。
+2026-11-27；分支feat/order-workbench，阶段起点0787ae72815384a19779b5e4ae90e7d24db4fc8e clean；开始fetch及交付前只读核实main10b9a7d827e1c09f152ead58c21f26712d49a619。[用户局部v2批准](tasks/active/order-workbench-refinement-approval-2026-11-27.md)、[最终阶段/工程结果](tasks/active/order-workbench-refinement-2026-11-27.md)。原[PR178](https://github.com/clearisok/zhixu-erp/pull/178)已更新中文P1–P4说明、统计口径及前后截图，Issue177回Review并保持开放。
 
-本轮只优化紧凑关注、删除指定辅助说明/计划重复对照、原物料摘要变为真实需求项/采购记录/入库记录/待入库明细。原精确计划、差异提示/作废历史、维护/重新读取/来源追溯保留。没有改API、schema、权限、关联、同步和业务规则。
+关注横排、指定常驻辅助说明及重复计划对照删除；精确计划/空日期/作废历史/实际差异、原维护/重新读取保留。物料原卡显示真实自购需求项、采购/入库记录项数及可判定的完成率/待入库明细。记录不表示完成，未知不补0，不跨单位累计；没有改API、schema、权限、关联、同步和业务规则，其他执行模块本轮不改。
 
-真实6233-937接口已读取16自购需求（面3/辅13），15项有采购记录、12项有入库记录、10项已采购未入库缺口；16项完成状态未知，不能展示可靠齐套率。数据不可用显示待核对，记录不冒充完成，厂供/其他供料保留于原详情。
+[新版Demo运行步骤](tasks/active/order-workbench-refinement-demo-2026-11-27.md)、[7图与时点证明](release/evidence/order-workbench-refinement-20261127/engineering.md)。本机5177实际ERP/认证GET，业务非GET本机403。实际UI构建c856f35f1caa073c829976c829513f6e941d44df，6233真实51/51。来源21:43:38后判stale，16自购/15采购记录/12入库记录明确上次来源，10项旧待入库只历史展开；当前完成/待处理待核对。原出货503及完整整单变更接口缺失仍保留。
 
-本轮实际构建c856f35f1caa073c829976c829513f6e941d44df，6233真实浏览器51/51及手机锚点复核通过；1ba产品四套UI44/44、精度/角色/未知/历史及清理通过。12dd根1032/1032与release182/182及9路径守卫通过，后续新增历史保护7/7纯统计通过；最终新冻结清单的根/发布检查待执行，Typecheck与完整Lint最终复核中。新[运行指南](tasks/active/order-workbench-refinement-demo-2026-11-27.md)、[工程和7张对比截图](release/evidence/order-workbench-refinement-20261127/engineering.md)已整理。过期来源只作为明确标识的历史事实，不能冒称当前采购完成。
+最终708条证据提交9af74ab9aaa0bd34e8441fcea02933f37cb69ae4及精确远端已核实；root1033/1033、release182/182、9路径守卫通过，最终c856四套UI44/44与owned清理通过，最终Typecheck/完整Lint零警告/Server前端Build通过。Windows守卫无结果主动停止不记PASS，最终源码/根/发布在隔离Linux实际Git副本复核，不改共享配置。后续只结果文档，最终HEAD再验源码守卫。9af Hosted baseline成功，source/team-access尚在运行，不宣称CI全绿或人工认可。
 
-旧共享摘要[逐字保留](tasks/completed/2026-11-27-before-order-workbench-refinement/CURRENT_STATE.md)，原工程/截图冻结不覆盖。尚未合并或部署、没有真实写入；当前新增量待代码checkpoint、构建、验证及同PR交付。PR171/172/176共享文件合并风险不随局部优化消失。
+旧共享摘要[逐字归档](tasks/completed/2026-11-27-before-order-workbench-refinement/CURRENT_STATE.md)，旧冻结证据保持。PR171/172/176共享文件合并风险保留。下一步用户体验/代码评审；不合并/部署/写真实数据、不改服务器配置或启用自动合并。
