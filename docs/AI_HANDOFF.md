@@ -13,3 +13,6 @@ Phase2以b2为baseline，全为本任务增量：新增可复用真实浏览器p
 本轮fetch经7888进程限定覆盖成功；正式交付用scripts/git-delivery.ps1及完整ExpectedHead。可靠checkpoint只push一次，遇不确定故障即按根协议停止同通道重推。PR171/172/176共享文件风险已记录，不直接合入或改写。
 
 [旧接力原件](tasks/completed/2026-11-27-before-order-workbench/AI_HANDOFF.md)保留历史。下一步完成验证/Demo/截图/影响记录和新冻结证据，提交核验远端并建唯一PR，Issue到Review等用户。
+
+
+工程恢复更新：UI源码最终构建 `11053c106dd8f97c8bd52ba1482070daa63b4928` 已一次push并核实远端。typecheck/零警告lint/Server后端及前端build通过；同源码Git archive在隔离Linux既有Node24.22.3/TS5.9.3测试镜像完成root 1026/1026、release 182/182，原Git历史只读挂载。Windows长跑主动中止不记PASS；Windows多个浏览器子项通过但退出/EBUSY外层失败保留。最终两张真实订单各42项浏览器检查（含6233）及退出成功；本轮未触发来源采集，既有后台Worker在截图期间正常更新，物料stale→ready与分码变化按各次GET事实展示。Linux浏览器测试在任务专用可丢弃镜像，Docker Desktop loopback用仅容器内TCP转接到host.docker.internal，不改产品/数据库/服务器/共享配置。初轮4项PG连接失败保留日志，已用修复的隔离网络重跑。调价限制角色测试补显式进入“价格与历史”后再断言隐藏金额，权限断言不变。下一步冻结最终截图/工程证据、跑最终守卫、核对重跑UITest、最终交付PR；不要重建UI影响仍在跑的浏览器测试。

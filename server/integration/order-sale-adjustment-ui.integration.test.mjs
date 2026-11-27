@@ -128,7 +128,7 @@ test("quote center negotiates selected orders and recovers original receipts", {
     assert.doesNotMatch(await evaluate("document.querySelector('.oc-price-summary').textContent"),/不适用/);
     await screenshot('color-summary-distinct-20261019');
     await adjust('0');assert.ok((await groups()).includes('素色 · 0 CNY/件：白'));
-    await login('demo.material');await navigate('/order-center/server-detail?id='+id);await has('无权查看');
+    await login('demo.material');await navigate('/order-center/server-detail?id='+id);await click('价格与历史');await has('无权查看');
     const restrictedGroups=await groups();assert.equal(restrictedGroups.length,2);
     assert.ok(restrictedGroups.every(v=>!v.includes('128')&&!v.includes('120')&&!v.includes('0 CNY')));
     await login('demo.admin');await adjust('128');await has('统一成交价 128 CNY/件');
