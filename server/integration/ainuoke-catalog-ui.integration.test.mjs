@@ -66,8 +66,17 @@ test('built catalogue pages, actor-scoped recovery and single-order refresh in C
    await x.tick();await has('同步成功');await evaluate('window.fetch=window.originalFetch');
   });
   await t.test('stale material data is not rendered as zero purchases',async()=>{
-   x.setMaterialOffset(1800001);await navigate('/order-center/server-detail?id='+x.orderIds[0]);await has('这不表示没有采购');
-   assert.equal(await evaluate("document.querySelector('.oc-server-detail-material-summary .sp-server-summary')===null"),true);x.setMaterialOffset(0);
+   x.setMaterialOffset(1800001);
+   try{
+    await navigate('/order-center/server-detail?id='+x.orderIds[0]);await has('上次来源 · 当前待核对');
+    const source=await evaluate("(async()=>{const r=await fetch('/api/v1/sales-orders/"+x.orderIds[0]+"/material-progress');return {status:r.status,data:await r.json()};})()");
+    assert.equal(source.status,200);assert.equal(source.data.progress.sourceStatus,'stale');
+    assert.ok(source.data.progress.rows.some(row=>row.purchases.length>0),'stale source retains real purchase events');
+    const metrics=await evaluate("Object.fromEntries([...document.querySelectorAll('.ow-material-metrics > div')].map(n=>[n.querySelector('dt').textContent.trim(),n.querySelector('dd').textContent.trim()]))");
+    assert.deepEqual(metrics,{'自购需求项':'1','有采购记录':'1','采购齐套率':'待核对','有入库记录':'1','入库齐套率':'待核对'});
+    assert.equal(await evaluate("document.querySelector('.oc-server-detail-material-summary .sp-server-summary')===null"),true);
+    assert.doesNotMatch(await evaluate("document.querySelector('.ow-material-pending').innerText"),/\d/,'old facts must not become current numeric gaps');
+   }finally{x.setMaterialOffset(0);}
   });
   await t.test('temporary failure shows deferred retry and manual acceleration without duplicate jobs',async()=>{
    await navigate('/order-center');await click('全部合同 / 历史查阅');await has('已有成功资料');

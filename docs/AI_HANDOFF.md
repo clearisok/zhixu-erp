@@ -21,3 +21,5 @@ Staging实际220ec86c且含未合并176/172/173和0061–0067，Worker当前运�
 当前进展2026-11-27：8e1a已精确push，type/lint/build PASS。新增分页失败恢复桌面/手机PASS；连续来源三宽PASS；另外两条旧价格测试SSR点击时机缺等待，driver正在补实际页签选中验证。root/release仍运行，Hosted source进行中；未merge/deploy/改远端配置。
 
 修复Gate：产品8e1a/driver12239，typecheck/完整lint/build PASS；root1033、release182、精确main10b9守卫PASS；实际Chromium三套35/35 PASS。Review P2已回复解决。当前Staging仍220，HTTPS/健康/6233只读API200，无部署；最终HEAD三CI通过后才能merge。详见任务新结果。
+
+2026-11-28最新：36ce source因后续catalog旧文案断言FAIL（continuous已PASS），team/baselineSUCCESS。catalog已加强真实stale/API/指标/未知断言并完整本地通过；整job预算25→35，单项等待/所有套件不改。余下13套主线UI本地运行。NETWORK_DEGRADED须人工官方恢复，禁止自动再push。Staging独立F7 type/lint/build/受影响UI25通过，其余5套H1的51项通过；现网仍220，main未合并。

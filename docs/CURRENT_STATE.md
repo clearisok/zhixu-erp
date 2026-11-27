@@ -17,3 +17,5 @@ Staging实际220ec86c包含未合并PR176/172/173与存储v2，不能直接main�
 旧共享摘要[逐字归档](tasks/completed/2026-11-27-before-order-workbench-refinement/CURRENT_STATE.md)，旧冻结证据保持。PR171/172/176共享文件合并风险保留。下一步用户体验/代码评审；不合并/部署/写真实数据、不改服务器配置或启用自动合并。
 
 修复Gate：产品8e1a/driver12239，typecheck/完整lint/build PASS；root1033、release182、精确main10b9守卫PASS；实际Chromium三套35/35 PASS。Review P2已回复解决。当前Staging仍220，HTTPS/健康/6233只读API200，无部署；最终HEAD三CI通过后才能merge。详见任务新结果。
+
+2026-11-28：当前36ce source在后续catalog旧文案断言失败，其他两CI通过。本地catalog加强真实来源/项数/未知验证已完整通过，CI整体预算35分钟保留全部检查；新代码尚未远端交付（NETWORK_DEGRADED）。只有新最终HEAD全CI成功后才合并178/部署；Staging实际220及原Worker继续运行，无线上更改。
