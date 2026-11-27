@@ -22,3 +22,13 @@ source诊断经Codex CI provider取得实际head/check/annotations；job日志�
 
 8e1a修复已精确送达。Typecheck、完整Lint和Server前端Build通过；本地连续来源三宽测试通过，新51笔真实历史失败页回退桌面/手机测试通过。另两条既有价格UI测试暴露首次SSR按钮在React接管前点击被忽略：body停留订单总览、没有真实页签选中。driver改为有界等待实际aria-selected并在未选中时点击原按钮，保留原金额/颜色断言与20秒超时，无业务改动。
 实际paired-backup check返回EXACT_TARGET_VERIFIED。误用仅适用于已安静Worker的supervisor backup-check在当前RUNNING上被拒绝SUPERVISOR_REQUIRES_REVIEW；代码明确backup_worker_not_quiet，本次没有执行备份或改变状态，不能称备份执行失败或通过。后续仅原正式受锁停稳/备份路径，无绕过。
+
+## 必要修复工程结果
+
+8e1a7e8258c9a278fca917c7478499aeb20c1926 包含价格分页UI修复和来源driver；12239a5d741e0475374fd4d321d6961fffd04d70 仅补价格driver真实页签选中。两次均官方git-delivery一次push且EXACT_HEAD_VERIFIED，无共享配置修改。Typecheck、完整Lint、Server前端Build（8e1a产品源码）通过，12239 driver单文件Lint通过；产品源码8e1a与12239一致，无需为测试等待再次改产品。隔离Linux实际Git对象副本：root1033/1033、release182/182、main10b9精确10路径守卫通过（8e1a）。12239 driver配8e1a同产品构建，三套实际Chromium35/35：continuous来源三宽、sale-adjustment含真实51笔失败后页回退两宽、workbench未知值/历史/权限/移动端全部通过；没有提高超时、删除断言或屏蔽HTTP失败。第一次32/35失败中包含父测试失败及两个SSR点击时机缺陷，完整旧结果保留，不冒称第一次通过。
+
+Review P2 PRRT_kwDOUKkHu868uXeS已回复验证证据并解决；暂未发现其他未解决线程。GitHub最新HEAD的完整三项CI仍需最终成功才能merge。Issue177已回链新用户授权、修复与Staging保全方案，Project依原选项只将Status调In Progress，其余配置保留。
+
+Staging 2026-11-27 23:32只读公网核实：HTTPS正常，build-info/health/permissions/6233详情/物料/物料历史/价格历史API全部200，正常现有管理员登录，无权限或凭据更改。物料来源stale：自购16（面料3、辅料13）、有采购记录15、有入库记录12；采购及入库完成16项均未知，比例null，旧待入库10项只可作为历史，不可伪报当前齐套率。原页截图保留本机outputs/order-workbench/staging-20261127/before-desktop.jpg，私密原始API不提交。业务写入0；来源刷新和订单维护均未提交。原crontab SHA256 c71caad3ddc46bf13a725ddd15e53b82345208ead6deb044e13dca3559716f82。
+
+下一Gate：最终HEAD精确发布守卫与Hosted CI→仅merge178→实际220与新main独立集成→保全/备份/恢复门禁→Staging发布与只读验收。不能把本段工程PASS当成合并、部署或最终用户验收。
