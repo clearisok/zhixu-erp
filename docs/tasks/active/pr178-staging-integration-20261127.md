@@ -11,3 +11,5 @@ Staging只读实况：220/build staging-i174-220ec86c、app c0d84053…、Worker
 旧配对备份20261127T151646Z-2658b2bc、manifest SHA256 bb0e23d68fe8c33a4a234aab52c086d45bb06019c674293e41cd3259af1a3d01：57文件111724319字节哈希一致，147表/13附件，cleanup正向及原服务恢复。独立临时数据库恢复完整行/序列/附件引用验证ORIGINAL_RESTORE_VERIFIED，原服务和业务库不动。原crontab SHA256 c71caad3ddc46bf13a725ddd15e53b82345208ead6deb044e13dca3559716f82。
 
 待完成：工程/隔离UI/最终CI/main合并/实际main集成/新版本与原Worker配对发布策略/正式发布前新备份及恢复门禁/只读验收。不得预写PASS。
+
+预整合db785a：typecheck/完整lint/server build PASS、root1035/1035、release182/182、精确main10b9的47UI路径守卫PASS。离线候选image94c08e27…/op1cffd99…构建通过未上线。集成UI发现C3 driver仍等待默认折叠来源中的错误；本分支保留原role=alert和time/ISO详情、只读重读功能，并让driver实际展开来源后执行原403/网络/恢复/三GET/时区断言，不能删除此测试。其余五项维护页签/桌面/角色等正在原隔离套件验证。首次完整bundle过大已停自有传输，使用已有220对象的1.8MB增量bundle；首次镜像FROM误写裸digest被拒绝，改用核验精确digest的既有本地tag完成离线构建，没有改服务器网络/代理/拉取依赖。失败输出与所有旧资产保留。

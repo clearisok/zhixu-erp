@@ -168,11 +168,11 @@ test('compact business pages: actual headers, prices, routes, permissions and de
    await login('demo.admin');
    const intercept=await command('Page.addScriptToEvaluateOnNewDocument',{source:`(()=>{const original=window.fetch.bind(window);window.ui165MaterialMode='forbidden';window.ui165ReadRequests=[];window.ui165OriginalFetch=original;window.fetch=async(input,init)=>{const path=new URL(String(input),location.href).pathname,method=init?.method??'GET';if(path.startsWith('/api/'))window.ui165ReadRequests.push({path,method});if(path.endsWith('/material-progress')){if(window.ui165MaterialMode==='forbidden')return new Response('{}',{status:403});if(window.ui165MaterialMode==='network')throw new TypeError('Failed to fetch');}return original(input,init);};})();`});
    try{
-    await navigate('/order-center/server-detail?id='+x.orderId);await has('没有物料查看权限，请联系管理员。');
+    await navigate('/order-center/server-detail?id='+x.orderId);await until(()=>evaluate('Boolean(document.querySelector(".oc-server-detail-material-summary .ow-refresh summary"))'),'material source disclosure');await evaluate('document.querySelector(".oc-server-detail-material-summary .ow-refresh summary").click()');await has('没有物料查看权限，请联系管理员。');
     assert.equal(await evaluate('document.querySelectorAll(".oc-server-detail-material-summary [role=alert]").length'),1);
     await evaluate('window.ui165MaterialMode="network"');await click('重新读取物料');await has('网络连接失败，未取得物料来源');
     await evaluate('window.ui165MaterialMode="allow"');await click('重新读取物料');await until(()=>evaluate('Boolean(document.querySelector(".oc-server-detail-material-summary time[datetime]"))'),'source read time');
-    const read=await evaluate(`(()=>{const box=document.querySelector('.oc-server-detail-material-summary'),time=box.querySelector('time[datetime]');return {label:box.innerText,time:time.textContent,raw:time.dateTime,technical:box.querySelector('details time')?.textContent,requests:window.ui165ReadRequests};})()`);
+    const read=await evaluate(`(()=>{const box=document.querySelector('.oc-server-detail-material-summary'),time=box.querySelector('time[datetime]');return {label:box.innerText,time:time.textContent,raw:time.dateTime,technical:box.querySelector('details details time')?.textContent,requests:window.ui165ReadRequests};})()`);
     assert.ok(read.label.includes('北京时间'));assert.equal(read.time,new Date(read.raw).toLocaleString('zh-CN',{timeZone:'Asia/Shanghai',hour12:false}));assert.equal(read.technical,read.raw);
     assert.equal(read.requests.filter(r=>r.method!=='GET').length,0,'reading never launches source capture');assert.ok(read.requests.filter(r=>r.path.endsWith('/material-progress')).length>=3);
     await screenshot('material-read-retry-and-shanghai-time');
