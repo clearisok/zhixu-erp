@@ -16,3 +16,6 @@ Phase2以b2为baseline，全为本任务增量：新增可复用真实浏览器p
 
 
 工程恢复更新：UI源码最终构建 `11053c106dd8f97c8bd52ba1482070daa63b4928` 已一次push并核实远端。typecheck/零警告lint/Server后端及前端build通过；同源码Git archive在隔离Linux既有Node24.22.3/TS5.9.3测试镜像完成root 1026/1026、release 182/182，原Git历史只读挂载。Windows长跑主动中止不记PASS；Windows多个浏览器子项通过但退出/EBUSY外层失败保留。最终两张真实订单各42项浏览器检查（含6233）及退出成功；本轮未触发来源采集，既有后台Worker在截图期间正常更新，物料stale→ready与分码变化按各次GET事实展示。Linux浏览器测试在任务专用可丢弃镜像，Docker Desktop loopback用仅容器内TCP转接到host.docker.internal，不改产品/数据库/服务器/共享配置。初轮4项PG连接失败保留日志，已用修复的隔离网络重跑。调价限制角色测试补显式进入“价格与历史”后再断言隐藏金额，权限断言不变。下一步冻结最终截图/工程证据、跑最终守卫、核对重跑UITest、最终交付PR；不要重建UI影响仍在跑的浏览器测试。
+
+
+后续验证：release182/182已独立Linux完整PASS；工作台9/9及清理PASS。原连续UI在正确Docker Desktop loopback转接后已完整PASS。交期迟到401测试需等待前置首次GET落定再武装“重新读取”，否则错误劫持首次读取使按钮不出现；仅修driver时序，不改业务。新截图来自11053c10实际API、before来自精确main10b9，已目视核对。e638 checkpoint push时并行新增本任务图片触发STOP_LOCAL_CHANGED（pushes1），独立只读ls-remote核实远端精确e638，main仍精确10b9；没有重推/强推/回退。下一checkpoint等待交付脚本结束后再写文件。

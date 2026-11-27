@@ -306,7 +306,11 @@ test('approved delivery plan maintenance works on the exact built Server detail'
     });
     await phase('same-user A to B to A cannot consume late200 or late401, and refresh restores only the original intent', async () => {
       for (const late of ['hold200', 'hold401']) {
-        await navigate(); await evaluate("deliveryWire.readMode='hold401'"); await click('重新读取交付计划');
+        await navigate();
+        // The approved workspace reads plans immediately. Arm the held reread
+        // only after that initial request has settled and its action is visible.
+        await until(() => evaluate("[...document.querySelectorAll('[data-saved-delivery-plans] button')].some(n=>n.textContent.trim()==='重新读取交付计划'&&!n.disabled&&n.getClientRects().length)"), 'initial front plan read');
+        await evaluate("deliveryWire.readMode='hold401'"); await click('重新读取交付计划');
         await until(() => evaluate('deliveryWire.readWaiters.length===1'), 'independent held read');
         await open(); await add('2027-02-08', '8'); await preview(); await evaluate('deliveryWire.patchMode=' + JSON.stringify(late)); await modalClick('确认保存');
         await until(() => evaluate('deliveryWire.patchWaiters.length===1'), 'held original save'); const raw = await pendingRaw();
