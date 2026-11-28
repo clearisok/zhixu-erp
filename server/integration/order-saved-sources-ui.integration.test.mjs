@@ -74,7 +74,15 @@ test('built order disclosures preserve saved size and owned plan facts without s
       await command('Network.setCookie', { name: cookie.slice(0, split), value: cookie.slice(split + 1), domain: '127.0.0.1', path: '/', httpOnly: true });
     };
     const click = label => evaluate(`(()=>{const n=[...document.querySelectorAll('button,a')].find(n=>(n.getAttribute('aria-label')??n.textContent.trim())===${JSON.stringify(label)}&&!n.disabled&&n.getClientRects().length);if(!n)throw Error('missing control');n.click()})()`);
-    const fold = text => evaluate(`[...document.querySelectorAll('summary')].find(n=>n.textContent.startsWith(${JSON.stringify(text)})).click()`);
+    const fold = async text => {
+      if (text === '查看颜色尺码') {
+        await click('颜色与尺码');
+        await evaluate("(()=>{const n=document.querySelector('.ow-color-evidence');if(n&&!n.open)n.querySelector('summary').click()})()");
+        return;
+      }
+      return evaluate(`[...document.querySelectorAll('summary')].find(n=>n.textContent.startsWith(${JSON.stringify(text)})).click()`);
+    };
+    const planReady = () => until(() => evaluate("[...document.querySelectorAll('[data-saved-delivery-plans] button')].some(n=>n.textContent.trim()==='重新读取交付计划'&&n.getClientRects().length)"), 'initial forward plan read');
     const shot = async name => {
       if (process.env.ORDER_SAVED_SOURCES_EVIDENCE !== '1') return;
       await mkdir(evidence, { recursive: true });
@@ -116,26 +124,27 @@ test('built order disclosures preserve saved size and owned plan facts without s
       return;
     }
 
-    await t.test('default layout, closed disclosures and keyboard at six widths do not eagerly fetch plans', async () => {
-      for (const [width, deviceScaleFactor] of [[1920, 1], [1536, 1.25], [1440, 1], [1280, 1], [900, 1], [390, 1]]) {
-        await command('Emulation.setDeviceMetricsOverride', { width, height: 1000, deviceScaleFactor, mobile: width === 390 });
-        await navigate(route); await has('物料采购汇总'); await has('查看颜色尺码'); await wait(100);
-        assert.equal(await evaluate('planReads'), 0);
-        assert.deepEqual(await evaluate("[...document.querySelectorAll('.oc-server-technical-details')].map(n=>n.open)"), [false, false]);
-        assert.deepEqual(await evaluate("[...document.querySelector('.oc-server-detail-colors > .oc-server-color-table').querySelectorAll('th')].map(n=>n.textContent)"), ['颜色', '数量']);
-        const measure = await evaluate("({overflow:document.documentElement.scrollWidth>innerWidth+1,columns:getComputedStyle(document.querySelector('.oc-server-detail-overview .qc-description-list')).gridTemplateColumns.split(' ').length})");
-        assert.equal(measure.overflow, false); assert.equal(measure.columns, width >= 600 ? 3 : 1); metrics.push({ width, ...measure });
-        if (width === 1440 || width === 390) await shot('default-' + width);
-        await evaluate("document.querySelector('[data-saved-color-sizes]>summary').focus()");
-        await command('Page.bringToFront');
-        await command('Input.dispatchKeyEvent', { type: 'keyDown', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13, text: '\r', unmodifiedText: '\r' });
-        await command('Input.dispatchKeyEvent', { type: 'keyUp', key: 'Enter', code: 'Enter', windowsVirtualKeyCode: 13 });
-        await has('颜色数量待确认，尺码数量保持未知。');
-        assert.equal(await evaluate('planReads'), 0);
-        assert.equal(await evaluate('document.documentElement.scrollWidth>innerWidth+1'), false);
-        if (width === 1440 || width === 390) await shot('sizes-' + width);
+    await t.test('workspace front plans, closed technical facts and keyboard tabs at six widths', async () => {
+      for (const [width, deviceScaleFactor] of [[1920,1],[1536,1.25],[1440,1],[1280,1],[900,1],[390,1]]) {
+        await command('Emulation.setDeviceMetricsOverride',{width,height:1000,deviceScaleFactor,mobile:width===390});
+        await navigate(route); await has('查看颜色尺码'); await planReady();
+        assert.equal(await evaluate('planReads'),1);
+        assert.equal(await evaluate("document.querySelector('.ow-source-details>details').open"),false);
+        const measure=await evaluate("({overflow:document.documentElement.scrollWidth>innerWidth+1,metrics:document.querySelectorAll('.ow-heading-metrics>div').length})");
+        assert.equal(measure.overflow,false);assert.equal(measure.metrics,2);metrics.push({width,...measure});
+        if(width===1440||width===390)await shot('default-'+width);
+        await evaluate("document.getElementById('ow-tab-overview').focus()");await command('Page.bringToFront');
+        await command('Input.dispatchKeyEvent',{type:'keyDown',key:'ArrowRight',code:'ArrowRight',windowsVirtualKeyCode:39});
+        await command('Input.dispatchKeyEvent',{type:'keyUp',key:'ArrowRight',code:'ArrowRight',windowsVirtualKeyCode:39});
+        assert.equal(await evaluate("document.getElementById('ow-tab-colors').getAttribute('aria-selected')"),'true');
+        await evaluate("document.querySelector('.ow-color-evidence summary').focus()");
+        await command('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13,text:'\r',unmodifiedText:'\r'});
+        await command('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+        await has('颜色数量待确认，尺码数量保持未知。');assert.equal(await evaluate('planReads'),1);
+        assert.equal(await evaluate('document.documentElement.scrollWidth>innerWidth+1'),false);
+        if(width===1440||width===390)await shot('sizes-'+width);
       }
-      await command('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
+      await command('Emulation.setDeviceMetricsOverride',{width:1440,height:1000,deviceScaleFactor:1,mobile:false});
     });
 
     await t.test('saved gaps, duplicate labels, zero and unknown beyond26 keep slot order without total', async () => {
@@ -144,39 +153,39 @@ test('built order disclosures preserve saved size and owned plan facts without s
       await x.pool.query('UPDATE ainuoke_sales_order_color_mirrors SET source_metadata=$3 WHERE sales_order_id=$1 AND source_line_identity=$2', [x.orderId, row.source_line_identity, { ...row.source_metadata, sizeRule: rule, sizeMatrixStatus: 'SIZE_MATRIX_RULE_OVERFLOW', sizeAllocations: [{ slot: 1, sizeName: 'M', quantity: 0 }, { slot: 3, sizeName: 'M', quantity: null }, { slot: 4, sizeName: 'S', quantity: 0.0001 }, { slot: 5, sizeName: 'L', quantity: 1.23456 }, { slot: 27, sizeName: '超出槽位', quantity: null }] }]);
       try {
         await navigate(route); await has('查看颜色尺码'); await fold('查看颜色尺码'); await has('来源尺码超出可对应槽位');
-        assert.deepEqual(await evaluate("[...document.querySelector('[aria-label=\"蓝色尺码明细\"] tbody').rows].map(r=>[...r.cells].map(c=>c.textContent))"), [['1', 'M', '0'], ['3', 'M', '未知'], ['4', 'S', '0.0001'], ['5', 'L', '1.23456'], ['27', '超出槽位', '未知']]);
+        assert.deepEqual(await evaluate("[...[...document.querySelectorAll('.ow-size-matrix table')].find(t=>t.textContent.includes('超出槽位')).tBodies[0].rows[0].cells].slice(2).map(c=>c.textContent)"), ['0','未知','0.0001','1.23456','未知']);
         assert.equal(await evaluate("document.querySelectorAll('[data-saved-color-sizes] tfoot').length"), 0);
         assert.equal(await evaluate("[...document.querySelectorAll('[data-saved-color-sizes] tr')].some(n=>n.textContent.includes('合计'))"), false);
         assert.doesNotMatch(await evaluate("document.querySelector('[data-saved-color-sizes]').innerText"), /sourceHash|quantityPendingConfirmation|SIZE_MATRIX/);
       } finally { await x.pool.query('UPDATE ainuoke_sales_order_color_mirrors SET source_metadata=$3 WHERE sales_order_id=$1 AND source_line_identity=$2', [x.orderId, row.source_line_identity, row.source_metadata]); }
     });
 
-    await t.test('owned plans keep exact decimals, null dates, zero and void history with separate source comparison', async () => {
+    await t.test('owned plans keep exact decimals, null dates, zero and void history without redundant comparison', async () => {
       await x.pool.query("UPDATE sales_order_delivery_plans SET quantity=9007199254740993.123456789012345678,delivery_date=NULL WHERE sales_order_id=$1", [x.orderId]);
       await x.pool.query("INSERT INTO sales_order_delivery_plans(sales_order_id,delivery_date,quantity,is_derived_default,voided_at) VALUES($1,'2026-12-12',0,false,now())", [x.orderId]);
-      await navigate(route); await has('查看颜色尺码'); assert.equal(await evaluate('planReads'), 0);
-      await fold('来源与技术详情'); await has('9007199254740993.123456789012345678');
+      await navigate(route); await has('查看颜色尺码'); await planReady();
+      await has('9007199254740993.123456789012345678');
       const text = await evaluate("document.querySelector('[data-saved-delivery-plans]').innerText");
-      assert.match(text, /日期未记录/); assert.match(text, /已作废（历史保留）/); assert.match(text, /艾诺科合同数量（对照）/); assert.match(text, /100/);
+      assert.match(text, /日期未记录/); assert.match(text, /已作废（历史保留）/); assert.equal(await evaluate("document.querySelector('.ow-plan-evidence')===null"), true); assert.ok((await evaluate("document.querySelector('.ow-heading-metrics').innerText")).includes('100'));
       assert.equal(await evaluate('planReads'), 1);
       await evaluate("document.querySelector('[data-saved-delivery-plans]').scrollIntoView({block:'start'})");
       await shot('plan-facts');
-      await fold('来源与技术详情'); await fold('来源与技术详情'); await has('9007199254740993.123456789012345678');
-      assert.equal(await evaluate('planReads'), 2);
+      await fold('来源与技术详情'); await fold('来源与技术详情'); assert.equal(await evaluate('planReads'),1);
+      await click('重新读取交付计划'); await has('9007199254740993.123456789012345678'); assert.equal(await evaluate('planReads'),2);
     });
 
     await t.test('offline, forbidden and wrong-owner responses show no old facts; manual retry is read-only', async () => {
       for (const mode of ['offline', '403', 'wrong-owner']) {
-        await navigate(route); await has('查看颜色尺码'); await evaluate('planMode=' + JSON.stringify(mode));
-        await fold('来源与技术详情'); await has(mode === '403' ? '没有交付计划查看权限' : '交付计划暂时无法读取');
+        await navigate(route); await has('查看颜色尺码'); await planReady(); await evaluate('planMode=' + JSON.stringify(mode));
+        await click('重新读取交付计划'); await has(mode === '403' ? '没有交付计划查看权限' : '交付计划暂时无法读取');
         assert.equal(await evaluate("document.querySelectorAll('[data-saved-delivery-plans] tbody tr').length"), 0);
-        assert.equal(await evaluate('planReads'), 1); await wait(180); assert.equal(await evaluate('planReads'), 1);
+        assert.equal(await evaluate('planReads'),2); await wait(180); assert.equal(await evaluate('planReads'),2);
         await evaluate("document.querySelector('[data-saved-delivery-plans] button').click()"); await has('9007199254740993.123456789012345678');
-        assert.equal(await evaluate('planReads'), 2); assert.deepEqual(await evaluate('businessWrites'), []);
+        assert.equal(await evaluate('planReads'),3); assert.deepEqual(await evaluate('businessWrites'), []);
       }
     });
 
-    await t.test('real processing batch has no invented Ainuoke sizes or comparison and keeps unknown plan ownership', async () => {
+    await t.test('real processing batch has no invented Ainuoke sizes, comparison or plan records', async () => {
       const actor = await loadExistingBootstrapActor(x.pool, x.users[0]);
       const quote = createSyntheticQuoteFixture('saved-sources-processing', 'processing');
       for (const r of quote.revisions) { r.imageAttachmentIds = []; r.fileAttachmentIds = []; r.styleImageAttachmentId = null; }
@@ -191,8 +200,8 @@ test('built order disclosures preserve saved size and owned plan facts without s
       assert.equal(result.results[0].status, 'created');
       await navigate('/order-center/server-detail?id=' + result.results[0].salesOrderId); await has('查看颜色尺码');
       await fold('查看颜色尺码'); await has('加工订单不适用艾诺科颜色尺码来源。');
-      await fold('来源与技术详情'); await has('加工订单无艾诺科合同对照。');
-      await has('所有权尚未记录，不推定为自动或人工'); await has('尚无交付计划记录。');
+      await click('订单总览'); await planReady(); await has('尚无交付计划记录。');
+      assert.equal(await evaluate("document.querySelector('.ow-plan-evidence')===null"), true);
       assert.equal(await evaluate("document.querySelector('[data-saved-delivery-plans]').innerText.includes('艾诺科合同数量（对照）')"), false);
       assert.equal(await evaluate("document.querySelectorAll('[data-saved-delivery-plans] tbody tr').length"), 0);
     });
@@ -201,7 +210,7 @@ test('built order disclosures preserve saved size and owned plan facts without s
       for (const username of x.users) {
         await login(username); await navigate(route); await has('查看颜色尺码');
         await fold('查看颜色尺码'); await has('已保存的分码与当时颜色数量一致。');
-        await fold('来源与技术详情'); await has('9007199254740993.123456789012345678');
+        await click('订单总览'); await has('9007199254740993.123456789012345678');
         assert.deepEqual(await evaluate('businessWrites'), []);
         assert.deepEqual(await evaluate("Object.keys(localStorage).filter(k=>k.startsWith('zhixu.erp.local.'))"), []);
         assert.doesNotMatch(await evaluate('document.body.innerText'), /protected-commercial-sentinel/);
@@ -211,19 +220,19 @@ test('built order disclosures preserve saved size and owned plan facts without s
     await t.test('old success and401 cannot affect a new login, including A to B to A', async () => {
       for (const [mode, nextUser] of [['delay200', x.users[1]], ['delay401', x.users[0]]]) {
         const mark = label => { if (process.env.ORDER_SAVED_SOURCES_EVIDENCE === '1') console.log('Saved sources delay check: ' + mode + ' ' + label); };
-        await login(x.users[0]); await navigate(route); await has('查看颜色尺码');
-        await evaluate('planMode=' + JSON.stringify(mode)); await fold('来源与技术详情');
+        await login(x.users[0]); await navigate(route); await has('查看颜色尺码'); await planReady();
+        await evaluate('planMode=' + JSON.stringify(mode)); await click('重新读取交付计划');
         await until(() => evaluate('planWaiters.length===1'), 'held plan response');
         mark('old reply held');
         await click('用户菜单'); await click('退出登录'); await has('忘记密码？请联系系统管理员');
         mark('logged out');
         await input('input[name=username]', nextUser); await input('input[name=password]', x.password); await click('登录织序');
-        await has('查看颜色尺码'); await fold('来源与技术详情'); await has('9007199254740993.123456789012345678');
+        await has('查看颜色尺码'); await click('订单总览'); await has('9007199254740993.123456789012345678');
         mark('new identity plan shown');
         if (mode === 'delay200') {
           await click('用户菜单'); await click('退出登录'); await has('忘记密码？请联系系统管理员');
           await input('input[name=username]', x.users[0]); await input('input[name=password]', x.password); await click('登录织序');
-          await has('查看颜色尺码'); await fold('来源与技术详情'); await has('9007199254740993.123456789012345678');
+          await has('查看颜色尺码'); await click('订单总览'); await has('9007199254740993.123456789012345678');
           mark('A to B to A plan shown before releasing original A reply');
         }
         assert.equal(await evaluate('planWaiters.length'), 1, 'held old response must survive the real SPA login transition');
@@ -236,7 +245,7 @@ test('built order disclosures preserve saved size and owned plan facts without s
     });
 
     await t.test('current401 removes plan facts and returns to login without source recovery', async () => {
-      await navigate(route); await has('查看颜色尺码'); await evaluate("planMode='401'"); await fold('来源与技术详情');
+      await navigate(route); await has('查看颜色尺码'); await planReady(); await evaluate("planMode='401'"); await click('重新读取交付计划');
       await has('忘记密码？请联系系统管理员');
       assert.equal(await evaluate("document.querySelectorAll('[data-saved-delivery-plans]').length"), 0);
       assert.deepEqual(await evaluate('businessWrites'), []);

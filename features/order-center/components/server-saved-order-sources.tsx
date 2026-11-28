@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ReactNode } from "react";
-import { DescriptionList, ErrorState, LoadingState } from "@/components/foundation";
+import { Button, DescriptionList, ErrorState, LoadingState } from "@/components/foundation";
 import { useServerSession } from "@/features/server-auth";
 import type { DeliveryPlanSetDto } from "../../../server/sales-orders/delivery-plan-model";
 import type { ServerSalesOrderColorDto, ServerSalesOrderDetailDto } from "../server/sales-order-server-model";
@@ -33,12 +33,15 @@ function sizeNote(color: ServerSalesOrderColorDto): string {
 }
 
 /** Saved evidence only: no source request, quantity allocation or price read. */
-export function SavedColorSizes({ colors, source, processing = false }: {
+export function SavedColorSizes({ colors, source, processing = false, matrix = false, selectedColor = null }: {
   colors: ServerSalesOrderColorDto[];
   source?: ServerSalesOrderDetailDto["colorSource"];
   processing?: boolean;
+  matrix?: boolean;
+  selectedColor?: string | null;
 }) {
   const [expanded, setExpanded] = useState(false);
+  if (matrix) return <SavedColorMatrix colors={colors} source={source} processing={processing} selectedColor={selectedColor} />;
   return <details className="oc-server-technical-details" data-saved-color-sizes onToggle={event => setExpanded(event.currentTarget.open)}>
     <summary>查看颜色尺码 <span>只读</span></summary>
     {expanded && <>
@@ -63,6 +66,37 @@ export function SavedColorSizes({ colors, source, processing = false }: {
   </details>;
 }
 
+function SavedColorMatrix({ colors, source, processing, selectedColor }: {
+  colors: ServerSalesOrderColorDto[]; source?: ServerSalesOrderDetailDto["colorSource"]; processing: boolean; selectedColor: string | null;
+}) {
+  if (processing) return <p className="ow-section-copy">加工订单不适用艾诺科颜色尺码来源。</p>;
+  const groups = new Map<string, { columns: { slot: number; sizeName: string | null }[]; colors: ServerSalesOrderColorDto[] }>();
+  const unavailable: ServerSalesOrderColorDto[] = [];
+  for (const color of colors) {
+    const evidence = color.sizeEvidence;
+    if (evidence?.status !== "available" || !evidence.allocations.length) { unavailable.push(color); continue; }
+    const columns = evidence.allocations.map(size => ({ slot: size.slot, sizeName: size.sizeName }));
+    const key = JSON.stringify(columns), existing = groups.get(key);
+    if (existing) existing.colors.push(color); else groups.set(key, { columns, colors: [color] });
+  }
+  return <section className="ow-size-matrix" data-saved-color-sizes aria-label="颜色尺码来源矩阵">
+    <p className="ow-help">颜色数量与尺码原值分别保留；未知不补 0，不自动合计。不同尺码规则分表展示。</p>
+    {[...groups].map(([key, group]) => <div className="ow-table-scroll" role="region" aria-label="颜色尺码明细" tabIndex={0} key={key}><table>
+      <thead><tr><th>颜色</th><th>颜色数量</th>{group.columns.map(column => <th key={column.slot}>{column.sizeName ?? "尺码未知"}{group.columns.filter(item => item.sizeName === column.sizeName).length > 1 && `（槽位${column.slot}）`}</th>)}</tr></thead>
+      <tbody>{group.colors.map(color => <tr key={color.sourceLineIdentity} data-selected={selectedColor === color.sourceLineIdentity || undefined}><th scope="row">{color.colorName}</th><td>{color.sizeEvidence?.status === "available" && color.sizeEvidence.quantityPendingConfirmation ? `待确认（来源 ${color.quantity.toLocaleString("zh-CN")}）` : color.quantity.toLocaleString("zh-CN")}</td>
+        {color.sizeEvidence?.status === "available" && color.sizeEvidence.allocations.map(size => <td key={size.slot} data-unknown={size.quantity === null || undefined}>{size.quantity === null ? "未知" : String(size.quantity)}</td>)}
+      </tr>)}</tbody>
+    </table></div>)}
+    {unavailable.map(color => <p className="ow-size-note" key={color.sourceLineIdentity} data-selected={selectedColor === color.sourceLineIdentity || undefined}><strong>{color.colorName} · {color.quantity.toLocaleString("zh-CN")}</strong>：{sizeNote(color)}</p>)}
+    {!colors.length && <p className="ow-section-copy">暂未取得颜色尺码数据。</p>}
+    <details className="ow-color-evidence"><summary>查看颜色尺码来源与核对说明</summary>
+      <p>{source?.status === "recorded" ? source.colorDetailStatus === "missing" ? "来源未返回可用颜色明细。" : source.colorDetailStatus === "invalid" ? "保存的颜色来源存在异常。" : "已保存颜色来源。" : source?.status === "invalid" ? "颜色来源证据无法可靠核对。" : "颜色来源批次尚未记录。"}</p>
+      {source?.status === "recorded" && <>{source.insideOrderNoDrift && <p>工厂款号有变化，仍按销售合同对应。</p>}{source.savedSourceBatchAt && <p>来源批次保存时间：{new Date(source.savedSourceBatchAt).toLocaleString("zh-CN", { timeZone: "Asia/Shanghai", hour12: false })}（北京时间，非逐色读取时间）。</p>}</>}
+      {colors.map(color => <p key={color.sourceLineIdentity}><strong>{color.colorName}</strong> · {sizeNote(color)}{color.sizeEvidence?.status === "available" && color.sizeEvidence.insideOrderNoDrift && " 工厂款号有变化。"}</p>)}
+    </details>
+  </section>;
+}
+
 const ownershipLabels = {
   source_derived: "首次来源初始化的系统默认计划",
   user_managed: "织序维护计划",
@@ -74,7 +108,11 @@ const quantityLabels = {
 };
 const dateLabels = { no_source_date: "合同交期未记录", matched: "计划日期与合同交期一致", drift: "计划日期与合同交期有差异" };
 
-export function SavedDeliveryPlanFacts({ data, processing = false }: { data: DeliveryPlanSetDto; processing?: boolean }) {
+export function SavedDeliveryPlanFacts({ data, processing = false, compact = false }: { data: DeliveryPlanSetDto; processing?: boolean; compact?: boolean }) {
+  if (compact) return <div className="ow-compact-plan">
+    {!processing && (data.reconciliation.dateStatus !== "matched" || data.reconciliation.quantityStatus !== "matched") && <p className="ow-plan-reconciliation">{[data.reconciliation.dateStatus !== "matched" ? dateLabels[data.reconciliation.dateStatus] : null, data.reconciliation.quantityStatus !== "matched" ? quantityLabels[data.reconciliation.quantityStatus] : null].filter(Boolean).join("；")}</p>}
+    {data.plans.length ? <div className="ow-table-scroll" role="region" aria-label="织序交付计划明细" tabIndex={0}><table><thead><tr><th>交付日期</th><th>计划数量</th><th>记录状态</th></tr></thead><tbody>{data.plans.map(plan => <tr key={plan.id}><td>{plan.deliveryDate ?? "日期未记录"}</td><td>{plan.quantity}</td><td>{plan.voidedAt ? "已作废（历史保留）" : "有效"}{plan.isDerivedDefault ? " · 初始默认行" : ""}</td></tr>)}</tbody></table></div> : <p>尚无交付计划记录。</p>}
+  </div>;
   return <>
     <DescriptionList columns={3} compact items={[
       { key: "ownership", label: "计划归属", value: ownershipLabels[data.ownership] },
@@ -98,7 +136,7 @@ export function SavedDeliveryPlanFacts({ data, processing = false }: { data: Del
 type PlanView = { lease: object } & ({ data: DeliveryPlanSetDto; error?: never } | { error: number; data?: never });
 
 /** Only the existing disclosure triggers a GET; each committed identity owns its reply. */
-export function SavedDeliveryPlans({ orderId, active, processing = false, refreshToken = 0 }: { orderId: string; active: boolean; processing?: boolean; refreshToken?: number }) {
+export function SavedDeliveryPlans({ orderId, active, processing = false, refreshToken = 0, compact = false }: { orderId: string; active: boolean; processing?: boolean; refreshToken?: number; compact?: boolean }) {
   const session = useServerSession();
   const [attempt, setAttempt] = useState(0);
   const [view, setView] = useState<PlanView | null>(null);
@@ -128,23 +166,22 @@ export function SavedDeliveryPlans({ orderId, active, processing = false, refres
   if (!active || session.status !== "authenticated" || !session.hasPermission("order.view")) return null;
   const result = view?.lease === lease ? view : null;
   return <section aria-label="交付计划（织序）" data-saved-delivery-plans>
-    <p className="oc-server-color-note"><strong>交付计划（织序）</strong> · 读取织序保存的计划；与订单详情为独立读取。</p>
-    {!result ? <LoadingState compact label="读取交付计划" rows={2} /> : result.data ? <SavedDeliveryPlanFacts data={result.data} processing={processing} /> : <ErrorState
+    {!compact && <p className="oc-server-color-note"><strong>交付计划（织序）</strong> · 读取织序保存的计划；与订单详情为独立读取。</p>}
+    {!result ? <LoadingState compact label="读取交付计划" rows={2} /> : result.data ? <SavedDeliveryPlanFacts data={result.data} processing={processing} compact={compact} /> : <ErrorState
       title={result.error === 403 ? "没有交付计划查看权限" : result.error === 404 ? "交付计划对应订单不存在" : "交付计划暂时无法读取"}
       description="未展示先前计划。重试只读取织序记录，不采集艾诺科来源。"
       permission={result.error === 403}
       onRetry={() => setAttempt(value => value + 1)}
     />}
+    {compact && result?.data && <div className="ow-plan-operations"><Button variant="text" size="compact" onClick={() => setAttempt(value => value + 1)}>重新读取交付计划</Button></div>}
   </section>;
 }
 
-export function SavedOrderSourceDetails({ orderId, processing, children, deliveryPlanRefreshToken = 0 }: {
+export function SavedOrderSourceDetails({ children }: {
   orderId: string; processing: boolean; children: ReactNode; deliveryPlanRefreshToken?: number;
 }) {
-  const [expanded, setExpanded] = useState(false);
-  return <details className="oc-server-technical-details" onToggle={event => setExpanded(event.currentTarget.open)}>
+  return <details className="oc-server-technical-details">
     <summary>来源与技术详情 <span>只读</span></summary>
-    <SavedDeliveryPlans orderId={orderId} active={expanded} processing={processing} refreshToken={deliveryPlanRefreshToken} />
     {children}
   </details>;
 }

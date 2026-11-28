@@ -15,9 +15,9 @@ concurrency:
 jobs:
   source:
     runs-on: ubuntu-latest
-    # The full SQL/API plus private Chromium job had spent ~17.5 minutes at the P6 failure.
-    # Keep every acceptance step and bound the complete job with modest headroom.
-    timeout-minutes: 25
+    # The full SQL/API stage took ~19 minutes on PR178 before the existing Chromium suites.
+    # Keep every suite and per-test timeout; allow the full mandatory job to finish.
+    timeout-minutes: 35
     steps:
       - name: Checkout
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -114,9 +114,12 @@ jobs:
           PAYMENT_PANEL_EXPECTED_SOURCE: ${{ github.sha }}
           CLOSING_UI_EXPECTED_SOURCE: ${{ github.sha }}
           CHROME_PATH: google-chrome
+          ORDER_WORKBENCH_EXPECTED_SOURCE: ${{ github.sha }}
         run: |
           node --test tests/server-navigation-history.test.mjs
           npx --no-install tsx --test server/integration/server-navigation-continuity.integration.test.mjs
+          npx --no-install tsx --test server/integration/order-workbench-ui.integration.test.mjs
+          npx --no-install tsx --test server/integration/order-saved-sources-ui.integration.test.mjs
           npm run test:production-resources-ui
           npm run test:production-planning-ui
           npm run test:ainuoke-continuous-ui

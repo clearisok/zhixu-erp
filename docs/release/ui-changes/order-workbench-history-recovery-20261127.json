@@ -1,0 +1,11 @@
+{
+  "baselineSha": "10b9a7d827e1c09f152ead58c21f26712d49a619",
+  "level": "V1",
+  "paths": [
+    "features/order-center/components/order-workbench.css",
+    "features/quote-center/components/quote-order-pricing.tsx"
+  ],
+  "pages": ["order-detail", "quote-detail"],
+  "visibleDifference": "恢复原价格历史后页失败时的上一页入口；仅成功空第一页隐藏空分页，不新增分页或业务规则。",
+  "evidence": ["docs/tasks/active/order-workbench-staging-2026-11-27.md"]
+}

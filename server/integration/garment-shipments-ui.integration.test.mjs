@@ -96,8 +96,8 @@ test('garment observations and history use the exact Server order detail without
       });
       return;
     }
-    await phase('collapsed surface performs no shipment request; exact Num and independent outdate appear on explicit open', async () => {
-      assert.equal(await evaluate("garmentWire.requests.filter(r=>r.path.includes('/garment-shipments')).length"), 0); await open();
+    await phase('collapsed workbench reads its current batch; exact Num and independent outdate remain in the explicit detail', async () => {
+      await has('当前采集批次'); assert.equal(await evaluate("garmentWire.requests.filter(r=>r.path.includes('/garment-shipments')).length"), 1); await open();
       await has('9007199254740993.000000000001'); await has('2026-10-11'); await has('2026-10-07'); await has('0 · 件'); await has('-2.5 · 件'); await has('数量未提供'); await has('待核对（not-a-number）');
       assert.equal(/PRIVATE-GARMENT|wxprice/.test(await text('[data-garment-section]')), false); await click('下一页出货'); await has('21–40 / 127'); await click('上一页出货'); await shot('current-desktop');
     });
@@ -189,7 +189,7 @@ test('garment observations and history use the exact Server order detail without
       await x.garments.setEnabled(true); await click('重试'); await has('9007199254740993.000000000001');
     });
     await phase('local disabled service is isolated from order detail and no write or Browser business storage occurs', async () => {
-      const before = await counts(); await evaluate("garmentWire.current='503'"); await click('重新读取出货记录'); await has('成衣出货来源尚未接通。'); await has('订单概况');
+      const before = await counts(); await evaluate("garmentWire.current='503'"); await click('重新读取出货记录'); await has('成衣出货来源尚未接通。'); await has('订单工作台');
       assert.deepEqual(await counts(), before); assert.deepEqual(await evaluate("garmentWire.requests.filter(r=>r.path.includes('/garment-shipments')&&r.method!=='GET')"), []);
       assert.deepEqual(await evaluate("Object.keys(localStorage).filter(k=>k.startsWith('zhixu.erp.local.'))"), []); assert.equal(/PRIVATE-GARMENT/.test(await evaluate('document.body.innerText')), false);
     });
@@ -198,7 +198,7 @@ test('garment observations and history use the exact Server order detail without
         const grants = new Set((await x.pool.query('SELECT rp.permission_key FROM app_users u JOIN app_user_roles ur ON ur.user_id=u.id JOIN app_role_permissions rp ON rp.role_id=ur.role_id WHERE u.username=$1', [username])).rows.map(row => row.permission_key));
         await cookie(username); const marker = randomUUID(); await evaluate('window.garmentRoleNavigation=' + JSON.stringify(marker)); await command('Page.navigate', { url: x.base + route });
         await until(() => evaluate('window.garmentRoleNavigation!==' + JSON.stringify(marker) + '&&document.readyState===\'complete\''), 'fresh role document');
-        await until(() => evaluate("(document.body?.innerText??'').includes('订单概况')||(document.body?.innerText??'').includes('当前 Server 账号没有订单查看权限')"), 'role order state ' + username);
+        await until(() => evaluate("!!document.querySelector('[data-order-workbench]')||(document.body?.innerText??'').includes('当前 Server 账号没有订单查看权限')"), 'role order state ' + username);
         const allowed = grants.has('order.view') && grants.has('ainuoke.view');
         assert.equal(await evaluate("!!document.querySelector('[data-garment-section]')"), allowed);
         if (allowed) { await click('展开出货记录'); await has('9007199254740993.000000000001'); }

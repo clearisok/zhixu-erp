@@ -55,9 +55,10 @@ test('compact business pages: actual headers, prices, routes, permissions and de
   const checkPage=async(kind,width,height,zoom=1)=>{
    await command('Emulation.setDeviceMetricsOverride',{width:Math.floor(width/zoom),height:Math.floor(height/zoom),deviceScaleFactor:zoom,mobile:false});
    await navigate(kind==='quote'?'/quote-center':kind==='orders'?'/order-center':'/order-center/server-detail?id='+x.orderId);
-   await has(kind==='quote'?'SYN-COMPACT-':kind==='orders'?'SO-':'订单概况');
+   await has(kind==='quote'?'SYN-COMPACT-':kind==='orders'?'SO-':'订单工作台');
    if(!observing)await until(()=>evaluate('document.querySelector(".ops-page-actions button")!==null'),'page actions');
-   const geometry=await evaluate(`(()=>{const header=document.querySelector('.ops-topbar'),content=document.querySelector('.ops-content'),workspace=document.querySelector('.ops-workspace'),identity=document.querySelector('.oc-overview-heading'),table=document.querySelector('.qc-data-table'),actions=[...document.querySelectorAll('.ops-page-actions button')].filter(n=>n.getClientRects().length),box=n=>n?Object.fromEntries(['x','y','width','height','right','bottom'].map(k=>[k,n.getBoundingClientRect()[k]])):null;return {header:box(header),content:box(content),identity:box(identity),table:box(table),actions:actions.map(n=>({label:n.textContent.trim(),...box(n)})),viewport:innerWidth,documentOverflow:document.documentElement.scrollWidth>innerWidth+1,workspaceOverflow:workspace.scrollWidth>workspace.clientWidth+1,heroCount:content.querySelectorAll('.qc-page-header,.sp-order-nav').length,topbar:header.innerText,body:content.innerText};})()`);
+   if(kind==='detail')await until(()=>evaluate('document.querySelector(".ow-order-heading")!==null'),'workbench identity');
+   const geometry=await evaluate(`(()=>{const header=document.querySelector('.ops-topbar'),content=document.querySelector('.ops-content'),workspace=document.querySelector('.ops-workspace'),identity=document.querySelector('.ow-order-heading'),table=document.querySelector('.qc-data-table'),actions=[...document.querySelectorAll('.ops-page-actions button')].filter(n=>n.getClientRects().length),box=n=>n?Object.fromEntries(['x','y','width','height','right','bottom'].map(k=>[k,n.getBoundingClientRect()[k]])):null;return {header:box(header),content:box(content),identity:box(identity),table:box(table),actions:actions.map(n=>({label:n.textContent.trim(),...box(n)})),viewport:innerWidth,documentOverflow:document.documentElement.scrollWidth>innerWidth+1,workspaceOverflow:workspace.scrollWidth>workspace.clientWidth+1,heroCount:content.querySelectorAll('.qc-page-header,.sp-order-nav').length,topbar:header.innerText,body:content.innerText};})()`);
    if(!observing)assert.equal(geometry.heroCount,0,'no empty/repeated header or tabs');assert.equal(geometry.documentOverflow,false);assert.equal(geometry.workspaceOverflow,false);
    assert.ok(geometry.actions.every(a=>a.x>=0&&a.right<=geometry.viewport+1&&a.y>=geometry.header.y&&a.bottom<=geometry.header.bottom+1),'actions inside topbar');
    if(!observing)assert.ok(!geometry.body.includes('Server identity'),'no redundant identity');
@@ -94,9 +95,9 @@ test('compact business pages: actual headers, prices, routes, permissions and de
   });
   await t.test('topbar order controls and maintenance dialogs preserve scope without writing business fixtures',async()=>{
    await click('全部合同 / 历史查阅');await has('当前跟进');await click('当前跟进');await click('导入加工订单');await has('导入加工订单');await screenshot('processing-import-dialog');await click('关闭');
-   await navigate('/order-center/server-detail?id='+x.orderId);await has('订单概况');await click('维护来源');await has('维护来源');await screenshot('source-maintenance-dialog');await click('关闭');
+   await navigate('/order-center/server-detail?id='+x.orderId);await has('订单工作台');await click('维护来源');await has('维护来源');await screenshot('source-maintenance-dialog');await click('关闭');
    await click('维护交期');await has('维护交期');await screenshot('delivery-maintenance-dialog');await click('取消');
-   await command('Page.reload',{ignoreCache:true});await has('订单概况');await until(()=>evaluate('document.querySelector(".ops-page-actions")?.innerText.includes("维护来源")'),'refreshed owned header actions');
+   await command('Page.reload',{ignoreCache:true});await has('订单工作台');await until(()=>evaluate('document.querySelector(".ops-page-actions")?.innerText.includes("维护来源")'),'refreshed owned header actions');
   });
   await t.test('persistent client navigation replaces page-owned topbar controls without stale actions',async()=>{
    await click('返回订单列表');await has('全部合同 / 历史查阅');assert.equal(await evaluate('document.querySelector(".ops-page-actions").innerText.includes("维护来源")'),false);
