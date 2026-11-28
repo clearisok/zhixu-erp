@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "repository": "clearisok/zhixu-erp",
   "baselineSha": "396b03c443f2170255ea4927e05d5889bdcb4b96",
-  "verifiedAt": "2026-11-28T05:40:24.879Z",
+  "verifiedAt": "2026-11-28T05:40:56.126Z",
   "owner": "release integrator; UI owner supplies scoped approval evidence",
   "evidence": [
     {
@@ -6564,6 +6564,51 @@
       "sha256": "f827f5948ae6df99ca2d2d462bd2fc4d22ebe4a3e5e6e9efe9997d52b9a65709",
       "supersedes": "source-deleted-contract-20261120",
       "changeReason": "Approved v2 shared bodies, change-only versions, confirmation retention and isolated selective migration candidate; preserve existing deletion/restoration and source safety contracts. No deployed capability is asserted."
+    },
+    {
+      "id": "pr178-staging-20261128-issue174-storage-design-v1-1-20261124",
+      "kind": "document",
+      "path": "docs/features/Issue174-同步存储架构整改与数据库容量治理实施方案.md",
+      "recordedAtSha": "5180818a76b2764b69802ed54e54739af4c6a614",
+      "sha256": "fb6dc024b013cf6a8bb183ba3bf74f864088e6f9923612378d0d4aafed5f6a18",
+      "supersedes": "issue174-storage-design-v1-1-20261124",
+      "changeReason": "在实际main合并PR178后的独立Staging双亲集成中保留线上220的当前文档及完整历史；记录当前精确字节和真实合并见证，不改既有决定/业务规则，不提升历史能力或人工验收状态。"
+    },
+    {
+      "id": "pr178-staging-20261128-issue174-simplified-business-20261124",
+      "kind": "document",
+      "path": "docs/BUSINESS_RULES.md",
+      "recordedAtSha": "5180818a76b2764b69802ed54e54739af4c6a614",
+      "sha256": "31910483dad7e2a573933de974d6177d2e6fdb7c15d0a373a183bd9c0746135c",
+      "supersedes": "issue174-simplified-business-20261124",
+      "changeReason": "在实际main合并PR178后的独立Staging双亲集成中保留线上220的当前文档及完整历史；记录当前精确字节和真实合并见证，不改既有决定/业务规则，不提升历史能力或人工验收状态。"
+    },
+    {
+      "id": "pr178-staging-20261128-issue174-simplified-v2-20261124",
+      "kind": "document",
+      "path": "docs/features/Issue174-精简整改决策方案-v2.md",
+      "recordedAtSha": "5180818a76b2764b69802ed54e54739af4c6a614",
+      "sha256": "150fbb1320df9ecacb732fabe407f400ce86bca4defdfd9ea1031e808ea4730f",
+      "supersedes": "issue174-simplified-v2-20261124",
+      "changeReason": "在实际main合并PR178后的独立Staging双亲集成中保留线上220的当前文档及完整历史；记录当前精确字节和真实合并见证，不改既有决定/业务规则，不提升历史能力或人工验收状态。"
+    },
+    {
+      "id": "pr178-staging-20261128-issue174-v2-implementation-decisions-20261125",
+      "kind": "document",
+      "path": "docs/DECISION_LOG.md",
+      "recordedAtSha": "5180818a76b2764b69802ed54e54739af4c6a614",
+      "sha256": "d60de03ea1f35d5a23e8ee8edbf4978c08ce5150ce9873b7eb28029e85d51c37",
+      "supersedes": "issue174-v2-implementation-decisions-20261125",
+      "changeReason": "在实际main合并PR178后的独立Staging双亲集成中保留线上220的当前文档及完整历史；记录当前精确字节和真实合并见证，不改既有决定/业务规则，不提升历史能力或人工验收状态。"
+    },
+    {
+      "id": "pr178-staging-20261128-issue174-v2-storage-contract-20261125",
+      "kind": "document",
+      "path": "docs/features/AINUOKE_SYNC_AUDIT.md",
+      "recordedAtSha": "5180818a76b2764b69802ed54e54739af4c6a614",
+      "sha256": "f827f5948ae6df99ca2d2d462bd2fc4d22ebe4a3e5e6e9efe9997d52b9a65709",
+      "supersedes": "issue174-v2-storage-contract-20261125",
+      "changeReason": "在实际main合并PR178后的独立Staging双亲集成中保留线上220的当前文档及完整历史；记录当前精确字节和真实合并见证，不改既有决定/业务规则，不提升历史能力或人工验收状态。"
     }
   ],
   "pages": [
