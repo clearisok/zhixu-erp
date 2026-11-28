@@ -37,3 +37,13 @@ Staging维护脚本只在主工作树outputs/order-workbench/staging-quiesce-bac
 2026-11-28；实际main合并SHA **396b03c443f2170255ea4927e05d5889bdcb4b96**，PR178最终HEAD **c04ef84eb0b980591369b11726bc7dc7c9f24824** 三项必要CI全部SUCCESS，唯一Review P2已解决。仅178普通merge到main，没有合并其他PR。用户人工恢复首次push1/第二次push0，精确远端核实，通道NORMAL；此前NETWORK_DEGRADED是历史时点。
 
 本阶段起点17aa5f9de35d27a628fdbef7f41844f7e15b7b49 clean。开放PR精确HEAD交集已检查，176/172/171与物料/订单挂载及共享摘要重叠，其他UI/ops PR主要共享摘要/manifest，136/164还有CI历史交集；仅在独立候选保全，不修改或合并其他PR。实际main与17aa正常双亲合并，新的精确UI路径影响以实际main为基线，旧证据前向保留。新工程门禁、镜像、发布、实际验收仍待完成。
+
+## 部署前最终工程 Gate（2026-11-28）
+
+实际main396b03c443f2170255ea4927e05d5889bdcb4b96、见证5180818a、722证据checkpoint9632d911：精确40路径源码/证据守卫PASS，release182/182 PASS（191426.562443ms）。最终候选业务/UI/服务器源代码相对F7无差异；此前F7 typecheck/完整Lint/build、root1035（db785）、两套受影响UI25及其他五套H1的51保持各自精确版本边界。补充候选17aa源码与F7干净真实构建：catalog/continuous/compact/workbench四套49/49（223132.62809ms），原404、7角色、三宽、来源失败/过期/只读重读与时区、维护入口和原关账/排单完整断言保留。
+
+首次补验24项中22PASS/2FAIL（子测试及父测试）是镜像COPY合并残留已停用路由静态文件，非源码路由重新启用；原失败输出保留。新镜像层在复制新产物前清除旧dist，R5真实镜像确认两停用页面文件均不存在，四套49全通过。最终构建还清除镜像内旧迁移/来源程序目录后复制精确候选树，并逐文件核对，不改现网文件或共享镜像/网络。
+
+当前6233只读API7/7 HTTP200，物料ready，自购需求16/采购记录15/入库记录12，采购/入库完成情况各16项未知，不能将采购记录当完成或编造齐套率。权限67项hash01ef2d5904f5b137675e977d6a6feccae0ef189c0bdc86260592ca0795f818aa。Staging真实调价历史全库0条，多页失败恢复只能引用51笔隔离持久化回归，不为验收造真实数据。现网仍220，原Worker正常、凌晨例行备份20261127T193001Z-4778f1f9成功及cleanup正向，cron精确未改。
+
+此提交是最终镜像源码checkpoint；下一步精确HEAD守卫、正式离线构建与产物完整性核验、官方唯一push并核远端后，才可生成release-ready并沿原Supervisor/trial/配对备份/隔离恢复/原Recovery Gate及真实心跳发布Staging。尚未进入维护或部署，Production/数据库业务/调度/保留/清理/网络均未更改。
