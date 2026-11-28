@@ -1,5 +1,5 @@
 {
-  "baselineSha": "10b9a7d827e1c09f152ead58c21f26712d49a619",
+  "baselineSha": "396b03c443f2170255ea4927e05d5889bdcb4b96",
   "level": "V3",
   "paths": [
     "features/operation-logs/components/operation-log-modal.tsx",
@@ -15,9 +15,10 @@
     "quote-detail",
     "quote-list"
   ],
-  "visibleDifference": "Q01/Q04/Q05/Q07/Q08/Q09：删除重复报价教学、粘贴入口及日志说明；款式图后果/汇总业务名称/导出提示准确，所有必要限制保留。",
+  "visibleDifference": "实际main集成的保全影响记录；原2026-11-23/24记录逐字保存在 docs/tasks/completed/2026-11-28-pr178-before-actual-main-integration/candidate-17aa/ui-changes/。保留既有整改范围及原批准，未追加设计范围。Q01/Q04/Q05/Q07/Q08/Q09：删除重复报价教学、粘贴入口及日志说明；款式图后果/汇总业务名称/导出提示准确，所有必要限制保留。",
   "evidence": [
-    "docs/tasks/active/ui-standards-c-quotes-2026-11-23.md"
+    "docs/tasks/active/ui-standards-c-quotes-2026-11-23.md",
+    "docs/tasks/active/pr178-staging-integration-20261127.md"
   ],
   "approval": {
     "status": "user-approved",

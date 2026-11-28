@@ -1,0 +1,29 @@
+{
+  "baselineSha": "10b9a7d827e1c09f152ead58c21f26712d49a619",
+  "level": "V3",
+  "paths": [
+    "components/foundation/app-shell.tsx",
+    "components/foundation/guarded-draft.tsx",
+    "features/ainuoke-sync-audit/page.tsx",
+    "features/basic-settings/components/basic-settings-pages.tsx",
+    "features/operation-logs/components/server-operation-log-viewer.tsx",
+    "features/operations-settings/components/server-production-resource-page.tsx",
+    "features/permissions/components/server-role-page.tsx",
+    "features/permissions/components/server-user-permission-page.tsx",
+    "features/quote-center/components/global-quote-settings-page.tsx"
+  ],
+  "pages": [
+    "navigation",
+    "quote-settings",
+    "user-permissions",
+    "ainuoke-sync-records"
+  ],
+  "visibleDifference": "G01–G03、B01–B03、U01–U03、L01–L02：仅原报告明确显示/反馈问题，必要规则及后果保留。",
+  "evidence": [
+    "docs/tasks/active/ui-standards-c-settings-2026-11-23.md"
+  ],
+  "approval": {
+    "status": "user-approved",
+    "reference": "docs/tasks/active/ui-standards-approval-2026-11-23.md"
+  }
+}

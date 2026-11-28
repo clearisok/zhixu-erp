@@ -1,5 +1,5 @@
 {
-  "baselineSha": "10b9a7d827e1c09f152ead58c21f26712d49a619",
+  "baselineSha": "396b03c443f2170255ea4927e05d5889bdcb4b96",
   "level": "V3",
   "paths": [
     "features/ainuoke-material-progress/order-material-summary.tsx",
@@ -21,9 +21,10 @@
     "navigation",
     "closing-adjustment"
   ],
-  "visibleDifference": "O01–O04、M02–M05、P02、C01：仅原报告明确显示/反馈问题，必要规则及后果保留。",
+  "visibleDifference": "实际main集成的保全影响记录；原2026-11-23/24记录逐字保存在 docs/tasks/completed/2026-11-28-pr178-before-actual-main-integration/candidate-17aa/ui-changes/。保留既有整改范围及原批准，未追加设计范围。O01–O04、M02–M05、P02、C01：仅原报告明确显示/反馈问题，必要规则及后果保留。",
   "evidence": [
-    "docs/tasks/active/ui-standards-c-operations-2026-11-23.md"
+    "docs/tasks/active/ui-standards-c-operations-2026-11-23.md",
+    "docs/tasks/active/pr178-staging-integration-20261127.md"
   ],
   "approval": {
     "status": "user-approved",

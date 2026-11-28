@@ -1,5 +1,5 @@
 {
-  "baselineSha": "10b9a7d827e1c09f152ead58c21f26712d49a619",
+  "baselineSha": "396b03c443f2170255ea4927e05d5889bdcb4b96",
   "level": "V3",
   "paths": [
     "app/globals.css",
@@ -17,9 +17,10 @@
     "quote-detail",
     "material"
   ],
-  "visibleDifference": "M01关联采购单位及原始单位标识；G04无权限信息可达；Q10嵌套编辑按键修复；Q03隐藏文件输入；Q02具名路径；Q06删除后果；P01数量单位。其余结构不变。",
+  "visibleDifference": "实际main集成的保全影响记录；原2026-11-23/24记录逐字保存在 docs/tasks/completed/2026-11-28-pr178-before-actual-main-integration/candidate-17aa/ui-changes/。保留既有整改范围及原批准，未追加设计范围。M01关联采购单位及原始单位标识；G04无权限信息可达；Q10嵌套编辑按键修复；Q03隐藏文件输入；Q02具名路径；Q06删除后果；P01数量单位。其余结构不变。",
   "evidence": [
-    "docs/tasks/active/ui-standards-remediation-2026-11-23.md"
+    "docs/tasks/active/ui-standards-remediation-2026-11-23.md",
+    "docs/tasks/active/pr178-staging-integration-20261127.md"
   ],
   "approval": {
     "status": "user-approved",

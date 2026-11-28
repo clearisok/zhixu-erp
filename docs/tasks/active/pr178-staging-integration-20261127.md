@@ -31,3 +31,9 @@ H1浏览器其余物料历史/六宽物料排序/七角色/交付计划/分页/�
 后续恢复：先核实远端精确c04及新三CI；仅CI全绿/Review无阻断后merge178（普通merge commit，expected_head_sha守卫）。从实际main取完整M并正常merge到独立候选，禁止移动其他工作树或改176。H2双亲必须含M和本独立候选，保留717旧证据、给5份来源侧当前文档建立H2前向supersedes见证；新UI影响记录覆盖相对M全部保留路径、共享摘要/manifest同锚M。完成精确守卫/必要工程与最终SHA镜像后才能生成release-ready。
 
 Staging维护脚本只在主工作树outputs/order-workbench/staging-quiesce-backup.py准备，必须读release-ready证明CI/实际main/候选工程均真才允许执行，当前前置不存在。正式发布必须沿原Supervisor锁/TERM优雅停稳/正常paired备份、独立恢复门禁、trial.mjs与projectUpdateConfig的唯一镜像/版本更新，旧DB/对象/卷、权限、cron、清理/保留/网络不变；新source配对备份及原恢复门禁通过才由原Supervisor恢复Worker。不能绕过backup-check的安静Worker前置，不SQL清pause或制造回执。现网仍220及原Worker运行，从未执行本次停稳/配置更改/发布/业务写入。
+
+## 实际main收口
+
+2026-11-28；实际main合并SHA **396b03c443f2170255ea4927e05d5889bdcb4b96**，PR178最终HEAD **c04ef84eb0b980591369b11726bc7dc7c9f24824** 三项必要CI全部SUCCESS，唯一Review P2已解决。仅178普通merge到main，没有合并其他PR。用户人工恢复首次push1/第二次push0，精确远端核实，通道NORMAL；此前NETWORK_DEGRADED是历史时点。
+
+本阶段起点17aa5f9de35d27a628fdbef7f41844f7e15b7b49 clean。开放PR精确HEAD交集已检查，176/172/171与物料/订单挂载及共享摘要重叠，其他UI/ops PR主要共享摘要/manifest，136/164还有CI历史交集；仅在独立候选保全，不修改或合并其他PR。实际main与17aa正常双亲合并，新的精确UI路径影响以实际main为基线，旧证据前向保留。新工程门禁、镜像、发布、实际验收仍待完成。
